@@ -273,7 +273,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 </div>
                                             </div>
                                             <div class="row mb-2" id="fzg_transp_row_2">
-                                                <div class="col-3">
+                                                <div class="col-5">
                                                 </div>
                                                 <div class="col">
                                                     <input type="text" name="fzg_transp_perso_2" id="fzg_transp_perso_2" class="w-100 form-control" placeholder="Fahrzeugführer RTW/KTW" value="<?= $daten['fzg_transp_perso_2'] ?>">
@@ -327,7 +327,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 </div>
                                             </div>
                                             <div class="row mb-2" id="fzg_na_row_2">
-                                                <div class="col-3">
+                                                <div class="col-5">
                                                 </div>
                                                 <div class="col">
                                                     <input type="text" name="fzg_na_perso_2" id="fzg_na_perso_2" class="w-100 form-control" placeholder="Fahrzeugführer NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_2'] ?>">
