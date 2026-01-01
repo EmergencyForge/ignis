@@ -93,7 +93,7 @@ $uebergabeortLabels = [
     9 => 'Chest Pain Unit',
     10 => 'Herzkatheterlabor',
     11 => 'Allgemeinstation',
-    13 => 'Einsatzstelle',
+    12 => 'Einsatzstelle',
     99 => 'Sonstige'
 ];
 $uebergabeanLabels = [
@@ -226,7 +226,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <h5 class="text-light px-2 py-1">Transportdaten</h5>
                                         <div class="col">
                                             <div class="row mt-2" id="fzg_transp_row">
-                                                <div class="col-3">
+                                                <div class="col-5">
                                                     <label for="fzg_transp" class="edivi__description">Fahrzeug Transport</label>
                                                     <?php if ($daten['fzg_transp'] === NULL) : ?>
                                                         <select name="fzg_transp" id="fzg_transp" class="w-100 form-select" data-custom-dropdown="true" data-search-threshold="5">
@@ -280,7 +280,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 </div>
                                             </div>
                                             <div class="row mt-2" id="fzg_na_row">
-                                                <div class="col-3">
+                                                <div class="col-5">
                                                     <label for="fzg_na" class="edivi__description">Fahrzeug Notarzt</label>
                                                     <?php if ($daten['fzg_na'] === NULL) : ?>
                                                         <select name="fzg_na" id="fzg_na" class="w-100 form-select" data-custom-dropdown="true" data-search-threshold="5">
