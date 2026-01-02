@@ -20,6 +20,16 @@
   hyphens: auto;
 }
 
+/* Force 24-hour format for time inputs across all browsers */
+input[type="time"]::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
+
+input[type="time"] {
+  /* Ensures 24-hour format */
+  --webkit-datetime-edit-hour-field-text-align: right;
+}
+
 .divi-header {
   background-color: #b8b8b8;
   text-transform: uppercase;
@@ -816,6 +826,43 @@ body {
     padding: 10px 6px;
     font-size: 0.8rem;
     min-height: 40px;
+  }
+}
+
+/* Responsive Layout Fixes */
+@media (max-width: 767.98px) {
+  #edivi__nidanav {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  #edivi__nidanav > a {
+    flex: 1 1 auto;
+    min-width: calc(50% - 2px);
+    text-align: center;
+    padding-left: 8px;
+  }
+
+  #edivi__nidanav > a:after {
+    display: none;
+  }
+
+  #edivi__nidanav > a:before {
+    width: 100%;
+    height: 3px;
+    top: 0;
+    left: 0;
+  }
+
+  #edivi__nidanav > a.edivi__nidanav-unfilled:before,
+  #edivi__nidanav > a.edivi__nidanav-partfilled:before,
+  #edivi__nidanav > a.edivi__nidanav-filled:before {
+    top: 0;
+  }
+
+  #edivi__content {
+    margin-top: 1rem;
   }
 }
 

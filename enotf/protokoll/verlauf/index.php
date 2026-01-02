@@ -244,7 +244,7 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
     <div class="container-fluid" id="edivi__container">
         <div class="row h-100">
             <?php include __DIR__ . '/../../../assets/components/enotf/nav.php'; ?>
-            <div class="col" id="edivi__content">
+            <div class="col-12 col-md-11" id="edivi__content">
                 <div class="row my-3">
                     <div class="col">
                         <div class="d-flex justify-content-between align-items-center">

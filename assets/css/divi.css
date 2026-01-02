@@ -1,4 +1,5 @@
 @charset "UTF-8";
+
 :root {
   --secondary-color: #011e4a;
   --secondary-color-dimmed: #0a2e5a;
@@ -17,6 +18,16 @@
 * {
   -webkit-hyphens: auto;
   hyphens: auto;
+}
+
+/* Force 24-hour format for time inputs across all browsers */
+input[type=time]::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
+
+input[type=time] {
+  /* Ensures 24-hour format */
+  --webkit-datetime-edit-hour-field-text-align: right;
 }
 
 .divi-header {
@@ -51,8 +62,8 @@
   max-width: 50px;
 }
 
-.btn-check:disabled + .btn,
-.btn-check[disabled] + .btn {
+.btn-check:disabled+.btn,
+.btn-check[disabled]+.btn {
   opacity: 1 !important;
 }
 
@@ -81,6 +92,7 @@ button#qm-quick-menu {
   right: 32px;
   bottom: 32px;
 }
+
 button#qm-quick-menu:hover {
   background: var(--secondary-color);
 }
@@ -102,6 +114,7 @@ button#qm-log-menu {
   right: 32px;
   bottom: 84px;
 }
+
 button#qm-log-menu:hover {
   background: var(--secondary-color);
 }
@@ -161,11 +174,13 @@ body {
   border: 0;
   font-size: 1.2rem;
 }
+
 #edivi__container .edivi__box input.form-control:focus,
 #edivi__container .edivi__box select.form-select:focus,
 #edivi__container .edivi__box textarea.form-control:focus {
   box-shadow: 0 0 0 1px #5783cf !important;
 }
+
 #edivi__container .edivi__box input.form-control[readonly], #edivi__container .edivi__box input.form-control[disabled],
 #edivi__container .edivi__box select.form-select[readonly],
 #edivi__container .edivi__box select.form-select[disabled],
@@ -187,11 +202,13 @@ body {
   border: 0;
   font-size: 1.2rem;
 }
+
 #edivi__container .edivi__medikamente input.form-control:focus,
 #edivi__container .edivi__medikamente select.form-select:focus,
 #edivi__container .edivi__medikamente textarea.form-control:focus {
   box-shadow: 0 0 0 1px #5783cf !important;
 }
+
 #edivi__container .edivi__medikamente input.form-control[readonly], #edivi__container .edivi__medikamente input.form-control[disabled],
 #edivi__container .edivi__medikamente select.form-select[readonly],
 #edivi__container .edivi__medikamente select.form-select[disabled],
@@ -214,6 +231,7 @@ body {
   color: #fff;
   border: 0;
 }
+
 #medis-select:focus,
 #medis-time:focus,
 #medis-unit:focus,
@@ -221,6 +239,7 @@ body {
 #medis-concentration:focus {
   box-shadow: 0 0 0 1px #5783cf !important;
 }
+
 #medis-select[readonly], #medis-select[disabled],
 #medis-time[readonly],
 #medis-time[disabled],
@@ -271,7 +290,7 @@ body {
   padding: 0.375rem 0rem 0.375rem 0.75rem;
 }
 
-#edivi__container .edivi__box select.form-select > option {
+#edivi__container .edivi__box select.form-select>option {
   background-color: #191919;
   color: #fff;
   padding: 10px;
@@ -336,6 +355,7 @@ body {
   margin: 0;
   font-size: 0.8rem;
 }
+
 .edivi__box.edivi__log-comment i {
   padding: 6px 9px;
   border-radius: 2px;
@@ -377,24 +397,31 @@ body {
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt10::after, #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt9::after {
   background: yellow;
 }
+
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt1::after, #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt8::after {
   background: blue;
 }
+
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt2::after {
   background: pink;
 }
+
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt3::after {
   background: green;
 }
+
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt4::after {
   background: white;
 }
+
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt5::after {
   background: gray;
 }
+
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt6::after {
   background: orange;
 }
+
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt7::after {
   background: red;
 }
@@ -403,7 +430,8 @@ body {
   counter-reset: nidanav;
   padding: 0 !important;
 }
-#edivi__nidanav > a {
+
+#edivi__nidanav>a {
   counter-increment: nidanav;
   position: relative;
   word-wrap: break-word;
@@ -426,16 +454,19 @@ body {
   display: flex;
   align-items: center;
 }
-#edivi__nidanav > a:hover {
+
+#edivi__nidanav>a:hover {
   background-color: #5f5f5f;
   color: var(--white);
 }
-#edivi__nidanav > a.active {
+
+#edivi__nidanav>a.active {
   background-color: #5f5f5f;
   color: var(--white);
   border-right: 2px solid #5783cf;
 }
-#edivi__nidanav > a:before {
+
+#edivi__nidanav>a:before {
   content: "";
   display: block;
   width: 3px;
@@ -447,22 +478,27 @@ body {
   transition: width 0.3s ease;
   z-index: 2;
 }
-#edivi__nidanav > a.edivi__nidanav-unfilled:before {
+
+#edivi__nidanav>a.edivi__nidanav-unfilled:before {
   background-color: #d91425;
   top: 8px;
 }
-#edivi__nidanav > a.edivi__nidanav-partfilled:before {
+
+#edivi__nidanav>a.edivi__nidanav-partfilled:before {
   background-color: #f7ec5d;
   top: 8px;
 }
-#edivi__nidanav > a.edivi__nidanav-filled:before {
+
+#edivi__nidanav>a.edivi__nidanav-filled:before {
   background-color: #55b530;
   top: 28px;
 }
-#edivi__nidanav > a.edivi__nidanav-nocheck:before {
+
+#edivi__nidanav>a.edivi__nidanav-nocheck:before {
   display: none;
 }
-#edivi__nidanav > a:after {
+
+#edivi__nidanav>a:after {
   content: counter(nidanav);
   position: absolute;
   left: 7px;
@@ -473,14 +509,17 @@ body {
   color: var(--white);
   z-index: 0;
 }
-#edivi__nidanav > a.edivi__nidanav-nonumber {
+
+#edivi__nidanav>a.edivi__nidanav-nonumber {
   counter-increment: none;
   padding-left: 8px;
 }
-#edivi__nidanav > a.edivi__nidanav-nonumber:after {
+
+#edivi__nidanav>a.edivi__nidanav-nonumber:after {
   display: none;
 }
-#edivi__nidanav > a span {
+
+#edivi__nidanav>a span {
   position: relative;
   z-index: 1;
 }
@@ -488,8 +527,9 @@ body {
 [class*=edivi__interactbutton] {
   padding: 0 !important;
 }
-[class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+
+[class*=edivi__interactbutton]>a,
+[class*=edivi__interactbutton]>label {
   position: relative;
   word-wrap: break-word;
   color: var(--white);
@@ -511,19 +551,22 @@ body {
   display: flex;
   align-items: center;
 }
-[class*=edivi__interactbutton] > a:hover,
-[class*=edivi__interactbutton] > label:hover {
+
+[class*=edivi__interactbutton]>a:hover,
+[class*=edivi__interactbutton]>label:hover {
   background-color: #5f5f5f;
   color: var(--white);
   cursor: pointer;
 }
-[class*=edivi__interactbutton] > a.active,
-[class*=edivi__interactbutton] > label.active {
+
+[class*=edivi__interactbutton]>a.active,
+[class*=edivi__interactbutton]>label.active {
   background-color: #5f5f5f;
   color: var(--white);
 }
-[class*=edivi__interactbutton] > a:before,
-[class*=edivi__interactbutton] > label:before {
+
+[class*=edivi__interactbutton]>a:before,
+[class*=edivi__interactbutton]>label:before {
   content: "";
   display: block;
   width: 3px;
@@ -535,76 +578,92 @@ body {
   transition: width 0.3s ease;
   z-index: 2;
 }
-[class*=edivi__interactbutton] > a.edivi__validation-red:before,
-[class*=edivi__interactbutton] > label.edivi__validation-red:before {
+
+[class*=edivi__interactbutton]>a.edivi__validation-red:before,
+[class*=edivi__interactbutton]>label.edivi__validation-red:before {
   background-color: #d91425;
   top: 8px;
 }
-[class*=edivi__interactbutton] > a.edivi__validation-yellow:before,
-[class*=edivi__interactbutton] > label.edivi__validation-yellow:before {
+
+[class*=edivi__interactbutton]>a.edivi__validation-yellow:before,
+[class*=edivi__interactbutton]>label.edivi__validation-yellow:before {
   background-color: #f7ec5d;
   top: 8px;
 }
-[class*=edivi__interactbutton] > a.edivi__validation-green:before,
-[class*=edivi__interactbutton] > label.edivi__validation-green:before {
+
+[class*=edivi__interactbutton]>a.edivi__validation-green:before,
+[class*=edivi__interactbutton]>label.edivi__validation-green:before {
   background-color: #55b530;
   top: 28px;
 }
-[class*=edivi__interactbutton] > a.edivi__validation-ignore:before,
-[class*=edivi__interactbutton] > label.edivi__validation-ignore:before {
+
+[class*=edivi__interactbutton]>a.edivi__validation-ignore:before,
+[class*=edivi__interactbutton]>label.edivi__validation-ignore:before {
   display: none;
 }
-[class*=edivi__interactbutton] > a span,
-[class*=edivi__interactbutton] > label span {
+
+[class*=edivi__interactbutton]>a span,
+[class*=edivi__interactbutton]>label span {
   position: relative;
   z-index: 1;
 }
+
 [class*=edivi__interactbutton] .btn-check {
   position: absolute !important;
   clip: rect(0, 0, 0, 0) !important;
   pointer-events: none !important;
 }
-[class*=edivi__interactbutton] .btn-check:checked + label {
+
+[class*=edivi__interactbutton] .btn-check:checked+label {
   background-color: #5f5f5f;
   color: var(--white);
 }
-[class*=edivi__interactbutton] .btn-check:focus + label {
+
+[class*=edivi__interactbutton] .btn-check:focus+label {
   box-shadow: 0 0 0 0.2rem rgba(87, 131, 207, 0.25);
 }
 
-[class*=edivi__interactbutton] > label.edivi__unauffaellig,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__unauffaellig {
-  color: #2ecc71;
-}
-[class*=edivi__interactbutton] > label.edivi__unauffaellig span,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__unauffaellig span {
-  color: #2ecc71;
-}
-[class*=edivi__interactbutton] > label.edivi__unauffaellig:after,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__unauffaellig:after {
-  color: #2ecc71;
-}
-[class*=edivi__interactbutton] > label.edivi__unauffaellig:hover {
-  color: #2ecc71;
-}
-[class*=edivi__interactbutton] > label.edivi__unauffaellig:hover span {
-  color: #2ecc71;
-}
-[class*=edivi__interactbutton] > label.edivi__unauffaellig:hover:after {
-  color: #2ecc71;
-}
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__unauffaellig {
-  color: #2ecc71;
-}
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__unauffaellig span {
-  color: #2ecc71;
-}
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__unauffaellig:after {
+[class*=edivi__interactbutton]>label.edivi__unauffaellig,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__unauffaellig {
   color: #2ecc71;
 }
 
-[class*=edivi__interactbutton] > label.edivi__zugang-24G:after,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__zugang-24G:after {
+[class*=edivi__interactbutton]>label.edivi__unauffaellig span,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__unauffaellig span {
+  color: #2ecc71;
+}
+
+[class*=edivi__interactbutton]>label.edivi__unauffaellig:after,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__unauffaellig:after {
+  color: #2ecc71;
+}
+
+[class*=edivi__interactbutton]>label.edivi__unauffaellig:hover {
+  color: #2ecc71;
+}
+
+[class*=edivi__interactbutton]>label.edivi__unauffaellig:hover span {
+  color: #2ecc71;
+}
+
+[class*=edivi__interactbutton]>label.edivi__unauffaellig:hover:after {
+  color: #2ecc71;
+}
+
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__unauffaellig {
+  color: #2ecc71;
+}
+
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__unauffaellig span {
+  color: #2ecc71;
+}
+
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__unauffaellig:after {
+  color: #2ecc71;
+}
+
+[class*=edivi__interactbutton]>label.edivi__zugang-24G:after,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__zugang-24G:after {
   content: "";
   height: 0.8rem;
   width: 0.8rem;
@@ -612,8 +671,9 @@ body {
   background: yellow;
   right: 10px;
 }
-[class*=edivi__interactbutton] > label.edivi__zugang-22G:after,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__zugang-22G:after {
+
+[class*=edivi__interactbutton]>label.edivi__zugang-22G:after,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__zugang-22G:after {
   content: "";
   height: 0.8rem;
   width: 0.8rem;
@@ -621,8 +681,9 @@ body {
   background: blue;
   right: 10px;
 }
-[class*=edivi__interactbutton] > label.edivi__zugang-20G:after,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__zugang-20G:after {
+
+[class*=edivi__interactbutton]>label.edivi__zugang-20G:after,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__zugang-20G:after {
   content: "";
   height: 0.8rem;
   width: 0.8rem;
@@ -630,8 +691,9 @@ body {
   background: pink;
   right: 10px;
 }
-[class*=edivi__interactbutton] > label.edivi__zugang-18G:after,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__zugang-18G:after {
+
+[class*=edivi__interactbutton]>label.edivi__zugang-18G:after,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__zugang-18G:after {
   content: "";
   height: 0.8rem;
   width: 0.8rem;
@@ -639,8 +701,9 @@ body {
   background: green;
   right: 10px;
 }
-[class*=edivi__interactbutton] > label.edivi__zugang-18G_kurz:after,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__zugang-18G_kurz:after {
+
+[class*=edivi__interactbutton]>label.edivi__zugang-18G_kurz:after,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__zugang-18G_kurz:after {
   content: "";
   height: 0.8rem;
   width: 0.8rem;
@@ -649,8 +712,9 @@ body {
   box-shadow: 0 0 0 2px #fff inset, 0 0 0 2px green;
   right: 10px;
 }
-[class*=edivi__interactbutton] > label.edivi__zugang-17G:after,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__zugang-17G:after {
+
+[class*=edivi__interactbutton]>label.edivi__zugang-17G:after,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__zugang-17G:after {
   content: "";
   height: 0.8rem;
   width: 0.8rem;
@@ -658,8 +722,9 @@ body {
   background: white;
   right: 10px;
 }
-[class*=edivi__interactbutton] > label.edivi__zugang-16G:after,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__zugang-16G:after {
+
+[class*=edivi__interactbutton]>label.edivi__zugang-16G:after,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__zugang-16G:after {
   content: "";
   height: 0.8rem;
   width: 0.8rem;
@@ -667,8 +732,9 @@ body {
   background: gray;
   right: 10px;
 }
-[class*=edivi__interactbutton] > label.edivi__zugang-14G:after,
-[class*=edivi__interactbutton] .btn-check:checked + label.edivi__zugang-14G:after {
+
+[class*=edivi__interactbutton]>label.edivi__zugang-14G:after,
+[class*=edivi__interactbutton] .btn-check:checked+label.edivi__zugang-14G:after {
   content: "";
   height: 0.8rem;
   width: 0.8rem;
@@ -677,22 +743,24 @@ body {
   right: 10px;
 }
 
-[class*=edivi__interactbutton] > label.edivi__interactbutton-text {
+[class*=edivi__interactbutton]>label.edivi__interactbutton-text {
   background: transparent;
   margin: 25px 4px;
   margin-left: 14px;
   text-align: center;
 }
-[class*=edivi__interactbutton] > label.edivi__interactbutton-text:hover {
+
+[class*=edivi__interactbutton]>label.edivi__interactbutton-text:hover {
   background: transparent;
   color: var(--white);
   cursor: default;
 }
-[class*=edivi__interactbutton] > label.edivi__interactbutton-text:after {
+
+[class*=edivi__interactbutton]>label.edivi__interactbutton-text:after {
   content: "";
 }
 
-[class*=edivi__interactbutton] > label:after {
+[class*=edivi__interactbutton]>label:after {
   content: "";
   font-family: "Font Awesome 7 Free";
   position: absolute;
@@ -705,39 +773,41 @@ body {
   z-index: 0;
 }
 
-[class*=edivi__interactbutton] .btn-check:checked + label:after {
+[class*=edivi__interactbutton] .btn-check:checked+label:after {
   content: "";
 }
 
 @media (max-width: 1210px) {
-  #edivi__nidanav > a {
+  #edivi__nidanav>a {
     font-size: 0.9rem;
     max-height: none;
     min-height: 50px;
   }
-  #edivi__nidanav > a:after {
+
+  #edivi__nidanav>a:after {
     font-size: 1.6rem;
   }
 
-  [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton]>a,
+  [class*=edivi__interactbutton]>label {
     font-size: 0.9rem;
     max-height: none;
     min-height: 50px;
   }
 }
+
 @media (max-width: 1001px) {
-  #edivi__nidanav > a:after {
+  #edivi__nidanav>a:after {
     font-size: 1.4rem;
     left: 5px;
   }
 
-  [class*=edivi__interactbutton] > *:after {
+  [class*=edivi__interactbutton]>*:after {
     display: none;
   }
 
-  [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton]>a,
+  [class*=edivi__interactbutton]>label {
     padding-right: 4px;
     padding: 15px 10px;
     padding-left: 10px;
@@ -746,45 +816,87 @@ body {
     min-height: 50px;
   }
 }
+
 @media (max-width: 768px) {
-  #edivi__nidanav > a {
+  #edivi__nidanav>a {
     padding: 12px 8px;
     padding-left: 30px;
     font-size: 0.85rem;
     min-height: 45px;
   }
-  #edivi__nidanav > a:after {
+
+  #edivi__nidanav>a:after {
     font-size: 1.2rem;
     left: 4px;
   }
 
-  [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton]>a,
+  [class*=edivi__interactbutton]>label {
     padding: 12px 8px;
     font-size: 0.85rem;
     min-height: 45px;
   }
 }
+
 @media (max-width: 576px) {
-  #edivi__nidanav > a {
+  #edivi__nidanav>a {
     padding: 10px 6px;
     padding-left: 25px;
     font-size: 0.8rem;
     min-height: 40px;
   }
-  #edivi__nidanav > a:after {
+
+  #edivi__nidanav>a:after {
     font-size: 1rem;
     left: 3px;
   }
 
-  [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton]>a,
+  [class*=edivi__interactbutton]>label {
     padding: 10px 6px;
     font-size: 0.8rem;
     min-height: 40px;
   }
 }
-.edivi__interactbutton-more > a:after {
+
+/* Responsive Layout Fixes */
+@media (max-width: 767.98px) {
+  #edivi__nidanav {
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  #edivi__nidanav>a {
+    flex: 1 1 auto;
+    min-width: calc(50% - 2px);
+    text-align: center;
+    padding-left: 8px;
+  }
+
+  #edivi__nidanav>a:after {
+    display: none;
+  }
+
+  #edivi__nidanav>a:before {
+    width: 100%;
+    height: 3px;
+    top: 0;
+    left: 0;
+  }
+
+  #edivi__nidanav>a.edivi__nidanav-unfilled:before,
+  #edivi__nidanav>a.edivi__nidanav-partfilled:before,
+  #edivi__nidanav>a.edivi__nidanav-filled:before {
+    top: 0;
+  }
+
+  #edivi__content {
+    margin-top: 1rem;
+  }
+}
+
+.edivi__interactbutton-more>a:after {
   content: "";
   font-family: "Font Awesome 7 Free";
   position: absolute;
@@ -814,7 +926,7 @@ body {
 }
 
 @media (max-width: 1700px) {
-  #edivi__content .edivi__overview-container > .row > .col {
+  #edivi__content .edivi__overview-container>.row>.col {
     flex: 0 0 100% !important;
     max-width: 100% !important;
   }
@@ -834,21 +946,26 @@ body {
     margin-top: auto !important;
   }
 }
+
 @media (max-width: 1506px) {
   #edivi__nidanav.col-1 {
     min-width: 132px;
   }
 }
+
 @media (max-width: 1155px) {
-  #edivi__content .row > .col,
-#edivi__content .row > .col-8,
-#edivi__login #edivi__content .row > .col-2 {
+
+  #edivi__content .row>.col,
+  #edivi__content .row>.col-8,
+  #edivi__login #edivi__content .row>.col-2 {
     max-width: 100%;
   }
 }
+
 #edivi__content .edivi__overview-container {
   margin: 10px 5px;
 }
+
 #edivi__content .edivi__overview-container span.fw-bold {
   padding-right: 8px;
 }
@@ -857,17 +974,21 @@ body {
   border-bottom: 2px solid var(--main-color);
   color: var(--white);
 }
+
 #edivi__topbar span#current-time {
   font-size: 1.6rem;
   line-height: 0.8;
 }
+
 #edivi__topbar a#home {
   border-right: 2px solid #424242;
 }
+
 #edivi__topbar a#qma,
 #edivi__topbar a#qml {
   border-left: 2px solid #424242;
 }
+
 #edivi__topbar img {
   padding-left: 15px;
   border-left: 2px solid #424242;
@@ -916,7 +1037,7 @@ body#edivi__print {
   font-size: 0.7rem;
 }
 
-#edivi__print .col > * {
+#edivi__print .col>* {
   padding: 0 3px;
 }
 
@@ -929,6 +1050,7 @@ body#edivi__print {
   color: var(--black);
   margin-bottom: 2px;
 }
+
 #edivi__print input[type=text][readonly], #edivi__print input[type=text][disabled],
 #edivi__print input[type=date][readonly],
 #edivi__print input[type=date][disabled],
@@ -947,6 +1069,7 @@ body#edivi__print {
   margin-bottom: 2px;
   resize: none;
 }
+
 #edivi__print textarea[readonly], #edivi__print textarea[disabled] {
   box-shadow: none !important;
   caret-color: transparent;
@@ -979,7 +1102,7 @@ body#edivi__print {
   }
 
   #edivi__print h6,
-#edivi__print p {
+  #edivi__print p {
     font-size: 8pt !important;
   }
 
@@ -988,8 +1111,8 @@ body#edivi__print {
   }
 
   #edivi__print input,
-#edivi__print textarea,
-#edivi__print select {
+  #edivi__print textarea,
+  #edivi__print select {
     font-size: 9pt !important;
     font-weight: 600;
   }
@@ -1024,6 +1147,7 @@ body#edivi__print {
     margin: 0;
   }
 }
+
 #toast-container {
   position: fixed;
   bottom: 20px;
@@ -1056,19 +1180,23 @@ body#edivi__print {
     opacity: 0;
     transform: translateY(20px);
   }
+
   10% {
     opacity: 1;
     transform: translateY(0);
   }
+
   90% {
     opacity: 1;
     transform: translateY(0);
   }
+
   100% {
     opacity: 0;
     transform: translateY(20px);
   }
 }
+
 a#abschluss__btn {
   position: absolute;
   bottom: 10px;
@@ -1080,6 +1208,7 @@ a#abschluss__btn {
   border: 2px solid #191919;
   text-decoration: none;
 }
+
 a#abschluss__btn:hover {
   background-color: var(--main-color-dimmed);
 }
@@ -1098,10 +1227,12 @@ body[data-page=freigabe] {
   background-color: #333333;
   font-size: 1.2rem;
 }
+
 .edivi__freigabe table td {
   padding: 0.2rem;
   border: 1px solid #595959;
 }
+
 .edivi__freigabe table td.edivi__checks-text {
   height: 300px;
   overflow-y: auto;
@@ -1124,6 +1255,7 @@ input.edivi__target {
   left: 0;
   right: 0;
 }
+
 .edivi__freigabe-buttons .col {
   display: flex;
   justify-content: center;
@@ -1131,6 +1263,7 @@ input.edivi__target {
   text-align: center;
   padding: 0 !important;
 }
+
 .edivi__freigabe-buttons button[type=submit] {
   font-size: 1.4rem;
   padding: 22px 30px;
@@ -1140,9 +1273,11 @@ input.edivi__target {
   width: 100%;
   border: 2px solid #191919;
 }
+
 .edivi__freigabe-buttons button[type=submit]:hover {
   background-color: var(--main-color-dimmed);
 }
+
 .edivi__freigabe-buttons a {
   font-size: 1.4rem;
   padding: 22px 30px;
@@ -1152,10 +1287,12 @@ input.edivi__target {
   width: 100%;
   border: 2px solid #191919;
 }
+
 .edivi__freigabe-buttons a#final {
   background-color: var(--main-color);
   color: var(--white);
 }
+
 .edivi__freigabe-buttons a#final:hover {
   background-color: var(--main-color-dimmed);
 }
@@ -1168,6 +1305,7 @@ input.edivi__target {
   font-size: 1.4rem;
   background-color: #333333;
 }
+
 .edivi__login-buttons .col,
 .edivi__login-buttons .col-3 {
   display: flex;
@@ -1176,6 +1314,7 @@ input.edivi__target {
   text-align: center;
   padding: 0 !important;
 }
+
 .edivi__login-buttons a {
   font-size: 1.4rem;
   padding: 22px 30px;
@@ -1185,6 +1324,7 @@ input.edivi__target {
   background-color: var(--main-color);
   color: var(--white);
 }
+
 .edivi__login-buttons a:hover {
   background-color: var(--main-color-dimmed);
 }
@@ -1202,9 +1342,11 @@ input.edivi__target {
   border-radius: 0;
   text-decoration: none;
 }
+
 .edivi__nidabutton:hover {
   background-color: #5f5f5f;
 }
+
 .edivi__nidabutton-primary {
   background-color: var(--main-color);
   color: #fff;
@@ -1214,9 +1356,11 @@ input.edivi__target {
   border-radius: 0;
   text-decoration: none;
 }
+
 .edivi__nidabutton-primary:hover {
   background-color: var(--main-color-dimmed);
 }
+
 .edivi__nidabutton-secondary {
   background-color: #fff;
   color: #000;
@@ -1226,6 +1370,7 @@ input.edivi__target {
   border-radius: 0;
   text-decoration: none;
 }
+
 .edivi__nidabutton-secondary:hover {
   background-color: #f0f0f0;
 }
@@ -1238,10 +1383,12 @@ input.edivi__target {
   border: 0;
   font-size: 1.2rem;
 }
+
 #edivi__login input.form-control:focus,
 #edivi__login select.form-select:focus {
   box-shadow: 0 0 0 1px #5783cf !important;
 }
+
 #edivi__login input.form-control[readonly], #edivi__login input.form-control[disabled],
 #edivi__login select.form-select[readonly],
 #edivi__login select.form-select[disabled] {
@@ -1251,8 +1398,9 @@ input.edivi__target {
   pointer-events: none;
   cursor: default;
 }
-#edivi__login input.form-control > option,
-#edivi__login select.form-select > option {
+
+#edivi__login input.form-control>option,
+#edivi__login select.form-select>option {
   background-color: #191919;
   color: #fff;
   padding: 10px;
@@ -1270,6 +1418,7 @@ input.edivi__target {
   border-radius: 0;
   border: 1px solid #333333;
 }
+
 .edivi__einsatz span.edivi__einsatz-cat {
   color: #fa0002;
   padding: 0 5px;
@@ -1279,37 +1428,45 @@ input.edivi__target {
   vertical-align: super;
   margin-left: 2px;
 }
+
 .edivi__einsatz-type span {
   color: #595959;
   padding: 0 14px;
   border-radius: 4px;
   background-color: #333333;
 }
+
 .edivi__einsatz-link {
   text-decoration: none;
 }
+
 .edivi__einsatz-type, .edivi__einsatz-enr, .edivi__einsatz-name {
   display: flex;
   align-items: center;
   justify-content: start;
 }
+
 .edivi__einsatz-type {
   font-size: 2rem;
   font-weight: bold;
 }
+
 .edivi__einsatz-enr {
   align-items: start;
   flex-direction: column;
 }
+
 .edivi__einsatz-enr span {
   flex: 1 100%;
   font-size: 1.2rem;
   font-weight: bold;
 }
+
 .edivi__einsatz-name {
   align-items: start;
   flex-direction: column;
 }
+
 .edivi__einsatz-name span, .edivi__einsatz-freigeber span {
   opacity: 0.5;
 }
@@ -1318,53 +1475,65 @@ body#edivi__arrivalboard {
   background-color: #191919 !important;
   color: #fff;
 }
+
 body#edivi__arrivalboard table {
   width: 100%;
   border-collapse: collapse;
   margin: 10px 0;
   font-size: 1.2rem;
 }
+
 body#edivi__arrivalboard table th,
 body#edivi__arrivalboard table td {
   padding: 10px;
   text-align: left;
   border-bottom: 1px solid #666666;
 }
+
 body#edivi__arrivalboard table th.edivi__arrivalboard-time,
 body#edivi__arrivalboard table td.edivi__arrivalboard-time {
   text-align: center;
 }
-body#edivi__arrivalboard table th.edivi__arrivalboard-time > span,
-body#edivi__arrivalboard table td.edivi__arrivalboard-time > span {
+
+body#edivi__arrivalboard table th.edivi__arrivalboard-time>span,
+body#edivi__arrivalboard table td.edivi__arrivalboard-time>span {
   font-size: 2rem;
 }
+
 body#edivi__arrivalboard table th.edivi__arrivalboard-gender,
 body#edivi__arrivalboard table td.edivi__arrivalboard-gender {
   text-align: center;
 }
+
 body#edivi__arrivalboard table th.edivi__arrivalboard-gender i.la-mars,
 body#edivi__arrivalboard table td.edivi__arrivalboard-gender i.la-mars {
   color: #308dfd;
 }
+
 body#edivi__arrivalboard table th.edivi__arrivalboard-gender i.la-venus,
 body#edivi__arrivalboard table td.edivi__arrivalboard-gender i.la-venus {
   color: #ff69b4;
 }
+
 body#edivi__arrivalboard table th.edivi__arrivalboard-text,
 body#edivi__arrivalboard table td.edivi__arrivalboard-text {
   word-wrap: break-word;
   word-break: break-word;
   white-space: normal;
 }
+
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-0 {
   border-left: 12px solid green;
 }
+
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-1 {
   border-left: 12px solid yellow;
 }
+
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-2 {
   border-left: 12px solid red;
 }
+
 body#edivi__arrivalboard table th {
   color: #666666;
   font-weight: normal;
@@ -1381,12 +1550,15 @@ body#edivi__arrivalboard table th {
   --bs-accordion-btn-active-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
   --bs-accordion-btn-icon: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23ffffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }
+
 #edivi__login .accordion .accordion-button {
   box-shadow: inset 0 calc(-1 * var(--bs-accordion-border-width)) 0 var(--bs-accordion-border-color) !important;
 }
+
 #edivi__login .accordion .accordion-item {
   border: 0 !important;
 }
+
 #edivi__login .accordion .accordion-button:focus {
   box-shadow: inset 0 calc(-1 * var(--bs-accordion-border-width)) 0 var(--bs-accordion-border-color) !important;
 }
@@ -1401,10 +1573,12 @@ body#edivi__arrivalboard table th {
   --bs-table-bg: transparent !important;
   border-color: rgba(255, 255, 255, 0.2) !important;
 }
+
 .table-dark-custom th {
   background: #1e1e1e !important;
   border: 1px solid #333 !important;
 }
+
 .table-dark-custom td {
   background-color: #2a2a2a !important;
   color: #fff !important;
@@ -1459,17 +1633,20 @@ body[data-page=verlauf] .col.position-relative {
   min-height: 100vh;
   padding-bottom: 80px;
 }
+
 body[data-page=verlauf] .input-group-text {
   background: transparent !important;
   color: #fff !important;
   border: none !important;
 }
+
 body[data-page=verlauf] .edivi__vitalparam-box {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 body[data-page=verlauf] .edivi__vitalparam-box::before {
   position: absolute;
   content: attr(data-before);
@@ -1479,6 +1656,7 @@ body[data-page=verlauf] .edivi__vitalparam-box::before {
   font-size: 1.4rem;
   z-index: 150;
 }
+
 body[data-page=verlauf] .edivi__vitalparam-box::after {
   position: absolute;
   content: attr(data-after);
@@ -1488,12 +1666,15 @@ body[data-page=verlauf] .edivi__vitalparam-box::after {
   font-size: 1.4rem;
   z-index: 150;
 }
+
 body[data-page=verlauf] .edivi__vitalparam-box[data-before="NIBP/RR"] {
   flex-direction: row;
 }
+
 body[data-page=verlauf] .edivi__vitalparam-box[data-before="NIBP/RR"] input {
   flex: 1;
 }
+
 body[data-page=verlauf] .edivi_vitalparam-spacer {
   display: flex;
   align-items: center;
@@ -1510,10 +1691,12 @@ body[data-page=verlauf] .edivi_vitalparam-spacer {
   z-index: 1;
   height: 100%;
 }
+
 body[data-page=verlauf] .edivi__vitalparam-box[data-before="NIBP/RR"] input {
   flex: 1;
   z-index: 2;
 }
+
 body[data-page=verlauf] textarea.form-control.edivi__vitalparam {
   position: relative;
   width: 100% !important;
@@ -1526,12 +1709,15 @@ body[data-page=verlauf] textarea.form-control.edivi__vitalparam {
   text-align: start;
   --bs-body-color: #038c4a;
 }
+
 body[data-page=verlauf] textarea.form-control.edivi__vitalparam::placeholder {
   color: #5f5f5f !important;
 }
+
 body[data-page=verlauf] textarea.form-control.edivi__vitalparam:active, body[data-page=verlauf] textarea.form-control.edivi__vitalparam:focus {
   background: #333333 !important;
 }
+
 body[data-page=verlauf] input[type=text].form-control.edivi__vitalparam,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam {
   position: relative;
@@ -1546,20 +1732,24 @@ body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam {
   font-weight: 600;
   --bs-body-color: #fff;
 }
+
 body[data-page=verlauf] input[type=text].form-control.edivi__vitalparam::placeholder,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam::placeholder {
   color: #808080 !important;
 }
+
 body[data-page=verlauf] input[type=text].form-control.edivi__vitalparam:active, body[data-page=verlauf] input[type=text].form-control.edivi__vitalparam:focus,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam:active,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam:focus {
   background: #333333 !important;
 }
+
 body[data-page=verlauf] input[type=text].form-control.edivi__vitalparam.edivi__vitalparam-required,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam.edivi__vitalparam-required {
   border-color: rgba(220, 53, 69, 0.8) !important;
   background-color: rgba(220, 53, 69, 0.3) !important;
 }
+
 body[data-page=verlauf] input[type=text].form-control.edivi__vitalparam-shared,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam-shared {
   position: relative;
@@ -1573,31 +1763,37 @@ body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam-shared
   font-weight: 600;
   --bs-body-color: #fff;
 }
+
 body[data-page=verlauf] input[type=text].form-control.edivi__vitalparam-shared::placeholder,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam-shared::placeholder {
   color: #808080 !important;
 }
+
 body[data-page=verlauf] input[type=text].form-control.edivi__vitalparam-shared:active, body[data-page=verlauf] input[type=text].form-control.edivi__vitalparam-shared:focus,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam-shared:active,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam-shared:focus {
   background: #333333 !important;
 }
+
 body[data-page=verlauf] input[type=text].form-control.edivi__vitalparam-shared.edivi__vitalparam-required,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam-shared.edivi__vitalparam-required {
   border-color: rgba(220, 53, 69, 0.8) !important;
   background-color: rgba(220, 53, 69, 0.3) !important;
 }
+
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam-shared {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam::-webkit-outer-spin-button, body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam::-webkit-inner-spin-button,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam-shared::-webkit-outer-spin-button,
 body[data-page=verlauf] input[type=number].form-control.edivi__vitalparam-shared::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 body[data-page=verlauf] .edivi__vitalparam-mainbuttons {
   margin-top: auto;
   position: fixed;
@@ -1606,15 +1802,18 @@ body[data-page=verlauf] .edivi__vitalparam-mainbuttons {
   width: calc(58.33%);
   z-index: 1000;
 }
-body[data-page=verlauf] .edivi__vitalparam-mainbuttons > .col {
+
+body[data-page=verlauf] .edivi__vitalparam-mainbuttons>.col {
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #333333;
 }
-body[data-page=verlauf] .edivi__vitalparam-mainbuttons > .col:hover {
+
+body[data-page=verlauf] .edivi__vitalparam-mainbuttons>.col:hover {
   background-color: #5f5f5f;
 }
+
 body[data-page=verlauf] .edivi__vitalparam-mainbuttons a,
 body[data-page=verlauf] .edivi__vitalparam-mainbuttons button {
   position: relative;
@@ -1629,43 +1828,52 @@ body[data-page=verlauf] .edivi__vitalparam-mainbuttons button {
   font-size: 1.8rem;
   padding: 0.8rem 0;
 }
+
 @media (max-width: 1155px) {
   body[data-page=verlauf] .col.position-relative {
     padding-bottom: 0;
   }
+
   body[data-page=verlauf] .edivi__vitalparam-mainbuttons {
     flex-direction: column;
     width: calc(100%) !important;
   }
-  body[data-page=verlauf] .edivi__vitalparam-mainbuttons > .col {
+
+  body[data-page=verlauf] .edivi__vitalparam-mainbuttons>.col {
     border-left: none !important;
     border-top: 4px solid #191919;
   }
-  body[data-page=verlauf] .edivi__vitalparam-mainbuttons > .col:first-child {
+
+  body[data-page=verlauf] .edivi__vitalparam-mainbuttons>.col:first-child {
     border-top: none;
   }
+
   body[data-page=verlauf] .col-5,
-body[data-page=verlauf] .keypad-container {
+  body[data-page=verlauf] .keypad-container {
     width: 100%;
     padding-bottom: 200px;
   }
 }
+
 body[data-page=verlauf] .keypad-container {
   padding: 20px;
   margin-top: 20px;
 }
+
 body[data-page=verlauf] .keypad-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin-bottom: 15px;
 }
+
 body[data-page=verlauf] .function-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-bottom: 10px;
 }
+
 body[data-page=verlauf] .keypad-btn {
   background: #333333;
   color: white;
@@ -1678,27 +1886,35 @@ body[data-page=verlauf] .keypad-btn {
   transition: all 0.2s;
   min-height: 60px;
 }
+
 body[data-page=verlauf] .keypad-btn:hover {
   background: #5f5f5f;
 }
+
 body[data-page=verlauf] .keypad-btn.wide {
   grid-column: span 2;
 }
+
 body[data-page=verlauf] .active-field {
   background: #333333 !important;
 }
+
 body[data-page=verlauf] .text-success {
   color: #038c4a !important;
 }
+
 body[data-page=verlauf] .text-danger {
   color: #d91225 !important;
 }
+
 body[data-page=verlauf] .text-semiwarning {
   color: #d5c215 !important;
 }
+
 body[data-page=verlauf] .text-warning {
   color: #d58215 !important;
 }
+
 body[data-page=verlauf] .vital-entry {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
@@ -1710,88 +1926,107 @@ body[data-page=verlauf] .vital-entry {
   justify-content: space-between;
   align-items: center;
 }
+
 body[data-page=verlauf] .vital-entry:hover {
   background: rgba(255, 255, 255, 0.1);
   transform: translateX(2px);
 }
+
 body[data-page=verlauf] .vital-content {
   flex: 1;
   color: white;
   font-size: 14px;
   line-height: 1.4;
 }
+
 body[data-page=verlauf] .vital-time {
   color: var(--main-color);
   font-weight: bold;
   margin-right: 15px;
 }
+
 body[data-page=verlauf] .vital-value {
   font-weight: 600;
   margin-right: 8px;
 }
+
 body[data-page=verlauf] .vital-separator {
   color: #6c757d;
   margin: 0 4px;
 }
+
 body[data-page=verlauf] .vital-bemerkung {
   color: #adb5bd;
   font-style: italic;
   margin-top: 5px;
 }
+
 body[data-page=verlauf] .vital-author {
   color: #6c757d;
   font-size: 12px;
   margin-top: 3px;
 }
+
 body[data-page=verlauf] .delete-btn {
   opacity: 0.7;
   transition: all 0.3s;
   min-width: 40px;
 }
+
 body[data-page=verlauf] .delete-btn:hover {
   opacity: 1;
   transform: scale(1.1);
 }
+
 body[data-page=verlauf] .stats-row {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   padding: 15px;
   margin-bottom: 20px;
 }
+
 body[data-page=verlauf] .stat-item {
   text-align: center;
   color: white;
 }
+
 body[data-page=verlauf] .stat-number {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 5px;
 }
+
 body[data-page=verlauf] .stat-label {
   font-size: 12px;
   color: #bbb;
 }
+
 body[data-page=verlauf] .no-vitals {
   text-align: center;
   padding: 40px;
   color: #6c757d;
 }
+
 body[data-page=verlauf] .vital-list-container {
   max-height: 70vh;
   overflow-y: auto;
   padding-right: 5px;
 }
+
 body[data-page=verlauf] .vital-list-container::-webkit-scrollbar {
   width: 6px;
 }
+
 body[data-page=verlauf] .vital-list-container::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
 }
+
 body[data-page=verlauf] .vital-list-container::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.3);
   border-radius: 3px;
 }
+
 body[data-page=verlauf] .vital-list-container::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
 }
@@ -1800,12 +2035,14 @@ body[data-page=verlauf] .col-5 {
   display: flex;
   gap: 15px;
 }
+
 body[data-page=verlauf] .range-strip-wrapper {
   width: 80px;
   min-width: 80px;
   display: flex;
   flex-direction: column;
 }
+
 body[data-page=verlauf] .range-strip-container {
   flex: 1;
   display: flex;
@@ -1816,6 +2053,7 @@ body[data-page=verlauf] .range-strip-container {
   min-height: 500px;
   height: 100%;
 }
+
 body[data-page=verlauf] .strip-label {
   text-align: center;
   color: #fff;
@@ -1831,6 +2069,7 @@ body[data-page=verlauf] .strip-label {
   align-items: center;
   justify-content: center;
 }
+
 body[data-page=verlauf] .range-strip {
   flex: 1;
   display: flex;
@@ -1838,6 +2077,7 @@ body[data-page=verlauf] .range-strip {
   position: relative;
   gap: 1px;
 }
+
 body[data-page=verlauf] .range-segment {
   display: flex;
   flex-direction: column;
@@ -1849,9 +2089,11 @@ body[data-page=verlauf] .range-segment {
   transition: all 0.2s;
   min-height: 0;
 }
+
 body[data-page=verlauf] .range-segment:hover {
   background: rgba(255, 255, 255, 0.15);
 }
+
 body[data-page=verlauf] .range-segment .range-value {
   font-size: 0.75rem;
   font-weight: 600;
@@ -1860,22 +2102,27 @@ body[data-page=verlauf] .range-segment .range-value {
   white-space: nowrap;
   pointer-events: none;
 }
+
 body[data-page=verlauf] .range-segment.danger {
   border-left-color: #d91425;
   background: rgba(217, 20, 37, 0.15);
 }
+
 body[data-page=verlauf] .range-segment.warning {
   border-left-color: #d58215;
   background: rgba(213, 130, 21, 0.15);
 }
+
 body[data-page=verlauf] .range-segment.semiwarning {
   border-left-color: #d5c215;
   background: rgba(213, 194, 21, 0.15);
 }
+
 body[data-page=verlauf] .range-segment.success {
   border-left-color: #038c4a;
   background: rgba(3, 140, 74, 0.15);
 }
+
 body[data-page=verlauf] .range-item {
   flex: 1;
   display: flex;
@@ -1887,79 +2134,98 @@ body[data-page=verlauf] .range-item {
   transition: all 0.2s;
   min-height: 0;
 }
+
 body[data-page=verlauf] .range-item:hover {
   background: rgba(255, 255, 255, 0.15);
 }
+
 body[data-page=verlauf] .range-item.danger {
   border-left-color: #d91425;
   background: rgba(217, 20, 37, 0.15);
 }
+
 body[data-page=verlauf] .range-item.warning {
   border-left-color: #d58215;
   background: rgba(213, 130, 21, 0.15);
 }
+
 body[data-page=verlauf] .range-item.semiwarning {
   border-left-color: #d5c215;
   background: rgba(213, 194, 21, 0.15);
 }
+
 body[data-page=verlauf] .range-item.success {
   border-left-color: #038c4a;
   background: rgba(3, 140, 74, 0.15);
 }
+
 body[data-page=verlauf] .range-value {
   font-size: 0.75rem;
   font-weight: 600;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
+
 body[data-page=verlauf] .range-item.empty {
   border-left-color: #444;
   background: rgba(255, 255, 255, 0.05);
 }
+
 body[data-page=verlauf] .range-item.empty.danger {
   border-left-color: #d91425;
   background: rgba(217, 20, 37, 0.15);
 }
+
 body[data-page=verlauf] .range-item.empty.success {
   border-left-color: #038c4a;
   background: rgba(3, 140, 74, 0.15);
 }
+
 body[data-page=verlauf] .range-item.empty .range-value {
   visibility: hidden;
 }
+
 body[data-page=verlauf] .range-item.danger {
   border-left-color: #d91425;
   background: rgba(217, 20, 37, 0.15);
 }
+
 body[data-page=verlauf] .range-item.warning {
   border-left-color: #d58215;
   background: rgba(213, 130, 21, 0.15);
 }
+
 body[data-page=verlauf] .range-item.semiwarning {
   border-left-color: #d5c215;
   background: rgba(213, 194, 21, 0.15);
 }
+
 body[data-page=verlauf] .range-item.success {
   border-left-color: #038c4a;
   background: rgba(3, 140, 74, 0.15);
 }
+
 body[data-page=verlauf] .keypad-container {
   flex: 1;
   padding: 20px 10px 20px 0;
   margin-top: 20px;
 }
+
 @media (max-width: 1400px) {
   body[data-page=verlauf] .range-strip-wrapper {
     width: 70px;
     min-width: 70px;
   }
+
   body[data-page=verlauf] .range-value {
     font-size: 0.7rem;
   }
+
   body[data-page=verlauf] .strip-label {
     font-size: 0.7rem;
     padding: 4px 2px;
   }
+
   body[data-page=verlauf] .range-segment {
     flex-direction: row;
     justify-content: center;
@@ -1967,6 +2233,7 @@ body[data-page=verlauf] .keypad-container {
     border-bottom: 5px solid;
     padding: 4px 2px;
   }
+
   body[data-page=verlauf] .range-segment .range-value {
     font-size: 0.7rem;
     writing-mode: horizontal-tb;
@@ -1976,23 +2243,28 @@ body[data-page=verlauf] .keypad-container {
     top: auto;
   }
 }
+
 @media (max-width: 1155px) {
   body[data-page=verlauf] .col-5 {
     flex-direction: column;
   }
+
   body[data-page=verlauf] .range-strip-wrapper {
     width: 100%;
     order: -1;
     margin-bottom: 15px;
   }
+
   body[data-page=verlauf] .range-strip-container {
     min-height: 120px;
     max-height: 120px;
   }
+
   body[data-page=verlauf] .range-strip {
     flex-direction: row;
     gap: 2px;
   }
+
   body[data-page=verlauf] .range-item {
     flex-direction: column;
     border-left: none;
@@ -2000,18 +2272,22 @@ body[data-page=verlauf] .keypad-container {
     justify-content: center;
     padding: 4px 2px;
   }
+
   body[data-page=verlauf] .range-value {
     font-size: 0.7rem;
     writing-mode: horizontal-tb;
   }
+
   body[data-page=verlauf] .strip-label {
     margin-bottom: 8px;
     min-height: 30px;
   }
 }
+
 body[data-page=verlauf] .range-strip {
   position: relative;
 }
+
 body[data-page=verlauf] .value-indicator {
   position: absolute;
   left: 0;
@@ -2024,19 +2300,23 @@ body[data-page=verlauf] .value-indicator {
   background-color: var(--white);
   border-right-color: var(--white);
 }
+
 body[data-page=verlauf] .value-indicator {
   animation: indicatorSlideIn 0.3s ease;
 }
+
 @keyframes indicatorSlideIn {
   from {
     opacity: 0;
     transform: translateY(-50%) translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(-50%) translateX(0);
   }
 }
+
 @media (max-width: 1155px) {
   body[data-page=verlauf] .value-indicator {
     left: 0;
@@ -2047,11 +2327,13 @@ body[data-page=verlauf] .value-indicator {
     height: 100%;
     transform: translateX(-50%);
   }
+
   @keyframes indicatorSlideIn {
     from {
       opacity: 0;
       transform: translateX(-50%) translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
@@ -2066,16 +2348,19 @@ body[data-page=verlauf] .value-indicator {
   border-radius: 0;
   color: #fff;
 }
+
 #qmActionsModal .modal-header,
 #qmLogModal .modal-header {
   border-bottom: 1px solid var(--darkgray);
   background-color: var(--body-bg-darker, #1f1f1f);
   border-radius: 0;
 }
+
 #qmActionsModal .modal-body,
 #qmLogModal .modal-body {
   background-color: var(--body-bg, #2b2b2b);
 }
+
 #qmActionsModal .edivi__box,
 #qmLogModal .edivi__box {
   background: #333333;
@@ -2084,6 +2369,7 @@ body[data-page=verlauf] .value-indicator {
   border-radius: 0;
   padding: 1rem;
 }
+
 #qmActionsModal .edivi__box.edivi__log-comment,
 #qmLogModal .edivi__box.edivi__log-comment {
   background: #333333;
@@ -2093,6 +2379,7 @@ body[data-page=verlauf] .value-indicator {
   font-size: 0.8rem;
   margin-bottom: 10px !important;
 }
+
 #qmActionsModal .edivi__box.edivi__log-comment i,
 #qmLogModal .edivi__box.edivi__log-comment i {
   padding: 6px 9px;
@@ -2102,6 +2389,7 @@ body[data-page=verlauf] .value-indicator {
   opacity: 0.6;
   font-size: 1rem !important;
 }
+
 #qmActionsModal .edivi__admin,
 #qmLogModal .edivi__admin {
   background: transparent;
@@ -2110,6 +2398,7 @@ body[data-page=verlauf] .value-indicator {
   border: 0;
   font-size: 1.2rem;
 }
+
 #qmActionsModal .edivi__admin:focus,
 #qmLogModal .edivi__admin:focus {
   box-shadow: 0 0 0 1px #5783cf !important;
@@ -2117,6 +2406,7 @@ body[data-page=verlauf] .value-indicator {
   color: #fff;
   border-color: #5783cf;
 }
+
 #qmActionsModal .edivi__admin[readonly],
 #qmLogModal .edivi__admin[readonly] {
   box-shadow: none !important;
@@ -2125,11 +2415,13 @@ body[data-page=verlauf] .value-indicator {
   pointer-events: none;
   cursor: default;
 }
+
 #qmActionsModal .edivi__admin option,
 #qmLogModal .edivi__admin option {
   background: #333333;
   color: #fff;
 }
+
 #qmActionsModal .form-control::placeholder,
 #qmLogModal .form-control::placeholder {
   color: rgba(222, 226, 230, 0.75);
@@ -2145,10 +2437,12 @@ body[data-page=verlauf] .value-indicator {
   font: inherit;
   text-align: center;
 }
+
 .edivi__iconlink-button:hover {
   color: inherit;
   text-decoration: none;
 }
+
 .edivi__iconlink-button:focus {
   outline: none;
 }

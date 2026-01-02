@@ -1,4 +1,4 @@
-<div class="col-1 d-flex flex-column" id="edivi__nidanav">
+<div class="col-12 col-md-1 d-flex flex-column" id="edivi__nidanav">
     <a href="<?= BASE_PATH ?>enotf/protokoll/rettdaten/index.php?enr=<?= $daten['enr'] ?>" data-page="stammdaten"
         data-requires="patsex,transportziel,ezeit,salarm,sende">
         <span>Rett. Daten</span>

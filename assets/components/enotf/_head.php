@@ -17,6 +17,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-custom-dropdown.css">
 <script src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
 <script src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
+<script src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
 <link rel="icon" type="image/svg+xml" href="<?= BASE_PATH ?>assets/favicon/favicon.svg" />

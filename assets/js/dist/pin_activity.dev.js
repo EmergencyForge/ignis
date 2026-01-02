@@ -163,7 +163,9 @@
 
     if (lastEl) {
       var lastDate = new Date(lastActivity);
-      lastEl.textContent = lastDate.toLocaleTimeString("de-DE");
+      lastEl.textContent = lastDate.toLocaleTimeString("de-DE", {
+        hour12: false
+      });
     }
   }
 

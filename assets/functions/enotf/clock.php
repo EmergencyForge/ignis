@@ -9,7 +9,8 @@
         }));
         const time = berlinTime.toLocaleTimeString('de-DE', {
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            hour12: false
         });
         const date = berlinTime.toLocaleDateString('de-DE', {
             day: '2-digit',

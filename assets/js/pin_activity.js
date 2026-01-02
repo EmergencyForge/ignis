@@ -238,7 +238,9 @@
     const lastEl = document.getElementById("pin-timer-last");
     if (lastEl) {
       const lastDate = new Date(lastActivity);
-      lastEl.textContent = lastDate.toLocaleTimeString("de-DE");
+      lastEl.textContent = lastDate.toLocaleTimeString("de-DE", {
+        hour12: false,
+      });
     }
   }
 
