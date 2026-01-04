@@ -17,12 +17,15 @@ class SystemUpdater
     private string $githubRepo = 'EmergencyForge/intraRP';
     private string $githubApiUrl;
     private array $currentVersion;
+    private array $diagnosticLog = [];
+    private string $diagnosticFile;
 
     public function __construct()
     {
         $appRoot = dirname(dirname(__DIR__));
         $this->versionFile = $appRoot . '/system/updates/version.json';
         $this->composerPendingFile = $appRoot . '/system/updates/composer_pending.json';
+        $this->diagnosticFile = $appRoot . '/system/updates/diagnostic.log';
         $this->githubApiUrl = "https://api.github.com/repos/{$this->githubRepo}";
         $this->loadCurrentVersion();
         $this->cleanupOldTempDirectories();
@@ -496,10 +499,23 @@ class SystemUpdater
                 }
             }
 
+            // Run comprehensive diagnostics
+            $diagnostics = $this->runUpdateDiagnostics($e, [
+                'operation' => 'downloadAndApplyUpdate',
+                'download_url' => $downloadUrl ?? null,
+                'new_version' => $newVersion ?? null,
+                'temp_dir' => $tempDir ?? null,
+                'backup_dir' => $backupDir ?? null
+            ]);
+
             return [
                 'success' => false,
                 'error' => true,
-                'message' => 'Fehler beim Update: ' . $e->getMessage()
+                'message' => 'Fehler beim Update: ' . $e->getMessage(),
+                'diagnostics' => $diagnostics,
+                'diagnostic_summary' => $this->formatDiagnosticSummary($diagnostics),
+                'diagnostic_html' => $this->formatDiagnosticHTML($diagnostics),
+                'diagnostic_support' => $this->formatDiagnosticForSupport($diagnostics)
             ];
         }
     }
@@ -741,21 +757,46 @@ class SystemUpdater
                     'output' => $outputString
                 ];
             } else {
+                // Run diagnostics for composer failure
+                $diagnostics = $this->runUpdateDiagnostics(
+                    new Exception('Composer-Installation fehlgeschlagen mit Exit-Code ' . $returnCode),
+                    [
+                        'operation' => 'composer_install',
+                        'return_code' => $returnCode,
+                        'output' => $outputString,
+                        'composer_path' => $composerPath
+                    ]
+                );
+
                 return [
                     'executed' => true,
                     'success' => false,
                     'error' => true,
                     'message' => 'Composer-Installation fehlgeschlagen.',
                     'output' => $outputString,
-                    'return_code' => $returnCode
+                    'return_code' => $returnCode,
+                    'diagnostics' => $diagnostics,
+                    'diagnostic_summary' => $this->formatDiagnosticSummary($diagnostics),
+                    'diagnostic_html' => $this->formatDiagnosticHTML($diagnostics),
+                    'diagnostic_support' => $this->formatDiagnosticForSupport($diagnostics)
                 ];
             }
         } catch (Exception $e) {
+            // Run diagnostics for exception
+            $diagnostics = $this->runUpdateDiagnostics($e, [
+                'operation' => 'composer_install_exception',
+                'composer_path' => $composerPath ?? null
+            ]);
+
             return [
                 'executed' => false,
                 'success' => false,
                 'error' => true,
-                'message' => 'Fehler beim Ausführen von Composer: ' . $e->getMessage()
+                'message' => 'Fehler beim Ausführen von Composer: ' . $e->getMessage(),
+                'diagnostics' => $diagnostics,
+                'diagnostic_summary' => $this->formatDiagnosticSummary($diagnostics),
+                'diagnostic_html' => $this->formatDiagnosticHTML($diagnostics),
+                'diagnostic_support' => $this->formatDiagnosticForSupport($diagnostics)
             ];
         }
     }
@@ -1238,5 +1279,1110 @@ class SystemUpdater
         } catch (Exception $e) {
             // Ignore all cleanup errors to not break the constructor
         }
+    }
+
+    /**
+     * Comprehensive diagnostic function for update failures
+     * 
+     * @param Exception|null $exception Optional exception that triggered the diagnostic
+     * @param array $context Additional context information about the failure
+     * @return array Detailed diagnostic report for support analysis
+     */
+    public function runUpdateDiagnostics(?Exception $exception = null, array $context = []): array
+    {
+        $this->diagnosticLog = [];
+        $appRoot = dirname(dirname(__DIR__));
+
+        $diagnostics = [
+            'timestamp' => date('Y-m-d H:i:s'),
+            'system_info' => $this->diagnoseSystemEnvironment(),
+            'permissions' => $this->diagnoseFilePermissions($appRoot),
+            'disk_space' => $this->diagnoseDiskSpace($appRoot),
+            'network' => $this->diagnoseNetworkConnectivity(),
+            'dependencies' => $this->diagnoseDependencies(),
+            'update_history' => $this->diagnoseUpdateHistory(),
+            'configuration' => $this->diagnoseConfiguration($appRoot),
+            'error_analysis' => $this->analyzeError($exception, $context),
+            'severity' => 'info'
+        ];
+
+        // Calculate overall severity
+        $diagnostics['severity'] = $this->calculateSeverity($diagnostics);
+
+        // Save diagnostic report to file
+        $this->saveDiagnosticReport($diagnostics);
+
+        return $diagnostics;
+    }
+
+    /**
+     * Diagnose system environment (PHP version, extensions, settings)
+     */
+    private function diagnoseSystemEnvironment(): array
+    {
+        $requiredExtensions = ['curl', 'zip', 'json', 'mbstring', 'openssl'];
+        $recommendedExtensions = ['fileinfo', 'dom', 'xml'];
+
+        $loadedExtensions = get_loaded_extensions();
+        $missingRequired = array_diff($requiredExtensions, $loadedExtensions);
+        $missingRecommended = array_diff($recommendedExtensions, $loadedExtensions);
+
+        $memoryLimit = ini_get('memory_limit');
+        $memoryLimitBytes = $this->convertToBytes($memoryLimit);
+        $memoryAdequate = $memoryLimitBytes >= (128 * 1024 * 1024); // 128 MB minimum
+
+        $maxExecutionTime = ini_get('max_execution_time');
+        $timeoutAdequate = ($maxExecutionTime == 0 || $maxExecutionTime >= 300); // 5 minutes minimum
+
+        return [
+            'php_version' => PHP_VERSION,
+            'php_version_adequate' => version_compare(PHP_VERSION, '7.4.0', '>='),
+            'os' => PHP_OS,
+            'sapi' => php_sapi_name(),
+            'memory_limit' => $memoryLimit,
+            'memory_adequate' => $memoryAdequate,
+            'max_execution_time' => $maxExecutionTime,
+            'timeout_adequate' => $timeoutAdequate,
+            'loaded_extensions' => $loadedExtensions,
+            'missing_required_extensions' => $missingRequired,
+            'missing_recommended_extensions' => $missingRecommended,
+            'allow_url_fopen' => ini_get('allow_url_fopen'),
+            'disable_functions' => ini_get('disable_functions'),
+            'open_basedir' => ini_get('open_basedir'),
+            'status' => empty($missingRequired) && $memoryAdequate && $timeoutAdequate ? 'ok' : 'warning'
+        ];
+    }
+
+    /**
+     * Diagnose file system permissions
+     */
+    private function diagnoseFilePermissions(string $appRoot): array
+    {
+        $criticalPaths = [
+            'root' => $appRoot,
+            'system' => $appRoot . '/system',
+            'system/updates' => $appRoot . '/system/updates',
+            'storage' => $appRoot . '/storage',
+            'storage/temp' => $appRoot . '/storage/temp',
+            'vendor' => $appRoot . '/vendor',
+            'src' => $appRoot . '/src',
+            'assets' => $appRoot . '/assets',
+            'composer.json' => $appRoot . '/composer.json',
+            'composer.lock' => $appRoot . '/composer.lock'
+        ];
+
+        $permissions = [];
+        $issues = [];
+
+        foreach ($criticalPaths as $name => $path) {
+            $exists = file_exists($path);
+            $readable = $exists ? is_readable($path) : false;
+            $writable = $exists ? is_writable($path) : false;
+            $isDir = $exists ? is_dir($path) : false;
+            $perms = $exists ? substr(sprintf('%o', fileperms($path)), -4) : null;
+
+            $permissions[$name] = [
+                'path' => $path,
+                'exists' => $exists,
+                'readable' => $readable,
+                'writable' => $writable,
+                'is_directory' => $isDir,
+                'permissions' => $perms,
+                'status' => 'ok'
+            ];
+
+            if (!$exists) {
+                $permissions[$name]['status'] = 'error';
+                $issues[] = "Pfad existiert nicht: {$name}";
+            } elseif (!$readable) {
+                $permissions[$name]['status'] = 'error';
+                $issues[] = "Pfad nicht lesbar: {$name}";
+            } elseif (!$writable && !in_array($name, ['root'])) { // root might be read-only
+                $permissions[$name]['status'] = 'warning';
+                $issues[] = "Pfad nicht beschreibbar: {$name}";
+            }
+        }
+
+        return [
+            'permissions' => $permissions,
+            'issues' => $issues,
+            'status' => empty($issues) ? 'ok' : (count(array_filter($issues, fn($i) => strpos($i, 'nicht lesbar') !== false || strpos($i, 'existiert nicht') !== false)) > 0 ? 'error' : 'warning')
+        ];
+    }
+
+    /**
+     * Diagnose disk space availability
+     */
+    private function diagnoseDiskSpace(string $appRoot): array
+    {
+        $freeSpace = @disk_free_space($appRoot);
+        $totalSpace = @disk_total_space($appRoot);
+
+        $tempDir = $appRoot . '/storage/temp';
+        $tempFreeSpace = file_exists($tempDir) ? @disk_free_space($tempDir) : $freeSpace;
+
+        $requiredSpace = 200 * 1024 * 1024; // 200 MB
+        $recommendedSpace = 500 * 1024 * 1024; // 500 MB
+
+        $adequate = $freeSpace !== false && $freeSpace >= $requiredSpace;
+        $comfortable = $freeSpace !== false && $freeSpace >= $recommendedSpace;
+
+        return [
+            'free_space' => $freeSpace,
+            'free_space_mb' => $freeSpace !== false ? round($freeSpace / 1024 / 1024, 2) : null,
+            'total_space' => $totalSpace,
+            'total_space_mb' => $totalSpace !== false ? round($totalSpace / 1024 / 1024, 2) : null,
+            'usage_percent' => ($freeSpace !== false && $totalSpace !== false) ? round((($totalSpace - $freeSpace) / $totalSpace) * 100, 2) : null,
+            'temp_free_space_mb' => $tempFreeSpace !== false ? round($tempFreeSpace / 1024 / 1024, 2) : null,
+            'required_space_mb' => round($requiredSpace / 1024 / 1024, 2),
+            'adequate' => $adequate,
+            'comfortable' => $comfortable,
+            'status' => $adequate ? ($comfortable ? 'ok' : 'warning') : 'error'
+        ];
+    }
+
+    /**
+     * Diagnose network connectivity to GitHub
+     */
+    private function diagnoseNetworkConnectivity(): array
+    {
+        $tests = [];
+        $overallStatus = 'ok';
+
+        // Test 1: GitHub API connectivity
+        $apiTest = $this->testGitHubAPI();
+        $tests['github_api'] = $apiTest;
+        if ($apiTest['status'] !== 'ok') {
+            $overallStatus = 'error';
+        }
+
+        // Test 2: SSL/TLS configuration
+        $sslTest = $this->testSSLConfiguration();
+        $tests['ssl_config'] = $sslTest;
+        if ($sslTest['status'] !== 'ok' && $overallStatus === 'ok') {
+            $overallStatus = 'warning';
+        }
+
+        // Test 3: DNS resolution
+        $dnsTest = $this->testDNSResolution('api.github.com');
+        $tests['dns_resolution'] = $dnsTest;
+        if ($dnsTest['status'] !== 'ok' && $overallStatus === 'ok') {
+            $overallStatus = 'warning';
+        }
+
+        // Test 4: Proxy detection
+        $proxyTest = $this->detectProxyConfiguration();
+        $tests['proxy'] = $proxyTest;
+
+        return [
+            'tests' => $tests,
+            'status' => $overallStatus
+        ];
+    }
+
+    /**
+     * Test GitHub API connectivity
+     */
+    private function testGitHubAPI(): array
+    {
+        $startTime = microtime(true);
+
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'header' => [
+                    'User-Agent: intraRP-Updater-Diagnostic',
+                    'Accept: application/vnd.github+json'
+                ],
+                'timeout' => 10
+            ]
+        ]);
+
+        $testUrl = $this->githubApiUrl;
+        $response = @file_get_contents($testUrl, false, $context);
+        $responseTime = round((microtime(true) - $startTime) * 1000, 2);
+
+        if ($response === false) {
+            $error = error_get_last();
+            return [
+                'accessible' => false,
+                'error' => $error['message'] ?? 'Unbekannter Fehler',
+                'response_time_ms' => $responseTime,
+                'status' => 'error'
+            ];
+        }
+
+        $data = json_decode($response, true);
+        $rateLimitRemaining = null;
+        $rateLimitReset = null;
+
+        // Try to get rate limit info from headers if available
+        if (isset($http_response_header)) {
+            foreach ($http_response_header as $header) {
+                if (stripos($header, 'X-RateLimit-Remaining:') === 0) {
+                    $rateLimitRemaining = (int)trim(substr($header, 23));
+                }
+                if (stripos($header, 'X-RateLimit-Reset:') === 0) {
+                    $rateLimitReset = (int)trim(substr($header, 19));
+                }
+            }
+        }
+
+        return [
+            'accessible' => true,
+            'response_time_ms' => $responseTime,
+            'rate_limit_remaining' => $rateLimitRemaining,
+            'rate_limit_reset' => $rateLimitReset ? date('Y-m-d H:i:s', $rateLimitReset) : null,
+            'status' => $responseTime < 3000 ? 'ok' : 'warning'
+        ];
+    }
+
+    /**
+     * Test SSL/TLS configuration
+     */
+    private function testSSLConfiguration(): array
+    {
+        $hasOpenSSL = extension_loaded('openssl');
+        $hasCurl = extension_loaded('curl');
+
+        if (!$hasOpenSSL && !$hasCurl) {
+            return [
+                'openssl_enabled' => false,
+                'curl_enabled' => false,
+                'status' => 'error',
+                'message' => 'Weder OpenSSL noch cURL verfügbar'
+            ];
+        }
+
+        $caInfo = ini_get('openssl.cafile');
+        $caPath = ini_get('openssl.capath');
+        $curlCaInfo = ini_get('curl.cainfo');
+
+        return [
+            'openssl_enabled' => $hasOpenSSL,
+            'openssl_version' => $hasOpenSSL ? OPENSSL_VERSION_TEXT : null,
+            'curl_enabled' => $hasCurl,
+            'curl_version' => $hasCurl ? curl_version()['version'] : null,
+            'ca_file' => $caInfo ?: $curlCaInfo ?: null,
+            'ca_path' => $caPath,
+            'status' => ($hasOpenSSL || $hasCurl) ? 'ok' : 'error'
+        ];
+    }
+
+    /**
+     * Test DNS resolution
+     */
+    private function testDNSResolution(string $hostname): array
+    {
+        $startTime = microtime(true);
+        $ip = @gethostbyname($hostname);
+        $resolveTime = round((microtime(true) - $startTime) * 1000, 2);
+
+        $resolved = ($ip !== $hostname);
+
+        return [
+            'hostname' => $hostname,
+            'resolved' => $resolved,
+            'ip_address' => $resolved ? $ip : null,
+            'resolve_time_ms' => $resolveTime,
+            'status' => $resolved ? 'ok' : 'error'
+        ];
+    }
+
+    /**
+     * Detect proxy configuration
+     */
+    private function detectProxyConfiguration(): array
+    {
+        $httpProxy = getenv('HTTP_PROXY') ?: getenv('http_proxy');
+        $httpsProxy = getenv('HTTPS_PROXY') ?: getenv('https_proxy');
+        $noProxy = getenv('NO_PROXY') ?: getenv('no_proxy');
+
+        return [
+            'http_proxy' => $httpProxy ?: null,
+            'https_proxy' => $httpsProxy ?: null,
+            'no_proxy' => $noProxy ?: null,
+            'proxy_detected' => !empty($httpProxy) || !empty($httpsProxy),
+            'status' => 'info'
+        ];
+    }
+
+    /**
+     * Diagnose dependencies (Composer, PHP extensions)
+     */
+    private function diagnoseDependencies(): array
+    {
+        $composerPath = $this->findComposerExecutable();
+        $composerAvailable = !empty($composerPath);
+        $composerVersion = null;
+
+        if ($composerAvailable) {
+            $output = [];
+            $returnCode = 0;
+            @exec(escapeshellarg($composerPath) . ' --version 2>&1', $output, $returnCode);
+            if ($returnCode === 0 && !empty($output)) {
+                if (preg_match('/Composer version ([0-9.]+)/', implode(' ', $output), $matches)) {
+                    $composerVersion = $matches[1];
+                }
+            }
+        }
+
+        $appRoot = dirname(dirname(__DIR__));
+        $composerJsonExists = file_exists($appRoot . '/composer.json');
+        $composerLockExists = file_exists($appRoot . '/composer.lock');
+        $vendorExists = is_dir($appRoot . '/vendor');
+        $autoloadExists = file_exists($appRoot . '/vendor/autoload.php');
+
+        $composerLockAge = null;
+        if ($composerLockExists) {
+            $lockMtime = filemtime($appRoot . '/composer.lock');
+            $composerLockAge = floor((time() - $lockMtime) / 86400); // days
+        }
+
+        return [
+            'composer_available' => $composerAvailable,
+            'composer_path' => $composerPath,
+            'composer_version' => $composerVersion,
+            'composer_json_exists' => $composerJsonExists,
+            'composer_lock_exists' => $composerLockExists,
+            'composer_lock_age_days' => $composerLockAge,
+            'vendor_directory_exists' => $vendorExists,
+            'autoload_exists' => $autoloadExists,
+            'note' => 'Composer ist optional - kann bei Hosting-Umgebungen separat ausgeführt werden',
+            'status' => ($vendorExists && $autoloadExists) ? 'ok' : 'info'
+        ];
+    }
+
+    /**
+     * Diagnose update history
+     */
+    private function diagnoseUpdateHistory(): array
+    {
+        $appRoot = dirname(dirname(__DIR__));
+        $updatesDir = $appRoot . '/system/updates';
+
+        $backups = [];
+        if (is_dir($updatesDir)) {
+            $backupDirs = glob($updatesDir . '/backup_*', GLOB_ONLYDIR);
+            foreach ($backupDirs as $dir) {
+                $backups[] = [
+                    'name' => basename($dir),
+                    'path' => $dir,
+                    'created' => date('Y-m-d H:i:s', filemtime($dir)),
+                    'size_mb' => $this->getDirectorySize($dir) / 1024 / 1024
+                ];
+            }
+        }
+
+        // Check for recent temp update directories (potential failed updates)
+        $tempBase = $appRoot . '/storage/temp';
+        $tempUpdateDirs = [];
+        if (is_dir($tempBase)) {
+            $dirs = glob($tempBase . '/update_*', GLOB_ONLYDIR);
+            foreach ($dirs as $dir) {
+                $tempUpdateDirs[] = [
+                    'name' => basename($dir),
+                    'created' => date('Y-m-d H:i:s', filemtime($dir)),
+                    'age_hours' => floor((time() - filemtime($dir)) / 3600)
+                ];
+            }
+        }
+
+        // Read diagnostic log if exists
+        $previousDiagnostics = [];
+        if (file_exists($this->diagnosticFile)) {
+            $logContent = @file_get_contents($this->diagnosticFile);
+            if ($logContent) {
+                $lines = explode("\n", $logContent);
+                $previousDiagnostics = array_slice(array_filter($lines), -10); // Last 10 entries
+            }
+        }
+
+        return [
+            'current_version' => $this->currentVersion,
+            'version_age_days' => $this->getVersionAge(),
+            'backups' => $backups,
+            'backup_count' => count($backups),
+            'temp_update_dirs' => $tempUpdateDirs,
+            'failed_update_indicators' => count($tempUpdateDirs),
+            'previous_diagnostics' => $previousDiagnostics,
+            'status' => count($tempUpdateDirs) > 3 ? 'warning' : 'ok'
+        ];
+    }
+
+    /**
+     * Diagnose system configuration
+     */
+    private function diagnoseConfiguration(string $appRoot): array
+    {
+        $envExists = file_exists($appRoot . '/.env');
+        $htaccessExists = file_exists($appRoot . '/.htaccess');
+        $gitExists = is_dir($appRoot . '/.git');
+
+        return [
+            'env_file_exists' => $envExists,
+            'htaccess_exists' => $htaccessExists,
+            'git_repository' => $gitExists,
+            'is_plesk' => $this->detectPlesk(),
+            'is_cpanel' => $this->detectCPanel(),
+            'document_root' => $_SERVER['DOCUMENT_ROOT'] ?? null,
+            'script_filename' => $_SERVER['SCRIPT_FILENAME'] ?? null,
+            'status' => 'ok'
+        ];
+    }
+
+    /**
+     * Analyze specific error
+     */
+    private function analyzeError(?Exception $exception, array $context): array
+    {
+        if (!$exception) {
+            return [
+                'has_error' => false,
+                'message' => null,
+                'error_type' => null,
+                'likely_causes' => [],
+                'solutions' => []
+            ];
+        }
+
+        $message = $exception->getMessage();
+        $errorType = $this->classifyError($message);
+        $likelyCauses = $this->identifyLikelyCauses($errorType, $message, $context);
+        $solutions = $this->provideSolutions($errorType, $message, $context);
+
+        return [
+            'has_error' => true,
+            'message' => $message,
+            'exception_class' => get_class($exception),
+            'error_type' => $errorType,
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+            'trace' => $exception->getTraceAsString(),
+            'context' => $context,
+            'likely_causes' => $likelyCauses,
+            'solutions' => $solutions
+        ];
+    }
+
+    /**
+     * Classify error type based on message
+     */
+    private function classifyError(string $message): string
+    {
+        $patterns = [
+            'network' => '/(?:failed to open stream|connection|timeout|could not resolve host|SSL|certificate)/i',
+            'permissions' => '/(?:permission denied|not writable|not readable|failed to open|mkdir|rmdir|unlink)/i',
+            'disk_space' => '/(?:disk|space|storage|no space left)/i',
+            'zip' => '/(?:zip|extract|archive|corrupt)/i',
+            'composer' => '/(?:composer|dependency|autoload|vendor)/i',
+            'php_version' => '/(?:version|compatibility|deprecated)/i',
+            'memory' => '/(?:memory|allocation|exhausted)/i',
+            'download' => '/(?:download|fetch|retrieve|zipball)/i',
+            'backup' => '/(?:backup|restore|rollback)/i',
+            'github_api' => '/(?:github|api|rate limit|repository)/i'
+        ];
+
+        foreach ($patterns as $type => $pattern) {
+            if (preg_match($pattern, $message)) {
+                return $type;
+            }
+        }
+
+        return 'unknown';
+    }
+
+    /**
+     * Identify likely causes based on error type
+     */
+    private function identifyLikelyCauses(string $errorType, string $message, array $context): array
+    {
+        $causes = [
+            'network' => [
+                'Keine Internetverbindung oder instabile Verbindung',
+                'Firewall blockiert Zugriff auf GitHub',
+                'Proxy-Server nicht korrekt konfiguriert',
+                'GitHub API temporär nicht erreichbar',
+                'SSL-Zertifikat-Problem'
+            ],
+            'permissions' => [
+                'Datei-/Verzeichnisrechte zu restriktiv (nicht 755/644)',
+                'Webserver läuft unter anderem Benutzer als Dateien',
+                'SELinux oder ähnliche Sicherheitsmechanismen aktiv',
+                'Verzeichnis ist schreibgeschützt',
+                'Parent-Verzeichnis existiert nicht'
+            ],
+            'disk_space' => [
+                'Zu wenig freier Speicherplatz (< 200 MB)',
+                'Disk-Quota erreicht',
+                'Temporäres Verzeichnis voll',
+                'Inode-Limit erreicht'
+            ],
+            'zip' => [
+                'ZIP-Datei wurde nicht vollständig heruntergeladen',
+                'ZIP-Datei ist beschädigt',
+                'PHP ZipArchive-Extension fehlt',
+                'ZIP-Datei zu groß für verfügbaren Speicher'
+            ],
+            'composer' => [
+                'Composer nicht installiert',
+                'Composer-Abhängigkeiten fehlen oder veraltet',
+                'composer.json oder composer.lock beschädigt',
+                'Inkompatible PHP-Version für Abhängigkeiten'
+            ],
+            'memory' => [
+                'PHP memory_limit zu niedrig (< 128M empfohlen)',
+                'Update-Archiv zu groß',
+                'Zu viele Dateien gleichzeitig im Speicher'
+            ],
+            'github_api' => [
+                'GitHub API Rate-Limit erreicht (60 Anfragen/Stunde ohne Token)',
+                'Ungültiger oder abgelaufener GitHub-Token',
+                'Repository nicht zugänglich',
+                'Release nicht gefunden'
+            ],
+            'download' => [
+                'Download-URL ungültig',
+                'GitHub-Server überlastet',
+                'Netzwerk-Timeout während des Downloads',
+                'Datei zu groß für PHP-Limits'
+            ]
+        ];
+
+        return $causes[$errorType] ?? ['Unbekannte Ursache - bitte Fehlermeldung analysieren'];
+    }
+
+    /**
+     * Provide solutions based on error type
+     */
+    private function provideSolutions(string $errorType, string $message, array $context): array
+    {
+        $solutions = [
+            'network' => [
+                'Internetverbindung prüfen',
+                'Firewall-Regeln für ausgehende HTTPS-Verbindungen zu github.com erlauben',
+                'Proxy-Einstellungen in PHP/Server-Konfiguration prüfen',
+                'SSL-Zertifikate aktualisieren (CA-Bundle)',
+                'Später erneut versuchen, falls GitHub temporäre Probleme hat'
+            ],
+            'permissions' => [
+                'Verzeichnisrechte auf 755 setzen: chmod -R 755 /pfad/zum/verzeichnis',
+                'Dateirechte auf 644 setzen: chmod -R 644 /pfad/zu/dateien',
+                'Eigentümer anpassen: chown -R www-data:www-data /pfad',
+                'SELinux-Kontext anpassen falls nötig',
+                'Webserver-Prozess-Benutzer identifizieren (ps aux | grep apache/nginx)'
+            ],
+            'disk_space' => [
+                'Speicherplatz freigeben (alte Backups, Logs, temp-Dateien löschen)',
+                'Disk-Quota erhöhen (bei Hosting-Provider)',
+                '/tmp-Verzeichnis leeren',
+                'Alte Update-Verzeichnisse in storage/temp löschen',
+                'System/Updates/backup_* Verzeichnisse aufräumen'
+            ],
+            'zip' => [
+                'php-zip Extension installieren: apt-get install php-zip (Debian/Ubuntu)',
+                'Download erneut versuchen',
+                'Netzwerk-Stabilität prüfen',
+                'PHP memory_limit erhöhen'
+            ],
+            'composer' => [
+                'Composer installieren: https://getcomposer.org/download/',
+                'composer install manuell ausführen',
+                'composer update zur Aktualisierung der Abhängigkeiten',
+                'vendor-Verzeichnis löschen und neu installieren',
+                'PHP-Version prüfen und ggf. aktualisieren'
+            ],
+            'memory' => [
+                'PHP memory_limit in php.ini erhöhen (empfohlen: 256M oder höher)',
+                'Apache/Nginx neu starten nach php.ini-Änderung',
+                'Unnötige PHP-Module deaktivieren',
+                'Update in Teilschritten durchführen (falls möglich)'
+            ],
+            'github_api' => [
+                'Eine Stunde warten (Rate-Limit-Reset)',
+                'GitHub Personal Access Token generieren und verwenden',
+                'Weniger häufig nach Updates suchen',
+                'Cache leeren und erneut versuchen'
+            ],
+            'download' => [
+                'Download erneut versuchen',
+                'max_execution_time in php.ini erhöhen',
+                'Zu einer Zeit mit besserer Netzwerk-Performance versuchen',
+                'Manuellen Download und Upload erwägen'
+            ],
+            'backup' => [
+                'Alte Backups manuell wiederherstellen aus system/updates/backup_*',
+                'Speicherplatz für Backups sicherstellen',
+                'Backup-Verzeichnis auf Schreibrechte prüfen'
+            ],
+            'unknown' => [
+                'Fehlerlog prüfen (PHP error log, Webserver log)',
+                'Mit Debug-Informationen Support kontaktieren',
+                'Manuelle Installation erwägen',
+                'PHP-Version und Extensions prüfen'
+            ]
+        ];
+
+        return $solutions[$errorType] ?? $solutions['unknown'];
+    }
+
+    /**
+     * Calculate overall severity based on diagnostic findings
+     */
+    private function calculateSeverity(array $diagnostics): string
+    {
+        $errorCount = 0;
+        $warningCount = 0;
+
+        foreach ($diagnostics as $key => $section) {
+            if (is_array($section) && isset($section['status'])) {
+                if ($section['status'] === 'error') {
+                    $errorCount++;
+                } elseif ($section['status'] === 'warning') {
+                    $warningCount++;
+                }
+            }
+        }
+
+        if ($errorCount > 0) {
+            return 'error';
+        } elseif ($warningCount > 1) {
+            return 'warning';
+        } elseif ($warningCount > 0) {
+            return 'info';
+        }
+
+        return 'ok';
+    }
+
+    /**
+     * Save diagnostic report to file
+     */
+    private function saveDiagnosticReport(array $diagnostics): void
+    {
+        try {
+            $dir = dirname($this->diagnosticFile);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            $timestamp = $diagnostics['timestamp'];
+            $severity = $diagnostics['severity'];
+            $errorMsg = $diagnostics['error_analysis']['message'] ?? 'Manuelle Diagnose';
+
+            $logEntry = sprintf(
+                "[%s] [%s] %s\n",
+                $timestamp,
+                strtoupper($severity),
+                substr($errorMsg, 0, 200)
+            );
+
+            // Append to log file
+            file_put_contents($this->diagnosticFile, $logEntry, FILE_APPEND);
+
+            // Save full diagnostic as JSON
+            $jsonFile = str_replace('.log', '_' . date('Ymd_His') . '.json', $this->diagnosticFile);
+            file_put_contents($jsonFile, json_encode($diagnostics, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+            // Keep only last 10 JSON files
+            $jsonFiles = glob(dirname($this->diagnosticFile) . '/diagnostic_*.json');
+            if (count($jsonFiles) > 10) {
+                usort($jsonFiles, function ($a, $b) {
+                    return filemtime($a) <=> filemtime($b);
+                });
+                $filesToDelete = array_slice($jsonFiles, 0, count($jsonFiles) - 10);
+                foreach ($filesToDelete as $file) {
+                    @unlink($file);
+                }
+            }
+        } catch (Exception $e) {
+            // Silently fail - don't break the diagnostic function
+        }
+    }
+
+    /**
+     * Get the latest diagnostic report
+     */
+    public function getLatestDiagnosticReport(): ?array
+    {
+        $jsonFiles = glob(dirname($this->diagnosticFile) . '/diagnostic_*.json');
+        if (empty($jsonFiles)) {
+            return null;
+        }
+
+        usort($jsonFiles, function ($a, $b) {
+            return filemtime($b) <=> filemtime($a);
+        });
+
+        $latestFile = $jsonFiles[0];
+        $content = file_get_contents($latestFile);
+        return json_decode($content, true);
+    }
+
+    /**
+     * Helper: Convert PHP size notation to bytes
+     */
+    private function convertToBytes(string $size): int
+    {
+        $size = trim($size);
+        $last = strtolower($size[strlen($size) - 1]);
+        $size = (int)$size;
+
+        switch ($last) {
+            case 'g':
+                $size *= 1024;
+            case 'm':
+                $size *= 1024;
+            case 'k':
+                $size *= 1024;
+        }
+
+        return $size;
+    }
+
+    /**
+     * Helper: Get directory size in bytes
+     */
+    private function getDirectorySize(string $path): int
+    {
+        $size = 0;
+        try {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $file) {
+                if ($file->isFile()) {
+                    $size += $file->getSize();
+                }
+            }
+        } catch (Exception $e) {
+            // Return 0 on error
+        }
+        return $size;
+    }
+
+    /**
+     * Helper: Detect Plesk environment
+     */
+    private function detectPlesk(): bool
+    {
+        return file_exists('/usr/local/psa/version') ||
+            file_exists('/opt/psa/version') ||
+            (isset($_SERVER['SERVER_SOFTWARE']) && stripos($_SERVER['SERVER_SOFTWARE'], 'plesk') !== false);
+    }
+
+    /**
+     * Helper: Detect cPanel environment
+     */
+    private function detectCPanel(): bool
+    {
+        return file_exists('/usr/local/cpanel/version') ||
+            (isset($_SERVER['SERVER_SOFTWARE']) && stripos($_SERVER['SERVER_SOFTWARE'], 'cpanel') !== false);
+    }
+
+    /**
+     * Format diagnostic summary for user display (plain text)
+     */
+    private function formatDiagnosticSummary(array $diagnostics): string
+    {
+        $summary = [];
+        $summary[] = "=== Update-Diagnose ===\n";
+        $summary[] = "Schweregrad: " . strtoupper($diagnostics['severity']);
+        $summary[] = "Zeitpunkt: " . $diagnostics['timestamp'];
+
+        if ($diagnostics['error_analysis']['has_error']) {
+            $summary[] = "\nFehlertyp: " . $diagnostics['error_analysis']['error_type'];
+            $summary[] = "Nachricht: " . substr($diagnostics['error_analysis']['message'], 0, 200);
+        }
+
+        $summary[] = "\n=== System-Status ===";
+        $summary[] = "PHP: " . $diagnostics['system_info']['php_version'] . " (" . $diagnostics['system_info']['status'] . ")";
+        $summary[] = "Speicher: " . ($diagnostics['disk_space']['free_space_mb'] ?? 'unbekannt') . " MB frei (" . $diagnostics['disk_space']['status'] . ")";
+        $summary[] = "Berechtigungen: " . $diagnostics['permissions']['status'];
+        $summary[] = "Netzwerk: " . $diagnostics['network']['status'];
+        $summary[] = "Vendor: " . ($diagnostics['dependencies']['vendor_directory_exists'] ? 'vorhanden' : 'fehlt');
+
+        $summary[] = "\n=== Problembereiche ===";
+        $issues = [];
+
+        if ($diagnostics['system_info']['status'] !== 'ok') {
+            $issues[] = "• System-Umgebung: " . $diagnostics['system_info']['status'];
+            if (!empty($diagnostics['system_info']['missing_required_extensions'])) {
+                $issues[] = "  - Fehlende Extensions: " . implode(', ', $diagnostics['system_info']['missing_required_extensions']);
+            }
+        }
+        if ($diagnostics['permissions']['status'] !== 'ok') {
+            $issues[] = "• Berechtigungen: " . $diagnostics['permissions']['status'];
+            if (!empty($diagnostics['permissions']['issues'])) {
+                foreach (array_slice($diagnostics['permissions']['issues'], 0, 3) as $issue) {
+                    $issues[] = "  - " . $issue;
+                }
+            }
+        }
+        if ($diagnostics['disk_space']['status'] !== 'ok') {
+            $issues[] = "• Speicherplatz: " . $diagnostics['disk_space']['status'];
+        }
+        if ($diagnostics['network']['status'] !== 'ok') {
+            $issues[] = "• Netzwerk: " . $diagnostics['network']['status'];
+        }
+
+        if (empty($issues)) {
+            $summary[] = "Keine kritischen Probleme erkannt.";
+        } else {
+            $summary = array_merge($summary, $issues);
+        }
+
+        $summary[] = "\nVollständige Diagnose wurde gespeichert.";
+        $summary[] = "Bitte kontaktieren Sie den Support mit diesem Bericht.";
+
+        return implode("\n", $summary);
+    }
+
+    /**
+     * Format diagnostic summary as HTML for UI display
+     * 
+     * @param array $diagnostics Complete diagnostic data
+     * @return string HTML-formatted diagnostic summary
+     */
+    public function formatDiagnosticHTML(array $diagnostics): string
+    {
+        $severityClass = match ($diagnostics['severity']) {
+            'error' => 'danger',
+            'warning' => 'warning',
+            'info' => 'info',
+            'ok' => 'success',
+            default => 'secondary'
+        };
+
+        $severityIcon = match ($diagnostics['severity']) {
+            'error' => '❌',
+            'warning' => '⚠️',
+            'info' => 'ℹ️',
+            'ok' => '✅',
+            default => '•'
+        };
+
+        $html = [];
+        $html[] = "<div class='diagnostic-report'>";
+        $html[] = "  <div class='alert alert-{$severityClass}'>";
+        $html[] = "    <h4>{$severityIcon} Update-Diagnose</h4>";
+        $html[] = "    <div class='row mb-2'>";
+        $html[] = "      <div class='col-6'><strong>Schweregrad:</strong> " . strtoupper($diagnostics['severity']) . "</div>";
+        $html[] = "      <div class='col-6'><strong>Zeitpunkt:</strong> {$diagnostics['timestamp']}</div>";
+        $html[] = "    </div>";
+
+        if ($diagnostics['error_analysis']['has_error']) {
+            $html[] = "    <hr>";
+            $html[] = "    <div class='error-details'>";
+            $html[] = "      <strong>Fehlertyp:</strong> <code>{$diagnostics['error_analysis']['error_type']}</code><br>";
+            $html[] = "      <strong>Nachricht:</strong> " . htmlspecialchars(substr($diagnostics['error_analysis']['message'], 0, 300)) . "";
+            $html[] = "    </div>";
+        }
+
+        $html[] = "  </div>";
+
+        // System Status
+        $html[] = "  <div class='card mb-3'>";
+        $html[] = "    <div class='card-header'><strong>System-Status</strong></div>";
+        $html[] = "    <div class='card-body'>";
+        $html[] = "      <div class='row'>";
+        $html[] = "        <div class='col-md-4'>";
+        $html[] = "          <strong>PHP:</strong> {$diagnostics['system_info']['php_version']}<br>";
+        $html[] = "          <small class='text-" . $this->getStatusClass($diagnostics['system_info']['status']) . "'>{$diagnostics['system_info']['status']}</small>";
+        $html[] = "        </div>";
+        $html[] = "        <div class='col-md-4'>";
+        $html[] = "          <strong>Speicher:</strong> " . ($diagnostics['disk_space']['free_space_mb'] ?? 'unbekannt') . " MB<br>";
+        $html[] = "          <small class='text-" . $this->getStatusClass($diagnostics['disk_space']['status']) . "'>{$diagnostics['disk_space']['status']}</small>";
+        $html[] = "        </div>";
+        $html[] = "        <div class='col-md-4'>";
+        $html[] = "          <strong>Netzwerk:</strong> GitHub API<br>";
+        $html[] = "          <small class='text-" . $this->getStatusClass($diagnostics['network']['status']) . "'>{$diagnostics['network']['status']}</small>";
+        $html[] = "        </div>";
+        $html[] = "      </div>";
+        $html[] = "      <div class='row mt-2'>";
+        $html[] = "        <div class='col-md-4'>";
+        $html[] = "          <strong>Berechtigungen:</strong><br>";
+        $html[] = "          <small class='text-" . $this->getStatusClass($diagnostics['permissions']['status']) . "'>{$diagnostics['permissions']['status']}</small>";
+        $html[] = "        </div>";
+        $html[] = "        <div class='col-md-4'>";
+        $html[] = "          <strong>Vendor:</strong><br>";
+        $html[] = "          <small>" . ($diagnostics['dependencies']['vendor_directory_exists'] ? '✓ vorhanden' : '✗ fehlt') . "</small>";
+        $html[] = "        </div>";
+        $html[] = "      </div>";
+        $html[] = "    </div>";
+        $html[] = "  </div>";
+
+        // Problems
+        $problems = [];
+        if ($diagnostics['system_info']['status'] !== 'ok') {
+            $problems[] = [
+                'title' => 'System-Umgebung',
+                'status' => $diagnostics['system_info']['status'],
+                'details' => !empty($diagnostics['system_info']['missing_required_extensions'])
+                    ? 'Fehlende Extensions: ' . implode(', ', $diagnostics['system_info']['missing_required_extensions'])
+                    : null
+            ];
+        }
+        if ($diagnostics['permissions']['status'] !== 'ok') {
+            $problems[] = [
+                'title' => 'Berechtigungen',
+                'status' => $diagnostics['permissions']['status'],
+                'details' => !empty($diagnostics['permissions']['issues'])
+                    ? implode('<br>', array_slice($diagnostics['permissions']['issues'], 0, 3))
+                    : null
+            ];
+        }
+        if ($diagnostics['disk_space']['status'] !== 'ok') {
+            $problems[] = [
+                'title' => 'Speicherplatz',
+                'status' => $diagnostics['disk_space']['status'],
+                'details' => 'Nur ' . ($diagnostics['disk_space']['free_space_mb'] ?? 0) . ' MB verfügbar'
+            ];
+        }
+        if ($diagnostics['network']['status'] !== 'ok') {
+            $problems[] = [
+                'title' => 'Netzwerk',
+                'status' => $diagnostics['network']['status'],
+                'details' => 'GitHub API nicht erreichbar'
+            ];
+        }
+
+        if (!empty($problems)) {
+            $html[] = "  <div class='card mb-3'>";
+            $html[] = "    <div class='card-header bg-warning'><strong>⚠️ Problembereiche</strong></div>";
+            $html[] = "    <div class='card-body'>";
+            $html[] = "      <ul class='mb-0'>";
+            foreach ($problems as $problem) {
+                $html[] = "        <li>";
+                $html[] = "          <strong>{$problem['title']}:</strong> ";
+                $html[] = "          <span class='badge badge-" . $this->getStatusClass($problem['status']) . "'>{$problem['status']}</span>";
+                if ($problem['details']) {
+                    $html[] = "          <br><small class='text-muted'>{$problem['details']}</small>";
+                }
+                $html[] = "        </li>";
+            }
+            $html[] = "      </ul>";
+            $html[] = "    </div>";
+            $html[] = "  </div>";
+        } else {
+            $html[] = "  <div class='alert alert-success'>";
+            $html[] = "    ✓ Keine kritischen Probleme erkannt.";
+            $html[] = "  </div>";
+        }
+
+        // Support Info
+        $html[] = "  <div class='card'>";
+        $html[] = "    <div class='card-body text-center'>";
+        $html[] = "      <p class='mb-2'><strong>Diagnose wurde gespeichert.</strong></p>";
+        $html[] = "      <p class='mb-2'>Bitte kontaktieren Sie den Support mit diesem Bericht.</p>";
+        $html[] = "      <button class='btn btn-primary btn-sm' onclick='copyDiagnosticReport()'>📋 In Zwischenablage kopieren</button>";
+        $html[] = "      <button class='btn btn-secondary btn-sm' onclick='downloadDiagnosticReport()'>💾 Als Datei herunterladen</button>";
+        $html[] = "    </div>";
+        $html[] = "  </div>";
+
+        $html[] = "</div>";
+
+        return implode("\n", $html);
+    }
+
+    /**
+     * Generate support export text (easy to copy/paste)
+     * 
+     * @param array $diagnostics Complete diagnostic data
+     * @return string Formatted text for support ticket
+     */
+    public function formatDiagnosticForSupport(array $diagnostics): string
+    {
+        $lines = [];
+        $lines[] = "========================================";
+        $lines[] = "intraRP System-Diagnose";
+        $lines[] = "========================================";
+        $lines[] = "";
+        $lines[] = "Zeitpunkt: " . $diagnostics['timestamp'];
+        $lines[] = "Schweregrad: " . strtoupper($diagnostics['severity']);
+        $lines[] = "Version: " . ($diagnostics['update_history']['current_version']['version'] ?? 'unbekannt');
+        $lines[] = "";
+
+        if ($diagnostics['error_analysis']['has_error']) {
+            $lines[] = "FEHLER-DETAILS:";
+            $lines[] = "---------------";
+            $lines[] = "Typ: " . $diagnostics['error_analysis']['error_type'];
+            $lines[] = "Nachricht: " . $diagnostics['error_analysis']['message'];
+            $lines[] = "";
+        }
+
+        $lines[] = "SYSTEM-INFORMATION:";
+        $lines[] = "-------------------";
+        $lines[] = "PHP Version: " . $diagnostics['system_info']['php_version'];
+        $lines[] = "Betriebssystem: " . $diagnostics['system_info']['os'];
+        $lines[] = "SAPI: " . $diagnostics['system_info']['sapi'];
+        $lines[] = "Memory Limit: " . $diagnostics['system_info']['memory_limit'];
+        $lines[] = "Max Execution Time: " . $diagnostics['system_info']['max_execution_time'] . "s";
+
+        if (!empty($diagnostics['system_info']['missing_required_extensions'])) {
+            $lines[] = "Fehlende Extensions: " . implode(', ', $diagnostics['system_info']['missing_required_extensions']);
+        }
+        $lines[] = "";
+
+        $lines[] = "SPEICHER:";
+        $lines[] = "---------";
+        $lines[] = "Frei: " . ($diagnostics['disk_space']['free_space_mb'] ?? 'unbekannt') . " MB";
+        $lines[] = "Status: " . $diagnostics['disk_space']['status'];
+        $lines[] = "";
+
+        $lines[] = "BERECHTIGUNGEN:";
+        $lines[] = "---------------";
+        $lines[] = "Status: " . $diagnostics['permissions']['status'];
+        if (!empty($diagnostics['permissions']['issues'])) {
+            foreach ($diagnostics['permissions']['issues'] as $issue) {
+                $lines[] = "  - " . $issue;
+            }
+        }
+        $lines[] = "";
+
+        $lines[] = "NETZWERK:";
+        $lines[] = "---------";
+        $lines[] = "Status: " . $diagnostics['network']['status'];
+        $lines[] = "GitHub API: " . ($diagnostics['network']['tests']['github_api']['accessible'] ? 'erreichbar' : 'nicht erreichbar');
+        if (isset($diagnostics['network']['tests']['github_api']['response_time_ms'])) {
+            $lines[] = "Response Time: " . $diagnostics['network']['tests']['github_api']['response_time_ms'] . " ms";
+        }
+        $lines[] = "";
+
+        $lines[] = "ABHÄNGIGKEITEN:";
+        $lines[] = "---------------";
+        $lines[] = "Composer: " . ($diagnostics['dependencies']['composer_available'] ? 'verfügbar' : 'nicht verfügbar');
+        if ($diagnostics['dependencies']['composer_version']) {
+            $lines[] = "  Version: " . $diagnostics['dependencies']['composer_version'];
+        }
+        $lines[] = "Vendor: " . ($diagnostics['dependencies']['vendor_directory_exists'] ? 'vorhanden' : 'fehlt');
+        $lines[] = "Autoload: " . ($diagnostics['dependencies']['autoload_exists'] ? 'vorhanden' : 'fehlt');
+        $lines[] = "";
+
+        $lines[] = "KONFIGURATION:";
+        $lines[] = "--------------";
+        $lines[] = "Hosting: " . ($diagnostics['configuration']['is_plesk'] ? 'Plesk' : ($diagnostics['configuration']['is_cpanel'] ? 'cPanel' : 'Standard'));
+        $lines[] = "Git Repository: " . ($diagnostics['configuration']['git_repository'] ? 'ja' : 'nein');
+        $lines[] = "";
+
+        $lines[] = "========================================";
+        $lines[] = "Ende des Diagnose-Berichts";
+        $lines[] = "========================================";
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Helper: Get Bootstrap CSS class for status
+     */
+    private function getStatusClass(string $status): string
+    {
+        return match ($status) {
+            'ok' => 'success',
+            'info' => 'info',
+            'warning' => 'warning',
+            'error' => 'danger',
+            default => 'secondary'
+        };
     }
 }
