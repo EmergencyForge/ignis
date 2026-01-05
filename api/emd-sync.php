@@ -707,16 +707,54 @@ try {
                 $currentDate = date('Y-m-d');
                 $currentTime = date('H:i');
 
+                // Extrahiere Patientendaten aus dispatch_data (falls vorhanden)
+                $dispatchData = $dispatchDataByDispatch[$dispatchId] ?? null;
+                $patientName = null;
+                $patientBirthdate = null;
+
+                if ($dispatchData && isset($dispatchData['patienten']) && is_array($dispatchData['patienten']) && !empty($dispatchData['patienten'])) {
+                    // Nehme ersten Patienten
+                    $patient = $dispatchData['patienten'][0];
+                    
+                    // Formatiere Name als "Nachname, Vorname"
+                    if (isset($patient['nachname']) || isset($patient['vorname'])) {
+                        $nachname = $patient['nachname'] ?? '';
+                        $vorname = $patient['vorname'] ?? '';
+                        
+                        if (!empty($nachname) && !empty($vorname)) {
+                            $patientName = $nachname . ', ' . $vorname;
+                        } elseif (!empty($nachname)) {
+                            $patientName = $nachname;
+                        } elseif (!empty($vorname)) {
+                            $patientName = $vorname;
+                        }
+                    }
+                    
+                    // Berechne Geburtsdatum basierend auf Alter (01.01.XXXX)
+                    if (isset($patient['alter']) && is_numeric($patient['alter'])) {
+                        $alter = intval($patient['alter']);
+                        $currentYear = intval(date('Y'));
+                        $birthYear = $currentYear - $alter;
+                        $patientBirthdate = $birthYear . '-01-01';
+                    }
+                    
+                    if ($patientName || $patientBirthdate) {
+                        logSync("Patientendaten für Einsatz #$dispatchId gefunden: Name='$patientName', Geburtsdatum='$patientBirthdate'", 'INFO');
+                    }
+                }
+
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, created_at) 
-                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, NOW())
+                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, patname, patgebdat, created_at) 
+                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW())
                 ");
                 $insertStmt->execute([
                     ':enr' => $enrToUse,
                     ':fzg_na' => $vehicle['identifier'],
                     ':edatum' => $currentDate,
                     ':ezeit' => $currentTime,
-                    ':prot_by' => 1
+                    ':prot_by' => 1,
+                    ':patname' => $patientName,
+                    ':patgebdat' => $patientBirthdate
                 ]);
 
                 logSync("Notarzt-Eintrag $enrToUse erstellt: {$vehicle['identifier']}", 'INFO');
@@ -724,16 +762,54 @@ try {
                 $currentDate = date('Y-m-d');
                 $currentTime = date('H:i');
 
+                // Extrahiere Patientendaten aus dispatch_data (falls vorhanden)
+                $dispatchData = $dispatchDataByDispatch[$dispatchId] ?? null;
+                $patientName = null;
+                $patientBirthdate = null;
+
+                if ($dispatchData && isset($dispatchData['patienten']) && is_array($dispatchData['patienten']) && !empty($dispatchData['patienten'])) {
+                    // Nehme ersten Patienten
+                    $patient = $dispatchData['patienten'][0];
+                    
+                    // Formatiere Name als "Nachname, Vorname"
+                    if (isset($patient['nachname']) || isset($patient['vorname'])) {
+                        $nachname = $patient['nachname'] ?? '';
+                        $vorname = $patient['vorname'] ?? '';
+                        
+                        if (!empty($nachname) && !empty($vorname)) {
+                            $patientName = $nachname . ', ' . $vorname;
+                        } elseif (!empty($nachname)) {
+                            $patientName = $nachname;
+                        } elseif (!empty($vorname)) {
+                            $patientName = $vorname;
+                        }
+                    }
+                    
+                    // Berechne Geburtsdatum basierend auf Alter (01.01.XXXX)
+                    if (isset($patient['alter']) && is_numeric($patient['alter'])) {
+                        $alter = intval($patient['alter']);
+                        $currentYear = intval(date('Y'));
+                        $birthYear = $currentYear - $alter;
+                        $patientBirthdate = $birthYear . '-01-01';
+                    }
+                    
+                    if ($patientName || $patientBirthdate) {
+                        logSync("Patientendaten für Einsatz #$dispatchId gefunden: Name='$patientName', Geburtsdatum='$patientBirthdate'", 'INFO');
+                    }
+                }
+
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, created_at) 
-                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, NOW())
+                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, patname, patgebdat, created_at) 
+                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW())
                 ");
                 $insertStmt->execute([
                     ':enr' => $enrToUse,
                     ':fzg_transp' => $vehicle['identifier'],
                     ':edatum' => $currentDate,
                     ':ezeit' => $currentTime,
-                    ':prot_by' => 0
+                    ':prot_by' => 0,
+                    ':patname' => $patientName,
+                    ':patgebdat' => $patientBirthdate
                 ]);
 
                 logSync("Transport-Eintrag $enrToUse erstellt: {$vehicle['identifier']}", 'INFO');
