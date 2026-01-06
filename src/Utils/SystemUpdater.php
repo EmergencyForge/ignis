@@ -1427,6 +1427,14 @@ class SystemUpdater
         $adequate = $freeSpace !== false && $freeSpace >= $requiredSpace;
         $comfortable = $freeSpace !== false && $freeSpace >= $recommendedSpace;
 
+        // Calculate size of key directories
+        $storageSize = $this->getDirectorySize($appRoot . '/storage');
+        $backupSize = $this->getDirectorySize($appRoot . '/system/updates');
+
+        // Count temp update directories
+        $tempUpdateDirs = glob($appRoot . '/storage/temp/update_*');
+        $tempUpdateCount = is_array($tempUpdateDirs) ? count($tempUpdateDirs) : 0;
+
         return [
             'free_space' => $freeSpace,
             'free_space_mb' => $freeSpace !== false ? round($freeSpace / 1024 / 1024, 2) : null,
@@ -1434,6 +1442,9 @@ class SystemUpdater
             'total_space_mb' => $totalSpace !== false ? round($totalSpace / 1024 / 1024, 2) : null,
             'usage_percent' => ($freeSpace !== false && $totalSpace !== false) ? round((($totalSpace - $freeSpace) / $totalSpace) * 100, 2) : null,
             'temp_free_space_mb' => $tempFreeSpace !== false ? round($tempFreeSpace / 1024 / 1024, 2) : null,
+            'storage_size_mb' => round($storageSize / 1024 / 1024, 2),
+            'backup_size_mb' => round($backupSize / 1024 / 1024, 2),
+            'temp_update_dirs_count' => $tempUpdateCount,
             'required_space_mb' => round($requiredSpace / 1024 / 1024, 2),
             'adequate' => $adequate,
             'comfortable' => $comfortable,
@@ -1773,7 +1784,7 @@ class SystemUpdater
         $patterns = [
             'network' => '/(?:failed to open stream|connection|timeout|could not resolve host|SSL|certificate)/i',
             'permissions' => '/(?:permission denied|not writable|not readable|failed to open|mkdir|rmdir|unlink)/i',
-            'disk_space' => '/(?:disk|space|storage|no space left)/i',
+            'disk_space' => '/(?:disk|space|storage|no space left|bytes written|possibly out of free disk space|file_put_contents.*bytes)/i',
             'zip' => '/(?:zip|extract|archive|corrupt)/i',
             'composer' => '/(?:composer|dependency|autoload|vendor)/i',
             'php_version' => '/(?:version|compatibility|deprecated)/i',
@@ -1813,10 +1824,12 @@ class SystemUpdater
                 'Parent-Verzeichnis existiert nicht'
             ],
             'disk_space' => [
-                'Zu wenig freier Speicherplatz (< 200 MB)',
-                'Disk-Quota erreicht',
-                'Temporäres Verzeichnis voll',
-                'Inode-Limit erreicht'
+                'Zu wenig freier Speicherplatz auf dem Server',
+                'Disk-Quota des Hosting-Pakets erreicht',
+                'Temporäres Verzeichnis (/tmp oder storage/temp) voll',
+                'Inode-Limit erreicht (zu viele Dateien)',
+                'Update-Datei zu groß für verfügbaren Speicher',
+                'Dateisystem nur noch im Read-Only-Modus'
             ],
             'zip' => [
                 'ZIP-Datei wurde nicht vollständig heruntergeladen',
@@ -1873,11 +1886,14 @@ class SystemUpdater
                 'Webserver-Prozess-Benutzer identifizieren (ps aux | grep apache/nginx)'
             ],
             'disk_space' => [
-                'Speicherplatz freigeben (alte Backups, Logs, temp-Dateien löschen)',
-                'Disk-Quota erhöhen (bei Hosting-Provider)',
-                '/tmp-Verzeichnis leeren',
-                'Alte Update-Verzeichnisse in storage/temp löschen',
-                'System/Updates/backup_* Verzeichnisse aufräumen'
+                'Speicherplatz freigeben: storage/temp/* und system/updates/backup_* löschen',
+                'Alte Dateien in storage/cache/* und storage/documents/* aufräumen',
+                'Bei Plesk/cPanel: Disk-Quota im Hosting-Panel prüfen und erhöhen',
+                'Backup-Dateien auf lokalen Computer herunterladen und vom Server löschen',
+                '/tmp-Verzeichnis leeren (ggf. über SSH/FTP)',
+                'Logs bereinigen: Alte Dateien in *.log umbenennen oder löschen',
+                'Bei Shared Hosting: Hosting-Paket upgraden für mehr Speicherplatz',
+                'Composer vendor-Verzeichnis temporär löschen (wird bei Update neu erstellt)'
             ],
             'zip' => [
                 'php-zip Extension installieren: apt-get install php-zip (Debian/Ubuntu)',
@@ -2233,10 +2249,21 @@ class SystemUpdater
             ];
         }
         if ($diagnostics['disk_space']['status'] !== 'ok') {
+            $details = 'Nur ' . ($diagnostics['disk_space']['free_space_mb'] ?? 0) . ' MB frei';
+            if (isset($diagnostics['disk_space']['storage_size_mb'])) {
+                $details .= '<br>storage: ' . $diagnostics['disk_space']['storage_size_mb'] . ' MB';
+            }
+            if (isset($diagnostics['disk_space']['backup_size_mb'])) {
+                $details .= ', backups: ' . $diagnostics['disk_space']['backup_size_mb'] . ' MB';
+            }
+            if (isset($diagnostics['disk_space']['temp_update_dirs_count']) && $diagnostics['disk_space']['temp_update_dirs_count'] > 0) {
+                $details .= '<br>' . $diagnostics['disk_space']['temp_update_dirs_count'] . ' fehlgeschlagene Update-Verzeichnisse';
+            }
+
             $problems[] = [
                 'title' => 'Speicherplatz',
                 'status' => $diagnostics['disk_space']['status'],
-                'details' => 'Nur ' . ($diagnostics['disk_space']['free_space_mb'] ?? 0) . ' MB verfügbar'
+                'details' => $details
             ];
         }
         if ($diagnostics['network']['status'] !== 'ok') {
@@ -2327,6 +2354,17 @@ class SystemUpdater
         $lines[] = "SPEICHER:";
         $lines[] = "---------";
         $lines[] = "Frei: " . ($diagnostics['disk_space']['free_space_mb'] ?? 'unbekannt') . " MB";
+        $lines[] = "Gesamt: " . ($diagnostics['disk_space']['total_space_mb'] ?? 'unbekannt') . " MB";
+        $lines[] = "Auslastung: " . ($diagnostics['disk_space']['usage_percent'] ?? 'unbekannt') . "%";
+        if (isset($diagnostics['disk_space']['storage_size_mb'])) {
+            $lines[] = "Storage-Verzeichnis: " . $diagnostics['disk_space']['storage_size_mb'] . " MB";
+        }
+        if (isset($diagnostics['disk_space']['backup_size_mb'])) {
+            $lines[] = "Backup-Verzeichnis: " . $diagnostics['disk_space']['backup_size_mb'] . " MB";
+        }
+        if (isset($diagnostics['disk_space']['temp_update_dirs_count']) && $diagnostics['disk_space']['temp_update_dirs_count'] > 0) {
+            $lines[] = "Fehlgeschlagene Update-Verzeichnisse: " . $diagnostics['disk_space']['temp_update_dirs_count'];
+        }
         $lines[] = "Status: " . $diagnostics['disk_space']['status'];
         $lines[] = "";
 
