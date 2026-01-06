@@ -34,9 +34,12 @@ try {
     SQL;
     $pdo->exec($sql);
 
-    // Dokumente-Tabelle erweitern
+    // Dokumente-Tabelle erweitern - SEPARATE Statements für MySQL 8.0
     $sql = "ALTER TABLE `intra_mitarbeiter_dokumente` 
-            ADD COLUMN IF NOT EXISTS `template_id` INT DEFAULT NULL,
+            ADD COLUMN IF NOT EXISTS `template_id` INT DEFAULT NULL";
+    $pdo->exec($sql);
+
+    $sql = "ALTER TABLE `intra_mitarbeiter_dokumente` 
             ADD COLUMN IF NOT EXISTS `custom_data` TEXT DEFAULT NULL";
     $pdo->exec($sql);
 
