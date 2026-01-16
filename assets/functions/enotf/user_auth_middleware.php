@@ -1,7 +1,7 @@
 <?php
-
-if (!isset($_SESSION)) {
-    session_start();
+// Session wird durch config.php gestartet (SessionManager)
+if (session_status() === PHP_SESSION_NONE) {
+    require_once __DIR__ . '/../../config/config.php';
 }
 
 if (defined('ENOTF_REQUIRE_USER_AUTH') && ENOTF_REQUIRE_USER_AUTH === true) {

@@ -17,8 +17,6 @@
  *   "output": "Composer output"
  * }
  */
-
-session_start();
 require_once __DIR__ . '/../assets/config/config.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 

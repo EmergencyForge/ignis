@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once __DIR__ . '/../assets/config/config.php';
 require_once __DIR__ . '/../assets/config/database.php';
 

@@ -15,8 +15,6 @@ if (strpos($userAgent, 'CitizenFX') !== false) {
     header_remove('X-Frame-Options');
     // KEIN neuer CSP wird gesetzt!
 }
-
-session_start();
 require_once __DIR__ . '/../../../config/config.php';
 require_once __DIR__ . '/../../../config/database.php';
 

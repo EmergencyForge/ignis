@@ -5,12 +5,13 @@ require __DIR__ . '/../assets/config/database.php';
 
 use App\Helpers\DiscordOAuth;
 use App\Notifications\NotificationManager;
+use App\Session\SessionManager;
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-session_start();
+// Session wird bereits durch config.php gestartet
 
 if (!isset($_SESSION['oauth2state']) || !isset($_SESSION['oauth2state_time'])) {
     exit('Session expired. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
@@ -230,6 +231,11 @@ try {
 
     $redirectUrl = $_SESSION['redirect_url'] ?? BASE_PATH . 'index.php';
     unset($_SESSION['redirect_url']);
+    
+    // Sicherheit: Session-ID nach Login regenerieren (verhindert Session-Fixation)
+    SessionManager::regenerate();
+    $_SESSION['permissions_loaded'] = time(); // TTL für Permissions setzen
+    
     header("Location: $redirectUrl");
     exit;
 } catch (Exception $e) {

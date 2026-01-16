@@ -1,7 +1,6 @@
 <?php
-session_start();
+// Session wird durch config.php gestartet (SessionManager)
 require_once __DIR__ . '/assets/config/config.php';
-require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/assets/config/database.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];

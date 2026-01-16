@@ -12,8 +12,6 @@ if (strpos($userAgent, 'CitizenFX') !== false) {
     header_remove('X-Frame-Options');
     // KEIN neuer CSP wird gesetzt!
 }
-
-session_start();
 require_once __DIR__ . '/../assets/config/config.php';
 
 if (isset($_SESSION['einsatz_vehicle_name']) && isset($_SESSION['einsatz_operator_name'])) {

@@ -3,7 +3,6 @@
  * Search suggestions API for Knowledge Base
  * Returns article suggestions based on search query
  */
-session_start();
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../assets/config/config.php';

@@ -75,7 +75,7 @@ class Redirects
     public static function rememberCurrentPage(string $sessionKey = 'redirect_after'): void
     {
         if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+            \App\Session\SessionManager::start();
         }
 
         $currentUrl = self::getCurrentUrl();
@@ -87,7 +87,7 @@ class Redirects
     public static function redirectToRememberedPage(string $defaultUrl, string $sessionKey = 'redirect_after', array $params = ['success' => 1]): void
     {
         if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+            \App\Session\SessionManager::start();
         }
 
         $rememberedUrl = $_SESSION[$sessionKey] ?? '';

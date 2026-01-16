@@ -383,7 +383,10 @@ $migrationFiles = [
     ['file' => 'alter_intra_enotf_quicklinks_29122025_category_slug.php', 'type' => 'alter'],
 
     // 30.12.2025
-    ['file' => 'alter_intra_edivi_30122025_billing.php', 'type' => 'alter']
+    ['file' => 'alter_intra_edivi_30122025_billing.php', 'type' => 'alter'],
+
+    // 16.01.2026
+    ['file' => 'add_performance_indexes_16012026.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

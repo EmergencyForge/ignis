@@ -10,8 +10,6 @@ $provider = DiscordOAuth::createProvider('auth/callback.php');
 $authorizationUrl = $provider->getAuthorizationUrl([
     'scope' => ['identify']
 ]);
-
-session_start();
 $_SESSION['oauth2state'] = $provider->getState();
 $_SESSION['oauth2state_time'] = time();
 

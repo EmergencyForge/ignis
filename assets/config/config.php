@@ -1,12 +1,30 @@
 <?php
 
+// Autoloader muss zuerst geladen werden
+require_once __DIR__ . '/../../vendor/autoload.php';
+
 use App\Auth\Permissions;
 use App\Config\ConfigManager;
+use App\Session\SessionManager;
 
-if (session_status() === PHP_SESSION_NONE) {
-    if (isset($_SESSION['userid']) && !isset($_SESSION['permissions'])) {
+// ============================================================================
+// Session mit Sicherheitsoptimierungen starten
+// ============================================================================
+SessionManager::start();
+
+// ============================================================================
+// Permissions mit TTL (Time-to-Live)
+// ============================================================================
+// Permissions werden alle 5 Minuten neu aus der DB geladen.
+// Das stellt sicher, dass Änderungen an Rollen zeitnah wirksam werden.
+if (isset($_SESSION['userid'])) {
+    $permissionsAge = time() - ($_SESSION['permissions_loaded'] ?? 0);
+    $permissionsTTL = 300; // 5 Minuten
+    
+    if (!isset($_SESSION['permissions']) || $permissionsAge > $permissionsTTL) {
         require_once __DIR__ . '/database.php';
         $_SESSION['permissions'] = Permissions::retrieveFromDatabase($pdo, $_SESSION['userid']);
+        $_SESSION['permissions_loaded'] = time();
     }
 }
 

@@ -20,7 +20,8 @@
   },
   "config": {
     "optimize-autoloader": true,
-    "classmap-authoritative": false
+    "classmap-authoritative": false,
+    "apcu-autoloader": true
   },
   "scripts": {
     "db:migrate": "@php setup/database-init.php",

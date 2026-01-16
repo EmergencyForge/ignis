@@ -3,8 +3,6 @@ ob_start();
 
 error_reporting(E_ERROR | E_PARSE);
 ini_set('display_errors', 0);
-
-session_start();
 require_once __DIR__ . '/../../../assets/config/config.php';
 require_once __DIR__ . '/../../../assets/config/database.php';
 

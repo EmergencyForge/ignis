@@ -1,13 +1,8 @@
 <?php
 require_once __DIR__ . '/assets/config/config.php';
 require_once __DIR__ . '/assets/config/database.php';
-ini_set('session.gc_maxlifetime', 604800);
-ini_set('session.cookie_path', '/');
-ini_set('session.cookie_domain', SYSTEM_URL);
-ini_set('session.cookie_lifetime', 604800);
-ini_set('session.cookie_secure', true);
 
-session_start();
+// Session wird bereits durch config.php gestartet (SessionManager)
 
 if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
     // Check if there's an eNOTF redirect pending
