@@ -72,9 +72,18 @@
             toggleInputChecked(inputElement);
             checkGroupStatus();
         });
+        inputElement.addEventListener('change', () => {
+            toggleInputChecked(inputElement);
+            checkGroupStatus();
+        });
     });
 
     document.addEventListener('DOMContentLoaded', checkGroupStatus);
+
+    // Re-check after custom dropdowns are initialized
+    setTimeout(function() {
+        checkGroupStatus();
+    }, 500);
 
     document.addEventListener('DOMContentLoaded', function() {
         const clickableBoxes = document.querySelectorAll('.edivi__box-clickable');

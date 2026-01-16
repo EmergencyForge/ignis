@@ -249,8 +249,7 @@ body#dashboard::before {
   height: 100%;
   background: url("/assets/img/wallpaper.webp") no-repeat center center fixed;
   background-size: cover;
-  filter: blur(3px);
-  /* Adjust the value (5px) to control the amount of blur */
+  filter: blur(3px); /* Adjust the value (5px) to control the amount of blur */
   z-index: -1;
 }
 

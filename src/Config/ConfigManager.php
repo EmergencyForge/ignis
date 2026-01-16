@@ -22,15 +22,15 @@ class ConfigManager
     public function loadAndDefineConfig(): void
     {
         $configs = $this->getAllConfig();
-        
+
         foreach ($configs as $config) {
             $key = $config['config_key'];
             $value = $config['config_value'];
             $type = $config['config_type'];
-            
+
             // Convert value based on type
             $definedValue = $this->convertValue($value, $type);
-            
+
             // Define constant if not already defined
             if (!defined($key)) {
                 define($key, $definedValue);
@@ -72,7 +72,7 @@ class ConfigManager
     {
         $configs = $this->getAllConfig();
         $grouped = [];
-        
+
         foreach ($configs as $config) {
             $category = $config['category'];
             if (!isset($grouped[$category])) {
@@ -80,7 +80,7 @@ class ConfigManager
             }
             $grouped[$category][] = $config;
         }
-        
+
         return $grouped;
     }
 
@@ -99,11 +99,11 @@ class ConfigManager
             ");
             $stmt->execute([$key]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($result) {
                 return $this->convertValue($result['config_value'], $result['config_type']);
             }
-            
+
             return null;
         } catch (PDOException $e) {
             error_log("Failed to get config value: " . $e->getMessage());
@@ -124,13 +124,13 @@ class ConfigManager
         try {
             // Clear cache
             self::$configCache = null;
-            
+
             $stmt = $this->pdo->prepare("
                 UPDATE intra_config 
                 SET config_value = ?, updated_by = ?, updated_at = NOW()
                 WHERE config_key = ? AND is_editable = 1
             ");
-            
+
             return $stmt->execute([$value, $userId, $key]);
         } catch (PDOException $e) {
             error_log("Failed to update config value: " . $e->getMessage());
@@ -149,16 +149,16 @@ class ConfigManager
     {
         $failed = [];
         $updated = [];
-        
+
         $this->pdo->beginTransaction();
-        
+
         try {
             $stmt = $this->pdo->prepare("
                 UPDATE intra_config 
                 SET config_value = ?, updated_by = ?, updated_at = NOW()
                 WHERE config_key = ? AND is_editable = 1
             ");
-            
+
             foreach ($updates as $key => $value) {
                 if ($stmt->execute([$value, $userId, $key])) {
                     $updated[] = $key;
@@ -166,7 +166,7 @@ class ConfigManager
                     $failed[] = $key;
                 }
             }
-            
+
             if (empty($failed)) {
                 $this->pdo->commit();
                 // Clear cache after successful commit
@@ -195,7 +195,7 @@ class ConfigManager
         if ($value === null) {
             return null;
         }
-        
+
         switch ($type) {
             case 'boolean':
                 return $value === 'true' || $value === '1' || $value === 'yes';
@@ -222,8 +222,9 @@ class ConfigManager
             'server' => 'Server Daten',
             'rp' => 'RP Daten',
             'funktionen' => 'Funktionen',
+            'integrationen' => 'Integrationen',
         ];
-        
+
         return $names[$category] ?? ucfirst($category);
     }
 }

@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../../assets/config/config.php';
 require __DIR__ . '/../../assets/config/database.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use App\Integrations\DiscordWebhook;
 
 if (isset($_POST['enr']) && isset($_POST['field'])) {
     $enr = $_POST['enr'];
@@ -19,6 +22,21 @@ if (isset($_POST['enr']) && isset($_POST['field'])) {
         $query = "UPDATE intra_edivi SET freigeber_name = :value, freigegeben = 1, last_edit = NOW() WHERE enr = :enr";
         $stmt = $pdo->prepare($query);
         $stmt->execute(['value' => $value, 'enr' => $enr]);
+
+        // Discord Webhook Benachrichtigung bei Protokoll-Freigabe
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE enr = :enr");
+            $stmt->execute(['enr' => $enr]);
+            $protokoll = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($protokoll) {
+                $discordWebhook = new DiscordWebhook($pdo);
+                $discordWebhook->notifyEnotfProtocolReleased($protokoll);
+            }
+        } catch (\Exception $e) {
+            // Fehler beim Discord-Webhook loggen, aber Prozess nicht unterbrechen
+            error_log("Discord Webhook Fehler (eNOTF Protokoll-Freigabe): " . $e->getMessage());
+        }
 
         echo "Freigeber erfolgreich gespeichert und freigegeben.";
         exit();

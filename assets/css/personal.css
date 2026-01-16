@@ -12,7 +12,9 @@
 .ma-logs details summary {
   font-weight: 600;
   color: var(--bs-secondary-color);
-  user-select: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
 }
 
 .ma-logs details summary::-webkit-details-marker {
@@ -160,5 +162,3 @@
 .ck-editor {
   color: #000;
 }
-
-/*# sourceMappingURL=personal.css.map */

@@ -226,6 +226,12 @@ const eNOTFCustomDropdown = {
       optionsList: optionsList,
     });
 
+    // Trigger change event to update validation state
+    setTimeout(() => {
+      const changeEvent = new Event("change", { bubbles: true });
+      originalSelect.dispatchEvent(changeEvent);
+    }, 100);
+
     return wrapper;
   },
 

@@ -17,6 +17,8 @@ require __DIR__ . '/../assets/config/database.php';
 require_once __DIR__ . '/../assets/functions/enotf/user_auth_middleware.php';
 require_once __DIR__ . '/../assets/functions/enotf/pin_middleware.php';
 
+use App\Integrations\DiscordWebhook;
+
 $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
 
 date_default_timezone_set('Europe/Berlin');

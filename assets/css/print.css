@@ -41,7 +41,8 @@ p.print__text-small {
 }
 
 input[type=radio] {
-  appearance: none;
+  -moz-appearance: none;
+       appearance: none;
   -webkit-appearance: none;
   width: 6pt;
   height: 6pt;
@@ -87,7 +88,9 @@ input[type=radio]:checked {
   padding-left: 0.35rem;
   cursor: default;
   pointer-events: none;
-  user-select: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   caret-color: transparent;
 }
 .print__field-wrapper .print__field:focus {
@@ -102,7 +105,9 @@ input[type=radio]:checked {
   padding-left: 0.35rem;
   cursor: default;
   pointer-events: none;
-  user-select: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   caret-color: transparent;
   margin-top: 5pt;
 }
@@ -114,7 +119,9 @@ input[type=radio]:checked {
   border: 0;
   cursor: default;
   pointer-events: none;
-  user-select: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
   caret-color: transparent;
 }
 .print__field-wrapper .print__textbox:focus {
@@ -185,21 +192,18 @@ body {
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
-
   body {
     margin: 0;
     padding: 0;
     background: white !important;
     transform: none !important;
   }
-
   .zoom-wrapper {
     display: contents !important;
     height: auto !important;
     margin: 0 !important;
     overflow: visible !important;
   }
-
   .print__paper {
     page-break-after: always;
     page-break-inside: avoid;
@@ -210,69 +214,58 @@ body {
     box-sizing: border-box;
     transform: none !important;
   }
-
   .print__paper:last-child {
     page-break-after: auto;
   }
-
   .row {
     page-break-inside: avoid;
     display: flex !important;
     flex-wrap: wrap !important;
   }
-
   .col,
-[class*=col-] {
+  [class*=col-] {
     flex-shrink: 0;
   }
-
   canvas {
     max-width: 100% !important;
     height: auto !important;
     display: block !important;
   }
-
   .col:has(#vitalChart) {
     border-left: 1px solid #000 !important;
     border-bottom: 1px solid #000 !important;
   }
-
   .border {
     border-color: #000 !important;
   }
-
   input[type=radio] {
     -webkit-appearance: none;
-    appearance: none;
+    -moz-appearance: none;
+         appearance: none;
     width: 6pt;
     height: 6pt;
     border: 1px solid #000 !important;
     border-radius: 50%;
     background: white;
   }
-
   input[type=radio]:checked {
     background-color: #000 !important;
   }
-
   input[type=text],
-textarea,
-select {
+  textarea,
+  select {
     border-color: #000 !important;
     background: white !important;
     color: black !important;
   }
-
   * {
     color: black !important;
   }
-
   .print__heading,
-.print__heading-main,
-.print__text-small {
+  .print__heading-main,
+  .print__text-small {
     color: black !important;
   }
-
   #topbar {
     display: none !important;
   }

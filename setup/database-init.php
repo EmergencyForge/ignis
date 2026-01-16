@@ -387,6 +387,7 @@ $migrationFiles = [
 
     // 16.01.2026
     ['file' => 'add_performance_indexes_16012026.php', 'type' => 'alter'],
+    ['file' => 'insert_discord_webhooks_config_16012026.php', 'type' => 'insert'],
 ];
 
 $executed = 0;

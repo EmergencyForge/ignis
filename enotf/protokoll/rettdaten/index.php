@@ -220,7 +220,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         </div>
                                     </div>
                                     <div class="row my-2">
-                                        <div class="col">
+                                        <div class="col-6">
                                             <label for="transportziel" class="edivi__description">Versorgung</label>
                                             <select name="transportziel" id="transportziel" class="w-100 form-select edivi__input-check" required autocomplete="off" data-custom-dropdown="true" data-search-threshold="8">
                                                 <option disabled hidden selected>---</option>
@@ -235,7 +235,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 <option value="99" <?php echo ($daten['transportziel'] == 99 ? 'selected' : '') ?>>Sonstige</option>
                                             </select>
                                         </div>
-                                        <div class="col">
+                                        <div class="col-6">
                                             <label for="eart" class="edivi__description">Einsatzart</label>
                                             <select name="eart" id="eart" class="w-100 form-select edivi__input-check" required autocomplete="off" data-custom-dropdown="true">
                                                 <option disabled hidden selected>---</option>

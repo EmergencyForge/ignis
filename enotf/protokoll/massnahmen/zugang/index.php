@@ -227,7 +227,10 @@ function hasAnyZugang($zugangJson)
                         },
                         success: function(response) {
                             showToast('Alle Zugänge entfernt', 'success');
-
+                            // Aktualisiere Validierungsstatus
+                            if (typeof checkGroupStatus === 'function') {
+                                checkGroupStatus();
+                            }
                         }
                     });
                 }

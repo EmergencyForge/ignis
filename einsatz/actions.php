@@ -18,6 +18,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Utils\AuditLogger;
+use App\Integrations\DiscordWebhook;
 
 require __DIR__ . '/../assets/config/database.php';
 
@@ -198,6 +199,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $auditLogger = new AuditLogger($pdo);
                 $auditLogger->log($_SESSION['userid'], 'Einsatz abgeschlossen [ID: ' . $id . ']', NULL, 'Feuerwehr', 1);
+
+                // Discord Webhook Benachrichtigung senden
+                try {
+                    $stmt = $pdo->prepare("SELECT i.*, m.fullname AS leader_name FROM intra_fire_incidents i LEFT JOIN intra_mitarbeiter m ON i.leader_id = m.id WHERE i.id = ?");
+                    $stmt->execute([$id]);
+                    $incidentData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if ($incidentData) {
+                        $discordWebhook = new DiscordWebhook($pdo);
+                        $discordWebhook->notifyFireProtocolReleased($incidentData);
+                    }
+                } catch (\Exception $e) {
+                    // Fehler beim Discord-Webhook loggen, aber Prozess nicht unterbrechen
+                    error_log("Discord Webhook Fehler (Fire Protokoll): " . $e->getMessage());
+                }
 
                 Flash::success('Protokoll zur QM-Sichtung markiert.');
             } else {

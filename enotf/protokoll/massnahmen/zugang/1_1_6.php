@@ -348,6 +348,9 @@ function hasAnyZugang($zugangJson)
                                 if (typeof validateLinks === 'function') {
                                     validateLinks();
                                 }
+                                if (typeof checkGroupStatus === 'function') {
+                                    checkGroupStatus();
+                                }
                             }
                             if (typeof showToast === 'function') {
                                 showToast('Alle Zugänge entfernt', 'success');

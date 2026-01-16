@@ -19,6 +19,7 @@ require_once __DIR__ . '/../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
 use App\Helpers\Redirects;
+use App\Integrations\DiscordWebhook;
 
 $daten = array();
 
@@ -60,7 +61,16 @@ date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
+// LOGGING: Prüfe ob POST-Request
+$logFile = __DIR__ . '/php_errors.log';
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] POST-Request erhalten\n", FILE_APPEND);
+    file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] POST data: " . print_r($_POST, true) . "\n", FILE_APPEND);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new'] == "1") {
+    file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Verarbeite neue Voranmeldung...\n", FILE_APPEND);
+
     $requiredFields = [
         'priority',
         'arrival_date',
@@ -76,11 +86,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
     foreach ($requiredFields as $field) {
         if (!isset($_POST[$field]) || $_POST[$field] === '' || $_POST[$field] === 'NULL') {
             $allFilled = false;
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Fehlendes Pflichtfeld: {$field}\n", FILE_APPEND);
             break;
         }
     }
 
     if ($allFilled) {
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Alle Pflichtfelder gefüllt, führe INSERT aus...\n", FILE_APPEND);
         $arrivalDateTime = $_POST['arrival_date'] . ' ' . $_POST['arrival_time'] . ':00';
         $stmt = $pdo->prepare("
             INSERT INTO intra_edivi_prereg (
@@ -124,9 +136,163 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
             'ziel' => $_POST['ziel']
         ]);
 
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] INSERT ausgeführt\n", FILE_APPEND);
+
+        // LOGGING: Voranmeldung wurde gespeichert
+        $logFile = __DIR__ . '/../schnittstelle/php_errors.log';
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Voranmeldung gespeichert, ID: " . $pdo->lastInsertId() . "\n", FILE_APPEND);
+
+        // Discord Webhook Benachrichtigung senden
+        try {
+            $preregId = $pdo->lastInsertId();
+
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Discord Webhook wird vorbereitet...\n", FILE_APPEND);
+
+            // Diagnose-Label holen
+            $diagnose_labels = [
+                1 => 'Schlaganfall / TIA / ICB',
+                2 => 'ICB (klin. Diagn.)',
+                3 => 'SAB (klin. Diagn.)',
+                4 => 'Krampfanfall',
+                5 => 'Status Epilepticus',
+                6 => 'Meningitis / Encephalitis',
+                9 => 'sonstige Erkrankung ZNS',
+                11 => 'ACS / NSTEMI',
+                12 => 'ACS / STEMI',
+                13 => 'Kardiogener Schock',
+                14 => 'tachykarde Arrhythmie',
+                15 => 'bradykarde Arrhythmie',
+                16 => 'Schrittmacher-/ICD Fehlfunktion',
+                17 => 'Lungenembolie',
+                18 => 'Lungenödem',
+                19 => 'hypertensiver Notfall',
+                20 => 'Aortenaneurysma',
+                21 => 'Hypotonie',
+                22 => 'Synkope',
+                23 => 'Thrombose / art. Verschluss',
+                24 => 'Herz-Kreislauf-Stillstand',
+                25 => 'Schock unklarer Genese',
+                26 => 'unklarer Thoraxschmerz',
+                27 => 'orthostatische Fehlregulation',
+                28 => 'hypertensive Krise / Entgleisung',
+                29 => 'sonstige Erkrankung Herz-Kreislauf',
+                31 => 'Asthma (Anfall)',
+                32 => 'Status Asthmaticus',
+                33 => 'exacerbierte COPD',
+                34 => 'Aspiration',
+                35 => 'Pneumonie / Bronchitis',
+                36 => 'Hyperventilation',
+                37 => 'Spontanpneumothorax',
+                38 => 'Hämoptysis',
+                39 => 'Dyspnoe unklarer Ursache',
+                49 => 'sonstige Erkrankung Atmung',
+                51 => 'akutes Abdomen',
+                52 => 'obere GI-Blutung',
+                53 => 'untere GI-Blutung',
+                54 => 'Gallenkolik',
+                55 => 'Nierenkolik',
+                56 => 'Kolik allgemein',
+                59 => 'sonstige Erkrankung Abdomen',
+                61 => 'psychischer Ausnahmezustand',
+                62 => 'Depression',
+                63 => 'Manie',
+                64 => 'Intoxikation',
+                65 => 'Entzug, Delir',
+                66 => 'Suizidalität',
+                67 => 'psychosoziale Krise',
+                69 => 'sonstige Erkrankung Psychiatrie',
+                71 => 'Hypoglykämie',
+                72 => 'Hyperglykämie',
+                73 => 'Urämie / ANV',
+                74 => 'Exsikkose',
+                75 => 'Hypothermie',
+                76 => 'Hyperthermie',
+                79 => 'sonstige Erkrankung Stoffwechsel',
+                81 => 'Verbrennung',
+                82 => 'Erfrierung',
+                83 => 'Verätzung',
+                84 => 'Inhalationstrauma',
+                85 => 'Stromunfall',
+                86 => 'Ertrinkungsunfall',
+                87 => 'Tauchunfall',
+                88 => 'Strangulation',
+                89 => 'sonstige Vergiftung / Umwelt',
+                91 => 'SHT',
+                92 => 'Polytrauma',
+                93 => 'Thoraxtrauma',
+                94 => 'Bauchtrauma',
+                95 => 'Extremitätentrauma',
+                96 => 'Wirbelsäulentrauma',
+                97 => 'Beckenfraktur',
+                98 => 'andere traumatologische Verletzung',
+                99 => 'sonstiges Trauma',
+                101 => 'Wochenbett',
+                102 => 'Schwangerschaft',
+                103 => 'Geburt',
+                104 => 'Fehlgeburt',
+                105 => 'gynäkologische Blutung',
+                109 => 'sonstige gynäkologische Erkrankung',
+                111 => 'Neugeborenes (U1)',
+                112 => 'Frühgeburt',
+                113 => 'Fieberkrampf',
+                114 => 'Pseudokrupp',
+                115 => 'Epiglottitis',
+                116 => 'Fremdkörperaspiration',
+                119 => 'sonstige pädiatrische Erkrankung',
+                999 => 'Sonstiges'
+            ];
+
+            // Diagnose: Wenn bereits Text, direkt verwenden, sonst mapping
+            if (is_numeric($_POST['diagnose'])) {
+                $diagnoseText = $diagnose_labels[$_POST['diagnose']] ?? 'Code ' . $_POST['diagnose'];
+            } else {
+                $diagnoseText = $_POST['diagnose'];
+            }
+
+            // Zielklinik auflösen
+            $zielText = $_POST['ziel'];
+            if (strpos($_POST['ziel'], 'poi_') === 0) {
+                $poiId = str_replace('poi_', '', $_POST['ziel']);
+                $poiStmt = $pdo->prepare("SELECT name FROM intra_edivi_pois WHERE id = ?");
+                $poiStmt->execute([$poiId]);
+                $poiData = $poiStmt->fetch();
+                if ($poiData) {
+                    $zielText = $poiData['name'];
+                }
+            }
+
+            $preregData = [
+                'id' => $preregId,
+                'enr' => $daten['enr'],
+                'priority' => $_POST['priority'],
+                'arrival' => $arrivalDateTime,
+                'fahrzeug' => $_POST['fahrzeug'],
+                'diagnose' => $diagnoseText,
+                'ziel' => $zielText,
+                'intubiert' => $_POST['intubiert'],
+                'kreislauf' => $_POST['kreislauf']
+            ];
+
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Erstelle DiscordWebhook-Objekt...\n", FILE_APPEND);
+            $discordWebhook = new DiscordWebhook($pdo);
+
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Rufe notifyEnotfPreregistration auf...\n", FILE_APPEND);
+            $result = $discordWebhook->notifyEnotfPreregistration($preregData);
+
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Discord Webhook Ergebnis: " . ($result ? 'ERFOLG' : 'FEHLER') . "\n", FILE_APPEND);
+            error_log("Discord Webhook Voranmeldung aufgerufen, Ergebnis: " . ($result ? 'true' : 'false'));
+        } catch (\Exception $e) {
+            // Fehler beim Discord-Webhook loggen, aber Prozess nicht unterbrechen
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] EXCEPTION: " . $e->getMessage() . "\n", FILE_APPEND);
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Stack Trace: " . $e->getTraceAsString() . "\n", FILE_APPEND);
+            error_log("Discord Webhook Fehler (eNOTF Voranmeldung): " . $e->getMessage());
+            error_log("Discord Webhook Stack Trace: " . $e->getTraceAsString());
+        }
+
         Redirects::redirect($defaultUrl, []);
         exit();
     } else {
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Pflichtfelder nicht alle gefüllt\n", FILE_APPEND);
         $formError = "Bitte füllen Sie alle Pflichtfelder korrekt aus.";
     }
 }

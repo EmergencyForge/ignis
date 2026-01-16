@@ -347,23 +347,22 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <?php
                                             $stmtfn = $pdo->query("SELECT fullname FROM intra_mitarbeiter ORDER BY fullname ASC");
                                             $fullnames = $stmtfn->fetchAll(PDO::FETCH_COLUMN);
+                                            $currentValue = $daten['pfname'] ?? '';
                                             ?>
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="pfname" class="edivi__description">Protokollant</label>
-                                                    <input type="text" name="pfname" id="pfname" class="w-100 form-control edivi__input-check" placeholder="Max Mustermann" value="<?= htmlspecialchars($daten['pfname'] ?? '') ?>" list="nameSuggestions" required>
-                                                    <datalist id="nameSuggestions">
-                                                        <?php foreach ($fullnames as $name): ?>
-                                                            <option value="<?= htmlspecialchars($name) ?>"></option>
-                                                        <?php endforeach; ?>
-                                                    </datalist>
+                                                    <div class="name-autocomplete-wrapper" style="position: relative;">
+                                                        <input type="text" class="w-100 form-control edivi__input-check" name="pfname" id="pfname" value="<?= htmlspecialchars($currentValue) ?>" required autocomplete="off" />
+                                                        <div class="name-dropdown" id="pfname-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; background-color: #444; border: 1px solid #555; border-radius: 4px; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);"></div>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="prot_by" class="edivi__description">Protokoll durch</label>
-                                                    <select name="prot_by" id="prot_by" class="w-100 form-select edivi__input-check" readonly required autocomplete="off" data-custom-dropdown="true">
-                                                        <option disabled hidden selected>---</option>
+                                                    <select name="prot_by" id="prot_by" class="w-100 form-select edivi__input-check" readonly required autocomplete="off">
+                                                        <option disabled hidden <?php echo (empty($daten['prot_by']) && $daten['prot_by'] !== 0 ? 'selected' : '') ?>>---</option>
                                                         <option value="0" <?php echo ($daten['prot_by'] == 0 ? 'selected' : '') ?>>Transportmittel</option>
                                                         <option value="1" <?php echo ($daten['prot_by'] == 1 ? 'selected' : '') ?>>Notarzt</option>
                                                     </select>
@@ -500,6 +499,76 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             // Immer ausführen, nicht nur wenn nicht freigegeben
             updateFieldStates();
         });
+
+        // Setup custom name autocomplete for Protokollant
+        const pfnameSuggestions = <?= json_encode($fullnames, JSON_UNESCAPED_UNICODE) ?>;
+
+        function setupNameAutocomplete(inputId, dropdownId, suggestions) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+
+            if (!input || !dropdown) return;
+
+            // Populate dropdown
+            function populateDropdown(filterValue = '') {
+                dropdown.innerHTML = '';
+                const filteredNames = suggestions.filter(name =>
+                    name.toLowerCase().includes(filterValue.toLowerCase())
+                );
+
+                filteredNames.forEach(name => {
+                    const item = document.createElement('div');
+                    item.className = 'name-item';
+                    item.style.cssText = 'padding: 8px 12px; cursor: pointer; color: white; border-bottom: 1px solid #555;';
+                    item.textContent = name;
+                    item.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = '#555';
+                    });
+                    item.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = '';
+                    });
+                    item.addEventListener('click', function() {
+                        input.value = name;
+                        dropdown.style.display = 'none';
+                        // Trigger change event for auto-save
+                        const changeEvent = new Event('change', {
+                            bubbles: true
+                        });
+                        input.dispatchEvent(changeEvent);
+                    });
+                    dropdown.appendChild(item);
+                });
+
+                return filteredNames.length > 0;
+            }
+
+            // Show dropdown on focus
+            input.addEventListener('focus', function() {
+                if (populateDropdown(this.value)) {
+                    dropdown.style.display = 'block';
+                }
+            });
+
+            // Filter dropdown on input
+            input.addEventListener('input', function() {
+                if (populateDropdown(this.value)) {
+                    dropdown.style.display = 'block';
+                } else {
+                    dropdown.style.display = 'none';
+                }
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.name-autocomplete-wrapper') ||
+                    (e.target.closest('.name-autocomplete-wrapper') &&
+                        e.target.closest('.name-autocomplete-wrapper').querySelector('input') !== input)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        setupNameAutocomplete('pfname', 'pfname-dropdown', pfnameSuggestions);
     </script>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
 </body>
