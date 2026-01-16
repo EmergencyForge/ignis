@@ -17,7 +17,7 @@ class NotificationManager
      * Create a new notification for a user
      * 
      * @param int $userId User ID to notify
-     * @param string $type Type of notification (antrag, protokoll, dokument, system)
+     * @param string $type Type of notification (antrag, protokoll, dokument, system, fire_protocol)
      * @param string $title Notification title
      * @param string|null $message Optional notification message
      * @param string|null $link Optional link to related item
@@ -26,7 +26,7 @@ class NotificationManager
     public function create(int $userId, string $type, string $title, ?string $message = null, ?string $link = null): bool
     {
         // Validate notification type
-        $validTypes = ['antrag', 'protokoll', 'dokument', 'system'];
+        $validTypes = ['antrag', 'protokoll', 'dokument', 'system', 'fire_protocol'];
         if (!in_array($type, $validTypes)) {
             error_log("Invalid notification type: {$type}");
             return false;
@@ -37,7 +37,7 @@ class NotificationManager
                 INSERT INTO intra_notifications (user_id, type, title, message, link)
                 VALUES (?, ?, ?, ?, ?)
             ");
-            
+
             return $stmt->execute([$userId, $type, $title, $message, $link]);
         } catch (\PDOException $e) {
             error_log("Failed to create notification: " . $e->getMessage());
@@ -83,11 +83,11 @@ class NotificationManager
             ");
             $stmt->execute([$fullname]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if ($result) {
                 return (int)$result['id'];
             }
-            
+
             // Fallback to intra_users fullname
             $stmt = $this->pdo->prepare("SELECT id FROM intra_users WHERE fullname = ?");
             $stmt->execute([$fullname]);
@@ -252,6 +252,105 @@ class NotificationManager
         } catch (\PDOException $e) {
             error_log("Failed to delete old notifications: " . $e->getMessage());
             return 0;
+        }
+    }
+
+    /**
+     * Create notification for fireTab protocol finalization
+     * Notifies the incident leader that their protocol has been finalized
+     * 
+     * @param array $incidentData Incident data (id, incident_number, location, leader_id, leader_name)
+     * @return bool Success status
+     */
+    public function notifyFireProtocolFinalized(array $incidentData): bool
+    {
+        $leaderId = $incidentData['leader_id'] ?? null;
+        if (!$leaderId) {
+            return false;
+        }
+
+        // Get user_id from leader_id (mitarbeiter id)
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT u.id 
+                FROM intra_mitarbeiter m 
+                JOIN intra_users u ON m.discordtag = u.discord_id 
+                WHERE m.id = ?
+            ");
+            $stmt->execute([$leaderId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$result) {
+                return false;
+            }
+
+            $userId = (int)$result['id'];
+            $incidentNumber = $incidentData['incident_number'] ?? 'Unbekannt';
+            $location = $incidentData['location'] ?? 'Unbekannt';
+            $incidentId = $incidentData['id'] ?? null;
+
+            $title = "Feuerwehr-Protokoll abgeschlossen";
+            $message = "Einsatzprotokoll {$incidentNumber} ({$location}) wurde zur QM-Sichtung freigegeben.";
+            $link = $incidentId ? BASE_PATH . "einsatz/view.php?id={$incidentId}" : null;
+
+            return $this->create($userId, 'fire_protocol', $title, $message, $link);
+        } catch (\PDOException $e) {
+            error_log("Failed to create fire protocol finalized notification: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Create notification for fireTab protocol status change
+     * Notifies the incident leader when QM changes the protocol status
+     * 
+     * @param array $incidentData Incident data (id, incident_number, location, leader_id, status)
+     * @param string $qmUsername Name of QM user who changed the status
+     * @return bool Success status
+     */
+    public function notifyFireProtocolStatusChanged(array $incidentData, string $qmUsername): bool
+    {
+        $leaderId = $incidentData['leader_id'] ?? null;
+        if (!$leaderId) {
+            return false;
+        }
+
+        // Get user_id from leader_id (mitarbeiter id)
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT u.id 
+                FROM intra_mitarbeiter m 
+                JOIN intra_users u ON m.discordtag = u.discord_id 
+                WHERE m.id = ?
+            ");
+            $stmt->execute([$leaderId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$result) {
+                return false;
+            }
+
+            $userId = (int)$result['id'];
+            $incidentNumber = $incidentData['incident_number'] ?? 'Unbekannt';
+            $location = $incidentData['location'] ?? 'Unbekannt';
+            $status = $incidentData['status'] ?? 'unbekannt';
+            $incidentId = $incidentData['id'] ?? null;
+
+            $statusLabels = [
+                'in_sichtung' => 'In Sichtung',
+                'gesichtet' => 'Gesichtet',
+                'negativ' => 'Negativ'
+            ];
+            $statusLabel = $statusLabels[$status] ?? $status;
+
+            $title = "Ihr Protokoll #{$incidentNumber} wurde bearbeitet";
+            $message = "Status: {$statusLabel}. Bearbeiter: {$qmUsername}";
+            $link = $incidentId ? BASE_PATH . "einsatz/view.php?id={$incidentId}" : null;
+
+            return $this->create($userId, 'fire_protocol', $title, $message, $link);
+        } catch (\PDOException $e) {
+            error_log("Failed to create fire protocol status change notification: " . $e->getMessage());
+            return false;
         }
     }
 }

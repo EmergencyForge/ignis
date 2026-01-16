@@ -58,10 +58,16 @@ use App\Helpers\Flash;
                     <?php include __DIR__ . '/assets/components/index/applications.php' ?>
                 </div>
             </div>
-            <div class="row mt-4 mb-5">
+            <div class="row mt-4">
                 <div class="col intra__tile">
                     <h4 class="mt-2 mb-3">Eigene eNOTF-Protokolle</h4>
                     <?php include __DIR__ . '/assets/components/index/protocols.php' ?>
+                </div>
+            </div>
+            <div class="row mt-4 mb-5">
+                <div class="col intra__tile">
+                    <h4 class="mt-2 mb-3">Eigene fireTab-Protokolle</h4>
+                    <?php include __DIR__ . '/assets/components/index/fire-protocols.php' ?>
                 </div>
             </div>
         </div>

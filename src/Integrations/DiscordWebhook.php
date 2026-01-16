@@ -143,8 +143,8 @@ class DiscordWebhook
         $payload = [
             'embeds' => [
                 [
-                    'title' => '🚒 Feuerwehr-Protokoll freigegeben',
-                    'description' => "Ein Feuerwehr-Einsatzprotokoll wurde zur QM-Sichtung freigegeben.",
+                    'title' => '🚒 fireTab-Protokoll freigegeben',
+                    'description' => "Ein fireTab-Protokoll wurde zur QM-Sichtung freigegeben.",
                     'color' => 15158332, // Red
                     'fields' => [
                         [

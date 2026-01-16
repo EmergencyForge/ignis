@@ -17,8 +17,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Helpers\UserHelper;
 use App\Utils\AuditLogger;
 use App\Integrations\DiscordWebhook;
+use App\Notifications\NotificationManager;
 
 require __DIR__ . '/../assets/config/database.php';
 
@@ -200,6 +202,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $auditLogger = new AuditLogger($pdo);
                 $auditLogger->log($_SESSION['userid'], 'Einsatz abgeschlossen [ID: ' . $id . ']', NULL, 'Feuerwehr', 1);
 
+                // Benachrichtigung an Einsatzleiter senden
+                try {
+                    $notificationManager = new NotificationManager($pdo);
+                    $notificationManager->notifyFireProtocolFinalized($incidentData);
+                } catch (\Exception $e) {
+                    error_log("Fehler beim Senden der Benachrichtigung (Fire Protokoll Freigabe): " . $e->getMessage());
+                }
+
                 // Discord Webhook Benachrichtigung senden
                 try {
                     $stmt = $pdo->prepare("SELECT i.*, m.fullname AS leader_name FROM intra_fire_incidents i LEFT JOIN intra_mitarbeiter m ON i.leader_id = m.id WHERE i.id = ?");
@@ -243,6 +253,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $auditLogger = new AuditLogger($pdo);
                 $auditLogger->log($_SESSION['userid'], 'QM-Status geändert [ID: ' . $id . '] → ' . ($statusLabels[$status] ?? $status), NULL, 'Feuerwehr', 1);
+
+                // Benachrichtigung an Einsatzleiter senden
+                try {
+                    $stmt = $pdo->prepare("SELECT i.*, m.fullname AS leader_name FROM intra_fire_incidents i LEFT JOIN intra_mitarbeiter m ON i.leader_id = m.id WHERE i.id = ?");
+                    $stmt->execute([$id]);
+                    $incidentData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if ($incidentData) {
+                        $notificationManager = new NotificationManager($pdo);
+                        $userHelper = new UserHelper($pdo);
+                        // Hole QM-Username mit der gleichen Methode wie bei eNOTF
+                        $qmUsername = $userHelper->getCurrentUserFullnameForAction();
+                        $notificationManager->notifyFireProtocolStatusChanged($incidentData, $qmUsername);
+                    }
+                } catch (\Exception $e) {
+                    error_log("Fehler beim Senden der Benachrichtigung (Fire Protokoll Statusänderung): " . $e->getMessage());
+                }
 
                 Flash::success('Status aktualisiert.');
             }

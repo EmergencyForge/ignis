@@ -188,6 +188,8 @@ try {
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         transition: background 0.2s;
         color: rgba(255, 255, 255, 0.85);
+        max-width: 100%;
+        overflow: hidden;
     }
 
     .notification-item:hover {
@@ -201,6 +203,11 @@ try {
 
     .notification-item .text-muted {
         color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .notification-dropdown {
+        max-width: 400px;
+        min-width: 350px;
     }
 
     .offcanvas-menu {
@@ -348,17 +355,17 @@ try {
                             $dt->setTimezone(new DateTimeZone(date_default_timezone_get()));
                             $diff = (new DateTime('now', new DateTimeZone(date_default_timezone_get())))->diff($dt);
                             $timeAgo = $diff->invert == 0 ? 'jetzt' : ($diff->days > 0 ? $diff->days . 'd' : ($diff->h > 0 ? $diff->h . 'h' : ($diff->i > 0 ? $diff->i . 'm' : 'jetzt')));
-                            $icons = ['antrag' => 'fa-file', 'protokoll' => 'fa-truck-medical', 'dokument' => 'fa-folder-open', 'system' => 'fa-gears'];
+                            $icons = ['antrag' => 'fa-file', 'protokoll' => 'fa-truck-medical', 'dokument' => 'fa-folder-open', 'fire_protocol' => 'fa-fire', 'system' => 'fa-gears'];
                             $icon = $icons[$n['type'] ?? ''] ?? 'fa-bell';
                         ?>
                             <li><a href="<?= htmlspecialchars($n['link'] ?: BASE_PATH . 'benachrichtigungen/index.php') ?>" class="notification-item d-flex text-decoration-none <?= $isUnread ? 'unread' : '' ?>">
                                     <div class="flex-shrink-0"><i class="fa-solid <?= $icon ?>"></i></div>
-                                    <div class="flex-grow-1 ms-2 min-w-0">
+                                    <div class="flex-grow-1 ms-2 min-w-0" style="overflow: hidden;">
                                         <div class="d-flex justify-content-between align-items-start mb-1">
-                                            <strong class="<?= $isUnread ? 'text-white' : '' ?>" style="font-size: 0.9rem;"><?= htmlspecialchars($n['title']) ?></strong>
+                                            <strong class="<?= $isUnread ? 'text-white' : '' ?> text-truncate" style="font-size: 0.9rem;"><?= htmlspecialchars($n['title']) ?></strong>
                                             <small class="text-muted ms-2 flex-shrink-0"><?= $timeAgo ?></small>
                                         </div>
-                                        <?php if ($n['message']): ?><small class="text-muted d-block text-truncate"><?= htmlspecialchars($n['message']) ?></small><?php endif; ?>
+                                        <?php if ($n['message']): ?><small class="text-muted d-block" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><?= htmlspecialchars($n['message']) ?></small><?php endif; ?>
                                     </div>
                                     <?php if ($isUnread): ?>
                                         <button class="btn btn-sm btn-link p-0 ms-2 mark-as-read-btn" data-notification-id="<?= $n['id'] ?>" title="Als gelesen markieren" onclick="event.preventDefault(); event.stopPropagation();">

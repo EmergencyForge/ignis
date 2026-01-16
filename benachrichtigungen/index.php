@@ -19,21 +19,21 @@ $userId = $_SESSION['userid'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Verify action exists
     $action = $_POST['action'] ?? null;
-    
+
     if ($action === 'mark_read' && isset($_POST['id']) && is_numeric($_POST['id'])) {
         $notificationManager->markAsRead((int)$_POST['id'], $userId);
         Flash::set('success', 'Benachrichtigung als gelesen markiert');
         header("Location: " . BASE_PATH . "benachrichtigungen/index.php");
         exit();
     }
-    
+
     if ($action === 'mark_all_read') {
         $notificationManager->markAllAsRead($userId);
         Flash::set('success', 'Alle Benachrichtigungen als gelesen markiert');
         header("Location: " . BASE_PATH . "benachrichtigungen/index.php");
         exit();
     }
-    
+
     if ($action === 'delete' && isset($_POST['id']) && is_numeric($_POST['id'])) {
         $notificationManager->delete((int)$_POST['id'], $userId);
         Flash::set('success', 'Benachrichtigung gelöscht');
@@ -150,7 +150,7 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
                         <?php else: ?>
                             <?php foreach ($notifications as $notification):
                                 $isUnread = $notification['is_read'] == 0;
-                                
+
                                 // MySQL stores timestamps in its system timezone, we need to convert to PHP's timezone
                                 // Create DateTime in MySQL's timezone (system timezone), then convert to PHP's timezone
                                 $datetime = new DateTime($notification['created_at'], new DateTimeZone('Europe/Berlin')); // MySQL SYSTEM timezone
@@ -178,7 +178,8 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
                                     'antrag' => 'fa-file',
                                     'protokoll' => 'fa-truck-medical',
                                     'dokument' => 'fa-folder-open',
-                                        'system' => 'fa-gears'
+                                    'fire_protocol' => 'fa-fire',
+                                    'system' => 'fa-gears'
                                 ];
                                 $icon = $iconClass[$notification['type'] ?? ''] ?? 'fa-bell';
                             ?>
@@ -196,7 +197,7 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
                                                         <?= htmlspecialchars($notification['title']) ?>
                                                     </h6>
                                                     <?php if ($notification['message']): ?>
-                                                        <p class="mb-1 text-muted">
+                                                        <p class="mb-1 text-muted" style="word-wrap: break-word; overflow-wrap: break-word;">
                                                             <?= htmlspecialchars($notification['message']) ?>
                                                         </p>
                                                     <?php endif; ?>
@@ -207,9 +208,9 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
                                                 </div>
                                                 <div class="notification-actions ms-3">
                                                     <?php if ($notification['link']): ?>
-                                                        <a href="<?= htmlspecialchars($notification['link']) ?>" 
-                                                           class="btn btn-sm btn-dark me-1"
-                                                           title="Öffnen">
+                                                        <a href="<?= htmlspecialchars($notification['link']) ?>"
+                                                            class="btn btn-sm btn-dark me-1"
+                                                            title="Öffnen">
                                                             <i class="fa-solid fa-external-link-alt"></i>
                                                         </a>
                                                     <?php endif; ?>
