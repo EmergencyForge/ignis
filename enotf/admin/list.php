@@ -45,6 +45,12 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                         <?php } else { ?>
                             <a href="?view=0" class="btn btn-secondary btn-sm">Bearbeitete einblenden</a>
                         <?php } ?>
+
+                        <?php if (Permissions::check(['admin', 'edivi.edit'])) { ?>
+                            <button onclick="showBulkDeleteModal()" class="btn btn-warning btn-sm">
+                                <i class="fa-solid fa-trash-can"></i> Leere Protokolle löschen
+                            </button>
+                        <?php } ?>
                     </div>
                     <?php
                     Flash::render();
@@ -169,6 +175,31 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             <span class="visually-hidden">Laden...</span>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Delete Empty Protocols Modal -->
+    <div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bulkDeleteModalLabel">Leere Protokolle löschen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="bulkDeleteContent">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" id="bulkDeleteFooter" style="display: none;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-danger" onclick="executeBulkDelete()">
+                        <i class="fa-solid fa-trash"></i> Jetzt löschen
+                    </button>
                 </div>
             </div>
         </div>
@@ -301,11 +332,17 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             // Reload the page to reflect changes
                             location.reload();
                         } else {
-                            showAlert('Fehler beim Speichern: ' + (data.message || 'Unbekannter Fehler'), {type: 'error', title: 'Fehler'});
+                            showAlert('Fehler beim Speichern: ' + (data.message || 'Unbekannter Fehler'), {
+                                type: 'error',
+                                title: 'Fehler'
+                            });
                         }
                     })
                     .catch(error => {
-                        showAlert('Fehler beim Speichern: ' + error.message, {type: 'error', title: 'Fehler'});
+                        showAlert('Fehler beim Speichern: ' + error.message, {
+                            type: 'error',
+                            title: 'Fehler'
+                        });
                     })
                     .finally(() => {
                         submitBtn.value = originalText;
@@ -313,6 +350,257 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                     });
             });
         });
+
+        // Bulk Delete Functions
+        window.showBulkDeleteModal = function() {
+            const modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
+
+            // Reset content and hide footer
+            document.getElementById('bulkDeleteContent').innerHTML = `
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Laden...</span>
+                    </div>
+                </div>
+            `;
+            document.getElementById('bulkDeleteFooter').style.display = 'none';
+
+            modal.show();
+
+            // Load preview via AJAX
+            fetch('<?= BASE_PATH ?>enotf/admin/bulk-delete-empty.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.fields) {
+                        let fieldsHtml = '';
+                        for (const [key, label] of Object.entries(data.fields)) {
+                            const checked = key === 'patname' ? 'checked' : '';
+                            fieldsHtml += `
+                                <div class="form-check">
+                                    <input class="form-check-input bulk-field-checkbox" type="checkbox" value="${key}" id="field_${key}" ${checked}>
+                                    <label class="form-check-label" for="field_${key}">
+                                        ${label}
+                                    </label>
+                                </div>
+                            `;
+                        }
+
+                        document.getElementById('bulkDeleteContent').innerHTML = `
+                            <div class="alert alert-info">
+                                <i class="fa-solid fa-circle-info"></i> 
+                                <strong>Felder auswählen</strong>
+                                <p class="mb-0 mt-2">Wählen Sie die Felder aus, die leer sein müssen, damit ein Protokoll gelöscht wird.</p>
+                            </div>
+                            <form id="bulkDeleteFieldsForm">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Zeitraum:</label>
+                                    <select class="form-select" id="timePeriod">
+                                        <option value="7">Letzte 7 Tage</option>
+                                        <option value="30" selected>Letzte 30 Tage</option>
+                                        <option value="90">Letzte 90 Tage</option>
+                                        <option value="180">Letzte 180 Tage</option>
+                                        <option value="all">Insgesamt (alle Protokolle)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
+                                    ${fieldsHtml}
+                                </div>
+                                <button type="button" class="btn btn-primary" onclick="previewBulkDelete()">
+                                    <i class="fa-solid fa-search"></i> Vorschau anzeigen
+                                </button>
+                            </form>
+                        `;
+                    } else {
+                        document.getElementById('bulkDeleteContent').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fa-solid fa-exclamation-circle"></i> 
+                                Fehler: ${data.message || 'Unbekannter Fehler'}
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('bulkDeleteContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fa-solid fa-exclamation-circle"></i> 
+                            Fehler: ${error.message}
+                        </div>
+                    `;
+                });
+        };
+
+        window.previewBulkDelete = function() {
+            const checkboxes = document.querySelectorAll('.bulk-field-checkbox:checked');
+            const selectedFields = Array.from(checkboxes).map(cb => cb.value);
+            const timePeriod = document.getElementById('timePeriod').value;
+
+            if (selectedFields.length === 0) {
+                alert('Bitte wählen Sie mindestens ein Feld aus.');
+                return;
+            }
+
+            document.getElementById('bulkDeleteContent').innerHTML = `
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Lade Vorschau...</span>
+                    </div>
+                </div>
+            `;
+
+            const formData = new FormData();
+            selectedFields.forEach(field => formData.append('fields[]', field));
+            formData.append('preview', '1');
+            formData.append('timePeriod', timePeriod);
+
+            fetch('<?= BASE_PATH ?>enotf/admin/bulk-delete-empty.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.count === 0) {
+                            document.getElementById('bulkDeleteContent').innerHTML = `
+                                <div class="alert alert-info">
+                                    <i class="fa-solid fa-circle-info"></i> 
+                                    <strong>Keine leeren Protokolle gefunden</strong>
+                                    <p class="mb-0 mt-2">Es wurden keine Protokolle gefunden, die alle ausgewählten Kriterien erfüllen.</p>
+                                </div>
+                                <button type="button" class="btn btn-secondary" onclick="showBulkDeleteModal()">
+                                    <i class="fa-solid fa-arrow-left"></i> Zurück
+                                </button>
+                            `;
+                        } else {
+                            let protocolsList = data.protocols.map(p => {
+                                const date = new Date(p.sendezeit);
+                                const dateStr = date.toLocaleDateString('de-DE') + ' ' + date.toLocaleTimeString('de-DE', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                });
+                                return `
+                                    <tr>
+                                        <td>${p.enr}</td>
+                                        <td>${p.patname || '<em>Unbekannt</em>'}</td>
+                                        <td>${dateStr}</td>
+                                        <td>${p.pfname || ''}</td>
+                                    </tr>
+                                `;
+                            }).join('');
+
+                            document.getElementById('bulkDeleteContent').innerHTML = `
+                                <div class="alert alert-warning">
+                                    <i class="fa-solid fa-exclamation-triangle"></i> 
+                                    <strong>Achtung!</strong>
+                                    <p class="mb-0 mt-2">Es wurden <strong>${data.count} leere Protokolle</strong> gefunden.</p>
+                                    <p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p>
+                                </div>
+                                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                    <table class="table table-sm table-striped">
+                                        <thead class="sticky-top bg-dark">
+                                            <tr>
+                                                <th>Einsatznummer</th>
+                                                <th>Patient</th>
+                                                <th>Angelegt am</th>
+                                                <th>Protokollant</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${protocolsList}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                            document.getElementById('bulkDeleteFooter').style.display = 'flex';
+
+                            // Store selected fields and time period for deletion
+                            window.bulkDeleteSelectedFields = selectedFields;
+                            window.bulkDeleteTimePeriod = timePeriod;
+                        }
+                    } else {
+                        document.getElementById('bulkDeleteContent').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fa-solid fa-exclamation-circle"></i> 
+                                Fehler: ${data.message || 'Unbekannter Fehler'}
+                            </div>
+                            <button type="button" class="btn btn-secondary" onclick="showBulkDeleteModal()">
+                                <i class="fa-solid fa-arrow-left"></i> Zurück
+                            </button>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('bulkDeleteContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fa-solid fa-exclamation-circle"></i> 
+                            Fehler: ${error.message}
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="showBulkDeleteModal()">
+                            <i class="fa-solid fa-arrow-left"></i> Zurück
+                        </button>
+                    `;
+                });
+        };
+
+        window.executeBulkDelete = function() {
+            const deleteButton = event.target;
+            const originalText = deleteButton.innerHTML;
+
+            if (!window.bulkDeleteSelectedFields || window.bulkDeleteSelectedFields.length === 0) {
+                alert('Keine Felder ausgewählt');
+                return;
+            }
+
+            deleteButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Lösche...';
+            deleteButton.disabled = true;
+
+            const formData = new FormData();
+            window.bulkDeleteSelectedFields.forEach(field => formData.append('fields[]', field));
+            formData.append('timePeriod', window.bulkDeleteTimePeriod || '30');
+            formData.append('timePeriod', window.bulkDeleteTimePeriod || '30');
+
+            fetch('<?= BASE_PATH ?>enotf/admin/bulk-delete-empty.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('bulkDeleteContent').innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fa-solid fa-check-circle"></i> 
+                            <strong>Erfolgreich!</strong>
+                            <p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich gelöscht.</p>
+                        </div>
+                    `;
+                        document.getElementById('bulkDeleteFooter').style.display = 'none';
+
+                        // Reload the page after 2 seconds
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        document.getElementById('bulkDeleteContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fa-solid fa-exclamation-circle"></i> 
+                            Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}
+                        </div>
+                    `;
+                        deleteButton.innerHTML = originalText;
+                        deleteButton.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('bulkDeleteContent').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fa-solid fa-exclamation-circle"></i> 
+                        Fehler beim Löschen: ${error.message}
+                    </div>
+                `;
+                    deleteButton.innerHTML = originalText;
+                    deleteButton.disabled = false;
+                });
+        };
     </script>
     <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 </body>
