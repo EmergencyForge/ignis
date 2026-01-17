@@ -10,13 +10,7 @@ namespace App\Session;
  * - Apache, NGINX, LiteSpeed
  * - Shared Hosting, VPS, Dedicated
  * - Reverse Proxies (CloudFlare, etc.)
- * - Custom Session Handler (Redis, Memcached, DB)
- * 
- * Verwendung:
- *   use App\Session\SessionManager;
- *   SessionManager::start();
- * 
- * Oder einfach config.php includen - das startet die Session automatisch.
+ * - iframe-Einbettung (z.B. FiveM CEF)
  */
 class SessionManager
 {
@@ -41,9 +35,6 @@ class SessionManager
     /**
      * Setzt sichere Session-Konfiguration
      * MUSS vor session_start() aufgerufen werden
-     * 
-     * Verwendet @-Operator um Fehler bei Shared Hosting zu unterdrücken
-     * wo ini_set() möglicherweise eingeschränkt ist
      */
     private static function configure(): void
     {
@@ -57,13 +48,26 @@ class SessionManager
         @ini_set('session.use_strict_mode', '1');
 
         // Sicherheit: CSRF-Schutz via SameSite (nur PHP 7.3+)
+        // WICHTIG: Für iframe-Nutzung (z.B. FiveM) muss SameSite=None + Secure gesetzt werden
         if (PHP_VERSION_ID >= 70300) {
-            @ini_set('session.cookie_samesite', 'Lax');
-        }
-
-        // Sicherheit: Cookie nur über HTTPS senden (wenn verfügbar)
-        if (self::isHttps()) {
-            @ini_set('session.cookie_secure', '1');
+            if (self::isIframeContext()) {
+                // iframe-Kontext: SameSite=None erlaubt Cross-Site Cookies
+                // Erfordert HTTPS (Secure-Flag)
+                @ini_set('session.cookie_samesite', 'None');
+                @ini_set('session.cookie_secure', '1');
+            } else {
+                // Normaler Kontext: Lax ist sicherer
+                @ini_set('session.cookie_samesite', 'Lax');
+                // Secure nur wenn HTTPS
+                if (self::isHttps()) {
+                    @ini_set('session.cookie_secure', '1');
+                }
+            }
+        } else {
+            // PHP < 7.3: Nur Secure setzen wenn HTTPS
+            if (self::isHttps()) {
+                @ini_set('session.cookie_secure', '1');
+            }
         }
 
         // Performance: Session-ID nur in Cookie, nicht in URL
@@ -72,8 +76,43 @@ class SessionManager
     }
 
     /**
+     * Erkennt ob die Anfrage aus einem iframe-Kontext kommt
+     * (z.B. FiveM CEF, eingebettete Widgets)
+     */
+    private static function isIframeContext(): bool
+    {
+        // Methode 1: Sec-Fetch-Dest Header (moderne Browser)
+        if (!empty($_SERVER['HTTP_SEC_FETCH_DEST']) && $_SERVER['HTTP_SEC_FETCH_DEST'] === 'iframe') {
+            return true;
+        }
+
+        // Methode 2: Bestimmte Pfade die typischerweise in iframes laufen
+        $iframePaths = ['/enotf/', '/einsatz/'];
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+        foreach ($iframePaths as $path) {
+            if (strpos($requestUri, $path) !== false) {
+                return true;
+            }
+        }
+
+        // Methode 3: Custom Header vom Game-Client
+        if (!empty($_SERVER['HTTP_X_IFRAME_REQUEST'])) {
+            return true;
+        }
+
+        // Methode 4: Referer von anderer Domain (Cross-Site)
+        if (!empty($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_HOST'])) {
+            $refererHost = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
+            if ($refererHost && $refererHost !== $_SERVER['HTTP_HOST']) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Prüft ob die Verbindung über HTTPS läuft
-     * Unterstützt verschiedene Reverse-Proxy-Konfigurationen
      */
     private static function isHttps(): bool
     {
@@ -143,7 +182,6 @@ class SessionManager
 
     /**
      * Regeneriert die Session-ID (nach Login empfohlen)
-     * Verhindert Session-Fixation-Angriffe
      */
     public static function regenerate(): void
     {
