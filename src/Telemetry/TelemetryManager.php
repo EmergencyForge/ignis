@@ -233,7 +233,7 @@ class TelemetryManager
         }
 
         $hubUrl = $this->getHubUrl();
-        $endpoint = rtrim($hubUrl, '/') . '/api/telemetry/heartbeat';
+        $endpoint = rtrim($hubUrl, '/') . '/api/telemetry/heartbeat.php';
         $data = $this->collectData();
 
         $context = stream_context_create([
@@ -265,12 +265,16 @@ class TelemetryManager
 
             $result = json_decode($response, true);
 
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return ['success' => false, 'message' => 'Ungültige JSON-Antwort vom Hub: ' . substr($response, 0, 200)];
+            }
+
             if (isset($result['success']) && $result['success']) {
                 $this->updateLastHeartbeat();
                 return ['success' => true, 'message' => 'Heartbeat erfolgreich gesendet'];
             }
 
-            return ['success' => false, 'message' => $result['message'] ?? 'Unbekannte Antwort'];
+            return ['success' => false, 'message' => $result['message'] ?? 'Hub-Antwort: ' . substr($response, 0, 200)];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Fehler: ' . $e->getMessage()];
         }

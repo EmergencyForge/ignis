@@ -128,7 +128,7 @@ class GlobalAnnouncementManager
     public function refreshCache(): array
     {
         $hubUrl = $this->getHubUrl();
-        $endpoint = rtrim($hubUrl, '/') . '/api/announcements';
+        $endpoint = rtrim($hubUrl, '/') . '/api/hub-announcements.php';
 
         // Installation-ID und Version für optionales Filtering
         $telemetry = new TelemetryManager($this->pdo);
