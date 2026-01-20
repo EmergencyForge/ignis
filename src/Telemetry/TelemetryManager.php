@@ -282,6 +282,12 @@ class TelemetryManager
             return false;
         }
 
+        // Rate-Limit Check: Nicht senden wenn wir noch im Cooldown sind
+        $rateLimitUntil = $this->config->get('TELEMETRY_RATE_LIMIT_UNTIL');
+        if ($rateLimitUntil && strtotime($rateLimitUntil) > time()) {
+            return false;
+        }
+
         $lastHeartbeat = $this->config->get('TELEMETRY_LAST_HEARTBEAT');
         if (empty($lastHeartbeat)) {
             return true;
@@ -294,6 +300,13 @@ class TelemetryManager
     {
         if (!$this->isEnabled()) {
             return ['success' => false, 'message' => 'Telemetrie ist deaktiviert'];
+        }
+
+        // Rate-Limit Check: Nicht senden wenn wir noch im Cooldown sind
+        $rateLimitUntil = $this->config->get('TELEMETRY_RATE_LIMIT_UNTIL');
+        if ($rateLimitUntil && strtotime($rateLimitUntil) > time()) {
+            $waitSeconds = strtotime($rateLimitUntil) - time();
+            return ['success' => false, 'message' => "Rate-Limit aktiv. Bitte warte noch {$waitSeconds} Sekunden."];
         }
 
         $hubUrl = $this->getHubUrl();
@@ -333,14 +346,47 @@ class TelemetryManager
                 return ['success' => false, 'message' => 'Ungültige JSON-Antwort vom Hub: ' . substr($response, 0, 200)];
             }
 
+            // Rate-Limit-Handling
+            if (isset($result['error']) && strpos($result['error'], 'Rate limit') !== false) {
+                $retryAfter = $result['retry_after'] ?? 60;
+                $this->setRateLimitCooldown($retryAfter);
+                return ['success' => false, 'message' => "Rate-Limit erreicht. Nächster Versuch in {$retryAfter} Sekunden."];
+            }
+
             if (isset($result['success']) && $result['success']) {
                 $this->updateLastHeartbeat();
+                $this->clearRateLimitCooldown();
                 return ['success' => true, 'message' => 'Heartbeat erfolgreich gesendet'];
             }
 
-            return ['success' => false, 'message' => $result['message'] ?? 'Hub-Antwort: ' . substr($response, 0, 200)];
+            return ['success' => false, 'message' => $result['error'] ?? $result['message'] ?? 'Hub-Antwort: ' . substr($response, 0, 200)];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Fehler: ' . $e->getMessage()];
+        }
+    }
+
+    private function setRateLimitCooldown(int $seconds): void
+    {
+        $until = date('c', time() + $seconds);
+        try {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO intra_config 
+                (config_key, config_value, config_type, category, description, is_editable, display_order)
+                VALUES ('TELEMETRY_RATE_LIMIT_UNTIL', ?, 'string', 'telemetrie', 'Rate-Limit Cooldown', 0, 99)
+                ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)
+            ");
+            $stmt->execute([$until]);
+        } catch (\PDOException $e) {
+            error_log("Failed to set rate limit cooldown: " . $e->getMessage());
+        }
+    }
+
+    private function clearRateLimitCooldown(): void
+    {
+        try {
+            $this->pdo->exec("DELETE FROM intra_config WHERE config_key = 'TELEMETRY_RATE_LIMIT_UNTIL'");
+        } catch (\PDOException $e) {
+            // Ignorieren
         }
     }
 
