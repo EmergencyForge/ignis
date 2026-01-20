@@ -3,6 +3,9 @@
 namespace App\Telemetry;
 
 use PDO;
+
+require_once __DIR__ . '/../Config/ConfigManager.php';
+
 use App\Config\ConfigManager;
 
 /**
@@ -125,7 +128,7 @@ class GlobalAnnouncementManager
     public function refreshCache(): array
     {
         $hubUrl = $this->getHubUrl();
-        $endpoint = rtrim($hubUrl, '/') . '/api/hub-announcements.php';
+        $endpoint = rtrim($hubUrl, '/') . '/api/announcements';
 
         // Installation-ID und Version für optionales Filtering
         $telemetry = new TelemetryManager($this->pdo);

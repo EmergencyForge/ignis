@@ -1,27 +1,31 @@
 <?php
+
 /**
  * Telemetrie & Announcements Einstellungen
  */
 
-require_once __DIR__ . '/../../src/SessionManager.php';
-\IntraRP\SessionManager::init();
-\IntraRP\SessionManager::requireLogin();
+require_once __DIR__ . '/../../assets/config/config.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../assets/config/database.php';
 
-require_once __DIR__ . '/../../assets/includes/databaseconnection.php';
-require_once __DIR__ . '/../../src/Telemetry/TelemetryManager.php';
-require_once __DIR__ . '/../../src/Telemetry/GlobalAnnouncementManager.php';
+if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
+    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
+    header("Location: " . BASE_PATH . "login.php");
+    exit();
+}
 
-use IntraRP\Telemetry\TelemetryManager;
-use IntraRP\Telemetry\GlobalAnnouncementManager;
+use App\Auth\Permissions;
+use App\Telemetry\TelemetryManager;
+use App\Telemetry\GlobalAnnouncementManager;
 
 // Nur Admins erlauben
-if (($_SESSION['role'] ?? '') !== 'admin') {
-    header('Location: /dashboard.php');
+if (!Permissions::check(['admin'])) {
+    header('Location: ' . BASE_PATH . 'index.php');
     exit;
 }
 
-$telemetry = new TelemetryManager($conn);
-$announcements = new GlobalAnnouncementManager($conn);
+$telemetry = new TelemetryManager($pdo);
+$announcements = new GlobalAnnouncementManager($pdo);
 
 $message = '';
 $messageType = '';
@@ -29,7 +33,7 @@ $messageType = '';
 // Formular verarbeiten
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
-    
+
     switch ($action) {
         case 'toggle_telemetry':
             if ($telemetry->isEnabled()) {
@@ -41,15 +45,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             $messageType = 'success';
             break;
-            
+
         case 'toggle_announcements':
-            $stmt = $conn->prepare("UPDATE intra_config SET config_value = ? WHERE config_key = 'ANNOUNCEMENTS_ENABLED'");
+            $stmt = $pdo->prepare("UPDATE intra_config SET config_value = ? WHERE config_key = 'ANNOUNCEMENTS_ENABLED'");
             $newValue = $announcements->isEnabled() ? 'false' : 'true';
             $stmt->execute([$newValue]);
             $message = $newValue === 'true' ? 'Announcements aktiviert.' : 'Announcements deaktiviert.';
             $messageType = 'success';
             break;
-            
+
         case 'send_heartbeat':
             if ($telemetry->isEnabled()) {
                 $result = $telemetry->sendHeartbeat(true); // Force send
@@ -60,17 +64,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $messageType = 'warning';
             }
             break;
-            
+
         case 'refresh_announcements':
             $announcements->refreshCache();
             $message = 'Announcements-Cache aktualisiert.';
             $messageType = 'success';
             break;
-            
+
         case 'update_hub_url':
             $newUrl = trim($_POST['hub_url'] ?? '');
             if (filter_var($newUrl, FILTER_VALIDATE_URL)) {
-                $stmt = $conn->prepare("UPDATE intra_config SET config_value = ? WHERE config_key = 'HUB_URL'");
+                $stmt = $pdo->prepare("UPDATE intra_config SET config_value = ? WHERE config_key = 'HUB_URL'");
                 $stmt->execute([$newUrl]);
                 $message = 'Hub-URL aktualisiert.';
                 $messageType = 'success';
@@ -80,10 +84,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             break;
     }
-    
+
     // Objekte neu laden
-    $telemetry = new TelemetryManager($conn);
-    $announcements = new GlobalAnnouncementManager($conn);
+    $telemetry = new TelemetryManager($pdo);
+    $announcements = new GlobalAnnouncementManager($pdo);
 }
 
 // Aktuelle Werte laden
@@ -128,12 +132,12 @@ include __DIR__ . '/../../assets/includes/head.php';
                 </div>
                 <div class="card-body">
                     <p class="text-muted">
-                        Telemetrie hilft uns, intraRP weiterzuentwickeln. 
-                        Es werden nur <strong>anonymisierte</strong> Statistiken übermittelt - 
+                        Telemetrie hilft uns, intraRP weiterzuentwickeln.
+                        Es werden nur <strong>anonymisierte</strong> Statistiken übermittelt -
                         keine persönlichen Daten, Namen oder IP-Adressen.
                         Du kannst die Telemetrie jederzeit deaktivieren.
                     </p>
-                    
+
                     <div class="d-flex gap-2 mb-3">
                         <form method="POST" class="d-inline">
                             <input type="hidden" name="action" value="toggle_telemetry">
@@ -142,7 +146,7 @@ include __DIR__ . '/../../assets/includes/head.php';
                                 <?= $telemetryEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                             </button>
                         </form>
-                        
+
                         <?php if ($telemetryEnabled): ?>
                             <form method="POST" class="d-inline">
                                 <input type="hidden" name="action" value="send_heartbeat">
@@ -152,9 +156,9 @@ include __DIR__ . '/../../assets/includes/head.php';
                             </form>
                         <?php endif; ?>
                     </div>
-                    
+
                     <hr>
-                    
+
                     <h6>Status</h6>
                     <table class="table table-sm">
                         <tr>
@@ -192,10 +196,10 @@ include __DIR__ . '/../../assets/includes/head.php';
                 </div>
                 <div class="card-body">
                     <p class="text-muted">
-                        Globale Announcements informieren dich über wichtige Updates, 
+                        Globale Announcements informieren dich über wichtige Updates,
                         Sicherheitshinweise und News vom intraRP-Team.
                     </p>
-                    
+
                     <div class="d-flex gap-2 mb-3">
                         <form method="POST" class="d-inline">
                             <input type="hidden" name="action" value="toggle_announcements">
@@ -204,7 +208,7 @@ include __DIR__ . '/../../assets/includes/head.php';
                                 <?= $announcementsEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                             </button>
                         </form>
-                        
+
                         <?php if ($announcementsEnabled): ?>
                             <form method="POST" class="d-inline">
                                 <input type="hidden" name="action" value="refresh_announcements">
@@ -214,13 +218,13 @@ include __DIR__ . '/../../assets/includes/head.php';
                             </form>
                         <?php endif; ?>
                     </div>
-                    
+
                     <hr>
-                    
+
                     <h6>Aktuelle Announcements</h6>
-                    <?php 
+                    <?php
                     $currentAnnouncements = $announcementsEnabled ? $announcements->getActiveAnnouncements() : [];
-                    if (!empty($currentAnnouncements)): 
+                    if (!empty($currentAnnouncements)):
                     ?>
                         <div class="list-group list-group-flush">
                             <?php foreach ($currentAnnouncements as $a): ?>
@@ -249,9 +253,9 @@ include __DIR__ . '/../../assets/includes/head.php';
                         <input type="hidden" name="action" value="update_hub_url">
                         <div class="col-md-8">
                             <label class="form-label">Hub-Server URL</label>
-                            <input type="url" name="hub_url" class="form-control" 
-                                   value="<?= htmlspecialchars($hubUrl) ?>" 
-                                   placeholder="https://hub.intrarp.de">
+                            <input type="url" name="hub_url" class="form-control"
+                                value="<?= htmlspecialchars($hubUrl) ?>"
+                                placeholder="https://hub.intrarp.de">
                             <small class="text-muted">Nur ändern, wenn du einen eigenen Hub-Server betreibst.</small>
                         </div>
                         <div class="col-md-4">

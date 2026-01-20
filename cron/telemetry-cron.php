@@ -15,6 +15,8 @@ if (php_sapi_name() !== 'cli') {
 // Bootstrap
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../assets/config/database.php';
+require_once __DIR__ . '/../src/Telemetry/TelemetryManager.php';
+require_once __DIR__ . '/../src/Telemetry/GlobalAnnouncementManager.php';
 
 use App\Telemetry\TelemetryManager;
 use App\Telemetry\GlobalAnnouncementManager;

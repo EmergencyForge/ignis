@@ -3,6 +3,9 @@
 namespace App\Telemetry;
 
 use PDO;
+
+require_once __DIR__ . '/../Config/ConfigManager.php';
+
 use App\Config\ConfigManager;
 
 /**
@@ -46,6 +49,16 @@ class TelemetryManager
     public function getHubUrl(): string
     {
         return $this->config->get('HUB_URL') ?? 'https://hub.intrarp.de';
+    }
+
+    public function getLastHeartbeat(): ?string
+    {
+        return $this->config->get('TELEMETRY_LAST_HEARTBEAT');
+    }
+
+    public function getInstallationId(): string
+    {
+        return $this->getOrCreateInstallationId();
     }
 
     public function getOrCreateInstallationId(): string
@@ -213,14 +226,14 @@ class TelemetryManager
         return (time() - strtotime($lastHeartbeat)) >= self::HEARTBEAT_INTERVAL;
     }
 
-    public function sendHeartbeat(): array
+    public function sendHeartbeat(bool $force = false): array
     {
         if (!$this->isEnabled()) {
             return ['success' => false, 'message' => 'Telemetrie ist deaktiviert'];
         }
 
         $hubUrl = $this->getHubUrl();
-        $endpoint = rtrim($hubUrl, '/') . '/api/telemetry/heartbeat.php';
+        $endpoint = rtrim($hubUrl, '/') . '/api/telemetry/heartbeat';
         $data = $this->collectData();
 
         $context = stream_context_create([
