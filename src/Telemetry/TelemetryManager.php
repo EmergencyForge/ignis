@@ -48,7 +48,7 @@ class TelemetryManager
 
     public function getHubUrl(): string
     {
-        return $this->config->get('HUB_URL') ?? 'https://hub.intrarp.de';
+        return $this->config->get('HUB_URL') ?? 'https://emergencyforge.de';
     }
 
     public function getLastHeartbeat(): ?string
@@ -126,35 +126,67 @@ class TelemetryManager
         ];
 
         try {
-            $stmt = $this->pdo->query("
-                SELECT COUNT(*) FROM intra_mitarbeiter 
-                WHERE status IN ('Aktiv', 'aktiv', '1', 1) OR status IS NULL
-            ");
-            $stats['active_employees'] = (int) $stmt->fetchColumn();
+            // Aktive Mitarbeiter - prüfe welche Status-Spalte existiert
+            try {
+                $stmt = $this->pdo->query("SHOW COLUMNS FROM intra_mitarbeiter LIKE 'status'");
+                if ($stmt->rowCount() > 0) {
+                    $stmt = $this->pdo->query("
+                        SELECT COUNT(*) FROM intra_mitarbeiter 
+                        WHERE status IN ('Aktiv', 'aktiv', '1', 1) OR status IS NULL
+                    ");
+                    $stats['active_employees'] = (int) $stmt->fetchColumn();
+                } else {
+                    // Fallback: alle zählen
+                    $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter");
+                    $stats['active_employees'] = (int) $stmt->fetchColumn();
+                }
+            } catch (\PDOException $e) {
+                // Tabelle existiert nicht
+            }
 
-            $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter");
-            $stats['total_employees'] = (int) $stmt->fetchColumn();
+            // Gesamt Mitarbeiter
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter");
+                $stats['total_employees'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
 
-            $stmt = $this->pdo->query("
-                SELECT COUNT(*) FROM intra_users 
-                WHERE last_login > DATE_SUB(NOW(), INTERVAL 30 DAY)
-            ");
-            $stats['active_users'] = (int) $stmt->fetchColumn();
+            // Aktive User (Login in letzten 30 Tagen)
+            try {
+                $stmt = $this->pdo->query("
+                    SELECT COUNT(*) FROM intra_users 
+                    WHERE last_login > DATE_SUB(NOW(), INTERVAL 30 DAY)
+                ");
+                $stats['active_users'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
 
-            $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_fahrzeuge");
-            $stats['vehicles'] = (int) $stmt->fetchColumn();
+            // Fahrzeuge
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_fahrzeuge");
+                $stats['vehicles'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
 
-            $stmt = $this->pdo->query("
-                SELECT COUNT(*) FROM intra_edivi 
-                WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
-            ");
-            $stats['enotf_last_30_days'] = (int) $stmt->fetchColumn();
+            // eNOTF Einträge (letzte 30 Tage)
+            try {
+                $stmt = $this->pdo->query("
+                    SELECT COUNT(*) FROM intra_edivi 
+                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+                ");
+                $stats['enotf_last_30_days'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
 
-            $stmt = $this->pdo->query("
-                SELECT COUNT(*) FROM intra_fire_incidents 
-                WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
-            ");
-            $stats['fire_incidents_last_30_days'] = (int) $stmt->fetchColumn();
+            // Feuerwehr-Einsätze (letzte 30 Tage)
+            try {
+                $stmt = $this->pdo->query("
+                    SELECT COUNT(*) FROM intra_fire_incidents 
+                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+                ");
+                $stats['fire_incidents_last_30_days'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
         } catch (\PDOException $e) {
             error_log("Telemetry stats collection error: " . $e->getMessage());
         }
@@ -173,19 +205,39 @@ class TelemetryManager
         ];
 
         try {
-            $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_edivi");
-            $modules['enotf'] = ((int) $stmt->fetchColumn()) > 0;
+            // eNOTF - Tabelle existiert und hat Einträge
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_edivi");
+                $modules['enotf'] = ((int) $stmt->fetchColumn()) > 0;
+            } catch (\PDOException $e) {
+            }
 
-            $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_fire_incidents");
-            $modules['fire_incidents'] = ((int) $stmt->fetchColumn()) > 0;
+            // Feuerwehr-Einsätze
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_fire_incidents");
+                $modules['fire_incidents'] = ((int) $stmt->fetchColumn()) > 0;
+            } catch (\PDOException $e) {
+            }
 
-            $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_manv");
-            $modules['manv'] = ((int) $stmt->fetchColumn()) > 0;
+            // MANV - korrekte Tabelle: intra_manv_lagen
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_manv_lagen");
+                $modules['manv'] = ((int) $stmt->fetchColumn()) > 0;
+            } catch (\PDOException $e) {
+            }
 
-            $stmt = $this->pdo->query("SHOW TABLES LIKE 'intra_kb_entries'");
-            if ($stmt->rowCount() > 0) {
+            // Dokumente - Templates oder Mitarbeiter-Dokumente
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_dokument_templates");
+                $modules['documents'] = ((int) $stmt->fetchColumn()) > 0;
+            } catch (\PDOException $e) {
+            }
+
+            // Wissensdatenbank
+            try {
                 $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_kb_entries");
                 $modules['knowledge_base'] = ((int) $stmt->fetchColumn()) > 0;
+            } catch (\PDOException $e) {
             }
         } catch (\PDOException $e) {
             error_log("Telemetry module check error: " . $e->getMessage());
