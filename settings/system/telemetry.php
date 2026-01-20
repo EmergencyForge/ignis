@@ -125,12 +125,6 @@ $cacheInfo = $announcements->getCacheInfo();
                     <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">Telemetrie & Announcements</h1>
-                        <div>
-                            <small class="text-muted me-2">v4</small>
-                            <a href="<?= BASE_PATH ?>settings/system/" class="btn btn-outline-secondary btn-sm">
-                                <i class="fas fa-arrow-left me-1"></i> Zurück
-                            </a>
-                        </div>
                     </div>
 
                     <?php if ($message): ?>
@@ -310,32 +304,6 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <?php else: ?>
                                         <p class="text-muted small mb-0">Keine Ankündigungen.</p>
                                     <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Hub-URL Konfiguration -->
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <i class="fas fa-cog me-2"></i>Erweiterte Einstellungen
-                                </div>
-                                <div class="card-body">
-                                    <form method="POST" class="row g-3 align-items-end">
-                                        <input type="hidden" name="action" value="update_hub_url">
-                                        <div class="col-md-8">
-                                            <label class="form-label">Hub-Server URL</label>
-                                            <input type="url" name="hub_url" class="form-control"
-                                                value="<?= htmlspecialchars($hubUrl) ?>"
-                                                placeholder="https://hub.intrarp.de">
-                                            <small class="text-muted">Nur ändern, wenn du einen eigenen Hub-Server betreibst.</small>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <button type="submit" class="btn btn-outline-primary">
-                                                <i class="fas fa-save me-1"></i> Speichern
-                                            </button>
-                                        </div>
-                                    </form>
                                 </div>
                             </div>
                         </div>
