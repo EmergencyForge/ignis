@@ -19,8 +19,14 @@ try {
         require_once __DIR__ . '/../config/database.php';
     }
 
+    // Admin-Status prüfen - direkt aus Session lesen (full_admin oder admin Permission)
+    $isAdmin = false;
+    if (isset($_SESSION['permissions']) && is_array($_SESSION['permissions'])) {
+        $isAdmin = in_array('full_admin', $_SESSION['permissions']) || in_array('admin', $_SESSION['permissions']);
+    }
+
     $announcementManager = new GlobalAnnouncementManager($pdo);
-    $announcements = $announcementManager->getActiveAnnouncements($_SESSION['userid']);
+    $announcements = $announcementManager->getActiveAnnouncements($_SESSION['userid'], $isAdmin);
 
     if (empty($announcements)) {
         return;
@@ -56,6 +62,9 @@ foreach ($announcements as $ann) {
     if ($ann['type'] === 'warning') $hasWarning = true;
 }
 $headerClass = $hasCritical ? 'bg-danger' : ($hasWarning ? 'bg-warning text-dark' : 'bg-primary');
+
+// Announcement IDs für "Verstanden" Button sammeln
+$allAnnouncementIds = array_column($announcements, 'announcement_id');
 ?>
 
 <!-- EmergencyForge Announcements Modal -->
@@ -82,6 +91,7 @@ $headerClass = $hasCritical ? 'bg-danger' : ($hasWarning ? 'bg-warning text-dark
             <div class="modal-body p-0">
                 <?php foreach ($announcements as $index => $ann):
                     $config = $typeConfig[$ann['type']] ?? $typeConfig['info'];
+                    $isAdminOnly = !empty($ann['admin_only']);
                 ?>
                     <div class="announcement-item p-4 <?= $index > 0 ? 'border-top' : '' ?>"
                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
@@ -96,8 +106,13 @@ $headerClass = $hasCritical ? 'bg-danger' : ($hasWarning ? 'bg-warning text-dark
 
                             <!-- Content -->
                             <div class="announcement-content flex-grow-1">
-                                <div class="d-flex align-items-center mb-2">
-                                    <span class="badge bg-<?= $config['badge'] ?> me-2"><?= $config['label'] ?></span>
+                                <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                                    <span class="badge bg-<?= $config['badge'] ?>"><?= $config['label'] ?></span>
+                                    <?php if ($isAdminOnly): ?>
+                                        <span class="badge bg-dark">
+                                            <i class="fa-solid fa-shield-halved me-1"></i>Nur für Admins
+                                        </span>
+                                    <?php endif; ?>
                                     <?php if (!empty($ann['valid_until'])): ?>
                                         <small class="text-muted">
                                             <i class="fa-regular fa-clock me-1"></i>
@@ -112,15 +127,15 @@ $headerClass = $hasCritical ? 'bg-danger' : ($hasWarning ? 'bg-warning text-dark
                                     <p class="text-muted mb-3"><?= nl2br(htmlspecialchars($ann['message'])) ?></p>
                                 <?php endif; ?>
 
-                                <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
                                     <?php if (!empty($ann['link'])): ?>
                                         <a href="<?= htmlspecialchars($ann['link']) ?>" class="btn btn-<?= $config['badge'] ?> btn-sm" target="_blank">
                                             <i class="fa-solid fa-external-link me-1"></i> Mehr erfahren
                                         </a>
                                     <?php endif; ?>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm dismiss-announcement-btn"
+                                    <button type="button" class="btn btn-outline-secondary btn-sm dismiss-single-btn"
                                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
-                                        <i class="fa-solid fa-eye-slash me-1"></i> Nicht mehr anzeigen
+                                        <i class="fa-solid fa-eye-slash me-1"></i> Ausblenden
                                     </button>
                                 </div>
                             </div>
@@ -136,8 +151,8 @@ $headerClass = $hasCritical ? 'bg-danger' : ($hasWarning ? 'bg-warning text-dark
                         <i class="fa-solid fa-shield-halved me-1"></i>
                         Diese Nachricht stammt von EmergencyForge
                     </small>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        Verstanden
+                    <button type="button" class="btn btn-primary" id="efDismissAllBtn">
+                        <i class="fa-solid fa-check me-1"></i> Verstanden
                     </button>
                 </div>
             </div>
@@ -203,36 +218,21 @@ $headerClass = $hasCritical ? 'bg-danger' : ($hasWarning ? 'bg-warning text-dark
             box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
         }
     }
-
-    /* Dismissed State */
-    #efAnnouncementsModal .announcement-item.dismissed {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-
-    #efAnnouncementsModal .announcement-item.dismissed::after {
-        content: 'Ausgeblendet';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-weight: bold;
-    }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const modal = document.getElementById('efAnnouncementsModal');
         const trigger = document.getElementById('efAnnouncementsTrigger');
+        const dismissAllBtn = document.getElementById('efDismissAllBtn');
 
         if (!modal) return;
 
         const bsModal = new bootstrap.Modal(modal);
         const autoShow = modal.dataset.autoShow === 'true';
+
+        // Alle Announcement IDs
+        const allAnnouncementIds = <?= json_encode($allAnnouncementIds) ?>;
 
         // Auto-show Modal wenn noch nicht in dieser Session gezeigt
         if (autoShow) {
@@ -244,16 +244,52 @@ $headerClass = $hasCritical ? 'bg-danger' : ($hasWarning ? 'bg-warning text-dark
 
         // Nach Modal-Schließen: Zeige Trigger-Button
         modal.addEventListener('hidden.bs.modal', function() {
-            if (trigger) trigger.style.display = 'block';
+            // Nur zeigen wenn noch Announcements übrig sind
+            const remaining = modal.querySelectorAll('.announcement-item');
+            if (remaining.length > 0 && trigger) {
+                trigger.style.display = 'block';
+            }
         });
 
-        // Dismiss einzelne Announcements
-        document.querySelectorAll('.dismiss-announcement-btn').forEach(btn => {
+        // "Verstanden" Button - ALLE Announcements permanent ausblenden
+        if (dismissAllBtn) {
+            dismissAllBtn.addEventListener('click', function() {
+                dismissAllBtn.disabled = true;
+                dismissAllBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Wird gespeichert...';
+
+                // Alle Announcements nacheinander dismissan
+                Promise.all(allAnnouncementIds.map(id =>
+                        fetch('<?= BASE_PATH ?>api/dismiss-announcement.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                announcement_id: id
+                            })
+                        })
+                    ))
+                    .then(() => {
+                        bsModal.hide();
+                        if (trigger) trigger.style.display = 'none';
+                    })
+                    .catch(err => {
+                        console.error('Dismiss all failed:', err);
+                        dismissAllBtn.disabled = false;
+                        dismissAllBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Verstanden';
+                    });
+            });
+        }
+
+        // Einzelne Announcement ausblenden
+        document.querySelectorAll('.dismiss-single-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const announcementId = this.dataset.announcementId;
                 const item = this.closest('.announcement-item');
 
-                // API-Call
+                this.disabled = true;
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
                 fetch('<?= BASE_PATH ?>api/dismiss-announcement.php', {
                         method: 'POST',
                         headers: {
@@ -283,7 +319,11 @@ $headerClass = $hasCritical ? 'bg-danger' : ($hasWarning ? 'bg-warning text-dark
                             }, 300);
                         }
                     })
-                    .catch(err => console.error('Dismiss failed:', err));
+                    .catch(err => {
+                        console.error('Dismiss failed:', err);
+                        this.disabled = false;
+                        this.innerHTML = '<i class="fa-solid fa-eye-slash me-1"></i> Ausblenden';
+                    });
             });
         });
     });
