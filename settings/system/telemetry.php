@@ -47,9 +47,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
 
         case 'toggle_announcements':
-            $stmt = $pdo->prepare("UPDATE intra_config SET config_value = ? WHERE config_key = 'ANNOUNCEMENTS_ENABLED'");
+            $configManager = new \App\Config\ConfigManager($pdo);
             $newValue = $announcements->isEnabled() ? 'false' : 'true';
-            $stmt->execute([$newValue]);
+            $configManager->update('ANNOUNCEMENTS_ENABLED', $newValue, $_SESSION['userid'] ?? null);
             $message = $newValue === 'true' ? 'Announcements aktiviert.' : 'Announcements deaktiviert.';
             $messageType = 'success';
             break;
@@ -57,8 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'send_heartbeat':
             if ($telemetry->isEnabled()) {
                 $result = $telemetry->sendHeartbeat(true); // Force send
-                $message = $result ? 'Heartbeat erfolgreich gesendet.' : 'Heartbeat konnte nicht gesendet werden.';
-                $messageType = $result ? 'success' : 'danger';
+                $message = $result['success'] ? 'Heartbeat erfolgreich gesendet.' : ($result['message'] ?? 'Heartbeat konnte nicht gesendet werden.');
+                $messageType = $result['success'] ? 'success' : 'danger';
             } else {
                 $message = 'Telemetrie ist deaktiviert.';
                 $messageType = 'warning';
@@ -74,8 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'update_hub_url':
             $newUrl = trim($_POST['hub_url'] ?? '');
             if (filter_var($newUrl, FILTER_VALIDATE_URL)) {
-                $stmt = $pdo->prepare("UPDATE intra_config SET config_value = ? WHERE config_key = 'HUB_URL'");
-                $stmt->execute([$newUrl]);
+                $configManager = new \App\Config\ConfigManager($pdo);
+                $configManager->update('HUB_URL', $newUrl, $_SESSION['userid'] ?? null);
                 $message = 'Hub-URL aktualisiert.';
                 $messageType = 'success';
             } else {
