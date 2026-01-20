@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $configManager = new \App\Config\ConfigManager($pdo);
             $newValue = $announcements->isEnabled() ? 'false' : 'true';
             $configManager->update('ANNOUNCEMENTS_ENABLED', $newValue, $_SESSION['userid'] ?? null);
-            $message = $newValue === 'true' ? 'Announcements aktiviert.' : 'Announcements deaktiviert.';
+            $message = $newValue === 'true' ? 'Ankündigungen aktiviert.' : 'Ankündigungen deaktiviert.';
             $messageType = 'success';
             break;
 
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'refresh_announcements':
             $result = $announcements->refreshCache();
             if ($result['success']) {
-                $message = 'Announcements-Cache aktualisiert. ' . ($result['count'] ?? 0) . ' Ankündigungen geladen.';
+                $message = 'Ankündigungen-Cache aktualisiert. ' . ($result['count'] ?? 0) . ' Ankündigungen geladen.';
                 $messageType = 'success';
             } else {
                 $message = 'Cache-Aktualisierung fehlgeschlagen: ' . ($result['message'] ?? 'Unbekannter Fehler');
@@ -111,7 +111,7 @@ $cacheInfo = $announcements->getCacheInfo();
 
 <head>
     <?php
-    $SITE_TITLE = 'Telemetrie & Announcements';
+    $SITE_TITLE = 'Telemetrie & Ankündigungen';
     include __DIR__ . '/../../assets/components/_base/admin/head.php';
     ?>
 </head>
@@ -124,7 +124,7 @@ $cacheInfo = $announcements->getCacheInfo();
                 <div class="col mb-5">
                     <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Telemetrie & Announcements</h1>
+                        <h1 class="mb-0">Telemetrie & Ankündigungen</h1>
                     </div>
 
                     <?php if ($message): ?>
@@ -203,14 +203,14 @@ $cacheInfo = $announcements->getCacheInfo();
                         <div class="col-lg-6">
                             <div class="card h-100">
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-bullhorn me-2"></i>Globale Announcements</span>
+                                    <span><i class="fas fa-bullhorn me-2"></i>Globale Ankündigungen</span>
                                     <span class="badge bg-<?= $announcementsEnabled ? 'success' : 'secondary' ?>">
                                         <?= $announcementsEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
                                 </div>
                                 <div class="card-body">
                                     <p class="text-muted">
-                                        Globale Announcements informieren dich über wichtige Updates,
+                                        Globale Ankündigungen informieren dich über wichtige Updates,
                                         Sicherheitshinweise und News vom intraRP-Team.
                                     </p>
 

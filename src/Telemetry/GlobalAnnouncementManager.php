@@ -29,7 +29,12 @@ class GlobalAnnouncementManager
 
     public function isEnabled(): bool
     {
-        return (bool) $this->config->get('ANNOUNCEMENTS_ENABLED');
+        $value = $this->config->get('ANNOUNCEMENTS_ENABLED');
+        // String 'false' muss als false interpretiert werden
+        if ($value === 'false' || $value === '0' || $value === false || $value === null) {
+            return false;
+        }
+        return true;
     }
 
     public function getHubUrl(): string
@@ -206,7 +211,7 @@ class GlobalAnnouncementManager
 
             return [
                 'success' => true,
-                'message' => count($announcements) . ' Announcements aktualisiert',
+                'message' => count($announcements) . ' Ankündigungen aktualisiert',
                 'count' => count($announcements)
             ];
         } catch (\Exception $e) {
