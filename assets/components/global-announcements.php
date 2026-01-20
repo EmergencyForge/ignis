@@ -1,14 +1,17 @@
 <?php
 
 /**
- * Globale Announcements Modal-Komponente
+ * Globale Announcements Modal-Komponente & Automatische Telemetrie
  * 
- * Zeigt offizielle Ankündigungen von EmergencyForge in einem auffälligen Modal an.
+ * - Zeigt offizielle Ankündigungen von EmergencyForge in einem Modal an
+ * - Sendet automatisch Telemetrie-Heartbeat (1x pro 24h, nur für Admins)
  */
 
 require_once __DIR__ . '/../../src/Telemetry/GlobalAnnouncementManager.php';
+require_once __DIR__ . '/../../src/Telemetry/TelemetryManager.php';
 
 use App\Telemetry\GlobalAnnouncementManager;
+use App\Telemetry\TelemetryManager;
 
 if (!isset($_SESSION['userid'])) {
     return;
@@ -25,6 +28,21 @@ try {
         $isAdmin = in_array('full_admin', $_SESSION['permissions']) || in_array('admin', $_SESSION['permissions']);
     }
 
+    // === AUTOMATISCHE TELEMETRIE (nur für Admins, 1x pro 24h) ===
+    if ($isAdmin) {
+        $telemetryManager = new TelemetryManager($pdo);
+        if ($telemetryManager->isEnabled() && $telemetryManager->shouldSendHeartbeat()) {
+            // Heartbeat im Hintergrund senden (non-blocking)
+            // Wir setzen ein Session-Flag um mehrfaches Senden pro Request zu verhindern
+            if (!isset($_SESSION['_telemetry_sending'])) {
+                $_SESSION['_telemetry_sending'] = true;
+                $telemetryManager->sendHeartbeat();
+                unset($_SESSION['_telemetry_sending']);
+            }
+        }
+    }
+
+    // === ANNOUNCEMENTS ===
     $announcementManager = new GlobalAnnouncementManager($pdo);
     $announcements = $announcementManager->getActiveAnnouncements($_SESSION['userid'], $isAdmin);
 

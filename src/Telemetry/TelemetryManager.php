@@ -248,11 +248,23 @@ class TelemetryManager
 
     private function getVersion(): string
     {
+        // Primär: version.json (vom SystemUpdater verwendet)
+        $versionJsonFile = __DIR__ . '/../../system/updates/version.json';
+        if (file_exists($versionJsonFile)) {
+            $content = file_get_contents($versionJsonFile);
+            $data = json_decode($content, true);
+            if (isset($data['version'])) {
+                return $data['version'];
+            }
+        }
+
+        // Fallback 1: VERSION Datei
         $versionFile = __DIR__ . '/../../VERSION';
         if (file_exists($versionFile)) {
             return trim(file_get_contents($versionFile));
         }
 
+        // Fallback 2: composer.json
         $composerFile = __DIR__ . '/../../composer.json';
         if (file_exists($composerFile)) {
             $composer = json_decode(file_get_contents($composerFile), true);
