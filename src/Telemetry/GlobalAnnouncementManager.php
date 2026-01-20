@@ -34,7 +34,7 @@ class GlobalAnnouncementManager
 
     public function getHubUrl(): string
     {
-        return $this->config->get('HUB_URL') ?? 'https://hub.intrarp.de';
+        return $this->config->get('HUB_URL') ?? 'https://emergencyforge.de';
     }
 
     /**
@@ -52,7 +52,7 @@ class GlobalAnnouncementManager
         try {
             $sql = "
                 SELECT c.* FROM intra_global_announcements_cache c
-                WHERE c.valid_from <= NOW() 
+                WHERE (c.valid_from IS NULL OR c.valid_from <= NOW())
                 AND (c.valid_until IS NULL OR c.valid_until >= NOW())
             ";
             $params = [];
@@ -186,6 +186,10 @@ class GlobalAnnouncementManager
                 ");
 
                 foreach ($announcements as $ann) {
+                    // valid_from/valid_until: leere Strings als NULL behandeln
+                    $validFrom = !empty($ann['valid_from']) ? $ann['valid_from'] : null;
+                    $validUntil = !empty($ann['valid_until']) ? $ann['valid_until'] : null;
+
                     $stmt->execute([
                         $ann['id'],
                         $ann['type'] ?? 'info',
@@ -194,8 +198,8 @@ class GlobalAnnouncementManager
                         $ann['link'] ?? null,
                         $ann['priority'] ?? 0,
                         $ann['admin_only'] ?? 0,
-                        $ann['valid_from'] ?? date('Y-m-d H:i:s'),
-                        $ann['valid_until'] ?? null,
+                        $validFrom,
+                        $validUntil,
                     ]);
                 }
             }
@@ -225,6 +229,23 @@ class GlobalAnnouncementManager
         } catch (\PDOException $e) {
             error_log("Failed to cleanup dismissals: " . $e->getMessage());
             return 0;
+        }
+    }
+
+    /**
+     * Gibt Cache-Informationen zurück (für Debug-Zwecke)
+     */
+    public function getCacheInfo(): array
+    {
+        try {
+            $stmt = $this->pdo->query("SELECT COUNT(*) as count, MAX(fetched_at) as last_fetch FROM intra_global_announcements_cache");
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            return [
+                'count' => (int)($result['count'] ?? 0),
+                'last_fetch' => $result['last_fetch'] ?? null,
+            ];
+        } catch (\PDOException $e) {
+            return ['count' => 0, 'last_fetch' => null, 'error' => $e->getMessage()];
         }
     }
 

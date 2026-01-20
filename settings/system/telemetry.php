@@ -66,9 +66,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
 
         case 'refresh_announcements':
-            $announcements->refreshCache();
-            $message = 'Announcements-Cache aktualisiert.';
-            $messageType = 'success';
+            $result = $announcements->refreshCache();
+            if ($result['success']) {
+                $message = 'Announcements-Cache aktualisiert. ' . ($result['count'] ?? 0) . ' Ankündigungen geladen.';
+                $messageType = 'success';
+            } else {
+                $message = 'Cache-Aktualisierung fehlgeschlagen: ' . ($result['message'] ?? 'Unbekannter Fehler');
+                $messageType = 'danger';
+            }
             break;
 
         case 'update_hub_url':
@@ -97,6 +102,7 @@ $hubUrl = $telemetry->getHubUrl();
 $installationId = $telemetry->getInstallationId();
 $lastHeartbeat = $telemetry->getLastHeartbeat();
 $previewData = $telemetryEnabled ? $telemetry->collectData() : null;
+$cacheInfo = $announcements->getCacheInfo();
 ?>
 
 <!DOCTYPE html>
@@ -231,20 +237,35 @@ $previewData = $telemetryEnabled ? $telemetry->collectData() : null;
 
                                     <hr>
 
-                                    <h6>Aktuelle Announcements</h6>
+                                    <h6>Cache-Status</h6>
+                                    <table class="table table-sm mb-3">
+                                        <tr>
+                                            <td class="text-muted">Einträge im Cache:</td>
+                                            <td><?= $cacheInfo['count'] ?></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="text-muted">Letzter Abruf:</td>
+                                            <td><?= $cacheInfo['last_fetch'] ? date('d.m.Y H:i', strtotime($cacheInfo['last_fetch'])) : '<span class="text-muted">Noch nie</span>' ?></td>
+                                        </tr>
+                                    </table>
+
+                                    <h6>Aktuelle Ankündigungen</h6>
                                     <?php
                                     $currentAnnouncements = $announcementsEnabled ? $announcements->getActiveAnnouncements(null, true) : [];
                                     if (empty($currentAnnouncements)):
                                     ?>
-                                        <p class="text-muted small mb-0">Keine aktuellen Announcements.</p>
+                                        <p class="text-muted small mb-0">Keine aktuellen Ankündigungen.</p>
                                     <?php else: ?>
                                         <div class="list-group list-group-flush">
                                             <?php foreach ($currentAnnouncements as $ann): ?>
                                                 <div class="list-group-item px-0">
-                                                    <div class="d-flex align-items-center">
-                                                        <span class="badge bg-<?= $ann['type'] === 'critical' ? 'danger' : ($ann['type'] === 'warning' ? 'warning' : 'info') ?> me-2">
+                                                    <div class="d-flex align-items-center flex-wrap gap-1">
+                                                        <span class="badge bg-<?= $ann['type'] === 'critical' ? 'danger' : ($ann['type'] === 'warning' ? 'warning' : 'info') ?>">
                                                             <?= htmlspecialchars($ann['type']) ?>
                                                         </span>
+                                                        <?php if (!empty($ann['admin_only'])): ?>
+                                                            <span class="badge bg-dark"><i class="fas fa-shield-halved"></i></span>
+                                                        <?php endif; ?>
                                                         <strong><?= htmlspecialchars($ann['title']) ?></strong>
                                                     </div>
                                                     <?php if (!empty($ann['message'])): ?>

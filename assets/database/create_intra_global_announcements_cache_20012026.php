@@ -18,8 +18,8 @@ $pdo->exec("
         link VARCHAR(512),
         priority INT DEFAULT 0,
         admin_only TINYINT(1) DEFAULT 0,
-        valid_from DATETIME NOT NULL,
-        valid_until DATETIME,
+        valid_from DATETIME DEFAULT NULL,
+        valid_until DATETIME DEFAULT NULL,
         created_at DATETIME,
         fetched_at DATETIME NOT NULL,
         
@@ -32,12 +32,19 @@ $pdo->exec("
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 ");
 
-// Für bestehende Installationen: admin_only Spalte hinzufügen falls nicht vorhanden
+// Für bestehende Installationen: Spalten anpassen
 try {
     $pdo->exec("ALTER TABLE intra_global_announcements_cache ADD COLUMN admin_only TINYINT(1) DEFAULT 0 AFTER priority");
     $pdo->exec("ALTER TABLE intra_global_announcements_cache ADD INDEX idx_admin_only (admin_only)");
 } catch (PDOException $e) {
     // Spalte existiert bereits - ignorieren
+}
+
+// valid_from nullable machen falls NOT NULL
+try {
+    $pdo->exec("ALTER TABLE intra_global_announcements_cache MODIFY COLUMN valid_from DATETIME DEFAULT NULL");
+} catch (PDOException $e) {
+    // Ignorieren
 }
 
 echo "Tabelle intra_global_announcements_cache erstellt.\n";
