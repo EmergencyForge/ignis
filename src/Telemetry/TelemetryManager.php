@@ -151,14 +151,21 @@ class TelemetryManager
             } catch (\PDOException $e) {
             }
 
-            // Aktive User (Login in letzten 30 Tagen)
+            // Aktive User (Login in letzten 30 Tagen via Session-Logs)
             try {
+                // Versuche zuerst session_logs (genauer)
                 $stmt = $this->pdo->query("
-                    SELECT COUNT(*) FROM intra_users 
-                    WHERE last_login > DATE_SUB(NOW(), INTERVAL 30 DAY)
+                    SELECT COUNT(DISTINCT user_id) FROM intra_session_logs 
+                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
                 ");
                 $stats['active_users'] = (int) $stmt->fetchColumn();
             } catch (\PDOException $e) {
+                // Fallback: Alle User zählen
+                try {
+                    $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_users");
+                    $stats['active_users'] = (int) $stmt->fetchColumn();
+                } catch (\PDOException $e2) {
+                }
             }
 
             // Fahrzeuge
