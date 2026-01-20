@@ -544,6 +544,8 @@ try {
     </div>
 </nav>
 
+<?php include __DIR__ . '/global-announcements.php'; ?>
+
 <div class="offcanvas offcanvas-start offcanvas-menu" tabindex="-1" id="mobileMenu">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title">Menü</h5>
