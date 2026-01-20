@@ -223,7 +223,6 @@ class ConfigManager
             'rp' => 'RP Daten',
             'funktionen' => 'Funktionen',
             'integrationen' => 'Integrationen',
-            'telemetrie' => 'Telemetrie & Announcements',
         ];
 
         return $names[$category] ?? ucfirst($category);

@@ -532,6 +532,7 @@ try {
                                         <?php if (Permissions::check(['admin'])): ?>
                                             <li><a href="<?= BASE_PATH ?>settings/system/config.php"><i class="fa-solid fa-gear"></i> Konfiguration</a></li>
                                             <li><a href="<?= BASE_PATH ?>settings/system/index.php"><i class="fa-solid fa-download"></i> Updater</a></li>
+                                            <li><a href="<?= BASE_PATH ?>settings/system/telemetry.php"><i class="fa-solid fa-wifi"></i> Telemetrie</a></li>
                                         <?php endif; ?>
                                     </ul>
                                 </div>
@@ -621,6 +622,7 @@ try {
                 <?php if (Permissions::check(['admin'])): ?>
                     <a href="<?= BASE_PATH ?>settings/system/config.php" class="offcanvas-link"><i class="fa-solid fa-gear"></i> Konfiguration</a>
                     <a href="<?= BASE_PATH ?>settings/system/index.php" class="offcanvas-link"><i class="fa-solid fa-download"></i> Updater</a>
+                    <a href="<?= BASE_PATH ?>settings/system/telemetry.php" class="offcanvas-link"><i class="fa-solid fa-wifi"></i> Telemetrie</a>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
