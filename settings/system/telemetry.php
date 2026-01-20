@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt->execute([$newUrl]);
                     $message = 'Hub-URL aktualisiert.';
                     $messageType = 'success';
-                } catch (PDOException $e) {
+                } catch (\PDOException $e) {
                     $message = 'Fehler beim Speichern: ' . $e->getMessage();
                     $messageType = 'danger';
                 }

@@ -1,391 +1,444 @@
 <?php
 
+namespace App\Telemetry;
+
+use PDO;
+
+require_once __DIR__ . '/../Config/ConfigManager.php';
+
+use App\Config\ConfigManager;
+
 /**
- * Telemetrie & Announcements Einstellungen
- * Version: 2026-01-21-v5
+ * TelemetryManager - Sammelt und sendet anonymisierte Statistiken
+ * 
+ * DATENSCHUTZ-HINWEIS:
+ * - Telemetrie ist standardmäßig DEAKTIVIERT (Opt-In)
+ * - Es werden KEINE persönlichen Daten übertragen
+ * - Nur aggregierte, anonymisierte Statistiken
+ * - Jede Installation erhält eine zufällige UUID
  */
+class TelemetryManager
+{
+    private PDO $pdo;
+    private ConfigManager $config;
 
-require_once __DIR__ . '/../../assets/config/config.php';
-require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../../assets/config/database.php';
+    public const HEARTBEAT_INTERVAL = 86400; // 24 Stunden
 
-if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
-    header("Location: " . BASE_PATH . "login.php");
-    exit();
-}
-
-use App\Auth\Permissions;
-use App\Telemetry\TelemetryManager;
-use App\Telemetry\GlobalAnnouncementManager;
-
-// Nur Admins erlauben
-if (!Permissions::check(['admin'])) {
-    header('Location: ' . BASE_PATH . 'index.php');
-    exit;
-}
-
-$telemetry = new TelemetryManager($pdo);
-$announcements = new GlobalAnnouncementManager($pdo);
-
-$message = '';
-$messageType = '';
-
-// Formular verarbeiten
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $action = $_POST['action'] ?? '';
-
-    switch ($action) {
-        case 'toggle_telemetry':
-            if ($telemetry->isEnabled()) {
-                $telemetry->disable();
-                $message = 'Telemetrie wurde deaktiviert.';
-            } else {
-                $telemetry->enable();
-                $message = 'Telemetrie wurde aktiviert. Vielen Dank für deine Unterstützung!';
-            }
-            $messageType = 'success';
-            break;
-
-        case 'toggle_announcements':
-            if ($announcements->isEnabled()) {
-                $announcements->disable();
-                $message = 'Ankündigungen wurden deaktiviert.';
-            } else {
-                $announcements->enable();
-                $message = 'Ankündigungen wurden aktiviert.';
-            }
-            $messageType = 'success';
-            break;
-
-        case 'send_heartbeat':
-            if ($telemetry->isEnabled()) {
-                $result = $telemetry->sendHeartbeat(true);
-                $message = $result['success'] ? 'Heartbeat erfolgreich gesendet.' : ($result['message'] ?? 'Heartbeat konnte nicht gesendet werden.');
-                $messageType = $result['success'] ? 'success' : 'danger';
-            } else {
-                $message = 'Telemetrie ist deaktiviert.';
-                $messageType = 'warning';
-            }
-            break;
-
-        case 'refresh_announcements':
-            $result = $announcements->refreshCache();
-            if ($result['success']) {
-                $message = 'Announcements-Cache aktualisiert. ' . ($result['count'] ?? 0) . ' Ankündigungen geladen.';
-                $messageType = 'success';
-            } else {
-                $message = 'Cache-Aktualisierung fehlgeschlagen: ' . ($result['message'] ?? 'Unbekannter Fehler');
-                $messageType = 'danger';
-            }
-            break;
-
-        case 'update_hub_url':
-            $newUrl = trim($_POST['hub_url'] ?? '');
-            if (filter_var($newUrl, FILTER_VALIDATE_URL)) {
-                try {
-                    $stmt = $pdo->prepare("
-                        UPDATE intra_config 
-                        SET config_value = ?, updated_at = NOW()
-                        WHERE config_key = 'HUB_URL'
-                    ");
-                    $stmt->execute([$newUrl]);
-                    $message = 'Hub-URL aktualisiert.';
-                    $messageType = 'success';
-                } catch (PDOException $e) {
-                    $message = 'Fehler beim Speichern: ' . $e->getMessage();
-                    $messageType = 'danger';
-                }
-            } else {
-                $message = 'Ungültige URL.';
-                $messageType = 'danger';
-            }
-            break;
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+        $this->config = new ConfigManager($pdo);
     }
 
-    // Objekte neu laden
-    $telemetry = new TelemetryManager($pdo);
-    $announcements = new GlobalAnnouncementManager($pdo);
+    public function isEnabled(): bool
+    {
+        $value = $this->config->get('TELEMETRY_ENABLED');
+        // String 'false' muss als false interpretiert werden
+        if ($value === 'false' || $value === '0' || $value === false || $value === null) {
+            return false;
+        }
+        return true;
+    }
+
+    public function enable(?int $userId = null): bool
+    {
+        $this->getOrCreateInstallationId();
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE intra_config 
+                SET config_value = 'true', updated_at = NOW()
+                WHERE config_key = 'TELEMETRY_ENABLED'
+            ");
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log("Failed to enable telemetry: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function disable(?int $userId = null): bool
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE intra_config 
+                SET config_value = 'false', updated_at = NOW()
+                WHERE config_key = 'TELEMETRY_ENABLED'
+            ");
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log("Failed to disable telemetry: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getHubUrl(): string
+    {
+        return $this->config->get('HUB_URL') ?? 'https://emergencyforge.de';
+    }
+
+    public function getLastHeartbeat(): ?string
+    {
+        return $this->config->get('TELEMETRY_LAST_HEARTBEAT');
+    }
+
+    public function getInstallationId(): string
+    {
+        return $this->getOrCreateInstallationId();
+    }
+
+    public function getOrCreateInstallationId(): string
+    {
+        $installationId = $this->config->get('INSTALLATION_ID');
+
+        if (empty($installationId)) {
+            $installationId = $this->generateUUID();
+
+            try {
+                $stmt = $this->pdo->prepare("
+                    INSERT INTO intra_config 
+                    (config_key, config_value, config_type, category, description, is_editable, display_order)
+                    VALUES (?, ?, 'string', 'telemetrie', 'Eindeutige Installations-ID für Telemetrie', 0, 1)
+                    ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)
+                ");
+                $stmt->execute(['INSTALLATION_ID', $installationId]);
+            } catch (\PDOException $e) {
+                error_log("Failed to save installation ID: " . $e->getMessage());
+            }
+        }
+
+        return $installationId;
+    }
+
+    private function generateUUID(): string
+    {
+        $data = random_bytes(16);
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
+
+    public function collectData(): array
+    {
+        return [
+            'installation_id' => $this->getOrCreateInstallationId(),
+            'version' => $this->getVersion(),
+            'php_version' => PHP_VERSION,
+            'timestamp' => date('c'),
+            'system' => $this->collectSystemInfo(),
+            'stats' => $this->collectStats(),
+            'modules' => $this->collectModuleInfo(),
+        ];
+    }
+
+    private function collectSystemInfo(): array
+    {
+        return [
+            'server_name' => defined('SERVER_NAME') ? SERVER_NAME : null,
+            'system_name' => defined('SYSTEM_NAME') ? SYSTEM_NAME : null,
+            'org_type' => defined('RP_ORGTYPE') ? RP_ORGTYPE : null,
+        ];
+    }
+
+    private function collectStats(): array
+    {
+        $stats = [
+            'active_employees' => 0,
+            'total_employees' => 0,
+            'active_users' => 0,
+            'vehicles' => 0,
+            'enotf_last_30_days' => 0,
+            'fire_incidents_last_30_days' => 0,
+        ];
+
+        try {
+            // Aktive Mitarbeiter - prüfe welche Status-Spalte existiert
+            try {
+                $stmt = $this->pdo->query("SHOW COLUMNS FROM intra_mitarbeiter LIKE 'status'");
+                if ($stmt->rowCount() > 0) {
+                    $stmt = $this->pdo->query("
+                        SELECT COUNT(*) FROM intra_mitarbeiter 
+                        WHERE status IN ('Aktiv', 'aktiv', '1', 1) OR status IS NULL
+                    ");
+                    $stats['active_employees'] = (int) $stmt->fetchColumn();
+                } else {
+                    // Fallback: alle zählen
+                    $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter");
+                    $stats['active_employees'] = (int) $stmt->fetchColumn();
+                }
+            } catch (\PDOException $e) {
+                // Tabelle existiert nicht
+            }
+
+            // Gesamt Mitarbeiter
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter");
+                $stats['total_employees'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
+
+            // Aktive User (Login in letzten 30 Tagen via Session-Logs)
+            try {
+                // Versuche zuerst session_logs (genauer)
+                $stmt = $this->pdo->query("
+                    SELECT COUNT(DISTINCT user_id) FROM intra_session_logs 
+                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+                ");
+                $stats['active_users'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+                // Fallback: Alle User zählen
+                try {
+                    $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_users");
+                    $stats['active_users'] = (int) $stmt->fetchColumn();
+                } catch (\PDOException $e2) {
+                }
+            }
+
+            // Fahrzeuge
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_fahrzeuge");
+                $stats['vehicles'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
+
+            // eNOTF Einträge (letzte 30 Tage)
+            try {
+                $stmt = $this->pdo->query("
+                    SELECT COUNT(*) FROM intra_edivi 
+                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+                ");
+                $stats['enotf_last_30_days'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
+
+            // Feuerwehr-Einsätze (letzte 30 Tage)
+            try {
+                $stmt = $this->pdo->query("
+                    SELECT COUNT(*) FROM intra_fire_incidents 
+                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+                ");
+                $stats['fire_incidents_last_30_days'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
+        } catch (\PDOException $e) {
+            error_log("Telemetry stats collection error: " . $e->getMessage());
+        }
+
+        return $stats;
+    }
+
+    private function collectModuleInfo(): array
+    {
+        $modules = [
+            'enotf' => false,
+            'fire_incidents' => false,
+            'manv' => false,
+            'documents' => false,
+            'knowledge_base' => false,
+        ];
+
+        try {
+            // eNOTF - Tabelle existiert und hat Einträge
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_edivi");
+                $modules['enotf'] = ((int) $stmt->fetchColumn()) > 0;
+            } catch (\PDOException $e) {
+            }
+
+            // Feuerwehr-Einsätze
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_fire_incidents");
+                $modules['fire_incidents'] = ((int) $stmt->fetchColumn()) > 0;
+            } catch (\PDOException $e) {
+            }
+
+            // MANV - korrekte Tabelle: intra_manv_lagen
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_manv_lagen");
+                $modules['manv'] = ((int) $stmt->fetchColumn()) > 0;
+            } catch (\PDOException $e) {
+            }
+
+            // Dokumente - Templates oder Mitarbeiter-Dokumente
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_dokument_templates");
+                $modules['documents'] = ((int) $stmt->fetchColumn()) > 0;
+            } catch (\PDOException $e) {
+            }
+
+            // Wissensdatenbank
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_kb_entries");
+                $modules['knowledge_base'] = ((int) $stmt->fetchColumn()) > 0;
+            } catch (\PDOException $e) {
+            }
+        } catch (\PDOException $e) {
+            error_log("Telemetry module check error: " . $e->getMessage());
+        }
+
+        return $modules;
+    }
+
+    private function getVersion(): string
+    {
+        // Primär: version.json (vom SystemUpdater verwendet)
+        $versionJsonFile = __DIR__ . '/../../system/updates/version.json';
+        if (file_exists($versionJsonFile)) {
+            $content = file_get_contents($versionJsonFile);
+            $data = json_decode($content, true);
+            if (isset($data['version'])) {
+                return $data['version'];
+            }
+        }
+
+        // Fallback 1: VERSION Datei
+        $versionFile = __DIR__ . '/../../VERSION';
+        if (file_exists($versionFile)) {
+            return trim(file_get_contents($versionFile));
+        }
+
+        // Fallback 2: composer.json
+        $composerFile = __DIR__ . '/../../composer.json';
+        if (file_exists($composerFile)) {
+            $composer = json_decode(file_get_contents($composerFile), true);
+            if (isset($composer['version'])) {
+                return $composer['version'];
+            }
+        }
+
+        return 'unknown';
+    }
+
+    public function shouldSendHeartbeat(): bool
+    {
+        if (!$this->isEnabled()) {
+            return false;
+        }
+
+        // Rate-Limit Check: Nicht senden wenn wir noch im Cooldown sind
+        $rateLimitUntil = $this->config->get('TELEMETRY_RATE_LIMIT_UNTIL');
+        if ($rateLimitUntil && strtotime($rateLimitUntil) > time()) {
+            return false;
+        }
+
+        $lastHeartbeat = $this->config->get('TELEMETRY_LAST_HEARTBEAT');
+        if (empty($lastHeartbeat)) {
+            return true;
+        }
+
+        return (time() - strtotime($lastHeartbeat)) >= self::HEARTBEAT_INTERVAL;
+    }
+
+    public function sendHeartbeat(bool $force = false): array
+    {
+        if (!$this->isEnabled()) {
+            return ['success' => false, 'message' => 'Telemetrie ist deaktiviert'];
+        }
+
+        // Rate-Limit Check: Nicht senden wenn wir noch im Cooldown sind
+        $rateLimitUntil = $this->config->get('TELEMETRY_RATE_LIMIT_UNTIL');
+        if ($rateLimitUntil && strtotime($rateLimitUntil) > time()) {
+            $waitSeconds = strtotime($rateLimitUntil) - time();
+            return ['success' => false, 'message' => "Rate-Limit aktiv. Bitte warte noch {$waitSeconds} Sekunden."];
+        }
+
+        $hubUrl = $this->getHubUrl();
+        $endpoint = rtrim($hubUrl, '/') . '/api/telemetry/heartbeat.php';
+        $data = $this->collectData();
+
+        $context = stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => [
+                    'Content-Type: application/json',
+                    'Accept: application/json',
+                    'User-Agent: intraRP-Telemetry/1.0',
+                    'X-Installation-ID: ' . $data['installation_id'],
+                ],
+                'content' => json_encode($data),
+                'timeout' => 10,
+                'ignore_errors' => true,
+            ],
+            'ssl' => [
+                'verify_peer' => true,
+                'verify_peer_name' => true,
+            ],
+        ]);
+
+        try {
+            $response = @file_get_contents($endpoint, false, $context);
+
+            if ($response === false) {
+                $error = error_get_last();
+                return ['success' => false, 'message' => 'Verbindung fehlgeschlagen: ' . ($error['message'] ?? 'Unbekannt')];
+            }
+
+            $result = json_decode($response, true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return ['success' => false, 'message' => 'Ungültige JSON-Antwort vom Hub: ' . substr($response, 0, 200)];
+            }
+
+            // Rate-Limit-Handling
+            if (isset($result['error']) && strpos($result['error'], 'Rate limit') !== false) {
+                $retryAfter = $result['retry_after'] ?? 60;
+                $this->setRateLimitCooldown($retryAfter);
+                return ['success' => false, 'message' => "Rate-Limit erreicht. Nächster Versuch in {$retryAfter} Sekunden."];
+            }
+
+            if (isset($result['success']) && $result['success']) {
+                $this->updateLastHeartbeat();
+                $this->clearRateLimitCooldown();
+                return ['success' => true, 'message' => 'Heartbeat erfolgreich gesendet'];
+            }
+
+            return ['success' => false, 'message' => $result['error'] ?? $result['message'] ?? 'Hub-Antwort: ' . substr($response, 0, 200)];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => 'Fehler: ' . $e->getMessage()];
+        }
+    }
+
+    private function setRateLimitCooldown(int $seconds): void
+    {
+        $until = date('c', time() + $seconds);
+        try {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO intra_config 
+                (config_key, config_value, config_type, category, description, is_editable, display_order)
+                VALUES ('TELEMETRY_RATE_LIMIT_UNTIL', ?, 'string', 'telemetrie', 'Rate-Limit Cooldown', 0, 99)
+                ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)
+            ");
+            $stmt->execute([$until]);
+        } catch (\PDOException $e) {
+            error_log("Failed to set rate limit cooldown: " . $e->getMessage());
+        }
+    }
+
+    private function clearRateLimitCooldown(): void
+    {
+        try {
+            $this->pdo->exec("DELETE FROM intra_config WHERE config_key = 'TELEMETRY_RATE_LIMIT_UNTIL'");
+        } catch (\PDOException $e) {
+            // Ignorieren
+        }
+    }
+
+    private function updateLastHeartbeat(): void
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO intra_config 
+                (config_key, config_value, config_type, category, description, is_editable, display_order)
+                VALUES ('TELEMETRY_LAST_HEARTBEAT', ?, 'string', 'telemetrie', 'Letzter Telemetrie-Heartbeat', 0, 2)
+                ON DUPLICATE KEY UPDATE config_value = VALUES(config_value)
+            ");
+            $stmt->execute([date('c')]);
+        } catch (\PDOException $e) {
+            error_log("Failed to update last heartbeat: " . $e->getMessage());
+        }
+    }
+
+    public function getDataPreview(): array
+    {
+        return $this->collectData();
+    }
 }
-
-// Aktuelle Werte laden
-$telemetryEnabled = $telemetry->isEnabled();
-$announcementsEnabled = $announcements->isEnabled();
-$hubUrl = $telemetry->getHubUrl();
-$installationId = $telemetry->getInstallationId();
-$lastHeartbeat = $telemetry->getLastHeartbeat();
-$previewData = $telemetryEnabled ? $telemetry->collectData() : null;
-$cacheInfo = $announcements->getCacheInfo();
-?>
-
-<!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
-
-<head>
-    <?php
-    $SITE_TITLE = 'Telemetrie & Announcements';
-    include __DIR__ . '/../../assets/components/_base/admin/head.php';
-    ?>
-</head>
-
-<body data-bs-theme="dark" data-page="settings">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <hr class="text-light my-3">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Telemetrie & Ankündigungen</h1>
-                    </div>
-
-                    <?php if ($message): ?>
-                        <div class="alert alert-<?= $messageType ?> alert-dismissible fade show">
-                            <?= htmlspecialchars($message) ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="row g-4">
-                        <!-- Telemetrie -->
-                        <div class="col-lg-6">
-                            <div class="card h-100">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-chart-line me-2"></i>Telemetrie</span>
-                                    <span class="badge bg-<?= $telemetryEnabled ? 'success' : 'secondary' ?>">
-                                        <?= $telemetryEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
-                                    </span>
-                                </div>
-                                <div class="card-body">
-                                    <p class="text-muted">
-                                        Telemetrie hilft uns, intraRP weiterzuentwickeln.
-                                        Es werden nur <strong>anonymisierte</strong> Statistiken übermittelt -
-                                        keine persönlichen Daten, Namen oder IP-Adressen.
-                                        Du kannst die Telemetrie jederzeit deaktivieren.
-                                    </p>
-
-                                    <div class="d-flex gap-2 mb-3">
-                                        <form method="POST" class="d-inline">
-                                            <input type="hidden" name="action" value="toggle_telemetry">
-                                            <button type="submit" class="btn btn-<?= $telemetryEnabled ? 'warning' : 'success' ?>">
-                                                <i class="fas fa-<?= $telemetryEnabled ? 'toggle-off' : 'toggle-on' ?> me-1"></i>
-                                                <?= $telemetryEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
-                                            </button>
-                                        </form>
-
-                                        <?php if ($telemetryEnabled): ?>
-                                            <form method="POST" class="d-inline">
-                                                <input type="hidden" name="action" value="send_heartbeat">
-                                                <button type="submit" class="btn btn-outline-primary">
-                                                    <i class="fas fa-paper-plane me-1"></i> Jetzt senden
-                                                </button>
-                                            </form>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <hr>
-
-                                    <h6>Status</h6>
-                                    <table class="table table-sm">
-                                        <tr>
-                                            <td class="text-muted">Installation-ID:</td>
-                                            <td><code class="small"><?= htmlspecialchars($installationId) ?></code></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted">Letzter Heartbeat:</td>
-                                            <td><?= $lastHeartbeat ? date('d.m.Y H:i', strtotime($lastHeartbeat)) : '<span class="text-muted">Noch nie</span>' ?></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted">Hub-Server:</td>
-                                            <td><code class="small"><?= htmlspecialchars($hubUrl) ?></code></td>
-                                        </tr>
-                                    </table>
-
-                                    <?php if ($previewData): ?>
-                                        <details class="mt-3">
-                                            <summary class="text-muted" style="cursor: pointer;">Datenvorschau anzeigen</summary>
-                                            <pre class="bg-dark text-light p-3 rounded mt-2 small" style="max-height: 300px; overflow: auto;"><?= htmlspecialchars(json_encode($previewData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
-                                        </details>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Globale Announcements -->
-                        <div class="col-lg-6">
-                            <div class="card h-100">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span><i class="fas fa-bullhorn me-2"></i>Globale Announcements</span>
-                                    <span class="badge bg-<?= $announcementsEnabled ? 'success' : 'secondary' ?>">
-                                        <?= $announcementsEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
-                                    </span>
-                                </div>
-                                <div class="card-body">
-                                    <p class="text-muted">
-                                        Globale Announcements informieren dich über wichtige Updates,
-                                        Sicherheitshinweise und News vom intraRP-Team.
-                                    </p>
-
-                                    <div class="d-flex gap-2 mb-3">
-                                        <form method="POST" class="d-inline">
-                                            <input type="hidden" name="action" value="toggle_announcements">
-                                            <button type="submit" class="btn btn-<?= $announcementsEnabled ? 'warning' : 'success' ?>">
-                                                <i class="fas fa-<?= $announcementsEnabled ? 'toggle-off' : 'toggle-on' ?> me-1"></i>
-                                                <?= $announcementsEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
-                                            </button>
-                                        </form>
-
-                                        <?php if ($announcementsEnabled): ?>
-                                            <form method="POST" class="d-inline">
-                                                <input type="hidden" name="action" value="refresh_announcements">
-                                                <button type="submit" class="btn btn-outline-primary">
-                                                    <i class="fas fa-sync me-1"></i> Cache aktualisieren
-                                                </button>
-                                            </form>
-                                        <?php endif; ?>
-                                    </div>
-
-                                    <hr>
-
-                                    <h6>Cache-Status</h6>
-                                    <table class="table table-sm mb-3">
-                                        <tr>
-                                            <td class="text-muted">Einträge im Cache:</td>
-                                            <td><?= $cacheInfo['count'] ?></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted">Letzter Abruf:</td>
-                                            <td><?= $cacheInfo['last_fetch'] ? date('d.m.Y H:i', strtotime($cacheInfo['last_fetch'])) : '<span class="text-muted">Noch nie</span>' ?></td>
-                                        </tr>
-                                    </table>
-
-                                    <h6>Aktuelle Ankündigungen</h6>
-                                    <?php
-                                    // Defensiv: Sicherstellen dass $announcements ein Objekt ist
-                                    if (!isset($announcements) || !($announcements instanceof \App\Telemetry\GlobalAnnouncementManager)) {
-                                        $announcements = new GlobalAnnouncementManager($pdo);
-                                    }
-
-                                    $currentAnnouncements = [];
-                                    $allCached = [];
-                                    $debugError = null;
-
-                                    if ($announcementsEnabled) {
-                                        try {
-                                            $currentAnnouncements = $announcements->getActiveAnnouncements(null, true);
-                                            $allCached = $announcements->getAllCached();
-                                        } catch (\Throwable $e) {
-                                            $debugError = $e->getMessage();
-                                        }
-                                    }
-                                    ?>
-
-                                    <!-- Debug (kann später entfernt werden) -->
-                                    <div class="alert alert-secondary small py-1 mb-2">
-                                        Cache: <?= count($allCached) ?> | Aktiv: <?= count($currentAnnouncements) ?>
-                                        <?php if ($debugError): ?> | <span class="text-danger">Error: <?= htmlspecialchars($debugError) ?></span><?php endif; ?>
-                                    </div>
-
-                                    <?php if (!empty($currentAnnouncements)): ?>
-                                        <div class="list-group list-group-flush">
-                                            <?php foreach ($currentAnnouncements as $ann): ?>
-                                                <div class="list-group-item px-0">
-                                                    <div class="d-flex align-items-center flex-wrap gap-1">
-                                                        <span class="badge bg-<?= $ann['type'] === 'critical' ? 'danger' : ($ann['type'] === 'warning' ? 'warning' : 'info') ?>">
-                                                            <?= htmlspecialchars($ann['type']) ?>
-                                                        </span>
-                                                        <?php if (!empty($ann['admin_only'])): ?>
-                                                            <span class="badge bg-dark"><i class="fas fa-shield-halved"></i></span>
-                                                        <?php endif; ?>
-                                                        <strong><?= htmlspecialchars($ann['title']) ?></strong>
-                                                    </div>
-                                                    <?php if (!empty($ann['message'])): ?>
-                                                        <small class="text-muted"><?= htmlspecialchars($ann['message']) ?></small>
-                                                    <?php endif; ?>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    <?php elseif (!empty($allCached)): ?>
-                                        <div class="alert alert-warning small">
-                                            <?= count($allCached) ?> im Cache, aber durch Filter ausgeblendet.
-                                            <details class="mt-2">
-                                                <summary>Cache-Inhalt</summary>
-                                                <pre class="mt-2 mb-0" style="font-size: 0.7rem;"><?= htmlspecialchars(json_encode($allCached, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
-                                            </details>
-                                        </div>
-                                    <?php else: ?>
-                                        <p class="text-muted small mb-0">Keine Ankündigungen.</p>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Hub-URL Konfiguration -->
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    <i class="fas fa-cog me-2"></i>Erweiterte Einstellungen
-                                </div>
-                                <div class="card-body">
-                                    <form method="POST" class="row g-3 align-items-end">
-                                        <input type="hidden" name="action" value="update_hub_url">
-                                        <div class="col-md-8">
-                                            <label class="form-label">Hub-Server URL</label>
-                                            <input type="url" name="hub_url" class="form-control"
-                                                value="<?= htmlspecialchars($hubUrl) ?>"
-                                                placeholder="https://hub.intrarp.de">
-                                            <small class="text-muted">Nur ändern, wenn du einen eigenen Hub-Server betreibst.</small>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <button type="submit" class="btn btn-outline-primary">
-                                                <i class="fas fa-save me-1"></i> Speichern
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Datenschutz-Info -->
-                        <div class="col-12">
-                            <div class="card border-info">
-                                <div class="card-header bg-info bg-opacity-10">
-                                    <i class="fas fa-shield-alt me-2"></i>Datenschutz
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <h6 class="text-success"><i class="fas fa-check me-1"></i> Was wir sammeln:</h6>
-                                            <ul class="small mb-0">
-                                                <li>Anonyme Installation-ID (UUID)</li>
-                                                <li>Server- und Systemname</li>
-                                                <li>intraRP- und PHP-Version</li>
-                                                <li>Anzahl Mitarbeiter, User, Fahrzeuge</li>
-                                                <li>Aktivitätsstatistiken (eNOTF, Einsätze)</li>
-                                                <li>Aktive Module</li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h6 class="text-danger"><i class="fas fa-times me-1"></i> Was wir NICHT sammeln:</h6>
-                                            <ul class="small mb-0">
-                                                <li>Namen, E-Mails, Discord-IDs</li>
-                                                <li>IP-Adressen der Nutzer</li>
-                                                <li>Passwörter oder API-Keys</li>
-                                                <li>Konkrete Einsatz- oder Protokolldaten</li>
-                                                <li>Persönliche Informationen jeglicher Art</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
-</body>
-
-</html>
