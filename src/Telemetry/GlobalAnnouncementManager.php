@@ -250,6 +250,19 @@ class GlobalAnnouncementManager
     }
 
     /**
+     * Gibt ALLE gecachten Announcements zurück (ohne Filter, für Debug)
+     */
+    public function getAllCached(): array
+    {
+        try {
+            $stmt = $this->pdo->query("SELECT * FROM intra_global_announcements_cache ORDER BY priority DESC");
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            return [];
+        }
+    }
+
+    /**
      * Gibt das Bootstrap-Alert-Klasse für einen Announcement-Typ zurück
      */
     public static function getAlertClass(string $type): string

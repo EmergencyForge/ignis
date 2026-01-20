@@ -252,8 +252,19 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <h6>Aktuelle Ankündigungen</h6>
                                     <?php
                                     $currentAnnouncements = $announcementsEnabled ? $announcements->getActiveAnnouncements(null, true) : [];
-                                    if (empty($currentAnnouncements)):
+                                    $allCached = $announcements->getAllCached();
+
+                                    // Debug: Zeige was im Cache ist vs. was gefiltert wird
+                                    if (empty($currentAnnouncements) && !empty($allCached)):
                                     ?>
+                                        <div class="alert alert-warning small">
+                                            <strong>Debug:</strong> <?= count($allCached) ?> Eintrag/Einträge im Cache, aber durch Filter ausgeblendet.
+                                            <details class="mt-2">
+                                                <summary>Cache-Inhalt anzeigen</summary>
+                                                <pre class="mt-2 mb-0" style="font-size: 0.75rem;"><?= htmlspecialchars(json_encode($allCached, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
+                                            </details>
+                                        </div>
+                                    <?php elseif (empty($currentAnnouncements)): ?>
                                         <p class="text-muted small mb-0">Keine aktuellen Ankündigungen.</p>
                                     <?php else: ?>
                                         <div class="list-group list-group-flush">
