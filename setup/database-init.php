@@ -388,6 +388,11 @@ $migrationFiles = [
     // 16.01.2026
     ['file' => 'add_performance_indexes_16012026.php', 'type' => 'alter'],
     ['file' => 'insert_discord_webhooks_config_16012026.php', 'type' => 'insert'],
+
+    // 20.01.2026 - Telemetrie & Globale Announcements
+    ['file' => 'insert_telemetry_config_20012026.php', 'type' => 'insert'],
+    ['file' => 'create_intra_global_announcements_cache_20012026.php', 'type' => 'create'],
+    ['file' => 'create_intra_global_announcements_dismissed_20012026.php', 'type' => 'create'],
 ];
 
 $executed = 0;
