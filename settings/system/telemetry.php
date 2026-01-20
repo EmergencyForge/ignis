@@ -2,7 +2,7 @@
 
 /**
  * Telemetrie & Announcements Einstellungen
- * Version: 2026-01-21-v4
+ * Version: 2026-01-21-v5
  */
 
 require_once __DIR__ . '/../../assets/config/config.php';
@@ -48,10 +48,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
 
         case 'toggle_announcements':
-            $configManager = new \App\Config\ConfigManager($pdo);
-            $newValue = $announcements->isEnabled() ? 'false' : 'true';
-            $configManager->update('ANNOUNCEMENTS_ENABLED', $newValue, $_SESSION['userid'] ?? null);
-            $message = $newValue === 'true' ? 'Ankündigungen aktiviert.' : 'Ankündigungen deaktiviert.';
+            if ($announcements->isEnabled()) {
+                $announcements->disable();
+                $message = 'Ankündigungen wurden deaktiviert.';
+            } else {
+                $announcements->enable();
+                $message = 'Ankündigungen wurden aktiviert.';
+            }
             $messageType = 'success';
             break;
 
@@ -80,10 +83,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         case 'update_hub_url':
             $newUrl = trim($_POST['hub_url'] ?? '');
             if (filter_var($newUrl, FILTER_VALIDATE_URL)) {
-                $configManager = new \App\Config\ConfigManager($pdo);
-                $configManager->update('HUB_URL', $newUrl, $_SESSION['userid'] ?? null);
-                $message = 'Hub-URL aktualisiert.';
-                $messageType = 'success';
+                try {
+                    $stmt = $pdo->prepare("
+                        UPDATE intra_config 
+                        SET config_value = ?, updated_at = NOW()
+                        WHERE config_key = 'HUB_URL'
+                    ");
+                    $stmt->execute([$newUrl]);
+                    $message = 'Hub-URL aktualisiert.';
+                    $messageType = 'success';
+                } catch (PDOException $e) {
+                    $message = 'Fehler beim Speichern: ' . $e->getMessage();
+                    $messageType = 'danger';
+                }
             } else {
                 $message = 'Ungültige URL.';
                 $messageType = 'danger';

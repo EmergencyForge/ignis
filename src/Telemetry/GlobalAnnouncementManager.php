@@ -37,6 +37,36 @@ class GlobalAnnouncementManager
         return true;
     }
 
+    public function enable(): bool
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE intra_config 
+                SET config_value = 'true', updated_at = NOW()
+                WHERE config_key = 'ANNOUNCEMENTS_ENABLED'
+            ");
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log("Failed to enable announcements: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function disable(): bool
+    {
+        try {
+            $stmt = $this->pdo->prepare("
+                UPDATE intra_config 
+                SET config_value = 'false', updated_at = NOW()
+                WHERE config_key = 'ANNOUNCEMENTS_ENABLED'
+            ");
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log("Failed to disable announcements: " . $e->getMessage());
+            return false;
+        }
+    }
+
     public function getHubUrl(): string
     {
         return $this->config->get('HUB_URL') ?? 'https://emergencyforge.de';
