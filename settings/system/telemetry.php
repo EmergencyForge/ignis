@@ -2,6 +2,7 @@
 
 /**
  * Telemetrie & Announcements Einstellungen
+ * Version: 2026-01-21-v3
  */
 
 require_once __DIR__ . '/../../assets/config/config.php';
@@ -124,9 +125,12 @@ $cacheInfo = $announcements->getCacheInfo();
                     <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">Telemetrie & Announcements</h1>
-                        <a href="<?= BASE_PATH ?>settings/system/" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-arrow-left me-1"></i> Zurück
-                        </a>
+                        <div>
+                            <small class="text-muted me-2">v3</small>
+                            <a href="<?= BASE_PATH ?>settings/system/" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-arrow-left me-1"></i> Zurück
+                            </a>
+                        </div>
                     </div>
 
                     <?php if ($message): ?>
@@ -251,22 +255,25 @@ $cacheInfo = $announcements->getCacheInfo();
 
                                     <h6>Aktuelle Ankündigungen</h6>
                                     <?php
-                                    $currentAnnouncements = $announcementsEnabled ? $announcements->getActiveAnnouncements(null, true) : [];
-                                    $allCached = $announcements->getAllCached();
-
-                                    // Debug: Zeige was im Cache ist vs. was gefiltert wird
-                                    if (empty($currentAnnouncements) && !empty($allCached)):
+                                    try {
+                                        $currentAnnouncements = $announcementsEnabled ? $announcements->getActiveAnnouncements(null, true) : [];
+                                        $allCached = $announcements->getAllCached();
+                                    } catch (Exception $e) {
+                                        echo '<div class="alert alert-danger small">Fehler: ' . htmlspecialchars($e->getMessage()) . '</div>';
+                                        $currentAnnouncements = [];
+                                        $allCached = [];
+                                    }
                                     ?>
-                                        <div class="alert alert-warning small">
-                                            <strong>Debug:</strong> <?= count($allCached) ?> Eintrag/Einträge im Cache, aber durch Filter ausgeblendet.
-                                            <details class="mt-2">
-                                                <summary>Cache-Inhalt anzeigen</summary>
-                                                <pre class="mt-2 mb-0" style="font-size: 0.75rem;"><?= htmlspecialchars(json_encode($allCached, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
-                                            </details>
-                                        </div>
-                                    <?php elseif (empty($currentAnnouncements)): ?>
-                                        <p class="text-muted small mb-0">Keine aktuellen Ankündigungen.</p>
-                                    <?php else: ?>
+
+                                    <!-- Debug Info -->
+                                    <div class="alert alert-secondary small mb-2">
+                                        <strong>Debug:</strong>
+                                        Cache: <?= count($allCached) ?> |
+                                        Aktiv: <?= count($currentAnnouncements) ?> |
+                                        Enabled: <?= $announcementsEnabled ? 'Ja' : 'Nein' ?>
+                                    </div>
+
+                                    <?php if (!empty($currentAnnouncements)): ?>
                                         <div class="list-group list-group-flush">
                                             <?php foreach ($currentAnnouncements as $ann): ?>
                                                 <div class="list-group-item px-0">
@@ -285,6 +292,16 @@ $cacheInfo = $announcements->getCacheInfo();
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
+                                    <?php elseif (!empty($allCached)): ?>
+                                        <div class="alert alert-warning small">
+                                            <?= count($allCached) ?> im Cache, aber durch Filter ausgeblendet.
+                                            <details class="mt-2">
+                                                <summary>Cache-Inhalt</summary>
+                                                <pre class="mt-2 mb-0" style="font-size: 0.7rem;"><?= htmlspecialchars(json_encode($allCached, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
+                                            </details>
+                                        </div>
+                                    <?php else: ?>
+                                        <p class="text-muted small mb-0">Keine Ankündigungen.</p>
                                     <?php endif; ?>
                                 </div>
                             </div>
