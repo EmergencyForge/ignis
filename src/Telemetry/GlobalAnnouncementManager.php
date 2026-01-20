@@ -170,7 +170,7 @@ class GlobalAnnouncementManager
             $data = json_decode($response, true);
 
             if (!isset($data['success']) || !$data['success']) {
-                return ['success' => false, 'message' => $data['message'] ?? 'Unbekannter Fehler'];
+                return ['success' => false, 'message' => $data['error'] ?? $data['message'] ?? 'Unbekannter Fehler vom Hub'];
             }
 
             // Cache leeren und neu befüllen
