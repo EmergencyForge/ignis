@@ -38,9 +38,9 @@ class GlobalAnnouncementManager
     }
 
     /**
-     * Gibt aktive Announcements zurück (gefiltert nach User-Dismissals)
+     * Gibt aktive Announcements zurück (gefiltert nach User-Dismissals und Admin-Status)
      */
-    public function getActiveAnnouncements(?int $userId = null): array
+    public function getActiveAnnouncements(?int $userId = null, bool $isAdmin = false): array
     {
         if (!$this->isEnabled()) {
             return [];
@@ -56,6 +56,11 @@ class GlobalAnnouncementManager
                 AND (c.valid_until IS NULL OR c.valid_until >= NOW())
             ";
             $params = [];
+
+            // Admin-Only Filter: Nur Admins sehen admin_only Announcements
+            if (!$isAdmin) {
+                $sql .= " AND (c.admin_only IS NULL OR c.admin_only = 0)";
+            }
 
             // Ausgeblendete Announcements ausfiltern
             if ($userId !== null) {
@@ -176,8 +181,8 @@ class GlobalAnnouncementManager
             if (!empty($announcements)) {
                 $stmt = $this->pdo->prepare("
                     INSERT INTO intra_global_announcements_cache 
-                    (announcement_id, type, title, message, link, priority, valid_from, valid_until, fetched_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+                    (announcement_id, type, title, message, link, priority, admin_only, valid_from, valid_until, fetched_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
                 ");
 
                 foreach ($announcements as $ann) {
@@ -188,6 +193,7 @@ class GlobalAnnouncementManager
                         $ann['message'] ?? null,
                         $ann['link'] ?? null,
                         $ann['priority'] ?? 0,
+                        $ann['admin_only'] ?? 0,
                         $ann['valid_from'] ?? date('Y-m-d H:i:s'),
                         $ann['valid_until'] ?? null,
                     ]);

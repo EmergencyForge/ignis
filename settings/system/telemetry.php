@@ -233,7 +233,7 @@ $previewData = $telemetryEnabled ? $telemetry->collectData() : null;
 
                                     <h6>Aktuelle Announcements</h6>
                                     <?php
-                                    $currentAnnouncements = $announcementsEnabled ? $announcements->getActiveAnnouncements() : [];
+                                    $currentAnnouncements = $announcementsEnabled ? $announcements->getActiveAnnouncements(null, true) : [];
                                     if (empty($currentAnnouncements)):
                                     ?>
                                         <p class="text-muted small mb-0">Keine aktuellen Announcements.</p>
