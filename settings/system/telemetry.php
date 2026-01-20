@@ -2,7 +2,7 @@
 
 /**
  * Telemetrie & Announcements Einstellungen
- * Version: 2026-01-21-v3
+ * Version: 2026-01-21-v4
  */
 
 require_once __DIR__ . '/../../assets/config/config.php';
@@ -126,7 +126,7 @@ $cacheInfo = $announcements->getCacheInfo();
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">Telemetrie & Announcements</h1>
                         <div>
-                            <small class="text-muted me-2">v3</small>
+                            <small class="text-muted me-2">v4</small>
                             <a href="<?= BASE_PATH ?>settings/system/" class="btn btn-outline-secondary btn-sm">
                                 <i class="fas fa-arrow-left me-1"></i> Zurück
                             </a>
@@ -255,22 +255,29 @@ $cacheInfo = $announcements->getCacheInfo();
 
                                     <h6>Aktuelle Ankündigungen</h6>
                                     <?php
-                                    try {
-                                        $currentAnnouncements = $announcementsEnabled ? $announcements->getActiveAnnouncements(null, true) : [];
-                                        $allCached = $announcements->getAllCached();
-                                    } catch (Exception $e) {
-                                        echo '<div class="alert alert-danger small">Fehler: ' . htmlspecialchars($e->getMessage()) . '</div>';
-                                        $currentAnnouncements = [];
-                                        $allCached = [];
+                                    // Defensiv: Sicherstellen dass $announcements ein Objekt ist
+                                    if (!isset($announcements) || !($announcements instanceof \App\Telemetry\GlobalAnnouncementManager)) {
+                                        $announcements = new GlobalAnnouncementManager($pdo);
+                                    }
+
+                                    $currentAnnouncements = [];
+                                    $allCached = [];
+                                    $debugError = null;
+
+                                    if ($announcementsEnabled) {
+                                        try {
+                                            $currentAnnouncements = $announcements->getActiveAnnouncements(null, true);
+                                            $allCached = $announcements->getAllCached();
+                                        } catch (\Throwable $e) {
+                                            $debugError = $e->getMessage();
+                                        }
                                     }
                                     ?>
 
-                                    <!-- Debug Info -->
-                                    <div class="alert alert-secondary small mb-2">
-                                        <strong>Debug:</strong>
-                                        Cache: <?= count($allCached) ?> |
-                                        Aktiv: <?= count($currentAnnouncements) ?> |
-                                        Enabled: <?= $announcementsEnabled ? 'Ja' : 'Nein' ?>
+                                    <!-- Debug (kann später entfernt werden) -->
+                                    <div class="alert alert-secondary small py-1 mb-2">
+                                        Cache: <?= count($allCached) ?> | Aktiv: <?= count($currentAnnouncements) ?>
+                                        <?php if ($debugError): ?> | <span class="text-danger">Error: <?= htmlspecialchars($debugError) ?></span><?php endif; ?>
                                     </div>
 
                                     <?php if (!empty($currentAnnouncements)): ?>
