@@ -51,10 +51,12 @@ use App\Auth\Permissions;
                 <small>Protokoll</small>
             </a>
 
-            <a href="<?= BASE_PATH ?>enotf/hospital-availability.php" id="hospital-availability" class="edivi__iconlink">
-                <i class="fa-solid fa-hospital"></i><br>
-                <small>Verfügbarkeit</small>
-            </a>
+            <?php if (ENOTF_PREREG) : ?>
+                <a href="<?= BASE_PATH ?>enotf/hospital-availability.php" id="hospital-availability" class="edivi__iconlink">
+                    <i class="fa-solid fa-hospital"></i><br>
+                    <small>Verfügbarkeit</small>
+                </a>
+            <?php endif; ?>
 
             <?php if (Permissions::check(['admin', 'edivi.edit'])) : ?>
                 <button onclick="openQMActions(<?= $daten['id'] ?>, '<?= $enr ?>', '<?= htmlspecialchars($daten['patname'] ?? 'Unbekannt') ?>')" id="qma" class="edivi__iconlink">
