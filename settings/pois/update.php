@@ -11,7 +11,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
     exit();
 }
 
-if (!Permissions::check(['admin', 'vehicles.manage'])) {
+if (!Permissions::check(['admin', 'pois.manage'])) {
     Flash::set('error', 'no-permissions');
     header("Location: " . BASE_PATH . "settings/pois/index.php");
     exit();

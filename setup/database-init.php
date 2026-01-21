@@ -393,6 +393,13 @@ $migrationFiles = [
     ['file' => 'insert_telemetry_config_20012026.php', 'type' => 'insert'],
     ['file' => 'create_intra_global_announcements_cache_20012026.php', 'type' => 'create'],
     ['file' => 'create_intra_global_announcements_dismissed_20012026.php', 'type' => 'create'],
+
+    // 21.01.2026 - Krankenhaus-Verfügbarkeit
+    ['file' => 'create_intra_edivi_hospital_departments_21012026.php', 'type' => 'create'],
+    ['file' => 'create_intra_edivi_hospital_availability_21012026.php', 'type' => 'create'],
+    ['file' => 'create_intra_edivi_hospital_access_codes_21012026.php', 'type' => 'create'],
+    ['file' => 'alter_intra_edivi_hospital_departments_21012026_sort_order.php', 'type' => 'alter'],
+    ['file' => 'alter_intra_edivi_hospital_access_codes_21012026_plaintext.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

@@ -44,7 +44,7 @@ class DiscordOAuth
 
     /**
      * Create a Discord OAuth provider instance
-     * 
+     *
      * @param string $redirectPath The path for the OAuth redirect (e.g., 'auth/callback.php')
      * @return GenericProvider The configured OAuth provider
      */
@@ -52,13 +52,25 @@ class DiscordOAuth
     {
         $credentials = self::validateCredentials();
 
-        return new GenericProvider([
+        $config = [
             'clientId'                => $credentials['clientId'],
             'clientSecret'            => $credentials['clientSecret'],
             'redirectUri'             => ProtocolDetection::buildRedirectUri($redirectPath),
             'urlAuthorize'            => 'https://discord.com/api/oauth2/authorize',
             'urlAccessToken'          => 'https://discord.com/api/oauth2/token',
             'urlResourceOwnerDetails' => 'https://discord.com/api/users/@me',
-        ]);
+        ];
+
+        // ONLY for local development: Disable SSL verification if CA bundle is not configured
+        // WARNING: Never use this in production!
+        if (($_ENV['APP_ENV'] ?? 'production') === 'development') {
+            $config['collaborators'] = [
+                new \League\OAuth2\Client\Grant\AuthorizationCode(),
+            ];
+            // This will be passed to Guzzle
+            $config['verify'] = false;
+        }
+
+        return new GenericProvider($config);
     }
 }

@@ -116,6 +116,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                 'Protokolle' => [
                                     'edivi.view' => 'eNOTF Protokolle ansehen',
                                     'edivi.edit' => 'eNOTF Protokolle bearbeiten',
+                                    'enotf.view' => 'eNOTF System nutzen',
                                     'manv.manage' => 'MANV-Lagen verwalten',
                                     'fire.incident.qm' => 'FW Einsatzprotokolle bearbeiten'
                                 ],
@@ -142,7 +143,9 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                     'admin' => '<strong> Admin (Alle Rechte)</strong>',
                                     'dashboard.manage' => 'Dashboard verwalten',
                                     'vehicles.view' => 'Fahrzeuge ansehen',
-                                    'vehicles.manage' => 'Fahrzeuge verwalten'
+                                    'vehicles.manage' => 'Fahrzeuge verwalten',
+                                    'pois.view' => 'POIs ansehen',
+                                    'pois.manage' => 'POIs und Krankenhaus-Fachrichtungen verwalten'
                                 ]
                             ];
                             ?>
