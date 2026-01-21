@@ -7,7 +7,7 @@
                 <p class="small">Verwaltungsportal der <?php echo RP_ORGTYPE . " " . SERVER_CITY ?></p>
             </div>
             <div class="col-md-4 text-center">
-                <p class="small">&copy; <?php echo date("Y") ?> <a href="https://emforge.app" target="_blank" rel="nofollow">EmergencyForge</a> | Alle Rechte vorbehalten</p>
+                <p class="small">&copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
             </div>
             <div class="col-md-4 text-end">
             </div>
