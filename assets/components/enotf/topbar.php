@@ -68,7 +68,7 @@ use App\Auth\Permissions;
                 <span id="current-date"><?= $currentDate ?></span>
             </div>
             <a href="https://github.com/intraRP/intraRP" target="_blank">
-                <img src="https://dev.intrarp.de/assets/img/defaultLogo.webp" alt="intraRP Logo" height="64px" width="auto">
+                <img src="https://emergencyforge.de/assets/img/defaultLogo.webp" alt="EmergencyForge Logo" height="64px" width="auto">
             </a>
         </div>
     </div>

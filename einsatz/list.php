@@ -155,7 +155,7 @@ function fmt_dt(?string $ts): string
         <div class="sidebar-nav" style="width: 250px; min-height: 100vh; background-color: #1a1a1a; border-right: 1px solid #333;">
             <div class="p-3">
                 <div class="text-center mb-3">
-                    <img src="https://dev.intrarp.de/assets/img/defaultLogo.webp" alt="Logo" style="max-width: 120px; height: auto;">
+                    <img src="https://emergencyforge.de/assets/img/defaultLogo.webp" alt="EmergencyForge Logo" style="max-width: 120px; height: auto;">
                 </div>
 
                 <!-- Vehicle Login Info -->

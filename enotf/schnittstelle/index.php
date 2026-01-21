@@ -140,7 +140,7 @@ if ($ziel) {
                 <?php endif; ?>
             </div>
             <div class="col">
-                <img src="https://dev.intrarp.de/assets/img/defaultLogo.webp" alt="intraRP Logo" height="48px" width="auto">
+                <img src="https://emergencyforge.de/assets/img/defaultLogo.webp" alt="EmergencyForge Logo" height="48px" width="auto">
             </div>
             <div class="col text-end d-flex justify-content-end align-items-center">
                 <div class="d-flex flex-column align-items-end me-3">
