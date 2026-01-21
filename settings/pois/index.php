@@ -11,7 +11,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 
-if (!Permissions::check(['admin', 'vehicles.view'])) {
+if (!Permissions::check(['admin', 'pois.view'])) {
     Flash::set('error', 'no-permissions');
     header("Location: " . BASE_PATH . "index.php");
 }
@@ -39,10 +39,15 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">POI-Verwaltung</h1>
 
-                        <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
-                                <i class="fa-solid fa-plus"></i> POI erstellen
-                            </button>
+                        <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
+                            <div class="d-flex gap-2">
+                                <a href="<?= BASE_PATH ?>settings/pois/access-codes.php" class="btn btn-warning">
+                                    <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
+                                </a>
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
+                                    <i class="fa-solid fa-plus"></i> POI erstellen
+                                </button>
+                            </div>
                         <?php endif; ?>
                     </div>
                     <?php
@@ -86,9 +91,14 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                                     $ortsteil = htmlspecialchars($row['ortsteil'] ?? '-');
                                     $typ = htmlspecialchars($row['typ'] ?? '-');
 
-                                    $actions = (Permissions::check(['admin', 'vehicles.manage']))
-                                        ? "<a title='POI bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editPoiModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
-                                        : "";
+                                    $actions = '';
+                                    if (Permissions::check(['admin', 'pois.manage'])) {
+                                        // Add departments button for hospitals
+                                        if ($row['typ'] === 'Krankenhaus' || $row['typ'] === 'Klinik') {
+                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments.php?poi_id={$row['id']}' class='btn btn-sm btn-info me-1'><i class='fa-solid fa-hospital'></i></a>";
+                                        }
+                                        $actions .= "<a title='POI bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editPoiModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>";
+                                    }
 
                                     echo "<tr>";
                                     echo "<td " . $dimmed . ">" . htmlspecialchars($row['name']) . "</td>";

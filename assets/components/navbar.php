@@ -513,13 +513,17 @@ try {
                                         </ul>
                                     </div>
                                 <?php endif; ?>
-                                <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
+                                <?php if (Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>
                                     <div class="mega-menu-section">
                                         <h6>eNOTF</h6>
                                         <ul class="list-unstyled">
-                                            <li><a href="<?= BASE_PATH ?>settings/pois/index.php"><i class="fa-solid fa-map-marker-alt"></i> POIs</a></li>
-                                            <li><a href="<?= BASE_PATH ?>settings/medikamente/index.php"><i class="fa-solid fa-pills"></i> Medikamente</a></li>
-                                            <li><a href="<?= BASE_PATH ?>settings/enotf/index.php"><i class="fa-solid fa-link"></i> Schnellzugriff</a></li>
+                                            <?php if (Permissions::check(['admin', 'pois.view'])): ?>
+                                                <li><a href="<?= BASE_PATH ?>settings/pois/index.php"><i class="fa-solid fa-map-marker-alt"></i> POIs</a></li>
+                                            <?php endif; ?>
+                                            <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
+                                                <li><a href="<?= BASE_PATH ?>settings/medikamente/index.php"><i class="fa-solid fa-pills"></i> Medikamente</a></li>
+                                                <li><a href="<?= BASE_PATH ?>settings/enotf/index.php"><i class="fa-solid fa-link"></i> Schnellzugriff</a></li>
+                                            <?php endif; ?>
                                         </ul>
                                     </div>
                                 <?php endif; ?>
