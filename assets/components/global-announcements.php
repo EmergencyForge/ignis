@@ -9,9 +9,11 @@
 
 require_once __DIR__ . '/../../src/Telemetry/GlobalAnnouncementManager.php';
 require_once __DIR__ . '/../../src/Telemetry/TelemetryManager.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\Telemetry\GlobalAnnouncementManager;
 use App\Telemetry\TelemetryManager;
+use Parsedown;
 
 if (!isset($_SESSION['userid'])) {
     return;
@@ -49,6 +51,10 @@ try {
     if (empty($announcements)) {
         return;
     }
+
+    // Markdown Parser initialisieren
+    $parsedown = new Parsedown();
+    $parsedown->setSafeMode(true); // XSS-Schutz: Kein HTML in Markdown erlauben
 } catch (Exception $e) {
     error_log("Global announcements error: " . $e->getMessage());
     return;
@@ -142,7 +148,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                                 <h6 class="fw-bold mb-2"><?= htmlspecialchars($ann['title']) ?></h6>
 
                                 <?php if (!empty($ann['message'])): ?>
-                                    <p class="text-muted mb-3"><?= nl2br(htmlspecialchars($ann['message'])) ?></p>
+                                    <div class="text-muted mb-3 announcement-message"><?= $parsedown->text($ann['message']) ?></div>
                                 <?php endif; ?>
 
                                 <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -216,6 +222,102 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
     #efAnnouncementsModal .modal-footer {
         background: rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* Markdown Formatierung */
+    #efAnnouncementsModal .announcement-message {
+        line-height: 1.6;
+    }
+
+    #efAnnouncementsModal .announcement-message p {
+        margin-bottom: 0.75rem;
+    }
+
+    #efAnnouncementsModal .announcement-message p:last-child {
+        margin-bottom: 0;
+    }
+
+    #efAnnouncementsModal .announcement-message strong {
+        font-weight: 600;
+        color: var(--bs-body-color);
+    }
+
+    #efAnnouncementsModal .announcement-message em {
+        font-style: italic;
+    }
+
+    #efAnnouncementsModal .announcement-message code {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+    }
+
+    #efAnnouncementsModal .announcement-message pre {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 1rem;
+        border-radius: 6px;
+        overflow-x: auto;
+        margin-bottom: 0.75rem;
+    }
+
+    #efAnnouncementsModal .announcement-message pre code {
+        background: none;
+        padding: 0;
+        border-radius: 0;
+    }
+
+    #efAnnouncementsModal .announcement-message ul,
+    #efAnnouncementsModal .announcement-message ol {
+        margin-left: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    #efAnnouncementsModal .announcement-message li {
+        margin-bottom: 0.25rem;
+    }
+
+    #efAnnouncementsModal .announcement-message a {
+        color: var(--bs-link-color);
+        text-decoration: underline;
+    }
+
+    #efAnnouncementsModal .announcement-message a:hover {
+        color: var(--bs-link-hover-color);
+    }
+
+    #efAnnouncementsModal .announcement-message blockquote {
+        border-left: 3px solid rgba(255, 255, 255, 0.3);
+        padding-left: 1rem;
+        margin-left: 0;
+        margin-bottom: 0.75rem;
+        font-style: italic;
+        opacity: 0.9;
+    }
+
+    #efAnnouncementsModal .announcement-message h1,
+    #efAnnouncementsModal .announcement-message h2,
+    #efAnnouncementsModal .announcement-message h3,
+    #efAnnouncementsModal .announcement-message h4,
+    #efAnnouncementsModal .announcement-message h5,
+    #efAnnouncementsModal .announcement-message h6 {
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--bs-body-color);
+    }
+
+    #efAnnouncementsModal .announcement-message h1 { font-size: 1.5rem; }
+    #efAnnouncementsModal .announcement-message h2 { font-size: 1.3rem; }
+    #efAnnouncementsModal .announcement-message h3 { font-size: 1.1rem; }
+    #efAnnouncementsModal .announcement-message h4 { font-size: 1rem; }
+    #efAnnouncementsModal .announcement-message h5 { font-size: 0.9rem; }
+    #efAnnouncementsModal .announcement-message h6 { font-size: 0.85rem; }
+
+    #efAnnouncementsModal .announcement-message hr {
+        margin: 1rem 0;
+        opacity: 0.3;
     }
 
     /* Pulse Animation für Trigger Button bei kritischen Meldungen */
