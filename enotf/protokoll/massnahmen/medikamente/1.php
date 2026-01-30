@@ -342,10 +342,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         this.style.backgroundColor = 'transparent';
                     });
                     item.addEventListener('click', function() {
-                        document.getElementById('medis-concentration').value = value;
+                        // Parse and set unit first, which may modify the concentration value
+                        const parsed = parseDosierungAndSetUnit(value);
+                        // If parsing failed, just set the full value
+                        if (!parsed) {
+                            document.getElementById('medis-concentration').value = value;
+                        }
                         dropdown.style.display = 'none';
-                        // Parse and set unit
-                        parseDosierungAndSetUnit(value);
+                        // Clear dropdown content after selection
+                        dropdown.innerHTML = '';
                     });
 
                     dropdown.appendChild(item);
@@ -359,30 +364,61 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         }
 
         function parseDosierungAndSetUnit(value) {
+            console.log('Parsing dosierung:', value);
+
             // Map of unit suffixes to select values (supports both mcg and µg)
             const unitMap = {
                 'mcg': 'mcg',
+                'μg': 'mcg',
                 'µg': 'mcg',
+                'ug': 'mcg',
                 'mg': 'mg',
                 'g': 'g',
                 'ml': 'ml',
                 'ie': 'IE'
             };
 
-            // Try to match a predefined dosage pattern (number + unit)
-            const match = value.match(/^([0-9]+(?:[.,][0-9]+)?)\s*(mcg|µg|mg|g|ml|IE)$/i);
+            // Try to match a predefined dosage pattern (number + optional space + unit)
+            // More flexible regex to handle various formats
+            const match = value.match(/^([0-9]+(?:[.,][0-9]+)?)\s*(mcg|μg|µg|ug|mg|g|ml|ie)$/i);
+
+            console.log('Match result:', match);
+
             if (match) {
                 const numericValue = match[1];
                 const unit = match[2].toLowerCase();
                 const unitSelectValue = unitMap[unit];
 
+                console.log('Numeric:', numericValue, 'Unit:', unit, 'Select value:', unitSelectValue);
+
                 if (unitSelectValue) {
                     // Set the numeric value in the input field
                     document.getElementById('medis-concentration').value = numericValue;
-                    // Auto-select the unit
-                    document.getElementById('medis-unit').value = unitSelectValue;
+
+                    // Auto-select the unit in the original select element
+                    const unitSelect = document.getElementById('medis-unit');
+                    unitSelect.value = unitSelectValue;
+
+                    // Trigger change event to update custom dropdown
+                    const changeEvent = new Event('change', {
+                        bubbles: true
+                    });
+                    unitSelect.dispatchEvent(changeEvent);
+
+                    // Also refresh the custom dropdown if available
+                    if (typeof eNOTFCustomDropdown !== 'undefined') {
+                        setTimeout(() => {
+                            eNOTFCustomDropdown.refresh(unitSelect);
+                        }, 50);
+                    }
+
+                    console.log('Set unit select to:', unitSelectValue, 'Current value:', unitSelect.value);
+                    return true;
                 }
             }
+
+            console.log('Failed to parse dosierung format');
+            return false;
         }
 
         function saveMedikament() {
@@ -604,7 +640,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
         function getCurrentTime() {
             const now = new Date();
-            return now.toTimeString().slice(0, 8);
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            return `${hours}:${minutes}`;
         }
     </script>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
