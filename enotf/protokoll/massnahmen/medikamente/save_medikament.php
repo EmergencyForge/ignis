@@ -89,7 +89,8 @@ try {
             exit();
         }
 
-        if (!preg_match('/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/', $medikamentData['zeit'])) {
+        // Accept both HH:MM and HH:MM:SS formats
+        if (!preg_match('/^([0-1]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/', $medikamentData['zeit'])) {
             http_response_code(400);
             echo "Ungültiges Zeitformat: " . $medikamentData['zeit'];
             exit();
