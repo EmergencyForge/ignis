@@ -80,15 +80,22 @@ $rdginfo = $stmtr->fetchAll(PDO::FETCH_UNIQUE);
                                 $stmta->execute();
                                 $stdata = $stmta->fetch();
 
-                                if (isset($_GET['archiv'])) {
-                                    $listQuery = "SELECT * FROM intra_mitarbeiter WHERE dienstgrad = :dienstgrad ORDER BY einstdatum ASC";
-                                    $params = [$stdata['id']];
+                                if ($stdata !== false) {
+                                    // Archivierter Dienstgrad gefunden
+                                    if (isset($_GET['archiv'])) {
+                                        $listQuery = "SELECT * FROM intra_mitarbeiter WHERE dienstgrad = :dienstgrad ORDER BY einstdatum ASC";
+                                        $params = [$stdata['id']];
+                                    } else {
+                                        $listQuery = "SELECT * FROM intra_mitarbeiter WHERE dienstgrad <> :dienstgrad ORDER BY einstdatum ASC";
+                                        $params = [$stdata['id']];
+                                    }
+                                    $stmt = $pdo->prepare($listQuery);
+                                    $stmt->execute($params);
                                 } else {
-                                    $listQuery = "SELECT * FROM intra_mitarbeiter WHERE dienstgrad <> :dienstgrad ORDER BY einstdatum ASC";
-                                    $params = [$stdata['id']];
+                                    // Kein archivierter Dienstgrad gefunden - alle Mitarbeiter anzeigen
+                                    $stmt = $pdo->prepare("SELECT * FROM intra_mitarbeiter ORDER BY einstdatum ASC");
+                                    $stmt->execute();
                                 }
-                                $stmt = $pdo->prepare($listQuery);
-                                $stmt->execute($params);
                                 $result = $stmt->fetchAll();
 
                                 foreach ($result as $row) {

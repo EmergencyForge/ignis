@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name_w = trim($_POST['name_w'] ?? '');
     $priority = isset($_POST['priority']) ? (int)$_POST['priority'] : 0;
     $badge = isset($_POST['badge']) && trim($_POST['badge']) !== '' ? trim($_POST['badge']) : NULL;
-    $archive = isset($_POST['active']) ? 1 : 0;
+    $archive = isset($_POST['archive']) ? 1 : 0;
 
     if ($id <= 0 || empty($name)) {
         Flash::set('error', 'missing-fields');
