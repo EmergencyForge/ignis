@@ -529,11 +529,26 @@ class SystemUpdater
             mkdir($dest, 0755, true);
         }
 
-        $dirIterator = new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS);
+        // Normalize source path with realpath to avoid path mismatches
+        $sourceNormalized = realpath($source);
+        if ($sourceNormalized === false) {
+            throw new Exception('Source directory does not exist: ' . $source);
+        }
+
+        $dirIterator = new \RecursiveDirectoryIterator($sourceNormalized, \RecursiveDirectoryIterator::SKIP_DOTS);
         $iterator = new \RecursiveIteratorIterator($dirIterator, \RecursiveIteratorIterator::SELF_FIRST);
 
         foreach ($iterator as $item) {
-            $subPath = str_replace($source . DIRECTORY_SEPARATOR, '', $item->getPathname());
+            $itemPath = $item->getPathname();
+            $itemRealPath = realpath($itemPath);
+
+            // If realpath fails (shouldn't happen but be safe), use original path
+            if ($itemRealPath === false) {
+                $itemRealPath = $itemPath;
+            }
+
+            // Calculate relative path by removing the source directory prefix
+            $subPath = substr($itemRealPath, strlen($sourceNormalized) + 1);
             $subPath = str_replace('\\', '/', $subPath);
             $destPath = $dest . '/' . $subPath;
 
@@ -558,7 +573,13 @@ class SystemUpdater
      */
     private function copyUpdateFiles(string $source, string $dest, array $excludeDirs, array $excludeFiles, array $preserveDirs = []): void
     {
-        $dirIterator = new \RecursiveDirectoryIterator($source, \RecursiveDirectoryIterator::SKIP_DOTS);
+        // Normalize source path with realpath to avoid path mismatches
+        $sourceNormalized = realpath($source);
+        if ($sourceNormalized === false) {
+            throw new Exception('Source directory does not exist: ' . $source);
+        }
+
+        $dirIterator = new \RecursiveDirectoryIterator($sourceNormalized, \RecursiveDirectoryIterator::SKIP_DOTS);
         $iterator = new \RecursiveIteratorIterator($dirIterator, \RecursiveIteratorIterator::SELF_FIRST);
 
         $criticalFiles = ['composer.json', 'composer.lock'];
@@ -567,7 +588,17 @@ class SystemUpdater
 
         foreach ($iterator as $item) {
             // Get relative path from source directory
-            $subPath = str_replace($source . DIRECTORY_SEPARATOR, '', $item->getPathname());
+            // Use realpath for both paths to ensure they match exactly
+            $itemPath = $item->getPathname();
+            $itemRealPath = realpath($itemPath);
+
+            // If realpath fails (shouldn't happen but be safe), use original path
+            if ($itemRealPath === false) {
+                $itemRealPath = $itemPath;
+            }
+
+            // Calculate relative path by removing the source directory prefix
+            $subPath = substr($itemRealPath, strlen($sourceNormalized) + 1);
             $subPath = str_replace('\\', '/', $subPath); // Normalize to forward slashes
 
             // Check if path contains excluded directory

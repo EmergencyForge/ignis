@@ -8,6 +8,7 @@ support_errors.log
 .vscode
 .idea
 .qodo
+.claude
 system/updates/*.zip
 system/updates/temp/
 intrap
