@@ -1,5 +1,4 @@
 parameters:
-    # Level 0-9, starte niedrig und erhöhe schrittweise
     level: 1
 
     paths:
@@ -9,3 +8,10 @@ parameters:
         - vendor
         - assets/fonts
         - assets/_ext
+
+    ignoreErrors:
+        # $pdo, $daten, $enr etc. werden per require/include eingebunden
+        # und sind in den jeweiligen Dateien immer verfügbar
+        -
+            identifier: variable.undefined
+            reportUnmatched: false
