@@ -13,7 +13,6 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\Telemetry\GlobalAnnouncementManager;
 use App\Telemetry\TelemetryManager;
-use Parsedown;
 
 if (!isset($_SESSION['userid'])) {
     return;
@@ -308,12 +307,29 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         color: var(--bs-body-color);
     }
 
-    #efAnnouncementsModal .announcement-message h1 { font-size: 1.5rem; }
-    #efAnnouncementsModal .announcement-message h2 { font-size: 1.3rem; }
-    #efAnnouncementsModal .announcement-message h3 { font-size: 1.1rem; }
-    #efAnnouncementsModal .announcement-message h4 { font-size: 1rem; }
-    #efAnnouncementsModal .announcement-message h5 { font-size: 0.9rem; }
-    #efAnnouncementsModal .announcement-message h6 { font-size: 0.85rem; }
+    #efAnnouncementsModal .announcement-message h1 {
+        font-size: 1.5rem;
+    }
+
+    #efAnnouncementsModal .announcement-message h2 {
+        font-size: 1.3rem;
+    }
+
+    #efAnnouncementsModal .announcement-message h3 {
+        font-size: 1.1rem;
+    }
+
+    #efAnnouncementsModal .announcement-message h4 {
+        font-size: 1rem;
+    }
+
+    #efAnnouncementsModal .announcement-message h5 {
+        font-size: 0.9rem;
+    }
+
+    #efAnnouncementsModal .announcement-message h6 {
+        font-size: 0.85rem;
+    }
 
     #efAnnouncementsModal .announcement-message hr {
         margin: 1rem 0;

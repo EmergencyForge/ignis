@@ -200,7 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
 
                 $auditLogger = new AuditLogger($pdo);
-                $auditLogger->log($_SESSION['userid'], 'Einsatz abgeschlossen [ID: ' . $id . ']', NULL, 'Feuerwehr', 1);
+                $auditLogger->log($_SESSION['userid'] ?? 0, 'Einsatz abgeschlossen [ID: ' . $id . ']', NULL, 'Feuerwehr', 1);
 
                 // Benachrichtigung an Einsatzleiter senden
                 try {
@@ -252,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
 
                 $auditLogger = new AuditLogger($pdo);
-                $auditLogger->log($_SESSION['userid'], 'QM-Status geändert [ID: ' . $id . '] → ' . ($statusLabels[$status] ?? $status), NULL, 'Feuerwehr', 1);
+                $auditLogger->log($_SESSION['userid'] ?? 0, 'QM-Status geändert [ID: ' . $id . '] → ' . ($statusLabels[$status] ?? $status), NULL, 'Feuerwehr', 1);
 
                 // Benachrichtigung an Einsatzleiter senden
                 try {
@@ -441,7 +441,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
 
                 $auditLogger = new AuditLogger($pdo);
-                $auditLogger->log($_SESSION['userid'], 'Einsatz archiviert [ID: ' . $id . ']', NULL, 'Feuerwehr', 1);
+                $auditLogger->log($_SESSION['userid'] ?? 0, 'Einsatz archiviert [ID: ' . $id . ']', NULL, 'Feuerwehr', 1);
 
                 Flash::success('Einsatz wurde archiviert.');
                 header('Location: ' . BASE_PATH . 'einsatz/admin/list.php');
@@ -469,7 +469,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
 
                 $auditLogger = new AuditLogger($pdo);
-                $auditLogger->log($_SESSION['userid'], 'Einsatz wiederhergestellt [ID: ' . $id . ']', NULL, 'Feuerwehr', 1);
+                $auditLogger->log($_SESSION['userid'] ?? 0, 'Einsatz wiederhergestellt [ID: ' . $id . ']', NULL, 'Feuerwehr', 1);
 
                 Flash::success('Einsatz wurde wiederhergestellt.');
                 header('Location: ' . BASE_PATH . 'einsatz/admin/list.php');

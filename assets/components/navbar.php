@@ -388,7 +388,7 @@ try {
                     <li class="px-3 py-2 border-bottom user-info-header">
                         <small class="d-block">Angemeldet als</small>
                         <strong><?= $_SESSION['cirs_username'] ?></strong>
-                        <div class="mt-1"><span class="badge text-bg-<?= $_SESSION['role_color'] ?>"><?= $_SESSION['role_name'] ?></span></div>
+                        <div class="mt-1"><span class="badge text-bg-<?= $_SESSION['role_color'] ?? 'secondary' ?>"><?= $_SESSION['role_name'] ?? 'Benutzer' ?></span></div>
                     </li>
                     <li><a class="dropdown-item" href="<?= BASE_PATH ?>logout.php"><i class="fa-solid fa-right-from-bracket"></i> Abmelden</a></li>
                 </ul>
