@@ -86,15 +86,16 @@ class ConfigManager
 
     /**
      * Get a single configuration value
-     * 
+     *
      * @param string $key Configuration key
-     * @return mixed|null Configuration value or null if not found
+     * @param mixed $default Default value if key not found
+     * @return mixed Configuration value or default if not found
      */
-    public function get(string $key)
+    public function get(string $key, $default = null)
     {
         try {
             $stmt = $this->pdo->prepare("
-                SELECT config_value, config_type FROM intra_config 
+                SELECT config_value, config_type FROM intra_config
                 WHERE config_key = ?
             ");
             $stmt->execute([$key]);
@@ -104,7 +105,7 @@ class ConfigManager
                 return $this->convertValue($result['config_value'], $result['config_type']);
             }
 
-            return null;
+            return $default;
         } catch (PDOException $e) {
             error_log("Failed to get config value: " . $e->getMessage());
             return null;
