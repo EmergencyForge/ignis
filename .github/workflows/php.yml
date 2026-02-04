@@ -211,8 +211,6 @@ jobs:
                 `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}).\n`;
             }
 
-            body += '\n---\n* Automatisch generiert von GitHub Actions · PHPStan*';
-
             // ── Alten Kommentar ersetzen ──
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
