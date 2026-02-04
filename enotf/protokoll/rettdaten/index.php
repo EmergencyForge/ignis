@@ -409,6 +409,33 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 const datumInput = document.getElementById(feld + '_datum');
 
                 if (zeitInput && datumInput) {
+                    // Automatisches Setzen von Datum und Zeit beim Anklicken eines leeren Feldes
+                    zeitInput.addEventListener('focus', function() {
+                        if (!zeitInput.value) {
+                            const now = new Date();
+                            const hours = String(now.getHours()).padStart(2, '0');
+                            const minutes = String(now.getMinutes()).padStart(2, '0');
+                            zeitInput.value = hours + ':' + minutes;
+
+                            if (!datumInput.value) {
+                                datumInput.value = heute;
+                            }
+                        }
+                    });
+
+                    datumInput.addEventListener('focus', function() {
+                        if (!datumInput.value) {
+                            datumInput.value = heute;
+
+                            if (!zeitInput.value) {
+                                const now = new Date();
+                                const hours = String(now.getHours()).padStart(2, '0');
+                                const minutes = String(now.getMinutes()).padStart(2, '0');
+                                zeitInput.value = hours + ':' + minutes;
+                            }
+                        }
+                    });
+
                     zeitInput.addEventListener('input', function() {
                         if (zeitInput.value && !datumInput.value) {
                             datumInput.value = heute;
