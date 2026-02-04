@@ -56,6 +56,7 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                                     <th scope="col">Bezeichnung <i class="fa-solid fa-mars-and-venus"></i></th>
                                     <th scope="col">Bezeichnung <i class="fa-solid fa-mars"></i></th>
                                     <th scope="col">Bezeichnung <i class="fa-solid fa-venus"></i></th>
+                                    <th scope="col">Abkürzung</th>
                                     <th scope="col">Leer?</th>
                                     <th scope="col">Zertifiziert?</th>
                                     <th scope="col"></th>
@@ -89,8 +90,11 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                                             break;
                                     }
 
+                                    $abkuerzung = $row['abkuerzung'] ?? '';
+                                    $abkuerzungDisplay = !empty($abkuerzung) ? htmlspecialchars($abkuerzung) : "<span style='opacity:.5'>-</span>";
+
                                     $actions = (Permissions::check('admin'))
-                                        ? "<a title='Qualifikation bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-name='{$row['name']}' data-name_m='{$row['name_m']}' data-name_w='{$row['name_w']}' data-priority='{$row['priority']}' data-none='{$row['none']}' data-none='{$row['trainable']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Qualifikation bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-name='{$row['name']}' data-name_m='{$row['name_m']}' data-name_w='{$row['name_w']}' data-abkuerzung='{$abkuerzung}' data-priority='{$row['priority']}' data-none='{$row['none']}' data-trainable='{$row['trainable']}'><i class='fa-solid fa-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -98,6 +102,7 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                                     echo "<td " . $dimmed . ">" . $row['name'] . "</td>";
                                     echo "<td " . $dimmed . ">" . $row['name_m'] . "</td>";
                                     echo "<td " . $dimmed . ">" . $row['name_w'] . "</td>";
+                                    echo "<td " . $dimmed . ">" . $abkuerzungDisplay . "</td>";
                                     echo "<td>" . $dgActive . "</td>";
                                     echo "<td>" . $cert . "</td>";
                                     echo "<td>{$actions}</td>";
@@ -138,6 +143,11 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                             <div class="mb-3">
                                 <label for="dienstgrad-name_w" class="form-label">Bezeichnung <small style="opacity:.5">(Weiblich)</small></label>
                                 <input type="text" class="form-control" name="name_w" id="dienstgrad-name_w" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="dienstgrad-abkuerzung" class="form-label">Abkürzung <small style="opacity:.5">(für eNOTF, optional)</small></label>
+                                <input type="text" class="form-control" name="abkuerzung" id="dienstgrad-abkuerzung" placeholder="z.B. RettSan, NotSan i.A.">
                             </div>
 
                             <div class="mb-3">
@@ -200,6 +210,11 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                             <div class="mb-3">
                                 <label for="new-dienstgrad-name_w" class="form-label">Bezeichnung <small style="opacity:.5">(Weiblich)</small></label>
                                 <input type="text" class="form-control" name="name_w" id="new-dienstgrad-name_w" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="new-dienstgrad-abkuerzung" class="form-label">Abkürzung <small style="opacity:.5">(für eNOTF, optional)</small></label>
+                                <input type="text" class="form-control" name="abkuerzung" id="new-dienstgrad-abkuerzung" placeholder="z.B. RettSan, NotSan i.A.">
                             </div>
 
                             <div class="mb-3">
@@ -283,6 +298,7 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                     document.getElementById('dienstgrad-name').value = this.dataset.name;
                     document.getElementById('dienstgrad-name_m').value = this.dataset.name_m;
                     document.getElementById('dienstgrad-name_w').value = this.dataset.name_w;
+                    document.getElementById('dienstgrad-abkuerzung').value = this.dataset.abkuerzung || '';
                     document.getElementById('dienstgrad-priority').value = this.dataset.priority;
                     document.getElementById('dienstgrad-none').checked = this.dataset.none == 1;
                     document.getElementById('dienstgrad-trainable').checked = this.dataset.trainable == 1;
@@ -292,7 +308,11 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
             });
 
             document.getElementById('delete-dienstgrad-btn').addEventListener('click', function() {
-                showConfirm('Möchtest du diese Qualifikation wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Qualifikation löschen'}).then(result => {
+                showConfirm('Möchtest du diese Qualifikation wirklich löschen?', {
+                    danger: true,
+                    confirmText: 'Löschen',
+                    title: 'Qualifikation löschen'
+                }).then(result => {
                     if (result) {
                         document.getElementById('delete-dienstgrad-form').submit();
                     }

@@ -7,6 +7,7 @@ try {
         `name` varchar(255) NOT NULL,
         `name_m` varchar(255) NOT NULL,
         `name_w` varchar(255) NOT NULL,
+        `abkuerzung` varchar(50) DEFAULT NULL,
         `none` tinyint(1) NOT NULL DEFAULT 0,
         `trainable` tinyint(1) NOT NULL DEFAULT 0,
         `created_at` timestamp NOT NULL DEFAULT current_timestamp(),

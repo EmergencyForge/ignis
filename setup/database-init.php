@@ -400,6 +400,9 @@ $migrationFiles = [
     ['file' => 'create_intra_edivi_hospital_access_codes_21012026.php', 'type' => 'create'],
     ['file' => 'alter_intra_edivi_hospital_departments_21012026_sort_order.php', 'type' => 'alter'],
     ['file' => 'alter_intra_edivi_hospital_access_codes_21012026_plaintext.php', 'type' => 'alter'],
+
+    // 04.02.2026 - RD Qualifikationen Abkürzung
+    ['file' => 'alter_intra_mitarbeiter_rdquali_04022026_abbreviation.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

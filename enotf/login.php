@@ -38,6 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $stmtfn = $pdo->query("SELECT fullname FROM intra_mitarbeiter ORDER BY fullname ASC");
 $fullnames = $stmtfn->fetchAll(PDO::FETCH_COLUMN);
 
+// Lade RD Qualifikationen mit Abkürzungen
+$stmtQuali = $pdo->query("SELECT id, name, abkuerzung FROM intra_mitarbeiter_rdquali WHERE none = 0 AND abkuerzung IS NOT NULL ORDER BY priority ASC");
+$qualifikationen = $stmtQuali->fetchAll(PDO::FETCH_ASSOC);
+
 $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'false';
 ?>
 
@@ -116,12 +120,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <div class="col-3">
                                     <select class="form-select my-2" name="fahrerquali" id="fahrerquali" required data-custom-dropdown="true" data-placeholder="Qualifikation">
                                         <option value="" selected></option>
-                                        <option value="RH">RettHelfer</option>
-                                        <option value="RS/A">RettSan i.A.</option>
-                                        <option value="RS">RettSan</option>
-                                        <option value="NFS/A">NotSan i.A.</option>
-                                        <option value="NFS">NotSan</option>
-                                        <option value="NA">Notarzt</option>
+                                        <?php foreach ($qualifikationen as $quali): ?>
+                                            <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>"><?= htmlspecialchars($quali['abkuerzung']) ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                     <label for="fahrerquali">Qualifikation</label>
                                 </div>
@@ -137,12 +138,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <div class="col-3">
                                     <select class="form-select my-2" name="beifahrerquali" id="beifahrerquali" data-custom-dropdown="true" data-placeholder="Qualifikation">
                                         <option value="" selected></option>
-                                        <option value="RH">RettHelfer</option>
-                                        <option value="RS/A">RettSan i.A.</option>
-                                        <option value="RS">RettSan</option>
-                                        <option value="NFS/A">NotSan i.A.</option>
-                                        <option value="NFS">NotSan</option>
-                                        <option value="NA">Notarzt</option>
+                                        <?php foreach ($qualifikationen as $quali): ?>
+                                            <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>"><?= htmlspecialchars($quali['abkuerzung']) ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                     <label for="beifahrerquali">Qualifikation</label>
                                 </div>

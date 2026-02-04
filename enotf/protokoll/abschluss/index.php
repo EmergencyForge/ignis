@@ -131,21 +131,10 @@ elseif ($daten['prot_by'] == 1) {
 // Automatisches Ausfüllen der Personalfelder basierend auf Session-Daten und Protokollart
 // Nur wenn die Felder leer sind und die entsprechende Session-Variable gesetzt ist
 if (isset($_SESSION['fahrername'])) {
-    // Mapping für Qualifikations-Anzeige
-    $qualiMapping = [
-        'RH' => 'RettHelfer',
-        'RS/A' => 'RettSan i.A.',
-        'RS' => 'RettSan',
-        'NFS/A' => 'NotSan i.A.',
-        'NFS' => 'NotSan',
-        'NA' => 'Notarzt'
-    ];
-
     // Fahrer-Name mit Qualifikation
     $fahrerName = $_SESSION['fahrername'];
     if (isset($_SESSION['fahrerquali']) && !empty($_SESSION['fahrerquali'])) {
-        $fahrerQualiText = $qualiMapping[$_SESSION['fahrerquali']] ?? $_SESSION['fahrerquali'];
-        $fahrerName .= ' (' . $fahrerQualiText . ')';
+        $fahrerName .= ' (' . $_SESSION['fahrerquali'] . ')';
     }
 
     // Beifahrer-Name mit Qualifikation
@@ -153,8 +142,7 @@ if (isset($_SESSION['fahrername'])) {
     if (isset($_SESSION['beifahrername']) && !empty($_SESSION['beifahrername'])) {
         $beifahrerName = $_SESSION['beifahrername'];
         if (isset($_SESSION['beifahrerquali']) && !empty($_SESSION['beifahrerquali'])) {
-            $beifahrerQualiText = $qualiMapping[$_SESSION['beifahrerquali']] ?? $_SESSION['beifahrerquali'];
-            $beifahrerName .= ' (' . $beifahrerQualiText . ')';
+            $beifahrerName .= ' (' . $_SESSION['beifahrerquali'] . ')';
         }
     }
 

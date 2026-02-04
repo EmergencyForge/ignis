@@ -84,22 +84,13 @@ try {
     $persoField1 = $isDoctorVehicle ? 'fzg_na_perso' : 'fzg_transp_perso';
     $persoField2 = $isDoctorVehicle ? 'fzg_na_perso_2' : 'fzg_transp_perso_2';
 
-    // Mapping für Qualifikations-Anzeige (konsistent mit abschluss/index.php)
-    $qualiMapping = [
-        'RH' => 'RettHelfer',
-        'RS/A' => 'RettSan i.A.',
-        'RS' => 'RettSan',
-        'NFS/A' => 'NotSan i.A.',
-        'NFS' => 'NotSan',
-        'NA' => 'Notarzt'
-    ];
-
+    // Fahrer und Beifahrer mit Qualifikation
     $fahrer = (!empty($_SESSION['fahrername']) && !empty($_SESSION['fahrerquali']))
-        ? $_SESSION['fahrername'] . " (" . ($qualiMapping[$_SESSION['fahrerquali']] ?? $_SESSION['fahrerquali']) . ")"
+        ? $_SESSION['fahrername'] . " (" . $_SESSION['fahrerquali'] . ")"
         : null;
 
     $beifahrer = (!empty($_SESSION['beifahrername']) && !empty($_SESSION['beifahrerquali']))
-        ? $_SESSION['beifahrername'] . " (" . ($qualiMapping[$_SESSION['beifahrerquali']] ?? $_SESSION['beifahrerquali']) . ")"
+        ? $_SESSION['beifahrername'] . " (" . $_SESSION['beifahrerquali'] . ")"
         : null;
 
     $new_enr = null;
