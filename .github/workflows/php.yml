@@ -18,7 +18,14 @@ jobs:
     strategy:
       matrix:
         php-version: ["8.1", "8.2", "8.3", "8.4", "8.5"]
+        include:
+          # PHP 8.5 ist noch relativ neu – Fehler nur als Warnung anzeigen
+          - php-version: "8.5"
+            experimental: true
       fail-fast: false
+
+    # Bei experimentellen Versionen wird ein Fehler nicht als "failed" gewertet
+    continue-on-error: ${{ matrix.experimental || false }}
 
     steps:
       - uses: actions/checkout@v4
@@ -76,6 +83,8 @@ jobs:
   phpstan:
     runs-on: ubuntu-latest
     needs: build
+    # Auch laufen wenn ein experimenteller Build fehlschlägt
+    if: ${{ !cancelled() }}
 
     steps:
       - uses: actions/checkout@v4
