@@ -5,27 +5,22 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   # ─────────────────────────────────────────────
-  # 1. Build & Validate (PHP 8.1 – 8.5)
+  # 1. Build & Validate (PHP 8.1 – 8.4)
   # ─────────────────────────────────────────────
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ["8.1", "8.2", "8.3", "8.4", "8.5"]
-        include:
-          # PHP 8.5 ist noch relativ neu – Fehler nur als Warnung anzeigen
-          - php-version: "8.5"
-            experimental: true
+        php-version: ["8.1", "8.2", "8.3", "8.4"]
       fail-fast: false
-
-    # Bei experimentellen Versionen wird ein Fehler nicht als "failed" gewertet
-    continue-on-error: ${{ matrix.experimental || false }}
 
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +53,45 @@ jobs:
         run: find . -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
 
   # ─────────────────────────────────────────────
-  # 2. Security Audit
+  # 2. Build PHP 8.5 (experimentell, blockiert nicht)
+  # ─────────────────────────────────────────────
+  build-experimental:
+    name: "build (8.5 🧪)"
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP 8.5
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.5"
+          extensions: mbstring, pdo, pdo_mysql, json, curl, gd, intl
+          coverage: none
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-8.5-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.5-
+
+      - name: Update lock file
+        run: composer update --lock
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: PHP Lint
+        run: find . -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
+
+  # ─────────────────────────────────────────────
+  # 3. Security Audit
   # ─────────────────────────────────────────────
   security-audit:
     runs-on: ubuntu-latest
@@ -78,12 +111,11 @@ jobs:
         run: composer audit
 
   # ─────────────────────────────────────────────
-  # 3. PHPStan – Statische Analyse
+  # 4. PHPStan – Statische Analyse
   # ─────────────────────────────────────────────
   phpstan:
     runs-on: ubuntu-latest
     needs: build
-    # Auch laufen wenn ein experimenteller Build fehlschlägt
     if: ${{ !cancelled() }}
 
     steps:
@@ -107,4 +139,65 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --no-progress --error-format=github
+        id: phpstan
+        run: |
+          set +e
+          OUTPUT=$(vendor/bin/phpstan analyse --no-progress --error-format=table 2>&1)
+          EXIT_CODE=$?
+          echo "$OUTPUT"
+          {
+            echo "result<<PHPSTAN_EOF"
+            echo "$OUTPUT"
+            echo "PHPSTAN_EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
+          exit $EXIT_CODE
+
+      - name: Post PHPStan results to PR
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `${{ steps.phpstan.outputs.result }}`;
+            const exitCode = '${{ steps.phpstan.outputs.exit_code }}';
+            const icon = exitCode === '0' ? '✅' : '⚠️';
+            const status = exitCode === '0' ? 'Keine Fehler gefunden' : 'Fehler gefunden';
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(c =>
+              c.body.includes('<!-- phpstan-report -->')
+            );
+
+            if (botComment) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+              });
+            }
+
+            const body = `<!-- phpstan-report -->
+            ## ${icon} PHPStan Analyse – ${status}
+
+            <details>
+            <summary>Details anzeigen</summary>
+
+            \`\`\`
+            ${output}
+            \`\`\`
+
+            </details>
+
+            *Automatisch generiert von GitHub Actions*`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body,
+            });
