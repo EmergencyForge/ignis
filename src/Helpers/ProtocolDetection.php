@@ -98,7 +98,7 @@ class ProtocolDetection
         $basePath = trim($basePath, '/');
 
         // Wenn der Pfad leer ist, ist es der Root-Pfad
-        if (empty($basePath)) {
+        if ($basePath === '') {
             return '/';
         }
 

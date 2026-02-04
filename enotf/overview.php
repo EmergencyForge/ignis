@@ -110,7 +110,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <div class="row ps-3">
                                 <div class="col edivi__box p-4" style="overflow-x: hidden; overflow-y:auto; height: 70vh;">
                                     <?php
-                                    $stmt = $pdo->prepare("SELECT patname, patgebdat, edatum, ezeit, enr, prot_by, freigegeben, pfname FROM intra_edivi WHERE freigegeben = 0 AND (fzg_transp = :fzg_transp OR fzg_na = :fzg_na) AND hidden = 0 AND hidden_user = 0 ORDER BY created_at ASC");
+                                    $stmt = $pdo->prepare("SELECT patname, patgebdat, edatum, ezeit, enr, prot_by, freigegeben, pfname, createdby FROM intra_edivi WHERE freigegeben = 0 AND (fzg_transp = :fzg_transp OR fzg_na = :fzg_na) AND hidden = 0 AND hidden_user = 0 ORDER BY created_at ASC");
                                     $stmt->bindValue(':fzg_transp', $_SESSION['protfzg'], PDO::PARAM_STR);
                                     $stmt->bindValue(':fzg_na',     $_SESSION['protfzg'], PDO::PARAM_STR);
                                     $stmt->execute();
@@ -155,33 +155,25 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             $row['pfname'] = '—';
                                         }
 
-                                        if ($row['prot_by'] == 1) {
+                                        $canDelete = ($row['createdby'] == 2);
+                                        $protType = ($row['prot_by'] == 1) ? 'NA' : 'RD';
                                     ?>
-                                            <div class="edivi__einsatz-container">
-                                                <a href="protokoll/index.php?enr=<?= $row['enr'] ?>" class="edivi__einsatz-link">
-                                                    <div class="row edivi__einsatz edivi__einsatz-set">
-                                                        <div class="col-2 edivi__einsatz-type"><span><?= htmlspecialchars($label) ?></span></div>
-                                                        <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat">NA</span></span><br><?= $row['edatum'] ?> <?= $row['ezeit'] ?> Uhr</div>
-                                                        <div class="col edivi__einsatz-name"><span>Patient:</span><br><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></div>
-                                                        <div class="col edivi__einsatz-freigeber"><span>Protokollant:</span><br><?= $row['pfname'] ?></div>
-                                                    </div>
-                                                </a>
-                                            </div>
-                                        <?php
-                                        } else {
-                                        ?>
-                                            <div class="edivi__einsatz-container">
-                                                <a href="protokoll/index.php?enr=<?= $row['enr'] ?>" class="edivi__einsatz-link">
-                                                    <div class="row edivi__einsatz edivi__einsatz-set">
-                                                        <div class="col-2 edivi__einsatz-type"><span><?= htmlspecialchars($label) ?></span></div>
-                                                        <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat">RD</span></span><br><?= $row['edatum'] ?> <?= $row['ezeit'] ?> Uhr</div>
-                                                        <div class="col edivi__einsatz-name"><span>Patient:</span><br><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></div>
-                                                        <div class="col edivi__einsatz-freigeber"><span>Protokollant:</span><br><?= $row['pfname'] ?></div>
-                                                    </div>
-                                                </a>
+                                            <div class="edivi__einsatz-wrapper" data-enr="<?= htmlspecialchars($row['enr']) ?>" data-can-delete="<?= $canDelete ? '1' : '0' ?>">
+                                                <div class="edivi__einsatz-delete-bg">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </div>
+                                                <div class="edivi__einsatz-container edivi__einsatz-swipeable">
+                                                    <a href="protokoll/index.php?enr=<?= $row['enr'] ?>" class="edivi__einsatz-link" draggable="false">
+                                                        <div class="row edivi__einsatz edivi__einsatz-set">
+                                                            <div class="col-2 edivi__einsatz-type"><span><?= htmlspecialchars($label) ?></span></div>
+                                                            <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><br><?= $row['edatum'] ?> <?= $row['ezeit'] ?> Uhr</div>
+                                                            <div class="col edivi__einsatz-name"><span>Patient:</span><br><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></div>
+                                                            <div class="col edivi__einsatz-freigeber"><span>Protokollant:</span><br><?= $row['pfname'] ?></div>
+                                                        </div>
+                                                    </a>
+                                                </div>
                                             </div>
                                     <?php
-                                        }
                                     }
                                     ?>
                                 </div>
@@ -279,6 +271,278 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         }
     </script>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
+    <style>
+        .edivi__einsatz-wrapper {
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2px;
+        }
+        .edivi__einsatz-delete-bg {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 68px;
+            background-color: #dc3545;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 0;
+            display: grid;
+            place-items: center;
+        }
+        .edivi__einsatz-swipeable {
+            position: relative;
+            transition: transform 0.2s ease;
+            background-color: #191919;
+            z-index: 1;
+            user-select: none;
+            -webkit-user-select: none;
+            width: 100%;
+        }
+        .edivi__einsatz-swipeable a {
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+        .edivi__einsatz-wrapper.swiped .edivi__einsatz-swipeable {
+            transform: translateX(-80px);
+        }
+    </style>
+    <script>
+    (function() {
+        const wrappers = document.querySelectorAll('.edivi__einsatz-wrapper');
+        let currentlyOpen = null;
+        let justSwiped = false; // Verhindert, dass Click-Event den Swipe rückgängig macht
+
+        wrappers.forEach(wrapper => {
+            const swipeable = wrapper.querySelector('.edivi__einsatz-swipeable');
+            const deleteBtn = wrapper.querySelector('.edivi__einsatz-delete-bg');
+            const link = wrapper.querySelector('.edivi__einsatz-link');
+            const enr = wrapper.dataset.enr;
+            const canDelete = wrapper.dataset.canDelete === '1';
+
+            let startX = 0;
+            let currentX = 0;
+            let hasMoved = false;
+
+            // Verhindere natives Drag-Verhalten auf dem Link
+            link.addEventListener('dragstart', (e) => e.preventDefault());
+
+            // Link-Klick abfangen und nur bei echtem Klick (ohne Swipe) navigieren
+            link.addEventListener('click', (e) => {
+                if (hasMoved || wrapper.classList.contains('swiped')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
+
+            // Touch events
+            swipeable.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                currentX = startX;
+                hasMoved = false;
+                swipeable.style.transition = 'none';
+            }, { passive: true });
+
+            swipeable.addEventListener('touchmove', (e) => {
+                currentX = e.touches[0].clientX;
+                const diff = startX - currentX;
+
+                if (Math.abs(diff) > 5) {
+                    hasMoved = true;
+                }
+
+                if (diff > 0 && diff <= 80) {
+                    swipeable.style.transform = `translateX(-${diff}px)`;
+                }
+            }, { passive: true });
+
+            swipeable.addEventListener('touchend', () => {
+                swipeable.style.transition = 'transform 0.2s ease';
+                const diff = startX - currentX;
+
+                if (diff > 40) {
+                    // Öffnen
+                    if (currentlyOpen && currentlyOpen !== wrapper) {
+                        currentlyOpen.classList.remove('swiped');
+                        currentlyOpen.querySelector('.edivi__einsatz-swipeable').style.transform = '';
+                    }
+                    wrapper.classList.add('swiped');
+                    swipeable.style.transform = 'translateX(-80px)';
+                    currentlyOpen = wrapper;
+                    justSwiped = true;
+                    setTimeout(() => { justSwiped = false; }, 300);
+                } else {
+                    // Schließen
+                    wrapper.classList.remove('swiped');
+                    swipeable.style.transform = '';
+                    if (currentlyOpen === wrapper) {
+                        currentlyOpen = null;
+                    }
+                }
+
+                setTimeout(() => { hasMoved = false; }, 100);
+            });
+
+            // Mouse events für Desktop
+            let mouseDown = false;
+
+            swipeable.addEventListener('mousedown', (e) => {
+                startX = e.clientX;
+                currentX = startX;
+                mouseDown = true;
+                hasMoved = false;
+                swipeable.style.transition = 'none';
+                e.preventDefault();
+            });
+
+            swipeable.addEventListener('mousemove', (e) => {
+                if (!mouseDown) return;
+                currentX = e.clientX;
+                const diff = startX - currentX;
+
+                if (Math.abs(diff) > 5) {
+                    hasMoved = true;
+                }
+
+                if (diff > 0 && diff <= 80) {
+                    swipeable.style.transform = `translateX(-${diff}px)`;
+                }
+            });
+
+            swipeable.addEventListener('mouseleave', () => {
+                if (mouseDown) {
+                    mouseDown = false;
+                    swipeable.style.transition = 'transform 0.2s ease';
+                    const diff = startX - currentX;
+
+                    if (diff > 40) {
+                        if (currentlyOpen && currentlyOpen !== wrapper) {
+                            currentlyOpen.classList.remove('swiped');
+                            currentlyOpen.querySelector('.edivi__einsatz-swipeable').style.transform = '';
+                        }
+                        wrapper.classList.add('swiped');
+                        swipeable.style.transform = 'translateX(-80px)';
+                        currentlyOpen = wrapper;
+                        justSwiped = true;
+                        setTimeout(() => { justSwiped = false; }, 300);
+                    } else {
+                        wrapper.classList.remove('swiped');
+                        swipeable.style.transform = '';
+                        if (currentlyOpen === wrapper) {
+                            currentlyOpen = null;
+                        }
+                    }
+                    setTimeout(() => { hasMoved = false; }, 100);
+                }
+            });
+
+            swipeable.addEventListener('mouseup', () => {
+                if (!mouseDown) return;
+                mouseDown = false;
+                swipeable.style.transition = 'transform 0.2s ease';
+                const diff = startX - currentX;
+
+                if (diff > 40) {
+                    if (currentlyOpen && currentlyOpen !== wrapper) {
+                        currentlyOpen.classList.remove('swiped');
+                        currentlyOpen.querySelector('.edivi__einsatz-swipeable').style.transform = '';
+                    }
+                    wrapper.classList.add('swiped');
+                    swipeable.style.transform = 'translateX(-80px)';
+                    currentlyOpen = wrapper;
+                    justSwiped = true;
+                    setTimeout(() => { justSwiped = false; }, 300);
+                } else {
+                    wrapper.classList.remove('swiped');
+                    swipeable.style.transform = '';
+                    if (currentlyOpen === wrapper) {
+                        currentlyOpen = null;
+                    }
+                }
+                setTimeout(() => { hasMoved = false; }, 100);
+            });
+
+            // Delete button click
+            deleteBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (!canDelete) {
+                    await showAlert('Protokolle der Leitstelle können nicht gelöscht werden.', {
+                        title: 'Nicht erlaubt',
+                        type: 'error'
+                    });
+                    wrapper.classList.remove('swiped');
+                    swipeable.style.transform = '';
+                    currentlyOpen = null;
+                    return;
+                }
+
+                const confirmed = await showConfirm('Möchten Sie dieses Protokoll wirklich löschen?', {
+                    title: 'Protokoll löschen',
+                    confirmText: 'Löschen',
+                    cancelText: 'Abbrechen',
+                    danger: true
+                });
+
+                if (!confirmed) {
+                    wrapper.classList.remove('swiped');
+                    swipeable.style.transform = '';
+                    currentlyOpen = null;
+                    return;
+                }
+
+                try {
+                    const response = await fetch('<?= BASE_PATH ?>api/enotf-delete-protocol.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ enr: enr })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        wrapper.style.transition = 'opacity 0.3s ease, height 0.3s ease';
+                        wrapper.style.opacity = '0';
+                        wrapper.style.height = '0';
+                        wrapper.style.overflow = 'hidden';
+                        setTimeout(() => wrapper.remove(), 300);
+                    } else {
+                        await showAlert(data.message || 'Fehler beim Löschen des Protokolls.', {
+                            title: 'Fehler',
+                            type: 'error'
+                        });
+                        wrapper.classList.remove('swiped');
+                        swipeable.style.transform = '';
+                        currentlyOpen = null;
+                    }
+                } catch (error) {
+                    console.error('Fehler:', error);
+                    await showAlert('Fehler beim Löschen des Protokolls.', {
+                        title: 'Fehler',
+                        type: 'error'
+                    });
+                    wrapper.classList.remove('swiped');
+                    swipeable.style.transform = '';
+                    currentlyOpen = null;
+                }
+            });
+        });
+
+        // Schließen bei Klick außerhalb
+        document.addEventListener('click', (e) => {
+            if (justSwiped) return; // Ignoriere Klicks direkt nach einem Swipe
+            if (currentlyOpen && !currentlyOpen.contains(e.target)) {
+                currentlyOpen.classList.remove('swiped');
+                currentlyOpen.querySelector('.edivi__einsatz-swipeable').style.transform = '';
+                currentlyOpen = null;
+            }
+        });
+    })();
+    </script>
 </body>
 
 </html>

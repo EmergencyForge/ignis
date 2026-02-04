@@ -1,7 +1,7 @@
 <?php
 $currentFd = $row['fachdienste'];
 if (!empty($currentFd)) {
-    $fdDecode = json_decode($currentFd ?? '[]', true);
+    $fdDecode = json_decode($currentFd, true);
 
     $stmtfd = $pdo->query("SELECT sgnr, sgname FROM intra_mitarbeiter_fdquali");
     $fdNamen = [];

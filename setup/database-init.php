@@ -403,6 +403,9 @@ $migrationFiles = [
 
     // 04.02.2026 - RD Qualifikationen Abkürzung
     ['file' => 'alter_intra_mitarbeiter_rdquali_04022026_abbreviation.php', 'type' => 'alter'],
+
+    // 04.02.2026 - eNOTF Protokoll Erstellungsherkunft
+    ['file' => 'alter_intra_edivi_04022026_createdby.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

@@ -502,8 +502,8 @@ class SystemUpdater
             // Run comprehensive diagnostics
             $diagnostics = $this->runUpdateDiagnostics($e, [
                 'operation' => 'downloadAndApplyUpdate',
-                'download_url' => $downloadUrl ?? null,
-                'new_version' => $newVersion ?? null,
+                'download_url' => $downloadUrl,
+                'new_version' => $newVersion,
                 'temp_dir' => $tempDir ?? null,
                 'backup_dir' => $backupDir ?? null
             ]);
@@ -816,7 +816,7 @@ class SystemUpdater
             // Run diagnostics for exception
             $diagnostics = $this->runUpdateDiagnostics($e, [
                 'operation' => 'composer_install_exception',
-                'composer_path' => $composerPath ?? null
+                'composer_path' => $composerPath
             ]);
 
             return [
@@ -1559,7 +1559,7 @@ class SystemUpdater
         $rateLimitReset = null;
 
         // Try to get rate limit info from headers if available
-        if (isset($http_response_header)) {
+        if (is_array($http_response_header)) {
             foreach ($http_response_header as $header) {
                 if (stripos($header, 'X-RateLimit-Remaining:') === 0) {
                     $rateLimitRemaining = (int)trim(substr($header, 23));

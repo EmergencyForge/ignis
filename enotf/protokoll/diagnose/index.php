@@ -224,8 +224,8 @@ $diagnose_weitere_text = '';
 if (!empty($diagnose_weitere_array)) {
     $diagnose_weitere_labels = [];
     foreach ($diagnose_weitere_array as $diagnose_id) {
-        if (isset($diagnose_labels[$diagnose_id ?? ''])) {
-            $diagnose_weitere_labels[] = $diagnose_labels[$diagnose_id ?? ''];
+        if (isset($diagnose_labels[$diagnose_id])) {
+            $diagnose_weitere_labels[] = $diagnose_labels[$diagnose_id];
         }
     }
     $diagnose_weitere_text = implode(', ', $diagnose_weitere_labels);

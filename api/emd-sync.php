@@ -362,9 +362,7 @@ try {
     } else {
         logSync("Keine dispatch_data in den Fahrzeugdaten gefunden - prüfe Datenstruktur", 'WARNING');
         // Logge ein Beispiel-Fahrzeug zur Analyse
-        if (!empty($vehicles)) {
-            logSync("Beispiel-Fahrzeug-Datenstruktur: " . json_encode($vehicles[0]), 'DEBUG');
-        }
+        logSync("Beispiel-Fahrzeug-Datenstruktur: " . json_encode($vehicles[0]), 'DEBUG');
     }
 
     logSync('Es wurden ' . count($vehiclesByDispatch) . ' eindeutige Einsatznummern gefunden', 'INFO');
@@ -742,8 +740,8 @@ try {
                 }
 
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, patname, patgebdat, created_at) 
-                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW())
+                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, patname, patgebdat, created_at, createdby)
+                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW(), 1)
                 ");
                 $insertStmt->execute([
                     ':enr' => $enrToUse,
@@ -797,8 +795,8 @@ try {
                 }
 
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, patname, patgebdat, created_at) 
-                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW())
+                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, patname, patgebdat, created_at, createdby)
+                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW(), 1)
                 ");
                 $insertStmt->execute([
                     ':enr' => $enrToUse,

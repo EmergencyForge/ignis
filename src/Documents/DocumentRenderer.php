@@ -274,7 +274,7 @@ class DocumentRenderer
                 return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             case 'select':
-                return $fieldOptions ? json_decode($fieldOptions ?? '[]', true) : [];
+                return $fieldOptions ? json_decode($fieldOptions, true) : [];
 
             default:
                 return [];
