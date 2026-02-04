@@ -22,8 +22,6 @@ use App\Auth\Permissions;
 use App\Helpers\BloodSugarHelper;
 
 $daten = array();
-$message = '';
-$messageType = '';
 
 if (isset($_GET['enr'])) {
     $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
@@ -89,17 +87,6 @@ $currentDateTime = date('Y-m-d\TH:i');
     <div class="container-fluid" id="edivi__container">
         <div class="row h-100">
             <div class="col" id="edivi__content">
-                <?php if (!empty($message)): ?>
-                    <div class="row mb-3">
-                        <div class="col">
-                            <div class="alert alert-<?= $messageType ?> alert-dismissible fade show" role="alert">
-                                <?= htmlspecialchars($message) ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
                 <form name="form" id="vitalsForm" method="post" action="">
                     <div class="row">
                         <div class="col position-relative">

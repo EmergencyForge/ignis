@@ -362,9 +362,7 @@ try {
     } else {
         logSync("Keine dispatch_data in den Fahrzeugdaten gefunden - prüfe Datenstruktur", 'WARNING');
         // Logge ein Beispiel-Fahrzeug zur Analyse
-        if (!empty($vehicles)) {
-            logSync("Beispiel-Fahrzeug-Datenstruktur: " . json_encode($vehicles[0]), 'DEBUG');
-        }
+        logSync("Beispiel-Fahrzeug-Datenstruktur: " . json_encode($vehicles[0]), 'DEBUG');
     }
 
     logSync('Es wurden ' . count($vehiclesByDispatch) . ' eindeutige Einsatznummern gefunden', 'INFO');

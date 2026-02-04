@@ -262,7 +262,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <h6>Aktuelle Ankündigungen</h6>
                                     <?php
                                     // Defensiv: Sicherstellen dass $announcements ein Objekt ist
-                                    if (!isset($announcements) || !($announcements instanceof \App\Telemetry\GlobalAnnouncementManager)) {
+                                    if (!($announcements instanceof \App\Telemetry\GlobalAnnouncementManager)) {
                                         $announcements = new GlobalAnnouncementManager($pdo);
                                     }
 
