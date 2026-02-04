@@ -502,8 +502,8 @@ class SystemUpdater
             // Run comprehensive diagnostics
             $diagnostics = $this->runUpdateDiagnostics($e, [
                 'operation' => 'downloadAndApplyUpdate',
-                'download_url' => $downloadUrl ?? null,
-                'new_version' => $newVersion ?? null,
+                'download_url' => $downloadUrl,
+                'new_version' => $newVersion,
                 'temp_dir' => $tempDir ?? null,
                 'backup_dir' => $backupDir ?? null
             ]);
