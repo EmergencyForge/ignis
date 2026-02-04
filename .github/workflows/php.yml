@@ -12,6 +12,7 @@ permissions:
   pull-requests: write
 
 jobs:
+
   # ─────────────────────────────────────────────
   # 1. Build & Validate (PHP 8.1 – 8.4)
   # ─────────────────────────────────────────────
@@ -19,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ["8.1", "8.2", "8.3", "8.4"]
+        php-version: ['8.1', '8.2', '8.3', '8.4']
       fail-fast: false
 
     steps:
@@ -56,7 +57,7 @@ jobs:
   # 2. Build PHP 8.5 (experimentell, blockiert nicht)
   # ─────────────────────────────────────────────
   build-experimental:
-    name: "build (8.5 🧪)"
+    name: "build (8.5 - experimental)"
     runs-on: ubuntu-latest
     continue-on-error: true
 
@@ -66,7 +67,7 @@ jobs:
       - name: Setup PHP 8.5
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.5"
+          php-version: '8.5'
           extensions: mbstring, pdo, pdo_mysql, json, curl, gd, intl
           coverage: none
 
@@ -102,7 +103,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: '8.4'
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
@@ -124,7 +125,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.4"
+          php-version: '8.4'
           extensions: mbstring, pdo, pdo_mysql, json, curl, gd, intl
 
       - name: Cache Composer packages
@@ -138,66 +139,100 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
 
-      - name: Run PHPStan
+      # Inline-Annotations in geänderten Dateien im PR-Diff
+      - name: PHPStan – Inline Annotations
+        run: vendor/bin/phpstan analyse --no-progress --error-format=github || true
+
+      # JSON-Output für den PR-Kommentar
+      - name: PHPStan – Report generieren
         id: phpstan
         run: |
           set +e
-          OUTPUT=$(vendor/bin/phpstan analyse --no-progress --error-format=table 2>&1)
-          EXIT_CODE=$?
-          echo "$OUTPUT"
-          {
-            echo "result<<PHPSTAN_EOF"
-            echo "$OUTPUT"
-            echo "PHPSTAN_EOF"
-          } >> "$GITHUB_OUTPUT"
-          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
-          exit $EXIT_CODE
+          vendor/bin/phpstan analyse --no-progress --error-format=json > phpstan-result.json 2>/dev/null
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
 
-      - name: Post PHPStan results to PR
+      - name: PHPStan-Ergebnis im PR posten
         if: always() && github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
-            const output = `${{ steps.phpstan.outputs.result }}`;
+            const fs = require('fs');
             const exitCode = '${{ steps.phpstan.outputs.exit_code }}';
-            const icon = exitCode === '0' ? '✅' : '⚠️';
-            const status = exitCode === '0' ? 'Keine Fehler gefunden' : 'Fehler gefunden';
 
+            let json;
+            try {
+              json = JSON.parse(fs.readFileSync('phpstan-result.json', 'utf8'));
+            } catch {
+              json = null;
+            }
+
+            // ── Kommentar bauen ──
+            let body = '<!-- phpstan-report -->\n';
+
+            if (exitCode === '0') {
+              body += '## ✅ PHPStan – Keine Fehler\n\n';
+              body += 'Alles sauber! Keine Probleme gefunden. 🎉\n';
+
+            } else if (json?.files && Object.keys(json.files).length > 0) {
+              const files = json.files;
+              const totalErrors = json.totals?.errors || 0;
+              const fileCount = Object.keys(files).length;
+
+              body += `## ⚠️ PHPStan – ${totalErrors} Fehler in ${fileCount} Dateien\n\n`;
+
+              // ── Zusammenfassung (immer sichtbar) ──
+              body += '| Datei | Fehler |\n';
+              body += '|-------|-------:|\n';
+              for (const [filePath, data] of Object.entries(files)) {
+                const short = filePath.replace(/^.*?\/intraRP\//, '');
+                body += `| \`${short}\` | ${data.messages.length} |\n`;
+              }
+
+              // ── Details pro Datei (aufklappbar) ──
+              body += '\n---\n\n';
+              for (const [filePath, data] of Object.entries(files)) {
+                const short = filePath.replace(/^.*?\/intraRP\//, '');
+                body += `<details>\n<summary>📄 <strong>${short}</strong> (${data.messages.length} Fehler)</summary>\n\n`;
+                body += '| Zeile | Beschreibung |\n';
+                body += '|------:|--------------|\n';
+                for (const msg of data.messages) {
+                  const desc = msg.message.replace(/\|/g, '\\|');
+                  body += `| ${msg.line} | ${desc} |\n`;
+                }
+                body += '\n</details>\n\n';
+              }
+
+            } else {
+              body += '## ❌ PHPStan – Fehler\n\n';
+              body += 'PHPStan-Ergebnis konnte nicht verarbeitet werden. Siehe [Workflow-Log](' +
+                `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}).\n`;
+            }
+
+            body += '\n---\n*🤖 Automatisch generiert von GitHub Actions · PHPStan Level 1*';
+
+            // ── Alten Kommentar ersetzen ──
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
 
-            const botComment = comments.find(c =>
-              c.body.includes('<!-- phpstan-report -->')
-            );
-
-            if (botComment) {
+            const old = comments.find(c => c.body?.includes('<!-- phpstan-report -->'));
+            if (old) {
               await github.rest.issues.deleteComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                comment_id: botComment.id,
+                comment_id: old.id,
               });
             }
-
-            const body = `<!-- phpstan-report -->
-            ## ${icon} PHPStan Analyse – ${status}
-
-            <details>
-            <summary>Details anzeigen</summary>
-
-            \`\`\`
-            ${output}
-            \`\`\`
-
-            </details>
-
-            *Automatisch generiert von GitHub Actions*`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: body,
+              body,
             });
+
+      - name: PHPStan Exit Code
+        if: always()
+        run: exit ${{ steps.phpstan.outputs.exit_code }}
