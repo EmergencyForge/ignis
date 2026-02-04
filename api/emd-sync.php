@@ -742,8 +742,8 @@ try {
                 }
 
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, patname, patgebdat, created_at) 
-                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW())
+                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, patname, patgebdat, created_at, createdby)
+                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW(), 1)
                 ");
                 $insertStmt->execute([
                     ':enr' => $enrToUse,
@@ -797,8 +797,8 @@ try {
                 }
 
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, patname, patgebdat, created_at) 
-                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW())
+                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, patname, patgebdat, created_at, createdby)
+                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW(), 1)
                 ");
                 $insertStmt->execute([
                     ':enr' => $enrToUse,

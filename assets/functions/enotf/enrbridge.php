@@ -99,14 +99,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $currentDate = date('Y-m-d');
     $currentTime = date('H:i');
 
-    $columns = ['enr', 'prot_by', $fzgField, 'edatum', 'ezeit'];
-    $placeholders = [':enr', ':prot_by', ':fahrzeug', ':edatum', ':ezeit'];
+    $columns = ['enr', 'prot_by', $fzgField, 'edatum', 'ezeit', 'createdby'];
+    $placeholders = [':enr', ':prot_by', ':fahrzeug', ':edatum', ':ezeit', ':createdby'];
     $params = [
         ':enr' => $enr,
         ':prot_by' => $prot_by,
         ':fahrzeug' => $fahrzeugId,
         ':edatum' => $currentDate,
-        ':ezeit' => $currentTime
+        ':ezeit' => $currentTime,
+        ':createdby' => 2
     ];
 
     if ($beifahrer !== null) {
