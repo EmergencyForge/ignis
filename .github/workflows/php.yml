@@ -57,7 +57,7 @@ jobs:
   # 2. Build PHP 8.5 (experimentell, blockiert nicht)
   # ─────────────────────────────────────────────
   build-experimental:
-    name: "build (8.5 🧪)"
+    name: "experimental build (8.5)"
     runs-on: ubuntu-latest
     continue-on-error: true
 
@@ -171,7 +171,7 @@ jobs:
 
             if (exitCode === '0') {
               body += '## ✅ Keine Fehler\n\n';
-              body += 'Alles sauber! Keine Probleme gefunden. 🎉\n';
+              body += 'Keine Probleme gefunden. 🎉\n';
 
             } else if (json?.files && Object.keys(json.files).length > 0) {
               const files = json.files;
@@ -180,20 +180,9 @@ jobs:
 
               body += `## ⚠️ ${totalErrors} Fehler in ${fileCount} Dateien\n\n`;
 
-              // Gemeinsamen Basispfad ermitteln
-              const allPaths = Object.keys(files);
-              const parts = allPaths[0].split('/');
-              let base = '';
-              for (let i = 0; i < parts.length; i++) {
-                const prefix = parts.slice(0, i + 1).join('/') + '/';
-                if (allPaths.every(p => p.startsWith(prefix))) {
-                  base = prefix;
-                } else {
-                  break;
-                }
-              }
-
-              const shortPath = (p) => p.replace(base, '');
+              // Runner-Workspace-Pfad entfernen, Projektpfade beibehalten
+              const workspacePrefix = process.env.GITHUB_WORKSPACE ? process.env.GITHUB_WORKSPACE + '/' : '';
+              const shortPath = (p) => workspacePrefix ? p.replace(workspacePrefix, '') : p;
 
               // ── Zusammenfassung (immer sichtbar) ──
               body += '| Datei | Fehler |\n';
@@ -206,7 +195,7 @@ jobs:
               body += '\n---\n\n';
               for (const [filePath, data] of Object.entries(files)) {
                 const short = shortPath(filePath);
-                body += `<details>\n<summary>📄 <strong>${short}</strong> (${data.messages.length} Fehler)</summary>\n\n`;
+                body += `<details>\n<summary><strong>${short}</strong> (${data.messages.length} Fehler)</summary>\n\n`;
                 body += '| Zeile | Beschreibung |\n';
                 body += '|------:|--------------|\n';
                 for (const msg of data.messages) {
@@ -218,11 +207,11 @@ jobs:
 
             } else {
               body += '## ❌ Unbekannter Fehler\n\n';
-              body += 'PHPStan-Ergebnis konnte nicht verarbeitet werden. Siehe [Workflow-Log](' +
+              body += 'Ergebnis konnte nicht verarbeitet werden. Siehe [Workflow-Log](' +
                 `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}).\n`;
             }
 
-            body += '\n---\n*Automatisch generiert von GitHub Actions · PHPStan Level 1*';
+            body += '\n---\n* Automatisch generiert von GitHub Actions · PHPStan*';
 
             // ── Alten Kommentar ersetzen ──
             const { data: comments } = await github.rest.issues.listComments({
