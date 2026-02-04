@@ -1,0 +1,11 @@
+parameters:
+    # Level 0-9, starte niedrig und erhöhe schrittweise
+    level: 1
+
+    paths:
+        - .
+
+    excludePaths:
+        - vendor
+        - assets/fonts
+        - assets/_ext
