@@ -21,22 +21,3 @@ if (isset($_SESSION['einsatz_vehicle_name']) && isset($_SESSION['einsatz_operato
     header("Location: " . BASE_PATH . "einsatz/login-fahrzeug.php");
     exit();
 }
-
-?>
-<!DOCTYPE html>
-<html>
-
-<head>
-    <?php
-    $SITE_TITLE = "eNOTF";
-    include __DIR__ . '/../assets/components/enotf/_head.php';
-    ?>
-</head>
-
-<body data-bs-theme="dark" id="dashboard" class="container-full position-relative">
-    <h1>Wird weitergeleitet...</h1>
-    <?php include __DIR__ . "/../assets/components/footer.php"; ?>
-
-</body>
-
-</html>

@@ -87,7 +87,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <div class="col">Angemeldet:</div>
                             </div>
                             <div class="row">
-                                <div class="col"><?= $_SESSION['fahrername'] ?? 'Fehler Fehler' ?></div>
+                                <div class="col"><?= $_SESSION['fahrername'] ?></div>
                                 <div class="col border-start" style="--bs-border-color: #333333"><?= $_SESSION['beifahrername'] ?? 'Fehler Fehler' ?></div>
                             </div>
                         </div>

@@ -9,7 +9,7 @@ require __DIR__ . '/../assets/config/database.php';
 
 header('Content-Type: application/json');
 
-function logSync($message, $level = 'INFO')
+function logSync(string $message, string $level = 'INFO'): void
 {
     try {
         $logFile = __DIR__ . '/logs/emd_sync.log';
@@ -43,8 +43,10 @@ function logSync($message, $level = 'INFO')
 /**
  * Verarbeitet abgeschlossene Einsätze (Dispatch Logs)
  * Wird nur zur Validierung verwendet - keine Speicherung nötig
+ *
+ * @param array<string, mixed> $data
  */
-function handleDispatchLogs($data, $pdo)
+function handleDispatchLogs(array $data, PDO $pdo): void
 {
     try {
         logSync('Dispatch-Log-Sync empfangen (keine Speicherung erforderlich)', 'INFO');
@@ -79,8 +81,10 @@ function handleDispatchLogs($data, $pdo)
 
 /**
  * Verarbeitet Echtzeit-Statusmeldungen und aktualisiert intra_edivi
+ *
+ * @param array<string, mixed> $data
  */
-function handleStatusUpdates($data, $pdo)
+function handleStatusUpdates(array $data, PDO $pdo): void
 {
     try {
         logSync('Starte Status-Update-Verarbeitung', 'INFO');

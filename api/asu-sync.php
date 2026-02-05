@@ -9,7 +9,7 @@ require __DIR__ . '/../assets/config/database.php';
 
 header('Content-Type: application/json');
 
-function logSync($message, $level = 'INFO')
+function logSync(string $message, string $level = 'INFO'): void
 {
     try {
         $logFile = __DIR__ . '/logs/asu_sync.log';
@@ -43,8 +43,10 @@ function logSync($message, $level = 'INFO')
 /**
  * Verarbeitet ASU-Protokoll-Daten
  * Validiert anhand der Einsatznummer, aktualisiert oder erstellt ASU-Einträge
+ *
+ * @param array<string, mixed> $data
  */
-function handleAsuProtocol($data, $pdo)
+function handleAsuProtocol(array $data, PDO $pdo): void
 {
     try {
         logSync('Starte ASU-Protokoll-Verarbeitung', 'INFO');
@@ -166,7 +168,7 @@ function handleAsuProtocol($data, $pdo)
             'action' => $existingAsu ? 'updated' : 'created'
         ]);
     } catch (Exception $e) {
-        if (isset($pdo) && $pdo->inTransaction()) {
+        if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
 

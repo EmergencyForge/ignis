@@ -17,6 +17,7 @@ require_once __DIR__ . '/../../../../vendor/autoload.php';
 require __DIR__ . '/../../../../assets/config/database.php';
 require_once __DIR__ . '/../../../../assets/functions/enotf/user_auth_middleware.php';
 require_once __DIR__ . '/../../../../assets/functions/enotf/pin_middleware.php';
+require_once __DIR__ . '/../../../../assets/functions/enotf/zugang_helpers.php';
 
 use App\Auth\Permissions;
 
@@ -56,73 +57,7 @@ $currentDate = date('d.m.Y');
 
 $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'false';
 
-function getCurrentZugaenge($zugangJson)
-{
-    if (empty($zugangJson) || $zugangJson === '0') {
-        return [];
-    }
-
-    $decoded = json_decode($zugangJson, true);
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        return [];
-    }
-
-    if (isset($decoded['art'])) {
-        return [$decoded];
-    } else if (is_array($decoded)) {
-        return $decoded;
-    }
-
-    return [];
-}
-
-function hasZugangAtLocation($zugaenge, $art, $ort, $seite)
-{
-    foreach ($zugaenge as $zugang) {
-        if (
-            $zugang['art'] === $art &&
-            $zugang['ort'] === $ort &&
-            $zugang['seite'] === $seite
-        ) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function addZugang($zugaenge, $newZugang)
-{
-    foreach ($zugaenge as $index => $zugang) {
-        if (
-            $zugang['art'] === $newZugang['art'] &&
-            $zugang['ort'] === $newZugang['ort'] &&
-            $zugang['seite'] === $newZugang['seite']
-        ) {
-            $zugaenge[$index] = $newZugang;
-            return $zugaenge;
-        }
-    }
-
-    $zugaenge[] = $newZugang;
-    return $zugaenge;
-}
-
-function removeZugang($zugaenge, $art, $ort, $seite)
-{
-    return array_values(array_filter($zugaenge, function ($zugang) use ($art, $ort, $seite) {
-        return !($zugang['art'] === $art &&
-            $zugang['ort'] === $ort &&
-            $zugang['seite'] === $seite);
-    }));
-}
-
 $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
-
-function hasAnyZugang($zugangJson)
-{
-    $zugaenge = getCurrentZugaenge($zugangJson);
-    return !empty($zugaenge);
-}
 ?>
 
 <!DOCTYPE html>

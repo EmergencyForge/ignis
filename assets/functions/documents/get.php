@@ -21,35 +21,33 @@ try {
         throw new Exception('Template nicht gefunden');
     }
 
-    if ($template) {
-        foreach ($template['fields'] as &$field) {
-            if ($field['field_type'] === 'db_dg') {
-                $stmt = $pdo->query("SELECT id, name, name_m, name_w FROM intra_mitarbeiter_dienstgrade WHERE archive = 0 ORDER BY priority ASC");
-                $field['field_options'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($template['fields'] as &$field) {
+        if ($field['field_type'] === 'db_dg') {
+            $stmt = $pdo->query("SELECT id, name, name_m, name_w FROM intra_mitarbeiter_dienstgrade WHERE archive = 0 ORDER BY priority ASC");
+            $field['field_options'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                $field['field_options'] = array_map(function ($item) {
-                    return [
-                        'value' => $item['id'],
-                        'label' => $item['name'],
-                        'label_m' => $item['name_m'],
-                        'label_w' => $item['name_w']
-                    ];
-                }, $field['field_options']);
-            }
+            $field['field_options'] = array_map(function ($item) {
+                return [
+                    'value' => $item['id'],
+                    'label' => $item['name'],
+                    'label_m' => $item['name_m'],
+                    'label_w' => $item['name_w']
+                ];
+            }, $field['field_options']);
+        }
 
-            if ($field['field_type'] === 'db_rdq') {
-                $stmt = $pdo->query("SELECT id, name, name_m, name_w FROM intra_mitarbeiter_rdquali WHERE trainable = 1 AND none = 0 ORDER BY priority ASC");
-                $field['field_options'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($field['field_type'] === 'db_rdq') {
+            $stmt = $pdo->query("SELECT id, name, name_m, name_w FROM intra_mitarbeiter_rdquali WHERE trainable = 1 AND none = 0 ORDER BY priority ASC");
+            $field['field_options'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                $field['field_options'] = array_map(function ($item) {
-                    return [
-                        'value' => $item['id'],
-                        'label' => $item['name'],
-                        'label_m' => $item['name_m'],
-                        'label_w' => $item['name_w']
-                    ];
-                }, $field['field_options']);
-            }
+            $field['field_options'] = array_map(function ($item) {
+                return [
+                    'value' => $item['id'],
+                    'label' => $item['name'],
+                    'label_m' => $item['name_m'],
+                    'label_w' => $item['name_w']
+                ];
+            }, $field['field_options']);
         }
     }
 

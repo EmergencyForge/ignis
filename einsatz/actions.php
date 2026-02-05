@@ -25,7 +25,7 @@ use App\Notifications\NotificationManager;
 require __DIR__ . '/../assets/config/database.php';
 
 // Helper function to log actions
-function logAction($pdo, $incidentId, $actionType, $description)
+function logAction(PDO $pdo, int $incidentId, string $actionType, string $description): void
 {
     try {
         $stmt = $pdo->prepare("INSERT INTO intra_fire_incident_log (incident_id, action_type, action_description, vehicle_id, operator_id, created_by) VALUES (?,?,?,?,?,?)");
@@ -247,12 +247,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $pdo,
                     $id,
                     'status_changed',
-                    "QM-Status geändert zu '" . ($statusLabels[$status] ?? $status) . "'"
+                    "QM-Status geändert zu '" . $statusLabels[$status] . "'"
                 );
 
                 if (isset($_SESSION['userid'])) {
                     $auditLogger = new AuditLogger($pdo);
-                    $auditLogger->log($_SESSION['userid'], 'QM-Status geändert [ID: ' . $id . '] → ' . ($statusLabels[$status] ?? $status), NULL, 'Feuerwehr', 1);
+                    $auditLogger->log($_SESSION['userid'], 'QM-Status geändert [ID: ' . $id . '] → ' . $statusLabels[$status], NULL, 'Feuerwehr', 1);
                 }
 
                 // Benachrichtigung an Einsatzleiter senden

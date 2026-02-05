@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use App\Helpers\MapCoordinates;
 
 // Helper function to get display name with fallback to vehicle operator
-function getDisplayName($created_by_name, $operator_name, $vehicle_name)
+function getDisplayName(?string $created_by_name, ?string $operator_name, ?string $vehicle_name): string
 {
     if (!empty($created_by_name)) {
         return $created_by_name;

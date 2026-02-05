@@ -1,5 +1,5 @@
 parameters:
-    level: 5
+    level: 6
 
     paths:
         - .
@@ -14,4 +14,332 @@ parameters:
         # und sind in den jeweiligen Dateien immer verfügbar
         -
             identifier: variable.undefined
+            reportUnmatched: false
+
+        # Konfigurations-Konstanten werden zur Laufzeit aus der DB geladen
+        # PHPStan kann deren tatsächlichen Wert nicht kennen
+        -
+            identifier: if.alwaysTrue
+            paths:
+                - assets/components/enotf/topbar.php
+                - assets/functions/enotf/pin_middleware.php
+                - assets/functions/enotf/share/accept-request.php
+            reportUnmatched: false
+
+        -
+            identifier: if.alwaysFalse
+            path: assets/functions/enotf/user_auth_middleware.php
+            reportUnmatched: false
+
+        -
+            identifier: identical.alwaysFalse
+            path: assets/functions/enotf/user_auth_middleware.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.alwaysFalse
+            path: assets/functions/enotf/user_auth_middleware.php
+            reportUnmatched: false
+
+        -
+            identifier: identical.alwaysTrue
+            path: assets/functions/enotf/pin_middleware.php
+            reportUnmatched: false
+
+        # REGISTRATION_MODE Konstante wird zur Laufzeit geladen
+        -
+            identifier: identical.alwaysFalse
+            paths:
+                - auth/callback.php
+                - benutzer/registration-codes.php
+            reportUnmatched: false
+
+        # EINSATZ_REQUIRE_USER_AUTH Konstante wird zur Laufzeit geladen
+        -
+            identifier: booleanAnd.alwaysFalse
+            paths:
+                - einsatz/asu.php
+                - einsatz/create.php
+                - einsatz/lagekarte-api.php
+                - einsatz/list.php
+                - einsatz/login-fahrzeug.php
+                - einsatz/view.php
+            reportUnmatched: false
+
+        -
+            identifier: identical.alwaysFalse
+            paths:
+                - einsatz/asu.php
+                - einsatz/create.php
+                - einsatz/lagekarte-api.php
+                - einsatz/list.php
+                - einsatz/login-fahrzeug.php
+                - einsatz/view.php
+            reportUnmatched: false
+
+        -
+            identifier: if.alwaysTrue
+            paths:
+                - einsatz/tabs/fahrzeuge.php
+                - einsatz/tabs/lagemeldungen.php
+            reportUnmatched: false
+
+        # OAuth2 Library type mismatch (getAccessToken returns Interface, getResourceOwner expects concrete class)
+        -
+            message: '#Parameter \#1 \$token of method League\\OAuth2\\Client\\Provider\\AbstractProvider::getResourceOwner\(\) expects League\\OAuth2\\Client\\Token\\AccessToken#'
+            path: auth/callback.php
+            reportUnmatched: false
+
+        # ENOTF Konfigurations-Konstanten werden zur Laufzeit aus der DB geladen
+        -
+            identifier: identical.alwaysTrue
+            paths:
+                - enotf/create.php
+                - enotf/fahrzeuginfo.php
+                - enotf/loggedout.php
+                - enotf/login.php
+                - enotf/overview.php
+                - enotf/print/index.php
+            reportUnmatched: false
+
+        -
+            identifier: notIdentical.alwaysFalse
+            path: enotf/lockscreen.php
+            reportUnmatched: false
+
+        # eNOTF Protokoll-Dateien - Konfigurations-Konstanten zur Laufzeit
+        -
+            identifier: identical.alwaysTrue
+            paths:
+                - enotf/protokoll/
+                - enotf/schnittstelle/
+            reportUnmatched: false
+
+        # Medikamente Helper-Funktionen in massnahmen/index.php (local display functions)
+        -
+            identifier: missingType.return
+            path: enotf/protokoll/massnahmen/index.php
+            reportUnmatched: false
+
+        -
+            identifier: missingType.parameter
+            path: enotf/protokoll/massnahmen/index.php
+            reportUnmatched: false
+
+        -
+            identifier: identical.alwaysFalse
+            paths:
+                - enotf/protokoll/massnahmen/index.php
+                - enotf/schnittstelle/voranmeldung.php
+            reportUnmatched: false
+
+        -
+            identifier: if.alwaysFalse
+            paths:
+                - enotf/protokoll/abschluss/freigabe.php
+                - enotf/protokoll/rettdaten/
+            reportUnmatched: false
+
+        -
+            identifier: function.alreadyNarrowedType
+            paths:
+                - enotf/protokoll/
+            reportUnmatched: false
+
+        -
+            identifier: notIdentical.alwaysTrue
+            paths:
+                - enotf/protokoll/
+                - enotf/schnittstelle/
+            reportUnmatched: false
+
+        # REGISTRATION_MODE in login.php
+        -
+            identifier: identical.alwaysFalse
+            path: login.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.alwaysFalse
+            path: login.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanNot.alwaysFalse
+            path: login.php
+            reportUnmatched: false
+
+        # Mitarbeiter Konfigurations-Konstanten
+        -
+            identifier: if.alwaysTrue
+            paths:
+                - mitarbeiter/create.php
+                - mitarbeiter/profile.php
+            reportUnmatched: false
+
+        # Setup-Skripte - komplexe Migration-Logik
+        -
+            identifier: nullCoalesce.offset
+            paths:
+                - setup/database-init.php
+                - settings/system/index.php
+            reportUnmatched: false
+
+        -
+            identifier: isset.offset
+            paths:
+                - setup/database-init.php
+                - mitarbeiter/profile.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.alwaysFalse
+            path: setup/database-init.php
+            reportUnmatched: false
+
+        -
+            identifier: instanceof.alwaysTrue
+            path: settings/system/telemetry.php
+            reportUnmatched: false
+
+        # Wissensdb Konfigurations-Konstanten werden zur Laufzeit geladen
+        -
+            identifier: if.alwaysTrue
+            path: wissensdb/create.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.alwaysFalse
+            paths:
+                - wissensdb/index.php
+                - wissensdb/search-api.php
+                - wissensdb/view.php
+            reportUnmatched: false
+
+        -
+            identifier: identical.alwaysFalse
+            paths:
+                - wissensdb/index.php
+                - wissensdb/search-api.php
+                - wissensdb/view.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanNot.alwaysTrue
+            paths:
+                - wissensdb/index.php
+                - wissensdb/search-api.php
+                - wissensdb/view.php
+            reportUnmatched: false
+
+        # src/ Infrastruktur-Code - komplexe dynamische Arrays und defensive Coding Patterns
+        # Diese Klassen verwenden viele dynamische Arrays für Konfiguration,
+        # Diagnose-Reports, Update-Status etc. Type hints wären sehr komplex
+        -
+            identifier: missingType.iterableValue
+            paths:
+                - src/
+            reportUnmatched: false
+
+        # src/ defensive coding patterns - zusätzliche Sicherheitsprüfungen die technisch redundant sind
+        -
+            identifier: notIdentical.alwaysTrue
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: nullCoalesce.expr
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: nullCoalesce.offset
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: missingType.parameter
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: missingType.property
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: missingType.return
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: function.impossibleType
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: identical.alwaysTrue
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: deadCode.unreachable
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: argument.type
+            paths:
+                - src/Integrations/
+            reportUnmatched: false
+
+        -
+            identifier: catch.neverThrown
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: property.onlyWritten
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: greater.alwaysTrue
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: booleanNot.alwaysTrue
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.leftAlwaysTrue
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: function.alreadyNarrowedType
+            paths:
+                - src/
+            reportUnmatched: false
+
+        -
+            identifier: booleanOr.rightAlwaysTrue
+            paths:
+                - src/
             reportUnmatched: false

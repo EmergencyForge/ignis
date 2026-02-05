@@ -9,7 +9,7 @@ require __DIR__ . '/../assets/config/database.php';
 
 header('Content-Type: application/json');
 
-function logSync($message, $level = 'INFO')
+function logSync(string $message, string $level = 'INFO'): void
 {
     try {
         $logFile = __DIR__ . '/logs/enotf_billing.log';
@@ -44,8 +44,10 @@ function logSync($message, $level = 'INFO')
  * Verarbeitet Billing-Anfragen für eNotf-Protokolle
  * Gibt Protokolle zurück, die noch nicht abgerechnet wurden (billing_sent = 0)
  * und markiert diese anschließend als versendet (billing_sent = 1)
+ *
+ * @param array<string, mixed> $data
  */
-function handleBillingRequest($data, $pdo)
+function handleBillingRequest(array $data, PDO $pdo): void
 {
     try {
         logSync('Billing-Anfrage empfangen', 'INFO');
@@ -124,18 +126,16 @@ function handleBillingRequest($data, $pdo)
         }
 
         // Markiere alle abgerufenen Protokolle als billing_sent = 1
-        if (!empty($protocolIds)) {
-            $placeholders = implode(',', array_fill(0, count($protocolIds), '?'));
-            $updateStmt = $pdo->prepare("
-                UPDATE intra_edivi 
-                SET billing_sent = 1,
-                    billing_sent_at = NOW()
-                WHERE id IN ($placeholders)
-            ");
-            $updateStmt->execute($protocolIds);
+        $placeholders = implode(',', array_fill(0, count($protocolIds), '?'));
+        $updateStmt = $pdo->prepare("
+            UPDATE intra_edivi
+            SET billing_sent = 1,
+                billing_sent_at = NOW()
+            WHERE id IN ($placeholders)
+        ");
+        $updateStmt->execute($protocolIds);
 
-            logSync('Markierte ' . count($protocolIds) . ' Protokolle als billing_sent', 'INFO');
-        }
+        logSync('Markierte ' . count($protocolIds) . ' Protokolle als billing_sent', 'INFO');
 
         logSync('Billing-Anfrage erfolgreich verarbeitet: ' . count($responseProtocols) . ' Protokolle', 'INFO');
 

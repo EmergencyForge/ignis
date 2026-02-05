@@ -11,18 +11,6 @@ Options +MultiViews
 
 RewriteEngine On
 
-RewriteCond %{SCRIPT_FILENAME} !-d
-RewriteCond %{SCRIPT_FILENAME} !-f
-RewriteRule ^dokumente/schreiben/abmahnung/(\d+)$ dokumente/schreiben/abmahnung.php?dok=$1 [L]
-RewriteRule ^dokumente/schreiben/dienstenthebung/(\d+)$ dokumente/schreiben/dienstenthebung.php?dok=$1 [L]
-RewriteRule ^dokumente/schreiben/dienstentfernung/(\d+)$ dokumente/schreiben/dienstentfernung.php?dok=$1 [L]
-RewriteRule ^dokumente/schreiben/kuendigung/(\d+)$ dokumente/schreiben/kuendigung.php?dok=$1 [L]
-RewriteRule ^dokumente/urkunden/ernennung/(\d+)$ dokumente/urkunden/ernennung.php?dok=$1 [L]
-RewriteRule ^dokumente/urkunden/befoerderung/(\d+)$ dokumente/urkunden/befoerderung.php?dok=$1 [L]
-RewriteRule ^dokumente/urkunden/entlassung/(\d+)$ dokumente/urkunden/entlassung.php?dok=$1 [L]
-RewriteRule ^dokumente/zertifikate/ausbildung/(\d+)$ dokumente/zertifikate/ausbildung.php?dok=$1 [L]
-RewriteRule ^dokumente/zertifikate/lehrgang/(\d+)$ dokumente/zertifikate/lehrgang.php?dok=$1 [L]
-RewriteRule ^dokumente/zertifikate/fachlehrgang/(\d+)$ dokumente/zertifikate/fachlehrgang.php?dok=$1 [L]
 # RewriteRule ^antraege/antrag(\d+)$ antraege/t-view.php?antrag=$1 [L]
 # RewriteRule ^enotf/divi(\d+)$ enotf/view.php?id=$1 [L]
 # RewriteRule ^users/user(\d+)$ users/edit.php?id=$1 [L]
