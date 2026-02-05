@@ -4,7 +4,7 @@ if (getenv('GITHUB_ACTIONS') === 'true' || getenv('CI') === 'true') {
     exit(0);
 }
 
-function findProjectRoot()
+function findProjectRoot(): string
 {
     $currentDir = __DIR__;
     $workingDir = getcwd();
@@ -122,7 +122,7 @@ try {
     exit(1);
 }
 
-function ensureMigrationsTable(PDO $pdo)
+function ensureMigrationsTable(PDO $pdo): void
 {
     $sql = "CREATE TABLE IF NOT EXISTS intra_migrations (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -141,7 +141,7 @@ function migrationHasRun(PDO $pdo, string $migrationName): bool
     return $stmt->fetchColumn() > 0;
 }
 
-function markMigrationAsRun(PDO $pdo, string $migrationName)
+function markMigrationAsRun(PDO $pdo, string $migrationName): void
 {
     $stmt = $pdo->prepare("INSERT IGNORE INTO intra_migrations (migration) VALUES (?)");
     $stmt->execute([$migrationName]);
@@ -206,7 +206,7 @@ function isTransactionActive(PDO $pdo): bool
     return $pdo->inTransaction();
 }
 
-function throwTableCreationError(PDO $pdo, string $missingTableInfo)
+function throwTableCreationError(PDO $pdo, string $missingTableInfo): never
 {
     try {
         $stmt = $pdo->query("SHOW TABLES");

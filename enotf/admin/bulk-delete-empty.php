@@ -164,7 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Log the action in audit log
         $auditLogger = new AuditLogger($pdo);
         $auditLogger->log(
-            $_SESSION['userid'] ?? 0,
+            $_SESSION['userid'],
             "Bulk-Delete: {$affectedRows} leere Protokolle gelöscht",
             "Gelöschte Protokolle mit leeren Feldern ({$selectedFieldsLabel}), Zeitraum: {$timeLabel}",
             'eNOTF',
@@ -204,12 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'success' => true,
             'fields' => $availableFields
         ]);
-    } catch (Exception $e) {
-        error_log("Bulk delete preview error: " . $e->getMessage());
-        echo json_encode([
-            'success' => false,
-            'message' => 'Fehler beim Laden: ' . $e->getMessage()
-        ]);
+    } finally {
+        exit();
     }
-    exit();
 }

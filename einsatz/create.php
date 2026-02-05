@@ -102,10 +102,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $incidentId = (int)$pdo->lastInsertId();
 
             // Automatically add the logged-in vehicle
-            if (isset($_SESSION['einsatz_vehicle_id'])) {
-                $stmt = $pdo->prepare("INSERT INTO intra_fire_incident_vehicles (incident_id, vehicle_id, from_other_org, created_by) VALUES (?,?,0,?)");
-                $stmt->execute([$incidentId, $_SESSION['einsatz_vehicle_id'], $_SESSION['userid'] ?? null]);
-            }
+            $stmt = $pdo->prepare("INSERT INTO intra_fire_incident_vehicles (incident_id, vehicle_id, from_other_org, created_by) VALUES (?,?,0,?)");
+            $stmt->execute([$incidentId, $_SESSION['einsatz_vehicle_id'], $_SESSION['userid'] ?? null]);
 
             // Log the creation
             $logEntry = "Einsatz erstellt";
@@ -114,8 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $incidentId,
                 'created',
                 $logEntry,
-                $_SESSION['einsatz_vehicle_id'] ?? null,
-                $_SESSION['einsatz_operator_id'] ?? null,
+                $_SESSION['einsatz_vehicle_id'],
+                $_SESSION['einsatz_operator_id'],
                 $_SESSION['userid'] ?? null
             ]);
 

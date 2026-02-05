@@ -1501,9 +1501,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             </div>
                         </div>
                         <?php
-                        function getCurrentMedikamente($medikamenteJson)
+                        /**
+                         * @return array<int, array<string, mixed>>
+                         */
+                        function getCurrentMedikamente(?string $medikamenteJson): array
                         {
-                            if (empty($medikamenteJson) || $medikamenteJson === '0') {
+                            if (empty($medikamenteJson)) {
                                 return [];
                             }
 
@@ -1519,9 +1522,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             return [];
                         }
 
-                        function displayAllMedikamente($medikamenteJson)
+                        function displayAllMedikamente(?string $medikamenteJson): string
                         {
-                            if (!isset($medikamenteJson) || $medikamenteJson === null) {
+                            if ($medikamenteJson === null) {
                                 return '';
                             }
 
@@ -1561,7 +1564,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             return implode("\n", $displays);
                         }
 
-                        function hasAnyMedikamente($medikamenteJson)
+                        function hasAnyMedikamente(?string $medikamenteJson): bool
                         {
                             $medikamente = getCurrentMedikamente($medikamenteJson);
                             return !empty($medikamente);
@@ -1645,9 +1648,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <h5 class="print__heading">Maßnahmen</h5>
                         <h6 class="print__heading">Zugänge</h6>
                         <?php
-                        function getCurrentZugaenge($zugangJson)
+                        /**
+                         * @return array<int, array<string, mixed>>
+                         */
+                        function getCurrentZugaenge(?string $zugangJson): array
                         {
-                            if (empty($zugangJson) || $zugangJson === '0') {
+                            if (empty($zugangJson)) {
                                 return [];
                             }
 
@@ -1665,7 +1671,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             return [];
                         }
 
-                        function hasZugangAtLocation($zugaenge, $art, $ort, $seite)
+                        /**
+                         * @param array<int, array<string, mixed>> $zugaenge
+                         */
+                        function hasZugangAtLocation(array $zugaenge, string $art, string $ort, string $seite): bool
                         {
                             foreach ($zugaenge as $zugang) {
                                 if (
@@ -1679,7 +1688,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             return false;
                         }
 
-                        function addZugang($zugaenge, $newZugang)
+                        /**
+                         * @param array<int, array<string, mixed>> $zugaenge
+                         * @param array<string, mixed> $newZugang
+                         * @return array<int, array<string, mixed>>
+                         */
+                        function addZugang(array $zugaenge, array $newZugang): array
                         {
                             foreach ($zugaenge as $index => $zugang) {
                                 if (
@@ -1696,7 +1710,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             return $zugaenge;
                         }
 
-                        function removeZugang($zugaenge, $art, $ort, $seite)
+                        /**
+                         * @param array<int, array<string, mixed>> $zugaenge
+                         * @return array<int, array<string, mixed>>
+                         */
+                        function removeZugang(array $zugaenge, string $art, string $ort, string $seite): array
                         {
                             return array_values(array_filter($zugaenge, function ($zugang) use ($art, $ort, $seite) {
                                 return !($zugang['art'] === $art &&
@@ -1745,9 +1763,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             return $pretty;
                         }
 
-                        function displayAllZugaenge($zugangJson)
+                        function displayAllZugaenge(?string $zugangJson): string
                         {
-                            if (!isset($zugangJson) || $zugangJson === null) {
+                            if ($zugangJson === null) {
                                 return '';
                             }
                             if ($zugangJson === '0') {
@@ -1778,9 +1796,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             return implode('<br>', $displays);
                         }
 
-                        function displayAllZugaengeText($zugangJson)
+                        function displayAllZugaengeText(?string $zugangJson): string
                         {
-                            if (!isset($zugangJson) || $zugangJson === null) {
+                            if ($zugangJson === null) {
                                 return '';
                             }
                             if ($zugangJson === '0') {
@@ -1811,9 +1829,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             return implode("\n", $displays);
                         }
 
-                        function displayZugaengeByArt($zugangJson, $filterArt = null)
+                        function displayZugaengeByArt(?string $zugangJson, ?string $filterArt = null): string
                         {
-                            if (!isset($zugangJson) || $zugangJson === null) {
+                            if ($zugangJson === null) {
                                 return '';
                             }
                             if ($zugangJson === '0') {
@@ -1856,9 +1874,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         }
 
                         // Oder als Text-Version für Textareas:
-                        function displayZugaengeByArtText($zugangJson, $filterArt = null)
+                        function displayZugaengeByArtText(?string $zugangJson, ?string $filterArt = null): string
                         {
-                            if (!isset($zugangJson) || $zugangJson === null) {
+                            if ($zugangJson === null) {
                                 return '';
                             }
                             if ($zugangJson === '0') {
@@ -1900,7 +1918,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             return implode("\n", $displays);
                         }
 
-                        function hasAnyZugang($zugangJson)
+                        function hasAnyZugang(?string $zugangJson): bool
                         {
                             $zugaenge = getCurrentZugaenge($zugangJson);
                             return !empty($zugaenge);
@@ -2130,7 +2148,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         ];
 
                         $rettungstechnikDisplayTexts = [];
-                        if (!empty($rettungstechnik) && is_array($rettungstechnik)) {
+                        if (!empty($rettungstechnik)) {
                             foreach ($rettungstechnik as $value) {
                                 if (isset($rettungstechnikLabels[$value])) {
                                     $rettungstechnikDisplayTexts[] = $rettungstechnikLabels[$value];

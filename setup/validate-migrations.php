@@ -8,7 +8,7 @@
  * Usage: php setup/validate-migrations.php
  */
 
-function findProjectRoot()
+function findProjectRoot(): string
 {
     $currentDir = __DIR__;
     $candidates = [
@@ -40,6 +40,9 @@ function extractTableName(string $fileName): ?string
     return null;
 }
 
+/**
+ * @return array<int, string>
+ */
 function extractTablesFromSQL(string $content): array
 {
     $tables = [];
@@ -67,6 +70,9 @@ const SPECIAL_FILES = [
     'remove_lang_config_04112025.php'
 ];
 
+/**
+ * @return array<int, string>
+ */
 function getConfiguredMultiTableFiles(string $projectRoot): array
 {
     // Parse database-init.php to find files with 'tables' parameter

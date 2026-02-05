@@ -305,38 +305,6 @@ class DocumentRenderer
     }
 
     /**
-     * Rendert alte Legacy-Dokumente
-     */
-    private function renderLegacyDocument(array $doc): string
-    {
-        // Alte Logik für bestehende Dokumente
-        $type = $doc['type'];
-        $legacyFiles = [
-            0 => 'urkunden/ernennung.php',
-            1 => 'urkunden/befoerderung.php',
-            2 => 'urkunden/entlassung.php',
-            5 => 'zertifikate/ausbildung.php',
-            6 => 'zertifikate/lehrgang.php',
-            7 => 'zertifikate/fachlehrgang.php',
-            10 => 'schreiben/abmahnung.php',
-            11 => 'schreiben/dienstenthebung.php',
-            12 => 'schreiben/dienstentfernung.php',
-            13 => 'schreiben/kuendigung.php',
-        ];
-
-        if (!isset($legacyFiles[$type])) {
-            throw new \Exception("Unbekannter Dokumenttyp");
-        }
-
-        // Simuliere altes $_GET
-        $_GET['dok'] = $doc['docid'];
-
-        ob_start();
-        include __DIR__ . '/../../dokumente/' . $legacyFiles[$type];
-        return ob_get_clean();
-    }
-
-    /**
      * Lädt Aussteller-Daten
      */
     private function getIssuerData(int $discordId): array

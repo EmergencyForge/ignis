@@ -116,8 +116,14 @@ if (isset($_POST['submit_antrag'])) {
     }
 }
 
-// Funktion zum Generieren von Auto-Fill Werten
-function getAutoFillValue($auto_fill, $mitarbeiter)
+/**
+ * Funktion zum Generieren von Auto-Fill Werten
+ *
+ * @param string $auto_fill
+ * @param array<string, string> $mitarbeiter
+ * @return string
+ */
+function getAutoFillValue(string $auto_fill, array $mitarbeiter): string
 {
     switch ($auto_fill) {
         case 'fullname_dienstnr':
@@ -199,7 +205,7 @@ function getAutoFillValue($auto_fill, $mitarbeiter)
                                                     rows="5"
                                                     placeholder="<?= htmlspecialchars($feld['platzhalter'] ?? '') ?>"
                                                     <?= $feld['pflichtfeld'] ? 'required' : '' ?>
-                                                    <?= $feld['readonly'] ? 'readonly' : '' ?>><?= htmlspecialchars($auto_fill_value ?? '') ?></textarea>
+                                                    <?= $feld['readonly'] ? 'readonly' : '' ?>><?= htmlspecialchars($auto_fill_value) ?></textarea>
 
                                             <?php elseif ($feld['feldtyp'] === 'select'): ?>
                                                 <select
@@ -245,7 +251,7 @@ function getAutoFillValue($auto_fill, $mitarbeiter)
                                                     id="<?= htmlspecialchars($feld['feldname']) ?>"
                                                     name="<?= htmlspecialchars($feld['feldname']) ?>"
                                                     placeholder="<?= htmlspecialchars($feld['platzhalter'] ?? '') ?>"
-                                                    value="<?= htmlspecialchars($auto_fill_value ?? '') ?>"
+                                                    value="<?= htmlspecialchars($auto_fill_value) ?>"
                                                     <?= $feld['pflichtfeld'] ? 'required' : '' ?>
                                                     <?= $feld['readonly'] ? 'readonly' : '' ?>>
                                             <?php endif; ?>

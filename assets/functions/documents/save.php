@@ -99,7 +99,11 @@ try {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 
-function buildTemplateConfig($fields)
+/**
+ * @param array<int, array<string, mixed>> $fields
+ * @return array<string, mixed>
+ */
+function buildTemplateConfig(array $fields): array
 {
     $config = ['fields' => []];
 
@@ -117,7 +121,10 @@ function buildTemplateConfig($fields)
     return $config;
 }
 
-function createTemplateFile($templateId, $data)
+/**
+ * @param array<string, mixed> $data
+ */
+function createTemplateFile(int $templateId, array $data): bool
 {
     $templatePath = __DIR__ . '/../../../dokumente/templates/';
     if (!file_exists($templatePath)) {
@@ -139,7 +146,10 @@ function createTemplateFile($templateId, $data)
     return true; // Datei wurde neu erstellt
 }
 
-function generateTwigTemplate($data)
+/**
+ * @param array<string, mixed> $data
+ */
+function generateTwigTemplate(array $data): string
 {
     $template = <<<'TWIG'
 <!DOCTYPE html>

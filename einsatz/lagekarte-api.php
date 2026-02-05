@@ -75,7 +75,7 @@ try {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 
-function handleCreateMarker($pdo)
+function handleCreateMarker(PDO $pdo): void
 {
     $incidentId = (int)($_POST['incident_id'] ?? 0);
     $markerType = trim($_POST['marker_type'] ?? '');
@@ -211,7 +211,7 @@ function handleCreateMarker($pdo)
     ]);
 }
 
-function handleUpdateMarker($pdo)
+function handleUpdateMarker(PDO $pdo): void
 {
     $markerId = (int)($_POST['marker_id'] ?? 0);
     $posX = (float)($_POST['pos_x'] ?? -1);
@@ -265,7 +265,7 @@ function handleUpdateMarker($pdo)
     echo json_encode(['success' => true, 'message' => 'Marker-Position aktualisiert']);
 }
 
-function handleDeleteMarker($pdo)
+function handleDeleteMarker(PDO $pdo): void
 {
     $markerId = (int)($_POST['marker_id'] ?? 0);
 
@@ -333,7 +333,7 @@ function handleDeleteMarker($pdo)
     ]);
 }
 
-function handleListMarkers($pdo)
+function handleListMarkers(PDO $pdo): void
 {
     $incidentId = (int)($_GET['incident_id'] ?? 0);
 
@@ -364,7 +364,7 @@ function handleListMarkers($pdo)
     ]);
 }
 
-function handleCreateZone($pdo)
+function handleCreateZone(PDO $pdo): void
 {
     $incidentId = (int)($_POST['incident_id'] ?? 0);
     $name = trim($_POST['name'] ?? '');
@@ -520,7 +520,7 @@ function handleCreateZone($pdo)
     ]);
 }
 
-function handleDeleteZone($pdo)
+function handleDeleteZone(PDO $pdo): void
 {
     $zoneId = (int)($_POST['zone_id'] ?? 0);
 
@@ -576,7 +576,7 @@ function handleDeleteZone($pdo)
     ]);
 }
 
-function handleListZones($pdo)
+function handleListZones(PDO $pdo): void
 {
     $incidentId = (int)($_GET['incident_id'] ?? 0);
 
@@ -610,7 +610,7 @@ function handleListZones($pdo)
 /**
  * Create a location marker for an incident based on GTA coordinates
  */
-function handleCreateIncidentLocationMarker($pdo)
+function handleCreateIncidentLocationMarker(PDO $pdo): void
 {
     $incidentId = (int)($_POST['incident_id'] ?? 0);
     $gtaX = (float)($_POST['gta_x'] ?? 0);

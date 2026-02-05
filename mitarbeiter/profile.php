@@ -488,7 +488,7 @@ if (isset($_POST['new'])) {
                                 </div>
                                 <?php
                                 // Function to remove the 'edit' parameter from the URL
-                                function removeEditParamFromURL()
+                                function removeEditParamFromURL(): string
                                 {
                                     $currentURL = $_SERVER['REQUEST_URI'];
                                     $parsedURL = parse_url($currentURL);

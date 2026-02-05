@@ -21,7 +21,7 @@ while ($row = $statsStmt->fetch(PDO::FETCH_ASSOC)) {
             <div class="card-body">
                 <h5 class="card-title">Registrierte Benutzer</h5>
                 <p class="card-text display-4">
-                    <?= htmlspecialchars($statsData['users'] ?? 0) ?>
+                    <?= htmlspecialchars((string)($statsData['users'] ?? 0)) ?>
                 </p>
                 <i class="fa-solid fa-user-tie"></i>
             </div>
@@ -32,7 +32,7 @@ while ($row = $statsStmt->fetch(PDO::FETCH_ASSOC)) {
             <div class="card-body">
                 <h5 class="card-title">Angelegte Mitarbeiter</h5>
                 <p class="card-text display-4">
-                    <?= htmlspecialchars($statsData['mitarbeiter'] ?? 0) ?>
+                    <?= htmlspecialchars((string)($statsData['mitarbeiter'] ?? 0)) ?>
                 </p>
                 <i class="fa-solid fa-users"></i>
             </div>
@@ -43,7 +43,7 @@ while ($row = $statsStmt->fetch(PDO::FETCH_ASSOC)) {
             <div class="card-body">
                 <h5 class="card-title">eNOTF-Protokolle</h5>
                 <p class="card-text display-4">
-                    <?= htmlspecialchars($statsData['enotf'] ?? 0) ?>
+                    <?= htmlspecialchars((string)($statsData['enotf'] ?? 0)) ?>
                 </p>
                 <i class="fa-solid fa-house-medical-flag"></i>
             </div>
@@ -54,7 +54,7 @@ while ($row = $statsStmt->fetch(PDO::FETCH_ASSOC)) {
             <div class="card-body">
                 <h5 class="card-title">Erstellte Dokumente</h5>
                 <p class="card-text display-4">
-                    <?= htmlspecialchars($statsData['dokumente'] ?? 0) ?>
+                    <?= htmlspecialchars((string)($statsData['dokumente'] ?? 0)) ?>
                 </p>
                 <i class="fa-solid fa-folder-open"></i>
             </div>
