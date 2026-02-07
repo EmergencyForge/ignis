@@ -122,10 +122,10 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
 
                     <div class="my-3 d-flex justify-content-between align-items-center">
                         <div>
-                            <a href="?filter=all" class="btn btn-sm <?= $filter === 'all' ? 'btn-main-color' : 'btn-secondary' ?>">
+                            <a href="?filter=all" class="btn btn-sm <?= $filter === 'all' ? 'btn-soft-primary' : 'btn-outline-secondary' ?>">
                                 Alle
                             </a>
-                            <a href="?filter=unread" class="btn btn-sm <?= $filter === 'unread' ? 'btn-main-color' : 'btn-secondary' ?>">
+                            <a href="?filter=unread" class="btn btn-sm <?= $filter === 'unread' ? 'btn-soft-primary' : 'btn-outline-secondary' ?>">
                                 Ungelesen (<?= $unreadCount ?>)
                             </a>
                         </div>
@@ -209,7 +209,7 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
                                                 <div class="notification-actions ms-3">
                                                     <?php if ($notification['link']): ?>
                                                         <a href="<?= htmlspecialchars($notification['link']) ?>"
-                                                            class="btn btn-sm btn-dark me-1"
+                                                            class="btn btn-sm btn-soft-primary me-1"
                                                             title="Öffnen">
                                                             <i class="fa-solid fa-external-link-alt"></i>
                                                         </a>
@@ -218,7 +218,7 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
                                                         <form method="POST" style="display: inline;">
                                                             <input type="hidden" name="action" value="mark_read">
                                                             <input type="hidden" name="id" value="<?= $notification['id'] ?>">
-                                                            <button type="submit" class="btn btn-sm btn-dark me-1" title="Als gelesen markieren">
+                                                            <button type="submit" class="btn btn-sm btn-outline-secondary btn-icon me-1" title="Als gelesen markieren">
                                                                 <i class="fa-solid fa-check"></i>
                                                             </button>
                                                         </form>
@@ -226,7 +226,7 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
                                                     <form method="POST" style="display: inline;" onsubmit="event.preventDefault(); showConfirm('Benachrichtigung wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Benachrichtigung löschen'}).then(result => { if(result) this.submit(); });">
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="id" value="<?= $notification['id'] ?>">
-                                                        <button type="submit" class="btn btn-sm btn-dark" title="Löschen">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-icon" title="Löschen">
                                                             <i class="fa-solid fa-trash"></i>
                                                         </button>
                                                     </form>

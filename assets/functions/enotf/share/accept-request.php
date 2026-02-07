@@ -119,12 +119,13 @@ try {
                 $vehicleUpdateFields['fzg_na'] = $currentVehicle;
                 $needsVehicleUpdate = true;
             }
-            if (empty($targetProtocol['fzg_na_perso']) && $beifahrer !== null) {
-                $vehicleUpdateFields['fzg_na_perso'] = $beifahrer;
+            // fzg_na_perso = Fahrer/Notarzt, fzg_na_perso_2 = Beifahrer/Fahrzeugführer
+            if (empty($targetProtocol['fzg_na_perso']) && $fahrer !== null) {
+                $vehicleUpdateFields['fzg_na_perso'] = $fahrer;
                 $needsVehicleUpdate = true;
             }
-            if (empty($targetProtocol['fzg_na_perso_2']) && $fahrer !== null) {
-                $vehicleUpdateFields['fzg_na_perso_2'] = $fahrer;
+            if (empty($targetProtocol['fzg_na_perso_2']) && $beifahrer !== null) {
+                $vehicleUpdateFields['fzg_na_perso_2'] = $beifahrer;
                 $needsVehicleUpdate = true;
             }
             // Protokollart auf Notarzt setzen (prot_by = 1)
@@ -136,12 +137,13 @@ try {
                 $vehicleUpdateFields['fzg_transp'] = $currentVehicle;
                 $needsVehicleUpdate = true;
             }
-            if (empty($targetProtocol['fzg_transp_perso']) && $beifahrer !== null) {
-                $vehicleUpdateFields['fzg_transp_perso'] = $beifahrer;
+            // fzg_transp_perso = Fahrer/Transportführer, fzg_transp_perso_2 = Beifahrer/Fahrzeugführer
+            if (empty($targetProtocol['fzg_transp_perso']) && $fahrer !== null) {
+                $vehicleUpdateFields['fzg_transp_perso'] = $fahrer;
                 $needsVehicleUpdate = true;
             }
-            if (empty($targetProtocol['fzg_transp_perso_2']) && $fahrer !== null) {
-                $vehicleUpdateFields['fzg_transp_perso_2'] = $fahrer;
+            if (empty($targetProtocol['fzg_transp_perso_2']) && $beifahrer !== null) {
+                $vehicleUpdateFields['fzg_transp_perso_2'] = $beifahrer;
                 $needsVehicleUpdate = true;
             }
             // Protokollart auf Transportmittel setzen (prot_by = 0)

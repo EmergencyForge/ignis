@@ -57,7 +57,7 @@ $antraege = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <i class="fa-solid fa-clipboard-list me-2"></i>Antragsübersicht
                         </h1>
                         <?php if (Permissions::check(['admin'])): ?>
-                            <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-primary">
+                            <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-soft-primary">
                                 <i class="fa-solid fa-gear me-2"></i>Antragstypen verwalten
                             </a>
                         <?php endif; ?>
@@ -132,7 +132,7 @@ $antraege = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 {$adddat}
                                             </td>
                                             <td>
-                                                <a class='btn btn-main-color btn-sm' href='{$view_url}'>
+                                                <a class='btn btn-soft-primary btn-sm' href='{$view_url}'>
                                                     <i class='fa-solid fa-eye me-1'></i>Öffnen
                                                 </a>
                                             </td>

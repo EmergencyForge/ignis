@@ -90,7 +90,7 @@ $typen = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <?php endif; ?>
 
                                             <div class="mt-3">
-                                                <button class="btn btn-main-color btn-sm">
+                                                <button class="btn btn-soft-primary btn-sm">
                                                     <i class="fa-solid fa-arrow-right me-1"></i>
                                                     Antrag stellen
                                                 </button>
@@ -103,7 +103,7 @@ $typen = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php endif; ?>
 
                     <div class="mt-4">
-                        <a href="<?= BASE_PATH ?>index.php" class="btn btn-secondary">
+                        <a href="<?= BASE_PATH ?>index.php" class="btn btn-ghost">
                             <i class="fas fa-arrow-left me-2"></i>Zurück zum Dashboard
                         </a>
                     </div>

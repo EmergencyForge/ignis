@@ -118,8 +118,8 @@ function fmt_dt(?string $ts): string
 {
     if (!$ts) return '-';
     try {
-        // Assume timestamp is already in Europe/Berlin timezone from database
-        $dt = new DateTime($ts, new DateTimeZone('Europe/Berlin'));
+        $dt = new DateTime($ts, new DateTimeZone('UTC'));
+        $dt->setTimezone(new DateTimeZone('Europe/Berlin'));
         return $dt->format('d.m.Y H:i');
     } catch (Exception $e) {
         return $ts;
@@ -378,7 +378,7 @@ function fmt_elapsed(int|string $seconds): string
                     <p class="text-muted small">Das Protokoll wird zur QM-Sichtung markiert und alle Daten werden gesperrt. Diese Aktion kann nicht rückgängig gemacht werden.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                     <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="d-inline">
                         <input type="hidden" name="action" value="finalize">
                         <input type="hidden" name="incident_id" value="<?= $id ?>">
@@ -415,7 +415,7 @@ function fmt_elapsed(int|string $seconds): string
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                             <button type="submit" class="btn btn-primary">Speichern</button>
                         </div>
                     </form>

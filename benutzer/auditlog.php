@@ -72,12 +72,14 @@ $uinfo = $stmtg->fetchAll(PDO::FETCH_UNIQUE);
                                     $datetime = new DateTime($row['timestamp']);
                                     $date = $datetime->format('d.m.Y  H:i:s');
 
+                                    $username = $uinfo2['username'] ?? 'Unbekannt';
+
                                     echo "<tr>";
                                     echo "<td><span style='display:none'>" . $row['timestamp'] . "</span>" . $date . "</td>";
-                                    echo "<td class='fw-bold'>" . $row['module'] . "</td>";
-                                    echo "<td>" . $row['action'] . "</td>";
-                                    echo "<td>" . $row['details'] . "</td>";
-                                    echo "<td><a href='" . BASE_PATH . "benutzer/edit.php?id=" . $row['user'] . "'>" . $uinfo2['username'] . " (ID: " . $row['user'] . ")</a></td>";
+                                    echo "<td class='fw-bold'>" . htmlspecialchars($row['module']) . "</td>";
+                                    echo "<td style='overflow-wrap:anywhere'>" . htmlspecialchars($row['action']) . "</td>";
+                                    echo "<td style='overflow-wrap:anywhere'>" . htmlspecialchars($row['details'] ?? '') . "</td>";
+                                    echo "<td><a href='" . BASE_PATH . "benutzer/edit.php?id=" . (int)$row['user'] . "'>" . htmlspecialchars($username) . " (ID: " . (int)$row['user'] . ")</a></td>";
                                     echo "</tr>";
                                 }
                                 ?>
@@ -133,6 +135,7 @@ $uinfo = $stmtg->fetchAll(PDO::FETCH_UNIQUE);
             });
         });
     </script>
+    <?php include __DIR__ . "/../assets/components/footer.php"; ?>
 </body>
 
 </html>

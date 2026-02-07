@@ -320,7 +320,7 @@ $createDate = new DateTime($antrag['time_added'] ?? 'now');
                                         <button type="submit" name="save" class="btn btn-success">
                                             <i class="fa-solid fa-floppy-disk me-2"></i>Änderungen speichern
                                         </button>
-                                        <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="btn btn-secondary">
+                                        <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="btn btn-ghost">
                                             <i class="fa-solid fa-arrow-left me-2"></i>Zurück zur Übersicht
                                         </a>
                                     </div>

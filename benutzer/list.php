@@ -76,7 +76,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                     echo "<td><span class='badge text-bg-" . $role_color . "'>" . $role_name . "</span></td>";
                                     echo "<td><span style='display:none'>" . $row['created_at'] . "</span>" . $date . "</td>";
                                     if (Permissions::check(['admin', 'users.edit'])) {
-                                        echo "<td><a href='" . BASE_PATH . "benutzer/edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'>Bearbeiten</a>";
+                                        echo "<td><a href='" . BASE_PATH . "benutzer/edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-soft-primary'>Bearbeiten</a>";
                                         echo "</td>";
                                     } else {
                                         echo "<td></td>";

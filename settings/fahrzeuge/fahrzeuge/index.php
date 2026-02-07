@@ -86,11 +86,11 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
 
                                     switch ($row['active']) {
                                         case 0:
-                                            $vehActive = "<span class='badge text-bg-danger'>Nein</span>";
+                                            $vehActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Nein</span>";
                                             $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                         default:
-                                            $vehActive = "<span class='badge text-bg-success'>Ja</span>";
+                                            $vehActive = "<span class='badge-status status-success'><span class='status-dot'></span>Ja</span>";
                                             break;
                                     }
 
@@ -123,8 +123,8 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                                             $dataStr .= " data-{$key}='" . htmlspecialchars($val, ENT_QUOTES) . "'";
                                         }
 
-                                        $actions .= "<a title='Fahrzeug bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal'{$dataStr}><i class='fa-solid fa-pen'></i></a> ";
-                                        $actions .= "<a title='Fahrzeug kopieren' href='#' class='btn btn-sm btn-success copy-btn'{$dataStr}><i class='fa-solid fa-copy'></i></a>";
+                                        $actions .= "<a title='Fahrzeug bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal'{$dataStr}><i class='fa-solid fa-pen'></i></a> ";
+                                        $actions .= "<a title='Fahrzeug kopieren' href='#' class='btn btn-sm btn-soft-success btn-icon copy-btn'{$dataStr}><i class='fa-solid fa-copy'></i></a>";
                                     }
 
                                     echo "<tr>";
@@ -206,11 +206,11 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-fahrzeug-btn">Löschen</button>
+                            <button type="button" class="btn btn-ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-primary">Speichern</button>
+                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -284,7 +284,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                             <button type="submit" class="btn btn-success">Erstellen</button>
                         </div>
                     </form>

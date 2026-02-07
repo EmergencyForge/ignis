@@ -174,7 +174,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                         <i class="fa-solid fa-shield-halved me-1"></i>
                         Diese Nachricht stammt von EmergencyForge
                     </small>
-                    <button type="button" class="btn btn-primary" id="efDismissAllBtn">
+                    <button type="button" class="btn btn-soft-primary" id="efDismissAllBtn">
                         <i class="fa-solid fa-check me-1"></i> Verstanden
                     </button>
                 </div>

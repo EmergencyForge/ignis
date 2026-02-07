@@ -328,23 +328,23 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <?php if ($daten['prot_by'] === 0) : ?>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Fahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_transp_perso_2'] ?>" readonly>
+                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_transp_perso'] ?>" readonly>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Beifahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_transp_perso'] ?>" readonly>
+                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_transp_perso_2'] ?>" readonly>
                                     </div>
                                 </div>
                             <?php else : ?>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Fahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_na_perso_2'] ?>" readonly>
+                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_na_perso'] ?>" readonly>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Beifahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_na_perso'] ?>" readonly>
+                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_na_perso_2'] ?>" readonly>
                                     </div>
                                 </div>
                             <?php endif; ?>

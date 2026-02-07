@@ -267,11 +267,11 @@ $createDate = new DateTime($antrag['time_added'] ?? 'now');
                                     <i class="fa-solid fa-screwdriver-wrench me-2"></i>Aktionen
                                 </h6>
                                 <div class="d-grid gap-2">
-                                    <a href="<?= BASE_PATH ?>index.php" class="btn btn-secondary">
+                                    <a href="<?= BASE_PATH ?>index.php" class="btn btn-ghost">
                                         <i class="fas fa-arrow-left me-2"></i>Zurück zum Dashboard
                                     </a>
                                     <?php if (Permissions::check(['admin', 'application.edit'])): ?>
-                                        <a href="<?= BASE_PATH ?>antrag/admin/view.php?antrag=<?= $caseid ?>" class="btn btn-main-color">
+                                        <a href="<?= BASE_PATH ?>antrag/admin/view.php?antrag=<?= $caseid ?>" class="btn btn-soft-primary">
                                             <i class="fas fa-edit me-2"></i>Bearbeiten
                                         </a>
                                     <?php endif; ?>

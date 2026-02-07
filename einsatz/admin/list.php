@@ -46,13 +46,12 @@ try {
     <div class="container my-4">
         <div class="d-flex justify-content-between align-items-center">
             <h1>Einsatzprotokolle (QM)</h1>
-            <div>
-                <?php if ($showArchived): ?>
-                    <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Aktive Einsätze</a>
-                <?php else: ?>
-                    <a href="<?= BASE_PATH ?>einsatz/admin/list.php?show_archived=1" class="btn btn-secondary"><i class="fa-solid fa-archive"></i> Archiv</a>
-                    <a href="<?= BASE_PATH ?>einsatz/create.php" class="btn btn-success"><i class="fa-solid fa-plus"></i> Neu</a>
-                <?php endif; ?>
+            <div class="d-flex align-items-center gap-3">
+                <div class="btn-toolbar-group">
+                    <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="btn <?= !$showArchived ? 'active' : '' ?>">Aktiv</a>
+                    <a href="<?= BASE_PATH ?>einsatz/admin/list.php?show_archived=1" class="btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
+                </div>
+                <a href="<?= BASE_PATH ?>einsatz/create.php" class="btn btn-success"><i class="fa-solid fa-plus"></i> Neu</a>
             </div>
         </div>
         <?php App\Helpers\Flash::render(); ?>
@@ -81,31 +80,35 @@ try {
                     <?php foreach ($incidents as $i): ?>
                         <?php
                         if (!$i['finalized']) {
-                            $badge = 'bg-secondary';
+                            $statusClass = 'status-muted';
                             $statusText = 'Unfertig';
                         } else {
-                            $badge = 'bg-danger';
+                            $statusClass = 'status-danger';
                             $statusText = 'Ungesichtet';
                             if ($i['status'] === 'gesichtet') {
-                                $badge = 'bg-success';
+                                $statusClass = 'status-success';
                                 $statusText = 'Gesichtet';
                             }
                         }
                         ?>
                         <tr>
                             <td><?= htmlspecialchars($i['incident_number'] ?? '-') ?></td>
-                            <td><?= htmlspecialchars($i['started_at']) ?></td>
+                            <td><?php
+                                $startDt = new DateTime($i['started_at'], new DateTimeZone('UTC'));
+                                $startDt->setTimezone(new DateTimeZone('Europe/Berlin'));
+                                echo htmlspecialchars($startDt->format('d.m.Y H:i'));
+                            ?></td>
                             <td><?= htmlspecialchars($i['location']) ?></td>
                             <td><?= htmlspecialchars($i['keyword']) ?></td>
                             <td><?= htmlspecialchars($i['leader_name'] ?? '-') ?></td>
-                            <td><span class="badge <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span></td>
+                            <td><span class="badge-status <?= $statusClass ?>"><span class="status-dot"></span><?= htmlspecialchars($statusText) ?></span></td>
                             <td>
-                                <a class="btn btn-sm btn-primary" href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int)$i['id'] ?>">Öffnen</a>
+                                <a class="btn btn-sm btn-soft-primary" href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int)$i['id'] ?>">Öffnen</a>
                                 <?php if ($showArchived): ?>
                                     <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="d-inline">
                                         <input type="hidden" name="action" value="unarchive_incident">
                                         <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
-                                        <button type="submit" class="btn btn-sm btn-success" title="Wiederherstellen">
+                                        <button type="submit" class="btn btn-sm btn-success btn-icon" title="Wiederherstellen">
                                             <i class="fa-solid fa-box-open"></i>
                                         </button>
                                     </form>
@@ -113,7 +116,7 @@ try {
                                     <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="d-inline">
                                         <input type="hidden" name="action" value="archive_incident">
                                         <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
-                                        <button type="button" class="btn btn-sm btn-warning" title="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });">
+                                        <button type="button" class="btn btn-sm btn-soft-warning btn-icon" title="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });">
                                             <i class="fa-solid fa-archive"></i>
                                         </button>
                                     </form>

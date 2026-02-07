@@ -203,10 +203,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="d-flex justify-content-between mb-4">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-secondary">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost">
                         <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="btn btn-primary btn-lg">
+                    <button type="submit" class="btn btn-soft-primary btn-lg">
                         <i class="fas fa-save me-2"></i>Änderungen speichern
                     </button>
                 </div>

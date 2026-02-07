@@ -66,7 +66,7 @@ if (!Permissions::check(['admin', 'dashboard.manage'])) {
                                         <h2><?= $row['title'] ?></h2>
                                         <div class="btn-group" role="group">
                                             <button type="button"
-                                                class="btn btn-sm btn-primary me-2 edit-category-btn"
+                                                class="btn btn-sm btn-soft-primary btn-icon me-2 edit-category-btn"
                                                 data-id="<?= $row['id'] ?>"
                                                 data-title="<?= htmlspecialchars($row['title']) ?>"
                                                 data-priority="<?= $row['priority'] ?>"
@@ -95,7 +95,7 @@ if (!Permissions::check(['admin', 'dashboard.manage'])) {
                                                     <li class="d-flex justify-content-between align-items-center mb-4">
                                                         <h4><i class="<?= $tile['icon'] ?>"></i> <?= $tile['title'] ?></h4>
                                                         <button type="button"
-                                                            class="btn btn-sm btn-primary edit-tile-btn"
+                                                            class="btn btn-sm btn-soft-primary btn-icon edit-tile-btn"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#editTileModal"
                                                             data-id="<?= $tile['id'] ?>"
@@ -170,11 +170,11 @@ if (!Permissions::check(['admin', 'dashboard.manage'])) {
                     </div>
 
                     <div class="modal-footer d-flex justify-content-between">
-                        <button type="button" class="btn btn-danger" id="delete-tile-btn">Löschen</button>
+                        <button type="button" class="btn btn-ghost-danger" id="delete-tile-btn">Löschen</button>
 
                         <div>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-primary">Speichern</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
                         </div>
                     </div>
                 </form>
@@ -230,7 +230,7 @@ if (!Permissions::check(['admin', 'dashboard.manage'])) {
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                         <button type="submit" class="btn btn-success">Erstellen</button>
                     </div>
                 </form>
@@ -263,10 +263,10 @@ if (!Permissions::check(['admin', 'dashboard.manage'])) {
                     </div>
 
                     <div class="modal-footer d-flex justify-content-between">
-                        <button type="button" class="btn btn-danger" id="delete-category-btn">Löschen</button>
+                        <button type="button" class="btn btn-ghost-danger" id="delete-category-btn">Löschen</button>
                         <div>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-primary">Speichern</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
                         </div>
                     </div>
                 </form>
@@ -301,7 +301,7 @@ if (!Permissions::check(['admin', 'dashboard.manage'])) {
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                         <button type="submit" class="btn btn-success">Erstellen</button>
                     </div>
                 </form>

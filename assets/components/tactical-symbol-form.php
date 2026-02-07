@@ -30,7 +30,7 @@ if (!isset($showPreview)) {
                     <span style="font-size: 48px; color: #999;">Kein Symbol</span>
                 </div>
             </div>
-            <button type="button" class="btn btn-sm btn-secondary mt-2 w-100" id="<?= $prefix ?>preview-btn">
+            <button type="button" class="btn btn-sm btn-outline-secondary mt-2 w-100" id="<?= $prefix ?>preview-btn">
                 <i class="fa-solid fa-eye me-1"></i>Vorschau aktualisieren
             </button>
         </div>

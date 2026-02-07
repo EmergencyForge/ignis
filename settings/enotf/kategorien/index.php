@@ -42,7 +42,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                         <?php if (Permissions::check('admin')) : ?>
                             <div class="d-flex gap-2">
-                                <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="btn btn-secondary">
+                                <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="btn btn-ghost">
                                     <i class="fa-solid fa-arrow-left"></i> Zurück
                                 </a>
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
@@ -74,11 +74,11 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                                     switch ($row['active']) {
                                         case 0:
-                                            $catActive = "<span class='badge text-bg-danger'>Nein</span>";
+                                            $catActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Nein</span>";
                                             $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                         default:
-                                            $catActive = "<span class='badge text-bg-success'>Ja</span>";
+                                            $catActive = "<span class='badge-status status-success'><span class='status-dot'></span>Ja</span>";
                                             break;
                                     }
 
@@ -86,7 +86,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                     $slug = htmlspecialchars($row['slug']);
 
                                     $actions = (Permissions::check('admin'))
-                                        ? "<a title='Kategorie bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editCategoryModal' data-id='{$row['id']}' data-name='{$name}' data-slug='{$slug}' data-sort-order='{$row['sort_order']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Kategorie bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editCategoryModal' data-id='{$row['id']}' data-name='{$name}' data-slug='{$slug}' data-sort-order='{$row['sort_order']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -142,11 +142,11 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-category-btn">Löschen</button>
+                            <button type="button" class="btn btn-ghost-danger" id="delete-category-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                                <button type="submit" class="btn btn-primary">Speichern</button>
+                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -188,7 +188,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                             <button type="submit" class="btn btn-success">Erstellen</button>
                         </div>
                     </form>

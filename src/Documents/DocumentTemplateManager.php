@@ -193,9 +193,23 @@ class DocumentTemplateManager
                         }
                         break;
 
-                    case 'select':
                     case 'db_dg':
+                        $stmt = $this->pdo->query("SELECT id FROM intra_mitarbeiter_dienstgrade WHERE archive = 0");
+                        $validIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                        if (!in_array($value, $validIds)) {
+                            throw new \Exception("Ungültiger Wert für '{$field['field_label']}'");
+                        }
+                        break;
+
                     case 'db_rdq':
+                        $stmt = $this->pdo->query("SELECT id FROM intra_mitarbeiter_rdquali WHERE none = 0");
+                        $validIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                        if (!in_array($value, $validIds)) {
+                            throw new \Exception("Ungültiger Wert für '{$field['field_label']}'");
+                        }
+                        break;
+
+                    case 'select':
                         if (isset($field['field_options'])) {
                             $options = array_column($field['field_options'], 'value');
                             if (!in_array($value, $options)) {

@@ -194,7 +194,7 @@ $default_sort = ($max_sort ?? 0) + 1;
                             </div>
 
                             <div class="d-flex justify-content-between">
-                                <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-secondary">
+                                <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-ghost">
                                     <i class="fa-solid fa-xmark me-2"></i>Abbrechen
                                 </a>
                                 <button type="submit" name="submit" class="btn btn-success">

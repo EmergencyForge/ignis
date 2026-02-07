@@ -198,7 +198,7 @@ $felder = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </div>
                             </div>
 
-                            <button type="submit" name="update_typ" class="btn btn-primary">
+                            <button type="submit" name="update_typ" class="btn btn-soft-primary">
                                 <i class="fa-solid fa-save me-2"></i>Speichern
                             </button>
                         </form>
@@ -267,7 +267,7 @@ $felder = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     </td>
                                                     <td class="text-end">
                                                         <a href="?id=<?= $id ?>&delete_feld=<?= $feld['id'] ?>"
-                                                            class="btn btn-danger btn-sm"
+                                                            class="btn btn-outline-danger btn-sm btn-icon"
                                                             onclick="event.preventDefault(); showConfirm('Feld wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Feld löschen'}).then(result => { if(result) window.location.href = this.href; });">
                                                             <i class="fa-solid fa-trash"></i>
                                                         </a>
@@ -277,14 +277,14 @@ $felder = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         </tbody>
                                     </table>
                                 </div>
-                                <button type="submit" name="update_felder_sortierung" class="btn btn-primary mt-2">
+                                <button type="submit" name="update_felder_sortierung" class="btn btn-soft-primary mt-2">
                                     <i class="fa-solid fa-save me-2"></i>Sortierung speichern
                                 </button>
                             </form>
                         <?php endif; ?>
                     </div>
 
-                    <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-secondary mb-5">
+                    <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-ghost mb-5">
                         <i class="fa-solid fa-arrow-left me-2"></i>Zurück zur Übersicht
                     </a>
                 </div>
@@ -391,7 +391,7 @@ $felder = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                         <button type="submit" name="add_feld" class="btn btn-success">
                             <i class="fa-solid fa-plus me-2"></i>Feld hinzufügen
                         </button>

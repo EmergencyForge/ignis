@@ -29,8 +29,8 @@
                 <div id="shareErrorMessage" class="alert alert-danger d-none"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-primary" id="confirmShareBtn" disabled>Teilen</button>
+                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-soft-primary" id="confirmShareBtn" disabled>Teilen</button>
             </div>
         </div>
     </div>
@@ -99,8 +99,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="rejectShareBtn">Ablehnen</button>
-                <button type="button" class="btn btn-primary" id="acceptShareBtn" disabled>Annehmen</button>
+                <button type="button" class="btn btn-ghost-danger" id="rejectShareBtn">Ablehnen</button>
+                <button type="button" class="btn btn-soft-primary" id="acceptShareBtn" disabled>Annehmen</button>
             </div>
         </div>
     </div>

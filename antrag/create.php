@@ -276,7 +276,7 @@ function getAutoFillValue(string $auto_fill, array $mitarbeiter): string
                                     <hr class="text-light my-4">
 
                                     <div class="d-flex justify-content-between">
-                                        <a href="<?= BASE_PATH ?>index.php" class="btn btn-secondary">
+                                        <a href="<?= BASE_PATH ?>index.php" class="btn btn-ghost">
                                             <i class="fa-solid fa-xmark me-2"></i>Abbrechen
                                         </a>
                                         <button type="submit" name="submit_antrag" class="btn btn-success">

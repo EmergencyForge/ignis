@@ -468,19 +468,19 @@ if (isset($_POST['new'])) {
                                 <div class="row">
                                     <div class="col">
                                         <?php if (!isset($_GET['edit'])) { ?>
-                                            <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNewComment" title="Notiz anlegen"><i class="fa-solid fa-sticky-note"></i></div>
+                                            <div class="btn btn-soft-primary btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalNewComment" title="Notiz anlegen"><i class="fa-solid fa-sticky-note"></i></div>
                                         <?php } ?>
                                         <?php if (!isset($_GET['edit']) && Permissions::check(['admin', 'personnel.documents.manage'])) { ?>
-                                            <div class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalDokuCreate" title="Dokument erstellen"><i class="fa-solid fa-print"></i></div>
+                                            <div class="btn btn-soft-primary btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalDokuCreate" title="Dokument erstellen"><i class="fa-solid fa-print"></i></div>
                                         <?php } ?>
                                         <?php if (!isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])) { ?>
-                                            <a href="?id=<?= $_GET['id'] . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') ?>&edit" class="btn btn-dark btn-sm" id="personal-edit" title="Profil bearbeiten"><i class="fa-solid fa-edit"></i></a>
-                                            <div class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalFDQuali" title="Fachdienste bearbeiten"><i class="fa-solid fa-graduation-cap"></i></div>
+                                            <a href="?id=<?= $_GET['id'] . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') ?>&edit" class="btn btn-soft-primary btn-sm btn-icon" id="personal-edit" title="Profil bearbeiten"><i class="fa-solid fa-edit"></i></a>
+                                            <div class="btn btn-soft-primary btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalFDQuali" title="Fachdienste bearbeiten"><i class="fa-solid fa-graduation-cap"></i></div>
                                         <?php } elseif (isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])) { ?>
-                                            <a href="#" class="btn btn-success btn-sm" id="personal-save" onclick="document.getElementById('profil').submit()"><i class="fa-solid fa-save"></i></a>
-                                            <a href="<?php echo removeEditParamFromURL(); ?>" class="btn btn-dark btn-sm"><i class="fa-solid fa-arrow-left"></i></a>
+                                            <a href="#" class="btn btn-soft-success btn-sm btn-icon" id="personal-save" onclick="document.getElementById('profil').submit()"><i class="fa-solid fa-save"></i></a>
+                                            <a href="<?php echo removeEditParamFromURL(); ?>" class="btn btn-ghost btn-sm btn-icon"><i class="fa-solid fa-arrow-left"></i></a>
                                             <?php if (Permissions::check(['admin', 'personnel.delete'])) { ?>
-                                                <div class="btn btn-danger btn-sm" id="personal-delete" data-bs-toggle="modal" data-bs-target="#modalPersoDelete"><i class="fa-solid fa-trash"></i></div>
+                                                <div class="btn btn-outline-danger btn-sm btn-icon" id="personal-delete" data-bs-toggle="modal" data-bs-target="#modalPersoDelete"><i class="fa-solid fa-trash"></i></div>
                                         <?php }
                                         } ?>
                                     </div>

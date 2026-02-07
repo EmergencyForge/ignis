@@ -83,7 +83,7 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <p class="text-muted mb-0">Verwalten Sie die Zugangscodes für das Verfügbarkeits-Portal</p>
                     </div>
 
-                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="btn btn-sm btn-secondary mb-3">
+                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="btn btn-sm btn-ghost mb-3">
                         <i class="fa-solid fa-arrow-left"></i> Zurück zur POI-Verwaltung
                     </a>
 
@@ -128,7 +128,7 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-primary generate-code-btn"
+                                            <button class="btn btn-sm btn-soft-primary generate-code-btn"
                                                     data-id="<?= $hospital['id'] ?>"
                                                     data-name="<?= htmlspecialchars($hospital['name']) ?>">
                                                 <i class="fa-solid fa-key"></i>
@@ -174,7 +174,7 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <label for="new-code" class="form-label">Zugangscode</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" name="new_code" id="new-code" required readonly>
-                                <button type="button" class="btn btn-secondary" id="regenerate-btn">
+                                <button type="button" class="btn btn-outline-secondary" id="regenerate-btn">
                                     <i class="fa-solid fa-rotate"></i> Neu generieren
                                 </button>
                             </div>
@@ -189,8 +189,8 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="btn btn-soft-primary">
                             <i class="fa-solid fa-floppy-disk"></i> Speichern
                         </button>
                     </div>

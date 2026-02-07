@@ -147,6 +147,7 @@ if (isset($_SESSION['fahrername'])) {
     }
 
     // Bei Rettungsdienst-Protokoll (prot_by = 0): Transportmittel-Personal
+    // fzg_transp_perso = Fahrer, fzg_transp_perso_2 = Beifahrer
     if ($daten['prot_by'] == 0) {
         if (empty($daten['fzg_transp_perso'])) {
             $daten['fzg_transp_perso'] = $fahrerName;
@@ -156,6 +157,7 @@ if (isset($_SESSION['fahrername'])) {
         }
     }
     // Bei Notarzt-Protokoll (prot_by = 1): Notarzt-Personal
+    // fzg_na_perso = Fahrer, fzg_na_perso_2 = Beifahrer
     elseif ($daten['prot_by'] == 1) {
         if (empty($daten['fzg_na_perso'])) {
             $daten['fzg_na_perso'] = $fahrerName;

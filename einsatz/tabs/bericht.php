@@ -242,7 +242,7 @@
                                         <i class="fa-solid fa-edit me-1"></i>Protokoll fortführen
                                     </a>
                                 <?php endif; ?>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                             </div>
                         </div>
                     </div>

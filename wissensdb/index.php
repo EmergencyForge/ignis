@@ -300,7 +300,7 @@ $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </div>
                             <?php endif; ?>
                             <div class="col-md-2">
-                                <button type="submit" class="btn btn-primary w-100">
+                                <button type="submit" class="btn btn-soft-primary w-100">
                                     <i class="fa-solid fa-search"></i> Filtern
                                 </button>
                             </div>

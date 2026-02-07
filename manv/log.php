@@ -55,7 +55,7 @@ $logEntries = $manvLog->getByLage((int)$lageId, 200);
                     <p class="text-muted">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-secondary">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost">
                         <i class="fas fa-arrow-left me-2"></i>Zurück
                     </a>
                 </div>

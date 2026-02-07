@@ -71,16 +71,16 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
 
                                     switch ($row['none']) {
                                         case 0:
-                                            $dgActive = "<span class='badge text-bg-success'>Nein</span>";
+                                            $dgActive = "<span class='badge-status status-success'><span class='status-dot'></span>Nein</span>";
                                             break;
                                         default:
-                                            $dgActive = "<span class='badge text-bg-danger'>Ja</span>";
+                                            $dgActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Ja</span>";
                                             $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                     }
 
                                     $actions = (Permissions::check('admin'))
-                                        ? "<a title='Qualifikation bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-shortname='{$row['shortname']}' data-name='{$row['name']}' data-name_m='{$row['name_m']}' data-name_w='{$row['name_w']}' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Qualifikation bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-shortname='{$row['shortname']}' data-name='{$row['name']}' data-name_m='{$row['name_m']}' data-name_w='{$row['name_w']}' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='fa-solid fa-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -146,11 +146,11 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-dienstgrad-btn">Löschen</button>
+                            <button type="button" class="btn btn-ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-primary">Speichern</button>
+                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -208,7 +208,7 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                             <button type="submit" class="btn btn-success">Erstellen</button>
                         </div>
                     </form>

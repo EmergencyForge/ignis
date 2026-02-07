@@ -53,9 +53,9 @@ $rdginfo = $stmtr->fetchAll(PDO::FETCH_UNIQUE);
                         <div class="col">
                             <div class="d-flex justify-content-end">
                                 <?php if (isset($_GET['archiv'])) { ?>
-                                    <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="btn btn-success">Aktive Mitarbeiter</a>
+                                    <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="btn btn-outline-success">Aktive Mitarbeiter</a>
                                 <?php } else { ?>
-                                    <a href="<?= BASE_PATH ?>mitarbeiter/list.php?archiv" class="btn btn-danger">Archiv</a>
+                                    <a href="<?= BASE_PATH ?>mitarbeiter/list.php?archiv" class="btn btn-outline-secondary">Archiv</a>
                                 <?php } ?>
                             </div>
                         </div>
@@ -127,7 +127,7 @@ $rdginfo = $stmtr->fetchAll(PDO::FETCH_UNIQUE);
                                         echo " <span class='badge text-bg-warning' style='color:var(--black)'>" . $rdqualtext . "</span></td>";
                                     }
                                     echo "<td><span style='display:none'>" . $row['einstdatum'] . "</span>" . $einstellungsdatum . "</td>";
-                                    echo "<td><a href='" . BASE_PATH . "mitarbeiter/profile.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'><i class='fa-solid fa-eye'></i> Ansehen</a></td>";
+                                    echo "<td><a href='" . BASE_PATH . "mitarbeiter/profile.php?id=" . $row['id'] . "' class='btn btn-sm btn-soft-primary'><i class='fa-solid fa-eye'></i> Ansehen</a></td>";
                                     echo "</tr>";
                                 }
                                 ?>

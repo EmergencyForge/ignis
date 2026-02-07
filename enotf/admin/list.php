@@ -39,15 +39,14 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                 <div class="col mb-5">
                     <hr class="text-light my-3">
                     <h1 class="mb-5">Protokollübersicht</h1>
-                    <div class="my-3">
-                        <?php if (!isset($_GET['view']) or $_GET['view'] != 1) { ?>
-                            <a href="?view=1" class="btn btn-secondary btn-sm">Bearbeitete ausblenden</a>
-                        <?php } else { ?>
-                            <a href="?view=0" class="btn btn-secondary btn-sm">Bearbeitete einblenden</a>
-                        <?php } ?>
+                    <div class="my-3 d-flex align-items-center gap-3">
+                        <div class="btn-toolbar-group">
+                            <a href="?view=0" class="btn <?= (!isset($_GET['view']) || $_GET['view'] != 1) ? 'active' : '' ?>">Alle</a>
+                            <a href="?view=1" class="btn <?= (isset($_GET['view']) && $_GET['view'] == 1) ? 'active' : '' ?>">Unbearbeitet</a>
+                        </div>
 
                         <?php if (Permissions::check(['admin', 'edivi.edit'])) { ?>
-                            <button onclick="showBulkDeleteModal()" class="btn btn-warning btn-sm">
+                            <button onclick="showBulkDeleteModal()" class="btn btn-outline-danger btn-sm">
                                 <i class="fa-solid fa-trash-can"></i> Leere Protokolle löschen
                             </button>
                         <?php } ?>
@@ -122,7 +121,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                     $patname = $row['patname'] ?? "Unbekannt";
 
                                     $actions = (Permissions::check(['admin', 'edivi.edit']))
-                                        ? "<button title='QM-Aktionen öffnen' onclick='openQMActions({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-dark'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-dark'><i class='fa-solid fa-clock-rotate-left'></i></button> <a title='Protokoll löschen' href='" . BASE_PATH . "enotf/admin/delete.php?id={$row['id']}' class='btn btn-sm btn-danger'><i class='fa-solid fa-trash'></i></a>"
+                                        ? "<button title='QM-Aktionen öffnen' onclick='openQMActions({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-soft-primary'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-outline-secondary'><i class='fa-solid fa-clock-rotate-left'></i></button> <a title='Protokoll löschen' href='" . BASE_PATH . "enotf/admin/delete.php?id={$row['id']}' class='btn btn-sm btn-outline-danger btn-icon'><i class='fa-solid fa-trash'></i></a>"
                                         : "";
                                     echo "<tr>";
                                     echo "<td >" . $row['enr'] . "</td>";
@@ -130,7 +129,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                     echo "<td><span style='display:none'>" . $row['sendezeit'] . "</span>" . $date . "</td>";
                                     echo "<td>" . $row['pfname'] . " " . $freigabe_status . $hu_status . "</td>";
                                     echo "<td>" . $status . "</td>";
-                                    echo "<td><a title='Protokoll ansehen' href='" . BASE_PATH . "enotf/protokoll/index.php?enr={$row['enr']}' class='btn btn-sm btn-primary' target='_blank'><i class='fa-solid fa-eye'></i></a> {$actions}</td>";
+                                    echo "<td><a title='Protokoll ansehen' href='" . BASE_PATH . "enotf/protokoll/index.php?enr={$row['enr']}' class='btn btn-sm btn-soft-primary' target='_blank'><i class='fa-solid fa-eye'></i></a> {$actions}</td>";
                                     echo "</tr>";
                                 }
                                 ?>
@@ -196,8 +195,8 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                     </div>
                 </div>
                 <div class="modal-footer" id="bulkDeleteFooter" style="display: none;">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-danger" onclick="executeBulkDelete()">
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-ghost-danger" onclick="executeBulkDelete()">
                         <i class="fa-solid fa-trash"></i> Jetzt löschen
                     </button>
                 </div>
@@ -406,7 +405,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                     <label class="form-label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
-                                <button type="button" class="btn btn-primary" onclick="previewBulkDelete()">
+                                <button type="button" class="btn btn-soft-primary" onclick="previewBulkDelete()">
                                     <i class="fa-solid fa-search"></i> Vorschau anzeigen
                                 </button>
                             </form>
@@ -467,7 +466,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                     <strong>Keine leeren Protokolle gefunden</strong>
                                     <p class="mb-0 mt-2">Es wurden keine Protokolle gefunden, die alle ausgewählten Kriterien erfüllen.</p>
                                 </div>
-                                <button type="button" class="btn btn-secondary" onclick="showBulkDeleteModal()">
+                                <button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()">
                                     <i class="fa-solid fa-arrow-left"></i> Zurück
                                 </button>
                             `;
@@ -523,7 +522,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                 <i class="fa-solid fa-exclamation-circle"></i> 
                                 Fehler: ${data.message || 'Unbekannter Fehler'}
                             </div>
-                            <button type="button" class="btn btn-secondary" onclick="showBulkDeleteModal()">
+                            <button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()">
                                 <i class="fa-solid fa-arrow-left"></i> Zurück
                             </button>
                         `;
@@ -535,7 +534,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             <i class="fa-solid fa-exclamation-circle"></i> 
                             Fehler: ${error.message}
                         </div>
-                        <button type="button" class="btn btn-secondary" onclick="showBulkDeleteModal()">
+                        <button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()">
                             <i class="fa-solid fa-arrow-left"></i> Zurück
                         </button>
                     `;

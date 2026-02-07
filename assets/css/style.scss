@@ -6,7 +6,7 @@
   --main-color-rgb: 209, 0, 0;
   --fw-red: #d10000;
   --gray: #f0f2f4;
-  --darkgray: #4a4a4a;
+  --darkgray: #3d3a44;
   --tag-color: #a4a6a7;
   --alt-white: #f9fafb;
 
@@ -38,9 +38,25 @@
   --box-shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.15);
   --box-shadow-strong: 0 6px 20px rgba(0, 0, 0, 0.2);
 
-  --body-bg: #191919;
-  --body-bg-darker: #121212;
-  --body-bg-lighter: #333;
+  --body-bg: #2b2930;
+  --body-bg-darker: #232128;
+  --body-bg-lighter: #35323c;
+
+  --sidebar-width: 260px;
+  --sidebar-bg: #232128;
+  --sidebar-hover-bg: #2d2c31;
+  --sidebar-avatar-bg: #2e2b35;
+  --sidebar-icon-color: #c8c6cf;
+  --sidebar-link-color: #fff;
+  --sidebar-role-text: #c8c6cf;
+
+  --text-title: #fff;
+  --text-normal: #bbbac1;
+  --text-dimmed: #818189;
+
+  --input-bg: #25242c;
+  --input-placeholder: #818189;
+  --input-text: #fff;
 }
 
 [data-bs-theme="dark"] {
@@ -65,6 +81,47 @@ body {
 
 body:not(#antrag) {
   --bs-body-bg: var(--body-bg) !important;
+}
+
+body:not(#alogin):not(#dashboard) {
+  padding-left: var(--sidebar-width);
+  color: var(--text-normal);
+}
+
+body:not(#alogin):not(#dashboard) h1,
+body:not(#alogin):not(#dashboard) h2,
+body:not(#alogin):not(#dashboard) h3,
+body:not(#alogin):not(#dashboard) h4,
+body:not(#alogin):not(#dashboard) h5,
+body:not(#alogin):not(#dashboard) h6 {
+  color: var(--text-title);
+}
+
+body:not(#alogin):not(#dashboard) .text-muted {
+  color: var(--text-dimmed) !important;
+}
+
+body:not(#alogin):not(#dashboard) {
+  --bs-body-font-weight: 400;
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 500;
+  }
+
+  th, dt, label, .form-label, .card-title {
+    font-weight: 500;
+  }
+
+  strong, b, .fw-bold {
+    font-weight: 500;
+  }
+}
+
+@media (max-width: 991.98px) {
+  body:not(#alogin):not(#dashboard) {
+    padding-left: 0;
+    padding-top: 56px;
+  }
 }
 
 .bg-secondary-color {
@@ -312,13 +369,12 @@ body {
 
 .footer {
   margin-top: auto;
-  background-color: var(--body-bg-darker) !important;
-  //border-top: 2px solid var(--main-color);
+  background-color: var(--body-bg) !important;
+  border-top: 1px solid var(--darkgray);
 }
 
 [data-bs-theme="dark"] .footer {
-  background-color: var(--body-bg-darker) !important;
-  //order-top: 2px solid var(--main-color);
+  background-color: var(--body-bg) !important;
 }
 
 .footer a {

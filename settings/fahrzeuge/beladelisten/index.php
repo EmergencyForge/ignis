@@ -108,7 +108,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                                     <i class="fa-solid fa-plus"></i> Neue Kategorie
                                 </button>
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTileModal">
+                                <button class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#addTileModal">
                                     <i class="fa-solid fa-plus"></i> Neuer Gegenstand
                                 </button>
                             <?php endif; ?>
@@ -193,10 +193,10 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             echo "<div>";
                             echo "<span class='badge bg-secondary me-2'>{$category['tile_count']} Positionen</span>";
                             if (Permissions::check(['admin', 'vehicles.manage'])) :
-                                echo "<button class='btn btn-sm btn-primary me-1 edit-category-btn' data-id='{$category['id']}' data-title='" . htmlspecialchars($category['title']) . "' data-type='{$category['type']}' data-priority='{$category['priority']}' data-veh_type='" . htmlspecialchars($category['veh_type'] ?? '') . "'>";
+                                echo "<button class='btn btn-sm btn-soft-primary btn-icon me-1 edit-category-btn' data-id='{$category['id']}' data-title='" . htmlspecialchars($category['title']) . "' data-type='{$category['type']}' data-priority='{$category['priority']}' data-veh_type='" . htmlspecialchars($category['veh_type'] ?? '') . "'>";
                                 echo "<i class='fa-solid fa-edit'></i>";
                                 echo "</button>";
-                                echo "<button class='btn btn-sm btn-danger delete-category-btn' data-id='{$category['id']}'>";
+                                echo "<button class='btn btn-sm btn-outline-danger btn-icon delete-category-btn' data-id='{$category['id']}'>";
                                 echo "<i class='fa-solid fa-trash'></i>";
                                 echo "</button>";
                             endif;
@@ -276,7 +276,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                             <button type="submit" class="btn btn-success">Speichern</button>
                         </div>
                     </form>
@@ -317,8 +317,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-primary">Speichern</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -369,8 +369,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-primary">Speichern</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -422,8 +422,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-primary">Speichern</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>

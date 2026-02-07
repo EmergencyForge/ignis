@@ -156,7 +156,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     </p>
                 </div>
                 <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                     <button type="button" class="btn btn-primary" id="copyCodeButton" disabled>Code kopieren</button>
                 </div>
             </div>

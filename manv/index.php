@@ -68,7 +68,7 @@ $lagen = $manvLage->getAll($statusFilter);
             <div class="row mb-5">
                 <div class="col-md-8">
                     <?php if ($statusFilter !== 'aktiv'): ?>
-                        <a href="<?= BASE_PATH ?>manv/index.php" class="btn btn-secondary mb-3">
+                        <a href="<?= BASE_PATH ?>manv/index.php" class="btn btn-ghost mb-3">
                             <i class="fas fa-arrow-left me-2"></i>Zurück zu aktiven Lagen
                         </a>
                     <?php endif; ?>
@@ -84,7 +84,7 @@ $lagen = $manvLage->getAll($statusFilter);
                     <p class="text-muted">Massenanfall von Verletzten - Lagenverwaltung</p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <a href="<?= BASE_PATH ?>manv/create.php" class="btn btn-primary btn-lg">
+                    <a href="<?= BASE_PATH ?>manv/create.php" class="btn btn-soft-primary btn-lg">
                         <i class="fas fa-plus me-2"></i>Neue MANV-Lage anlegen
                     </a>
                 </div>
@@ -195,10 +195,10 @@ $lagen = $manvLage->getAll($statusFilter);
                             <h5 class="mb-0">Archivierte Lagen</h5>
                         </div>
                         <div class="card-body">
-                            <a href="<?= BASE_PATH ?>manv/index.php?status=abgeschlossen" class="btn btn-secondary">
+                            <a href="<?= BASE_PATH ?>manv/index.php?status=abgeschlossen" class="btn btn-outline-secondary">
                                 <i class="fas fa-archive me-2"></i>Abgeschlossene Lagen anzeigen
                             </a>
-                            <a href="<?= BASE_PATH ?>manv/index.php?status=archiviert" class="btn btn-secondary ms-2">
+                            <a href="<?= BASE_PATH ?>manv/index.php?status=archiviert" class="btn btn-outline-secondary ms-2">
                                 <i class="fas fa-archive me-2"></i>Archivierte Lagen anzeigen
                             </a>
                         </div>

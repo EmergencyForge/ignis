@@ -162,9 +162,18 @@ $configByCategory = $configManager->getConfigByCategory();
                     </div>
                     <?php Flash::render(); ?>
 
+                    <div class="mb-4">
+                        <div class="btn-toolbar-group" id="categoryFilter">
+                            <button class="btn active" data-category="">Alle</button>
+                            <?php foreach ($configByCategory as $category => $configs): ?>
+                                <button class="btn" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+
                     <form method="post" id="configForm">
                         <?php foreach ($configByCategory as $category => $configs): ?>
-                            <div class="config-section">
+                            <div class="config-section" data-config-category="<?= htmlspecialchars($category) ?>">
                                 <div class="card mb-4">
                                     <div class="card-header">
                                         <h5 class="mb-0"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></h5>
@@ -186,7 +195,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                             readonly>
                                                         <button
                                                             type="button"
-                                                            class="btn btn-outline-secondary"
+                                                            class="btn btn-outline-secondary btn-icon"
                                                             onclick="toggleApiKeyVisibility()"
                                                             title="API-Schlüssel anzeigen/verbergen"
                                                             id="toggleApiKeyBtn">
@@ -194,14 +203,14 @@ $configByCategory = $configManager->getConfigByCategory();
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            class="btn btn-outline-primary"
+                                                            class="btn btn-outline-primary btn-icon"
                                                             onclick="copyApiKey()"
                                                             title="API-Schlüssel kopieren">
                                                             <i class="fa-solid fa-copy"></i>
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            class="btn btn-warning"
+                                                            class="btn btn-soft-warning btn-icon"
                                                             onclick="regenerateApiKey(event)"
                                                             title="API-Schlüssel neu generieren">
                                                             <i class="fa-solid fa-rotate"></i>
@@ -315,7 +324,7 @@ $configByCategory = $configManager->getConfigByCategory();
                         <?php endforeach; ?>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
-                            <button type="submit" name="save_config" class="btn btn-primary btn-lg">
+                            <button type="submit" name="save_config" class="btn btn-soft-primary btn-lg">
                                 <i class="fa-solid fa-save"></i> Änderungen speichern
                             </button>
                         </div>
@@ -327,6 +336,19 @@ $configByCategory = $configManager->getConfigByCategory();
     <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
     <script>
+        // Category segmented control filtering
+        document.querySelectorAll('#categoryFilter .btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#categoryFilter .btn').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+                var cat = this.dataset.category;
+                document.querySelectorAll('.config-section').forEach(function(section) {
+                    if (!cat) { section.style.display = ''; return; }
+                    section.style.display = (section.dataset.configCategory === cat) ? '' : 'none';
+                });
+            });
+        });
+
         function updateColorValue(key, value) {
             document.getElementById(key).value = value;
             document.getElementById(key + '_picker').value = value;

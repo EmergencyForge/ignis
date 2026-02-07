@@ -587,7 +587,7 @@ $formData = $entry ?? [
 
                         <!-- Submit Buttons -->
                         <div class="d-flex justify-content-between">
-                            <a href="<?= BASE_PATH ?>wissensdb/index.php" class="btn btn-secondary">
+                            <a href="<?= BASE_PATH ?>wissensdb/index.php" class="btn btn-ghost">
                                 <i class="fa-solid fa-arrow-left"></i> Abbrechen
                             </a>
                             <button type="submit" class="btn btn-success">

@@ -65,7 +65,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                 foreach ($result as $row) {
 
                                     $actions = (Permissions::check('full_admin'))
-                                        ? "<a title='Rolle bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editRoleModal' data-id='{$row['id']}' data-name='{$row['name']}' data-priority='{$row['priority']}' data-color='{$row['color']}' data-perms='{$row['permissions']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Rolle bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editRoleModal' data-id='{$row['id']}' data-name='{$row['name']}' data-priority='{$row['priority']}' data-color='{$row['color']}' data-perms='{$row['permissions']}'><i class='fa-solid fa-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -192,10 +192,10 @@ if (!Permissions::check(['admin', 'users.view'])) {
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-role-btn">Löschen</button>
+                            <button type="button" class="btn btn-ghost-danger" id="delete-role-btn">Löschen</button>
                             <div>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-primary">Speichern</button>
+                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -276,7 +276,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                             <button type="submit" class="btn btn-success">Erstellen</button>
                         </div>
 

@@ -39,7 +39,8 @@ function fmt_dt(?string $ts): string
 {
     if (!$ts) return '-';
     try {
-        $dt = new DateTime($ts, new DateTimeZone('Europe/Berlin'));
+        $dt = new DateTime($ts, new DateTimeZone('UTC'));
+        $dt->setTimezone(new DateTimeZone('Europe/Berlin'));
         return $dt->format('d.m.Y H:i');
     } catch (Exception $e) {
         return $ts;
@@ -265,7 +266,7 @@ if ($asu_id) {
                     <!-- Content will be injected by JavaScript -->
                 </div>
                 <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                 </div>
             </div>
         </div>

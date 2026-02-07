@@ -157,30 +157,26 @@ $typen = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     </td>
                                                     <td class="text-center">
                                                         <?php if ($typ['aktiv']): ?>
-                                                            <span class="badge bg-success">
-                                                                <i class="fa-solid fa-check"></i> Aktiv
-                                                            </span>
+                                                            <span class="badge-status status-success"><span class="status-dot"></span>Aktiv</span>
                                                         <?php else: ?>
-                                                            <span class="badge bg-secondary">
-                                                                <i class="fa-solid fa-times"></i> Inaktiv
-                                                            </span>
+                                                            <span class="badge-status status-muted"><span class="status-dot"></span>Inaktiv</span>
                                                         <?php endif; ?>
                                                     </td>
                                                     <td class="text-end">
                                                         <div class="btn-group btn-group-sm">
                                                             <a href="<?= BASE_PATH ?>settings/antrag/edit.php?id=<?= $typ['id'] ?>"
-                                                                class="btn btn-primary mx-1"
+                                                                class="btn btn-soft-primary btn-icon mx-1"
                                                                 title="Bearbeiten">
                                                                 <i class="fa-solid fa-edit"></i>
                                                             </a>
                                                             <a href="?toggle=<?= $typ['id'] ?>"
-                                                                class="btn btn-warning mx-1"
+                                                                class="btn btn-soft-warning btn-icon mx-1"
                                                                 title="<?= $typ['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>">
                                                                 <i class="fa-solid fa-power-off"></i>
                                                             </a>
                                                             <?php if ($typ['anzahl_antraege'] == 0): ?>
                                                                 <a href="?delete=<?= $typ['id'] ?>"
-                                                                    class="btn btn-danger mx-1"
+                                                                    class="btn btn-outline-danger mx-1"
                                                                     title="Löschen"
                                                                     onclick="event.preventDefault(); showConfirm('Antragstyp wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Antragstyp löschen'}).then(result => { if(result) window.location.href = this.href; });">
                                                                     <i class="fa-solid fa-trash"></i>
@@ -195,7 +191,7 @@ $typen = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </div>
 
                                 <div class="mt-3">
-                                    <button type="submit" name="update_sortierung" class="btn btn-primary">
+                                    <button type="submit" name="update_sortierung" class="btn btn-soft-primary">
                                         <i class="fa-solid fa-save me-2"></i>Sortierung speichern
                                     </button>
                                 </div>
@@ -204,7 +200,7 @@ $typen = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?php endif; ?>
 
                     <div class="mt-4">
-                        <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="btn btn-secondary">
+                        <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="btn btn-ghost">
                             <i class="fa-solid fa-arrow-left me-2"></i>Zurück zur Antragsübersicht
                         </a>
                     </div>
