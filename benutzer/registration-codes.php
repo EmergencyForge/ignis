@@ -82,7 +82,6 @@ $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="row mb-3">
                         <div class="col">
                             <h1>Registrierungscodes verwalten</h1>

@@ -98,12 +98,10 @@ $default_sort = ($max_sort ?? 0) + 1;
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto">
-                    <hr class="text-light my-3">
                     <h1><i class="fa-solid fa-circle-plus me-2"></i>Neuen Antragstyp erstellen</h1>
 
                     <?php Flash::render(); ?>
 
-                    <hr class="text-light my-3">
 
                     <div class="intra__tile p-4">
                         <form method="post" action="">

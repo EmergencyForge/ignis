@@ -35,7 +35,6 @@ if (!Permissions::check(['admin', 'users.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <h1 class="mb-5">Benutzerübersicht</h1>
                     <?php
                     Flash::render();

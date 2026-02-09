@@ -100,7 +100,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h2>Beladelisten</h2>
                         <div>

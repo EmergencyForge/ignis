@@ -155,7 +155,6 @@ $createDate = new DateTime($antrag['time_added'] ?? 'now');
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <hr class="text-light my-3">
                     <h1>
                         <i class="<?= htmlspecialchars($antrag['typ_icon']) ?> me-2"></i>
                         <?= htmlspecialchars($antrag['typ_name']) ?> bearbeiten #<?= htmlspecialchars($caseid) ?>
@@ -163,7 +162,6 @@ $createDate = new DateTime($antrag['time_added'] ?? 'now');
 
                     <?php Flash::render(); ?>
 
-                    <hr class="text-light my-3">
 
                     <form method="post">
                         <div class="row">

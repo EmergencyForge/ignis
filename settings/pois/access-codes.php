@@ -77,7 +77,6 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="mb-3">
                         <h1 class="mb-0">Krankenhaus-Zugangscodes</h1>
                         <p class="text-muted mb-0">Verwalten Sie die Zugangscodes für das Verfügbarkeits-Portal</p>

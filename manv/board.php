@@ -133,7 +133,6 @@ foreach ($patienten as $patient) {
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container">
             <!-- Header -->
-            <hr class="text-light my-3">
             <div class="row mb-5">
                 <div class="col-md-8">
                     <h1><?= htmlspecialchars($lage['einsatznummer']) ?></h1>

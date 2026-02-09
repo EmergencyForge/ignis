@@ -48,7 +48,6 @@ $logEntries = $manvLog->getByLage((int)$lageId, 200);
     <?php include __DIR__ . '/../assets/components/navbar.php'; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container">
-            <hr class="text-light my-3">
             <div class="row mb-5">
                 <div class="col-md-8">
                     <h1>Aktionslog</h1>

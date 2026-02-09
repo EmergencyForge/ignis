@@ -91,7 +91,6 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span> <?php if (Permissions::check(['admin', 'users.delete'])) : ?><button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash"></i> Benutzer löschen</button><?php endif; ?></h1>
                     <?php
                     Flash::render();

@@ -60,25 +60,13 @@ class Flash
     private static function getAlertIcon(string $type): string
     {
         $icons = [
-            'success' => 'fa-solid fa-check-circle',
-            'danger' => 'fa-solid fa-exclamation-triangle',
-            'warning' => 'fa-solid fa-exclamation-triangle',
-            'info' => 'fa-solid fa-info-circle',
+            'success' => 'fa-solid fa-circle-check',
+            'danger' => 'fa-solid fa-circle-xmark',
+            'warning' => 'fa-solid fa-triangle-exclamation',
+            'info' => 'fa-solid fa-circle-info',
         ];
 
-        return $icons[$type] ?? 'fa-solid fa-info-circle';
-    }
-
-    private static function getAlertColors(string $type): array
-    {
-        $colors = [
-            'success' => ['bg' => '#0f2419', 'border' => '#22c55e', 'text' => '#bbf7d0'],
-            'danger' => ['bg' => '#2d1212', 'border' => '#ef4444', 'text' => '#fecaca'],
-            'warning' => ['bg' => '#2d1f0a', 'border' => '#f59e0b', 'text' => '#fde68a'],
-            'info' => ['bg' => '#0f1729', 'border' => '#3b82f6', 'text' => '#bfdbfe'],
-        ];
-
-        return $colors[$type] ?? $colors['info'];
+        return $icons[$type] ?? 'fa-solid fa-circle-info';
     }
 
     public static function render(): void
@@ -88,17 +76,12 @@ class Flash
         if (!$alert) return;
 
         $icon = self::getAlertIcon($alert['type']);
-        $colors = self::getAlertColors($alert['type']);
+        $type = htmlspecialchars($alert['type']);
 
-        echo '<div id="flash-alert" style="background-color: ' . $colors['bg'] . '; border: 1px solid ' . $colors['border'] . '; border-radius: 8px; padding: 16px; margin: 16px 0; color: ' . $colors['text'] . '; position: relative;">';
-        echo '<button type="button" onclick="document.getElementById(\'flash-alert\').style.display=\'none\'" style="position: absolute; top: 12px; right: 12px; background: none; border: none; font-size: 20px; font-weight: 700; line-height: 1; color: ' . $colors['text'] . '; opacity: 0.6; cursor: pointer; padding: 0; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.6\'" aria-label="Close">&times;</button>';
-        echo '<div style="display: flex; align-items: flex-start; gap: 12px; padding-right: 32px;">';
-        echo '<i class="' . $icon . '" style="font-size: 20px; color: ' . $colors['border'] . '; margin-top: 2px; flex-shrink: 0;"></i>';
-        echo '<div style="flex: 1;">';
-        echo '<h4 style="margin: 0 0 8px 0; font-weight: 600; color: ' . $colors['text'] . ';">' . htmlspecialchars($alert['title']) . '</h4>';
-        echo '<div style="color: ' . $colors['text'] . ';">' . $alert['text'] . '</div>';
-        echo '</div>';
-        echo '</div>';
+        echo '<div class="alert-styled alert-' . $type . '" id="flash-alert">';
+        echo '<i class="' . $icon . '"></i>';
+        echo '<div><strong>' . htmlspecialchars($alert['title']) . '</strong> ' . $alert['text'] . '</div>';
+        echo '<button type="button" class="btn-close" onclick="document.getElementById(\'flash-alert\').style.display=\'none\'" aria-label="Close"></button>';
         echo '</div>';
     }
 

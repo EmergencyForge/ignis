@@ -113,7 +113,6 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <hr class="text-light my-3">
                     <h1>
                         Benachrichtigungen
                     </h1>
@@ -139,7 +138,6 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
                         <?php endif; ?>
                     </div>
 
-                    <hr class="text-light my-3">
 
                     <div class="intra__tile p-0 mb-5">
                         <?php if (empty($notifications)): ?>

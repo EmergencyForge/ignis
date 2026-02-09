@@ -45,7 +45,6 @@ $rdginfo = $stmtr->fetchAll(PDO::FETCH_UNIQUE);
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="row mb-5">
                         <div class="col">
                             <h1>Mitarbeiterübersicht</h1>

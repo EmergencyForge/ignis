@@ -159,7 +159,6 @@ function getAutoFillValue(string $auto_fill, array $mitarbeiter): string
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <hr class="text-light my-3">
                     <h1>
                         <?= htmlspecialchars($typ['name']) ?> stellen
                     </h1>
@@ -170,7 +169,6 @@ function getAutoFillValue(string $auto_fill, array $mitarbeiter): string
 
                     <?php Flash::render(); ?>
 
-                    <hr class="text-light my-3">
 
                     <div class="row">
                         <div class="col mx-auto">

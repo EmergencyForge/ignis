@@ -108,14 +108,12 @@ $createDate = new DateTime($antrag['time_added'] ?? 'now');
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center">
                         <h1>
                             <?= htmlspecialchars($antrag['typ_name']) ?> #<?= htmlspecialchars($caseid) ?>
                         </h1>
                     </div>
                     <?php Flash::render(); ?>
-                    <hr class="text-light my-3">
 
                     <div class="row">
                         <div class="col-lg-8">

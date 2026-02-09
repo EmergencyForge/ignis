@@ -37,7 +37,6 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <h1 class="mb-5">Protokollübersicht</h1>
                     <div class="my-3 d-flex align-items-center gap-3">
                         <div class="btn-toolbar-group">

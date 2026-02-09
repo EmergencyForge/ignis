@@ -34,7 +34,6 @@ if (!Permissions::check(['admin', 'users.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">Rollenverwaltung</h1>
                         <?php if (Permissions::check('full_admin')) : ?>

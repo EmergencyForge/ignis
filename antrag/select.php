@@ -63,7 +63,6 @@ $typen = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <hr class="text-light my-3">
                     <h1>Neuen Antrag stellen</h1>
                     <!-- <p class="text-muted">Wählen Sie den gewünschten Antragstyp aus</p> -->
 

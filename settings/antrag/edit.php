@@ -158,12 +158,10 @@ $felder = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <hr class="text-light my-3">
                     <h1><?= htmlspecialchars($typ['name']) ?> bearbeiten</h1>
 
                     <?php Flash::render(); ?>
 
-                    <hr class="text-light my-3">
 
                     <!-- Grundeinstellungen -->
                     <div class="intra__tile p-4 mb-4">

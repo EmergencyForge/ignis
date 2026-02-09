@@ -93,7 +93,6 @@ $typen = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h1>Antragstypen verwalten</h1>
                         <a href="<?= BASE_PATH ?>settings/antrag/create.php" class="btn btn-success">
@@ -103,7 +102,6 @@ $typen = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <?php Flash::render(); ?>
 
-                    <hr class="text-light my-3">
 
                     <?php if (empty($typen)): ?>
                         <div class="alert alert-info">

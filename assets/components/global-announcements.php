@@ -84,7 +84,16 @@ foreach ($announcements as $ann) {
     if ($ann['type'] === 'critical') $hasCritical = true;
     if ($ann['type'] === 'warning') $hasWarning = true;
 }
-$headerClass = $hasCritical ? 'bg-danger' : ($hasWarning ? 'bg-warning text-dark' : 'bg-primary');
+$headerAccent = $hasCritical ? 'critical' : ($hasWarning ? 'warning' : 'update');
+
+// Icon-Box-Farben für Announcement-Typen
+$iconBoxColors = [
+    'critical' => ['bg' => 'rgba(176, 58, 58, 0.12)', 'color' => '#d46b6b'],
+    'warning'  => ['bg' => 'rgba(196, 154, 42, 0.12)', 'color' => '#ddb84a'],
+    'update'   => ['bg' => 'rgba(74, 111, 165, 0.12)', 'color' => '#7ba3d4'],
+    'info'     => ['bg' => 'rgba(42, 127, 143, 0.12)', 'color' => '#5bb8cc'],
+    'success'  => ['bg' => 'rgba(58, 125, 68, 0.12)', 'color' => '#6abf76'],
+];
 
 // Announcement IDs für "Verstanden" Button sammeln
 $allAnnouncementIds = array_column($announcements, 'announcement_id');
@@ -93,18 +102,18 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 <!-- EmergencyForge Announcements Modal -->
 <div class="modal fade" id="efAnnouncementsModal" tabindex="-1" aria-labelledby="efAnnouncementsModalLabel" aria-hidden="true" data-auto-show="<?= $alreadyShown ? 'false' : 'true' ?>">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
-            <!-- Header mit EmergencyForge Branding -->
-            <div class="modal-header <?= $headerClass ?> text-white border-0 py-3">
-                <div class="d-flex align-items-center">
-                    <div class="ef-logo-container me-3">
-                        <i class="fa-solid fa-fire-flame-curved fa-2x"></i>
+        <div class="modal-content ef-modal-content">
+            <!-- Header -->
+            <div class="ef-modal-header <?= $headerAccent ?>">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="ef-logo-container <?= $headerAccent ?>">
+                        <i class="fa-solid fa-fire-flame-curved"></i>
                     </div>
                     <div>
-                        <h5 class="modal-title mb-0 fw-bold" id="efAnnouncementsModalLabel">
+                        <h5 class="modal-title mb-0" id="efAnnouncementsModalLabel">
                             Offizielle Ankündigung
                         </h5>
-                        <small class="opacity-75">von EmergencyForge</small>
+                        <small class="ef-subtitle">von EmergencyForge</small>
                     </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -115,16 +124,14 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                 <?php foreach ($announcements as $index => $ann):
                     $config = $typeConfig[$ann['type']] ?? $typeConfig['info'];
                     $isAdminOnly = !empty($ann['admin_only']);
+                    $iconColors = $iconBoxColors[$ann['type']] ?? $iconBoxColors['info'];
                 ?>
-                    <div class="announcement-item p-4 <?= $index > 0 ? 'border-top' : '' ?>"
+                    <div class="announcement-item <?= $index > 0 ? 'border-top' : '' ?>"
                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
-                        <div class="d-flex">
+                        <div class="d-flex gap-3">
                             <!-- Icon -->
-                            <div class="announcement-icon me-3">
-                                <div class="rounded-circle bg-<?= $config['badge'] ?> bg-opacity-10 p-3 d-flex align-items-center justify-content-center"
-                                    style="width: 56px; height: 56px;">
-                                    <i class="fa-solid <?= $config['icon'] ?> fa-xl text-<?= $config['badge'] ?>"></i>
-                                </div>
+                            <div class="ef-announcement-icon" style="background: <?= $iconColors['bg'] ?>;">
+                                <i class="fa-solid <?= $config['icon'] ?>" style="color: <?= $iconColors['color'] ?>;"></i>
                             </div>
 
                             <!-- Content -->
@@ -132,31 +139,31 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                                 <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
                                     <span class="badge bg-<?= $config['badge'] ?>"><?= $config['label'] ?></span>
                                     <?php if ($isAdminOnly): ?>
-                                        <span class="badge bg-dark">
+                                        <span class="badge ef-badge-admin">
                                             <i class="fa-solid fa-shield-halved me-1"></i>Nur für Admins
                                         </span>
                                     <?php endif; ?>
                                     <?php if (!empty($ann['valid_until'])): ?>
-                                        <small class="text-muted">
+                                        <small class="ef-meta-text">
                                             <i class="fa-regular fa-clock me-1"></i>
                                             Gültig bis <?= date('d.m.Y', strtotime($ann['valid_until'])) ?>
                                         </small>
                                     <?php endif; ?>
                                 </div>
 
-                                <h6 class="fw-bold mb-2"><?= htmlspecialchars($ann['title']) ?></h6>
+                                <h6 class="ef-announcement-title"><?= htmlspecialchars($ann['title']) ?></h6>
 
                                 <?php if (!empty($ann['message'])): ?>
-                                    <div class="text-muted mb-3 announcement-message"><?= $parsedown->text($ann['message']) ?></div>
+                                    <div class="announcement-message"><?= $parsedown->text($ann['message']) ?></div>
                                 <?php endif; ?>
 
-                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <div class="d-flex align-items-center gap-2 flex-wrap mt-3">
                                     <?php if (!empty($ann['link'])): ?>
                                         <a href="<?= htmlspecialchars($ann['link']) ?>" class="btn btn-<?= $config['badge'] ?> btn-sm" target="_blank">
                                             <i class="fa-solid fa-external-link me-1"></i> Mehr erfahren
                                         </a>
                                     <?php endif; ?>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm dismiss-single-btn"
+                                    <button type="button" class="btn btn-ghost btn-sm dismiss-single-btn"
                                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
                                         <i class="fa-solid fa-eye-slash me-1"></i> Ausblenden
                                     </button>
@@ -168,22 +175,20 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
             </div>
 
             <!-- Footer -->
-            <div class="modal-footer border-0 bg-light py-3">
-                <div class="d-flex align-items-center justify-content-between w-100">
-                    <small class="text-muted">
-                        <i class="fa-solid fa-shield-halved me-1"></i>
-                        Diese Nachricht stammt von EmergencyForge
-                    </small>
-                    <button type="button" class="btn btn-soft-primary" id="efDismissAllBtn">
-                        <i class="fa-solid fa-check me-1"></i> Verstanden
-                    </button>
-                </div>
+            <div class="ef-modal-footer">
+                <small class="ef-meta-text">
+                    <i class="fa-solid fa-shield-halved me-1"></i>
+                    Diese Nachricht stammt von EmergencyForge
+                </small>
+                <button type="button" class="btn btn-soft-primary btn-sm" id="efDismissAllBtn">
+                    <i class="fa-solid fa-check me-1"></i> Verstanden
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Trigger Button für manuelles Öffnen (wird angezeigt wenn Announcements vorhanden) -->
+<!-- Trigger Button für manuelles Öffnen -->
 <div id="efAnnouncementsTrigger" class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1040; display: none;">
     <button type="button" class="btn btn-<?= $hasCritical ? 'danger' : ($hasWarning ? 'warning' : 'primary') ?> rounded-pill shadow-lg position-relative"
         data-bs-toggle="modal" data-bs-target="#efAnnouncementsModal">
@@ -197,35 +202,115 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
 <style>
     /* EmergencyForge Announcements Modal Styles */
-    #efAnnouncementsModal .modal-content {
-        background: var(--bs-body-bg, #1a1a1a);
+    #efAnnouncementsModal .ef-modal-content {
+        background: #29282f;
+        border: 1px solid var(--darkgray, #3d3a44);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
 
-    #efAnnouncementsModal .announcement-item {
-        transition: background-color 0.2s ease;
+    #efAnnouncementsModal .ef-modal-header {
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--darkgray, #3d3a44);
+        background: rgba(255, 255, 255, 0.02);
     }
 
-    #efAnnouncementsModal .announcement-item:hover {
-        background-color: rgba(255, 255, 255, 0.03);
+    #efAnnouncementsModal .ef-modal-header .modal-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #fff;
+    }
+
+    #efAnnouncementsModal .ef-subtitle {
+        font-size: 0.72rem;
+        color: var(--text-dimmed, #818189);
     }
 
     #efAnnouncementsModal .ef-logo-container {
-        width: 48px;
-        height: 48px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+        flex-shrink: 0;
+        font-size: 1.1rem;
     }
 
-    #efAnnouncementsModal .modal-footer {
-        background: rgba(0, 0, 0, 0.2) !important;
+    #efAnnouncementsModal .ef-logo-container.critical {
+        background: rgba(176, 58, 58, 0.15);
+        color: #d46b6b;
+    }
+
+    #efAnnouncementsModal .ef-logo-container.warning {
+        background: rgba(196, 154, 42, 0.15);
+        color: #ddb84a;
+    }
+
+    #efAnnouncementsModal .ef-logo-container.update {
+        background: rgba(74, 111, 165, 0.15);
+        color: #7ba3d4;
+    }
+
+    #efAnnouncementsModal .announcement-item {
+        padding: 1rem 1.25rem;
+        transition: background-color 0.15s ease;
+    }
+
+    #efAnnouncementsModal .announcement-item.border-top {
+        border-top: 1px solid rgba(255, 255, 255, 0.03) !important;
+    }
+
+    #efAnnouncementsModal .announcement-item:hover {
+        background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    #efAnnouncementsModal .ef-announcement-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1rem;
+    }
+
+    #efAnnouncementsModal .ef-announcement-title {
+        font-weight: 500;
+        font-size: 0.88rem;
+        color: #fff;
+        margin-bottom: 0.25rem;
+    }
+
+    #efAnnouncementsModal .ef-badge-admin {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text-dimmed, #818189);
+    }
+
+    #efAnnouncementsModal .ef-meta-text {
+        font-size: 0.72rem;
+        color: var(--text-dimmed, #818189);
+    }
+
+    #efAnnouncementsModal .ef-modal-footer {
+        padding: 0.65rem 1.25rem;
+        border-top: 1px solid var(--darkgray, #3d3a44);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.02);
     }
 
     /* Markdown Formatierung */
     #efAnnouncementsModal .announcement-message {
         line-height: 1.6;
+        font-size: 0.8rem;
+        color: var(--text-dimmed, #818189);
     }
 
     #efAnnouncementsModal .announcement-message p {
@@ -238,24 +323,20 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
     #efAnnouncementsModal .announcement-message strong {
         font-weight: 600;
-        color: var(--bs-body-color);
-    }
-
-    #efAnnouncementsModal .announcement-message em {
-        font-style: italic;
+        color: var(--text-normal, #bbbac1);
     }
 
     #efAnnouncementsModal .announcement-message code {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
         padding: 0.2em 0.4em;
-        border-radius: 3px;
+        border-radius: 4px;
         font-family: 'Courier New', monospace;
         font-size: 0.9em;
     }
 
     #efAnnouncementsModal .announcement-message pre {
-        background: rgba(0, 0, 0, 0.3);
-        padding: 1rem;
+        background: var(--body-bg-darker, #232128);
+        padding: 0.75rem;
         border-radius: 6px;
         overflow-x: auto;
         margin-bottom: 0.75rem;
@@ -264,7 +345,6 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
     #efAnnouncementsModal .announcement-message pre code {
         background: none;
         padding: 0;
-        border-radius: 0;
     }
 
     #efAnnouncementsModal .announcement-message ul,
@@ -278,16 +358,16 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
     }
 
     #efAnnouncementsModal .announcement-message a {
-        color: var(--bs-link-color);
+        color: #7ba3d4;
         text-decoration: underline;
     }
 
     #efAnnouncementsModal .announcement-message a:hover {
-        color: var(--bs-link-hover-color);
+        color: #92b5e0;
     }
 
     #efAnnouncementsModal .announcement-message blockquote {
-        border-left: 3px solid rgba(255, 255, 255, 0.3);
+        border-left: 3px solid var(--darkgray, #3d3a44);
         padding-left: 1rem;
         margin-left: 0;
         margin-bottom: 0.75rem;
@@ -303,37 +383,19 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
     #efAnnouncementsModal .announcement-message h6 {
         margin-top: 1rem;
         margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: var(--bs-body-color);
+        font-weight: 500;
+        color: #fff;
     }
 
-    #efAnnouncementsModal .announcement-message h1 {
-        font-size: 1.5rem;
-    }
-
-    #efAnnouncementsModal .announcement-message h2 {
-        font-size: 1.3rem;
-    }
-
-    #efAnnouncementsModal .announcement-message h3 {
-        font-size: 1.1rem;
-    }
-
-    #efAnnouncementsModal .announcement-message h4 {
-        font-size: 1rem;
-    }
-
-    #efAnnouncementsModal .announcement-message h5 {
-        font-size: 0.9rem;
-    }
-
-    #efAnnouncementsModal .announcement-message h6 {
-        font-size: 0.85rem;
-    }
+    #efAnnouncementsModal .announcement-message h1 { font-size: 1.3rem; }
+    #efAnnouncementsModal .announcement-message h2 { font-size: 1.15rem; }
+    #efAnnouncementsModal .announcement-message h3 { font-size: 1rem; }
+    #efAnnouncementsModal .announcement-message h4 { font-size: 0.9rem; }
 
     #efAnnouncementsModal .announcement-message hr {
         margin: 1rem 0;
-        opacity: 0.3;
+        border-color: var(--darkgray, #3d3a44);
+        opacity: 0.5;
     }
 
     /* Pulse Animation für Trigger Button bei kritischen Meldungen */
@@ -342,17 +404,9 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
     }
 
     @keyframes ef-pulse {
-        0% {
-            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-        }
-
-        70% {
-            box-shadow: 0 0 0 15px rgba(220, 53, 69, 0);
-        }
-
-        100% {
-            box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
-        }
+        0% { box-shadow: 0 0 0 0 rgba(176, 58, 58, 0.6); }
+        70% { box-shadow: 0 0 0 12px rgba(176, 58, 58, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(176, 58, 58, 0); }
     }
 </style>
 

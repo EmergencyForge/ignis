@@ -50,7 +50,6 @@ $antraege = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
 
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <h1 class="mb-0">
@@ -65,7 +64,6 @@ $antraege = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                     <?php Flash::render(); ?>
 
-                    <hr class="text-light my-3">
 
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-antrag">

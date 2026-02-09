@@ -437,7 +437,6 @@ if (isset($_POST['new'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <h1 class="mb-3">Mitarbeiterprofil</h1>
                     <?php
                     require __DIR__ . '/../assets/config/database.php';

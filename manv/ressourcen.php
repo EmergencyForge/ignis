@@ -170,7 +170,6 @@ $material = $manvRessource->getByLage((int)$lageId, 'material');
     <?php include __DIR__ . '/../assets/components/navbar.php'; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container">
-            <hr class="text-light my-3">
             <div class="row mb-5 align-items-end">
                 <div class="col-lg-8 col-12">
                     <h1>Fahrzeugverwaltung</h1>
@@ -240,7 +239,7 @@ $material = $manvRessource->getByLage((int)$lageId, 'material');
                                                     data-bs-target="#editModal">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= $fzg['id'] ?>" class="btn btn-sm btn-outline-danger btn-icon" onclick="return confirm('Wirklich löschen?')">
+                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= $fzg['id'] ?>" class="btn btn-sm btn-outline-danger btn-icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </td>

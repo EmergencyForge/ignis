@@ -149,7 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include __DIR__ . '/../assets/components/navbar.php'; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container">
-            <hr class="text-light my-3">
             <div class="row mb-5">
                 <div class="col-12">
                     <h1>Neuer Patient</h1>

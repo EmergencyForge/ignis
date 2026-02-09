@@ -237,7 +237,6 @@ $skColor = $skColors[$patient['sichtungskategorie']] ?? 'secondary';
                 </div>
             <?php endif; ?>
 
-            <hr class="text-light my-3">
             <!-- Patient Header -->
             <div class="patient-header mb-5">
                 <div class="row align-items-center">
