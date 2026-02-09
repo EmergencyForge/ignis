@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../../assets/config/config.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
@@ -130,27 +130,27 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                             <input type="hidden" name="id" id="dienstgrad-id">
 
                             <div class="mb-3">
-                                <label for="dienstgrad-name" class="form-label">Bezeichnung <small style="opacity:.5">(Allgemein)</small></label>
+                                <label for="dienstgrad-name" class="form-label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
                                 <input type="text" class="form-control" name="name" id="dienstgrad-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-name_m" class="form-label">Bezeichnung <small style="opacity:.5">(Männlich)</small></label>
+                                <label for="dienstgrad-name_m" class="form-label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
                                 <input type="text" class="form-control" name="name_m" id="dienstgrad-name_m" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-name_w" class="form-label">Bezeichnung <small style="opacity:.5">(Weiblich)</small></label>
+                                <label for="dienstgrad-name_w" class="form-label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
                                 <input type="text" class="form-control" name="name_w" id="dienstgrad-name_w" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-abkuerzung" class="form-label">Abkürzung <small style="opacity:.5">(für eNOTF, optional)</small></label>
+                                <label for="dienstgrad-abkuerzung" class="form-label">Abkürzung <small class="form-hint">(für eNOTF, optional)</small></label>
                                 <input type="text" class="form-control" name="abkuerzung" id="dienstgrad-abkuerzung" placeholder="z.B. RettSan, NotSan i.A.">
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="dienstgrad-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="dienstgrad-priority" required>
                             </div>
 
@@ -197,27 +197,27 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name" class="form-label">Bezeichnung <small style="opacity:.5">(Allgemein)</small></label>
+                                <label for="new-dienstgrad-name" class="form-label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
                                 <input type="text" class="form-control" name="name" id="new-dienstgrad-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name_m" class="form-label">Bezeichnung <small style="opacity:.5">(Männlich)</small></label>
+                                <label for="new-dienstgrad-name_m" class="form-label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
                                 <input type="text" class="form-control" name="name_m" id="new-dienstgrad-name_m" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name_w" class="form-label">Bezeichnung <small style="opacity:.5">(Weiblich)</small></label>
+                                <label for="new-dienstgrad-name_w" class="form-label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
                                 <input type="text" class="form-control" name="name_w" id="new-dienstgrad-name_w" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-abkuerzung" class="form-label">Abkürzung <small style="opacity:.5">(für eNOTF, optional)</small></label>
+                                <label for="new-dienstgrad-abkuerzung" class="form-label">Abkürzung <small class="form-hint">(für eNOTF, optional)</small></label>
                                 <input type="text" class="form-control" name="abkuerzung" id="new-dienstgrad-abkuerzung" placeholder="z.B. RettSan, NotSan i.A.">
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-priority" class="form-label">Priorität <small style="opacity:.5">(je niedriger, desto höher)</small></label>
+                                <label for="new-dienstgrad-priority" class="form-label">Priorität <small class="form-hint">(je niedriger, desto höher)</small></label>
                                 <input type="number" class="form-control" name="priority" id="new-dienstgrad-priority" value="0" required>
                             </div>
 

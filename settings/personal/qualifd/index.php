@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../../assets/config/config.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
@@ -110,7 +110,7 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                             <input type="hidden" name="id" id="dienstgrad-id">
 
                             <div class="mb-3">
-                                <label for="dienstgrad-sgnr" class="form-label">Sachgebiet <small style="opacity:.5">(z.B. 111, 112, 224 etc.)</small></label>
+                                <label for="dienstgrad-sgnr" class="form-label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
                                 <input type="number" class="form-control" name="sgnr" id="dienstgrad-sgnr" required>
                             </div>
 
@@ -157,7 +157,7 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label for="dienstgrad-sgnr" class="form-label">Sachgebiet <small style="opacity:.5">(z.B. 111, 112, 224 etc.)</small></label>
+                                <label for="dienstgrad-sgnr" class="form-label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
                                 <input type="number" class="form-control" name="sgnr" id="dienstgrad-sgnr" required>
                             </div>
 

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../../assets/config/config.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
@@ -35,14 +35,22 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Fahrzeugverwaltung</h1>
-
-                        <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
-                                <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
-                            </button>
-                        <?php endif; ?>
+                    <nav class="admin-breadcrumb">
+                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span>Einstellungen</span>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="current">Fahrzeuge</span>
+                    </nav>
+                    <div class="page-header mb-4">
+                        <h1>Fahrzeugverwaltung</h1>
+                        <div class="header-actions">
+                            <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
+                                    <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <?php
                     Flash::render();
@@ -158,7 +166,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                             <input type="hidden" name="id" id="fahrzeug-id">
 
                             <div class="mb-3">
-                                <label for="fahrzeug-name" class="form-label">Bezeichnung <small style="opacity:.5">(z.B. Funkrufname)</small></label>
+                                <label for="fahrzeug-name" class="form-label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
                                 <input type="text" class="form-control" name="name" id="fahrzeug-name" required>
                             </div>
 
@@ -168,17 +176,17 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-identifier" class="form-label">Identifier <small style="opacity:.5">(eindeutige interne Kennung)</small></label>
+                                <label for="fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
                                 <input type="text" class="form-control" name="identifier" id="fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-veh_typ" class="form-label">Typ <small style="opacity:.5">(RTW,NEF,RTH etc.)</small></label>
+                                <label for="fahrzeug-veh_typ" class="form-label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
                                 <input type="text" class="form-control" name="veh_type" id="fahrzeug-veh_typ" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="fahrzeug-priority" required>
                             </div>
 
@@ -236,7 +244,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-name" class="form-label">Bezeichnung <small style="opacity:.5">(z.B. Funkrufname)</small></label>
+                                <label for="new-fahrzeug-name" class="form-label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
                                 <input type="text" class="form-control" name="name" id="new-fahrzeug-name" required>
                             </div>
 
@@ -246,17 +254,17 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-identifier" class="form-label">Identifier <small style="opacity:.5">(eindeutige interne Kennung)</small></label>
+                                <label for="new-fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
                                 <input type="text" class="form-control" name="identifier" id="new-fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-veh_typ" class="form-label">Typ <small style="opacity:.5">(RTW,NEF,RTH etc.)</small></label>
+                                <label for="new-fahrzeug-veh_typ" class="form-label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
                                 <input type="text" class="form-control" name="veh_type" id="new-fahrzeug-veh_typ" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="new-fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="new-fahrzeug-priority" required>
                             </div>
 

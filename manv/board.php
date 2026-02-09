@@ -421,11 +421,11 @@ foreach ($patienten as $patient) {
                                 $('#transportModal').modal('hide');
                                 location.reload();
                             } else {
-                                alert('Fehler: ' + (response.message || 'Unbekannter Fehler'));
+                                showToast('Fehler: ' + (response.message || 'Unbekannter Fehler'), 'danger');
                             }
                         },
                         error: function() {
-                            alert('Fehler bei der Kommunikation mit dem Server');
+                            showToast('Fehler bei der Kommunikation mit dem Server', 'danger');
                         }
                     });
                 }

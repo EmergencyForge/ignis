@@ -434,7 +434,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
             const timePeriod = document.getElementById('timePeriod').value;
 
             if (selectedFields.length === 0) {
-                alert('Bitte wählen Sie mindestens ein Feld aus.');
+                showToast('Bitte wählen Sie mindestens ein Feld aus.', 'warning');
                 return;
             }
 
@@ -545,7 +545,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
             const originalText = deleteButton.innerHTML;
 
             if (!window.bulkDeleteSelectedFields || window.bulkDeleteSelectedFields.length === 0) {
-                alert('Keine Felder ausgewählt');
+                showToast('Keine Felder ausgewählt', 'warning');
                 return;
             }
 

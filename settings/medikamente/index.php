@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../assets/config/config.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
@@ -36,14 +36,22 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Medikamentenverwaltung</h1>
-
-                        <?php if (Permissions::check('admin')) : ?>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createMedikamentModal">
-                                <i class="fa-solid fa-plus"></i> Medikament erstellen
-                            </button>
-                        <?php endif; ?>
+                    <nav class="admin-breadcrumb">
+                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span>Einstellungen</span>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="current">Medikamente</span>
+                    </nav>
+                    <div class="page-header mb-4">
+                        <h1>Medikamentenverwaltung</h1>
+                        <div class="header-actions">
+                            <?php if (Permissions::check('admin')) : ?>
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createMedikamentModal">
+                                    <i class="fa-solid fa-plus"></i> Medikament erstellen
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <?php
                     Flash::render();
@@ -122,17 +130,17 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="medikament-herstellername" class="form-label">Herstellername <small style="opacity:.5">(optional, z.B. "ASS" für Acetylsalicylsäure)</small></label>
+                                <label for="medikament-herstellername" class="form-label">Herstellername <small class="form-hint">(optional, z.B. "ASS" für Acetylsalicylsäure)</small></label>
                                 <input type="text" class="form-control" name="herstellername" id="medikament-herstellername">
                             </div>
 
                             <div class="mb-3">
-                                <label for="medikament-dosierungen" class="form-label">Vordefinierte Dosierungen <small style="opacity:.5">(kommagetrennt, z.B. "100 mg,250 mg,500 mg")</small></label>
+                                <label for="medikament-dosierungen" class="form-label">Vordefinierte Dosierungen <small class="form-hint">(kommagetrennt, z.B. "100 mg,250 mg,500 mg")</small></label>
                                 <input type="text" class="form-control" name="dosierungen" id="medikament-dosierungen" placeholder="100 mg,250 mg,500 mg">
                             </div>
 
                             <div class="mb-3">
-                                <label for="medikament-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="medikament-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="medikament-priority" required>
                             </div>
 
@@ -179,17 +187,17 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-medikament-herstellername" class="form-label">Herstellername <small style="opacity:.5">(optional, z.B. "ASS" für Acetylsalicylsäure)</small></label>
+                                <label for="new-medikament-herstellername" class="form-label">Herstellername <small class="form-hint">(optional, z.B. "ASS" für Acetylsalicylsäure)</small></label>
                                 <input type="text" class="form-control" name="herstellername" id="new-medikament-herstellername">
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-medikament-dosierungen" class="form-label">Vordefinierte Dosierungen <small style="opacity:.5">(kommagetrennt, z.B. "100 mg,250 mg,500 mg")</small></label>
+                                <label for="new-medikament-dosierungen" class="form-label">Vordefinierte Dosierungen <small class="form-hint">(kommagetrennt, z.B. "100 mg,250 mg,500 mg")</small></label>
                                 <input type="text" class="form-control" name="dosierungen" id="new-medikament-dosierungen" placeholder="100 mg,250 mg,500 mg">
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-medikament-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="new-medikament-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="new-medikament-priority" required>
                             </div>
 

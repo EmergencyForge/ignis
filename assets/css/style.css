@@ -73,39 +73,39 @@ body:not(#antrag) {
   --bs-body-bg: var(--body-bg) !important;
 }
 
-body:not(#alogin):not(#dashboard) {
+body:has(.intra-sidebar) {
   padding-left: var(--sidebar-width);
   color: var(--text-normal);
 }
 
-body:not(#alogin):not(#dashboard) h1,
-body:not(#alogin):not(#dashboard) h2,
-body:not(#alogin):not(#dashboard) h3,
-body:not(#alogin):not(#dashboard) h4,
-body:not(#alogin):not(#dashboard) h5,
-body:not(#alogin):not(#dashboard) h6 {
+body:has(.intra-sidebar) h1,
+body:has(.intra-sidebar) h2,
+body:has(.intra-sidebar) h3,
+body:has(.intra-sidebar) h4,
+body:has(.intra-sidebar) h5,
+body:has(.intra-sidebar) h6 {
   color: var(--text-title);
 }
 
-body:not(#alogin):not(#dashboard) .text-muted {
+body:has(.intra-sidebar) .text-muted {
   color: var(--text-dimmed) !important;
 }
 
-body:not(#alogin):not(#dashboard) {
+body:has(.intra-sidebar) {
   --bs-body-font-weight: 400;
 }
-body:not(#alogin):not(#dashboard) h1, body:not(#alogin):not(#dashboard) h2, body:not(#alogin):not(#dashboard) h3, body:not(#alogin):not(#dashboard) h4, body:not(#alogin):not(#dashboard) h5, body:not(#alogin):not(#dashboard) h6 {
+body:has(.intra-sidebar) h1, body:has(.intra-sidebar) h2, body:has(.intra-sidebar) h3, body:has(.intra-sidebar) h4, body:has(.intra-sidebar) h5, body:has(.intra-sidebar) h6 {
   font-weight: 500;
 }
-body:not(#alogin):not(#dashboard) th, body:not(#alogin):not(#dashboard) dt, body:not(#alogin):not(#dashboard) label, body:not(#alogin):not(#dashboard) .form-label, body:not(#alogin):not(#dashboard) .card-title {
+body:has(.intra-sidebar) th, body:has(.intra-sidebar) dt, body:has(.intra-sidebar) label, body:has(.intra-sidebar) .form-label, body:has(.intra-sidebar) .card-title {
   font-weight: 500;
 }
-body:not(#alogin):not(#dashboard) strong, body:not(#alogin):not(#dashboard) b, body:not(#alogin):not(#dashboard) .fw-bold {
+body:has(.intra-sidebar) strong, body:has(.intra-sidebar) b, body:has(.intra-sidebar) .fw-bold {
   font-weight: 500;
 }
 
 @media (max-width: 991.98px) {
-  body:not(#alogin):not(#dashboard) {
+  body:has(.intra-sidebar) {
     padding-left: 0;
     padding-top: 56px;
   }

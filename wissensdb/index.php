@@ -257,13 +257,20 @@ $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="mb-0">Wissensdatenbank</h1>
-                        <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
-                            <a href="<?= BASE_PATH ?>wissensdb/create.php" class="btn btn-success">
-                                <i class="fa-solid fa-plus"></i> Neuer Eintrag
-                            </a>
-                        <?php endif; ?>
+                    <nav class="admin-breadcrumb">
+                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="current">Wissensdatenbank</span>
+                    </nav>
+                    <div class="page-header mb-4">
+                        <h1>Wissensdatenbank</h1>
+                        <div class="header-actions">
+                            <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
+                                <a href="<?= BASE_PATH ?>wissensdb/create.php" class="btn btn-success">
+                                    <i class="fa-solid fa-plus"></i> Neuer Eintrag
+                                </a>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
                     <?php Flash::render(); ?>

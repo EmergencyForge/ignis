@@ -260,11 +260,7 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $('.copy-code-btn').on('click', function() {
                 const code = $(this).data('code');
                 navigator.clipboard.writeText(code).then(() => {
-                    const originalIcon = $(this).find('i');
-                    originalIcon.removeClass('fa-copy').addClass('fa-check');
-                    setTimeout(() => {
-                        originalIcon.removeClass('fa-check').addClass('fa-copy');
-                    }, 2000);
+                    showToast('Code kopiert', 'success');
                 });
             });
         });

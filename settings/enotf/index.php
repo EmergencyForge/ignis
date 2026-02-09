@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../assets/config/config.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
@@ -36,19 +36,27 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Schnellzugriff-Verwaltung</h1>
-
-                        <?php if (Permissions::check('admin')) : ?>
-                            <div class="d-flex gap-2">
-                                <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index.php" class="btn btn-outline-secondary">
-                                    <i class="fa-solid fa-folder"></i> Kategorien verwalten
-                                </a>
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
-                                    <i class="fa-solid fa-plus"></i> Link erstellen
-                                </button>
-                            </div>
-                        <?php endif; ?>
+                    <nav class="admin-breadcrumb">
+                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span>Einstellungen</span>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="current">eNOTF</span>
+                    </nav>
+                    <div class="page-header mb-4">
+                        <h1>Schnellzugriff-Verwaltung</h1>
+                        <div class="header-actions">
+                            <?php if (Permissions::check('admin')) : ?>
+                                <div class="d-flex gap-2">
+                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index.php" class="btn btn-outline-secondary">
+                                        <i class="fa-solid fa-folder"></i> Kategorien verwalten
+                                    </a>
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
+                                        <i class="fa-solid fa-plus"></i> Link erstellen
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <?php
                     Flash::render();
@@ -182,7 +190,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="quicklink-sort-order" class="form-label">Sortierung <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="quicklink-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="sort_order" id="quicklink-sort-order" required>
                             </div>
 
@@ -256,7 +264,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="create-quicklink-sort-order" class="form-label">Sortierung <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="create-quicklink-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="sort_order" id="create-quicklink-sort-order" value="0" required>
                             </div>
 

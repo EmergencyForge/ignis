@@ -156,8 +156,15 @@ $configByCategory = $configManager->getConfigByCategory();
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">System-Konfiguration</h1>
+                    <nav class="admin-breadcrumb">
+                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span>Einstellungen</span>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="current">System</span>
+                    </nav>
+                    <div class="page-header mb-4">
+                        <h1>System-Konfiguration</h1>
                     </div>
                     <?php Flash::render(); ?>
 
@@ -389,16 +396,9 @@ $configByCategory = $configManager->getConfigByCategory();
             const input = document.getElementById('API_KEY');
             try {
                 await navigator.clipboard.writeText(input.value);
-                showAlert('API-Schlüssel wurde in die Zwischenablage kopiert!', {
-                    title: 'Kopiert',
-                    type: 'success',
-                    timer: 2000
-                });
+                showToast('API-Schlüssel kopiert', 'success');
             } catch (err) {
-                showAlert('Fehler beim Kopieren: ' + err, {
-                    title: 'Fehler',
-                    type: 'error'
-                });
+                showToast('Fehler beim Kopieren: ' + err, 'danger');
             }
         }
 

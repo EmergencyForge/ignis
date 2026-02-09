@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../../assets/config/config.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
@@ -124,13 +124,13 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="category-slug" class="form-label">Slug <small style="opacity:.5">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
+                                <label for="category-slug" class="form-label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
                                 <input type="text" class="form-control" name="slug" id="category-slug" pattern="[a-z0-9\-]+" required>
                                 <small class="form-text text-muted">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
 
                             <div class="mb-3">
-                                <label for="category-sort-order" class="form-label">Sortierung <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="category-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="sort_order" id="category-sort-order" required>
                             </div>
 
@@ -170,13 +170,13 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="create-category-slug" class="form-label">Slug <small style="opacity:.5">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
+                                <label for="create-category-slug" class="form-label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
                                 <input type="text" class="form-control" name="slug" id="create-category-slug" pattern="[a-z0-9\-]+" required>
                                 <small class="form-text text-muted">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
 
                             <div class="mb-3">
-                                <label for="create-category-sort-order" class="form-label">Sortierung <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="create-category-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="sort_order" id="create-category-sort-order" value="0" required>
                             </div>
 

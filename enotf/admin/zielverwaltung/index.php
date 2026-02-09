@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../../assets/config/config.php';
 require_once __DIR__ . '/../../../vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
@@ -124,18 +124,18 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-identifier" class="form-label">Identifier <small style="opacity:.5">(eindeutige interne Kennung)</small></label>
+                                <label for="fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
                                 <input type="text" class="form-control" name="identifier" id="fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="fahrzeug-priority" required>
                             </div>
 
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="transport" id="fahrzeug-transport">
-                                <label class="form-check-label" for="fahrzeug-transport">Transport? <small style="opacity:.5">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></label>
+                                <label class="form-check-label" for="fahrzeug-transport">Transport? <small class="form-hint">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></label>
                             </div>
 
                             <div class="form-check">
@@ -181,18 +181,18 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-identifier" class="form-label">Identifier <small style="opacity:.5">(eindeutige interne Kennung)</small></label>
+                                <label for="new-fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
                                 <input type="text" class="form-control" name="identifier" id="new-fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="new-fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="new-fahrzeug-priority" required>
                             </div>
 
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="transport" id="new-fahrzeug-transport">
-                                <label class="form-check-label" for="new-fahrzeug-transport">Transport? <small style="opacity:.5">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></label>
+                                <label class="form-check-label" for="new-fahrzeug-transport">Transport? <small class="form-hint">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></label>
                             </div>
 
                             <div class="form-check">

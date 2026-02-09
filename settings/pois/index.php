@@ -35,19 +35,27 @@ if (!Permissions::check(['admin', 'pois.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">POI-Verwaltung</h1>
-
-                        <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
-                            <div class="d-flex gap-2">
-                                <a href="<?= BASE_PATH ?>settings/pois/access-codes.php" class="btn btn-soft-warning">
-                                    <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
-                                </a>
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
-                                    <i class="fa-solid fa-plus"></i> POI erstellen
-                                </button>
-                            </div>
-                        <?php endif; ?>
+                    <nav class="admin-breadcrumb">
+                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span>Einstellungen</span>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="current">POIs</span>
+                    </nav>
+                    <div class="page-header mb-4">
+                        <h1>POI-Verwaltung</h1>
+                        <div class="header-actions">
+                            <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
+                                <div class="d-flex gap-2">
+                                    <a href="<?= BASE_PATH ?>settings/pois/access-codes.php" class="btn btn-soft-warning">
+                                        <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
+                                    </a>
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
+                                        <i class="fa-solid fa-plus"></i> POI erstellen
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <?php
                     Flash::render();

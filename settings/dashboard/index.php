@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../assets/config/config.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
@@ -150,7 +150,7 @@ if (!Permissions::check(['admin', 'dashboard.manage'])) {
                         </div>
 
                         <div class="mb-3">
-                            <label for="tile-icon" class="form-label">Icon <small style="opacity:.5">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
+                            <label for="tile-icon" class="form-label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
                             <div class="input-group">
                                 <input type="text" class="form-control" name="icon" id="tile-icon" placeholder="z.B. fa-solid fa-home, fa-solid fa-info">
                                 <span class="input-group-text"><i id="tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
@@ -210,7 +210,7 @@ if (!Permissions::check(['admin', 'dashboard.manage'])) {
                         </div>
 
                         <div class="mb-3">
-                            <label for="new-tile-icon" class="form-label">Icon <small style="opacity:.5">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
+                            <label for="new-tile-icon" class="form-label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
                             <div class="input-group">
                                 <input type="text" class="form-control" name="icon" id="new-tile-icon" placeholder="z.B. fa-solid fa-external-link-alt">
                                 <span class="input-group-text"><i id="new-tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>

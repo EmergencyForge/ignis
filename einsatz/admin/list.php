@@ -44,14 +44,23 @@ try {
 <body data-bs-theme="dark" data-page="protokolle">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
     <div class="container my-4">
-        <div class="d-flex justify-content-between align-items-center">
+        <nav class="admin-breadcrumb">
+            <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+            <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+            <span>Protokolle</span>
+            <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+            <span class="current">Einsatz QM</span>
+        </nav>
+        <div class="page-header mb-4">
             <h1>Einsatzprotokolle (QM)</h1>
-            <div class="d-flex align-items-center gap-3">
-                <div class="btn-toolbar-group">
-                    <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="btn <?= !$showArchived ? 'active' : '' ?>">Aktiv</a>
-                    <a href="<?= BASE_PATH ?>einsatz/admin/list.php?show_archived=1" class="btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
+            <div class="header-actions">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="btn-toolbar-group">
+                        <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="btn <?= !$showArchived ? 'active' : '' ?>">Aktiv</a>
+                        <a href="<?= BASE_PATH ?>einsatz/admin/list.php?show_archived=1" class="btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
+                    </div>
+                    <a href="<?= BASE_PATH ?>einsatz/create.php" class="btn btn-success"><i class="fa-solid fa-plus"></i> Neu</a>
                 </div>
-                <a href="<?= BASE_PATH ?>einsatz/create.php" class="btn btn-success"><i class="fa-solid fa-plus"></i> Neu</a>
             </div>
         </div>
         <?php App\Helpers\Flash::render(); ?>

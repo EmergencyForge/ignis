@@ -2,6 +2,57 @@
   --stat-bg-color: var(--body-bg-lighter);
 }
 
+// ========================================
+// CUSTOM SCROLLBAR
+// ========================================
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+// ========================================
+// TEXT SELECTION COLOR
+// ========================================
+::selection {
+  background: rgba(74, 111, 165, 0.35);
+  color: #fff;
+}
+
+// ========================================
+// LINK COLORS (dezenter als Bootstrap default)
+// ========================================
+a {
+  color: #7ba3d4;
+  text-decoration: none;
+  transition: color 0.1s ease;
+
+  &:hover {
+    color: #92b5e0;
+  }
+
+  &:not(.btn):not(.sidebar-link):not(.nav-link):hover {
+    text-decoration: underline;
+  }
+}
+
 .pagination .page-link {
   --bs-pagination-color: var(--white);
   --bs-link-color: var(--bs-pagination-color);
@@ -488,15 +539,46 @@ select.form-select {
 
 .modal .modal-header {
   border-bottom-color: var(--darkgray);
+
+  .modal-title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+.modal .modal-body {
+  color: var(--text-normal);
+  font-size: 0.85rem;
 }
 
 .modal .modal-footer {
   border-top-color: var(--darkgray);
+
+  .btn-secondary {
+    background: transparent;
+    border: 1px solid var(--darkgray);
+    color: var(--text-normal);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+    }
+  }
 }
 
 // Content area top spacing (replaces removed <hr class="text-light my-3">)
-#mainpageContainer {
-  padding-top: 1.5rem;
+// Sidebar layout has no top-navbar on desktop, so body needs top padding
+@media (min-width: 992px) {
+  body:has(.intra-sidebar) {
+    padding-top: 1.75rem;
+  }
 }
 
 .intra__tile {
@@ -505,6 +587,19 @@ select.form-select {
   border-radius: 12px;
   border: 1px solid var(--darkgray) !important;
   padding: 1rem;
+}
+
+// Bootstrap card.bg-dark override for dark theme
+.card.bg-dark {
+  background-color: var(--body-bg-lighter) !important;
+  border: 1px solid var(--darkgray);
+  border-radius: 12px;
+
+  .card-header {
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--darkgray);
+    border-radius: 12px 12px 0 0;
+  }
 }
 
 // QM Modals Styling for eNOTF
@@ -636,6 +731,11 @@ select.form-select {
 
 .table tbody tr {
   transition: background-color 0.1s ease;
+
+  &:hover {
+    background-color: var(--bs-table-hover-bg) !important;
+    color: var(--bs-table-hover-color);
+  }
 }
 
 .table tbody tr:last-child td {
@@ -744,6 +844,16 @@ select.form-select {
 .dt-info {
   font-size: 0.78rem;
   color: var(--text-dimmed);
+}
+
+// DataTable empty state
+.dataTables_empty,
+td.dt-empty {
+  text-align: center;
+  padding: 2.5rem 1rem !important;
+  color: var(--text-dimmed);
+  font-size: 0.85rem;
+  font-style: italic;
 }
 
 // ========================================
@@ -962,6 +1072,44 @@ select.form-select {
   }
 }
 
+// Base Bootstrap alert overrides for dark theme
+.alert:not(.alert-styled) {
+  border: none;
+  border-left: 3px solid;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.85rem;
+}
+
+.alert-secondary:not(.alert-styled) {
+  background: rgba(61, 58, 68, 0.3);
+  border-left-color: var(--darkgray);
+  color: var(--text-normal);
+}
+
+.alert-info:not(.alert-styled) {
+  background: rgba(42, 127, 143, 0.1);
+  border-left-color: #2a7f8f;
+  color: #5bb8cc;
+}
+
+.alert-warning:not(.alert-styled) {
+  background: rgba(196, 154, 42, 0.1);
+  border-left-color: #c49a2a;
+  color: #ddb84a;
+}
+
+.alert-success:not(.alert-styled) {
+  background: rgba(58, 125, 68, 0.1);
+  border-left-color: #3a7d44;
+  color: #6abf76;
+}
+
+.alert-danger:not(.alert-styled) {
+  background: rgba(176, 58, 58, 0.1);
+  border-left-color: #b03a3a;
+  color: #d46b6b;
+}
+
 // ========================================
 // TOGGLE SWITCHES
 // ========================================
@@ -1138,6 +1286,125 @@ select.form-select {
 }
 
 // ========================================
+// TOAST NOTIFICATIONS
+// ========================================
+#intra-toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 1080;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.5rem;
+  pointer-events: none;
+  max-width: 380px;
+}
+
+.toast-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #29282f;
+  border: 1px solid var(--darkgray);
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text-normal);
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+  transform: translateX(100%);
+  opacity: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+
+  &.toast-visible {
+    animation: toast-slide-in 0.25s ease forwards;
+  }
+
+  &.toast-dismissing {
+    animation: toast-slide-out 0.2s ease forwards;
+  }
+}
+
+.toast-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.toast-msg {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-dimmed);
+  font-size: 1.1rem;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  border-radius: 0 0 0 10px;
+  animation: toast-countdown 4s linear forwards;
+}
+
+// Toast type colors
+.toast-item.toast-success {
+  border-left: 3px solid #3a7d44;
+
+  .toast-icon { color: #6abf76; }
+  .toast-progress { background: #3a7d44; }
+}
+
+.toast-item.toast-danger {
+  border-left: 3px solid #b03a3a;
+
+  .toast-icon { color: #d46b6b; }
+  .toast-progress { background: #b03a3a; }
+}
+
+.toast-item.toast-warning {
+  border-left: 3px solid #c49a2a;
+
+  .toast-icon { color: #ddb84a; }
+  .toast-progress { background: #c49a2a; }
+}
+
+.toast-item.toast-info {
+  border-left: 3px solid #4a6fa5;
+
+  .toast-icon { color: #7ba3d4; }
+  .toast-progress { background: #4a6fa5; }
+}
+
+@keyframes toast-slide-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes toast-slide-out {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes toast-countdown {
+  from { width: 100%; }
+  to { width: 0; }
+}
+
+// ========================================
 // STATS CARDS
 // ========================================
 .intra__stats-card {
@@ -1186,4 +1453,133 @@ select.form-select {
   &.intra__stats-documents {
     --stat-bg-color: #660000;
   }
+}
+
+// ========================================
+// EINSATZ SIDEBAR (fireTab frontend)
+// ========================================
+.einsatz-sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  background: var(--sidebar-bg);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--darkgray) transparent;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: var(--darkgray); border-radius: 2px; }
+}
+
+.einsatz-sidebar-logo {
+  padding: 1rem 1.25rem 0.5rem;
+  flex-shrink: 0;
+
+  img {
+    height: 38px;
+    width: auto;
+  }
+}
+
+.einsatz-sidebar-vehicle {
+  display: flex;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  margin: 0.4rem 0.6rem 0.6rem;
+  background: #2c2c34;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.einsatz-sidebar-vehicle-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sidebar-avatar-bg);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  margin-right: 0.6rem;
+}
+
+.einsatz-sidebar-vehicle-info {
+  overflow: hidden;
+  min-width: 0;
+}
+
+.einsatz-sidebar-vehicle-name {
+  color: #fff;
+  font-weight: 500;
+  display: block;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.einsatz-sidebar-operator {
+  color: var(--text-dimmed);
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.einsatz-sidebar-nav {
+  flex: 1;
+  min-height: 0;
+  padding: 0.25rem 0;
+  overflow-y: auto;
+}
+
+.einsatz-sidebar .sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 0.55rem 1.25rem;
+  color: var(--sidebar-link-color);
+  text-decoration: none;
+  transition: background 0.15s ease;
+  margin: 0.2rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+
+  i:first-child {
+    width: 22px;
+    color: var(--sidebar-icon-color);
+    margin-right: 0.75rem;
+    text-align: center;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  &:hover, &.active {
+    background: var(--sidebar-hover-bg);
+    color: #fff;
+    text-decoration: none;
+
+    i:first-child { color: #fff; }
+  }
+}
+
+.einsatz-sidebar-section {
+  display: block;
+  padding: 0.5rem 0.75rem 0.15rem 1.75rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dimmed);
+  font-weight: 500;
+  margin-top: 0.5rem;
+}
+
+.einsatz-sidebar-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.5rem 0;
+  flex-shrink: 0;
 }

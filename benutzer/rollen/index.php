@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../assets/config/config.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
@@ -34,13 +34,22 @@ if (!Permissions::check(['admin', 'users.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Rollenverwaltung</h1>
-                        <?php if (Permissions::check('full_admin')) : ?>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createRoleModal">
-                                <i class="fa-solid fa-plus"></i> Rolle erstellen
-                            </button>
-                        <?php endif; ?>
+                    <nav class="admin-breadcrumb">
+                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="current">Rollen</span>
+                    </nav>
+                    <div class="page-header mb-4">
+                        <h1>Rollenverwaltung</h1>
+                        <div class="header-actions">
+                            <?php if (Permissions::check('full_admin')) : ?>
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createRoleModal">
+                                    <i class="fa-solid fa-plus"></i> Rolle erstellen
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <?php
                     Flash::render();
@@ -102,7 +111,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="role-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="role-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="role-priority" required>
                             </div>
 
@@ -153,7 +162,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
 
                                 <?php foreach ($permission_groups as $groupName => $group): ?>
                                     <div class="mb-3 border-bottom pb-2">
-                                        <h6 class="mb-2"><span style="opacity:.5;font-size:.8rem"><?= $groupName ?></span></h6>
+                                        <h6 class="mb-2"><span class="form-hint"><?= $groupName ?></span></h6>
                                         <div class="row">
                                             <?php foreach ($group as $perm => $desc): ?>
                                                 <div class="col-6 mb-1">
@@ -237,7 +246,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                 <div class="row">
                                     <?php foreach ($permission_groups as $groupName => $group): ?>
                                         <div class="mb-2 border-bottom pb-2">
-                                            <h6 class="mb-2"><span style="opacity:.5;font-size:.8rem"><?= $groupName ?></span></h6>
+                                            <h6 class="mb-2"><span class="form-hint"><?= $groupName ?></span></h6>
                                             <div class="row">
                                                 <?php foreach ($group as $perm => $desc): ?>
                                                     <div class="col-6 mb-1">
