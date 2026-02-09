@@ -182,6 +182,7 @@ $currentDateTime = date('Y-m-d\TH:i');
                                     </button>
                                     <button type="button" class="keypad-btn danger" onclick="keypadBackspace()"><i class="fa-solid fa-delete-left"></i></button>
                                     <button type="button" class="keypad-btn special" onclick="keypadSetNG()">nicht gemessen</button>
+                                    <button type="button" class="keypad-btn special" onclick="keypadSetNM()">nicht messbar</button>
                                 </div>
                             </div>
                         </div>
@@ -403,6 +404,17 @@ $currentDateTime = date('Y-m-d\TH:i');
             keypadUpdateFieldValue('ng');
         }
 
+        function keypadSetNM() {
+            if (!keypadCurrentField) {
+                showAlert('Bitte wählen Sie zuerst ein Eingabefeld aus.', {
+                    type: 'warning',
+                    title: 'Eingabefeld auswählen'
+                });
+                return;
+            }
+            keypadUpdateFieldValue('nm');
+        }
+
         function keypadAddDigit(digit) {
             if (!keypadCurrentField) {
                 showAlert('Bitte wählen Sie zuerst ein Eingabefeld aus.', {
@@ -469,8 +481,8 @@ $currentDateTime = date('Y-m-d\TH:i');
             const field = keypadCurrentField;
             const fieldId = field.id;
 
-            if (String(value).toLowerCase() === 'ng') {
-                field.value = 'ng';
+            if (String(value).toLowerCase() === 'ng' || String(value).toLowerCase() === 'nm') {
+                field.value = value;
                 field.classList.remove('text-danger', 'text-warning', 'text-success', 'text-semiwarning');
                 field.dispatchEvent(new Event('input', {
                     bubbles: true
@@ -598,7 +610,7 @@ $currentDateTime = date('Y-m-d\TH:i');
 
                     const raw = (el.value ?? '').toString().trim();
                     let toSend;
-                    if (raw.toLowerCase() === 'ng') {
+                    if (raw.toLowerCase() === 'ng' || raw.toLowerCase() === 'nm') {
                         toSend = raw;
                     } else if (raw === '') {
                         toSend = raw;
@@ -697,8 +709,12 @@ $currentDateTime = date('Y-m-d\TH:i');
                         if (currentValue === '' && inputLower === 'n') {
                             return;
                         }
-                        // Erlaube 'g' wenn aktueller Wert 'n' ist
+                        // Erlaube 'g' wenn aktueller Wert 'n' ist (für 'ng')
                         if (currentValue === 'n' && inputLower === 'g') {
+                            return;
+                        }
+                        // Erlaube 'm' wenn aktueller Wert 'n' ist (für 'nm')
+                        if (currentValue === 'n' && inputLower === 'm') {
                             return;
                         }
 

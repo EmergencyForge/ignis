@@ -67,8 +67,8 @@ class BloodSugarHelper
      */
     public function toDisplayUnit($value): float
     {
-        // Behandle 'ng' (nicht gemessen) als 0 für numerische Berechnungen
-        if (is_string($value) && strtolower(trim($value)) === 'ng') {
+        // Behandle 'ng' (nicht gemessen) und 'nm' (nicht messbar) als 0 für numerische Berechnungen
+        if (is_string($value) && in_array(strtolower(trim($value)), ['ng', 'nm'])) {
             return 0;
         }
 
@@ -83,14 +83,14 @@ class BloodSugarHelper
     /**
      * Convert a blood sugar value from display format to storage format (mg/dl)
      * based on current configuration
-     * 
+     *
      * @param float|string $value The value in the configured unit
      * @return float The value in mg/dl (storage format)
      */
     public function toStorageUnit($value): float
     {
-        // Behandle 'ng' (nicht gemessen) als 0 für Storage
-        if (is_string($value) && strtolower(trim($value)) === 'ng') {
+        // Behandle 'ng' (nicht gemessen) und 'nm' (nicht messbar) als 0 für Storage
+        if (is_string($value) && in_array(strtolower(trim($value)), ['ng', 'nm'])) {
             return 0;
         }
 
@@ -111,9 +111,9 @@ class BloodSugarHelper
      */
     public function formatValue($value, bool $includeUnit = true): string
     {
-        // Behandle 'ng' (nicht gemessen) als Spezialfall
-        if (is_string($value) && strtolower(trim($value)) === 'ng') {
-            return 'ng';
+        // Behandle 'ng' (nicht gemessen) und 'nm' (nicht messbar) als Spezialfall
+        if (is_string($value) && in_array(strtolower(trim($value)), ['ng', 'nm'])) {
+            return strtolower(trim($value));
         }
 
         $displayValue = $this->toDisplayUnit($value);

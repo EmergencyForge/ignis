@@ -251,6 +251,8 @@ $currentDateTime = date('Y-m-d\TH:i');
                                         Löschen
                                     </button>
                                     <button type="button" class="keypad-btn danger" onclick="keypadBackspace()"><i class="fa-solid fa-delete-left"></i></button>
+                                    <button type="button" class="keypad-btn special" onclick="keypadSetNG()">nicht gemessen</button>
+                                    <button type="button" class="keypad-btn special" onclick="keypadSetNM()">nicht messbar</button>
                                 </div>
                             </div>
                         </div>
@@ -300,11 +302,17 @@ $currentDateTime = date('Y-m-d\TH:i');
 
         // Feld-Validierung (für alle Eingabearten)
         function validateField(field) {
-            const value = parseFloat(field.value.replace(',', '.'));
-            const fieldName = field.name;
+            const rawVal = (field.value ?? '').toString().trim().toLowerCase();
 
             // Alle Klassen zurücksetzen
             field.classList.remove('text-warning', 'text-danger', 'text-success', 'text-semiwarning');
+
+            if (rawVal === 'ng' || rawVal === 'nm') {
+                return;
+            }
+
+            const value = parseFloat(field.value.replace(',', '.'));
+            const fieldName = field.name;
 
             if (isNaN(value) || field.value === '') {
                 return; // Kein Wert oder ungültiger Wert
@@ -492,6 +500,28 @@ $currentDateTime = date('Y-m-d\TH:i');
             }
         }
 
+        function keypadSetNG() {
+            if (!keypadCurrentField) {
+                showAlert('Bitte wählen Sie zuerst ein Eingabefeld aus.', {
+                    type: 'warning',
+                    title: 'Eingabefeld auswählen'
+                });
+                return;
+            }
+            keypadUpdateFieldValue('ng');
+        }
+
+        function keypadSetNM() {
+            if (!keypadCurrentField) {
+                showAlert('Bitte wählen Sie zuerst ein Eingabefeld aus.', {
+                    type: 'warning',
+                    title: 'Eingabefeld auswählen'
+                });
+                return;
+            }
+            keypadUpdateFieldValue('nm');
+        }
+
         // Aktuelles Feld komplett löschen
         function keypadClearField() {
             if (keypadCurrentField) {
@@ -504,6 +534,13 @@ $currentDateTime = date('Y-m-d\TH:i');
             if (!keypadCurrentField) return;
 
             const fieldId = keypadCurrentField.id;
+
+            if (String(value).toLowerCase() === 'ng' || String(value).toLowerCase() === 'nm') {
+                keypadCurrentField.value = value;
+                keypadCurrentField.classList.remove('text-danger', 'text-warning', 'text-success', 'text-semiwarning');
+                keypadCurrentField.dispatchEvent(new Event('input'));
+                return;
+            }
 
             if (value === '') {
                 keypadCurrentField.value = '';
