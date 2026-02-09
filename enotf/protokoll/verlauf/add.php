@@ -251,8 +251,6 @@ $currentDateTime = date('Y-m-d\TH:i');
                                         Löschen
                                     </button>
                                     <button type="button" class="keypad-btn danger" onclick="keypadBackspace()"><i class="fa-solid fa-delete-left"></i></button>
-                                    <button type="button" class="keypad-btn special" onclick="keypadSetNG()">nicht gemessen</button>
-                                    <button type="button" class="keypad-btn special" onclick="keypadSetNM()">nicht messbar</button>
                                 </div>
                             </div>
                         </div>
@@ -398,8 +396,9 @@ $currentDateTime = date('Y-m-d\TH:i');
             // Alle aktiven Markierungen entfernen
             document.querySelectorAll('.keypad-input').forEach(input => {
                 input.classList.remove('active-field');
-                // Zurück zu number type setzen
-                if (input.dataset.originalType) {
+                // Zurück zu number type setzen, aber nur wenn kein ng/nm-Wert drin steht
+                const val = (input.value ?? '').toString().trim().toLowerCase();
+                if (input.dataset.originalType && val !== 'ng' && val !== 'nm') {
                     input.type = input.dataset.originalType;
                     delete input.dataset.originalType;
                 }

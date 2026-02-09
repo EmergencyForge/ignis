@@ -682,7 +682,7 @@ $currentDateTime = date('Y-m-d\TH:i');
                     if (raw === '') {
                         return;
                     }
-                    if (lower === 'ng') {
+                    if (lower === 'ng' || lower === 'nm') {
                         return;
                     }
 
