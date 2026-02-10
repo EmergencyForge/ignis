@@ -148,9 +148,9 @@ if ($data['action'] === 'set_status') {
         ");
         $logStmt->execute([
             $incidentId,
-            "Status auf $newStatus (" . ($statusLabels[$newStatus] ?? $newStatus) . ") geändert",
+            "Status auf $newStatus (" . $statusLabels[$newStatus] . ") geändert",
             $vehicleId,
-            $_SESSION['einsatz_operator_id'] ?? null,
+            $_SESSION['einsatz_operator_id'],
             $_SESSION['userid'] ?? null
         ]);
 

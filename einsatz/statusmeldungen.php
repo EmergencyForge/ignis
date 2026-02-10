@@ -208,7 +208,7 @@ $statusConfig = [
                         <div>
                             <h5 class="mb-0"><?= htmlspecialchars($vehicleName) ?></h5>
                             <small class="text-muted">
-                                Aktueller Status: <strong id="currentStatusLabel"><?= htmlspecialchars($displayStatus['label'] ?? 'Keine Daten') ?></strong>
+                                Aktueller Status: <strong id="currentStatusLabel"><?= htmlspecialchars($displayStatus['label']) ?></strong>
                                 <?php if ($activeIncidentNumber && $statusSource !== 'no_dispatch'): ?>
                                     &middot; Einsatz #<?= htmlspecialchars($activeIncidentNumber) ?>
                                 <?php elseif (!$activeIncidentId && $statusSource !== 'no_dispatch'): ?>
