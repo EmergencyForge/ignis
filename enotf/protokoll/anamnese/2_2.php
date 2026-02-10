@@ -90,18 +90,21 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>" class="active">
-                                <span>Symptome</span>
-                            </a>
                             <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>">
                                 <span>Anamnese</span>
+                            </a>
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>" data-requires="naca_initial" class="active">
+                                <span>Symptome</span>
+                            </a>
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/3.php?enr=<?= $daten['enr'] ?>" data-requires="elokation">
+                                <span>Einsatzort</span>
                             </a>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
                             <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_1.php?enr=<?= $daten['enr'] ?>">
                                 <span>Symptombeginn</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_2.php?enr=<?= $daten['enr'] ?>" class="active">
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_2.php?enr=<?= $daten['enr'] ?>" data-requires="naca_initial" class="active">
                                 <span>NACA</span>
                             </a>
                         </div>

@@ -79,18 +79,21 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>" class="active">
-                                <span>Symptome</span>
-                            </a>
                             <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>">
                                 <span>Anamnese</span>
+                            </a>
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>" data-requires="naca_initial" class="active">
+                                <span>Symptome</span>
+                            </a>
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/3.php?enr=<?= $daten['enr'] ?>" data-requires="elokation">
+                                <span>Einsatzort</span>
                             </a>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
                             <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_1.php?enr=<?= $daten['enr'] ?>" class="active">
                                 <span>Symptombeginn</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_2.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_2.php?enr=<?= $daten['enr'] ?>" data-requires="naca_initial">
                                 <span>NACA</span>
                             </a>
                         </div>
@@ -177,17 +180,26 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 if (!value) return '';
                 value = value.trim();
                 let cleaned = value.replace(/[^0-9:]/g, '');
-                let hours = '', minutes = '';
+                let hours = '',
+                    minutes = '';
                 if (cleaned.includes(':')) {
                     const parts = cleaned.split(':');
                     hours = parts[0];
                     minutes = parts[1] || '00';
                 } else {
-                    if (cleaned.length === 4) { hours = cleaned.substring(0, 2); minutes = cleaned.substring(2, 4); }
-                    else if (cleaned.length === 3) { hours = '0' + cleaned.substring(0, 1); minutes = cleaned.substring(1, 3); }
-                    else if (cleaned.length === 2) { hours = cleaned; minutes = '00'; }
-                    else if (cleaned.length === 1) { hours = '0' + cleaned; minutes = '00'; }
-                    else return '';
+                    if (cleaned.length === 4) {
+                        hours = cleaned.substring(0, 2);
+                        minutes = cleaned.substring(2, 4);
+                    } else if (cleaned.length === 3) {
+                        hours = '0' + cleaned.substring(0, 1);
+                        minutes = cleaned.substring(1, 3);
+                    } else if (cleaned.length === 2) {
+                        hours = cleaned;
+                        minutes = '00';
+                    } else if (cleaned.length === 1) {
+                        hours = '0' + cleaned;
+                        minutes = '00';
+                    } else return '';
                 }
                 hours = hours.padStart(2, '0').substring(0, 2);
                 minutes = minutes.padStart(2, '0').substring(0, 2);
@@ -206,8 +218,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             });
 
             zeitInput.addEventListener('keydown', function(e) {
-                if (['Backspace','Delete','Tab','Escape','Enter','ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return;
-                if ((e.ctrlKey || e.metaKey) && ['a','c','v','x'].includes(e.key.toLowerCase())) return;
+                if (['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+                if ((e.ctrlKey || e.metaKey) && ['a', 'c', 'v', 'x'].includes(e.key.toLowerCase())) return;
                 if (e.key === ':') return;
                 if (!/^[0-9]$/.test(e.key)) e.preventDefault();
             });

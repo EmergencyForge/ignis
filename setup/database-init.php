@@ -409,6 +409,9 @@ $migrationFiles = [
 
     // 09.02.2026 - Symptome (Symptombeginn + NACA)
     ['file' => 'alter_intra_edivi_09022026_symptome.php', 'type' => 'alter'],
+
+    // 09.02.2026 - Einsatzort (Elokation)
+    ['file' => 'alter_intra_edivi_09022026_elokation.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

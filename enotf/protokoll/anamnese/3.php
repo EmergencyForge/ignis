@@ -54,17 +54,6 @@ date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
-$naca_labels = [
-    0 => 'NACA 0 - Keine Erkrankung/Verletzung',
-    1 => 'NACA I - geringfügige Störung',
-    2 => 'NACA II - leichte Störung',
-    3 => 'NACA III - mäßige Störung',
-    4 => 'NACA IV - Lebensgefahr nicht auszuschließen',
-    5 => 'NACA V - Akute Lebensgefahr',
-    6 => 'NACA VI - Kreislaufstillstand',
-    7 => 'NACA VII - Todesfeststellung',
-];
-
 $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'false';
 ?>
 
@@ -94,22 +83,55 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>">
                                     <span>Anamnese</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>" data-requires="naca_initial" class="active">
+                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>" data-requires="naca_initial">
                                     <span>Symptome</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/3.php?enr=<?= $daten['enr'] ?>" data-requires="elokation">
+                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/3.php?enr=<?= $daten['enr'] ?>" data-requires="elokation" class="active">
                                     <span>Einsatzort</span>
                                 </a>
                             </div>
-                            <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_1.php?enr=<?= $daten['enr'] ?>">
-                                    <span>Symptombeginn</span>
-                                </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_2.php?enr=<?= $daten['enr'] ?>" data-requires="naca_initial">
-                                    <span>NACA</span>
-                                </a>
-                            </div>
                         <?php endif; ?>
+                        <div class="col-2 d-flex flex-column edivi__interactbutton">
+                            <input type="radio" class="btn-check" id="elokation-1" name="elokation" value="1" <?= ($daten['elokation'] ?? '') == 1 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-1">Wohnung</label>
+
+                            <input type="radio" class="btn-check" id="elokation-2" name="elokation" value="2" <?= ($daten['elokation'] ?? '') == 2 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-2">Arbeitsplatz</label>
+
+                            <input type="radio" class="btn-check" id="elokation-3" name="elokation" value="3" <?= ($daten['elokation'] ?? '') == 3 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-3">Altenheim</label>
+
+                            <input type="radio" class="btn-check" id="elokation-4" name="elokation" value="4" <?= ($daten['elokation'] ?? '') == 4 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-4">öffentlicher Raum</label>
+
+                            <input type="radio" class="btn-check" id="elokation-5" name="elokation" value="5" <?= ($daten['elokation'] ?? '') == 5 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-5">Arztpraxis</label>
+
+                            <input type="radio" class="btn-check" id="elokation-6" name="elokation" value="6" <?= ($daten['elokation'] ?? '') == 6 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-6">Straße</label>
+
+                            <input type="radio" class="btn-check" id="elokation-7" name="elokation" value="7" <?= ($daten['elokation'] ?? '') == 7 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-7">Krankenhaus</label>
+
+                            <input type="radio" class="btn-check" id="elokation-8" name="elokation" value="8" <?= ($daten['elokation'] ?? '') == 8 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-8">Massenveranstaltung</label>
+
+                            <input type="radio" class="btn-check" id="elokation-9" name="elokation" value="9" <?= ($daten['elokation'] ?? '') == 9 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-9">Bildungseinrichtung</label>
+                        </div>
+                        <div class="col-2 d-flex flex-column edivi__interactbutton">
+                            <input type="radio" class="btn-check" id="elokation-10" name="elokation" value="10" <?= ($daten['elokation'] ?? '') == 10 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-10">Sportstätte</label>
+
+                            <input type="radio" class="btn-check" id="elokation-11" name="elokation" value="11" <?= ($daten['elokation'] ?? '') == 11 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-11">Geburtshaus/-einrichtung</label>
+
+                            <input type="radio" class="btn-check" id="elokation-98" name="elokation" value="98" <?= ($daten['elokation'] ?? '') == 98 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-98">Sonstige</label>
+
+                            <input type="radio" class="btn-check" id="elokation-99" name="elokation" value="99" <?= ($daten['elokation'] ?? '') == 99 ? 'checked' : '' ?> autocomplete="off">
+                            <label for="elokation-99">nicht dokumentiert</label>
+                        </div>
                     </div>
                 </div>
             </div>

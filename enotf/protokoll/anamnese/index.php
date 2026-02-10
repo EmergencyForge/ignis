@@ -65,6 +65,22 @@ $naca_labels = [
     7 => 'NACA VII - Todesfeststellung',
 ];
 
+$elokation_labels = [
+    1 => 'Wohnung',
+    2 => 'Arbeitsplatz',
+    3 => 'Altenheim',
+    4 => 'öffentlicher Raum',
+    5 => 'Arztpraxis',
+    6 => 'Straße',
+    7 => 'Krankenhaus',
+    8 => 'Massenveranstaltung',
+    9 => 'Bildungseinrichtung',
+    10 => 'Sportstätte',
+    11 => 'Geburtshaus/-einrichtung',
+    98 => 'Sonstige',
+    99 => 'nicht dokumentiert',
+];
+
 $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'false';
 ?>
 
@@ -91,36 +107,52 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <div class="row" style="margin-left: 0">
                         <?php if (!$ist_freigegeben) : ?>
                             <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>">
-                                    <span>Symptome</span>
-                                </a>
                                 <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>">
                                     <span>Anamnese</span>
+                                </a>
+                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>" data-requires="naca_initial">
+                                    <span>Symptome</span>
+                                </a>
+                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/3.php?enr=<?= $daten['enr'] ?>" data-requires="elokation">
+                                    <span>Einsatzort</span>
                                 </a>
                             </div>
                         <?php endif; ?>
                         <div class="col edivi__overview-container">
+                            <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                <h5 class="text-light px-2 py-1">Anamnese</h5>
+                                <div class="col">
+                                    <div class="row my-2">
+                                        <div class="col">
+                                            <label for="anamnese" class="edivi__description" style="display: none;">Anamnese</label>
+                                            <textarea name="anamnese" id="anamnese" class="w-100 form-control" style="height: 50vh; overflow-y: auto; resize: none; border: 0 !important;" readonly><?= $daten['anmerkungen'] ?></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row">
                                 <div class="col">
                                     <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_1.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
-                                        <h5 class="text-light px-2 py-1">Symptombeginn</h5>
+                                        <h5 class="text-light px-2 py-1">Symptome</h5>
                                         <div class="col">
                                             <div class="row my-2">
                                                 <div class="col">
-                                                    <label class="edivi__description">Datum</label>
-                                                    <input type="text" class="w-100 form-control" value="<?= !empty($daten['symptombeginn_datum']) ? date('d.m.Y', strtotime($daten['symptombeginn_datum'])) : '' ?>" readonly>
-                                                </div>
-                                                <div class="col">
-                                                    <label class="edivi__description">Zeit</label>
-                                                    <input type="text" class="w-100 form-control" value="<?= $daten['symptombeginn_zeit'] ?? '' ?>" readonly>
-                                                </div>
-                                                <div class="col">
-                                                    <label class="edivi__description"></label>
+                                                    <label class="edivi__description">Symptombeginn</label>
                                                     <input type="text" class="w-100 form-control" value="<?php
-                                                                                                            $opts = [];
-                                                                                                            if (!empty($daten['symptombeginn_geschaetzt'])) $opts[] = 'geschätzt';
-                                                                                                            if (!empty($daten['symptombeginn_nf'])) $opts[] = 'nicht feststellbar';
-                                                                                                            echo implode(', ', $opts);
+                                                                                                            $sb_datum = !empty($daten['symptombeginn_datum']) ? date('d.m.Y', strtotime($daten['symptombeginn_datum'])) : '';
+                                                                                                            $sb_zeit = $daten['symptombeginn_zeit'] ?? '';
+                                                                                                            $sb_opts = [];
+                                                                                                            if (!empty($daten['symptombeginn_geschaetzt'])) $sb_opts[] = 'geschätzt';
+                                                                                                            if (!empty($daten['symptombeginn_nf'])) $sb_opts[] = 'nicht feststellbar';
+
+                                                                                                            $sb_datetime = trim($sb_datum . ' ' . $sb_zeit);
+                                                                                                            if ($sb_datetime !== '' && !empty($sb_opts)) {
+                                                                                                                echo $sb_datetime . ' (' . implode(', ', $sb_opts) . ')';
+                                                                                                            } elseif ($sb_datetime !== '') {
+                                                                                                                echo $sb_datetime;
+                                                                                                            } else {
+                                                                                                                echo implode(', ', $sb_opts);
+                                                                                                            }
                                                                                                             ?>" readonly>
                                                 </div>
                                             </div>
@@ -134,7 +166,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label class="edivi__description">Initial</label>
-                                                    <input type="text" class="w-100 form-control" value="<?= $naca_labels[$daten['naca_initial'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" class="w-100 form-control edivi__input-check" value="<?= $naca_labels[$daten['naca_initial'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                                 <div class="col">
                                                     <label class="edivi__description">bei Übergabe</label>
@@ -145,13 +177,17 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </div>
                                 </div>
                             </div>
-                            <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
-                                <h5 class="text-light px-2 py-1">Anamnese</h5>
-                                <div class="col">
-                                    <div class="row my-2">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/anamnese/3.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                        <h5 class="text-light px-2 py-1">Einsatzort</h5>
                                         <div class="col">
-                                            <label for="anamnese" class="edivi__description" style="display: none;">Anamnese</label>
-                                            <textarea name="anamnese" id="anamnese" class="w-100 form-control" style="height: 60vh; overflow-y: auto; resize: none; border: 0 !important;" readonly><?= $daten['anmerkungen'] ?></textarea>
+                                            <div class="row my-2">
+                                                <div class="col">
+                                                    <label class="edivi__description" style="display:none">Einsatzort</label>
+                                                    <input type="text" class="w-100 form-control" value="<?= $elokation_labels[$daten['elokation'] ?? ''] ?? '' ?>" readonly>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
