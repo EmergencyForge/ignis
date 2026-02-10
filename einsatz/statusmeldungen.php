@@ -16,6 +16,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use App\Helpers\Flash;
 
 // Check if user authentication is required for vehicle login
+/** @phpstan-ignore booleanAnd.alwaysFalse, identical.alwaysFalse */
 if (defined('FIRE_INCIDENT_REQUIRE_USER_AUTH') && FIRE_INCIDENT_REQUIRE_USER_AUTH === true) {
     if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
         $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
