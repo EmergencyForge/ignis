@@ -3,7 +3,7 @@
  * Einsatz (fireTab) Sidebar Component
  *
  * Required variables:
- *   $einsatzActivePage (string) - 'create', 'list', 'asu', 'view', 'admin'
+ *   $einsatzActivePage (string) - 'create', 'list', 'statusmeldungen', 'asu', 'view', 'admin'
  *
  * Optional variables:
  *   $einsatzExtraNav (string) - Additional HTML inserted into nav (for view.php tabs)
@@ -42,6 +42,11 @@ $einsatzExtraNav = $einsatzExtraNav ?? '';
         <a href="<?= BASE_PATH ?>einsatz/list.php" class="sidebar-link <?= $einsatzActivePage === 'list' ? 'active' : '' ?>">
             <i class="fa-solid fa-list"></i><span>Meine Einsätze</span>
         </a>
+        <?php if (isset($_SESSION['einsatz_vehicle_id'])): ?>
+            <a href="<?= BASE_PATH ?>einsatz/statusmeldungen.php" class="sidebar-link <?= $einsatzActivePage === 'statusmeldungen' ? 'active' : '' ?>">
+                <i class="fa-solid fa-signal"></i><span>Statusmeldungen</span>
+            </a>
+        <?php endif; ?>
         <a href="<?= BASE_PATH ?>einsatz/asu.php" class="sidebar-link <?= $einsatzActivePage === 'asu' ? 'active' : '' ?>">
             <i class="fa-solid fa-mask-ventilator"></i><span>AS-Überwachung</span>
         </a>
