@@ -80,12 +80,60 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <div class="row" style="margin-left: 0">
                         <?php if (!$ist_freigegeben) : ?>
                             <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>">
+                                    <span>Symptome</span>
+                                </a>
                                 <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>">
                                     <span>Anamnese</span>
                                 </a>
                             </div>
                         <?php endif; ?>
                         <div class="col edivi__overview-container">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_1.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                        <h5 class="text-light px-2 py-1">Symptombeginn</h5>
+                                        <div class="col">
+                                            <div class="row my-2">
+                                                <div class="col">
+                                                    <label class="edivi__description">Datum</label>
+                                                    <input type="text" class="w-100 form-control" value="<?= !empty($daten['symptombeginn_datum']) ? date('d.m.Y', strtotime($daten['symptombeginn_datum'])) : '' ?>" readonly>
+                                                </div>
+                                                <div class="col">
+                                                    <label class="edivi__description">Zeit</label>
+                                                    <input type="text" class="w-100 form-control" value="<?= $daten['symptombeginn_zeit'] ?? '' ?>" readonly>
+                                                </div>
+                                                <div class="col">
+                                                    <label class="edivi__description">Optionen</label>
+                                                    <input type="text" class="w-100 form-control" value="<?php
+                                                                                                            $opts = [];
+                                                                                                            if (!empty($daten['symptombeginn_geschaetzt'])) $opts[] = 'geschätzt';
+                                                                                                            if (!empty($daten['symptombeginn_nf'])) $opts[] = 'nicht feststellbar';
+                                                                                                            echo implode(', ', $opts);
+                                                                                                            ?>" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_2.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                        <h5 class="text-light px-2 py-1">NACA</h5>
+                                        <div class="col">
+                                            <div class="row my-2">
+                                                <div class="col">
+                                                    <label class="edivi__description">Initial</label>
+                                                    <input type="text" class="w-100 form-control" value="<?= $naca_labels[$daten['naca_initial'] ?? ''] ?? '' ?>" readonly>
+                                                </div>
+                                                <div class="col">
+                                                    <label class="edivi__description">bei Übergabe</label>
+                                                    <input type="text" class="w-100 form-control" value="<?= $naca_labels[$daten['naca_uebergabe'] ?? ''] ?? '' ?>" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
                                 <h5 class="text-light px-2 py-1">Anamnese</h5>
                                 <div class="col">

@@ -354,12 +354,65 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             </div>
         </div>
         <div class="row border border-dark border-top-0">
+            <?php
+            $naca_print_labels = [
+                0 => '0',
+                1 => 'I',
+                2 => 'II',
+                3 => 'III',
+                4 => 'IV',
+                5 => 'V',
+                6 => 'VI',
+                7 => 'VII'
+            ];
+            $naca_initial_display = ($daten['naca_initial'] !== null && isset($naca_print_labels[$daten['naca_initial']])) ? $naca_print_labels[$daten['naca_initial']] : '';
+            $naca_uebergabe_display = ($daten['naca_uebergabe'] !== null && isset($naca_print_labels[$daten['naca_uebergabe']])) ? $naca_print_labels[$daten['naca_uebergabe']] : '';
+            $sb_parts = [];
+            if (!empty($daten['symptombeginn_datum'])) $sb_parts[] = date('d.m.Y', strtotime($daten['symptombeginn_datum']));
+            if (!empty($daten['symptombeginn_zeit'])) $sb_parts[] = $daten['symptombeginn_zeit'];
+            $sb_display = implode(' ', $sb_parts);
+            ?>
+            <div class="col">
+                <h6 class="print__heading">Symptombeginn</h6>
+                <div style="display: flex; align-items: flex-start; gap: 6pt; padding: 2pt 0;">
+                    <strong style="font-size: 9pt;"><?= $sb_display ?></strong>
+                    <div style="font-size: 7pt; line-height: 1.4;">
+                        <div>
+                            <?php if (!empty($daten['symptombeginn_geschaetzt'])) : ?>
+                                <input type="radio" checked disabled style="width: 7px; height: 7px; margin: 0;" />
+                            <?php else : ?>
+                                <input type="radio" disabled style="width: 7px; height: 7px; margin: 0;" />
+                            <?php endif; ?>
+                            geschätzt
+                        </div>
+                        <div>
+                            <?php if (!empty($daten['symptombeginn_nf'])) : ?>
+                                <input type="radio" checked disabled style="width: 7px; height: 7px; margin: 0;" />
+                            <?php else : ?>
+                                <input type="radio" disabled style="width: 7px; height: 7px; margin: 0;" />
+                            <?php endif; ?>
+                            nicht feststellbar
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <h6 class="print__heading">NACA</h6>
+                <div style="padding: 2pt 0;">
+                    <span style="font-size: 9pt;">initial</span>
+                    <strong style="font-size: 11pt; margin-left: 4pt;"><?= $naca_initial_display ?></strong>
+                    <span style="font-size: 9pt; margin-left: 8pt;">Übergabe</span>
+                    <strong style="font-size: 11pt; margin-left: 4pt;"><?= $naca_uebergabe_display ?></strong>
+                </div>
+            </div>
+        </div>
+        <div class="row border border-dark border-top-0">
             <div class="col">
                 <h6 class="print__heading">Notfallgeschehen, Anamnese, Erstebefund, Vormedikation, Vorbehandlung</h6>
                 <div class="row">
                     <div class="col">
                         <div class="print__field-wrapper">
-                            <textarea rows="25" style="resize:none" class="w-100 print__textbox" readonly><?= $daten['anmerkungen'] ?></textarea>
+                            <textarea rows="22" style="resize:none" class="w-100 print__textbox" readonly><?= $daten['anmerkungen'] ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -1072,7 +1125,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 </div>
             </div>
             <div class="col">
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-top-0 border-start-0">
                     <div class="col">
                         <h6 class="print__heading">Neurologie</h6>
                     </div>
@@ -1119,7 +1172,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-top-0 border-start-0">
                     <div class="col">
                         <?php
                         $d_pupillenw_1_labels = [
@@ -1149,7 +1202,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-top-0 border-start-0">
                     <div class="col print__text-small">
                         <?php
                         $d_ex_1_labels = [
@@ -1206,7 +1259,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-top-0 border-start-0">
                     <div class="col">
                         <?php
                         $psych = [];
@@ -1356,7 +1409,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-top-0 border-start-0">
                     <div class="col">
                         <h6 class="print__heading">Verletzungen</h6>
                         <?php
@@ -1406,7 +1459,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-top-0 border-start-0">
                     <div class="col text-end fw-bold print__text-small">
                         erstellt mit intraRP von EmergencyForge
                     </div>

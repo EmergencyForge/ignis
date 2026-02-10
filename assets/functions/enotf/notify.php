@@ -21,7 +21,8 @@
             'b_auskult', 'b_beatmung', 'c_kreislauf', 'c_ekg', 'c_zugang',
             'd_bewusstsein', 'd_ex_1', 'd_pupillenw_1', 'd_pupillenw_2',
             'd_lichtreakt_1', 'd_lichtreakt_2', 'd_gcs_1', 'd_gcs_2', 'd_gcs_3', 'v_muster_k', 'v_muster_t',
-            'v_muster_a', 'v_muster_al', 'v_muster_bl', 'v_muster_w', 'transportziel', 'medis'
+            'v_muster_a', 'v_muster_al', 'v_muster_bl', 'v_muster_w', 'transportziel', 'medis',
+            'naca_initial', 'naca_uebergabe'
         ];
 
         inputElements.each(function() {

@@ -54,6 +54,17 @@ date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
+$naca_labels = [
+    0 => 'NACA 0 - Keine Erkrankung/Verletzung',
+    1 => 'NACA I - geringfügige Störung',
+    2 => 'NACA II - leichte Störung',
+    3 => 'NACA III - mäßige Störung',
+    4 => 'NACA IV - Lebensgefahr nicht auszuschließen',
+    5 => 'NACA V - Akute Lebensgefahr',
+    6 => 'NACA VI - Kreislaufstillstand',
+    7 => 'NACA VII - Todesfeststellung',
+];
+
 $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'false';
 ?>
 
@@ -78,26 +89,24 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <?php include __DIR__ . '/../../../assets/components/enotf/nav.php'; ?>
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
-                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>">
-                                <span>Symptome</span>
-                            </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>" class="active">
-                                <span>Anamnese</span>
-                            </a>
-                        </div>
-                        <div class="col-8 edivi__overview-container" style="margin:0; padding:0;">
-                            <div class="row edivi__box" style="margin:0;">
-                                <h5 class="text-light px-2 py-1">Notfallsituation, Anamnese, SAMPLER(+S), Bemerkungen</h5>
-                                <div class="col">
-                                    <div class="row my-2">
-                                        <div class="col">
-                                            <textarea name="anmerkungen" id="anmerkungen" rows="25" class="w-100 form-control" style="resize: none" placeholder="..."><?= $daten['anmerkungen'] ?></textarea>
-                                        </div>
-                                    </div>
-                                </div>
+                        <?php if (!$ist_freigegeben) : ?>
+                            <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>" class="active">
+                                    <span>Symptome</span>
+                                </a>
+                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>">
+                                    <span>Anamnese</span>
+                                </a>
                             </div>
-                        </div>
+                            <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_1.php?enr=<?= $daten['enr'] ?>">
+                                    <span>Symptombeginn</span>
+                                </a>
+                                <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_2.php?enr=<?= $daten['enr'] ?>">
+                                    <span>NACA</span>
+                                </a>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

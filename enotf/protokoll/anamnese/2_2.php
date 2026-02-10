@@ -54,6 +54,17 @@ date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
+$naca_options = [
+    0 => 'NACA 0 - Keine Erkrankung/Verletzung',
+    1 => 'NACA I - geringfügige Störung',
+    2 => 'NACA II - leichte Störung',
+    3 => 'NACA III - mäßige Störung',
+    4 => 'NACA IV - Lebensgefahr nicht auszuschließen',
+    5 => 'NACA V - Akute Lebensgefahr',
+    6 => 'NACA VI - Kreislaufstillstand',
+    7 => 'NACA VII - Todesfeststellung',
+];
+
 $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'false';
 ?>
 
@@ -79,24 +90,40 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>" class="active">
                                 <span>Symptome</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>" class="active">
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>">
                                 <span>Anamnese</span>
                             </a>
                         </div>
-                        <div class="col-8 edivi__overview-container" style="margin:0; padding:0;">
-                            <div class="row edivi__box" style="margin:0;">
-                                <h5 class="text-light px-2 py-1">Notfallsituation, Anamnese, SAMPLER(+S), Bemerkungen</h5>
-                                <div class="col">
-                                    <div class="row my-2">
-                                        <div class="col">
-                                            <textarea name="anmerkungen" id="anmerkungen" rows="25" class="w-100 form-control" style="resize: none" placeholder="..."><?= $daten['anmerkungen'] ?></textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_1.php?enr=<?= $daten['enr'] ?>">
+                                <span>Symptombeginn</span>
+                            </a>
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_2.php?enr=<?= $daten['enr'] ?>" class="active">
+                                <span>NACA</span>
+                            </a>
+                        </div>
+                        <div class="col-3 d-flex flex-column edivi__interactbutton">
+                            <label class="edivi__interactbutton-text">initial</label>
+                            <?php foreach ($naca_options as $val => $label) : ?>
+                                <input type="radio" class="btn-check" id="naca_initial-<?= $val ?>"
+                                    name="naca_initial" value="<?= $val ?>"
+                                    <?= ($daten['naca_initial'] !== null && $daten['naca_initial'] == $val ? 'checked' : '') ?>
+                                    autocomplete="off">
+                                <label for="naca_initial-<?= $val ?>"><?= $label ?></label>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="col-3 d-flex flex-column edivi__interactbutton">
+                            <label class="edivi__interactbutton-text">bei Übergabe</label>
+                            <?php foreach ($naca_options as $val => $label) : ?>
+                                <input type="radio" class="btn-check" id="naca_uebergabe-<?= $val ?>"
+                                    name="naca_uebergabe" value="<?= $val ?>"
+                                    <?= ($daten['naca_uebergabe'] !== null && $daten['naca_uebergabe'] == $val ? 'checked' : '') ?>
+                                    autocomplete="off">
+                                <label for="naca_uebergabe-<?= $val ?>"><?= $label ?></label>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>

@@ -406,6 +406,9 @@ $migrationFiles = [
 
     // 04.02.2026 - eNOTF Protokoll Erstellungsherkunft
     ['file' => 'alter_intra_edivi_04022026_createdby.php', 'type' => 'alter'],
+
+    // 09.02.2026 - Symptome (Symptombeginn + NACA)
+    ['file' => 'alter_intra_edivi_09022026_symptome.php', 'type' => 'alter'],
 ];
 
 $executed = 0;
