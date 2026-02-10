@@ -418,6 +418,9 @@ $migrationFiles = [
 
     // 10.02.2026 - Status-Queue für FiveM-Polling
     ['file' => 'create_intra_fire_status_queue_10022026.php', 'type' => 'create'],
+
+    // 10.02.2026 - Fahrzeug-Status (für status_no_dispatch)
+    ['file' => 'alter_intra_fahrzeuge_10022026_status.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

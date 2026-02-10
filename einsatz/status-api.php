@@ -40,6 +40,27 @@ if (!$data || !isset($data['action'])) {
 
 $vehicleId = (int)$_SESSION['einsatz_vehicle_id'];
 
+if ($data['action'] === 'get_status') {
+    // Lese aktuellen Status aus intra_fahrzeuge (für Polling vom Frontend)
+    try {
+        $stmt = $pdo->prepare("
+            SELECT current_status, status_source FROM intra_fahrzeuge WHERE id = :id LIMIT 1
+        ");
+        $stmt->execute([':id' => $vehicleId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'success' => true,
+            'current_status' => $row['current_status'] ?? null,
+            'status_source' => $row['status_source'] ?? null
+        ]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Datenbankfehler']);
+    }
+    exit;
+}
+
 if ($data['action'] === 'set_status') {
     $incidentId = isset($data['incident_id']) ? (int)$data['incident_id'] : 0;
     $newStatus = $data['new_status'] ?? '';
@@ -131,6 +152,17 @@ if ($data['action'] === 'set_status') {
             $vehicleId,
             $_SESSION['einsatz_operator_id'] ?? null,
             $_SESSION['userid'] ?? null
+        ]);
+
+        // 4. Update auch intra_fahrzeuge.current_status (für statusmeldungen.php Anzeige)
+        $updateFahrzeugStmt = $pdo->prepare("
+            UPDATE intra_fahrzeuge
+            SET current_status = :status, status_updated_at = NOW(), status_source = 'incident'
+            WHERE id = :id
+        ");
+        $updateFahrzeugStmt->execute([
+            ':status' => $newStatus,
+            ':id' => $vehicleId
         ]);
 
         $pdo->commit();

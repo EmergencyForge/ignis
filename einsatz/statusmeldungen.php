@@ -36,11 +36,25 @@ require __DIR__ . '/../assets/config/database.php';
 $vehicleId = (int)$_SESSION['einsatz_vehicle_id'];
 $vehicleName = $_SESSION['einsatz_vehicle_name'] ?? 'Unbekannt';
 
-// Hole aktuellen Status des Fahrzeugs aus dem neuesten aktiven Einsatz
+// Hole aktuellen Status des Fahrzeugs aus intra_fahrzeuge (primäre Quelle)
 $currentStatus = null;
+$statusSource = null;
 $activeIncidentId = null;
 $activeIncidentNumber = null;
+
 try {
+    // 1. Lese Fahrzeug-Status von intra_fahrzeuge
+    $vehStmt = $pdo->prepare("
+        SELECT current_status, status_source FROM intra_fahrzeuge WHERE id = :id LIMIT 1
+    ");
+    $vehStmt->execute([':id' => $vehicleId]);
+    $vehRow = $vehStmt->fetch(PDO::FETCH_ASSOC);
+    if ($vehRow && $vehRow['current_status'] !== null) {
+        $currentStatus = $vehRow['current_status'];
+        $statusSource = $vehRow['status_source'];
+    }
+
+    // 2. Prüfe ob ein aktiver Einsatz existiert
     $stmt = $pdo->prepare("
         SELECT fiv.current_status, fi.id AS incident_id, fi.incident_number
         FROM intra_fire_incident_vehicles fiv
@@ -53,9 +67,12 @@ try {
     $stmt->execute([':vehicle_id' => $vehicleId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($row) {
-        $currentStatus = $row['current_status'];
         $activeIncidentId = (int)$row['incident_id'];
         $activeIncidentNumber = $row['incident_number'];
+        // Wenn Status von einem Einsatz kommt (nicht no_dispatch), nehme den Einsatz-Status
+        if ($statusSource !== 'no_dispatch' && $row['current_status'] !== null) {
+            $currentStatus = $row['current_status'];
+        }
     }
 } catch (PDOException $e) {
     // Silently fail
@@ -192,9 +209,9 @@ $statusConfig = [
                             <h5 class="mb-0"><?= htmlspecialchars($vehicleName) ?></h5>
                             <small class="text-muted">
                                 Aktueller Status: <strong id="currentStatusLabel"><?= htmlspecialchars($displayStatus['label'] ?? 'Keine Daten') ?></strong>
-                                <?php if ($activeIncidentNumber): ?>
+                                <?php if ($activeIncidentNumber && $statusSource !== 'no_dispatch'): ?>
                                     &middot; Einsatz #<?= htmlspecialchars($activeIncidentNumber) ?>
-                                <?php else: ?>
+                                <?php elseif (!$activeIncidentId && $statusSource !== 'no_dispatch'): ?>
                                     &middot; <span class="text-warning">Kein aktiver Einsatz</span>
                                 <?php endif; ?>
                             </small>
@@ -248,6 +265,50 @@ $statusConfig = [
         const statusConfig = <?= json_encode($statusConfig) ?>;
         const activeIncidentId = <?= $activeIncidentId ? (int)$activeIncidentId : 'null' ?>;
         let currentStatus = <?= $currentStatus !== null ? json_encode($currentStatus) : 'null' ?>;
+        let statusSource = <?= $statusSource !== null ? json_encode($statusSource) : 'null' ?>;
+
+        // Periodisch Status von Server abfragen (für no_dispatch Updates)
+        setInterval(() => {
+            fetch(basePath + 'einsatz/status-api.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'get_status' })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.current_status !== undefined && data.current_status !== currentStatus) {
+                    currentStatus = data.current_status;
+                    statusSource = data.status_source || null;
+
+                    // Update alle Buttons
+                    document.querySelectorAll('.status-btn').forEach(b => {
+                        b.classList.remove('active');
+                        b.style.backgroundColor = '';
+                        b.style.color = '';
+                    });
+                    const activeBtn = document.querySelector(`.status-btn[data-status="${currentStatus}"]`);
+                    if (activeBtn) {
+                        activeBtn.classList.add('active');
+                        activeBtn.style.backgroundColor = activeBtn.dataset.bg;
+                        activeBtn.style.color = activeBtn.dataset.color;
+                    }
+
+                    // Update Badge
+                    const badge = document.getElementById('currentStatusBadge');
+                    const label = document.getElementById('currentStatusLabel');
+                    const cfg = statusConfig[currentStatus];
+                    if (badge && cfg) {
+                        badge.style.backgroundColor = cfg.bg;
+                        badge.style.color = cfg.color;
+                        badge.textContent = currentStatus;
+                    }
+                    if (label && cfg) {
+                        label.textContent = cfg.label;
+                    }
+                }
+            })
+            .catch(() => {});
+        }, 5000);
 
         function sendStatus(newStatus) {
             if (!activeIncidentId) return;

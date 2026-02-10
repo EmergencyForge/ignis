@@ -281,6 +281,86 @@ function handleStatusUpdates(array $data, PDO $pdo): void
     }
 }
 
+/**
+ * Verarbeitet Statusmeldungen für Fahrzeuge ohne aktiven Dispatch
+ * Aktualisiert current_status direkt auf intra_fahrzeuge
+ *
+ * @param array<string, mixed> $data
+ */
+function handleStatusNoDispatch(array $data, PDO $pdo): void
+{
+    try {
+        $vehicleName = $data['vehicle_name'] ?? '';
+        $newStatus = $data['status'] ?? '';
+        $statusTime = $data['time'] ?? '';
+        $statusDate = $data['date'] ?? '';
+
+        if (empty($vehicleName) || $newStatus === '') {
+            logSync("status_no_dispatch: Fehlende Daten (vehicle_name='$vehicleName', status='$newStatus')", 'WARNING');
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Fehlende Pflichtfelder (vehicle_name, status)']);
+            return;
+        }
+
+        // Parse Zeitstempel
+        $updatedAt = null;
+        if (!empty($statusDate) && !empty($statusTime)) {
+            $dt = DateTime::createFromFormat('d.m.Y H:i', $statusDate . ' ' . $statusTime, new DateTimeZone('Europe/Berlin'));
+            if ($dt) {
+                $updatedAt = $dt->format('Y-m-d H:i:s');
+            }
+        }
+        if (!$updatedAt) {
+            $updatedAt = date('Y-m-d H:i:s');
+        }
+
+        // Finde das Fahrzeug in der DB
+        $findVehicleStmt = $pdo->prepare("
+            SELECT id, name FROM intra_fahrzeuge WHERE name = :name LIMIT 1
+        ");
+        $findVehicleStmt->execute([':name' => $vehicleName]);
+        $vehicle = $findVehicleStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$vehicle) {
+            logSync("status_no_dispatch: Fahrzeug '$vehicleName' nicht in intra_fahrzeuge gefunden", 'WARNING');
+            http_response_code(404);
+            echo json_encode(['success' => false, 'error' => 'Fahrzeug nicht gefunden']);
+            return;
+        }
+
+        $vehicleId = (int)$vehicle['id'];
+
+        // Update Status auf intra_fahrzeuge
+        $updateStmt = $pdo->prepare("
+            UPDATE intra_fahrzeuge
+            SET current_status = :status, status_updated_at = :updated_at, status_source = 'no_dispatch'
+            WHERE id = :id
+        ");
+        $updateStmt->execute([
+            ':status' => (string)$newStatus,
+            ':updated_at' => $updatedAt,
+            ':id' => $vehicleId
+        ]);
+
+        logSync("status_no_dispatch: Fahrzeug '$vehicleName' (ID: $vehicleId) Status auf $newStatus gesetzt (source=no_dispatch, time=$updatedAt)", 'INFO');
+
+        echo json_encode([
+            'success' => true,
+            'vehicle_id' => $vehicleId,
+            'new_status' => $newStatus,
+            'source' => 'no_dispatch'
+        ]);
+    } catch (Exception $e) {
+        logSync('Fehler bei status_no_dispatch: ' . $e->getMessage(), 'ERROR');
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => 'Verarbeitungsfehler',
+            'message' => $e->getMessage()
+        ]);
+    }
+}
+
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
@@ -317,6 +397,9 @@ try {
                 exit;
             case 'status_updates':
                 handleStatusUpdates($receivedData, $pdo);
+                exit;
+            case 'status_no_dispatch':
+                handleStatusNoDispatch($receivedData, $pdo);
                 exit;
             default:
                 logSync('Unbekannter Sync-Typ: ' . $receivedData['type'], 'WARNING');
