@@ -917,6 +917,19 @@ body {
   z-index: 0;
 }
 
+[class*="edivi__interactbutton"] > a.has-submenu:after {
+  content: "\f105";
+  font-family: "Font Awesome 7 Free";
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  font-size: 1.2rem;
+  font-weight: 900;
+  transform: translateY(-50%);
+  color: var(--white);
+  z-index: 0;
+}
+
 .edivi__box h5 {
   font-size: 1.4rem;
 }
@@ -1298,6 +1311,16 @@ input.edivi__target {
       }
     }
   }
+}
+
+button#save-anamnese-btn {
+  font-size: 1.4rem;
+  padding: 22px 30px;
+  background-color: var(--white);
+  color: var(--black);
+  text-decoration: none;
+  width: 100%;
+  border: 2px solid #191919;
 }
 
 .edivi__login-buttons {

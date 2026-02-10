@@ -54,6 +54,17 @@ date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
+$naca_labels = [
+    0 => 'NACA 0 - Keine Erkrankung/Verletzung',
+    1 => 'NACA I - geringfügige Störung',
+    2 => 'NACA II - leichte Störung',
+    3 => 'NACA III - mäßige Störung',
+    4 => 'NACA IV - Lebensgefahr nicht auszuschließen',
+    5 => 'NACA V - Akute Lebensgefahr',
+    6 => 'NACA VI - Kreislaufstillstand',
+    7 => 'NACA VII - Todesfeststellung',
+];
+
 $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'false';
 ?>
 
@@ -104,7 +115,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <input type="text" class="w-100 form-control" value="<?= $daten['symptombeginn_zeit'] ?? '' ?>" readonly>
                                                 </div>
                                                 <div class="col">
-                                                    <label class="edivi__description">Optionen</label>
+                                                    <label class="edivi__description"></label>
                                                     <input type="text" class="w-100 form-control" value="<?php
                                                                                                             $opts = [];
                                                                                                             if (!empty($daten['symptombeginn_geschaetzt'])) $opts[] = 'geschätzt';
@@ -140,7 +151,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <div class="row my-2">
                                         <div class="col">
                                             <label for="anamnese" class="edivi__description" style="display: none;">Anamnese</label>
-                                            <textarea name="anamnese" id="anamnese" class="w-100 form-control" style="min-height: 80vh; overflow-y: auto; resize: vertical;" readonly><?= $daten['anmerkungen'] ?></textarea>
+                                            <textarea name="anamnese" id="anamnese" class="w-100 form-control" style="height: 60vh; overflow-y: auto; resize: none; border: 0 !important;" readonly><?= $daten['anmerkungen'] ?></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -180,21 +191,6 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         </script>
     <?php endif; ?>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
-    <script>
-        // Auto-resize textarea based on content
-        function autoResizeTextarea() {
-            const textarea = document.getElementById('anamnese');
-            if (textarea) {
-                textarea.style.height = 'auto';
-                textarea.style.height = Math.max(textarea.scrollHeight, window.innerHeight * 0.8) + 'px';
-            }
-        }
-
-        // Run on page load
-        window.addEventListener('load', autoResizeTextarea);
-        // Run on window resize
-        window.addEventListener('resize', autoResizeTextarea);
-    </script>
 </body>
 
 </html>
