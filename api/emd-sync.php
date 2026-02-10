@@ -375,6 +375,8 @@ try {
     $createdEntries = 0;
     $skippedDispatches = 0;
     $createdFireIncidents = 0;
+    $newSitrepsFromDispatch = 0;
+    $fireIncidentsByDispatch = []; // Dispatch-ID -> Fire Incident ID mapping
 
     $pdo->beginTransaction();
 
@@ -593,9 +595,11 @@ try {
                 ]);
 
                 $createdFireIncidents++;
+                $fireIncidentsByDispatch[$dispatchId] = $fireIncidentId;
                 logSync("Fire Incident #$fireIncidentId erfolgreich erstellt mit " . count($fireVehicles) . " Fahrzeugen", 'INFO');
             } else {
                 $fireIncidentId = (int)$existingFireIncident['id'];
+                $fireIncidentsByDispatch[$dispatchId] = $fireIncidentId;
                 logSync("Fire Incident #$fireIncidentId existiert bereits für Dispatch #$dispatchId", 'INFO');
 
                 // Füge neue Fahrzeuge hinzu, falls noch nicht vorhanden
@@ -651,9 +655,84 @@ try {
             }
         }
 
+        // Verarbeite Lagemeldungen aus dispatch_data (für Fire Incidents)
+        $dispatchData = $dispatchDataByDispatch[$dispatchId] ?? null;
+        if ($dispatchData && isset($dispatchData['lagemeldungen']) && is_array($dispatchData['lagemeldungen']) && isset($fireIncidentsByDispatch[$dispatchId])) {
+            $currentFireIncidentId = $fireIncidentsByDispatch[$dispatchId];
+            $sitrepsToProcess = array_filter($dispatchData['lagemeldungen'], function ($entry) {
+                return isset($entry['type']) && in_array($entry['type'], [
+                    'control_dispatch_form_entry_type_situation_report',
+                    'control_dispatch_form_entry_type_situation_report_important'
+                ]);
+            });
+
+            if (!empty($sitrepsToProcess)) {
+                logSync("Verarbeite " . count($sitrepsToProcess) . " Lagemeldungen von Leitstelle für Fire Incident #$currentFireIncidentId", 'INFO');
+
+                foreach ($sitrepsToProcess as $sitrep) {
+                    $sitrepText = trim($sitrep['text'] ?? '');
+                    $sitrepDate = $sitrep['date'] ?? '';
+                    $sitrepTime = $sitrep['time'] ?? '';
+                    $sitrepSender = $sitrep['sender'] ?? 'Leitstelle';
+
+                    if (empty($sitrepText) || empty($sitrepDate) || empty($sitrepTime)) {
+                        logSync("Lagemeldung übersprungen (fehlende Daten): text='$sitrepText', date='$sitrepDate', time='$sitrepTime'", 'WARNING');
+                        continue;
+                    }
+
+                    // Parse report_time aus date (dd.mm.YYYY) + time (HH:mm)
+                    $reportTime = DateTime::createFromFormat('d.m.Y H:i', $sitrepDate . ' ' . $sitrepTime);
+                    if (!$reportTime) {
+                        logSync("Ungültiges Zeitformat für Lagemeldung: date='$sitrepDate', time='$sitrepTime'", 'WARNING');
+                        continue;
+                    }
+                    $reportTimeFormatted = $reportTime->format('Y-m-d H:i:s');
+
+                    // Deduplizierung: Prüfe ob bereits eine identische Lagemeldung von der Leitstelle existiert
+                    $checkDuplicateStmt = $pdo->prepare("
+                        SELECT id FROM intra_fire_incident_sitreps
+                        WHERE incident_id = :incident_id
+                        AND source = 'leitstelle'
+                        AND text = :text
+                        AND report_time = :report_time
+                        LIMIT 1
+                    ");
+                    $checkDuplicateStmt->execute([
+                        ':incident_id' => $currentFireIncidentId,
+                        ':text' => $sitrepText,
+                        ':report_time' => $reportTimeFormatted
+                    ]);
+
+                    if ($checkDuplicateStmt->fetch()) {
+                        logSync("Lagemeldung bereits vorhanden (Duplikat): '$sitrepText' um $reportTimeFormatted", 'DEBUG');
+                        continue;
+                    }
+
+                    // Ersteller-Anzeige: "Leitstelle (Sender)" wenn Sender bekannt
+                    $radioName = 'Leitstelle';
+
+                    // INSERT neue Lagemeldung
+                    $insertSitrepStmt = $pdo->prepare("
+                        INSERT INTO intra_fire_incident_sitreps
+                        (incident_id, report_time, text, vehicle_radio_name, vehicle_id, created_by, source, synced)
+                        VALUES (:incident_id, :report_time, :text, :radio_name, NULL, NULL, 'leitstelle', 1)
+                    ");
+                    $insertSitrepStmt->execute([
+                        ':incident_id' => $currentFireIncidentId,
+                        ':report_time' => $reportTimeFormatted,
+                        ':text' => $sitrepText,
+                        ':radio_name' => $radioName
+                    ]);
+
+                    $newSitrepsFromDispatch++;
+                    logSync("Lagemeldung von Leitstelle hinzugefügt: '$sitrepText' (Sender: $sitrepSender, Zeit: $reportTimeFormatted) für Fire Incident #$currentFireIncidentId", 'INFO');
+                }
+            }
+        }
+
         $checkExistingStmt = $pdo->prepare("
             SELECT enr
-            FROM intra_edivi 
+            FROM intra_edivi
             WHERE enr = :enr OR enr LIKE :enr_pattern
         ");
         $checkExistingStmt->execute([
@@ -822,11 +901,52 @@ try {
         $processedDispatches++;
     }
 
+    // Sammle lokale Lagemeldungen (noch nicht gesynct) für die Response
+    $situationReports = [];
+    $sitrepIdsToMarkSynced = [];
+
+    foreach ($fireIncidentsByDispatch as $dId => $fIncidentId) {
+        $localSitrepsStmt = $pdo->prepare("
+            SELECT s.id, s.report_time, s.text, s.vehicle_radio_name, f.name AS sys_name
+            FROM intra_fire_incident_sitreps s
+            LEFT JOIN intra_fahrzeuge f ON s.vehicle_id = f.id
+            WHERE s.incident_id = :incident_id
+            AND (s.source IS NULL OR s.source != 'leitstelle')
+            AND s.synced = 0
+            ORDER BY s.report_time ASC
+        ");
+        $localSitrepsStmt->execute([':incident_id' => $fIncidentId]);
+        $localSitreps = $localSitrepsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!empty($localSitreps)) {
+            $situationReports[(string)$dId] = [];
+            foreach ($localSitreps as $ls) {
+                $reportDt = DateTime::createFromFormat('Y-m-d H:i:s', $ls['report_time']);
+                $situationReports[(string)$dId][] = [
+                    'text' => $ls['text'],
+                    'time' => $reportDt ? $reportDt->format('H:i') : '',
+                    'date' => $reportDt ? $reportDt->format('d.m.Y') : '',
+                    'sender' => $ls['vehicle_radio_name'] ?? $ls['sys_name'] ?? 'Unbekannt'
+                ];
+                $sitrepIdsToMarkSynced[] = (int)$ls['id'];
+            }
+            logSync("Sende " . count($localSitreps) . " lokale Lagemeldungen für Dispatch #$dId an Leitstelle zurück", 'INFO');
+        }
+    }
+
+    // Markiere gesendete Lagemeldungen als synced
+    if (!empty($sitrepIdsToMarkSynced)) {
+        $placeholders = implode(',', array_fill(0, count($sitrepIdsToMarkSynced), '?'));
+        $markSyncedStmt = $pdo->prepare("UPDATE intra_fire_incident_sitreps SET synced = 1 WHERE id IN ($placeholders)");
+        $markSyncedStmt->execute($sitrepIdsToMarkSynced);
+        logSync(count($sitrepIdsToMarkSynced) . " lokale Lagemeldungen als synced markiert", 'INFO');
+    }
+
     $pdo->commit();
 
-    logSync("Synchronisation abgeschlossen: Einsätze=$processedDispatches, Einträge erstellt=$createdEntries, Übersprungen=$skippedDispatches, Fire Incidents=$createdFireIncidents", 'INFO');
+    logSync("Synchronisation abgeschlossen: Einsätze=$processedDispatches, Einträge erstellt=$createdEntries, Übersprungen=$skippedDispatches, Fire Incidents=$createdFireIncidents, Neue Lagemeldungen=$newSitrepsFromDispatch", 'INFO');
 
-    echo json_encode([
+    $response = [
         'success' => true,
         'message' => 'Synchronisation erfolgreich abgeschlossen',
         'statistics' => [
@@ -835,9 +955,16 @@ try {
             'processed_dispatches' => $processedDispatches,
             'created_entries' => $createdEntries,
             'skipped_dispatches' => $skippedDispatches,
-            'created_fire_incidents' => $createdFireIncidents
+            'created_fire_incidents' => $createdFireIncidents,
+            'new_sitreps_from_dispatch' => $newSitrepsFromDispatch
         ]
-    ]);
+    ];
+
+    if (!empty($situationReports)) {
+        $response['situation_reports'] = $situationReports;
+    }
+
+    echo json_encode($response);
 } catch (PDOException $e) {
     if (isset($pdo) && $pdo->inTransaction()) {
         $pdo->rollBack();

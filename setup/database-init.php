@@ -412,6 +412,9 @@ $migrationFiles = [
 
     // 09.02.2026 - Einsatzort (Elokation)
     ['file' => 'alter_intra_edivi_09022026_elokation.php', 'type' => 'alter'],
+
+    // 10.02.2026 - Lagemeldungen Source + Synced
+    ['file' => 'alter_intra_fire_incident_sitreps_10022026_add_source_synced.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

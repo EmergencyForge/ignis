@@ -21,7 +21,8 @@
                             <div class="mb-2">
                                 <strong><i class="fa-solid fa-clock me-1"></i><?= fmt_dt($sr['report_time']) ?></strong>
                                 <?php if ($sr['vehicle_radio_name']): ?>
-                                    <span class="badge bg-primary ms-2"><?= htmlspecialchars($sr['vehicle_radio_name']) ?></span>
+                                    <?php $badgeClass = (isset($sr['source']) && $sr['source'] === 'leitstelle') ? 'bg-warning text-dark' : 'bg-primary'; ?>
+                                    <span class="badge <?= $badgeClass ?> ms-2"><?= htmlspecialchars($sr['vehicle_radio_name']) ?></span>
                                 <?php endif; ?>
                                 <?php if ($sr['sys_name']): ?>
                                     <span class="badge bg-info ms-2"><?= htmlspecialchars($sr['sys_name']) ?></span>
