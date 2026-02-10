@@ -47,18 +47,14 @@ if ($rowrole['priority'] <= $_SESSION['role_priority']) {
 if (isset($_POST['new']) && $_POST['new'] == 1) {
     $id = $_REQUEST['id'];
     $username = $_REQUEST['username'];
-    $fullname = $_REQUEST['fullname'];
-    //$aktenid = trim($_POST['aktenid']) !== '' ? $_POST['aktenid'] : null;
     $role = $_REQUEST['role'];
 
-    $sql = "UPDATE intra_users 
-        SET fullname = :fullname,
-            role = :role 
+    $sql = "UPDATE intra_users
+        SET role = :role
         WHERE id = :id";
 
     $stmti = $pdo->prepare($sql);
     $stmti->execute([
-        'fullname' => $fullname,
         'role' => $role,
         'id' => $id
     ]);
@@ -105,12 +101,6 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                                         <div class="col mb-3">
                                             <label for="username" class="form-label fw-bold">Benutzername <span class="text-main-color">*</span></label>
                                             <input type="text" class="form-control" id="username" name="username" placeholder="" value="<?= $row['username'] ?>" required>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col mb-3">
-                                            <label for="fullname" class="form-label fw-bold">Vor- und Zuname <span class="text-main-color">*</span></label>
-                                            <input type="text" class="form-control" id="fullname" name="fullname" placeholder="" value="<?= $row['fullname'] ?>" required>
                                         </div>
                                     </div>
                                 </div>
