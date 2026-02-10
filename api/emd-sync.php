@@ -680,19 +680,21 @@ try {
                         continue;
                     }
 
-                    // Parse report_time aus date (dd.mm.YYYY) + time (HH:mm)
-                    $reportTime = DateTime::createFromFormat('d.m.Y H:i', $sitrepDate . ' ' . $sitrepTime);
+                    // Parse report_time aus date (dd.mm.YYYY) + time (HH:mm) als Berlin-Zeit, dann nach UTC konvertieren
+                    // fmt_dt() interpretiert gespeicherte Zeiten als UTC und konvertiert nach Europe/Berlin
+                    $reportTime = DateTime::createFromFormat('d.m.Y H:i', $sitrepDate . ' ' . $sitrepTime, new DateTimeZone('Europe/Berlin'));
                     if (!$reportTime) {
                         logSync("Ungültiges Zeitformat für Lagemeldung: date='$sitrepDate', time='$sitrepTime'", 'WARNING');
                         continue;
                     }
+                    $reportTime->setTimezone(new DateTimeZone('UTC'));
                     $reportTimeFormatted = $reportTime->format('Y-m-d H:i:s');
 
-                    // Deduplizierung: Prüfe ob bereits eine identische Lagemeldung von der Leitstelle existiert
+                    // Deduplizierung: Prüfe ob bereits eine identische Lagemeldung existiert (egal ob von Leitstelle oder lokal)
+                    // Verhindert auch Duplikate wenn lokale Meldungen über FiveM zurückgespiegelt werden
                     $checkDuplicateStmt = $pdo->prepare("
                         SELECT id FROM intra_fire_incident_sitreps
                         WHERE incident_id = :incident_id
-                        AND source = 'leitstelle'
                         AND text = :text
                         AND report_time = :report_time
                         LIMIT 1
