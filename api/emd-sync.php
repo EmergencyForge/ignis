@@ -972,13 +972,13 @@ try {
                     $reportTime->setTimezone(new DateTimeZone('UTC'));
                     $reportTimeFormatted = $reportTime->format('Y-m-d H:i:s');
 
-                    // Deduplizierung: Prüfe ob bereits eine identische Lagemeldung existiert (egal ob von Leitstelle oder lokal)
-                    // Verhindert auch Duplikate wenn lokale Meldungen über FiveM zurückgespiegelt werden
+                    // Deduplizierung: Prüfe ob gleicher Text für diesen Einsatz innerhalb ±5 Minuten existiert
+                    // Zeitstempel können sich leicht unterscheiden wenn lokale Meldungen über FiveM zurückgespiegelt werden
                     $checkDuplicateStmt = $pdo->prepare("
                         SELECT id FROM intra_fire_incident_sitreps
                         WHERE incident_id = :incident_id
                         AND text = :text
-                        AND report_time = :report_time
+                        AND ABS(TIMESTAMPDIFF(SECOND, report_time, :report_time)) <= 300
                         LIMIT 1
                     ");
                     $checkDuplicateStmt->execute([
@@ -1220,7 +1220,8 @@ try {
 
                 $checkDuplicateStmt = $pdo->prepare("
                     SELECT id FROM intra_fire_incident_sitreps
-                    WHERE incident_id = :incident_id AND text = :text AND report_time = :report_time
+                    WHERE incident_id = :incident_id AND text = :text
+                    AND ABS(TIMESTAMPDIFF(SECOND, report_time, :report_time)) <= 300
                     LIMIT 1
                 ");
                 $checkDuplicateStmt->execute([
