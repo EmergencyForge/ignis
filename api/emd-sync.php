@@ -1343,6 +1343,8 @@ try {
     $statusQueueStmt->execute();
     $pendingStatuses = $statusQueueStmt->fetchAll(PDO::FETCH_ASSOC);
 
+    logSync("Status-Queue: " . count($pendingStatuses) . " ausstehende Einträge gefunden", 'DEBUG');
+
     if (!empty($pendingStatuses)) {
         $statusIdsToDeliver = [];
         foreach ($pendingStatuses as $sq) {
@@ -1392,7 +1394,7 @@ try {
 
     // V2: Zusätzliche Response-Felder
     if ($isV2) {
-        $response['status_poll'] = $statusChanges;
+        $response['status_poll'] = ['status_changes' => $statusChanges];
         $response['status_ack'] = ['successful_ids' => $v2StatusResult['successful_ids']];
     }
 

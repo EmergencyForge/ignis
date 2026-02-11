@@ -74,9 +74,6 @@ use App\Auth\Permissions;
                 <span id="current-time"><?= $currentTime ?></span>
                 <span id="current-date"><?= $currentDate ?></span>
             </div>
-            <span id="leitstelle-conn-icon" class="me-2" title="Verbindung zur Leitstelle" style="font-size: 1.2rem;">
-                <i class="fa-solid fa-tower-broadcast" style="color: #ffffff;"></i>
-            </span>
             <?php
             $patSyncColor = '#ffffff';
             if (isset($daten['pat_synced'])) {
@@ -84,9 +81,14 @@ use App\Auth\Permissions;
                 elseif ($daten['pat_synced'] == 1) $patSyncColor = '#28a745';
             }
             ?>
-            <span id="pat-sync-icon" class="me-2" title="Patientendaten-Sync" style="font-size: 1.2rem;">
-                <i class="fa-solid fa-cloud-arrow-up" style="color: <?= $patSyncColor ?>;"></i>
-            </span>
+            <div class="d-flex flex-column align-items-center me-3" style="font-size: 0.85rem; gap: 2px;">
+                <span id="leitstelle-conn-icon" title="Verbindung zur Leitstelle">
+                    <i class="fa-solid fa-tower-broadcast" style="color: #ffffff;"></i>
+                </span>
+                <span id="pat-sync-icon" title="Patientendaten-Sync">
+                    <i class="fa-solid fa-cloud-arrow-up" style="color: <?= $patSyncColor ?>;"></i>
+                </span>
+            </div>
             <a href="https://github.com/intraRP/intraRP" target="_blank">
                 <img src="https://emergencyforge.de/assets/img/defaultLogo.webp" alt="EmergencyForge Logo" height="64px" width="auto">
             </a>
