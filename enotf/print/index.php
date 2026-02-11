@@ -192,8 +192,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="row border border-dark">
                     <div class="col">
                         <h6 class="print__heading">Patientendaten</h6>
+                        <?php $printFullname = trim(($daten['pat_nachname'] ?? '') . (!empty($daten['pat_nachname']) && !empty($daten['pat_vorname']) ? ', ' : '') . ($daten['pat_vorname'] ?? '')); ?>
                         <div class="print__field-wrapper" data-field-name="Name">
-                            <input type="text" class="w-100 print__field" value="<?= $daten['patname'] ?>" readonly>
+                            <input type="text" class="w-100 print__field" value="<?= htmlspecialchars($printFullname) ?>" readonly>
                         </div>
                         <div class="print__field-wrapper" data-field-name="Geburtsdatum">
                             <input type="text" class="w-100 print__field" id="patgebdat" data-date="<?= $daten['patgebdat'] ?>" value="<?= !empty($daten['patgebdat']) ? date('d.m.Y', strtotime($daten['patgebdat'])) : '' ?>" readonly>
@@ -1690,7 +1691,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <div class="col">
                         <table class="w-100 print__text-small">
                             <tr>
-                                <td>Patient Name<br><span style="font-weight: 600;font-size:11pt"><?= $daten['patname'] ?></span></td>
+                                <td>Patient Name<br><span style="font-weight: 600;font-size:11pt"><?= htmlspecialchars($printFullname) ?></span></td>
                                 <td>Geb.Dat.<br><span style="font-weight: 600;font-size:11pt"><?= !empty($daten['patgebdat']) ? date('d.m.Y', strtotime($daten['patgebdat'])) : '' ?></span></td>
                             </tr>
                         </table>

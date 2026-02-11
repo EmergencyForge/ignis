@@ -74,6 +74,16 @@ use App\Auth\Permissions;
                 <span id="current-time"><?= $currentTime ?></span>
                 <span id="current-date"><?= $currentDate ?></span>
             </div>
+            <?php
+            $patSyncColor = '#ffffff';
+            if (isset($daten['pat_synced'])) {
+                if ($daten['pat_synced'] == 2) $patSyncColor = '#f0ad4e';
+                elseif ($daten['pat_synced'] == 1) $patSyncColor = '#28a745';
+            }
+            ?>
+            <span id="pat-sync-icon" class="me-2" title="Patientendaten-Sync" style="font-size: 1.2rem;">
+                <i class="fa-solid fa-cloud-arrow-up" style="color: <?= $patSyncColor ?>;"></i>
+            </span>
             <a href="https://github.com/intraRP/intraRP" target="_blank">
                 <img src="https://emergencyforge.de/assets/img/defaultLogo.webp" alt="EmergencyForge Logo" height="64px" width="auto">
             </a>

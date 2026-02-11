@@ -88,6 +88,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/3.php?enr=<?= $daten['enr'] ?>" class="active">
                                 <span>Übergabe</span>
                             </a>
+                            <a href="#" onclick="sendPatientToDispatch(event)" id="btn-send-patient" class="mt-2" style="border-top: 1px solid rgba(255,255,255,0.1);">
+                                <span><i class="fa-solid fa-cloud-arrow-up me-1"></i> An Leitstelle senden</span>
+                            </a>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
                             <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/3_1.php?enr=<?= $daten['enr'] ?>" class="active">
@@ -256,6 +259,32 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         modalCloseButton.addEventListener('click', function() {
             freigeberInput.value = '';
         });
+    </script>
+    <script>
+        function sendPatientToDispatch(e) {
+            e.preventDefault();
+            const syncIcon = document.getElementById('pat-sync-icon');
+            const syncIconEl = syncIcon ? syncIcon.querySelector('i') : null;
+            if (syncIconEl) syncIconEl.style.color = '#f0ad4e';
+            fetch('<?= BASE_PATH ?>api/enotf-patient-sync.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enr: '<?= $enr ?>' })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    if (syncIconEl) syncIconEl.style.color = '#f0ad4e';
+                } else {
+                    if (syncIconEl) syncIconEl.style.color = '#dc3545';
+                    alert('Fehler: ' + (data.error || 'Unbekannter Fehler'));
+                }
+            })
+            .catch(() => {
+                if (syncIconEl) syncIconEl.style.color = '#dc3545';
+                alert('Verbindungsfehler beim Senden.');
+            });
+        }
     </script>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
 </body>

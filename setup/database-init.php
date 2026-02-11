@@ -421,6 +421,9 @@ $migrationFiles = [
 
     // 10.02.2026 - Fahrzeug-Status (für status_no_dispatch)
     ['file' => 'alter_intra_fahrzeuge_10022026_status.php', 'type' => 'alter'],
+
+    // 11.02.2026 - Patientenname aufteilen + Sync-Flag
+    ['file' => 'alter_intra_edivi_11022026_split_patname.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

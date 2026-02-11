@@ -361,6 +361,146 @@ function handleStatusNoDispatch(array $data, PDO $pdo): void
     }
 }
 
+/**
+ * Verarbeitet Status-Updates intern und gibt Ergebnisse zurück
+ * Wird sowohl von v1 handleStatusUpdates als auch vom v2 Unified Handler verwendet
+ *
+ * @param array<array<string, mixed>> $statuses
+ * @return array{updated: int, not_found: int, successful_ids: array<string|int>, total: int}
+ */
+function processStatusUpdatesInternal(array $statuses, PDO $pdo): array
+{
+    $updated = 0;
+    $notFound = 0;
+    $successfulIds = [];
+
+    foreach ($statuses as $status) {
+        $statusValue = $status['status'];
+        $missionNumber = $status['mission_number'];
+        $sender = $status['sender'];
+        $statusId = $status['id'];
+
+        $statusTime = DateTime::createFromFormat('d.m.Y H:i', $status['timestamp']);
+        if (!$statusTime) {
+            logSync("Ungültiges Zeitformat für Status-Update $statusId", 'WARNING');
+            continue;
+        }
+
+        logSync("Verarbeite Status '$statusValue' für Einsatz $missionNumber von Fahrzeug $sender (ID: $statusId)", 'DEBUG');
+
+        $statusColumn = 's' . $statusValue;
+
+        $findVehicleStmt = $pdo->prepare("
+            SELECT identifier, rd_type
+            FROM intra_fahrzeuge
+            WHERE name = :name
+            LIMIT 1
+        ");
+        $findVehicleStmt->execute([':name' => $sender]);
+        $vehicleRow = $findVehicleStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$vehicleRow) {
+            $notFound++;
+            logSync("Fahrzeug $sender nicht gefunden (ID: $statusId)", 'WARNING');
+            continue;
+        }
+
+        $vehicleIdentifier = $vehicleRow['identifier'];
+        $rdType = intval($vehicleRow['rd_type'] ?? 0);
+
+        $findEnrStmt = $pdo->prepare("
+            SELECT enr
+            FROM intra_edivi
+            WHERE (enr = :mission OR enr LIKE :mission_pattern)
+              AND (fzg_na = :vehicle_id1 OR fzg_transp = :vehicle_id2)
+            LIMIT 1
+        ");
+        $findEnrStmt->execute([
+            ':mission' => $missionNumber,
+            ':mission_pattern' => $missionNumber . '_%',
+            ':vehicle_id1' => $vehicleIdentifier,
+            ':vehicle_id2' => $vehicleIdentifier
+        ]);
+        $enrRow = $findEnrStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$enrRow) {
+            $notFound++;
+            logSync("Einsatz für $vehicleIdentifier / $missionNumber nicht gefunden (ID: $statusId)", 'WARNING');
+            continue;
+        }
+
+        $enr = $enrRow['enr'];
+        $formattedTime = $statusTime->format('Y-m-d H:i:s');
+
+        if (strtoupper(trim($statusValue)) === 'C') {
+            $sql = "UPDATE intra_edivi SET salarm = :salarm WHERE enr = :enr";
+            $updateStmt = $pdo->prepare($sql);
+            $updateStmt->execute([':salarm' => $formattedTime, ':enr' => $enr]);
+            logSync("Status C für $sender: salarm = $formattedTime (ID: $statusId)", 'INFO');
+        } else {
+            $allowedColumns = ['s1', 's2', 's3', 's4', 's7', 's8'];
+            if (!in_array($statusColumn, $allowedColumns)) {
+                logSync("Ungültige Status-Spalte: $statusColumn (ID: $statusId)", 'WARNING');
+                continue;
+            }
+            $sql = "UPDATE intra_edivi SET $statusColumn = :status_time WHERE enr = :enr";
+            $updateStmt = $pdo->prepare($sql);
+            $updateStmt->execute([':status_time' => $formattedTime, ':enr' => $enr]);
+            logSync("Status $statusValue für $sender: $statusColumn = $formattedTime (ID: $statusId)", 'INFO');
+        }
+
+        $updatedThisStatus = false;
+        if ($updateStmt->rowCount() > 0) {
+            $updated++;
+            $updatedThisStatus = true;
+        }
+
+        // Fire Incident Status für Feuerwehr-Fahrzeuge (rd_type = 3)
+        if ($rdType === 3) {
+            $findFireIncidentStmt = $pdo->prepare("SELECT id FROM intra_fire_incidents WHERE incident_number = :incident_number LIMIT 1");
+            $findFireIncidentStmt->execute([':incident_number' => (string)$missionNumber]);
+            $fireIncidentRow = $findFireIncidentStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($fireIncidentRow) {
+                $fireIncidentId = (int)$fireIncidentRow['id'];
+                $getVehicleIdStmt = $pdo->prepare("SELECT id FROM intra_fahrzeuge WHERE identifier = :identifier LIMIT 1");
+                $getVehicleIdStmt->execute([':identifier' => $vehicleIdentifier]);
+                $vehicleIdRow = $getVehicleIdStmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($vehicleIdRow) {
+                    $vehicleId = (int)$vehicleIdRow['id'];
+                    $updateFireStatusStmt = $pdo->prepare("
+                        UPDATE intra_fire_incident_vehicles
+                        SET current_status = :status, status_updated_at = NOW()
+                        WHERE incident_id = :incident_id AND vehicle_id = :vehicle_id
+                    ");
+                    $updateFireStatusStmt->execute([
+                        ':status' => (string)$statusValue,
+                        ':incident_id' => $fireIncidentId,
+                        ':vehicle_id' => $vehicleId
+                    ]);
+                    if ($updateFireStatusStmt->rowCount() > 0) {
+                        logSync("Fire Incident Status: $sender (ID: $vehicleId) in #$fireIncidentId -> $statusValue", 'INFO');
+                    }
+                }
+            }
+        }
+
+        if ($updatedThisStatus) {
+            $successfulIds[] = $statusId;
+        }
+    }
+
+    logSync("processStatusUpdatesInternal: $updated Updates, $notFound nicht gefunden von " . count($statuses), 'INFO');
+
+    return [
+        'updated' => $updated,
+        'not_found' => $notFound,
+        'successful_ids' => $successfulIds,
+        'total' => count($statuses)
+    ];
+}
+
 try {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
@@ -407,6 +547,65 @@ try {
                 echo json_encode(['success' => false, 'error' => 'Unbekannter Sync-Typ']);
                 exit;
         }
+    }
+
+    // Protocol v2: Unified Request Handling
+    $isV2 = isset($receivedData['protocol_version']) && (int)$receivedData['protocol_version'] === 2;
+    $v2StatusResult = ['successful_ids' => []];
+
+    if ($isV2) {
+        logSync('Protocol v2 erkannt - Unified Request', 'INFO');
+
+        // 1. Status-Updates verarbeiten (vor Fahrzeug-Sync)
+        $v2Statuses = $receivedData['status_updates']['statuses'] ?? [];
+        if (!empty($v2Statuses)) {
+            logSync('V2: Verarbeite ' . count($v2Statuses) . ' Status-Updates', 'INFO');
+            $v2StatusResult = processStatusUpdatesInternal($v2Statuses, $pdo);
+        }
+
+        // 2. Fallback-Statuses verarbeiten (Fahrzeuge ohne aktiven Dispatch)
+        $v2Fallbacks = $receivedData['fallback_statuses'] ?? [];
+        if (!empty($v2Fallbacks)) {
+            logSync('V2: Verarbeite ' . count($v2Fallbacks) . ' Fallback-Statuses', 'INFO');
+            foreach ($v2Fallbacks as $fb) {
+                $fbVehicleName = $fb['vehicle_name'] ?? '';
+                $fbStatus = $fb['status'] ?? '';
+                if (empty($fbVehicleName) || $fbStatus === '') continue;
+
+                $fbUpdatedAt = date('Y-m-d H:i:s');
+                if (!empty($fb['date']) && !empty($fb['time'])) {
+                    $fbDt = DateTime::createFromFormat('d.m.Y H:i', $fb['date'] . ' ' . $fb['time'], new DateTimeZone('Europe/Berlin'));
+                    if ($fbDt) $fbUpdatedAt = $fbDt->format('Y-m-d H:i:s');
+                }
+
+                $fbStmt = $pdo->prepare("SELECT id FROM intra_fahrzeuge WHERE name = :name LIMIT 1");
+                $fbStmt->execute([':name' => $fbVehicleName]);
+                $fbVehicle = $fbStmt->fetch(PDO::FETCH_ASSOC);
+                if (!$fbVehicle) {
+                    logSync("V2 Fallback: Fahrzeug '$fbVehicleName' nicht gefunden", 'WARNING');
+                    continue;
+                }
+
+                $pdo->prepare("UPDATE intra_fahrzeuge SET current_status = :status, status_updated_at = :updated_at, status_source = 'no_dispatch' WHERE id = :id")
+                    ->execute([':status' => (string)$fbStatus, ':updated_at' => $fbUpdatedAt, ':id' => (int)$fbVehicle['id']]);
+                logSync("V2 Fallback: Fahrzeug '$fbVehicleName' Status auf $fbStatus", 'INFO');
+            }
+        }
+
+        // 3. Dispatch-Logs: Nur Logging (keine Speicherung nötig)
+        if (isset($receivedData['dispatch_logs'])) {
+            $dlMissions = $receivedData['dispatch_logs']['missions'] ?? [];
+            logSync('V2: ' . count($dlMissions) . ' Dispatch-Logs empfangen (keine Speicherung)', 'INFO');
+        }
+
+        // 4. Normalisiere dispatch_data -> data für bestehenden Fahrzeug-Sync
+        if (isset($receivedData['dispatch_data'])) {
+            $receivedData['data'] = $receivedData['dispatch_data'];
+        } elseif (!isset($receivedData['data'])) {
+            $receivedData['data'] = ['vehicles' => []];
+        }
+    } else {
+        $isV2 = false;
     }
 
     // Normale Fahrzeug-Synchronisierung
@@ -874,26 +1073,28 @@ try {
                 // Extrahiere Patientendaten aus dispatch_data (falls vorhanden)
                 $dispatchData = $dispatchDataByDispatch[$dispatchId] ?? null;
                 $patientName = null;
+                $patientVorname = null;
+                $patientNachname = null;
                 $patientBirthdate = null;
 
                 if ($dispatchData && isset($dispatchData['patienten']) && is_array($dispatchData['patienten']) && !empty($dispatchData['patienten'])) {
                     // Nehme ersten Patienten
                     $patient = $dispatchData['patienten'][0];
-                    
+
                     // Formatiere Name als "Nachname, Vorname"
                     if (isset($patient['nachname']) || isset($patient['vorname'])) {
-                        $nachname = $patient['nachname'] ?? '';
-                        $vorname = $patient['vorname'] ?? '';
-                        
-                        if (!empty($nachname) && !empty($vorname)) {
-                            $patientName = $nachname . ', ' . $vorname;
-                        } elseif (!empty($nachname)) {
-                            $patientName = $nachname;
-                        } elseif (!empty($vorname)) {
-                            $patientName = $vorname;
+                        $patientNachname = !empty($patient['nachname']) ? $patient['nachname'] : null;
+                        $patientVorname = !empty($patient['vorname']) ? $patient['vorname'] : null;
+
+                        if ($patientNachname && $patientVorname) {
+                            $patientName = $patientNachname . ', ' . $patientVorname;
+                        } elseif ($patientNachname) {
+                            $patientName = $patientNachname;
+                        } elseif ($patientVorname) {
+                            $patientName = $patientVorname;
                         }
                     }
-                    
+
                     // Berechne Geburtsdatum basierend auf Alter (01.01.XXXX)
                     if (isset($patient['alter']) && is_numeric($patient['alter'])) {
                         $alter = intval($patient['alter']);
@@ -901,15 +1102,15 @@ try {
                         $birthYear = $currentYear - $alter;
                         $patientBirthdate = $birthYear . '-01-01';
                     }
-                    
+
                     if ($patientName || $patientBirthdate) {
                         logSync("Patientendaten für Einsatz #$dispatchId gefunden: Name='$patientName', Geburtsdatum='$patientBirthdate'", 'INFO');
                     }
                 }
 
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, patname, patgebdat, created_at, createdby)
-                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW(), 1)
+                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, patname, pat_vorname, pat_nachname, patgebdat, created_at, createdby)
+                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, :patname, :pat_vorname, :pat_nachname, :patgebdat, NOW(), 1)
                 ");
                 $insertStmt->execute([
                     ':enr' => $enrToUse,
@@ -918,6 +1119,8 @@ try {
                     ':ezeit' => $currentTime,
                     ':prot_by' => 1,
                     ':patname' => $patientName,
+                    ':pat_vorname' => $patientVorname,
+                    ':pat_nachname' => $patientNachname,
                     ':patgebdat' => $patientBirthdate
                 ]);
 
@@ -929,26 +1132,28 @@ try {
                 // Extrahiere Patientendaten aus dispatch_data (falls vorhanden)
                 $dispatchData = $dispatchDataByDispatch[$dispatchId] ?? null;
                 $patientName = null;
+                $patientVorname = null;
+                $patientNachname = null;
                 $patientBirthdate = null;
 
                 if ($dispatchData && isset($dispatchData['patienten']) && is_array($dispatchData['patienten']) && !empty($dispatchData['patienten'])) {
                     // Nehme ersten Patienten
                     $patient = $dispatchData['patienten'][0];
-                    
+
                     // Formatiere Name als "Nachname, Vorname"
                     if (isset($patient['nachname']) || isset($patient['vorname'])) {
-                        $nachname = $patient['nachname'] ?? '';
-                        $vorname = $patient['vorname'] ?? '';
-                        
-                        if (!empty($nachname) && !empty($vorname)) {
-                            $patientName = $nachname . ', ' . $vorname;
-                        } elseif (!empty($nachname)) {
-                            $patientName = $nachname;
-                        } elseif (!empty($vorname)) {
-                            $patientName = $vorname;
+                        $patientNachname = !empty($patient['nachname']) ? $patient['nachname'] : null;
+                        $patientVorname = !empty($patient['vorname']) ? $patient['vorname'] : null;
+
+                        if ($patientNachname && $patientVorname) {
+                            $patientName = $patientNachname . ', ' . $patientVorname;
+                        } elseif ($patientNachname) {
+                            $patientName = $patientNachname;
+                        } elseif ($patientVorname) {
+                            $patientName = $patientVorname;
                         }
                     }
-                    
+
                     // Berechne Geburtsdatum basierend auf Alter (01.01.XXXX)
                     if (isset($patient['alter']) && is_numeric($patient['alter'])) {
                         $alter = intval($patient['alter']);
@@ -956,15 +1161,15 @@ try {
                         $birthYear = $currentYear - $alter;
                         $patientBirthdate = $birthYear . '-01-01';
                     }
-                    
+
                     if ($patientName || $patientBirthdate) {
                         logSync("Patientendaten für Einsatz #$dispatchId gefunden: Name='$patientName', Geburtsdatum='$patientBirthdate'", 'INFO');
                     }
                 }
 
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, patname, patgebdat, created_at, createdby)
-                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, :patname, :patgebdat, NOW(), 1)
+                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, patname, pat_vorname, pat_nachname, patgebdat, created_at, createdby)
+                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, :patname, :pat_vorname, :pat_nachname, :patgebdat, NOW(), 1)
                 ");
                 $insertStmt->execute([
                     ':enr' => $enrToUse,
@@ -973,6 +1178,8 @@ try {
                     ':ezeit' => $currentTime,
                     ':prot_by' => 0,
                     ':patname' => $patientName,
+                    ':pat_vorname' => $patientVorname,
+                    ':pat_nachname' => $patientNachname,
                     ':patgebdat' => $patientBirthdate
                 ]);
 
@@ -984,6 +1191,59 @@ try {
         }
 
         $processedDispatches++;
+    }
+
+    // V2: Verarbeite top-level Lagemeldungen (falls separat von dispatch_data gesendet)
+    if ($isV2 && isset($receivedData['lagemeldungen']) && is_array($receivedData['lagemeldungen'])) {
+        foreach ($receivedData['lagemeldungen'] as $lageDId => $lageEntries) {
+            if (!isset($fireIncidentsByDispatch[$lageDId]) || !is_array($lageEntries)) continue;
+            $currentFireIncidentId = $fireIncidentsByDispatch[$lageDId];
+
+            $sitrepsToProcess = array_filter($lageEntries, function ($entry) {
+                return isset($entry['type']) && in_array($entry['type'], [
+                    'control_dispatch_form_entry_type_situation_report',
+                    'control_dispatch_form_entry_type_situation_report_important'
+                ]);
+            });
+
+            foreach ($sitrepsToProcess as $sitrep) {
+                $sitrepText = trim($sitrep['text'] ?? '');
+                $sitrepDate = $sitrep['date'] ?? '';
+                $sitrepTime = $sitrep['time'] ?? '';
+
+                if (empty($sitrepText) || empty($sitrepDate) || empty($sitrepTime)) continue;
+
+                $reportTime = DateTime::createFromFormat('d.m.Y H:i', $sitrepDate . ' ' . $sitrepTime, new DateTimeZone('Europe/Berlin'));
+                if (!$reportTime) continue;
+                $reportTime->setTimezone(new DateTimeZone('UTC'));
+                $reportTimeFormatted = $reportTime->format('Y-m-d H:i:s');
+
+                $checkDuplicateStmt = $pdo->prepare("
+                    SELECT id FROM intra_fire_incident_sitreps
+                    WHERE incident_id = :incident_id AND text = :text AND report_time = :report_time
+                    LIMIT 1
+                ");
+                $checkDuplicateStmt->execute([
+                    ':incident_id' => $currentFireIncidentId,
+                    ':text' => $sitrepText,
+                    ':report_time' => $reportTimeFormatted
+                ]);
+                if ($checkDuplicateStmt->fetch()) continue;
+
+                $insertSitrepStmt = $pdo->prepare("
+                    INSERT INTO intra_fire_incident_sitreps
+                    (incident_id, report_time, text, vehicle_radio_name, vehicle_id, created_by, source, synced)
+                    VALUES (:incident_id, :report_time, :text, 'Leitstelle', NULL, NULL, 'leitstelle', 1)
+                ");
+                $insertSitrepStmt->execute([
+                    ':incident_id' => $currentFireIncidentId,
+                    ':report_time' => $reportTimeFormatted,
+                    ':text' => $sitrepText
+                ]);
+                $newSitrepsFromDispatch++;
+                logSync("V2 Lagemeldung: '$sitrepText' für Fire Incident #$currentFireIncidentId", 'INFO');
+            }
+        }
     }
 
     // Sammle lokale Lagemeldungen (noch nicht gesynct) für die Response
@@ -1027,6 +1287,79 @@ try {
         logSync(count($sitrepIdsToMarkSynced) . " lokale Lagemeldungen als synced markiert", 'INFO');
     }
 
+    // Sammle Patientendaten die zum Senden markiert wurden (pat_synced = 2)
+    $patientUpdates = [];
+    $patientEnrsToMarkSynced = [];
+
+    $patSyncStmt = $pdo->prepare("
+        SELECT enr, pat_vorname, pat_nachname, patgebdat, prot_by, fzg_na, fzg_transp, ziel_poi
+        FROM intra_edivi
+        WHERE pat_synced = 2
+    ");
+    $patSyncStmt->execute();
+    $pendingPatients = $patSyncStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    foreach ($pendingPatients as $pp) {
+        $patAge = null;
+        if (!empty($pp['patgebdat'])) {
+            $birthDate = new DateTime($pp['patgebdat']);
+            $now = new DateTime();
+            $patAge = $now->diff($birthDate)->y;
+        }
+
+        // Funkrufname: Fahrzeugname basierend auf Protokollart
+        $funkrufname = null;
+        $vehicleIdentifier = ($pp['prot_by'] == 1) ? ($pp['fzg_na'] ?? null) : ($pp['fzg_transp'] ?? null);
+        if (!empty($vehicleIdentifier)) {
+            $vehNameStmt = $pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE identifier = :identifier LIMIT 1");
+            $vehNameStmt->execute([':identifier' => $vehicleIdentifier]);
+            $funkrufname = $vehNameStmt->fetchColumn() ?: null;
+        }
+
+        $patientUpdates[(string)$pp['enr']] = [
+            'vorname' => !empty($pp['pat_vorname']) ? $pp['pat_vorname'] : 'Unbekannt',
+            'nachname' => !empty($pp['pat_nachname']) ? $pp['pat_nachname'] : 'Unbekannt',
+            'alter' => $patAge,
+            'funkrufname' => $funkrufname,
+            'transportziel' => !empty($pp['ziel_poi']) ? $pp['ziel_poi'] : null
+        ];
+        $patientEnrsToMarkSynced[] = $pp['enr'];
+    }
+
+    if (!empty($patientEnrsToMarkSynced)) {
+        $placeholders = implode(',', array_fill(0, count($patientEnrsToMarkSynced), '?'));
+        $pdo->prepare("UPDATE intra_edivi SET pat_synced = 1 WHERE enr IN ($placeholders)")->execute($patientEnrsToMarkSynced);
+        logSync(count($patientEnrsToMarkSynced) . " Patientendaten als synced markiert", 'INFO');
+    }
+
+    // Sammle ausstehende Status-Änderungen (ersetzt separaten emd-status-poll.php)
+    $statusChanges = [];
+    $statusQueueStmt = $pdo->prepare("
+        SELECT id, vehicle_name, new_status, incident_number, created_at
+        FROM intra_fire_status_queue
+        WHERE delivered = 0
+        ORDER BY created_at ASC
+    ");
+    $statusQueueStmt->execute();
+    $pendingStatuses = $statusQueueStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!empty($pendingStatuses)) {
+        $statusIdsToDeliver = [];
+        foreach ($pendingStatuses as $sq) {
+            $statusChanges[] = [
+                'vehicle_name' => $sq['vehicle_name'],
+                'status' => $sq['new_status'],
+                'incident_number' => $sq['incident_number'],
+                'timestamp' => (new DateTime($sq['created_at']))->format('d.m.Y H:i')
+            ];
+            $statusIdsToDeliver[] = (int)$sq['id'];
+        }
+
+        $placeholders = implode(',', array_fill(0, count($statusIdsToDeliver), '?'));
+        $pdo->prepare("UPDATE intra_fire_status_queue SET delivered = 1 WHERE id IN ($placeholders)")->execute($statusIdsToDeliver);
+        logSync(count($statusIdsToDeliver) . " Status-Änderungen als delivered markiert", 'INFO');
+    }
+
     $pdo->commit();
 
     logSync("Synchronisation abgeschlossen: Einsätze=$processedDispatches, Einträge erstellt=$createdEntries, Übersprungen=$skippedDispatches, Fire Incidents=$createdFireIncidents, Neue Lagemeldungen=$newSitrepsFromDispatch", 'INFO');
@@ -1047,6 +1380,20 @@ try {
 
     if (!empty($situationReports)) {
         $response['situation_reports'] = $situationReports;
+    }
+
+    if (!empty($patientUpdates)) {
+        $response['patient_updates'] = $patientUpdates;
+    }
+
+    if (!empty($statusChanges)) {
+        $response['status_changes'] = $statusChanges;
+    }
+
+    // V2: Zusätzliche Response-Felder
+    if ($isV2) {
+        $response['status_poll'] = $statusChanges;
+        $response['status_ack'] = ['successful_ids' => $v2StatusResult['successful_ids']];
     }
 
     echo json_encode($response);
