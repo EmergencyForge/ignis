@@ -529,6 +529,9 @@ try {
         exit;
     }
 
+    // Letzten Sync-Zeitpunkt speichern (für Verbindungs-Status in der Topbar)
+    @file_put_contents(__DIR__ . '/../storage/last_emd_sync.txt', date('Y-m-d H:i:s'));
+
     // Routing basierend auf type
     if (isset($receivedData['type'])) {
         switch ($receivedData['type']) {
@@ -611,47 +614,44 @@ try {
     // Normale Fahrzeug-Synchronisierung
     $vehicles = $receivedData['data']['vehicles'] ?? [];
 
+    $vehiclesByDispatch = [];
+    $dispatchDataByDispatch = [];
+
     if (empty($vehicles)) {
         logSync('Keine Fahrzeuge in der Anfrage', 'INFO');
-        echo json_encode(['success' => true, 'message' => 'Keine Fahrzeuge zu verarbeiten', 'processed' => 0]);
-        exit;
-    }
-
-    logSync('Es wurden ' . count($vehicles) . ' Fahrzeuge zur Verarbeitung empfangen', 'INFO');
-
-    $vehiclesByDispatch = [];
-    $dispatchDataByDispatch = []; // Speichere dispatch_data für jeden Dispatch
-
-    foreach ($vehicles as $vehicle) {
-        $dispatchId = intval($vehicle['dispatch'] ?? 0);
-
-        if ($dispatchId <= 0) {
-            continue;
-        }
-
-        if (!isset($vehiclesByDispatch[$dispatchId])) {
-            $vehiclesByDispatch[$dispatchId] = [];
-        }
-
-        $vehiclesByDispatch[$dispatchId][] = $vehicle;
-
-        // Speichere dispatch_data (falls vorhanden)
-        if (isset($vehicle['dispatch_data']) && !isset($dispatchDataByDispatch[$dispatchId])) {
-            $dispatchDataByDispatch[$dispatchId] = $vehicle['dispatch_data'];
-            logSync("Dispatch-Data für Einsatz #$dispatchId empfangen: " . json_encode($vehicle['dispatch_data']), 'DEBUG');
-        }
-    }
-
-    // Debug: Zeige alle empfangenen dispatch_data
-    if (!empty($dispatchDataByDispatch)) {
-        logSync("Insgesamt " . count($dispatchDataByDispatch) . " Dispatch-Daten empfangen", 'INFO');
     } else {
-        logSync("Keine dispatch_data in den Fahrzeugdaten gefunden - prüfe Datenstruktur", 'WARNING');
-        // Logge ein Beispiel-Fahrzeug zur Analyse
-        logSync("Beispiel-Fahrzeug-Datenstruktur: " . json_encode($vehicles[0]), 'DEBUG');
-    }
+        logSync('Es wurden ' . count($vehicles) . ' Fahrzeuge zur Verarbeitung empfangen', 'INFO');
 
-    logSync('Es wurden ' . count($vehiclesByDispatch) . ' eindeutige Einsatznummern gefunden', 'INFO');
+        foreach ($vehicles as $vehicle) {
+            $dispatchId = intval($vehicle['dispatch'] ?? 0);
+
+            if ($dispatchId <= 0) {
+                continue;
+            }
+
+            if (!isset($vehiclesByDispatch[$dispatchId])) {
+                $vehiclesByDispatch[$dispatchId] = [];
+            }
+
+            $vehiclesByDispatch[$dispatchId][] = $vehicle;
+
+            // Speichere dispatch_data (falls vorhanden)
+            if (isset($vehicle['dispatch_data']) && !isset($dispatchDataByDispatch[$dispatchId])) {
+                $dispatchDataByDispatch[$dispatchId] = $vehicle['dispatch_data'];
+                logSync("Dispatch-Data für Einsatz #$dispatchId empfangen: " . json_encode($vehicle['dispatch_data']), 'DEBUG');
+            }
+        }
+
+        // Debug: Zeige alle empfangenen dispatch_data
+        if (!empty($dispatchDataByDispatch)) {
+            logSync("Insgesamt " . count($dispatchDataByDispatch) . " Dispatch-Daten empfangen", 'INFO');
+        } else {
+            logSync("Keine dispatch_data in den Fahrzeugdaten gefunden - prüfe Datenstruktur", 'WARNING');
+            logSync("Beispiel-Fahrzeug-Datenstruktur: " . json_encode($vehicles[0]), 'DEBUG');
+        }
+
+        logSync('Es wurden ' . count($vehiclesByDispatch) . ' eindeutige Einsatznummern gefunden', 'INFO');
+    }
 
     $processedDispatches = 0;
     $createdEntries = 0;

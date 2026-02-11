@@ -74,6 +74,9 @@ use App\Auth\Permissions;
                 <span id="current-time"><?= $currentTime ?></span>
                 <span id="current-date"><?= $currentDate ?></span>
             </div>
+            <span id="leitstelle-conn-icon" class="me-2" title="Verbindung zur Leitstelle" style="font-size: 1.2rem;">
+                <i class="fa-solid fa-tower-broadcast" style="color: #ffffff;"></i>
+            </span>
             <?php
             $patSyncColor = '#ffffff';
             if (isset($daten['pat_synced'])) {
@@ -103,6 +106,52 @@ if (!defined('SHARE_MODALS_INCLUDED')) {
     include __DIR__ . '/share-modals.php';
 }
 ?>
+<script>
+(function() {
+    const SYNC_TIMEOUT = 120; // Sekunden ohne Sync = rot
+    const POLL_INTERVAL = 10000; // alle 10 Sekunden prüfen
+    const enr = '<?= $enr ?>';
+
+    function updateSyncIcons() {
+        fetch('<?= BASE_PATH ?>api/enotf-sync-status.php?enr=' + encodeURIComponent(enr))
+            .then(r => r.json())
+            .then(data => {
+                // Cloud-Icon: pat_synced Status
+                const cloudIcon = document.querySelector('#pat-sync-icon i');
+                if (cloudIcon && data.pat_synced !== null) {
+                    if (data.pat_synced === 2) cloudIcon.style.color = '#f0ad4e';
+                    else if (data.pat_synced === 1) cloudIcon.style.color = '#28a745';
+                    else cloudIcon.style.color = '#ffffff';
+                }
+
+                // Tower-Icon: Leitstellen-Verbindung
+                const towerIcon = document.querySelector('#leitstelle-conn-icon i');
+                if (towerIcon) {
+                    if (data.last_emd_sync) {
+                        const lastSync = new Date(data.last_emd_sync.replace(' ', 'T'));
+                        const now = new Date();
+                        const diffSeconds = (now - lastSync) / 1000;
+
+                        if (diffSeconds <= SYNC_TIMEOUT) {
+                            towerIcon.style.color = '#28a745';
+                            towerIcon.parentElement.title = 'Verbindung zur Leitstelle aktiv';
+                        } else {
+                            towerIcon.style.color = '#dc3545';
+                            towerIcon.parentElement.title = 'Keine Verbindung zur Leitstelle';
+                        }
+                    } else {
+                        towerIcon.style.color = '#ffffff';
+                        towerIcon.parentElement.title = 'Verbindung zur Leitstelle unbekannt';
+                    }
+                }
+            })
+            .catch(() => {});
+    }
+
+    updateSyncIcons();
+    setInterval(updateSyncIcons, POLL_INTERVAL);
+})();
+</script>
 <?php if ($daten['freigegeben'] == 1 && $daten['hidden_user'] != 1) : ?>
     <div class="container-full edivi__notice edivi__notice-freigeber">
         <div class="row">
