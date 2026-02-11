@@ -88,8 +88,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/3.php?enr=<?= $daten['enr'] ?>" class="active">
                                 <span>Übergabe</span>
                             </a>
-                            <a href="#" onclick="sendPatientToDispatch(event)" id="btn-send-patient" class="mt-2" style="border-top: 1px solid rgba(255,255,255,0.1);">
-                                <span><i class="fa-solid fa-cloud-arrow-up me-1"></i> An Leitstelle senden</span>
+                            <a href="#" onclick="sendPatientToDispatch(event)" id="btn-send-patient">
+                                <span>An Leitstelle senden</span>
                             </a>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">

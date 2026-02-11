@@ -1307,9 +1307,9 @@ try {
             $patAge = $now->diff($birthDate)->y;
         }
 
-        // Funkrufname: Fahrzeugname basierend auf Protokollart
+        // Funkrufname: fzg_transp bevorzugt, fzg_na als Fallback
         $funkrufname = null;
-        $vehicleIdentifier = ($pp['prot_by'] == 1) ? ($pp['fzg_na'] ?? null) : ($pp['fzg_transp'] ?? null);
+        $vehicleIdentifier = !empty($pp['fzg_transp']) ? $pp['fzg_transp'] : ($pp['fzg_na'] ?? null);
         if (!empty($vehicleIdentifier)) {
             $vehNameStmt = $pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE identifier = :identifier LIMIT 1");
             $vehNameStmt->execute([':identifier' => $vehicleIdentifier]);
