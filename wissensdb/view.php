@@ -342,7 +342,6 @@ $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     
                     <!-- Back Link -->
                     <a href="<?= BASE_PATH ?>wissensdb/index.php" class="back-link mb-3">

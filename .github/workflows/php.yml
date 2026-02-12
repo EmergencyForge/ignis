@@ -58,6 +58,7 @@ jobs:
   # ─────────────────────────────────────────────
   build-experimental:
     name: "experimental build (8.5)"
+    if: false  # Pausiert – Zeile entfernen zum Reaktivieren
     runs-on: ubuntu-latest
     continue-on-error: true
 

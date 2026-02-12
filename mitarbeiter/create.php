@@ -239,7 +239,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <h1 class="mb-3">Mitarbeiterprofil</h1>
                     <div class="row">
                         <div class="col">

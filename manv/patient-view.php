@@ -237,7 +237,6 @@ $skColor = $skColors[$patient['sichtungskategorie']] ?? 'secondary';
                 </div>
             <?php endif; ?>
 
-            <hr class="text-light my-3">
             <!-- Patient Header -->
             <div class="patient-header mb-5">
                 <div class="row align-items-center">
@@ -437,12 +436,12 @@ $skColor = $skColors[$patient['sichtungskategorie']] ?? 'secondary';
 
                 <div class="d-flex justify-content-between mb-4">
                     <div>
-                        <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $patient['manv_lage_id'] ?>" class="btn btn-secondary">
+                        <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $patient['manv_lage_id'] ?>" class="btn btn-ghost">
                             <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
                         </a>
                     </div>
                     <div>
-                        <button type="submit" class="btn btn-primary btn-lg">
+                        <button type="submit" class="btn btn-soft-primary btn-lg">
                             <i class="fas fa-save me-2"></i>Änderungen speichern
                         </button>
                     </div>

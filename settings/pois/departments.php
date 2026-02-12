@@ -58,7 +58,6 @@ $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
                             <h1 class="mb-0">Krankenhaus-Fachrichtungen</h1>
@@ -67,7 +66,7 @@ $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-warning" id="reset-availability-btn">
+                                <button type="button" class="btn btn-soft-warning" id="reset-availability-btn">
                                     <i class="fa-solid fa-rotate-left"></i> Alle auf "Nicht besetzt"
                                 </button>
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createDepartmentModal">
@@ -77,7 +76,7 @@ $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php endif; ?>
                     </div>
 
-                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="btn btn-sm btn-secondary mb-3">
+                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="btn btn-sm btn-ghost mb-3">
                         <i class="fa-solid fa-arrow-left"></i> Zurück zur POI-Verwaltung
                     </a>
 
@@ -102,13 +101,13 @@ $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <td><?= date('d.m.Y H:i', strtotime($dept['created_at'])) ?></td>
                                             <td>
                                                 <?php if (Permissions::check(['admin', 'pois.manage'])): ?>
-                                                    <button class="btn btn-sm btn-primary me-1 edit-dept-btn"
+                                                    <button class="btn btn-sm btn-soft-primary btn-icon me-1 edit-dept-btn"
                                                             data-id="<?= $dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>"
                                                             data-sort-order="<?= $dept['sort_order'] ?>">
                                                         <i class="fa-solid fa-pen"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-danger delete-dept-btn"
+                                                    <button class="btn btn-sm btn-outline-danger btn-icon delete-dept-btn"
                                                             data-id="<?= $dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>">
                                                         <i class="fa-solid fa-trash"></i>
@@ -158,7 +157,7 @@ $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                             <button type="submit" class="btn btn-success">Hinzufügen</button>
                         </div>
                     </form>
@@ -192,8 +191,8 @@ $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-primary">Speichern</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>

@@ -98,12 +98,10 @@ $default_sort = ($max_sort ?? 0) + 1;
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto">
-                    <hr class="text-light my-3">
                     <h1><i class="fa-solid fa-circle-plus me-2"></i>Neuen Antragstyp erstellen</h1>
 
                     <?php Flash::render(); ?>
 
-                    <hr class="text-light my-3">
 
                     <div class="intra__tile p-4">
                         <form method="post" action="">
@@ -194,7 +192,7 @@ $default_sort = ($max_sort ?? 0) + 1;
                             </div>
 
                             <div class="d-flex justify-content-between">
-                                <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-secondary">
+                                <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-ghost">
                                     <i class="fa-solid fa-xmark me-2"></i>Abbrechen
                                 </a>
                                 <button type="submit" name="submit" class="btn btn-success">

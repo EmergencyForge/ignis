@@ -48,14 +48,13 @@ $logEntries = $manvLog->getByLage((int)$lageId, 200);
     <?php include __DIR__ . '/../assets/components/navbar.php'; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container">
-            <hr class="text-light my-3">
             <div class="row mb-5">
                 <div class="col-md-8">
                     <h1>Aktionslog</h1>
                     <p class="text-muted">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
                 </div>
                 <div class="col-md-4 text-end">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-secondary">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost">
                         <i class="fas fa-arrow-left me-2"></i>Zurück
                     </a>
                 </div>

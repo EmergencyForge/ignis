@@ -149,7 +149,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include __DIR__ . '/../assets/components/navbar.php'; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container">
-            <hr class="text-light my-3">
             <div class="row mb-5">
                 <div class="col-12">
                     <h1>Neuer Patient</h1>
@@ -301,10 +300,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="d-flex justify-content-between mb-4">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-secondary">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost">
                         <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="btn btn-primary btn-lg">
+                    <button type="submit" class="btn btn-soft-primary btn-lg">
                         <i class="fas fa-save me-2"></i>Patient anlegen
                     </button>
                 </div>

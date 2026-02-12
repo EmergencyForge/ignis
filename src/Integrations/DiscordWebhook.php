@@ -88,7 +88,8 @@ class DiscordWebhook
 
         $enr = $protocolData['enr'] ?? 'Unbekannt';
         $timestamp = $protocolData['last_edit'] ?? \date('Y-m-d H:i:s');
-        $protokollUrl = 'https://' . (\defined('SYSTEM_URL') ? SYSTEM_URL : '') . '/enotf/protokoll/index.php?enr=' . $enr;
+        $basePath = \defined('BASE_PATH') ? \rtrim(BASE_PATH, '/') : '';
+        $protokollUrl = 'https://' . (\defined('SYSTEM_URL') ? SYSTEM_URL : '') . $basePath . '/enotf/protokoll/index.php?enr=' . $enr;
 
         $payload = [
             'embeds' => [
@@ -138,7 +139,8 @@ class DiscordWebhook
         $keyword = $incidentData['keyword'] ?? 'Unbekannt';
         $startedAt = $incidentData['started_at'] ?? \date('Y-m-d H:i:s');
         $leaderName = $incidentData['leader_name'] ?? 'Unbekannt';
-        $protokollUrl = 'https://' . (\defined('SYSTEM_URL') ? SYSTEM_URL : '') . '/einsatz/view.php?id=' . $id;
+        $basePath = \defined('BASE_PATH') ? \rtrim(BASE_PATH, '/') : '';
+        $protokollUrl = 'https://' . (\defined('SYSTEM_URL') ? SYSTEM_URL : '') . $basePath . '/einsatz/view.php?id=' . $id;
 
         $payload = [
             'embeds' => [
@@ -240,7 +242,8 @@ class DiscordWebhook
 
         $protokollUrl = '';
         if ($enr) {
-            $protokollUrl = 'https://' . (\defined('SYSTEM_URL') ? SYSTEM_URL : '') . '/enotf/schnittstelle/voranmeldung.php?enr=' . $enr;
+            $basePath = \defined('BASE_PATH') ? \rtrim(BASE_PATH, '/') : '';
+            $protokollUrl = 'https://' . (\defined('SYSTEM_URL') ? SYSTEM_URL : '') . $basePath . '/enotf/schnittstelle/voranmeldung.php?enr=' . $enr;
         }
 
         // Intubiert & Kreislauf Status

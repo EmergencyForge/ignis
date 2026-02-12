@@ -915,7 +915,7 @@ try {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                 <button type="button" class="btn btn-primary" id="saveMarkerBtn">
                     <i class="fa-solid fa-save me-1"></i>Marker speichern
                 </button>
@@ -966,7 +966,7 @@ try {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                 <button type="button" class="btn btn-primary" id="saveZoneBtn">
                     <i class="fa-solid fa-save me-1"></i>Speichern
                 </button>

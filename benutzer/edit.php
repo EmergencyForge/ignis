@@ -47,18 +47,14 @@ if ($rowrole['priority'] <= $_SESSION['role_priority']) {
 if (isset($_POST['new']) && $_POST['new'] == 1) {
     $id = $_REQUEST['id'];
     $username = $_REQUEST['username'];
-    $fullname = $_REQUEST['fullname'];
-    //$aktenid = trim($_POST['aktenid']) !== '' ? $_POST['aktenid'] : null;
     $role = $_REQUEST['role'];
 
-    $sql = "UPDATE intra_users 
-        SET fullname = :fullname,
-            role = :role 
+    $sql = "UPDATE intra_users
+        SET role = :role
         WHERE id = :id";
 
     $stmti = $pdo->prepare($sql);
     $stmti->execute([
-        'fullname' => $fullname,
         'role' => $role,
         'id' => $id
     ]);
@@ -91,8 +87,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
-                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span> <?php if (Permissions::check(['admin', 'users.delete'])) : ?><button class="btn btn-main-color btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash"></i> Benutzer löschen</button><?php endif; ?></h1>
+                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span> <?php if (Permissions::check(['admin', 'users.delete'])) : ?><button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash"></i> Benutzer löschen</button><?php endif; ?></h1>
                     <?php
                     Flash::render();
                     ?>
@@ -106,12 +101,6 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                                         <div class="col mb-3">
                                             <label for="username" class="form-label fw-bold">Benutzername <span class="text-main-color">*</span></label>
                                             <input type="text" class="form-control" id="username" name="username" placeholder="" value="<?= $row['username'] ?>" required>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col mb-3">
-                                            <label for="fullname" class="form-label fw-bold">Vor- und Zuname <span class="text-main-color">*</span></label>
-                                            <input type="text" class="form-control" id="fullname" name="fullname" placeholder="" value="<?= $row['fullname'] ?>" required>
                                         </div>
                                     </div>
                                 </div>
@@ -214,8 +203,8 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                         Willst du wirklich den Benutzer <span class="fw-bold"><?= $row['username'] ?></span> löschen?
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary-color" data-bs-dismiss="modal">Ne, Upsi</button>
-                        <button type="button" class="btn btn-main-color" onclick="window.location.href='delete.php?id=<?= $row['id'] ?>';">Benutzer endgültig löschen</button>
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Ne, Upsi</button>
+                        <button type="button" class="btn btn-ghost-danger" onclick="window.location.href='delete.php?id=<?= $row['id'] ?>';">Benutzer endgültig löschen</button>
                     </div>
                 </div>
             </div>

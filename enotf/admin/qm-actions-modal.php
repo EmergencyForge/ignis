@@ -51,23 +51,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     switch ($protokoll_status) {
         case 0:
             $status_klar = "Ungesehen";
-            $statusstring = '<span class="badge" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungesehen</span>';
+            $statusstring = '<span class="badge">Ungesehen</span>';
             break;
         case 1:
             $status_klar = "in Prüfung";
-            $statusstring = '<span class="badge text-bg-warning" style="line-height: var(--bs-body-line-height); border-radius: 0;">in Prüfung</span>';
+            $statusstring = '<span class="badge text-bg-warning">in Prüfung</span>';
             break;
         case 2:
             $status_klar = "Freigegeben";
-            $statusstring = '<span class="badge text-bg-success" style="line-height: var(--bs-body-line-height); border-radius: 0;">Freigegeben</span>';
+            $statusstring = '<span class="badge text-bg-success">Freigegeben</span>';
             break;
         case 3:
             $status_klar = "Ungenügend";
-            $statusstring = '<span class="badge text-bg-danger" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ungenügend</span>';
+            $statusstring = '<span class="badge text-bg-danger">Ungenügend</span>';
             break;
         case 4:
             $status_klar = "Ausgeblendet";
-            $statusstring = '<span class="badge text-bg-dark" style="line-height: var(--bs-body-line-height); border-radius: 0;">Ausgeblendet</span>';
+            $statusstring = '<span class="badge text-bg-dark">Ausgeblendet</span>';
             break;
     }
 
@@ -152,13 +152,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="row mt-2 mb-1">
                 <div class="col-3 fw-bold">Gesichtet von</div>
                 <div class="col">
-                    <input style="border-radius: 0 !important" type="text" name="bearbeiter" id="bearbeiter" class="w-100 form-control edivi__admin" value="<?= htmlspecialchars($userHelper->getCurrentUserFullnameForAction()) ?>" readonly>
+                    <input type="text" name="bearbeiter" id="bearbeiter" class="w-100 form-control" value="<?= htmlspecialchars($userHelper->getCurrentUserFullnameForAction()) ?>" readonly>
                 </div>
             </div>
             <div class="row mt-3">
                 <div class="col-3 fw-bold">Status</div>
                 <div class="col">
-                    <select name="protokoll_status" id="protokoll_status" class="form-select w-100 edivi__admin" style="border-radius: 0 !important" data-custom-dropdown="true">
+                    <select name="protokoll_status" id="protokoll_status" class="form-select w-100" data-custom-dropdown="true">
                         <option value="0" <?php echo ($row['protokoll_status'] == 0 ? 'selected' : '') ?>>Ungesehen</option>
                         <option value="1" <?php echo ($row['protokoll_status'] == 1 ? 'selected' : '') ?>>in Prüfung</option>
                         <option value="2" <?php echo ($row['protokoll_status'] == 2 ? 'selected' : '') ?>>Freigegeben</option>
@@ -170,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="row mt-3">
                 <div class="col-3 fw-bold">Bemerkung</div>
                 <div class="col">
-                    <textarea name="qmkommentar" id="qmkommentar" rows="8" class="w-100 form-control edivi__admin" style="resize: none; border: 1px solid #fff;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
+                    <textarea name="qmkommentar" id="qmkommentar" rows="8" class="w-100 form-control" style="resize: none;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
                 </div>
             </div>
             <div class="row mt-4 mb-2">

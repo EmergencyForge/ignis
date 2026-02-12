@@ -90,7 +90,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <p class="text-muted small">Das neue Protokoll wird mit einer Nummerierung versehen (z.B. _1, _2, etc.)</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                     <button type="button" class="btn btn-primary" id="confirmCreate">Trotzdem erstellen</button>
                 </div>
             </div>

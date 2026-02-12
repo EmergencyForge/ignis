@@ -46,7 +46,7 @@ use App\Documents\DocumentTemplateManager;
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                     <?php if (Permissions::check(['admin', 'personnel.edit'])) { ?>
                         <button type="button" class="btn btn-success" id="fdq-save" onclick="document.getElementById('fdqualiForm').submit()">Speichern</button>
                     <?php } ?>
@@ -78,7 +78,7 @@ use App\Documents\DocumentTemplateManager;
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                     <?php if (Permissions::check(['admin', 'personnel.view'])) { ?>
                         <button type="button" class="btn btn-success" id="fdq-save" onclick="document.getElementById('newNoteForm').submit()">Speichern</button>
                     <?php } ?>
@@ -137,7 +137,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                         <button type="submit" class="btn btn-success" id="fdq-save">Erstellen</button>
                     </div>
                 </form>

@@ -35,7 +35,6 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">Zielverwaltung</h1>
 
@@ -66,10 +65,10 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                 foreach ($result as $row) {
                                     switch ($row['transport']) {
                                         case 0:
-                                            $docYes = "<span class='badge text-bg-danger'>Nein</span>";
+                                            $docYes = "<span class='badge-status status-danger'><span class='status-dot'></span>Nein</span>";
                                             break;
                                         default:
-                                            $docYes = "<span class='badge text-bg-success'>Ja</span>";
+                                            $docYes = "<span class='badge-status status-success'><span class='status-dot'></span>Ja</span>";
                                             break;
                                     }
 
@@ -77,16 +76,16 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                                     switch ($row['active']) {
                                         case 0:
-                                            $vehActive = "<span class='badge text-bg-danger'>Nein</span>";
+                                            $vehActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Nein</span>";
                                             $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                         default:
-                                            $vehActive = "<span class='badge text-bg-success'>Ja</span>";
+                                            $vehActive = "<span class='badge-status status-success'><span class='status-dot'></span>Ja</span>";
                                             break;
                                     }
 
                                     $actions = (Permissions::check('admin'))
-                                        ? "<a title='Ziel bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal' data-id='{$row['id']}' data-name='{$row['name']}' data-priority='{$row['priority']}' data-identifier='{$row['identifier']}' data-transport='{$row['transport']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Ziel bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal' data-id='{$row['id']}' data-name='{$row['name']}' data-priority='{$row['priority']}' data-identifier='{$row['identifier']}' data-transport='{$row['transport']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -125,18 +124,18 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-identifier" class="form-label">Identifier <small style="opacity:.5">(eindeutige interne Kennung)</small></label>
+                                <label for="fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
                                 <input type="text" class="form-control" name="identifier" id="fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="fahrzeug-priority" required>
                             </div>
 
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="transport" id="fahrzeug-transport">
-                                <label class="form-check-label" for="fahrzeug-transport">Transport? <small style="opacity:.5">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></label>
+                                <label class="form-check-label" for="fahrzeug-transport">Transport? <small class="form-hint">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></label>
                             </div>
 
                             <div class="form-check">
@@ -146,11 +145,11 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-fahrzeug-btn">Löschen</button>
+                            <button type="button" class="btn btn-ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-primary">Speichern</button>
+                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -182,18 +181,18 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-identifier" class="form-label">Identifier <small style="opacity:.5">(eindeutige interne Kennung)</small></label>
+                                <label for="new-fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
                                 <input type="text" class="form-control" name="identifier" id="new-fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="new-fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="new-fahrzeug-priority" required>
                             </div>
 
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="transport" id="new-fahrzeug-transport">
-                                <label class="form-check-label" for="new-fahrzeug-transport">Transport? <small style="opacity:.5">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></label>
+                                <label class="form-check-label" for="new-fahrzeug-transport">Transport? <small class="form-hint">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></label>
                             </div>
 
                             <div class="form-check">
@@ -203,7 +202,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                             <button type="submit" class="btn btn-success">Erstellen</button>
                         </div>
                     </form>

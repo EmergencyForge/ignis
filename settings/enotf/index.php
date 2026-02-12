@@ -36,24 +36,38 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Schnellzugriff-Verwaltung</h1>
-
-                        <?php if (Permissions::check('admin')) : ?>
-                            <div class="d-flex gap-2">
-                                <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index.php" class="btn btn-secondary">
-                                    <i class="fa-solid fa-folder"></i> Kategorien verwalten
-                                </a>
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
-                                    <i class="fa-solid fa-plus"></i> Link erstellen
-                                </button>
-                            </div>
-                        <?php endif; ?>
+                    <nav class="admin-breadcrumb">
+                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span>Einstellungen</span>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="current">eNOTF</span>
+                    </nav>
+                    <div class="page-header mb-4">
+                        <h1>Schnellzugriff-Verwaltung</h1>
+                        <div class="header-actions">
+                            <?php if (Permissions::check('admin')) : ?>
+                                <div class="d-flex gap-2">
+                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index.php" class="btn btn-outline-secondary">
+                                        <i class="fa-solid fa-folder"></i> Kategorien verwalten
+                                    </a>
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
+                                        <i class="fa-solid fa-plus"></i> Link erstellen
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <?php
                     Flash::render();
                     ?>
+                    <div class="mb-3">
+                        <div class="btn-toolbar-group" id="statusFilter">
+                            <button class="btn active" data-filter="">Alle</button>
+                            <button class="btn" data-filter="Ja">Aktiv</button>
+                            <button class="btn" data-filter="Nein">Inaktiv</button>
+                        </div>
+                    </div>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-quicklinks">
                             <thead>
@@ -77,11 +91,11 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                                     switch ($row['active']) {
                                         case 0:
-                                            $linkActive = "<span class='badge text-bg-danger'>Nein</span>";
+                                            $linkActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Nein</span>";
                                             $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                         default:
-                                            $linkActive = "<span class='badge text-bg-success'>Ja</span>";
+                                            $linkActive = "<span class='badge-status status-success'><span class='status-dot'></span>Ja</span>";
                                             break;
                                     }
 
@@ -97,7 +111,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                     $col_width = htmlspecialchars($row['col_width']);
 
                                     $actions = (Permissions::check('admin'))
-                                        ? "<a title='Link bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editQuicklinkModal' data-id='{$row['id']}' data-title='{$title}' data-url='{$url}' data-icon='{$icon}' data-category='{$row['category_slug']}' data-sort-order='{$row['sort_order']}' data-col-width='{$col_width}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Link bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editQuicklinkModal' data-id='{$row['id']}' data-title='{$title}' data-url='{$url}' data-icon='{$icon}' data-category='{$row['category_slug']}' data-sort-order='{$row['sort_order']}' data-col-width='{$col_width}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -176,7 +190,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="quicklink-sort-order" class="form-label">Sortierung <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="quicklink-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="sort_order" id="quicklink-sort-order" required>
                             </div>
 
@@ -187,11 +201,11 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-quicklink-btn">Löschen</button>
+                            <button type="button" class="btn btn-ghost-danger" id="delete-quicklink-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                                <button type="submit" class="btn btn-primary">Speichern</button>
+                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -250,7 +264,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="create-quicklink-sort-order" class="form-label">Sortierung <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="create-quicklink-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="sort_order" id="create-quicklink-sort-order" value="0" required>
                             </div>
 
@@ -261,7 +275,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                             <button type="submit" class="btn btn-success">Erstellen</button>
                         </div>
                     </form>
@@ -296,6 +310,22 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
         </script>
     <?php endif; ?>
 
+    <script>
+        // Segmented control filtering
+        document.querySelectorAll('#statusFilter .btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('#statusFilter .btn').forEach(function(b) { b.classList.remove('active'); });
+                this.classList.add('active');
+                var filter = this.dataset.filter;
+                document.querySelectorAll('#table-quicklinks tbody tr').forEach(function(row) {
+                    if (!filter) { row.style.display = ''; return; }
+                    var activeCell = row.cells[6];
+                    var text = activeCell ? activeCell.textContent.trim() : '';
+                    row.style.display = (text === filter) ? '' : 'none';
+                });
+            });
+        });
+    </script>
     <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
 </body>

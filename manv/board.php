@@ -133,7 +133,6 @@ foreach ($patienten as $patient) {
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container">
             <!-- Header -->
-            <hr class="text-light my-3">
             <div class="row mb-5">
                 <div class="col-md-8">
                     <h1><?= htmlspecialchars($lage['einsatznummer']) ?></h1>
@@ -145,7 +144,7 @@ foreach ($patienten as $patient) {
                     </small>
                 </div>
                 <div class="col-md-4 text-end">
-                    <a href="<?= BASE_PATH ?>manv/edit.php?id=<?= $lageId ?>" class="btn btn-secondary">
+                    <a href="<?= BASE_PATH ?>manv/edit.php?id=<?= $lageId ?>" class="btn btn-soft-primary">
                         <i class="fas fa-edit me-2"></i>Bearbeiten
                     </a>
                 </div>
@@ -212,10 +211,10 @@ foreach ($patienten as $patient) {
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-users me-2"></i>Patienten</h5>
                     <div>
-                        <a href="ressourcen.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-secondary me-2">
+                        <a href="ressourcen.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-outline-secondary me-2">
                             <i class="fas fa-truck me-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
                         </a>
-                        <a href="<?= BASE_PATH ?>manv/patient-create.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-primary">
+                        <a href="<?= BASE_PATH ?>manv/patient-create.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-soft-primary">
                             <i class="fas fa-user-plus me-2"></i>Neuer Patient
                         </a>
                     </div>
@@ -270,15 +269,15 @@ foreach ($patienten as $patient) {
                                         <td><?= $patient['transportziel'] ? htmlspecialchars($patient['transportziel']) : '-' ?></td>
                                         <td>
                                             <?php if ($patient['transport_abfahrt']): ?>
-                                                <span class="badge bg-secondary"><i class="fas fa-check-double me-1"></i>Abgefahren</span>
+                                                <span class="badge-status status-muted"><span class="status-dot"></span>Abgefahren</span>
                                             <?php elseif ($patient['transportziel']): ?>
-                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Bereit</span>
+                                                <span class="badge-status status-success"><span class="status-dot"></span>Bereit</span>
                                             <?php else: ?>
-                                                <span class="badge bg-warning"><i class="fas fa-clock me-1"></i>Wartend</span>
+                                                <span class="badge-status status-warning"><span class="status-dot"></span>Wartend</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <a href="<?= BASE_PATH ?>manv/patient-view.php?id=<?= $patient['id'] ?>" class="btn btn-sm btn-primary me-1">
+                                            <a href="<?= BASE_PATH ?>manv/patient-view.php?id=<?= $patient['id'] ?>" class="btn btn-sm btn-soft-primary btn-icon me-1">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <?php
@@ -308,10 +307,10 @@ foreach ($patienten as $patient) {
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <a href="index.php" class="btn btn-secondary">
+                            <a href="index.php" class="btn btn-ghost">
                                 <i class="fas fa-arrow-left me-2"></i>Zurück zur Übersicht
                             </a>
-                            <a href="log.php?id=<?= $lageId ?>" class="btn btn-secondary ms-2">
+                            <a href="log.php?id=<?= $lageId ?>" class="btn btn-outline-secondary ms-2">
                                 <i class="fas fa-history me-2"></i>Aktionslog
                             </a>
                         </div>
@@ -340,7 +339,7 @@ foreach ($patienten as $patient) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">
                         <i class="fas fa-times me-2"></i>Abbrechen
                     </button>
                     <button type="button" class="btn btn-success" id="confirmTransportBtn">
@@ -422,11 +421,11 @@ foreach ($patienten as $patient) {
                                 $('#transportModal').modal('hide');
                                 location.reload();
                             } else {
-                                alert('Fehler: ' + (response.message || 'Unbekannter Fehler'));
+                                showToast('Fehler: ' + (response.message || 'Unbekannter Fehler'), 'danger');
                             }
                         },
                         error: function() {
-                            alert('Fehler bei der Kommunikation mit dem Server');
+                            showToast('Fehler bei der Kommunikation mit dem Server', 'danger');
                         }
                     });
                 }

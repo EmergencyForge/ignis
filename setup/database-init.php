@@ -406,6 +406,24 @@ $migrationFiles = [
 
     // 04.02.2026 - eNOTF Protokoll Erstellungsherkunft
     ['file' => 'alter_intra_edivi_04022026_createdby.php', 'type' => 'alter'],
+
+    // 09.02.2026 - Symptome (Symptombeginn + NACA)
+    ['file' => 'alter_intra_edivi_09022026_symptome.php', 'type' => 'alter'],
+
+    // 09.02.2026 - Einsatzort (Elokation)
+    ['file' => 'alter_intra_edivi_09022026_elokation.php', 'type' => 'alter'],
+
+    // 10.02.2026 - Lagemeldungen Source + Synced
+    ['file' => 'alter_intra_fire_incident_sitreps_10022026_add_source_synced.php', 'type' => 'alter'],
+
+    // 10.02.2026 - Status-Queue für FiveM-Polling
+    ['file' => 'create_intra_fire_status_queue_10022026.php', 'type' => 'create'],
+
+    // 10.02.2026 - Fahrzeug-Status (für status_no_dispatch)
+    ['file' => 'alter_intra_fahrzeuge_10022026_status.php', 'type' => 'alter'],
+
+    // 11.02.2026 - Patientenname aufteilen + Sync-Flag
+    ['file' => 'alter_intra_edivi_11022026_split_patname.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

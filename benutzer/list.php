@@ -35,8 +35,14 @@ if (!Permissions::check(['admin', 'users.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
-                    <h1 class="mb-5">Benutzerübersicht</h1>
+                    <nav class="admin-breadcrumb">
+                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="current">Benutzer</span>
+                    </nav>
+                    <div class="page-header mb-4">
+                        <h1>Benutzerübersicht</h1>
+                    </div>
                     <?php
                     Flash::render();
                     ?>
@@ -76,7 +82,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                     echo "<td><span class='badge text-bg-" . $role_color . "'>" . $role_name . "</span></td>";
                                     echo "<td><span style='display:none'>" . $row['created_at'] . "</span>" . $date . "</td>";
                                     if (Permissions::check(['admin', 'users.edit'])) {
-                                        echo "<td><a href='" . BASE_PATH . "benutzer/edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-primary'>Bearbeiten</a>";
+                                        echo "<td><div class='col-actions'><a href='" . BASE_PATH . "benutzer/edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-soft-primary btn-icon' data-tooltip='Bearbeiten'><i class='fa-solid fa-pen-to-square'></i></a></div>";
                                         echo "</td>";
                                     } else {
                                         echo "<td></td>";

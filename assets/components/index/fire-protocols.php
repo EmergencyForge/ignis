@@ -63,7 +63,7 @@
                 echo "<td>" . htmlspecialchars($row['location']) . "</td>";
                 echo "<td>" . htmlspecialchars($row['leader_name'] ?? 'Unbekannt') . "</td>";
                 echo "<td><span style='display:none'>" . $row['started_at'] . "</span>" . $date . "</td>";
-                echo "<td><a href='" . BASE_PATH . "einsatz/view.php?id={$row['id']}' class='btn btn-sm btn-primary'><i class='fa-regular fa-eye'></i> Ansehen</a></td>";
+                echo "<td><a href='" . BASE_PATH . "einsatz/view.php?id={$row['id']}' class='btn btn-sm btn-soft-primary'><i class='fa-regular fa-eye'></i> Ansehen</a></td>";
                 echo "</tr>";
             }
         }

@@ -39,7 +39,8 @@ function fmt_dt(?string $ts): string
 {
     if (!$ts) return '-';
     try {
-        $dt = new DateTime($ts, new DateTimeZone('Europe/Berlin'));
+        $dt = new DateTime($ts, new DateTimeZone('UTC'));
+        $dt->setTimezone(new DateTimeZone('Europe/Berlin'));
         return $dt->format('d.m.Y H:i');
     } catch (Exception $e) {
         return $ts;
@@ -82,52 +83,15 @@ if ($asu_id) {
 <head>
     <?php include __DIR__ . '/../assets/components/_base/admin/head.php'; ?>
     <style>
-        html::-webkit-scrollbar,
-        body::-webkit-scrollbar,
-        .sidebar-nav::-webkit-scrollbar {
-            width: 8px;
+        .progress {
+            background-color: var(--body-bg-darker);
+            border-radius: 8px;
         }
-
-        html::-webkit-scrollbar-track,
-        body::-webkit-scrollbar-track,
-        .sidebar-nav::-webkit-scrollbar-track {
-            background: #1a1a1a;
-        }
-
-        html::-webkit-scrollbar-thumb,
-        body::-webkit-scrollbar-thumb,
-        .sidebar-nav::-webkit-scrollbar-thumb {
-            background: #4a4a4a;
-            border-radius: 4px;
-        }
-
-        html::-webkit-scrollbar-thumb:hover,
-        body::-webkit-scrollbar-thumb:hover,
-        .sidebar-nav::-webkit-scrollbar-thumb:hover {
-            background: #5a5a5a;
-        }
-
-        .sidebar-nav {
-            overflow-y: auto;
-        }
-
-        .sidebar-nav .nav-link {
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.25rem;
-            border-radius: 0.375rem;
-            transition: all 0.2s;
-        }
-
-        .sidebar-nav .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-nav .nav-link.active {
-            background-color: rgba(13, 110, 253, 0.5);
-            font-weight: 500;
+        hr {
+            border-color: var(--darkgray);
+            opacity: 0.3;
         }
     </style>
-    <script src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
     <script>
         const basePath = '<?= BASE_PATH ?>';
     </script>
@@ -135,71 +99,14 @@ if ($asu_id) {
 
 <body data-bs-theme="dark" data-page="asu">
     <div class="d-flex">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar-nav" style="width: 250px; min-height: 100vh; background-color: #1a1a1a; border-right: 1px solid #333;">
-            <div class="p-3">
-                <div class="text-center mb-3">
-                    <img src="https://emergencyforge.de/assets/img/defaultLogo.webp" alt="EmergencyForge Logo" style="max-width: 120px; height: auto;">
-                </div>
-                <!-- Vehicle Login Info -->
-                <?php if (isset($_SESSION['einsatz_vehicle_name'])): ?>
-                    <div class="card bg-dark mb-3" style="font-size: 0.85rem;">
-                        <div class="card-body p-2">
-                            <div class="text-muted small mb-1">Angemeldet auf:</div>
-                            <div class="fw-bold">
-                                <i class="fas fa-truck me-1"></i>
-                                <?= htmlspecialchars($_SESSION['einsatz_vehicle_name']) ?>
-                            </div>
-                            <?php if (isset($_SESSION['einsatz_operator_name'])): ?>
-                                <div class="text-muted small mt-1">
-                                    <i class="fas fa-user me-1"></i>
-                                    <?= htmlspecialchars($_SESSION['einsatz_operator_name']) ?>
-                                </div>
-                            <?php endif; ?>
-                            <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug.php?logout=1" class="btn btn-sm btn-outline-light mt-2 w-100">
-                                <i class="fas fa-sign-out-alt me-1"></i>Abmelden
-                            </a>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <ul class="nav flex-column" style="list-style: none; padding: 0; margin: 0;">
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="<?= BASE_PATH ?>einsatz/create.php">
-                            <i class="fa-solid fa-plus me-2"></i>Neuer Einsatz
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="<?= BASE_PATH ?>einsatz/list.php">
-                            <i class="fa-solid fa-list me-2"></i>Meine Einsätze
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white active" href="<?= BASE_PATH ?>einsatz/asu.php">
-                            <i class="fa-solid fa-mask-ventilator me-2"></i>AS-Überwachung
-                        </a>
-                    </li>
-
-                    <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
-                        <li class="nav-item mt-4">
-                            <small class="text-muted px-3 d-block mb-2">VERWALTUNG</small>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="<?= BASE_PATH ?>einsatz/admin/list.php">
-                                <i class="fa-solid fa-shield-alt me-2"></i>Alle Einsätze
-                            </a>
-                        </li>
-                    <?php endif; ?>
-                    <?php if ($prefill_incident_id): ?>
-                        <li class="nav-item mt-4">
-                            <a class="nav-link text-white" href="<?= BASE_PATH ?>einsatz/view.php?id=<?= $prefill_incident_id ?>&tab=bericht">
-                                <i class="fa-solid fa-arrow-left me-2"></i>Zurück zum Einsatz
-                            </a>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-            </div>
-        </div>
+        <?php
+        $einsatzActivePage = 'asu';
+        $einsatzExtraNav = '';
+        if ($prefill_incident_id) {
+            $einsatzExtraNav = '<a href="' . BASE_PATH . 'einsatz/view.php?id=' . (int)$prefill_incident_id . '&tab=bericht" class="sidebar-link"><i class="fa-solid fa-arrow-left"></i><span>Zurück zum Einsatz</span></a>';
+        }
+        include __DIR__ . '/../assets/components/einsatz-sidebar.php';
+        ?>
 
         <!-- Main Content -->
         <div class="flex-grow-1" style="overflow-y: auto;">
@@ -265,7 +172,7 @@ if ($asu_id) {
                     <!-- Content will be injected by JavaScript -->
                 </div>
                 <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                 </div>
             </div>
         </div>

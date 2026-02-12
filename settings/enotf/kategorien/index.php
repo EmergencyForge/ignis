@@ -36,13 +36,12 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">Schnellzugriff-Kategorien Verwaltung</h1>
 
                         <?php if (Permissions::check('admin')) : ?>
                             <div class="d-flex gap-2">
-                                <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="btn btn-secondary">
+                                <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="btn btn-ghost">
                                     <i class="fa-solid fa-arrow-left"></i> Zurück
                                 </a>
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
@@ -74,11 +73,11 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                                     switch ($row['active']) {
                                         case 0:
-                                            $catActive = "<span class='badge text-bg-danger'>Nein</span>";
+                                            $catActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Nein</span>";
                                             $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                         default:
-                                            $catActive = "<span class='badge text-bg-success'>Ja</span>";
+                                            $catActive = "<span class='badge-status status-success'><span class='status-dot'></span>Ja</span>";
                                             break;
                                     }
 
@@ -86,7 +85,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                     $slug = htmlspecialchars($row['slug']);
 
                                     $actions = (Permissions::check('admin'))
-                                        ? "<a title='Kategorie bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editCategoryModal' data-id='{$row['id']}' data-name='{$name}' data-slug='{$slug}' data-sort-order='{$row['sort_order']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Kategorie bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editCategoryModal' data-id='{$row['id']}' data-name='{$name}' data-slug='{$slug}' data-sort-order='{$row['sort_order']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -125,13 +124,13 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="category-slug" class="form-label">Slug <small style="opacity:.5">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
+                                <label for="category-slug" class="form-label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
                                 <input type="text" class="form-control" name="slug" id="category-slug" pattern="[a-z0-9\-]+" required>
                                 <small class="form-text text-muted">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
 
                             <div class="mb-3">
-                                <label for="category-sort-order" class="form-label">Sortierung <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="category-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="sort_order" id="category-sort-order" required>
                             </div>
 
@@ -142,11 +141,11 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-category-btn">Löschen</button>
+                            <button type="button" class="btn btn-ghost-danger" id="delete-category-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                                <button type="submit" class="btn btn-primary">Speichern</button>
+                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -171,13 +170,13 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                             </div>
 
                             <div class="mb-3">
-                                <label for="create-category-slug" class="form-label">Slug <small style="opacity:.5">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
+                                <label for="create-category-slug" class="form-label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
                                 <input type="text" class="form-control" name="slug" id="create-category-slug" pattern="[a-z0-9\-]+" required>
                                 <small class="form-text text-muted">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
 
                             <div class="mb-3">
-                                <label for="create-category-sort-order" class="form-label">Sortierung <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="create-category-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="sort_order" id="create-category-sort-order" value="0" required>
                             </div>
 
@@ -188,7 +187,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                             <button type="submit" class="btn btn-success">Erstellen</button>
                         </div>
                     </form>

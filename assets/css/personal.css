@@ -4,7 +4,7 @@
 .ma-documents {
   background-color: var(--body-bg-lighter);
   box-shadow: var(--bs-box-shadow) !important;
-  border-radius: 0;
+  border-radius: 12px;
   border: 1px solid var(--darkgray) !important;
   position: relative;
 }
@@ -12,9 +12,7 @@
 .ma-logs details summary {
   font-weight: 600;
   color: var(--bs-secondary-color);
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 .ma-logs details summary::-webkit-details-marker {

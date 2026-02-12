@@ -63,14 +63,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $updateFields = [$fzgField . ' = :fahrzeug'];
         $params = [':fahrzeug' => $fahrzeugId];
 
-        if ($beifahrer !== null) {
-            $updateFields[] = $persoField1 . ' = :beifahrer';
-            $params[':beifahrer'] = $beifahrer;
+        // persoField1 (fzg_*_perso) = Fahrer, persoField2 (fzg_*_perso_2) = Beifahrer
+        if ($fahrer !== null) {
+            $updateFields[] = $persoField1 . ' = :fahrer';
+            $params[':fahrer'] = $fahrer;
         }
 
-        if ($fahrer !== null) {
-            $updateFields[] = $persoField2 . ' = :fahrer';
-            $params[':fahrer'] = $fahrer;
+        if ($beifahrer !== null) {
+            $updateFields[] = $persoField2 . ' = :beifahrer';
+            $params[':beifahrer'] = $beifahrer;
         }
 
         $sql = "UPDATE intra_edivi SET " . implode(", ", $updateFields) . " WHERE enr = :enr";
@@ -110,16 +111,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ':createdby' => 2
     ];
 
-    if ($beifahrer !== null) {
-        $columns[] = $persoField1;
-        $placeholders[] = ':beifahrer';
-        $params[':beifahrer'] = $beifahrer;
-    }
-
+    // persoField1 (fzg_*_perso) = Fahrer, persoField2 (fzg_*_perso_2) = Beifahrer
     if ($fahrer !== null) {
-        $columns[] = $persoField2;
+        $columns[] = $persoField1;
         $placeholders[] = ':fahrer';
         $params[':fahrer'] = $fahrer;
+    }
+
+    if ($beifahrer !== null) {
+        $columns[] = $persoField2;
+        $placeholders[] = ':beifahrer';
+        $params[':beifahrer'] = $beifahrer;
     }
 
     $sql = "INSERT INTO intra_edivi (" . implode(", ", $columns) . ")

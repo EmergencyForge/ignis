@@ -35,24 +35,38 @@ if (!Permissions::check(['admin', 'pois.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">POI-Verwaltung</h1>
-
-                        <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
-                            <div class="d-flex gap-2">
-                                <a href="<?= BASE_PATH ?>settings/pois/access-codes.php" class="btn btn-warning">
-                                    <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
-                                </a>
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
-                                    <i class="fa-solid fa-plus"></i> POI erstellen
-                                </button>
-                            </div>
-                        <?php endif; ?>
+                    <nav class="admin-breadcrumb">
+                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span>Einstellungen</span>
+                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                        <span class="current">POIs</span>
+                    </nav>
+                    <div class="page-header mb-4">
+                        <h1>POI-Verwaltung</h1>
+                        <div class="header-actions">
+                            <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
+                                <div class="d-flex gap-2">
+                                    <a href="<?= BASE_PATH ?>settings/pois/access-codes.php" class="btn btn-soft-warning">
+                                        <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
+                                    </a>
+                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
+                                        <i class="fa-solid fa-plus"></i> POI erstellen
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                     <?php
                     Flash::render();
                     ?>
+                    <div class="mb-3">
+                        <div class="btn-toolbar-group" id="statusFilter">
+                            <button class="btn active" data-filter="">Alle</button>
+                            <button class="btn" data-filter="Ja">Aktiv</button>
+                            <button class="btn" data-filter="Nein">Inaktiv</button>
+                        </div>
+                    </div>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-pois">
                             <thead>
@@ -78,11 +92,11 @@ if (!Permissions::check(['admin', 'pois.view'])) {
 
                                     switch ($row['active']) {
                                         case 0:
-                                            $poiActive = "<span class='badge text-bg-danger'>Nein</span>";
+                                            $poiActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Nein</span>";
                                             $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                         default:
-                                            $poiActive = "<span class='badge text-bg-success'>Ja</span>";
+                                            $poiActive = "<span class='badge-status status-success'><span class='status-dot'></span>Ja</span>";
                                             break;
                                     }
 
@@ -95,9 +109,9 @@ if (!Permissions::check(['admin', 'pois.view'])) {
                                     if (Permissions::check(['admin', 'pois.manage'])) {
                                         // Add departments button for hospitals
                                         if ($row['typ'] === 'Krankenhaus' || $row['typ'] === 'Klinik') {
-                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments.php?poi_id={$row['id']}' class='btn btn-sm btn-info me-1'><i class='fa-solid fa-hospital'></i></a>";
+                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments.php?poi_id={$row['id']}' class='btn btn-sm btn-outline-secondary btn-icon me-1'><i class='fa-solid fa-hospital'></i></a>";
                                         }
-                                        $actions .= "<a title='POI bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editPoiModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>";
+                                        $actions .= "<a title='POI bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editPoiModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>";
                                     }
 
                                     echo "<tr>";
@@ -180,11 +194,11 @@ if (!Permissions::check(['admin', 'pois.view'])) {
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-poi-btn">Löschen</button>
+                            <button type="button" class="btn btn-ghost-danger" id="delete-poi-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-primary">Speichern</button>
+                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -258,7 +272,7 @@ if (!Permissions::check(['admin', 'pois.view'])) {
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                             <button type="submit" class="btn btn-success">Erstellen</button>
                         </div>
                     </form>
@@ -309,6 +323,15 @@ if (!Permissions::check(['admin', 'pois.view'])) {
                         "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
                     }
                 }
+            });
+
+            // Segmented control filtering
+            document.querySelectorAll('#statusFilter .btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('#statusFilter .btn').forEach(function(b) { b.classList.remove('active'); });
+                    this.classList.add('active');
+                    table.column(6).search(this.dataset.filter).draw();
+                });
             });
         });
     </script>

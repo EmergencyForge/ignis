@@ -369,7 +369,6 @@ $formData = $entry ?? [
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     
                     <!-- Back Link -->
                     <a href="<?= BASE_PATH ?>wissensdb/index.php" class="back-link mb-3">
@@ -587,7 +586,7 @@ $formData = $entry ?? [
 
                         <!-- Submit Buttons -->
                         <div class="d-flex justify-content-between">
-                            <a href="<?= BASE_PATH ?>wissensdb/index.php" class="btn btn-secondary">
+                            <a href="<?= BASE_PATH ?>wissensdb/index.php" class="btn btn-ghost">
                                 <i class="fa-solid fa-arrow-left"></i> Abbrechen
                             </a>
                             <button type="submit" class="btn btn-success">

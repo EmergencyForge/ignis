@@ -88,6 +88,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/3.php?enr=<?= $daten['enr'] ?>">
                                 <span>Übergabe</span>
                             </a>
+                            <a href="#" onclick="sendPatientToDispatch(event)" id="btn-send-patient">
+                                <span>An Leitstelle senden</span>
+                            </a>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton">
                             <input type="radio" class="btn-check" id="na_nachf-1" name="na_nachf" value="1" <?php echo ($daten['na_nachf'] == 1 ? 'checked' : '') ?> autocomplete="off">
@@ -136,6 +139,32 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         modalCloseButton.addEventListener('click', function() {
             freigeberInput.value = '';
         });
+    </script>
+    <script>
+        function sendPatientToDispatch(e) {
+            e.preventDefault();
+            const syncIcon = document.getElementById('pat-sync-icon');
+            const syncIconEl = syncIcon ? syncIcon.querySelector('i') : null;
+            if (syncIconEl) syncIconEl.style.color = '#f0ad4e';
+            fetch('<?= BASE_PATH ?>api/enotf-patient-sync.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enr: '<?= $enr ?>' })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    if (syncIconEl) syncIconEl.style.color = '#f0ad4e';
+                } else {
+                    if (syncIconEl) syncIconEl.style.color = '#dc3545';
+                    alert('Fehler: ' + (data.error || 'Unbekannter Fehler'));
+                }
+            })
+            .catch(() => {
+                if (syncIconEl) syncIconEl.style.color = '#dc3545';
+                alert('Verbindungsfehler beim Senden.');
+            });
+        }
     </script>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
 </body>

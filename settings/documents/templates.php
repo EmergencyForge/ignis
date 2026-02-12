@@ -153,14 +153,14 @@ $rdQualis = $rdQualisStmt->fetchAll(PDO::FETCH_ASSOC);
 
                                 <div id="fieldList" class="field-list"></div>
 
-                                <button type="button" class="btn btn-secondary btn-sm" id="addFieldBtn">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" id="addFieldBtn">
                                     + Feld hinzufügen
                                 </button>
 
                                 <hr class="my-4">
 
                                 <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">Template speichern</button>
+                                    <button type="submit" class="btn btn-soft-primary">Template speichern</button>
                                     <button type="button" class="btn btn-outline-secondary" id="previewBtn">Vorschau</button>
                                     <button type="button" class="btn btn-outline-danger" id="resetBtn">Zurücksetzen</button>
                                 </div>
@@ -251,7 +251,7 @@ $rdQualis = $rdQualisStmt->fetchAll(PDO::FETCH_ASSOC);
                         <div id="optionsContainer" class="mb-3" style="display: none;">
                             <label class="form-label">Auswahloptionen</label>
                             <div id="optionsList"></div>
-                            <button type="button" class="btn btn-sm btn-secondary mt-2" id="addOptionBtn">
+                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="addOptionBtn">
                                 + Option hinzufügen
                             </button>
                         </div>
@@ -270,8 +270,8 @@ $rdQualis = $rdQualisStmt->fetchAll(PDO::FETCH_ASSOC);
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" id="saveFieldBtn">Feld speichern</button>
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-soft-primary" id="saveFieldBtn">Feld speichern</button>
                 </div>
             </div>
         </div>
@@ -484,7 +484,7 @@ $rdQualis = $rdQualisStmt->fetchAll(PDO::FETCH_ASSOC);
                 }
 
                 fieldDiv.innerHTML = `
-                    <button type="button" class="btn btn-sm btn-danger btn-remove" onclick="removeField(${index})">×</button>
+                    <button type="button" class="btn btn-sm btn-soft-danger btn-icon btn-remove" onclick="removeField(${index})">×</button>
                     <div class="d-flex align-items-center mb-2">
                         <span class="drag-handle">☰</span>
                         <strong>${field.field_label}</strong>

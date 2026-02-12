@@ -31,7 +31,6 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row" id="startpage">
                 <div class="col">
-                    <hr class="text-light my-3">
                     <h1>Dashboard</h1>
                     <?php
                     Flash::render();

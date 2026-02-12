@@ -182,7 +182,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">System-Updates</h1>
                     </div>
@@ -238,7 +237,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                                             <input type="hidden" name="check_updates" value="1">
                                             <input type="hidden" name="include_prerelease" id="include-prerelease-hidden" value="0">
-                                            <button type="submit" class="btn btn-primary w-100">
+                                            <button type="submit" class="btn btn-soft-primary w-100">
                                                 <i class="fa-solid fa-sync"></i> Auf Updates prüfen
                                             </button>
                                         </form>
@@ -652,7 +651,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <strong>Erfolg!</strong> Composer-Abhängigkeiten wurden erfolgreich installiert.
                         </div>
                         <p class="mb-3">Das Update ist vollständig abgeschlossen. Bitte laden Sie die Seite neu, um die Änderungen zu übernehmen.</p>
-                        <button type="button" id="reload-page-btn" class="btn btn-primary w-100">
+                        <button type="button" id="reload-page-btn" class="btn btn-soft-primary w-100">
                             <i class="fa-solid fa-sync me-2"></i>Seite neu laden
                         </button>
                     </div>
@@ -668,7 +667,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             Bitte führen Sie im Terminal im Anwendungsverzeichnis aus:<br>
                             <code>composer install --no-dev --optimize-autoloader</code>
                         </p>
-                        <button type="button" id="retry-composer-btn" class="btn btn-secondary w-100 mb-2">
+                        <button type="button" id="retry-composer-btn" class="btn btn-outline-secondary w-100 mb-2">
                             <i class="fa-solid fa-rotate-right me-2"></i>Erneut versuchen
                         </button>
                         <button type="button" id="dismiss-composer-btn" class="btn btn-outline-secondary w-100">

@@ -35,7 +35,6 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="d-flex justify-content-between align-items-center mb-5">
                         <h1 class="mb-0">FW Qualifikationen verwalten</h1>
 
@@ -71,16 +70,16 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
 
                                     switch ($row['none']) {
                                         case 0:
-                                            $dgActive = "<span class='badge text-bg-success'>Nein</span>";
+                                            $dgActive = "<span class='badge-status status-success'><span class='status-dot'></span>Nein</span>";
                                             break;
                                         default:
-                                            $dgActive = "<span class='badge text-bg-danger'>Ja</span>";
+                                            $dgActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Ja</span>";
                                             $dimmed = "style='color:var(--tag-color)'";
                                             break;
                                     }
 
                                     $actions = (Permissions::check('admin'))
-                                        ? "<a title='Qualifikation bearbeiten' href='#' class='btn btn-sm btn-primary edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-shortname='{$row['shortname']}' data-name='{$row['name']}' data-name_m='{$row['name_m']}' data-name_w='{$row['name_w']}' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Qualifikation bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-shortname='{$row['shortname']}' data-name='{$row['name']}' data-name_m='{$row['name_m']}' data-name_w='{$row['name_w']}' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='fa-solid fa-pen'></i></a>"
                                         : "";
 
                                     echo "<tr>";
@@ -115,27 +114,27 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                             <input type="hidden" name="id" id="dienstgrad-id">
 
                             <div class="mb-3">
-                                <label for="dienstgrad-shortname" class="form-label">Kurzbezeichnung <small style="opacity:.5">(z.B. B1,B2 etc.)</small></label>
+                                <label for="dienstgrad-shortname" class="form-label">Kurzbezeichnung <small class="form-hint">(z.B. B1,B2 etc.)</small></label>
                                 <input type="text" class="form-control" name="shortname" id="dienstgrad-shortname" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-name" class="form-label">Bezeichnung <small style="opacity:.5">(Allgemein)</small></label>
+                                <label for="dienstgrad-name" class="form-label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
                                 <input type="text" class="form-control" name="name" id="dienstgrad-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-name_m" class="form-label">Bezeichnung <small style="opacity:.5">(Männlich)</small></label>
+                                <label for="dienstgrad-name_m" class="form-label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
                                 <input type="text" class="form-control" name="name_m" id="dienstgrad-name_m" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-name_w" class="form-label">Bezeichnung <small style="opacity:.5">(Weiblich)</small></label>
+                                <label for="dienstgrad-name_w" class="form-label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
                                 <input type="text" class="form-control" name="name_w" id="dienstgrad-name_w" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-priority" class="form-label">Priorität <small style="opacity:.5">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="dienstgrad-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="form-control" name="priority" id="dienstgrad-priority" required>
                             </div>
 
@@ -146,11 +145,11 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
 
                         </div>
                         <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-danger" id="delete-dienstgrad-btn">Löschen</button>
+                            <button type="button" class="btn btn-ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-primary">Speichern</button>
+                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -177,27 +176,27 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-shortname" class="form-label">Kurzbezeichnung <small style="opacity:.5">(z.B. B1,B2 etc.)</small></label>
+                                <label for="new-dienstgrad-shortname" class="form-label">Kurzbezeichnung <small class="form-hint">(z.B. B1,B2 etc.)</small></label>
                                 <input type="text" class="form-control" name="shortname" id="new-dienstgrad-shortname" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name" class="form-label">Bezeichnung <small style="opacity:.5">(Allgemein)</small></label>
+                                <label for="new-dienstgrad-name" class="form-label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
                                 <input type="text" class="form-control" name="name" id="new-dienstgrad-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name_m" class="form-label">Bezeichnung <small style="opacity:.5">(Männlich)</small></label>
+                                <label for="new-dienstgrad-name_m" class="form-label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
                                 <input type="text" class="form-control" name="name_m" id="new-dienstgrad-name_m" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name_w" class="form-label">Bezeichnung <small style="opacity:.5">(Weiblich)</small></label>
+                                <label for="new-dienstgrad-name_w" class="form-label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
                                 <input type="text" class="form-control" name="name_w" id="new-dienstgrad-name_w" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-priority" class="form-label">Priorität <small style="opacity:.5">(je niedriger, desto höher)</small></label>
+                                <label for="new-dienstgrad-priority" class="form-label">Priorität <small class="form-hint">(je niedriger, desto höher)</small></label>
                                 <input type="number" class="form-control" name="priority" id="new-dienstgrad-priority" value="0" required>
                             </div>
 
@@ -208,7 +207,7 @@ if (!Permissions::check(['admin', 'personnel.view'])) {
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
                             <button type="submit" class="btn btn-success">Erstellen</button>
                         </div>
                     </form>

@@ -83,6 +83,14 @@ if (empty($daten['spo2']) || empty($daten['atemfreq']) || empty($daten['rrsys'])
     echo '[2] Erstbefund: Messwerte sind nicht gesetzt.<br>';
 }
 
+if ($daten['naca_initial'] === NULL) {
+    echo '[3] Anamnese: NACA-Score (initial) ist nicht gesetzt.<br>';
+}
+
+if ($daten['elokation'] === NULL) {
+    echo '[3] Anamnese: Einsatzort ist nicht gesetzt.<br>';
+}
+
 if ($daten['diagnose_haupt'] === NULL) {
     echo '[4] Diagnose: Führende Diagnose ist nicht gesetzt.<br>';
 }

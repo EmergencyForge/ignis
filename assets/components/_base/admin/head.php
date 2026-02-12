@@ -7,15 +7,16 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?php echo $SITE_TITLE; ?> &rsaquo; <?php echo SYSTEM_NAME ?></title>
 <!-- Stylesheets -->
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/style.min.css" />
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/admin.min.css" />
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/rubik/css/all.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-<script src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
-<script src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/fortawesome/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/rubik/css/all.min.css" />
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/style.min.css" />
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/admin.min.css" />
+<script src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
+<script src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
+<script src="<?= BASE_PATH ?>assets/js/toasts.js"></script>
 <script src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />

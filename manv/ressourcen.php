@@ -170,7 +170,6 @@ $material = $manvRessource->getByLage((int)$lageId, 'material');
     <?php include __DIR__ . '/../assets/components/navbar.php'; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container">
-            <hr class="text-light my-3">
             <div class="row mb-5 align-items-end">
                 <div class="col-lg-8 col-12">
                     <h1>Fahrzeugverwaltung</h1>
@@ -178,10 +177,10 @@ $material = $manvRessource->getByLage((int)$lageId, 'material');
                 </div>
                 <div class="col-lg-4 col-12">
                     <div class="d-flex flex-column flex-lg-row gap-2 justify-content-lg-end mt-3 mt-lg-0">
-                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#quickAddModal" title="Schnell hinzufügen">
+                        <button type="button" class="btn btn-success btn-icon" data-bs-toggle="modal" data-bs-target="#quickAddModal" title="Schnell hinzufügen">
                             <i class="fas fa-bolt"></i>
                         </button>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                        <button type="button" class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#createModal">
                             <i class="fas fa-plus me-1"></i> Fahrzeug hinzufügen
                         </button>
                     </div>
@@ -228,7 +227,7 @@ $material = $manvRessource->getByLage((int)$lageId, 'material');
                                             <td><?= htmlspecialchars($fzg['fahrzeugtyp'] ?? '-') ?></td>
                                             <td><?= htmlspecialchars($fzg['lokalisation'] ?? '-') ?></td>
                                             <td>
-                                                <button class="btn btn-sm btn-primary me-1 edit-ressource-btn"
+                                                <button class="btn btn-sm btn-soft-primary btn-icon me-1 edit-ressource-btn"
                                                     data-id="<?= $fzg['id'] ?>"
                                                     data-typ="<?= htmlspecialchars($fzg['typ']) ?>"
                                                     data-bezeichnung="<?= htmlspecialchars($fzg['bezeichnung']) ?>"
@@ -240,7 +239,7 @@ $material = $manvRessource->getByLage((int)$lageId, 'material');
                                                     data-bs-target="#editModal">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= $fzg['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Wirklich löschen?')">
+                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= $fzg['id'] ?>" class="btn btn-sm btn-outline-danger btn-icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </td>
@@ -254,7 +253,7 @@ $material = $manvRessource->getByLage((int)$lageId, 'material');
             </div>
 
             <div class="mb-4">
-                <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-secondary">
+                <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost">
                     <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
                 </a>
             </div>
@@ -294,8 +293,8 @@ $material = $manvRessource->getByLage((int)$lageId, 'material');
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-primary">Speichern</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -377,8 +376,8 @@ $material = $manvRessource->getByLage((int)$lageId, 'material');
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-plus me-2"></i>Fahrzeug hinzufügen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="btn btn-soft-primary btn-lg"><i class="fas fa-plus me-2"></i>Fahrzeug hinzufügen</button>
                         </div>
                     </form>
                 </div>
@@ -423,7 +422,7 @@ $material = $manvRessource->getByLage((int)$lageId, 'material');
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                             <button type="submit" class="btn btn-success"><i class="fas fa-bolt me-2"></i>Schnell hinzufügen</button>
                         </div>
                     </form>

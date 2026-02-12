@@ -159,7 +159,6 @@ function getAutoFillValue(string $auto_fill, array $mitarbeiter): string
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <hr class="text-light my-3">
                     <h1>
                         <?= htmlspecialchars($typ['name']) ?> stellen
                     </h1>
@@ -170,7 +169,6 @@ function getAutoFillValue(string $auto_fill, array $mitarbeiter): string
 
                     <?php Flash::render(); ?>
 
-                    <hr class="text-light my-3">
 
                     <div class="row">
                         <div class="col mx-auto">
@@ -276,7 +274,7 @@ function getAutoFillValue(string $auto_fill, array $mitarbeiter): string
                                     <hr class="text-light my-4">
 
                                     <div class="d-flex justify-content-between">
-                                        <a href="<?= BASE_PATH ?>index.php" class="btn btn-secondary">
+                                        <a href="<?= BASE_PATH ?>index.php" class="btn btn-ghost">
                                             <i class="fa-solid fa-xmark me-2"></i>Abbrechen
                                         </a>
                                         <button type="submit" name="submit_antrag" class="btn btn-success">

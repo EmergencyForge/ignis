@@ -97,14 +97,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                         echo '<i class="fa-solid fa-key position-absolute" style="left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i>';
                         echo '<input type="text" class="form-control" name="registration_code" placeholder="Registrierungscode" style="padding-left: 35px;">';
                         echo '</div>';
-                        echo '<button type="submit" class="btn btn-secondary w-100">Mit Code registrieren</button>';
+                        echo '<button type="submit" class="btn btn-ghost w-100">Mit Code registrieren</button>';
                         echo '</form>';
                         echo '<div class="text-center mb-2"><small class="text-muted">oder</small></div>';
                     }
                     ?>
 
                     <div class="text-center mb-3">
-                        <a href="<?= BASE_PATH ?>auth/discord.php" class="btn btn-primary btn-lg w-100"><i class="fa-brands fa-discord"></i> Login</a>
+                        <a href="<?= BASE_PATH ?>auth/discord.php" class="btn btn-soft-primary btn-lg w-100"><i class="fa-brands fa-discord"></i> Login</a>
                     </div>
                 </div>
             </div>

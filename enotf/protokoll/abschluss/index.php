@@ -147,6 +147,7 @@ if (isset($_SESSION['fahrername'])) {
     }
 
     // Bei Rettungsdienst-Protokoll (prot_by = 0): Transportmittel-Personal
+    // fzg_transp_perso = Fahrer, fzg_transp_perso_2 = Beifahrer
     if ($daten['prot_by'] == 0) {
         if (empty($daten['fzg_transp_perso'])) {
             $daten['fzg_transp_perso'] = $fahrerName;
@@ -156,6 +157,7 @@ if (isset($_SESSION['fahrername'])) {
         }
     }
     // Bei Notarzt-Protokoll (prot_by = 1): Notarzt-Personal
+    // fzg_na_perso = Fahrer, fzg_na_perso_2 = Beifahrer
     elseif ($daten['prot_by'] == 1) {
         if (empty($daten['fzg_na_perso'])) {
             $daten['fzg_na_perso'] = $fahrerName;
@@ -202,6 +204,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <?php endif; ?>
                                 <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/3.php?enr=<?= $daten['enr'] ?>">
                                     <span>Übergabe</span>
+                                </a>
+                                <a href="#" onclick="sendPatientToDispatch(event)" id="btn-send-patient">
+                                    <span>An Leitstelle senden</span>
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -557,6 +562,35 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         }
 
         setupNameAutocomplete('pfname', 'pfname-dropdown', pfnameSuggestions);
+
+        // Patient an Leitstelle senden
+        function sendPatientToDispatch(e) {
+            e.preventDefault();
+            const syncIcon = document.getElementById('pat-sync-icon');
+            const syncIconEl = syncIcon ? syncIcon.querySelector('i') : null;
+
+            // Sofort auf Gelb setzen (Senden läuft)
+            if (syncIconEl) syncIconEl.style.color = '#f0ad4e';
+
+            fetch('<?= BASE_PATH ?>api/enotf-patient-sync.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enr: '<?= $enr ?>' })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    if (syncIconEl) syncIconEl.style.color = '#f0ad4e';
+                } else {
+                    if (syncIconEl) syncIconEl.style.color = '#dc3545';
+                    alert('Fehler: ' + (data.error || 'Unbekannter Fehler'));
+                }
+            })
+            .catch(() => {
+                if (syncIconEl) syncIconEl.style.color = '#dc3545';
+                alert('Verbindungsfehler beim Senden.');
+            });
+        }
     </script>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
 </body>

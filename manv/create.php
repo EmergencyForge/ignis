@@ -169,10 +169,10 @@ $users = $usersStmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
 
                 <div class="d-flex justify-content-between mb-4">
-                    <a href="<?= BASE_PATH ?>manv/index.php" class="btn btn-secondary">
+                    <a href="<?= BASE_PATH ?>manv/index.php" class="btn btn-ghost">
                         <i class="fas fa-arrow-left me-2"></i>Zurück
                     </a>
-                    <button type="submit" class="btn btn-primary btn-lg">
+                    <button type="submit" class="btn btn-soft-primary btn-lg">
                         <i class="fas fa-save me-2"></i>MANV-Lage anlegen
                     </button>
                 </div>

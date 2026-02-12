@@ -20,7 +20,7 @@
                     <div class="asu-clock mx-auto" style="width: 180px; height: 180px; position: relative;">
                         <svg width="180" height="180" viewBox="0 0 180 180">
                             <!-- Ziffernblatt mit Markierungen -->
-                            <circle cx="90" cy="90" r="85" fill="#1a1a1a" stroke="#333" stroke-width="2" />
+                            <circle cx="90" cy="90" r="85" fill="#25242c" stroke="#3d3a44" stroke-width="2" />
                             <!-- 12 Stundenmarkierungen -->
                             <line x1="90" y1="10" x2="90" y2="20" stroke="#666" stroke-width="2" />
                             <line x1="155.9" y1="34.1" x2="148.3" y2="41.7" stroke="#666" stroke-width="1.5" />
@@ -31,7 +31,7 @@
                             <line x1="10" y1="90" x2="20" y2="90" stroke="#666" stroke-width="2" />
                             <line x1="24.1" y1="34.1" x2="31.7" y2="41.7" stroke="#666" stroke-width="1.5" />
                             <!-- Progress Circle -->
-                            <circle cx="90" cy="90" r="75" fill="none" stroke="#333" stroke-width="6" transform="rotate(-90 90 90)" />
+                            <circle cx="90" cy="90" r="75" fill="none" stroke="#3d3a44" stroke-width="6" transform="rotate(-90 90 90)" />
                             <circle cx="90" cy="90" r="75" fill="none" stroke="#d10000" stroke-width="6"
                                 stroke-dasharray="471.24" stroke-dashoffset="471.24"
                                 id="trupp1ProgressCircle" style="transition: stroke-dashoffset 0.3s;" transform="rotate(-90 90 90)" />
@@ -47,7 +47,7 @@
                         </div>
                     </div>
                     <!-- Progressbar -->
-                    <div class="progress mt-2" style="height: 20px; background-color: #2a2a2a;">
+                    <div class="progress mt-2" style="height: 20px;">
                         <div class="progress-bar bg-danger" id="trupp1ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                             <span id="trupp1Percent" style="font-weight: bold;">0%</span>
                         </div>
@@ -139,7 +139,7 @@
                     <div class="asu-clock mx-auto" style="width: 180px; height: 180px; position: relative;">
                         <svg width="180" height="180" viewBox="0 0 180 180">
                             <!-- Ziffernblatt mit Markierungen -->
-                            <circle cx="90" cy="90" r="85" fill="#1a1a1a" stroke="#333" stroke-width="2" />
+                            <circle cx="90" cy="90" r="85" fill="#25242c" stroke="#3d3a44" stroke-width="2" />
                             <!-- 12 Stundenmarkierungen -->
                             <line x1="90" y1="10" x2="90" y2="20" stroke="#666" stroke-width="2" />
                             <line x1="155.9" y1="34.1" x2="148.3" y2="41.7" stroke="#666" stroke-width="1.5" />
@@ -150,7 +150,7 @@
                             <line x1="10" y1="90" x2="20" y2="90" stroke="#666" stroke-width="2" />
                             <line x1="24.1" y1="34.1" x2="31.7" y2="41.7" stroke="#666" stroke-width="1.5" />
                             <!-- Progress Circle -->
-                            <circle cx="90" cy="90" r="75" fill="none" stroke="#333" stroke-width="6" transform="rotate(-90 90 90)" />
+                            <circle cx="90" cy="90" r="75" fill="none" stroke="#3d3a44" stroke-width="6" transform="rotate(-90 90 90)" />
                             <circle cx="90" cy="90" r="75" fill="none" stroke="#d10000" stroke-width="6"
                                 stroke-dasharray="471.24" stroke-dashoffset="471.24"
                                 id="trupp2ProgressCircle" style="transition: stroke-dashoffset 0.3s;" transform="rotate(-90 90 90)" />
@@ -166,7 +166,7 @@
                         </div>
                     </div>
                     <!-- Progressbar -->
-                    <div class="progress mt-2" style="height: 20px; background-color: #2a2a2a;">
+                    <div class="progress mt-2" style="height: 20px;">
                         <div class="progress-bar bg-danger" id="trupp2ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                             <span id="trupp2Percent" style="font-weight: bold;">0%</span>
                         </div>
@@ -258,7 +258,7 @@
                     <div class="asu-clock mx-auto" style="width: 180px; height: 180px; position: relative;">
                         <svg width="180" height="180" viewBox="0 0 180 180">
                             <!-- Ziffernblatt mit Markierungen -->
-                            <circle cx="90" cy="90" r="85" fill="#1a1a1a" stroke="#333" stroke-width="2" />
+                            <circle cx="90" cy="90" r="85" fill="#25242c" stroke="#3d3a44" stroke-width="2" />
                             <!-- 12 Stundenmarkierungen -->
                             <line x1="90" y1="10" x2="90" y2="20" stroke="#666" stroke-width="2" />
                             <line x1="155.9" y1="34.1" x2="148.3" y2="41.7" stroke="#666" stroke-width="1.5" />
@@ -269,7 +269,7 @@
                             <line x1="10" y1="90" x2="20" y2="90" stroke="#666" stroke-width="2" />
                             <line x1="24.1" y1="34.1" x2="31.7" y2="41.7" stroke="#666" stroke-width="1.5" />
                             <!-- Progress Circle -->
-                            <circle cx="90" cy="90" r="75" fill="none" stroke="#333" stroke-width="6" transform="rotate(-90 90 90)" />
+                            <circle cx="90" cy="90" r="75" fill="none" stroke="#3d3a44" stroke-width="6" transform="rotate(-90 90 90)" />
                             <circle cx="90" cy="90" r="75" fill="none" stroke="#d10000" stroke-width="6"
                                 stroke-dasharray="471.24" stroke-dashoffset="471.24"
                                 id="trupp3ProgressCircle" style="transition: stroke-dashoffset 0.3s;" transform="rotate(-90 90 90)" />
@@ -285,7 +285,7 @@
                         </div>
                     </div>
                     <!-- Progressbar -->
-                    <div class="progress mt-2" style="height: 20px; background-color: #2a2a2a;">
+                    <div class="progress mt-2" style="height: 20px;">
                         <div class="progress-bar bg-danger" id="trupp3ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
                             <span id="trupp3Percent" style="font-weight: bold;">0%</span>
                         </div>

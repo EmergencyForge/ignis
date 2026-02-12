@@ -77,13 +77,12 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="mb-3">
                         <h1 class="mb-0">Krankenhaus-Zugangscodes</h1>
                         <p class="text-muted mb-0">Verwalten Sie die Zugangscodes für das Verfügbarkeits-Portal</p>
                     </div>
 
-                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="btn btn-sm btn-secondary mb-3">
+                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="btn btn-sm btn-ghost mb-3">
                         <i class="fa-solid fa-arrow-left"></i> Zurück zur POI-Verwaltung
                     </a>
 
@@ -128,7 +127,7 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-primary generate-code-btn"
+                                            <button class="btn btn-sm btn-soft-primary generate-code-btn"
                                                     data-id="<?= $hospital['id'] ?>"
                                                     data-name="<?= htmlspecialchars($hospital['name']) ?>">
                                                 <i class="fa-solid fa-key"></i>
@@ -174,7 +173,7 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <label for="new-code" class="form-label">Zugangscode</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" name="new_code" id="new-code" required readonly>
-                                <button type="button" class="btn btn-secondary" id="regenerate-btn">
+                                <button type="button" class="btn btn-outline-secondary" id="regenerate-btn">
                                     <i class="fa-solid fa-rotate"></i> Neu generieren
                                 </button>
                             </div>
@@ -189,8 +188,8 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="btn btn-soft-primary">
                             <i class="fa-solid fa-floppy-disk"></i> Speichern
                         </button>
                     </div>
@@ -261,11 +260,7 @@ $hospitals = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $('.copy-code-btn').on('click', function() {
                 const code = $(this).data('code');
                 navigator.clipboard.writeText(code).then(() => {
-                    const originalIcon = $(this).find('i');
-                    originalIcon.removeClass('fa-copy').addClass('fa-check');
-                    setTimeout(() => {
-                        originalIcon.removeClass('fa-check').addClass('fa-copy');
-                    }, 2000);
+                    showToast('Code kopiert', 'success');
                 });
             });
         });

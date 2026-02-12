@@ -143,16 +143,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <div class="col">
                                     <div class="row my-2">
                                         <div class="col">
-                                            <label for="patname" class="edivi__description">Name</label>
-                                            <input type="text" name="patname" id="patname" placeholder="Max Mustermann" class="w-100 form-control" value="<?= $daten['patname'] ?>">
+                                            <label for="pat_vorname" class="edivi__description">Vorname</label>
+                                            <input type="text" name="pat_vorname" id="pat_vorname" placeholder="Max" class="w-100 form-control" value="<?= htmlspecialchars($daten['pat_vorname'] ?? '') ?>">
                                         </div>
                                         <div class="col">
-                                            <label for="patgebdat" class="edivi__description">Geburtsdatum</label>
-                                            <input type="date" name="patgebdat" id="patgebdat" class="w-100 form-control" value="<?= $daten['patgebdat'] ?>">
-                                        </div>
-                                        <div class="col-1">
-                                            <label for="_AGE_" class="edivi__description">Alter</label>
-                                            <input type="text" name="_AGE_" id="_AGE_" class="w-100 form-control" value="0" readonly>
+                                            <label for="pat_nachname" class="edivi__description">Nachname</label>
+                                            <input type="text" name="pat_nachname" id="pat_nachname" placeholder="Mustermann" class="w-100 form-control" value="<?= htmlspecialchars($daten['pat_nachname'] ?? '') ?>">
                                         </div>
                                     </div>
                                     <div class="row my-2">
@@ -179,6 +175,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <?php
                                             }
                                             ?>
+                                        </div>
+                                        <div class="col">
+                                            <label for="patgebdat" class="edivi__description">Geburtsdatum</label>
+                                            <input type="date" name="patgebdat" id="patgebdat" class="w-100 form-control" value="<?= $daten['patgebdat'] ?>">
+                                        </div>
+                                        <div class="col-1">
+                                            <label for="_AGE_" class="edivi__description">Alter</label>
+                                            <input type="text" name="_AGE_" id="_AGE_" class="w-100 form-control" value="0" readonly>
                                         </div>
                                     </div>
                                 </div>

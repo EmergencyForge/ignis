@@ -46,7 +46,7 @@ function showDiagnosticReport(
  */
 function copyDiagnosticReport() {
   if (!currentDiagnosticData) {
-    alert("Keine Diagnose-Daten verfügbar.");
+    showAlert("Keine Diagnose-Daten verfügbar.", { type: 'warning', title: 'Hinweis' });
     return;
   }
 
@@ -111,7 +111,7 @@ function fallbackCopyToClipboard(text) {
  */
 function downloadDiagnosticReport() {
   if (!currentDiagnosticData) {
-    alert("Keine Diagnose-Daten verfügbar.");
+    showAlert("Keine Diagnose-Daten verfügbar.", { type: 'warning', title: 'Hinweis' });
     return;
   }
 

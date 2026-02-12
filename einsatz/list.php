@@ -89,127 +89,15 @@ function fmt_dt(?string $ts): string
 <head>
     <?php include __DIR__ . '/../assets/components/_base/admin/head.php'; ?>
     <style>
-        html::-webkit-scrollbar,
-        body::-webkit-scrollbar,
-        .sidebar-nav::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        html::-webkit-scrollbar-track,
-        body::-webkit-scrollbar-track,
-        .sidebar-nav::-webkit-scrollbar-track {
-            background: #1a1a1a;
-        }
-
-        html::-webkit-scrollbar-thumb,
-        body::-webkit-scrollbar-thumb,
-        .sidebar-nav::-webkit-scrollbar-thumb {
-            background: #4a4a4a;
-            border-radius: 4px;
-        }
-
-        html::-webkit-scrollbar-thumb:hover,
-        body::-webkit-scrollbar-thumb:hover,
-        .sidebar-nav::-webkit-scrollbar-thumb:hover {
-            background: #5a5a5a;
-        }
-
-        .sidebar-nav {
-            overflow-y: auto;
-        }
-
-        .sidebar-nav .nav-link {
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.25rem;
-            border-radius: 0.375rem;
-            transition: all 0.2s;
-        }
-
-        .sidebar-nav .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-        }
-
-        .sidebar-nav .nav-link.active {
-            background-color: rgba(13, 110, 253, 0.5);
-        }
-
-        .incident-card {
-            transition: all 0.2s;
-        }
-
-        .incident-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .status-badge {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-        }
+        .incident-card { transition: all 0.2s; }
+        .incident-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
+        .status-badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
     </style>
 </head>
 
 <body data-bs-theme="dark" data-page="einsatzliste">
     <div class="d-flex">
-        <!-- Sidebar Navigation -->
-        <div class="sidebar-nav" style="width: 250px; min-height: 100vh; background-color: #1a1a1a; border-right: 1px solid #333;">
-            <div class="p-3">
-                <div class="text-center mb-3">
-                    <img src="https://emergencyforge.de/assets/img/defaultLogo.webp" alt="EmergencyForge Logo" style="max-width: 120px; height: auto;">
-                </div>
-
-                <!-- Vehicle Login Info -->
-                <?php if (isset($_SESSION['einsatz_vehicle_name'])): ?>
-                    <div class="card bg-dark mb-3" style="font-size: 0.85rem;">
-                        <div class="card-body p-2">
-                            <div class="text-muted small mb-1">Angemeldet auf:</div>
-                            <div class="fw-bold">
-                                <i class="fas fa-truck me-1"></i>
-                                <?= htmlspecialchars($_SESSION['einsatz_vehicle_name']) ?>
-                            </div>
-                            <?php if (isset($_SESSION['einsatz_operator_name'])): ?>
-                                <div class="text-muted small mt-1">
-                                    <i class="fas fa-user me-1"></i>
-                                    <?= htmlspecialchars($_SESSION['einsatz_operator_name']) ?>
-                                </div>
-                            <?php endif; ?>
-                            <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug.php?logout=1" class="btn btn-sm btn-outline-light mt-2 w-100">
-                                <i class="fas fa-sign-out-alt me-1"></i>Abmelden
-                            </a>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="<?= BASE_PATH ?>einsatz/create.php">
-                            <i class="fa-solid fa-plus me-2"></i>Neuer Einsatz
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white active" href="<?= BASE_PATH ?>einsatz/list.php">
-                            <i class="fa-solid fa-list me-2"></i>Meine Einsätze
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="<?= BASE_PATH ?>einsatz/asu.php">
-                            <i class="fa-solid fa-mask-ventilator me-2"></i>AS-Überwachung
-                        </a>
-                    </li>
-
-                    <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
-                        <li class="nav-item mt-4">
-                            <small class="text-muted px-3 d-block mb-2">VERWALTUNG</small>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white" href="<?= BASE_PATH ?>einsatz/admin/list.php">
-                                <i class="fa-solid fa-shield-alt me-2"></i>Alle Einsätze
-                            </a>
-                        </li>
-                    <?php endif; ?>
-                </ul>
-            </div>
-        </div>
+        <?php $einsatzActivePage = 'list'; include __DIR__ . '/../assets/components/einsatz-sidebar.php'; ?>
 
         <!-- Main Content -->
         <div class="flex-grow-1" style="overflow-y: auto;">

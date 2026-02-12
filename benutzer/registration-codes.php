@@ -82,7 +82,6 @@ $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <hr class="text-light my-3">
                     <div class="row mb-3">
                         <div class="col">
                             <h1>Registrierungscodes verwalten</h1>
@@ -91,7 +90,7 @@ $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
                             <div class="col text-end">
                                 <form method="POST">
                                     <input type="hidden" name="action" value="generate">
-                                    <button type="submit" class="btn btn-primary">
+                                    <button type="submit" class="btn btn-soft-primary">
                                         <i class="fa-solid fa-plus"></i> Code generieren
                                     </button>
                                 </form>
@@ -144,9 +143,9 @@ $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
                                             <td><?= date('d.m.Y H:i', strtotime($code['created_at'])) ?></td>
                                             <td>
                                                 <?php if ($code['is_used']): ?>
-                                                    <span class="badge bg-secondary">Verwendet</span>
+                                                    <span class="badge-status status-muted"><span class="status-dot"></span>Verwendet</span>
                                                 <?php else: ?>
-                                                    <span class="badge bg-success">Verfügbar</span>
+                                                    <span class="badge-status status-success"><span class="status-dot"></span>Verfügbar</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td><?= $code['is_used'] ? htmlspecialchars($code['used_by_name'] ?? 'Unbekannt') : '-' ?></td>
@@ -156,7 +155,7 @@ $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
                                                     <form method="POST" class="d-inline" onsubmit="event.preventDefault(); showConfirm('Diesen Code wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Registrierungscode löschen'}).then(result => { if(result) this.submit(); });">
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="code_id" value="<?= $code['id'] ?>">
-                                                        <button type="submit" class="btn btn-sm btn-danger">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
                                                             <i class="fa-solid fa-trash"></i> Löschen
                                                         </button>
                                                     </form>
