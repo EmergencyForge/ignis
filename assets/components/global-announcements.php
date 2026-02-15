@@ -64,9 +64,7 @@ try {
             <?php if ($needsHeartbeat): ?>
                 fetch('<?= BASE_PATH ?>api/telemetry-background.php?action=heartbeat').catch(function(){});
             <?php endif; ?>
-            <?php if ($needsCacheRefresh): ?>
-                fetch('<?= BASE_PATH ?>api/telemetry-background.php?action=refresh-announcements').catch(function(){});
-            <?php endif; ?>
+            fetch('<?= BASE_PATH ?>api/telemetry-background.php?action=refresh-announcements').catch(function(){});
         </script>
         <?php
         return;
