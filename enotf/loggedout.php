@@ -29,8 +29,8 @@ unset(
     $_SESSION['fahrerquali'],
     $_SESSION['beifahrername'],
     $_SESSION['beifahrerquali'],
-    $_SESSION['weiterername'],
-    $_SESSION['weitererquali'],
+    $_SESSION['praktikantname'],
+    $_SESSION['praktikantquali'],
     $_SESSION['protfzg']
 );
 

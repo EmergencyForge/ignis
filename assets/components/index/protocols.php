@@ -23,8 +23,10 @@
         e.pfname LIKE CONCAT('%', m.fullname, '%')
         OR e.fzg_transp_perso LIKE CONCAT('%', m.fullname, '%')
         OR e.fzg_transp_perso_2 LIKE CONCAT('%', m.fullname, '%')
+        OR e.fzg_transp_perso_3 LIKE CONCAT('%', m.fullname, '%')
         OR e.fzg_na_perso LIKE CONCAT('%', m.fullname, '%')
         OR e.fzg_na_perso_2 LIKE CONCAT('%', m.fullname, '%')
+        OR e.fzg_na_perso_3 LIKE CONCAT('%', m.fullname, '%')
     )
     AND e.hidden <> 1
     AND e.hidden_user <> 1

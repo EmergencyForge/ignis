@@ -255,7 +255,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <tr>
                                                         <td><?= $daten['fzg_transp_perso'] ?? '<span style="color:lightgray">Kein Transportführer hinterlegt</span>' ?>, <?= $daten['fzg_transp_perso_2'] ?? '<span style="color:lightgray">Kein Fahrzeugführer hinterlegt</span>' ?></td>
                                                     </tr>
-                                                <?php else: // Notarzt-Protokoll 
+                                                    <?php if (!empty($daten['fzg_transp_perso_3'])): ?>
+                                                        <tr>
+                                                            <td>Praktikant: <?= $daten['fzg_transp_perso_3'] ?></td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                <?php else: // Notarzt-Protokoll
                                                 ?>
                                                     <tr>
                                                         <td><?= !empty($fzgNA) ? $fzgNA : '<span style="color:lightgray">Kein Notarztzubringer hinterlegt</span>' ?></td>
@@ -263,6 +268,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <tr>
                                                         <td><?= $daten['fzg_na_perso'] ?? '<span style="color:lightgray">Kein Notarzt hinterlegt</span>' ?>, <?= $daten['fzg_na_perso_2'] ?? '<span style="color:lightgray">Kein Fahrzeugführer/HEMS hinterlegt</span>' ?></td>
                                                     </tr>
+                                                    <?php if (!empty($daten['fzg_na_perso_3'])): ?>
+                                                        <tr>
+                                                            <td>Praktikant: <?= $daten['fzg_na_perso_3'] ?></td>
+                                                        </tr>
+                                                    <?php endif; ?>
                                                 <?php endif; ?>
                                             </tbody>
                                         </table>

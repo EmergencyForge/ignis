@@ -121,11 +121,13 @@ $ebesonderheitenDisplay = !empty($ebesonderheitenDisplayTexts) ? implode(', ', $
 if ($daten['prot_by'] == 0) {
     $daten['fzg_na_perso'] = NULL;
     $daten['fzg_na_perso_2'] = NULL;
+    $daten['fzg_na_perso_3'] = NULL;
 }
 // Bei Notarzt-Protokoll (prot_by = 1): Transportmittel-Felder leeren
 elseif ($daten['prot_by'] == 1) {
     $daten['fzg_transp_perso'] = NULL;
     $daten['fzg_transp_perso_2'] = NULL;
+    $daten['fzg_transp_perso_3'] = NULL;
 }
 
 // Automatisches Ausfüllen der Personalfelder basierend auf Session-Daten und Protokollart
@@ -146,8 +148,17 @@ if (isset($_SESSION['fahrername'])) {
         }
     }
 
+    // Praktikant-Name mit Qualifikation
+    $praktikantName = '';
+    if (isset($_SESSION['praktikantname']) && !empty($_SESSION['praktikantname'])) {
+        $praktikantName = $_SESSION['praktikantname'];
+        if (isset($_SESSION['praktikantquali']) && !empty($_SESSION['praktikantquali'])) {
+            $praktikantName .= ' (' . $_SESSION['praktikantquali'] . ')';
+        }
+    }
+
     // Bei Rettungsdienst-Protokoll (prot_by = 0): Transportmittel-Personal
-    // fzg_transp_perso = Fahrer, fzg_transp_perso_2 = Beifahrer
+    // fzg_transp_perso = Fahrer, fzg_transp_perso_2 = Beifahrer, fzg_transp_perso_3 = Praktikant
     if ($daten['prot_by'] == 0) {
         if (empty($daten['fzg_transp_perso'])) {
             $daten['fzg_transp_perso'] = $fahrerName;
@@ -155,15 +166,21 @@ if (isset($_SESSION['fahrername'])) {
         if (empty($daten['fzg_transp_perso_2']) && !empty($beifahrerName)) {
             $daten['fzg_transp_perso_2'] = $beifahrerName;
         }
+        if (empty($daten['fzg_transp_perso_3']) && !empty($praktikantName)) {
+            $daten['fzg_transp_perso_3'] = $praktikantName;
+        }
     }
     // Bei Notarzt-Protokoll (prot_by = 1): Notarzt-Personal
-    // fzg_na_perso = Fahrer, fzg_na_perso_2 = Beifahrer
+    // fzg_na_perso = Fahrer, fzg_na_perso_2 = Beifahrer, fzg_na_perso_3 = Praktikant
     elseif ($daten['prot_by'] == 1) {
         if (empty($daten['fzg_na_perso'])) {
             $daten['fzg_na_perso'] = $fahrerName;
         }
         if (empty($daten['fzg_na_perso_2']) && !empty($beifahrerName)) {
             $daten['fzg_na_perso_2'] = $beifahrerName;
+        }
+        if (empty($daten['fzg_na_perso_3']) && !empty($praktikantName)) {
+            $daten['fzg_na_perso_3'] = $praktikantName;
         }
     }
 }
@@ -270,6 +287,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <input type="text" name="fzg_transp_perso_2" id="fzg_transp_perso_2" class="w-100 form-control" placeholder="Fahrzeugführer RTW/KTW" value="<?= $daten['fzg_transp_perso_2'] ?>">
                                                 </div>
                                             </div>
+                                            <div class="row mb-2" id="fzg_transp_row_3">
+                                                <div class="col-5">
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" name="fzg_transp_perso_3" id="fzg_transp_perso_3" class="w-100 form-control" placeholder="Praktikant RTW/KTW" value="<?= $daten['fzg_transp_perso_3'] ?>">
+                                                </div>
+                                            </div>
                                             <div class="row mt-2" id="fzg_na_row">
                                                 <div class="col-5">
                                                     <label for="fzg_na" class="edivi__description">Fahrzeug Notarzt</label>
@@ -322,6 +346,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 </div>
                                                 <div class="col">
                                                     <input type="text" name="fzg_na_perso_2" id="fzg_na_perso_2" class="w-100 form-control" placeholder="Fahrzeugführer NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_2'] ?>">
+                                                </div>
+                                            </div>
+                                            <div class="row mb-2" id="fzg_na_row_3">
+                                                <div class="col-5">
+                                                </div>
+                                                <div class="col">
+                                                    <input type="text" name="fzg_na_perso_3" id="fzg_na_perso_3" class="w-100 form-control" placeholder="Praktikant NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_3'] ?>">
                                                 </div>
                                             </div>
                                             <div class="row my-2">
@@ -454,14 +485,18 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
             const fzgTranspRow = document.getElementById('fzg_transp_row');
             const fzgTranspRow2 = document.getElementById('fzg_transp_row_2');
+            const fzgTranspRow3 = document.getElementById('fzg_transp_row_3');
             const fzgNaRow = document.getElementById('fzg_na_row');
             const fzgNaRow2 = document.getElementById('fzg_na_row_2');
+            const fzgNaRow3 = document.getElementById('fzg_na_row_3');
 
             console.log('Elemente gefunden:', {
                 fzgTranspRow: !!fzgTranspRow,
                 fzgTranspRow2: !!fzgTranspRow2,
+                fzgTranspRow3: !!fzgTranspRow3,
                 fzgNaRow: !!fzgNaRow,
-                fzgNaRow2: !!fzgNaRow2
+                fzgNaRow2: !!fzgNaRow2,
+                fzgNaRow3: !!fzgNaRow3
             });
 
             function updateFieldStates() {
@@ -471,10 +506,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     // Transportmittel-Zeilen anzeigen
                     if (fzgTranspRow) fzgTranspRow.style.display = '';
                     if (fzgTranspRow2) fzgTranspRow2.style.display = '';
+                    if (fzgTranspRow3) fzgTranspRow3.style.display = '';
 
                     // Notarzt-Zeilen verstecken
                     if (fzgNaRow) fzgNaRow.style.display = 'none';
                     if (fzgNaRow2) fzgNaRow2.style.display = 'none';
+                    if (fzgNaRow3) fzgNaRow3.style.display = 'none';
                 }
                 // Bei Notarzt-Protokoll (prot_by = 1)
                 else if (protBy == 1) {
@@ -482,10 +519,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     // Notarzt-Zeilen anzeigen
                     if (fzgNaRow) fzgNaRow.style.display = '';
                     if (fzgNaRow2) fzgNaRow2.style.display = '';
+                    if (fzgNaRow3) fzgNaRow3.style.display = '';
 
                     // Transportmittel-Zeilen verstecken
                     if (fzgTranspRow) fzgTranspRow.style.display = 'none';
                     if (fzgTranspRow2) fzgTranspRow2.style.display = 'none';
+                    if (fzgTranspRow3) fzgTranspRow3.style.display = 'none';
                 }
             }
 

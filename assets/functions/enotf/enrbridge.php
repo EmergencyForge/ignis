@@ -57,13 +57,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             ? $_SESSION['beifahrername'] . " (" . $_SESSION['beifahrerquali'] . ")"
             : null;
 
+        $praktikant = (!empty($_SESSION['praktikantname']) && !empty($_SESSION['praktikantquali']))
+            ? $_SESSION['praktikantname'] . " (" . $_SESSION['praktikantquali'] . ")"
+            : null;
+
         $persoField1 = $isDoctorVehicle ? 'fzg_na_perso' : 'fzg_transp_perso';
         $persoField2 = $isDoctorVehicle ? 'fzg_na_perso_2' : 'fzg_transp_perso_2';
+        $persoField3 = $isDoctorVehicle ? 'fzg_na_perso_3' : 'fzg_transp_perso_3';
 
         $updateFields = [$fzgField . ' = :fahrzeug'];
         $params = [':fahrzeug' => $fahrzeugId];
 
-        // persoField1 (fzg_*_perso) = Fahrer, persoField2 (fzg_*_perso_2) = Beifahrer
+        // persoField1 (fzg_*_perso) = Fahrer, persoField2 (fzg_*_perso_2) = Beifahrer, persoField3 (fzg_*_perso_3) = Praktikant
         if ($fahrer !== null) {
             $updateFields[] = $persoField1 . ' = :fahrer';
             $params[':fahrer'] = $fahrer;
@@ -72,6 +77,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($beifahrer !== null) {
             $updateFields[] = $persoField2 . ' = :beifahrer';
             $params[':beifahrer'] = $beifahrer;
+        }
+
+        if ($praktikant !== null) {
+            $updateFields[] = $persoField3 . ' = :praktikant';
+            $params[':praktikant'] = $praktikant;
         }
 
         $sql = "UPDATE intra_edivi SET " . implode(", ", $updateFields) . " WHERE enr = :enr";
@@ -87,6 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Neues Protokoll erstellen (entweder komplett neu oder mit Suffix)
     $persoField1 = $isDoctorVehicle ? 'fzg_na_perso' : 'fzg_transp_perso';
     $persoField2 = $isDoctorVehicle ? 'fzg_na_perso_2' : 'fzg_transp_perso_2';
+    $persoField3 = $isDoctorVehicle ? 'fzg_na_perso_3' : 'fzg_transp_perso_3';
 
     $fahrer = (!empty($_SESSION['fahrername']) && !empty($_SESSION['fahrerquali']))
         ? $_SESSION['fahrername'] . " (" . $_SESSION['fahrerquali'] . ")"
@@ -94,6 +105,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $beifahrer = (!empty($_SESSION['beifahrername']) && !empty($_SESSION['beifahrerquali']))
         ? $_SESSION['beifahrername'] . " (" . $_SESSION['beifahrerquali'] . ")"
+        : null;
+
+    $praktikant = (!empty($_SESSION['praktikantname']) && !empty($_SESSION['praktikantquali']))
+        ? $_SESSION['praktikantname'] . " (" . $_SESSION['praktikantquali'] . ")"
         : null;
 
     // Aktuelles Datum und Zeit für edatum und ezeit
@@ -111,7 +126,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         ':createdby' => 2
     ];
 
-    // persoField1 (fzg_*_perso) = Fahrer, persoField2 (fzg_*_perso_2) = Beifahrer
+    // persoField1 (fzg_*_perso) = Fahrer, persoField2 (fzg_*_perso_2) = Beifahrer, persoField3 (fzg_*_perso_3) = Praktikant
     if ($fahrer !== null) {
         $columns[] = $persoField1;
         $placeholders[] = ':fahrer';
@@ -122,6 +137,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $columns[] = $persoField2;
         $placeholders[] = ':beifahrer';
         $params[':beifahrer'] = $beifahrer;
+    }
+
+    if ($praktikant !== null) {
+        $columns[] = $persoField3;
+        $placeholders[] = ':praktikant';
+        $params[':praktikant'] = $praktikant;
     }
 
     $sql = "INSERT INTO intra_edivi (" . implode(", ", $columns) . ")

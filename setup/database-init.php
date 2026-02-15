@@ -424,6 +424,9 @@ $migrationFiles = [
 
     // 11.02.2026 - Patientenname aufteilen + Sync-Flag
     ['file' => 'alter_intra_edivi_11022026_split_patname.php', 'type' => 'alter'],
+
+    // 15.02.2026 - Praktikant (3. Person) auf Fahrzeugen
+    ['file' => 'alter_intra_edivi_15022026_praktikant.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

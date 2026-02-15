@@ -83,14 +83,19 @@ try {
     $fzgField = $isDoctorVehicle ? 'fzg_na' : 'fzg_transp';
     $persoField1 = $isDoctorVehicle ? 'fzg_na_perso' : 'fzg_transp_perso';
     $persoField2 = $isDoctorVehicle ? 'fzg_na_perso_2' : 'fzg_transp_perso_2';
+    $persoField3 = $isDoctorVehicle ? 'fzg_na_perso_3' : 'fzg_transp_perso_3';
 
-    // Fahrer und Beifahrer mit Qualifikation
+    // Fahrer, Beifahrer und Praktikant mit Qualifikation
     $fahrer = (!empty($_SESSION['fahrername']) && !empty($_SESSION['fahrerquali']))
         ? $_SESSION['fahrername'] . " (" . $_SESSION['fahrerquali'] . ")"
         : null;
 
     $beifahrer = (!empty($_SESSION['beifahrername']) && !empty($_SESSION['beifahrerquali']))
         ? $_SESSION['beifahrername'] . " (" . $_SESSION['beifahrerquali'] . ")"
+        : null;
+
+    $praktikant = (!empty($_SESSION['praktikantname']) && !empty($_SESSION['praktikantquali']))
+        ? $_SESSION['praktikantname'] . " (" . $_SESSION['praktikantquali'] . ")"
         : null;
 
     $new_enr = null;
@@ -119,13 +124,17 @@ try {
                 $vehicleUpdateFields['fzg_na'] = $currentVehicle;
                 $needsVehicleUpdate = true;
             }
-            // fzg_na_perso = Fahrer/Notarzt, fzg_na_perso_2 = Beifahrer/Fahrzeugführer
+            // fzg_na_perso = Fahrer/Notarzt, fzg_na_perso_2 = Beifahrer/Fahrzeugführer, fzg_na_perso_3 = Praktikant
             if (empty($targetProtocol['fzg_na_perso']) && $fahrer !== null) {
                 $vehicleUpdateFields['fzg_na_perso'] = $fahrer;
                 $needsVehicleUpdate = true;
             }
             if (empty($targetProtocol['fzg_na_perso_2']) && $beifahrer !== null) {
                 $vehicleUpdateFields['fzg_na_perso_2'] = $beifahrer;
+                $needsVehicleUpdate = true;
+            }
+            if (empty($targetProtocol['fzg_na_perso_3']) && $praktikant !== null) {
+                $vehicleUpdateFields['fzg_na_perso_3'] = $praktikant;
                 $needsVehicleUpdate = true;
             }
             // Protokollart auf Notarzt setzen (prot_by = 1)
@@ -137,13 +146,17 @@ try {
                 $vehicleUpdateFields['fzg_transp'] = $currentVehicle;
                 $needsVehicleUpdate = true;
             }
-            // fzg_transp_perso = Fahrer/Transportführer, fzg_transp_perso_2 = Beifahrer/Fahrzeugführer
+            // fzg_transp_perso = Fahrer/Transportführer, fzg_transp_perso_2 = Beifahrer/Fahrzeugführer, fzg_transp_perso_3 = Praktikant
             if (empty($targetProtocol['fzg_transp_perso']) && $fahrer !== null) {
                 $vehicleUpdateFields['fzg_transp_perso'] = $fahrer;
                 $needsVehicleUpdate = true;
             }
             if (empty($targetProtocol['fzg_transp_perso_2']) && $beifahrer !== null) {
                 $vehicleUpdateFields['fzg_transp_perso_2'] = $beifahrer;
+                $needsVehicleUpdate = true;
+            }
+            if (empty($targetProtocol['fzg_transp_perso_3']) && $praktikant !== null) {
+                $vehicleUpdateFields['fzg_transp_perso_3'] = $praktikant;
                 $needsVehicleUpdate = true;
             }
             // Protokollart auf Transportmittel setzen (prot_by = 0)
@@ -160,9 +173,11 @@ try {
             'fzg_transp',
             'fzg_transp_perso',
             'fzg_transp_perso_2',
+            'fzg_transp_perso_3',
             'fzg_na',
             'fzg_na_perso',
             'fzg_na_perso_2',
+            'fzg_na_perso_3',
             'fzg_sonst',
             'freigegeben',
             'freigeber_name',
@@ -257,9 +272,11 @@ try {
             'fzg_transp',
             'fzg_transp_perso',
             'fzg_transp_perso_2',
+            'fzg_transp_perso_3',
             'fzg_na',
             'fzg_na_perso',
             'fzg_na_perso_2',
+            'fzg_na_perso_3',
             'fzg_sonst',
             'freigegeben',
             'freigeber_name',
@@ -289,7 +306,7 @@ try {
             ':fahrzeug' => $currentVehicle
         ];
 
-        // Füge Fahrer/Beifahrer hinzu
+        // Füge Fahrer/Beifahrer/Praktikant hinzu
         if ($beifahrer !== null) {
             $insertFields[] = $persoField1;
             $insertPlaceholders[] = ':beifahrer';
@@ -300,6 +317,12 @@ try {
             $insertFields[] = $persoField2;
             $insertPlaceholders[] = ':fahrer';
             $insertParams[':fahrer'] = $fahrer;
+        }
+
+        if ($praktikant !== null) {
+            $insertFields[] = $persoField3;
+            $insertPlaceholders[] = ':praktikant';
+            $insertParams[':praktikant'] = $praktikant;
         }
 
         // Übernehme alle anderen Felder vom Quellprotokoll

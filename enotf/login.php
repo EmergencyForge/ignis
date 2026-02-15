@@ -29,6 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['fahrerquali']     = $_POST['fahrerquali'];
     $_SESSION['beifahrername']   = $_POST['beifahrername'] ?? null;
     $_SESSION['beifahrerquali']  = $_POST['beifahrerquali'] ?? null;
+    $_SESSION['praktikantname']  = $_POST['praktikantname'] ?? null;
+    $_SESSION['praktikantquali'] = $_POST['praktikantquali'] ?? null;
     $_SESSION['protfzg']         = $_POST['protfzg'];
 
     header("Location: overview.php");
@@ -90,7 +92,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
         /* Fix padding for invalid qualification select fields */
         select[name="fahrerquali"].is-invalid,
-        select[name="beifahrerquali"].is-invalid {
+        select[name="beifahrerquali"].is-invalid,
+        select[name="praktikantquali"].is-invalid {
             padding-right: 0.5rem !important;
         }
     </style>
@@ -143,6 +146,24 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <?php endforeach; ?>
                                     </select>
                                     <label for="beifahrerquali">Qualifikation</label>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <div class="name-autocomplete-wrapper">
+                                        <input type="text" class="form-control my-2" name="praktikantname" id="praktikantname" placeholder="" autocomplete="off" />
+                                        <div class="name-dropdown" id="praktikantname-dropdown"></div>
+                                    </div>
+                                    <label for="praktikantname">Praktikant-Name</label>
+                                </div>
+                                <div class="col-3">
+                                    <select class="form-select my-2" name="praktikantquali" id="praktikantquali" data-custom-dropdown="true" data-placeholder="Qualifikation">
+                                        <option value="" selected></option>
+                                        <?php foreach ($qualifikationen as $quali): ?>
+                                            <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>"><?= htmlspecialchars($quali['abkuerzung']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <label for="praktikantquali">Qualifikation</label>
                                 </div>
                             </div>
                             <div class="row">
@@ -237,25 +258,39 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             });
         }
 
-        // Initialize autocomplete for both name fields
+        // Initialize autocomplete for all name fields
         setupNameAutocomplete('fahrername', 'fahrername-dropdown');
         setupNameAutocomplete('beifahrername', 'beifahrername-dropdown');
+        setupNameAutocomplete('praktikantname', 'praktikantname-dropdown');
 
         document.getElementById('crew__delete').addEventListener('click', function() {
-            document.getElementById('fahrername').value = '';
-            document.getElementById('fahrerquali').value = '';
-            document.getElementById('beifahrername').value = '';
-            document.getElementById('beifahrerquali').value = '';
+            // Text-Inputs leeren
+            ['fahrername', 'beifahrername', 'praktikantname'].forEach(function(id) {
+                document.getElementById(id).value = '';
+            });
+            // Custom-Dropdown-Selects zurücksetzen
+            ['fahrerquali', 'beifahrerquali', 'praktikantquali'].forEach(function(id) {
+                const el = document.getElementById(id);
+                el.selectedIndex = 0;
+                eNOTFCustomDropdown.refresh(el);
+            });
         });
 
         document.getElementById('crew__switch').addEventListener('click', function() {
             const fName = document.getElementById('fahrername');
-            const fQuali = document.getElementById('fahrerquali');
             const bName = document.getElementById('beifahrername');
+            const fQuali = document.getElementById('fahrerquali');
             const bQuali = document.getElementById('beifahrerquali');
 
+            // Namen tauschen
             [fName.value, bName.value] = [bName.value, fName.value];
-            [fQuali.value, bQuali.value] = [bQuali.value, fQuali.value];
+
+            // Qualifikationen tauschen (selectedIndex für Custom Dropdown)
+            const tmpIndex = fQuali.selectedIndex;
+            fQuali.selectedIndex = bQuali.selectedIndex;
+            bQuali.selectedIndex = tmpIndex;
+            eNOTFCustomDropdown.refresh(fQuali);
+            eNOTFCustomDropdown.refresh(bQuali);
         });
     </script>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
