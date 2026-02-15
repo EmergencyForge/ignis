@@ -18,6 +18,10 @@ if (!isset($_SESSION['userid'])) {
     return;
 }
 
+// Flags für asynchrone Background-Requests (per AJAX statt blockierend)
+$needsHeartbeat = false;
+$needsCacheRefresh = false;
+
 try {
     if (!isset($pdo)) {
         require_once __DIR__ . '/../config/database.php';
@@ -29,25 +33,42 @@ try {
         $isAdmin = in_array('full_admin', $_SESSION['permissions']) || in_array('admin', $_SESSION['permissions']);
     }
 
-    // === AUTOMATISCHE TELEMETRIE (nur für Admins, 1x pro 24h) ===
+    // === TELEMETRIE: Nur prüfen ob nötig, NICHT synchron senden ===
     if ($isAdmin) {
         $telemetryManager = new TelemetryManager($pdo);
         if ($telemetryManager->isEnabled() && $telemetryManager->shouldSendHeartbeat()) {
-            // Heartbeat im Hintergrund senden (non-blocking)
-            // Wir setzen ein Session-Flag um mehrfaches Senden pro Request zu verhindern
-            if (!isset($_SESSION['_telemetry_sending'])) {
-                $_SESSION['_telemetry_sending'] = true;
-                $telemetryManager->sendHeartbeat();
-                unset($_SESSION['_telemetry_sending']);
-            }
+            $needsHeartbeat = true;
         }
     }
 
-    // === ANNOUNCEMENTS ===
+    // === ANNOUNCEMENTS: Gecachte Daten laden OHNE blockierenden Refresh ===
     $announcementManager = new GlobalAnnouncementManager($pdo);
-    $announcements = $announcementManager->getActiveAnnouncements($_SESSION['userid'], $isAdmin);
+    $needsCacheRefresh = $announcementManager->isCacheStale();
+    $announcements = $announcementManager->getActiveAnnouncements($_SESSION['userid'], $isAdmin, true);
 
+    if (empty($announcements) && !$needsCacheRefresh) {
+        // Keine Announcements und kein Refresh nötig — nur Background-JS ausgeben falls Heartbeat nötig
+        if ($needsHeartbeat): ?>
+            <script>
+                fetch('<?= BASE_PATH ?>api/telemetry-background.php?action=heartbeat').catch(function(){});
+            </script>
+        <?php endif;
+        return;
+    }
+
+    // Wenn Cache veraltet und keine gecachten Announcements da sind, trotzdem Seite laden
+    // Der AJAX-Refresh holt neue Daten, die beim nächsten Seitenaufruf angezeigt werden
     if (empty($announcements)) {
+        ?>
+        <script>
+            <?php if ($needsHeartbeat): ?>
+                fetch('<?= BASE_PATH ?>api/telemetry-background.php?action=heartbeat').catch(function(){});
+            <?php endif; ?>
+            <?php if ($needsCacheRefresh): ?>
+                fetch('<?= BASE_PATH ?>api/telemetry-background.php?action=refresh-announcements').catch(function(){});
+            <?php endif; ?>
+        </script>
+        <?php
         return;
     }
 
@@ -516,5 +537,13 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                     });
             });
         });
+
+        // === Background-Requests (non-blocking, per AJAX) ===
+        <?php if ($needsHeartbeat): ?>
+            fetch('<?= BASE_PATH ?>api/telemetry-background.php?action=heartbeat').catch(function(){});
+        <?php endif; ?>
+        <?php if ($needsCacheRefresh): ?>
+            fetch('<?= BASE_PATH ?>api/telemetry-background.php?action=refresh-announcements').catch(function(){});
+        <?php endif; ?>
     });
 </script>

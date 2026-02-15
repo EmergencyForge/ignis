@@ -75,14 +75,16 @@ class GlobalAnnouncementManager
     /**
      * Gibt aktive Announcements zurück (gefiltert nach User-Dismissals und Admin-Status)
      */
-    public function getActiveAnnouncements(?int $userId = null, bool $isAdmin = false): array
+    public function getActiveAnnouncements(?int $userId = null, bool $isAdmin = false, bool $skipRefresh = false): array
     {
         if (!$this->isEnabled()) {
             return [];
         }
 
-        // Cache aktualisieren falls nötig
-        $this->refreshCacheIfNeeded();
+        // Cache aktualisieren falls nötig (kann übersprungen werden für non-blocking Laden)
+        if (!$skipRefresh) {
+            $this->refreshCacheIfNeeded();
+        }
 
         try {
             $sql = "
@@ -137,6 +139,29 @@ class GlobalAnnouncementManager
     }
 
     /**
+     * Prüft ob der Cache veraltet ist (ohne ihn zu aktualisieren)
+     */
+    public function isCacheStale(): bool
+    {
+        try {
+            $stmt = $this->pdo->query("
+                SELECT MAX(fetched_at) as last_fetch
+                FROM intra_global_announcements_cache
+            ");
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$result || !$result['last_fetch']) {
+                return true;
+            }
+
+            $lastFetch = strtotime($result['last_fetch']);
+            return (time() - $lastFetch) >= self::CACHE_DURATION;
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
+    /**
      * Prüft ob der Cache aktualisiert werden muss und tut es falls nötig
      */
     private function refreshCacheIfNeeded(): void
@@ -186,7 +211,7 @@ class GlobalAnnouncementManager
                     'User-Agent: intraRP-Client/1.0',
                     'X-Installation-ID: ' . $installationId,
                 ],
-                'timeout' => 5,
+                'timeout' => 3,
                 'ignore_errors' => true,
             ],
             'ssl' => [

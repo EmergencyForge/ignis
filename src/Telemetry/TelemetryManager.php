@@ -355,7 +355,7 @@ class TelemetryManager
                     'X-Installation-ID: ' . $data['installation_id'],
                 ],
                 'content' => json_encode($data),
-                'timeout' => 10,
+                'timeout' => 3,
                 'ignore_errors' => true,
             ],
             'ssl' => [
