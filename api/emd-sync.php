@@ -733,7 +733,7 @@ try {
 
             if (!$existingFireIncident) {
                 // Erstelle neuen Fire Incident
-                $currentDateTime = date('Y-m-d H:i:s');
+                $currentDateTime = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
                 // Hole dispatch_data falls vorhanden
                 $dispatchData = $dispatchDataByDispatch[$dispatchId] ?? null;
@@ -978,7 +978,7 @@ try {
                         SELECT id FROM intra_fire_incident_sitreps
                         WHERE incident_id = :incident_id
                         AND text = :text
-                        AND ABS(TIMESTAMPDIFF(SECOND, report_time, :report_time)) <= 300
+                        AND ABS(TIMESTAMPDIFF(SECOND, report_time, :report_time)) <= 900
                         LIMIT 1
                     ");
                     $checkDuplicateStmt->execute([
@@ -1221,7 +1221,7 @@ try {
                 $checkDuplicateStmt = $pdo->prepare("
                     SELECT id FROM intra_fire_incident_sitreps
                     WHERE incident_id = :incident_id AND text = :text
-                    AND ABS(TIMESTAMPDIFF(SECOND, report_time, :report_time)) <= 300
+                    AND ABS(TIMESTAMPDIFF(SECOND, report_time, :report_time)) <= 900
                     LIMIT 1
                 ");
                 $checkDuplicateStmt->execute([
@@ -1267,7 +1267,10 @@ try {
         if (!empty($localSitreps)) {
             $situationReports[(string)$dId] = [];
             foreach ($localSitreps as $ls) {
-                $reportDt = DateTime::createFromFormat('Y-m-d H:i:s', $ls['report_time']);
+                $reportDt = DateTime::createFromFormat('Y-m-d H:i:s', $ls['report_time'], new DateTimeZone('UTC'));
+                if ($reportDt) {
+                    $reportDt->setTimezone(new DateTimeZone('Europe/Berlin'));
+                }
                 $situationReports[(string)$dId][] = [
                     'text' => $ls['text'],
                     'time' => $reportDt ? $reportDt->format('H:i') : '',

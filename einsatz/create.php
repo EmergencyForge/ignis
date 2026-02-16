@@ -73,7 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $started_at = null;
     if ($date !== '' && $time !== '') {
-        $started_at = date('Y-m-d H:i:s', strtotime($date . ' ' . $time));
+        $startedDt = DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time, new DateTimeZone('Europe/Berlin'));
+        $started_at = $startedDt ? $startedDt->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s') : date('Y-m-d H:i:s');
     }
 
     if (empty($errors)) {
@@ -191,7 +192,7 @@ try {
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Datum*</label>
-                            <input type="date" name="date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                            <input type="date" name="date" class="form-control" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') ?>" required>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Uhrzeit*</label>

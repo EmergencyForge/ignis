@@ -162,7 +162,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $vehicle_attached_id = !empty($_POST['sitrep_attached_vehicle_id']) ? (int)$_POST['sitrep_attached_vehicle_id'] : null;
 
             if ($rt_date && $rt_time && $text !== '' && $vehicle_attached_id) {
-                $report_time = date('Y-m-d H:i:s', strtotime($rt_date . ' ' . $rt_time));
+                $reportDt = DateTime::createFromFormat('Y-m-d H:i', $rt_date . ' ' . $rt_time, new DateTimeZone('Europe/Berlin'));
+                $report_time = $reportDt ? $reportDt->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s') : date('Y-m-d H:i:s');
                 $infoStmt = $pdo->prepare("SELECT v.radio_name, f.name AS sys_name FROM intra_fire_incident_vehicles v LEFT JOIN intra_fahrzeuge f ON v.vehicle_id = f.id WHERE v.id = ? AND v.incident_id = ?");
                 $infoStmt->execute([$vehicle_attached_id, $id]);
                 $vinfo = $infoStmt->fetch(PDO::FETCH_ASSOC);
@@ -314,7 +315,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($incno === '' || $loc === '' || $keyw === '' || $date === '' || $time === '' || $leader === null) {
                     Flash::error('Bitte alle Pflichtfelder ausfüllen (Nummer, Ort, Stichwort, Beginn, Einsatzleiter).');
                 } else {
-                    $started = date('Y-m-d H:i:s', strtotime($date . ' ' . $time));
+                    $startedDt = DateTime::createFromFormat('Y-m-d H:i', $date . ' ' . $time, new DateTimeZone('Europe/Berlin'));
+                    $started = $startedDt ? $startedDt->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s') : date('Y-m-d H:i:s');
                     $upd = $pdo->prepare("UPDATE intra_fire_incidents SET incident_number = ?, location = ?, keyword = ?, caller_name = ?, caller_contact = ?, started_at = ?, leader_id = ?, owner_type = NULL, owner_name = ?, owner_contact = ?, updated_by = ?, updated_at = NOW() WHERE id = ?");
                     $upd->execute([$incno, $loc, $keyw, $caller_name ?: null, $caller_contact ?: null, $started, $leader, $owner_name ?: null, $owner_contact ?: null, $_SESSION['userid'] ?? null, $id]);
 

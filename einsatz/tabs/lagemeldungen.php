@@ -47,11 +47,11 @@
             <div class="row g-3">
                 <div class="col-md-3">
                     <label class="form-label">Datum *</label>
-                    <input type="date" name="rt_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                    <input type="date" name="rt_date" class="form-control" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') ?>" required>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label">Uhrzeit *</label>
-                    <input type="time" name="rt_time" class="form-control" value="<?= date('H:i') ?>" required>
+                    <input type="time" name="rt_time" class="form-control" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('H:i') ?>" required>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Gemeldet durch (Fahrzeug) *</label>
