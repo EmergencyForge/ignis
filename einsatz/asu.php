@@ -125,6 +125,7 @@ if ($asu_id) {
 
                     <form id="asuForm">
                         <input type="hidden" id="incidentId" value="<?= htmlspecialchars($prefill_incident_id ?? '') ?>">
+                        <input type="hidden" id="asuId" value="<?= htmlspecialchars($asu_id ?? '') ?>">
 
                         <!-- Einsatzinformationen -->
                         <div class="card bg-dark mb-3">

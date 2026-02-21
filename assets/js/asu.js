@@ -336,17 +336,27 @@ function sendData() {
     incidentId = urlParams.get("id");
   }
 
+  // Check if we are editing an existing ASU protocol
+  const asuIdField = document.getElementById("asuId");
+  const asuId = asuIdField ? asuIdField.value : "";
+  const isEdit = asuId !== "";
+
   // Send to backend
+  const params = {
+    action: isEdit ? "update_asu" : "add_asu",
+    incident_id: incidentId || "",
+    asu_data: JSON.stringify(data),
+  };
+  if (isEdit) {
+    params.asu_id = asuId;
+  }
+
   fetch(basePath + "einsatz/actions.php", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: new URLSearchParams({
-      action: "add_asu",
-      incident_id: incidentId || "",
-      asu_data: JSON.stringify(data),
-    }),
+    body: new URLSearchParams(params),
   })
     .then((response) => response.text())
     .then((result) => {

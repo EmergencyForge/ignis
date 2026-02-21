@@ -394,6 +394,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        // Update existing ASU protocol
+        if ($action === 'update_asu') {
+            if ($incident['finalized']) {
+                Flash::error('Einsatz ist bereits abgeschlossen.');
+                goto post_done;
+            }
+
+            $asuId = (int)($_POST['asu_id'] ?? 0);
+            if ($asuId <= 0) {
+                Flash::error('Keine ASU-ID übermittelt.');
+                goto post_done;
+            }
+
+            $asuDataJson = $_POST['asu_data'] ?? '';
+            if (empty($asuDataJson)) {
+                Flash::error('Keine ASU-Daten übermittelt.');
+                goto post_done;
+            }
+
+            $asuData = json_decode($asuDataJson, true);
+            if (!$asuData) {
+                Flash::error('Ungültige ASU-Daten.');
+                goto post_done;
+            }
+
+            if (empty($asuData['supervisor']) || empty($asuData['missionNumber']) || empty($asuData['missionLocation']) || empty($asuData['missionDate'])) {
+                Flash::error('Pflichtfelder fehlen (Überwacher, Einsatznummer, Ort, Datum).');
+                goto post_done;
+            }
+
+            // Parse date from DD.MM.YYYY to YYYY-MM-DD
+            $dateParts = explode('.', $asuData['missionDate']);
+            if (count($dateParts) === 3) {
+                $missionDate = $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0];
+            } else {
+                $missionDate = $asuData['missionDate'];
+            }
+
+            try {
+                $stmt = $pdo->prepare("UPDATE intra_fire_incident_asu SET supervisor = ?, mission_location = ?, mission_date = ?, timestamp = NOW(), data = ? WHERE id = ? AND incident_id = ?");
+                $stmt->execute([
+                    $asuData['supervisor'],
+                    $asuData['missionLocation'],
+                    $missionDate,
+                    $asuDataJson,
+                    $asuId,
+                    $id
+                ]);
+
+                logAction(
+                    $pdo,
+                    $id,
+                    'asu_updated',
+                    "ASU-Protokoll aktualisiert (Überwacher: " . $asuData['supervisor'] . ")"
+                );
+
+                Flash::success('ASU-Protokoll erfolgreich aktualisiert.');
+            } catch (PDOException $e) {
+                Flash::error('Fehler beim Aktualisieren: ' . $e->getMessage());
+            }
+        }
+
         // Delete ASU protocol
         if ($action === 'delete_asu') {
             if ($incident['finalized']) {
