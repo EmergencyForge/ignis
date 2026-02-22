@@ -33,7 +33,7 @@ function getDisplayName(?string $created_by_name, ?string $operator_name, ?strin
 $markers = [];
 try {
     $stmt = $pdo->prepare("
-        SELECT 
+        SELECT
             m.*,
             mit.fullname AS created_by_name,
             v.name AS vehicle_name,
@@ -104,7 +104,7 @@ if (!empty($incident['location_x']) && !empty($incident['location_y'])) {
 $zones = [];
 try {
     $stmt = $pdo->prepare("
-        SELECT 
+        SELECT
             z.*,
             mit.fullname AS created_by_name,
             v.name AS vehicle_name,
@@ -127,7 +127,7 @@ try {
 $assignedVehicles = [];
 try {
     $stmt = $pdo->prepare("
-        SELECT 
+        SELECT
             v.id,
             v.name,
             v.grundzeichen,
@@ -140,8 +140,8 @@ try {
             v.tz_name
         FROM intra_fire_incident_vehicles iv
         JOIN intra_fahrzeuge v ON iv.vehicle_id = v.id
-        WHERE iv.incident_id = ? 
-        AND v.grundzeichen IS NOT NULL 
+        WHERE iv.incident_id = ?
+        AND v.grundzeichen IS NOT NULL
         AND v.grundzeichen != ''
         ORDER BY v.name ASC
     ");
@@ -153,6 +153,10 @@ try {
 }
 ?>
 
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
 <style>
     .map-wrapper {
         position: relative;
@@ -163,61 +167,26 @@ try {
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         border: 2px solid #333;
-        user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
     }
 
-    .map-container {
-        position: relative;
-        width: 100%;
+    #lagekarte-map {
         height: 800px;
-        overflow: hidden;
-        cursor: grab;
-        touch-action: none;
-        user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
         background: #0fa8d2;
+        border-radius: 6px;
     }
 
-    .map-container.panning {
-        cursor: grabbing;
+    /* Leaflet overrides for dark theme */
+    #lagekarte-map .leaflet-control-zoom a {
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border-color: #555;
     }
 
-    .map-viewport {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        transform-origin: 0 0;
-        transition: transform 0.1s ease-out;
-        user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
+    #lagekarte-map .leaflet-control-zoom a:hover {
+        background: rgba(0, 0, 0, 0.9);
     }
 
-    .map-viewport.no-transition {
-        transition: none;
-    }
-
-    .map-image {
-        width: 100%;
-        height: auto;
-        display: block;
-        user-select: none;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        pointer-events: none;
-        -webkit-user-drag: none;
-        -khtml-user-drag: none;
-        -moz-user-drag: none;
-        -o-user-drag: none;
-    }
-
+    /* Custom zoom controls */
     .map-controls {
         position: absolute;
         top: 10px;
@@ -257,66 +226,88 @@ try {
         padding: 5px 0;
     }
 
-    .map-marker {
+    /* Leaflet marker styles */
+    .lk-marker {
+        background: transparent !important;
+        border: none !important;
+    }
+
+    .lk-marker-icon {
+        font-size: 14px;
+        filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.15s ease;
+        transform-origin: center center;
+    }
+
+    .lk-marker-icon svg {
+        width: 28px;
+        height: 28px;
+        filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+    }
+
+    .lk-marker-label {
         position: absolute;
-        cursor: pointer;
-        z-index: 15;
-        transition: transform 0.2s;
-        pointer-events: auto;
-    }
-
-    .map-marker.auto-location {
-        z-index: 5;
-        cursor: default;
-    }
-
-    .map-marker.auto-location .map-marker-label {
-        top: -5.5px;
-    }
-
-    .map-marker:hover {
-        transform: scale(1.2);
-        z-index: 25;
-    }
-
-    .map-marker.auto-location:hover {
-        z-index: 10;
-    }
-
-    .map-marker-icon {
-        font-size: 4.5px;
-        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
-        transition: font-size 0.1s ease;
-    }
-
-    .map-marker-icon svg {
-        width: 6px;
-        height: 6px;
-        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
-        transition: width 0.1s ease, height 0.1s ease;
-    }
-
-    .map-marker-label {
-        position: absolute;
-        top: -4px;
+        bottom: 100%;
         left: 50%;
         transform: translateX(-50%);
         background: rgba(0, 0, 0, 0.85);
         color: white;
-        padding: 0px 2px;
-        border-radius: 1px;
-        font-size: 3px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 11px;
         white-space: nowrap;
         pointer-events: none;
         opacity: 0;
-        transition: opacity 0.2s, font-size 0.1s ease, top 0.1s ease;
-        z-index: 9999;
+        transition: opacity 0.2s;
+        margin-bottom: 4px;
     }
 
-    .map-marker:hover .map-marker-label {
+    .leaflet-marker-icon:hover .lk-marker-label {
         opacity: 1;
     }
 
+    /* Auto-location marker */
+    .lk-marker-auto .lk-marker-icon svg {
+        width: 32px;
+        height: 32px;
+    }
+
+    .lk-marker-auto .lk-marker-label {
+        opacity: 0;
+    }
+
+    .leaflet-marker-icon:hover .lk-marker-auto .lk-marker-label,
+    .lk-marker-auto:hover .lk-marker-label {
+        opacity: 1;
+    }
+
+    /* Zone drawing mode */
+    .zone-drawing-active {
+        cursor: crosshair !important;
+    }
+
+    .zone-drawing-active .leaflet-interactive {
+        cursor: crosshair !important;
+    }
+
+    .zone-instruction {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        z-index: 1050;
+        pointer-events: none;
+        display: inline-block;
+    }
+
+    /* Marker Legend */
     .marker-legend {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -356,22 +347,6 @@ try {
         min-height: 32px;
     }
 
-    .marker-info-box {
-        position: absolute;
-        background: rgba(0, 0, 0, 0.95);
-        color: white;
-        padding: 15px;
-        border-radius: 8px;
-        max-width: 300px;
-        z-index: 100;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        pointer-events: none;
-    }
-
-    .marker-info-box.show {
-        pointer-events: auto;
-    }
-
     #selectedMarkerIcon {
         font-size: 64px;
         background: white;
@@ -390,71 +365,7 @@ try {
         display: block;
     }
 
-    /* Zone Styles */
-    .map-zone {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 5;
-    }
-
-    .map-zone svg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-    }
-
-    .zone-drawing {
-        cursor: crosshair !important;
-    }
-
-    .zone-preview-polygon {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 15;
-    }
-
-    .zone-point {
-        position: absolute;
-        width: 8px;
-        height: 8px;
-        background: white;
-        border: 2px solid #0d6efd;
-        border-radius: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 16;
-        pointer-events: auto;
-        cursor: move;
-    }
-
-    .zone-point:hover {
-        background: #0d6efd;
-        transform: translate(-50%, -50%) scale(1.3);
-        transition: all 0.2s;
-    }
-
-    .zone-instruction {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 4px;
-        font-size: 14px;
-        z-index: 1050;
-        pointer-events: none;
-        display: inline-block;
-    }
-
+    /* Zone color options */
     .zone-color-option {
         width: 40px;
         height: 40px;
@@ -570,20 +481,11 @@ try {
         <div class="map-wrapper">
             <div class="map-controls">
                 <button id="zoomIn" title="Hineinzoomen"><i class="fa-solid fa-plus"></i></button>
-                <div class="zoom-level" id="zoomLevel">100%</div>
+                <div class="zoom-level" id="zoomLevel">1x</div>
                 <button id="zoomOut" title="Herauszoomen"><i class="fa-solid fa-minus"></i></button>
                 <button id="zoomReset" title="Zoom zurücksetzen"><i class="fa-solid fa-home"></i></button>
             </div>
-            <div class="map-container" id="mapContainer">
-                <div class="map-viewport" id="mapViewport">
-                    <img src="<?= BASE_PATH ?>assets/img/map/GTAV_ATLUS_8192x8192.png"
-                        alt="GTA Map"
-                        class="map-image"
-                        id="mapImage"
-                        draggable="false">
-                    <!-- Markers will be dynamically added here -->
-                </div>
-            </div>
+            <div id="lagekarte-map"></div>
         </div>
 
         <!-- Marker List -->
@@ -993,17 +895,14 @@ try {
 
     // Multiple CDN sources for better compatibility
     const cdnSources = [
-        // Skypack is most Firefox-compatible
         {
             url: 'https://cdn.skypack.dev/taktische-zeichen-core@0.10.0',
             name: 'Skypack'
         },
-        // UNPKG as fallback
         {
             url: 'https://unpkg.com/taktische-zeichen-core@0.10.0?module',
             name: 'UNPKG'
         },
-        // esm.sh as last resort
         {
             url: 'https://esm.sh/taktische-zeichen-core@0.10.0',
             name: 'esm.sh'
@@ -1081,793 +980,654 @@ try {
 </script>
 
 <script>
+    // ========================================================================
     // Configuration
+    // ========================================================================
     const incidentId = <?= $id ?>;
     const isFinalized = <?= $incident['finalized'] ? 'true' : 'false' ?>;
     const existingMarkers = <?= json_encode($markers) ?>;
     const existingZonesData = <?= json_encode($zones) ?>;
 
+    // Leaflet map constants
+    // At native zoom (5), 2^5=32 tiles of 256px = 8192px native resolution
+    // Map allows zoom up to 7 (Leaflet upscales tiles beyond native)
+    // Map coordinates: lng 0..256 (left to right), lat 0..-256 (top to bottom)
+    const MAP_NATIVE_ZOOM = 5;
+    const MAP_MAX_ZOOM = 6;
+    const MAP_UNITS = 256; // 8192 / 2^5
+
+    // ========================================================================
     // State
+    // ========================================================================
+    let map; // Leaflet map instance
+    let mapBounds; // L.latLngBounds for the full map
+    let fitZoom; // Zoom level that fits the entire map (= "100%")
+    let markersLayer, zonesLayer, zoneDrawLayer;
+    let leafletMarkers = {}; // marker id -> L.marker instance
+
     let markerMode = false;
     let zoneMode = false;
     let selectedMarkerType = null;
     let pendingMarkerPosition = null;
 
-    // Zone State
-    let zoneDrawing = false;
+    // Zone drawing state
     let zonePoints = [];
-    let zonePreviewEl = null;
-    let zonePointElements = [];
-    let zoneInstructionEl = null;
+    let zonePreviewPolygon = null;
+    let zonePointMarkers = [];
     let pendingZone = null;
-    const existingZones = [];
+    let zoneInstructionEl = null;
+    let currentZoneColor = '#dc3545';
 
-    // Pan & Zoom State
-    let scale = 1;
-    let translateX = 0;
-    let translateY = 0;
-    let isPanning = false;
-    let startPanX = 0;
-    let startPanY = 0;
-    const MIN_SCALE = 0.5;
-    const MAX_SCALE = 12;
-    const ZOOM_STEP = 0.5;
-    const MAP_STATE_KEY = `lagekarte_state_${incidentId}`;
+    // ========================================================================
+    // Coordinate Conversion: DB Percent (0-100) <-> Leaflet LatLng
+    // ========================================================================
+    function percentToLatLng(posX, posY) {
+        // In CRS.Simple with unproject at maxZoom:
+        // lat: 0 (top) to -MAP_UNITS (bottom) — Y inverted
+        // lng: 0 (left) to MAP_UNITS (right)
+        return L.latLng(
+            -(parseFloat(posY) / 100) * MAP_UNITS,
+            (parseFloat(posX) / 100) * MAP_UNITS
+        );
+    }
 
-    // Load saved map state
-    function loadMapState() {
+    function latLngToPercent(latLng) {
+        return {
+            x: ((latLng.lng / MAP_UNITS) * 100).toFixed(4),
+            y: ((-latLng.lat / MAP_UNITS) * 100).toFixed(4)
+        };
+    }
+
+    // ========================================================================
+    // Tactical Symbol Helpers
+    // ========================================================================
+    function generateTacticalSymbolSvg(data) {
+        if (!data.grundzeichen || !window.erzeugeTaktischesZeichen) return null;
         try {
-            const savedState = localStorage.getItem(MAP_STATE_KEY);
-            if (savedState) {
-                const state = JSON.parse(savedState);
-                scale = state.scale || 1;
-                translateX = state.translateX || 0;
-                translateY = state.translateY || 0;
-            }
+            const config = { grundzeichen: data.grundzeichen };
+            if (data.organisation) config.organisation = data.organisation;
+            if (data.fachaufgabe) config.fachaufgabe = data.fachaufgabe;
+            if (data.einheit) config.einheit = data.einheit;
+            if (data.symbol) config.symbol = data.symbol;
+            if (data.typ) config.typ = data.typ;
+            if (data.text) config.text = data.text;
+            if (data.name) config.name = data.name;
+            return window.erzeugeTaktischesZeichen(config).toString();
         } catch (e) {
-            console.error('Error loading map state:', e);
+            console.error('Error creating tactical symbol:', e);
+            return null;
         }
     }
 
-    // Save map state
-    function saveMapState() {
-        try {
-            const state = {
-                scale,
-                translateX,
-                translateY
-            };
-            localStorage.setItem(MAP_STATE_KEY, JSON.stringify(state));
-        } catch (e) {
-            console.error('Error saving map state:', e);
-        }
+    function getFallbackIcon(markerType) {
+        const icons = {
+            kraftfahrzeug: '🚗', loeschfahrzeug: '🚒', drehleiter: '🚒',
+            tankloesch: '🚒', rettungswagen: '🚑', einsatzleitung: '🎯',
+            bereitstellung: '📍', sammelplatz: '🏥', brandstelle: '🔥',
+            gefahrstoff: '☢️', einsturz: '⚠️', 'person-verletzt': '👤',
+            'person-vermisst': '👤', wasserentnahme: '💧', hydrant: '💧',
+            custom: '📝', other: '📌'
+        };
+        return icons[markerType] || '📌';
     }
 
-    // Initialize
+    function getMarkerIconHtml(markerData) {
+        const isAutoLocation = markerData.id === 'auto_location' || markerData.description === 'Automatisch aus GTA-Koordinaten';
+
+        if (isAutoLocation) {
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" style="filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));"><path fill="#d10000" d="M320 576C178.6 576 64 461.4 64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576zM320 112C205.1 112 112 205.1 112 320C112 434.9 205.1 528 320 528C434.9 528 528 434.9 528 320C528 205.1 434.9 112 320 112zM320 416C267 416 224 373 224 320C224 267 267 224 320 224C373 224 416 267 416 320C416 373 373 416 320 416z"/></svg>`;
+        }
+
+        const svg = generateTacticalSymbolSvg(markerData);
+        if (svg) return svg;
+
+        return getFallbackIcon(markerData.marker_type);
+    }
+
+    function getMarkerLabel(markerData) {
+        const isAutoLocation = markerData.id === 'auto_location';
+        if (isAutoLocation) return 'Einsatzort';
+        if (markerData.marker_type && markerData.marker_type.startsWith('vehicle_') && markerData.vehicle_name) {
+            return markerData.vehicle_name;
+        }
+        return markerData.description || markerData.marker_type;
+    }
+
+    // ========================================================================
+    // Initialization
+    // ========================================================================
     document.addEventListener('DOMContentLoaded', function() {
-        loadMapState(); // Load saved state first
-        initializeMap();
-        initializePanZoom();
+        initLeafletMap();
+        initZoomControls();
         loadMarkers();
         loadZones();
+        initMarkerMode();
+        initZoneMode();
+        initDeleteButtons();
+        initModalHandlers();
 
-        // Update marker and zone positions on window resize
-        window.addEventListener('resize', () => {
-            updateMarkerPositions();
-            updateZonePositions();
-            updateMarkerScale();
+        // Force tile loading after browser has completed layout
+        requestAnimationFrame(() => {
+            map.invalidateSize();
+            map.eachLayer(layer => {
+                if (layer.redraw) layer.redraw();
+            });
         });
     });
 
-    // Dynamic marker scaling based on zoom level
-    function updateMarkerScale() {
-        // At MAX_SCALE (12), icons should be at their base size (6px)
-        // At lower zoom levels, they should scale UP to remain visible
-        // Use smooth scaling to avoid jumps at threshold boundaries
+    function initLeafletMap() {
+        // Calculate bounds using unproject at native zoom
+        const mapSW = L.CRS.Simple.pointToLatLng(L.point(0, 8192), MAP_NATIVE_ZOOM);
+        const mapNE = L.CRS.Simple.pointToLatLng(L.point(8192, 0), MAP_NATIVE_ZOOM);
+        mapBounds = L.latLngBounds(mapSW, mapNE);
 
-        const baseIconSize = 6; // Size at max zoom (12x)
-        const baseFontSize = 4.5;
-        const baseLabelSize = 3;
-        const baseLabelTop = -4; // Base top position at max zoom
-
-        // Smooth inverse scaling using a gentle power curve to avoid jumps
-        // Using ^0.4 creates a very smooth curve: scale 12→1x, scale 11→1.035x, scale 6→1.2x, scale 1→1.86x
-        // Range: 6px (max zoom) to ~11px (min zoom) - very gentle scaling
-        const scaleFactor = Math.pow(MAX_SCALE / scale, 0.4);
-
-        // Round all calculated values to whole pixels to avoid browser sub-pixel rendering jumps
-        const iconSize = Math.round(baseIconSize * scaleFactor);
-        const fontSize = Math.round(baseFontSize * scaleFactor);
-        const labelSize = Math.round(baseLabelSize * scaleFactor);
-        const labelTop = Math.round(baseLabelTop * scaleFactor); // More negative as icons grow
-
-        // Separate scaling for auto-location marker (slightly more aggressive for better visibility)
-        // Using a slightly steeper curve: scale^0.6 instead of scale^0.5
-        // Range: 6px (max zoom) to ~26px (min zoom)
-        const locationScaleFactor = Math.pow(MAX_SCALE / scale, 0.6);
-        const locationIconSize = Math.round(6 * locationScaleFactor); // Base 6px for location icon
-        const locationLabelSize = Math.round(baseLabelSize * locationScaleFactor);
-        const locationLabelTop = Math.round(-5.5 * locationScaleFactor); // Scale label position proportionally
-
-        // Apply to normal markers
-        document.querySelectorAll('.map-marker:not(.auto-location) .map-marker-icon').forEach(icon => {
-            icon.style.fontSize = fontSize + 'px';
+        map = L.map('lagekarte-map', {
+            crs: L.CRS.Simple,
+            minZoom: 0,
+            maxZoom: MAP_MAX_ZOOM,
+            zoomSnap: 1,
+            zoomDelta: 1,
+            attributionControl: false,
+            zoomControl: false, // We use custom zoom controls
+            maxBounds: mapBounds.pad(0.1),
+            maxBoundsViscosity: 0.8
         });
 
-        document.querySelectorAll('.map-marker:not(.auto-location) .map-marker-icon svg').forEach(svg => {
-            svg.style.width = iconSize + 'px';
-            svg.style.height = iconSize + 'px';
+        // Add tile layer (maxNativeZoom = tiles available up to 5, Leaflet upscales beyond)
+        L.tileLayer('<?= BASE_PATH ?>assets/img/map/tiles/{z}/{x}/{y}.png', {
+            minZoom: 0,
+            maxNativeZoom: MAP_NATIVE_ZOOM,
+            maxZoom: MAP_MAX_ZOOM,
+            tileSize: 256,
+            noWrap: true,
+            bounds: mapBounds
+        }).addTo(map);
+
+        // Store the zoom level that fits the entire map (= "1x")
+        fitZoom = map.getBoundsZoom(mapBounds, false);
+
+        // Restore saved state or fit to full map bounds
+        const saved = getSavedMapState();
+        if (saved) {
+            // Round zoom to integer (migration from old fractional zoom states)
+            const zoom = Math.min(Math.round(saved.zoom), MAP_MAX_ZOOM);
+            map.setView([saved.lat, saved.lng], zoom);
+        } else {
+            map.fitBounds(mapBounds);
+        }
+
+        // Create layer groups
+        zonesLayer = L.layerGroup().addTo(map);
+        markersLayer = L.layerGroup().addTo(map);
+        zoneDrawLayer = L.layerGroup().addTo(map);
+
+        // State persistence
+        map.on('moveend zoomend', saveMapState);
+
+        // Update zoom level display
+        map.on('zoomend', updateZoomDisplay);
+
+        // Update marker scaling on zoom
+        map.on('zoomend', updateMarkerScale);
+
+        // Marker placement click
+        map.on('click', function(e) {
+            if (!markerMode || !selectedMarkerType) return;
+
+            const pos = latLngToPercent(e.latlng);
+
+            // Validate within bounds
+            if (pos.x < 0 || pos.x > 100 || pos.y < 0 || pos.y > 100) return;
+
+            pendingMarkerPosition = { x: pos.x, y: pos.y };
+            showMarkerModal();
         });
 
-        document.querySelectorAll('.map-marker:not(.auto-location) .map-marker-label').forEach(label => {
-            label.style.fontSize = labelSize + 'px';
-            label.style.top = labelTop + 'px';
+        // Zone point placement (double-click)
+        map.on('dblclick', function(e) {
+            if (!zoneMode) return;
+
+            L.DomEvent.stopPropagation(e);
+            L.DomEvent.preventDefault(e);
+
+            const pos = latLngToPercent(e.latlng);
+            if (pos.x < 0 || pos.x > 100 || pos.y < 0 || pos.y > 100) return;
+
+            zonePoints.push({ x: parseFloat(pos.x), y: parseFloat(pos.y) });
+
+            // Add draggable circle marker for this point
+            const pointIdx = zonePoints.length - 1;
+            const circleMarker = L.circleMarker(e.latlng, {
+                radius: 7,
+                color: '#fff',
+                fillColor: currentZoneColor,
+                fillOpacity: 1,
+                weight: 2,
+                draggable: false // We handle dragging manually
+            }).addTo(zoneDrawLayer);
+
+            // Make the circle marker draggable
+            makeDraggableCircle(circleMarker, pointIdx);
+            zonePointMarkers.push(circleMarker);
+
+            updateZonePreview();
         });
 
-        // Apply to auto-location marker with different scaling
-        document.querySelectorAll('.map-marker.auto-location .map-marker-icon svg').forEach(svg => {
-            const size = locationIconSize + 'px';
-            svg.style.width = size;
-            svg.style.height = size;
-        });
+        // Disable double-click zoom (interferes with zone drawing)
+        map.doubleClickZoom.disable();
+    }
 
-        document.querySelectorAll('.map-marker.auto-location .map-marker-label').forEach(label => {
-            label.style.fontSize = locationLabelSize + 'px';
-            label.style.top = locationLabelTop + 'px';
+    // Make a circle marker draggable (Leaflet doesn't natively support this for circleMarkers)
+    function makeDraggableCircle(circleMarker, pointIndex) {
+        const el = circleMarker.getElement ? circleMarker.getElement() : null;
+        // circleMarker might not have DOM element yet, wait for it
+        circleMarker.on('add', function() {
+            const element = this.getElement();
+            if (!element) return;
+            element.style.cursor = 'move';
+
+            let isDragging = false;
+
+            element.addEventListener('mousedown', function(e) {
+                if (!zoneMode) return;
+                isDragging = true;
+                map.dragging.disable();
+                e.stopPropagation();
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                const point = map.mouseEventToLatLng(e);
+                circleMarker.setLatLng(point);
+
+                const pos = latLngToPercent(point);
+                zonePoints[pointIndex] = { x: parseFloat(pos.x), y: parseFloat(pos.y) };
+                updateZonePreview();
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    map.dragging.enable();
+                }
+            });
         });
     }
 
-    // Track initialization attempts to prevent infinite retry
-    let tacticalSymbolInitAttempts = 0;
-    const MAX_INIT_ATTEMPTS = 30; // 3 seconds max (30 * 100ms)
-    let libraryLoadNotified = false;
+    // ========================================================================
+    // Zoom Controls
+    // ========================================================================
+    function initZoomControls() {
+        document.getElementById('zoomIn').addEventListener('click', () => map.zoomIn());
+        document.getElementById('zoomOut').addEventListener('click', () => map.zoomOut());
+        document.getElementById('zoomReset').addEventListener('click', () => {
+            map.fitBounds(mapBounds);
+        });
 
-    function initializeTacticalSymbols() {
-        if (!window.erzeugeTaktischesZeichen) {
-            tacticalSymbolInitAttempts++;
+        // Initial display
+        updateZoomDisplay();
+    }
 
-            if (tacticalSymbolInitAttempts >= MAX_INIT_ATTEMPTS) {
-                console.warn('⚠ Taktische Zeichen Library konnte nach ' + MAX_INIT_ATTEMPTS + ' Versuchen nicht geladen werden');
-                console.info('ℹ Verwende Fallback-Icons (Emojis)');
-                window.tacticalSymbolsAvailable = false;
+    function updateZoomDisplay() {
+        const zoom = map.getZoom();
+        // Show zoom as multiplier relative to overview (fitZoom = 1x)
+        const factor = Math.pow(2, zoom - fitZoom);
+        const label = factor >= 1
+            ? Math.round(factor) + 'x'
+            : '1/' + Math.round(1 / factor) + 'x';
+        document.getElementById('zoomLevel').textContent = label;
+    }
 
-                // Notify user once
-                if (!libraryLoadNotified && typeof showAlert === 'function') {
-                    libraryLoadNotified = true;
-                    showAlert(
-                        'Taktische Zeichen sind aktuell nicht verfügbar. Die Lagekarte verwendet Fallback-Symbole. Alle Funktionen sind verfügbar.',
-                        'info',
-                        5000
-                    );
+    // ========================================================================
+    // State Persistence
+    // ========================================================================
+    const MAP_STATE_KEY = `lagekarte_leaflet_state_${incidentId}`;
+
+    function saveMapState() {
+        try {
+            const center = map.getCenter();
+            const state = { lat: center.lat, lng: center.lng, zoom: map.getZoom() };
+            localStorage.setItem(MAP_STATE_KEY, JSON.stringify(state));
+        } catch (e) { /* ignore */ }
+    }
+
+    function getSavedMapState() {
+        try {
+            const saved = localStorage.getItem(MAP_STATE_KEY);
+            if (saved) return JSON.parse(saved);
+        } catch (e) { /* ignore */ }
+        return null;
+    }
+
+    // ========================================================================
+    // Marker Scaling (inverse zoom scaling for visibility)
+    // ========================================================================
+    function updateMarkerScale() {
+        const zoom = map.getZoom();
+        // Markers are screen-pixel sized (don't scale with map).
+        // More aggressive scaling so icons stay clearly visible at deeper zoom:
+        //   zoom 0: 0.4 → ~11px, zoom 3: 1.0 → 28px, zoom 5: 1.4 → 39px, zoom 7: 1.8 → 50px
+        const scaleFactor = 0.4 + zoom * 0.2;
+
+        document.querySelectorAll('.lk-marker-icon').forEach(el => {
+            el.style.transform = `scale(${scaleFactor})`;
+        });
+
+        // Auto-location marker: slightly larger scaling
+        const autoScale = 0.5 + zoom * 0.22;
+        document.querySelectorAll('.lk-marker-auto .lk-marker-icon').forEach(el => {
+            el.style.transform = `scale(${autoScale})`;
+        });
+    }
+
+    // ========================================================================
+    // Load Markers
+    // ========================================================================
+    function loadMarkers() {
+        existingMarkers.forEach(markerData => {
+            addMarkerToMap(markerData);
+        });
+        // Apply initial scale after a tick so DOM elements exist
+        setTimeout(updateMarkerScale, 50);
+    }
+
+    function addMarkerToMap(markerData) {
+        const isAutoLocation = markerData.id === 'auto_location' || markerData.description === 'Automatisch aus GTA-Koordinaten';
+        const iconHtml = getMarkerIconHtml(markerData);
+        const labelText = getMarkerLabel(markerData);
+
+        const iconSize = isAutoLocation ? [40, 40] : [32, 32];
+        const iconAnchor = isAutoLocation ? [20, 20] : [16, 16];
+
+        const icon = L.divIcon({
+            html: `<div class="lk-marker-inner ${isAutoLocation ? 'lk-marker-auto' : ''}">
+                       <div class="lk-marker-label">${labelText}</div>
+                       <div class="lk-marker-icon">${iconHtml}</div>
+                   </div>`,
+            className: 'lk-marker',
+            iconSize: iconSize,
+            iconAnchor: iconAnchor
+        });
+
+        const latLng = percentToLatLng(markerData.pos_x, markerData.pos_y);
+        const isDraggable = !isFinalized && !isAutoLocation;
+
+        const marker = L.marker(latLng, {
+            icon: icon,
+            draggable: isDraggable,
+            zIndexOffset: isAutoLocation ? -100 : 0
+        }).addTo(markersLayer);
+
+        // Drag handler to persist position
+        if (isDraggable) {
+            marker.on('dragend', async function(e) {
+                const pos = latLngToPercent(e.target.getLatLng());
+
+                try {
+                    const formData = new FormData();
+                    formData.append('action', 'update');
+                    formData.append('marker_id', markerData.id);
+                    formData.append('pos_x', pos.x);
+                    formData.append('pos_y', pos.y);
+
+                    const response = await fetch('<?= BASE_PATH ?>einsatz/lagekarte-api.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (!result.success) {
+                        showAlert('Fehler beim Verschieben des Markers: ' + result.error, 'danger');
+                        // Revert position
+                        marker.setLatLng(latLng);
+                    }
+                } catch (error) {
+                    console.error('Error updating marker position:', error);
+                    showAlert('Fehler beim Verschieben des Markers', 'danger');
+                    marker.setLatLng(latLng);
                 }
-                return;
-            }
+            });
+        }
 
-            setTimeout(initializeTacticalSymbols, 100);
+        // Store reference
+        leafletMarkers[markerData.id] = marker;
+    }
+
+    // ========================================================================
+    // Load Zones
+    // ========================================================================
+    function loadZones() {
+        existingZonesData.forEach(zoneData => {
+            addZoneToMap(zoneData);
+        });
+    }
+
+    function addZoneToMap(zoneData) {
+        let points;
+        try {
+            points = JSON.parse(zoneData.points);
+        } catch (e) {
+            console.error('Error parsing zone points:', e);
             return;
         }
 
-        window.tacticalSymbolsAvailable = true;
-        console.log('✓ Taktische Zeichen erfolgreich initialisiert');
+        if (points.length < 3) return;
 
-        const legendItems = document.querySelectorAll('[data-tz-icon]');
-        let successCount = 0;
-        let errorCount = 0;
+        const latLngs = points.map(p => percentToLatLng(p.x, p.y));
 
-        legendItems.forEach(iconContainer => {
-            const item = iconContainer.closest('.legend-item');
-            if (!item) return;
+        const polygon = L.polygon(latLngs, {
+            color: zoneData.color,
+            fillColor: zoneData.color,
+            fillOpacity: 0.3,
+            weight: 2
+        }).addTo(zonesLayer);
 
-            const grundzeichen = item.dataset.tzGrundzeichen;
-            const organisation = item.dataset.tzOrganisation;
-            const fachaufgabe = item.dataset.tzFachaufgabe;
-            const einheit = item.dataset.tzEinheit;
-            const symbol = item.dataset.tzSymbol;
-            const typ = item.dataset.tzTyp;
-            const text = item.dataset.tzText;
-            const name = item.dataset.tzName;
-
-            if (!grundzeichen) return;
-
-            try {
-                const config = {
-                    grundzeichen
-                };
-                if (organisation) config.organisation = organisation;
-                if (fachaufgabe) config.fachaufgabe = fachaufgabe;
-                if (einheit) config.einheit = einheit;
-                if (symbol) config.symbol = symbol;
-                if (typ) config.typ = typ;
-                if (text) config.text = text;
-                if (name) config.name = name;
-
-                const tz = window.erzeugeTaktischesZeichen(config);
-                if (iconContainer) {
-                    iconContainer.innerHTML = tz.toString();
-
-                    // Style the SVG
-                    const svg = iconContainer.querySelector('svg');
-                    if (svg) {
-                        svg.style.width = '32px';
-                        svg.style.height = '32px';
-                    }
-                    successCount++;
-                }
-            } catch (e) {
-                console.error('Error creating tactical symbol:', e, item.dataset);
-                if (iconContainer) {
-                    iconContainer.textContent = '📌';
-                }
-                errorCount++;
-            }
-        });
-
-        if (successCount > 0) {
-            console.log(`✓ ${successCount} taktische Zeichen erfolgreich erstellt`);
-        }
-        if (errorCount > 0) {
-            console.warn(`⚠ ${errorCount} taktische Zeichen konnten nicht erstellt werden (Fallback-Icons verwendet)`);
-        }
-
-        // IMPORTANT: Re-render existing markers with tactical symbols now that library is loaded
-        reRenderMarkersWithTacticalSymbols();
+        polygon.bindTooltip(zoneData.name, { sticky: true });
     }
 
-    // Re-render markers that were created before the library was loaded
-    function reRenderMarkersWithTacticalSymbols() {
-        console.log('🔄 Re-rendering markers with tactical symbols...');
-        const markers = document.querySelectorAll('.map-marker');
-        let updatedCount = 0;
-
-        markers.forEach(markerEl => {
-            const markerId = markerEl.dataset.markerId;
-            const markerData = existingMarkers.find(m => m.id == markerId);
-
-            if (!markerData || !markerData.grundzeichen) {
-                return; // Skip markers without grundzeichen data
-            }
-
-            // Find the icon element
-            const icon = markerEl.querySelector('.map-marker-icon');
-            if (!icon) return;
-
-            // Check if it's currently showing emoji (fallback)
-            const currentContent = icon.textContent.trim();
-            const isEmoji = currentContent.match(/[\u{1F300}-\u{1F9FF}]/u);
-
-            if (isEmoji && window.erzeugeTaktischesZeichen) {
-                try {
-                    const config = {
-                        grundzeichen: markerData.grundzeichen
-                    };
-                    if (markerData.organisation) config.organisation = markerData.organisation;
-                    if (markerData.fachaufgabe) config.fachaufgabe = markerData.fachaufgabe;
-                    if (markerData.einheit) config.einheit = markerData.einheit;
-                    if (markerData.symbol) config.symbol = markerData.symbol;
-                    if (markerData.typ) config.typ = markerData.typ;
-                    if (markerData.text) config.text = markerData.text;
-                    if (markerData.name) config.name = markerData.name;
-
-                    console.log(`Updating marker ${markerId} with tactical symbol`);
-                    const tz = window.erzeugeTaktischesZeichen(config);
-                    icon.innerHTML = tz.toString();
-                    updatedCount++;
-                } catch (e) {
-                    console.error(`Error updating marker ${markerId}:`, e);
-                }
-            }
-        });
-
-        if (updatedCount > 0) {
-            console.log(`✓ ${updatedCount} Marker mit taktischen Zeichen aktualisiert`);
-        } else {
-            console.log('ℹ Keine Marker zum Aktualisieren gefunden');
-        }
-    }
-
-    function initializePanZoom() {
-        const mapContainer = document.getElementById('mapContainer');
-        const mapViewport = document.getElementById('mapViewport');
-        const zoomInBtn = document.getElementById('zoomIn');
-        const zoomOutBtn = document.getElementById('zoomOut');
-        const zoomResetBtn = document.getElementById('zoomReset');
-        const zoomLevelDisplay = document.getElementById('zoomLevel');
-
-        // Apply saved state immediately
-        updateTransform(false);
-
-        // Zoom buttons
-        zoomInBtn.addEventListener('click', () => {
-            zoomAt(mapContainer.offsetWidth / 2, mapContainer.offsetHeight / 2, ZOOM_STEP);
-        });
-
-        zoomOutBtn.addEventListener('click', () => {
-            zoomAt(mapContainer.offsetWidth / 2, mapContainer.offsetHeight / 2, -ZOOM_STEP);
-        });
-
-        zoomResetBtn.addEventListener('click', () => {
-            scale = 1;
-            translateX = 0;
-            translateY = 0;
-            updateTransform();
-            saveMapState(); // Save reset state
-        });
-
-        // Mouse wheel zoom
-        mapContainer.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const rect = mapContainer.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP;
-            zoomAt(mouseX, mouseY, delta);
-        }, {
-            passive: false
-        });
-
-        // Pan with mouse drag
-        mapContainer.addEventListener('mousedown', (e) => {
-            if (markerMode || zoneMode) return; // Don't pan in marker or zone mode
-
-            e.preventDefault(); // Prevent text selection
-            isPanning = true;
-            startPanX = e.clientX - translateX;
-            startPanY = e.clientY - translateY;
-            mapContainer.classList.add('panning');
-            mapViewport.classList.add('no-transition');
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isPanning) return;
-            e.preventDefault(); // Prevent text selection during drag
-            translateX = e.clientX - startPanX;
-            translateY = e.clientY - startPanY;
-            updateTransform(false);
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (isPanning) {
-                isPanning = false;
-                mapContainer.classList.remove('panning');
-                mapViewport.classList.remove('no-transition');
-            }
-        });
-
-        // Touch support for mobile
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let lastTouchDistance = 0;
-
-        mapContainer.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1 && !markerMode && !zoneMode) {
-                isPanning = true;
-                touchStartX = e.touches[0].clientX - translateX;
-                touchStartY = e.touches[0].clientY - translateY;
-                mapViewport.classList.add('no-transition');
-            } else if (e.touches.length === 2) {
-                isPanning = false;
-                const dx = e.touches[0].clientX - e.touches[1].clientX;
-                const dy = e.touches[0].clientY - e.touches[1].clientY;
-                lastTouchDistance = Math.sqrt(dx * dx + dy * dy);
-            }
-        });
-
-        mapContainer.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            if (e.touches.length === 1 && isPanning) {
-                translateX = e.touches[0].clientX - touchStartX;
-                translateY = e.touches[0].clientY - touchStartY;
-                updateTransform(false);
-            } else if (e.touches.length === 2) {
-                const dx = e.touches[0].clientX - e.touches[1].clientX;
-                const dy = e.touches[0].clientY - e.touches[1].clientY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const delta = (distance - lastTouchDistance) * 0.01;
-
-                const rect = mapContainer.getBoundingClientRect();
-                const centerX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
-                const centerY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
-
-                zoomAt(centerX, centerY, delta);
-                lastTouchDistance = distance;
-            }
-        }, {
-            passive: false
-        });
-
-        mapContainer.addEventListener('touchend', () => {
-            isPanning = false;
-            mapViewport.classList.remove('no-transition');
-        });
-
-        function zoomAt(mouseX, mouseY, delta) {
-            const oldScale = scale;
-            scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale + delta));
-
-            if (scale !== oldScale) {
-                // Adjust translation to zoom towards mouse position
-                const scaleDiff = scale / oldScale;
-                translateX = mouseX - (mouseX - translateX) * scaleDiff;
-                translateY = mouseY - (mouseY - translateY) * scaleDiff;
-                updateTransform();
-            }
-        }
-
-        function updateTransform(withTransition = true) {
-            if (!withTransition) {
-                mapViewport.classList.add('no-transition');
-            }
-            mapViewport.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-            zoomLevelDisplay.textContent = `${Math.round(scale * 100)}%`;
-
-            if (!withTransition) {
-                // Force reflow
-                mapViewport.offsetHeight;
-                mapViewport.classList.remove('no-transition');
-            }
-
-            // Update marker and zone positions after transform
-            updateMarkerPositions();
-            updateZonePositions();
-            updateMarkerScale();
-
-            // Save state after transformation
-            saveMapState();
-        }
-    }
-
-    // Zone drawing helper functions - global scope
-    window.updateZonePreview = function() {
-        // Remove old preview
-        if (zonePreviewEl) {
-            zonePreviewEl.remove();
+    // ========================================================================
+    // Zone Preview during Drawing
+    // ========================================================================
+    function updateZonePreview() {
+        if (zonePreviewPolygon) {
+            zoneDrawLayer.removeLayer(zonePreviewPolygon);
+            zonePreviewPolygon = null;
         }
 
         if (zonePoints.length < 2) return;
 
-        const viewport = document.getElementById('mapViewport');
-        const img = document.getElementById('mapImage');
+        const latLngs = zonePoints.map(p => percentToLatLng(p.x, p.y));
+        zonePreviewPolygon = L.polygon(latLngs, {
+            color: currentZoneColor,
+            dashArray: '5, 5',
+            fillOpacity: 0.15,
+            weight: 2
+        }).addTo(zoneDrawLayer);
+    }
 
-        // Create SVG for preview
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.setAttribute('class', 'zone-preview-polygon');
-        svg.style.position = 'absolute';
-        svg.style.top = '0';
-        svg.style.left = '0';
-        svg.style.width = img.offsetWidth + 'px';
-        svg.style.height = img.offsetHeight + 'px';
-        svg.style.pointerEvents = 'none';
-
-        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        const points = zonePoints.map(p => {
-            const px = (p.x / 100) * img.offsetWidth;
-            const py = (p.y / 100) * img.offsetHeight;
-            return `${px},${py}`;
-        }).join(' ');
-        polygon.setAttribute('points', points);
-        polygon.setAttribute('fill', 'rgba(220, 53, 69, 0.2)');
-        polygon.setAttribute('stroke', '#dc3545');
-        polygon.setAttribute('stroke-width', '0.5');
-        polygon.setAttribute('stroke-dasharray', '5,5');
-        polygon.setAttribute('vector-effect', 'non-scaling-stroke');
-
-        svg.appendChild(polygon);
-        viewport.appendChild(svg);
-        zonePreviewEl = svg;
-    };
-
-    window.finishZoneDrawing = function() {
-        if (zonePoints.length < 3) {
-            showAlert('Eine Zone muss mindestens 3 Punkte haben.', 'warning');
-            return;
-        }
-
-        pendingZone = {
-            points: zonePoints
-        };
-        showZoneModal();
-    };
-
-    window.cancelZoneDrawing = function() {
-        // Clean up
+    function cancelZoneDrawing() {
         zonePoints = [];
-        zonePointElements.forEach(el => el.remove());
-        zonePointElements = [];
-
-        if (zonePreviewEl) {
-            zonePreviewEl.remove();
-            zonePreviewEl = null;
-        }
+        zonePointMarkers = [];
+        zoneDrawLayer.clearLayers();
+        zonePreviewPolygon = null;
 
         if (zoneInstructionEl) {
             zoneInstructionEl.remove();
             zoneInstructionEl = null;
         }
 
-        // Hide finish button if exists
         const finishBtn = document.getElementById('finishZoneBtn');
-        if (finishBtn) {
-            finishBtn.style.display = 'none';
-        }
-    };
+        if (finishBtn) finishBtn.style.display = 'none';
+    }
 
-    function initializeMap() {
-        const mapContainer = document.getElementById('mapContainer');
+    function finishZoneDrawing() {
+        if (zonePoints.length < 3) {
+            showAlert('Eine Zone muss mindestens 3 Punkte haben.', 'warning');
+            return;
+        }
+
+        pendingZone = { points: zonePoints };
+        showZoneModal();
+    }
+
+    // ========================================================================
+    // Marker Mode
+    // ========================================================================
+    function initMarkerMode() {
         const toggleBtn = document.getElementById('toggleMarkerMode');
-        const refreshBtn = document.getElementById('refreshMap');
         const legendItems = document.querySelectorAll('.legend-item');
 
-        // Toggle marker mode
-        if (!isFinalized) {
-            toggleBtn.addEventListener('click', function() {
-                markerMode = !markerMode;
-                this.innerHTML = markerMode ?
-                    '<i class="fa-solid fa-times me-1"></i>Abbrechen' :
-                    '<i class="fa-solid fa-plus me-1"></i>Marker hinzufügen';
-                this.classList.toggle('btn-outline-light');
-                this.classList.toggle('btn-warning');
-
-                // Deselect marker type when exiting marker mode
-                if (!markerMode) {
-                    selectedMarkerType = null;
-                    legendItems.forEach(item => item.classList.remove('active'));
-                }
-            });
-
-            // Legend item selection
-            legendItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    if (!markerMode) {
-                        // Enable marker mode when selecting type
-                        toggleBtn.click();
-                    }
-
-                    legendItems.forEach(i => i.classList.remove('active'));
-                    this.classList.add('active');
-
-                    // Store tactical symbol data
-                    const iconElement = this.querySelector('.legend-icon');
-                    const nameSpans = this.querySelectorAll('span');
-                    const vehicleNameSpan = nameSpans.length > 1 ? nameSpans[1] : null;
-
-                    selectedMarkerType = {
-                        type: this.dataset.type,
-                        icon: iconElement.innerHTML, // Store full SVG or emoji
-                        color: this.dataset.color,
-                        vehicleId: this.dataset.vehicleId,
-                        vehicleName: vehicleNameSpan ? vehicleNameSpan.textContent.trim() : null,
-                        grundzeichen: this.dataset.tzGrundzeichen,
-                        organisation: this.dataset.tzOrganisation,
-                        fachaufgabe: this.dataset.tzFachaufgabe,
-                        einheit: this.dataset.tzEinheit,
-                        symbol: this.dataset.tzSymbol,
-                        typ: this.dataset.tzTyp,
-                        text: this.dataset.tzText,
-                        name: this.dataset.tzName
-                    };
-                });
-            });
-
-            // Click on map to place marker (adjusted for pan/zoom)
-            mapContainer.addEventListener('click', function(e) {
-                if (!markerMode || !selectedMarkerType || isPanning) {
-                    return;
-                }
-
-                const rect = mapContainer.getBoundingClientRect();
-                const viewport = document.getElementById('mapViewport');
-                const img = document.getElementById('mapImage');
-
-                // Get click position relative to container
-                const clickX = e.clientX - rect.left;
-                const clickY = e.clientY - rect.top;
-
-                // Transform click coordinates back to original image space
-                // First remove translation, then remove scale
-                const imageX = (clickX - translateX) / scale;
-                const imageY = (clickY - translateY) / scale;
-
-                // Convert to percentage of image dimensions
-                const x = (imageX / img.offsetWidth * 100).toFixed(4);
-                const y = (imageY / img.offsetHeight * 100).toFixed(4);
-
-                // Validate coordinates are within bounds
-                if (x < 0 || x > 100 || y < 0 || y > 100) {
-                    return;
-                }
-
-                pendingMarkerPosition = {
-                    x,
-                    y
-                };
-                showMarkerModal();
-            });
-        } else {
+        if (isFinalized) {
             toggleBtn.disabled = true;
             toggleBtn.title = 'Einsatz ist abgeschlossen';
+            return;
         }
 
-        // Refresh button
-        refreshBtn.addEventListener('click', function() {
-            location.reload();
+        toggleBtn.addEventListener('click', function() {
+            markerMode = !markerMode;
+            this.innerHTML = markerMode ?
+                '<i class="fa-solid fa-times me-1"></i>Abbrechen' :
+                '<i class="fa-solid fa-plus me-1"></i>Marker hinzufügen';
+            this.classList.toggle('btn-outline-light');
+            this.classList.toggle('btn-warning');
+
+            if (!markerMode) {
+                selectedMarkerType = null;
+                legendItems.forEach(item => item.classList.remove('active'));
+            }
         });
 
-        // Zone Mode Toggle
+        // Legend item selection
+        legendItems.forEach(item => {
+            item.addEventListener('click', function() {
+                if (!markerMode) toggleBtn.click();
+
+                legendItems.forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                const iconElement = this.querySelector('.legend-icon');
+                const nameSpans = this.querySelectorAll('span');
+                const vehicleNameSpan = nameSpans.length > 1 ? nameSpans[1] : null;
+
+                selectedMarkerType = {
+                    type: this.dataset.type,
+                    icon: iconElement.innerHTML,
+                    color: this.dataset.color,
+                    vehicleId: this.dataset.vehicleId,
+                    vehicleName: vehicleNameSpan ? vehicleNameSpan.textContent.trim() : null,
+                    grundzeichen: this.dataset.tzGrundzeichen,
+                    organisation: this.dataset.tzOrganisation,
+                    fachaufgabe: this.dataset.tzFachaufgabe,
+                    einheit: this.dataset.tzEinheit,
+                    symbol: this.dataset.tzSymbol,
+                    typ: this.dataset.tzTyp,
+                    text: this.dataset.tzText,
+                    name: this.dataset.tzName
+                };
+            });
+        });
+
+        // Refresh button
+        document.getElementById('refreshMap').addEventListener('click', () => location.reload());
+    }
+
+    // ========================================================================
+    // Zone Mode
+    // ========================================================================
+    function initZoneMode() {
         const toggleZoneBtn = document.getElementById('toggleZoneMode');
-        if (!isFinalized) {
-            toggleZoneBtn.addEventListener('click', function() {
-                zoneMode = !zoneMode;
-                this.innerHTML = zoneMode ?
-                    '<i class="fa-solid fa-times me-1"></i>Abbrechen' :
-                    '<i class="fa-solid fa-draw-polygon me-1"></i>Zone zeichnen';
-                this.classList.toggle('btn-outline-info');
-                this.classList.toggle('btn-warning');
+        const toggleMarkerBtn = document.getElementById('toggleMarkerMode');
+        const mapEl = document.getElementById('lagekarte-map');
 
-                if (zoneMode) {
-                    // Disable marker mode when enabling zone mode
-                    if (markerMode) {
-                        toggleBtn.click();
-                    }
-                    mapContainer.classList.add('zone-drawing');
-
-                    // Show instruction immediately when zone mode is activated
-                    if (!zoneInstructionEl) {
-                        zoneInstructionEl = document.createElement('div');
-                        zoneInstructionEl.className = 'zone-instruction';
-                        zoneInstructionEl.textContent = 'Doppelklick zum Hinzufügen weiterer Punkte. Punkte können verschoben werden. (min. 3 Punkte)';
-                        mapContainer.appendChild(zoneInstructionEl);
-                    }
-
-                    // Show finish button below instruction
-                    let finishBtn = document.getElementById('finishZoneBtn');
-                    if (!finishBtn) {
-                        finishBtn = document.createElement('button');
-                        finishBtn.id = 'finishZoneBtn';
-                        finishBtn.className = 'btn btn-success btn-sm';
-                        finishBtn.style.position = 'absolute';
-                        finishBtn.style.top = '65px';
-                        finishBtn.style.left = '20px';
-                        finishBtn.style.zIndex = '1050';
-                        finishBtn.style.backgroundColor = 'rgba(25, 135, 84, 0.6)';
-                        finishBtn.style.borderColor = 'rgba(25, 135, 84, 0.6)';
-                        finishBtn.style.backdropFilter = 'blur(4px)';
-                        finishBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Zone erstellen';
-                        finishBtn.addEventListener('click', function() {
-                            finishZoneDrawing();
-                        });
-                        finishBtn.addEventListener('mouseenter', function() {
-                            this.style.backgroundColor = 'rgba(25, 135, 84, 0.9)';
-                            this.style.borderColor = 'rgba(25, 135, 84, 0.9)';
-                        });
-                        finishBtn.addEventListener('mouseleave', function() {
-                            this.style.backgroundColor = 'rgba(25, 135, 84, 0.6)';
-                            this.style.borderColor = 'rgba(25, 135, 84, 0.6)';
-                        });
-                        mapContainer.appendChild(finishBtn);
-                    }
-                    finishBtn.style.display = 'block';
-                } else {
-                    mapContainer.classList.remove('zone-drawing');
-                    // Clean up any drawing state
-                    cancelZoneDrawing();
-                }
-            });
-
-            // Zone drawing with polygon - Double click to add points
-            let draggedPoint = null;
-            let draggedPointIndex = -1;
-
-            mapContainer.addEventListener('dblclick', function(e) {
-                if (!zoneMode || isPanning || markerMode) return;
-
-                const rect = mapContainer.getBoundingClientRect();
-                const viewport = document.getElementById('mapViewport');
-                const img = document.getElementById('mapImage');
-
-                // Get click position in viewport space
-                const clickX = e.clientX - rect.left;
-                const clickY = e.clientY - rect.top;
-
-                // Transform to image space
-                const imageX = (clickX - translateX) / scale;
-                const imageY = (clickY - translateY) / scale;
-
-                // Convert to percentages
-                const percentX = (imageX / img.offsetWidth * 100);
-                const percentY = (imageY / img.offsetHeight * 100);
-
-                // Validate within bounds
-                if (percentX < 0 || percentX > 100 || percentY < 0 || percentY > 100) {
-                    return;
-                }
-
-                // Add point to array
-                const pointIndex = zonePoints.length;
-                zonePoints.push({
-                    x: percentX,
-                    y: percentY
-                });
-
-                // Create visual point marker
-                const pointEl = document.createElement('div');
-                pointEl.className = 'zone-point';
-                pointEl.style.left = imageX + 'px';
-                pointEl.style.top = imageY + 'px';
-                pointEl.style.cursor = 'move';
-                pointEl.dataset.pointIndex = pointIndex;
-
-                // Make point draggable
-                pointEl.addEventListener('mousedown', function(e) {
-                    if (!zoneMode) return;
-                    e.stopPropagation();
-                    draggedPoint = pointEl;
-                    draggedPointIndex = parseInt(pointEl.dataset.pointIndex);
-                    pointEl.style.cursor = 'grabbing';
-                });
-
-                viewport.appendChild(pointEl);
-                zonePointElements.push(pointEl);
-
-                // Instruction and finish button are now shown when zone mode is activated
-                // (no need to create them here)
-
-                // Update preview polygon
-                updateZonePreview();
-
-                e.preventDefault();
-            });
-
-            // Mouse move for dragging points
-            mapContainer.addEventListener('mousemove', function(e) {
-                if (!draggedPoint || !zoneMode) return;
-
-                const rect = mapContainer.getBoundingClientRect();
-                const viewport = document.getElementById('mapViewport');
-                const img = document.getElementById('mapImage');
-
-                const clickX = e.clientX - rect.left;
-                const clickY = e.clientY - rect.top;
-
-                const imageX = (clickX - translateX) / scale;
-                const imageY = (clickY - translateY) / scale;
-
-                const percentX = (imageX / img.offsetWidth * 100);
-                const percentY = (imageY / img.offsetHeight * 100);
-
-                // Validate within bounds
-                if (percentX >= 0 && percentX <= 100 && percentY >= 0 && percentY <= 100) {
-                    // Update point position
-                    zonePoints[draggedPointIndex] = {
-                        x: percentX,
-                        y: percentY
-                    };
-
-                    draggedPoint.style.left = imageX + 'px';
-                    draggedPoint.style.top = imageY + 'px';
-
-                    updateZonePreview();
-                }
-            });
-
-            // Mouse up to stop dragging
-            document.addEventListener('mouseup', function() {
-                if (draggedPoint) {
-                    draggedPoint.style.cursor = 'move';
-                    draggedPoint = null;
-                    draggedPointIndex = -1;
-                }
-            });
-
-            // ESC to cancel
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && zoneMode) {
-                    cancelZoneDrawing();
-                }
-            });
-        } else {
+        if (isFinalized) {
             toggleZoneBtn.disabled = true;
             toggleZoneBtn.title = 'Einsatz ist abgeschlossen';
+            return;
         }
+
+        toggleZoneBtn.addEventListener('click', function() {
+            zoneMode = !zoneMode;
+            this.innerHTML = zoneMode ?
+                '<i class="fa-solid fa-times me-1"></i>Abbrechen' :
+                '<i class="fa-solid fa-draw-polygon me-1"></i>Zone zeichnen';
+            this.classList.toggle('btn-outline-info');
+            this.classList.toggle('btn-warning');
+
+            if (zoneMode) {
+                // Disable marker mode
+                if (markerMode) toggleMarkerBtn.click();
+
+                mapEl.classList.add('zone-drawing-active');
+
+                // Show instruction
+                if (!zoneInstructionEl) {
+                    zoneInstructionEl = document.createElement('div');
+                    zoneInstructionEl.className = 'zone-instruction';
+                    zoneInstructionEl.textContent = 'Doppelklick zum Hinzufügen weiterer Punkte. Punkte können verschoben werden. (min. 3 Punkte)';
+                    mapEl.appendChild(zoneInstructionEl);
+                }
+
+                // Show finish button
+                let finishBtn = document.getElementById('finishZoneBtn');
+                if (!finishBtn) {
+                    finishBtn = document.createElement('button');
+                    finishBtn.id = 'finishZoneBtn';
+                    finishBtn.className = 'btn btn-success btn-sm';
+                    finishBtn.style.cssText = 'position:absolute;top:65px;left:20px;z-index:1050;background-color:rgba(25,135,84,0.6);border-color:rgba(25,135,84,0.6);backdrop-filter:blur(4px);';
+                    finishBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Zone erstellen';
+                    finishBtn.addEventListener('click', finishZoneDrawing);
+                    finishBtn.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = 'rgba(25, 135, 84, 0.9)';
+                        this.style.borderColor = 'rgba(25, 135, 84, 0.9)';
+                    });
+                    finishBtn.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = 'rgba(25, 135, 84, 0.6)';
+                        this.style.borderColor = 'rgba(25, 135, 84, 0.6)';
+                    });
+                    mapEl.appendChild(finishBtn);
+                }
+                finishBtn.style.display = 'block';
+            } else {
+                mapEl.classList.remove('zone-drawing-active');
+                cancelZoneDrawing();
+            }
+        });
+
+        // ESC to cancel zone drawing
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && zoneMode) {
+                cancelZoneDrawing();
+            }
+        });
+    }
+
+    // ========================================================================
+    // Modal Handlers
+    // ========================================================================
+    function initModalHandlers() {
+        // Save marker
+        document.getElementById('saveMarkerBtn').addEventListener('click', saveMarker);
+
+        // Save zone
+        document.getElementById('saveZoneBtn').addEventListener('click', saveZone);
+
+        // Zone color selection
+        document.querySelectorAll('.zone-color-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.zone-color-option').forEach(opt =>
+                    opt.classList.remove('selected'));
+                this.classList.add('selected');
+                document.getElementById('zoneColor').value = this.dataset.color;
+            });
+        });
+
+        // Zone modal dismissal cleanup
+        document.getElementById('zoneModal').addEventListener('hidden.bs.modal', function() {
+            if (zonePoints.length > 0) cancelZoneDrawing();
+        });
+
+        // Preview custom tactical symbol
+        document.getElementById('previewCustomSymbol').addEventListener('click', previewCustomSymbol);
     }
 
     function showMarkerModal() {
@@ -1877,21 +1637,18 @@ try {
         const nameFieldContainer = document.getElementById('nameFieldContainer');
         const typFieldContainer = document.getElementById('typFieldContainer');
 
-        // Update modal with selected marker type
         const iconContainer = document.getElementById('selectedMarkerIcon');
-        iconContainer.innerHTML = selectedMarkerType.icon; // Use innerHTML to support SVG
+        iconContainer.innerHTML = selectedMarkerType.icon;
 
         document.getElementById('selectedMarkerText').textContent = `Marker-Typ: ${selectedMarkerType.type}`;
         document.getElementById('markerType').value = selectedMarkerType.type;
         document.getElementById('markerPosX').value = pendingMarkerPosition.x;
         document.getElementById('markerPosY').value = pendingMarkerPosition.y;
 
-        // Show/hide text, name, and typ fields if marker has grundzeichen
         if (selectedMarkerType.grundzeichen) {
             textFieldContainer.style.display = 'block';
             nameFieldContainer.style.display = 'block';
             typFieldContainer.style.display = 'block';
-            // Pre-fill with values from selected marker (e.g. from vehicle)
             document.getElementById('markerText').value = selectedMarkerType.text || '';
             document.getElementById('markerName').value = selectedMarkerType.name || '';
             document.getElementById('markerTyp').value = selectedMarkerType.typ || '';
@@ -1901,10 +1658,8 @@ try {
             typFieldContainer.style.display = 'none';
         }
 
-        // Show/hide custom tactical symbol fields
         if (selectedMarkerType.type === 'custom') {
             customFields.style.display = 'block';
-            // Clear previous values
             document.getElementById('customGrundzeichen').value = '';
             document.getElementById('customOrganisation').value = '';
             document.getElementById('customFachaufgabe').value = '';
@@ -1921,83 +1676,20 @@ try {
     function showZoneModal() {
         const modal = new bootstrap.Modal(document.getElementById('zoneModal'));
 
-        // Set zone data (points as JSON)
         document.getElementById('zonePoints').value = JSON.stringify(pendingZone.points);
-
-        // Reset form
         document.getElementById('zoneName').value = '';
         document.getElementById('zoneDescription').value = '';
         document.getElementById('zoneColor').value = '#dc3545';
 
-        // Reset color selection
         document.querySelectorAll('.zone-color-option').forEach(opt => {
             opt.classList.remove('selected');
-            if (opt.dataset.color === '#dc3545') {
-                opt.classList.add('selected');
-            }
+            if (opt.dataset.color === '#dc3545') opt.classList.add('selected');
         });
 
         modal.show();
     }
 
-    // Color selection for zones
-    document.querySelectorAll('.zone-color-option').forEach(option => {
-        option.addEventListener('click', function() {
-            document.querySelectorAll('.zone-color-option').forEach(opt =>
-                opt.classList.remove('selected'));
-            this.classList.add('selected');
-            document.getElementById('zoneColor').value = this.dataset.color;
-        });
-    });
-
-    // Handle zone modal dismissal (cancel/close)
-    const zoneModalEl = document.getElementById('zoneModal');
-    zoneModalEl.addEventListener('hidden.bs.modal', function() {
-        // Only clean up if there are pending zone points
-        if (zonePoints.length > 0) {
-            cancelZoneDrawing();
-        }
-    });
-
-    // Save zone
-    document.getElementById('saveZoneBtn').addEventListener('click', async function() {
-        const form = document.getElementById('zoneForm');
-        const formData = new FormData(form);
-        formData.append('incident_id', incidentId);
-        formData.append('action', 'create_zone');
-
-        try {
-            const response = await fetch('<?= BASE_PATH ?>einsatz/lagekarte-api.php', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                // Close modal
-                bootstrap.Modal.getInstance(document.getElementById('zoneModal')).hide();
-
-                // Clean up drawing state
-                cancelZoneDrawing();
-
-                // Reset form
-                form.reset();
-
-                // Reload page to show new zone
-                location.reload();
-            } else {
-                console.error('API Error:', result);
-                showAlert('Fehler beim Speichern: ' + (result.error || 'Unbekannter Fehler'), 'danger');
-            }
-        } catch (error) {
-            console.error('Error saving zone:', error);
-            showAlert('Fehler beim Speichern der Zone: ' + error.message, 'danger');
-        }
-    });
-
-    // Preview custom tactical symbol
-    document.getElementById('previewCustomSymbol').addEventListener('click', function() {
+    function previewCustomSymbol() {
         const grundzeichen = document.getElementById('customGrundzeichen').value.trim();
         const organisation = document.getElementById('customOrganisation').value.trim();
         const fachaufgabe = document.getElementById('customFachaufgabe').value.trim();
@@ -2022,9 +1714,7 @@ try {
         }
 
         try {
-            const config = {
-                grundzeichen
-            };
+            const config = { grundzeichen };
             if (organisation) config.organisation = organisation;
             if (fachaufgabe) config.fachaufgabe = fachaufgabe;
             if (einheit) config.einheit = einheit;
@@ -2035,20 +1725,14 @@ try {
 
             const tz = window.erzeugeTaktischesZeichen(config);
             const iconContainer = document.getElementById('selectedMarkerIcon');
-            if (!iconContainer) {
-                showAlert('Fehler: Vorschau-Container nicht gefunden. Bitte Modal neu öffnen.', 'danger');
-                return;
-            }
             iconContainer.innerHTML = tz.toString();
 
-            // Ensure SVG in modal is larger
             const svg = iconContainer.querySelector('svg');
             if (svg) {
                 svg.style.width = '64px';
                 svg.style.height = '64px';
             }
 
-            // Update selectedMarkerType with custom values
             selectedMarkerType.icon = tz.toString();
             selectedMarkerType.grundzeichen = grundzeichen;
             selectedMarkerType.organisation = organisation || undefined;
@@ -2057,44 +1741,28 @@ try {
             selectedMarkerType.symbol = symbol || undefined;
             selectedMarkerType.typ = typ || undefined;
         } catch (e) {
-            showAlert('Fehler beim Erstellen des taktischen Zeichens:\n' + e.message + '\n\nBitte überprüfen Sie die eingegebenen Werte.', 'danger');
+            showAlert('Fehler beim Erstellen des taktischen Zeichens:\n' + e.message, 'danger');
             console.error('Error creating custom tactical symbol:', e);
         }
-    });
+    }
 
-    // Save marker
-    document.getElementById('saveMarkerBtn').addEventListener('click', async function() {
+    // ========================================================================
+    // Save Marker
+    // ========================================================================
+    async function saveMarker() {
         const form = document.getElementById('markerForm');
         const formData = new FormData(form);
         formData.append('incident_id', incidentId);
         formData.append('action', 'create');
 
-        // Add vehicle info if this is a vehicle marker
-        if (selectedMarkerType.vehicleId) {
-            formData.append('vehicle_id', selectedMarkerType.vehicleId);
-        }
+        if (selectedMarkerType.vehicleId) formData.append('vehicle_id', selectedMarkerType.vehicleId);
+        if (selectedMarkerType.grundzeichen) formData.append('grundzeichen', selectedMarkerType.grundzeichen);
+        if (selectedMarkerType.organisation) formData.append('organisation', selectedMarkerType.organisation);
+        if (selectedMarkerType.fachaufgabe) formData.append('fachaufgabe', selectedMarkerType.fachaufgabe);
+        if (selectedMarkerType.einheit) formData.append('einheit', selectedMarkerType.einheit);
+        if (selectedMarkerType.symbol) formData.append('symbol', selectedMarkerType.symbol);
+        if (selectedMarkerType.typ) formData.append('typ', selectedMarkerType.typ);
 
-        // Add tactical symbol data if available
-        if (selectedMarkerType.grundzeichen) {
-            formData.append('grundzeichen', selectedMarkerType.grundzeichen);
-        }
-        if (selectedMarkerType.organisation) {
-            formData.append('organisation', selectedMarkerType.organisation);
-        }
-        if (selectedMarkerType.fachaufgabe) {
-            formData.append('fachaufgabe', selectedMarkerType.fachaufgabe);
-        }
-        if (selectedMarkerType.einheit) {
-            formData.append('einheit', selectedMarkerType.einheit);
-        }
-        if (selectedMarkerType.symbol) {
-            formData.append('symbol', selectedMarkerType.symbol);
-        }
-        if (selectedMarkerType.typ) {
-            formData.append('typ', selectedMarkerType.typ);
-        }
-
-        // Add text - use form value if provided, otherwise use selected marker's text
         const textValue = document.getElementById('markerText').value.trim();
         if (textValue) {
             formData.append('text', textValue);
@@ -2102,7 +1770,6 @@ try {
             formData.append('text', selectedMarkerType.text);
         }
 
-        // Add name - use form value if provided, otherwise use selected marker's name
         const nameValue = document.getElementById('markerName').value.trim();
         if (nameValue) {
             formData.append('name', nameValue);
@@ -2119,453 +1786,227 @@ try {
             const result = await response.json();
 
             if (result.success) {
-                // Close modal
                 bootstrap.Modal.getInstance(document.getElementById('markerModal')).hide();
-
-                // Reset form
                 form.reset();
-
-                // Reload page to show new marker
                 location.reload();
             } else {
-                console.error('API Error:', result);
                 showAlert('Fehler beim Speichern: ' + (result.error || 'Unbekannter Fehler'), 'danger');
             }
         } catch (error) {
             console.error('Error saving marker:', error);
             showAlert('Fehler beim Speichern des Markers: ' + error.message, 'danger');
         }
-    });
+    }
 
-    // Delete marker
-    document.querySelectorAll('.delete-marker-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const confirmed = await showConfirm(
-                'Marker löschen',
-                'Möchten Sie diesen Marker wirklich löschen?',
-                'Ja, löschen',
-                'Abbrechen'
-            );
+    // ========================================================================
+    // Save Zone
+    // ========================================================================
+    async function saveZone() {
+        const form = document.getElementById('zoneForm');
+        const formData = new FormData(form);
+        formData.append('incident_id', incidentId);
+        formData.append('action', 'create_zone');
 
-            if (!confirmed) {
-                return;
-            }
-
-            const markerId = this.dataset.markerId;
-            const formData = new FormData();
-            formData.append('action', 'delete');
-            formData.append('marker_id', markerId);
-
-            try {
-                const response = await fetch('<?= BASE_PATH ?>einsatz/lagekarte-api.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    location.reload();
-                } else {
-                    showAlert('Fehler beim Löschen: ' + (result.error || 'Unbekannter Fehler'), 'danger');
-                }
-            } catch (error) {
-                console.error('Error deleting marker:', error);
-                showAlert('Fehler beim Löschen des Markers', 'danger');
-            }
-        });
-    });
-
-    // Delete zone
-    document.querySelectorAll('.delete-zone-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const confirmed = await showConfirm(
-                'Zone löschen',
-                'Möchten Sie diese Zone wirklich löschen?',
-                'Ja, löschen',
-                'Abbrechen'
-            );
-
-            if (!confirmed) {
-                return;
-            }
-
-            const zoneId = this.dataset.zoneId;
-            const formData = new FormData();
-            formData.append('action', 'delete_zone');
-            formData.append('zone_id', zoneId);
-
-            try {
-                const response = await fetch('<?= BASE_PATH ?>einsatz/lagekarte-api.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    location.reload();
-                } else {
-                    showAlert('Fehler beim Löschen: ' + (result.error || 'Unbekannter Fehler'), 'danger');
-                }
-            } catch (error) {
-                console.error('Error deleting zone:', error);
-                showAlert('Fehler beim Löschen der Zone', 'danger');
-            }
-        });
-    });
-
-    // Load and display markers on map
-    function loadMarkers() {
-        const mapViewport = document.getElementById('mapViewport');
-        const img = document.getElementById('mapImage');
-
-        existingMarkers.forEach(marker => {
-            const markerEl = createMarkerElement(marker);
-            mapViewport.appendChild(markerEl);
-        });
-
-        // Update positions after markers are added
-        if (img.complete) {
-            updateMarkerPositions();
-            updateMarkerScale(); // Apply initial scale
-        } else {
-            img.addEventListener('load', () => {
-                updateMarkerPositions();
-                updateMarkerScale(); // Apply initial scale
+        try {
+            const response = await fetch('<?= BASE_PATH ?>einsatz/lagekarte-api.php', {
+                method: 'POST',
+                body: formData
             });
+
+            const result = await response.json();
+
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('zoneModal')).hide();
+                cancelZoneDrawing();
+                form.reset();
+                location.reload();
+            } else {
+                showAlert('Fehler beim Speichern: ' + (result.error || 'Unbekannter Fehler'), 'danger');
+            }
+        } catch (error) {
+            console.error('Error saving zone:', error);
+            showAlert('Fehler beim Speichern der Zone: ' + error.message, 'danger');
         }
     }
 
-    // Load and display zones on map
-    function loadZones() {
-        const mapViewport = document.getElementById('mapViewport');
-        const img = document.getElementById('mapImage');
+    // ========================================================================
+    // Delete Handlers
+    // ========================================================================
+    function initDeleteButtons() {
+        // Delete marker
+        document.querySelectorAll('.delete-marker-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const confirmed = await showConfirm(
+                    'Marker löschen',
+                    'Möchten Sie diesen Marker wirklich löschen?',
+                    'Ja, löschen',
+                    'Abbrechen'
+                );
 
-        if (!mapViewport) {
-            console.error('mapViewport not found!');
+                if (!confirmed) return;
+
+                const markerId = this.dataset.markerId;
+                const formData = new FormData();
+                formData.append('action', 'delete');
+                formData.append('marker_id', markerId);
+
+                try {
+                    const response = await fetch('<?= BASE_PATH ?>einsatz/lagekarte-api.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        showAlert('Fehler beim Löschen: ' + (result.error || 'Unbekannter Fehler'), 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error deleting marker:', error);
+                    showAlert('Fehler beim Löschen des Markers', 'danger');
+                }
+            });
+        });
+
+        // Delete zone
+        document.querySelectorAll('.delete-zone-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const confirmed = await showConfirm(
+                    'Zone löschen',
+                    'Möchten Sie diese Zone wirklich löschen?',
+                    'Ja, löschen',
+                    'Abbrechen'
+                );
+
+                if (!confirmed) return;
+
+                const zoneId = this.dataset.zoneId;
+                const formData = new FormData();
+                formData.append('action', 'delete_zone');
+                formData.append('zone_id', zoneId);
+
+                try {
+                    const response = await fetch('<?= BASE_PATH ?>einsatz/lagekarte-api.php', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        showAlert('Fehler beim Löschen: ' + (result.error || 'Unbekannter Fehler'), 'danger');
+                    }
+                } catch (error) {
+                    console.error('Error deleting zone:', error);
+                    showAlert('Fehler beim Löschen der Zone', 'danger');
+                }
+            });
+        });
+    }
+
+    // ========================================================================
+    // Tactical Symbol Initialization (called after library loads)
+    // ========================================================================
+    let tacticalSymbolInitAttempts = 0;
+    const MAX_INIT_ATTEMPTS = 30;
+    let libraryLoadNotified = false;
+
+    function initializeTacticalSymbols() {
+        if (!window.erzeugeTaktischesZeichen) {
+            tacticalSymbolInitAttempts++;
+
+            if (tacticalSymbolInitAttempts >= MAX_INIT_ATTEMPTS) {
+                console.warn('⚠ Taktische Zeichen Library konnte nach ' + MAX_INIT_ATTEMPTS + ' Versuchen nicht geladen werden');
+                window.tacticalSymbolsAvailable = false;
+
+                if (!libraryLoadNotified && typeof showAlert === 'function') {
+                    libraryLoadNotified = true;
+                    showAlert(
+                        'Taktische Zeichen sind aktuell nicht verfügbar. Die Lagekarte verwendet Fallback-Symbole.',
+                        'info',
+                        5000
+                    );
+                }
+                return;
+            }
+
+            setTimeout(initializeTacticalSymbols, 100);
             return;
         }
 
-        existingZonesData.forEach(zone => {
-            const zoneEl = createZoneElement(zone);
-            if (zoneEl) {
-                mapViewport.appendChild(zoneEl);
-            } else {
-                console.error('Failed to create zone element');
-            }
-        });
+        window.tacticalSymbolsAvailable = true;
+        console.log('✓ Taktische Zeichen erfolgreich initialisiert');
 
-        // Update positions after zones are added
-        if (img.complete) {
-            updateZonePositions();
-        } else {
-            img.addEventListener('load', () => {
-                updateZonePositions();
+        // Render legend icons
+        const legendItems = document.querySelectorAll('[data-tz-icon]');
+        legendItems.forEach(iconContainer => {
+            const item = iconContainer.closest('.legend-item');
+            if (!item) return;
+
+            const grundzeichen = item.dataset.tzGrundzeichen;
+            if (!grundzeichen) return;
+
+            // Map data-tz-* attributes to the format generateTacticalSymbolSvg expects
+            const svg = generateTacticalSymbolSvg({
+                grundzeichen: item.dataset.tzGrundzeichen,
+                organisation: item.dataset.tzOrganisation,
+                fachaufgabe: item.dataset.tzFachaufgabe,
+                einheit: item.dataset.tzEinheit,
+                symbol: item.dataset.tzSymbol,
+                typ: item.dataset.tzTyp,
+                text: item.dataset.tzText,
+                name: item.dataset.tzName
             });
-        }
-    }
-
-    function createZoneElement(zone) {
-        const zoneEl = document.createElement('div');
-        zoneEl.className = 'map-zone';
-        zoneEl.dataset.zoneId = zone.id;
-        zoneEl.dataset.points = zone.points;
-        zoneEl.dataset.color = zone.color;
-
-        // Parse points from JSON string
-        let points = [];
-        try {
-            points = JSON.parse(zone.points);
-        } catch (e) {
-            console.error('Error parsing zone points:', e, zone);
-            return null;
-        }
-
-        if (points.length < 3) {
-            console.error('Zone must have at least 3 points:', zone);
-            return null;
-        }
-
-        const img = document.getElementById('mapImage');
-
-        // Create SVG for zone
-        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        svg.style.position = 'absolute';
-        svg.style.top = '0';
-        svg.style.left = '0';
-        svg.style.width = img.offsetWidth + 'px';
-        svg.style.height = img.offsetHeight + 'px';
-        svg.style.pointerEvents = 'none';
-
-        // Calculate points in pixels (will be recalculated on resize/zoom)
-        const pointsStr = points.map(p => {
-            const px = (p.x / 100) * img.offsetWidth;
-            const py = (p.y / 100) * img.offsetHeight;
-            return `${px},${py}`;
-        }).join(' ');
-
-        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-        polygon.setAttribute('points', pointsStr);
-        polygon.setAttribute('fill', zone.color);
-        polygon.setAttribute('fill-opacity', '0.3');
-        polygon.setAttribute('stroke', zone.color);
-        polygon.setAttribute('stroke-width', '0.5');
-        polygon.setAttribute('vector-effect', 'non-scaling-stroke');
-
-        svg.appendChild(polygon);
-        zoneEl.appendChild(svg);
-
-        return zoneEl;
-    }
-
-    function updateZonePositions() {
-        const img = document.getElementById('mapImage');
-        const zones = document.querySelectorAll('.map-zone');
-
-        zones.forEach(zone => {
-            const pointsData = zone.dataset.points;
-            if (!pointsData) return;
-
-            try {
-                const points = JSON.parse(pointsData);
-                const svg = zone.querySelector('svg');
-                const polygon = svg ? svg.querySelector('polygon') : null;
-
-                if (!polygon || !svg) {
-                    console.error('SVG or polygon not found in zone');
-                    return;
+            if (svg) {
+                iconContainer.innerHTML = svg;
+                const svgEl = iconContainer.querySelector('svg');
+                if (svgEl) {
+                    svgEl.style.width = '32px';
+                    svgEl.style.height = '32px';
                 }
-
-                // Update SVG dimensions to match image
-                svg.style.width = img.offsetWidth + 'px';
-                svg.style.height = img.offsetHeight + 'px';
-
-                // Recalculate points based on current image size
-                const pointsStr = points.map(p => {
-                    const px = (p.x / 100) * img.offsetWidth;
-                    const py = (p.y / 100) * img.offsetHeight;
-                    return `${px},${py}`;
-                }).join(' ');
-
-                polygon.setAttribute('points', pointsStr);
-            } catch (e) {
-                console.error('Error updating zone position:', e);
+            } else {
+                iconContainer.textContent = '📌';
             }
         });
+
+        // Re-render map markers with tactical symbols
+        reRenderMarkersWithTacticalSymbols();
     }
 
-    function createMarkerElement(marker) {
-        const markerEl = document.createElement('div');
-        markerEl.className = 'map-marker';
-        markerEl.dataset.markerId = marker.id;
-        markerEl.dataset.posX = marker.pos_x;
-        markerEl.dataset.posY = marker.pos_y;
+    function reRenderMarkersWithTacticalSymbols() {
+        if (!window.erzeugeTaktischesZeichen) return;
 
-        // Check if this is the auto-location marker
-        const isAutoLocation = marker.id === 'auto_location' || marker.description === 'Automatisch aus GTA-Koordinaten';
-        if (isAutoLocation) {
-            markerEl.classList.add('auto-location');
-        }
+        let updatedCount = 0;
+        existingMarkers.forEach(markerData => {
+            if (!markerData.grundzeichen) return;
 
-        // Position will be set by updateMarkerPositions()
-        markerEl.style.transform = 'translate(-50%, -50%)';
+            const leafletMarker = leafletMarkers[markerData.id];
+            if (!leafletMarker) return;
 
-        const icon = document.createElement('div');
-        icon.className = 'map-marker-icon';
+            // Check if currently showing emoji fallback
+            const el = leafletMarker.getElement();
+            if (!el) return;
 
-        // Use SVG icon for auto-location marker
-        if (isAutoLocation) {
-            icon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" style="filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));"><path fill="#d10000" d="M320 576C178.6 576 64 461.4 64 320C64 178.6 178.6 64 320 64C461.4 64 576 178.6 576 320C576 461.4 461.4 576 320 576zM320 112C205.1 112 112 205.1 112 320C112 434.9 205.1 528 320 528C434.9 528 528 434.9 528 320C528 205.1 434.9 112 320 112zM320 416C267 416 224 373 224 320C224 267 267 224 320 224C373 224 416 267 416 320C416 373 373 416 320 416z"/></svg>`;
-        }
-        // Try to generate tactical symbol if data is available and library is loaded
-        else if (marker.grundzeichen && window.erzeugeTaktischesZeichen) {
-            try {
-                const config = {
-                    grundzeichen: marker.grundzeichen
-                };
-                if (marker.organisation) config.organisation = marker.organisation;
-                if (marker.fachaufgabe) config.fachaufgabe = marker.fachaufgabe;
-                if (marker.einheit) config.einheit = marker.einheit;
-                if (marker.symbol) config.symbol = marker.symbol;
-                if (marker.typ) config.typ = marker.typ;
-                if (marker.text) config.text = marker.text;
-                if (marker.name) config.name = marker.name;
+            const iconEl = el.querySelector('.lk-marker-icon');
+            if (!iconEl) return;
 
-                const tz = window.erzeugeTaktischesZeichen(config);
-                icon.innerHTML = tz.toString();
-            } catch (e) {
-                console.error('Error creating tactical symbol for marker:', marker.id, e);
-                icon.textContent = getFallbackIcon(marker.marker_type);
-            }
-        } else {
-            // Fallback to emoji icons
-            // Note: If library loads later, markers will be re-rendered automatically
-            icon.textContent = getFallbackIcon(marker.marker_type);
-        }
+            const currentContent = iconEl.textContent.trim();
+            const isEmoji = currentContent.match(/[\u{1F300}-\u{1F9FF}]/u);
 
-        const label = document.createElement('div');
-        label.className = 'map-marker-label';
-
-        // Set label text
-        if (isAutoLocation) {
-            label.textContent = 'Einsatzort';
-        } else if (marker.marker_type && marker.marker_type.startsWith('vehicle_') && marker.vehicle_name) {
-            // For vehicle markers, show vehicle name instead of vehicle_X
-            label.textContent = marker.vehicle_name;
-        } else {
-            label.textContent = marker.description || marker.marker_type;
-        }
-
-        markerEl.appendChild(label);
-        markerEl.appendChild(icon);
-
-        // Make marker draggable if not finalized and not auto-generated from GTA coordinates
-        if (!isFinalized && !isAutoLocation) {
-            makeMarkerDraggable(markerEl);
-        }
-
-        return markerEl;
-    }
-
-    function makeMarkerDraggable(markerEl) {
-        let isDragging = false;
-        let dragOffsetX, dragOffsetY;
-
-        markerEl.addEventListener('mousedown', function(e) {
-            // Don't start dragging if clicking on delete button or in marker mode
-            if (e.target.classList.contains('delete-marker-btn') || markerMode) {
-                return;
-            }
-
-            isDragging = true;
-            markerEl.style.cursor = 'grabbing';
-            markerEl.style.zIndex = '1000';
-
-            // Get current position in pixels
-            const currentLeft = parseFloat(markerEl.style.left) || 0;
-            const currentTop = parseFloat(markerEl.style.top) || 0;
-
-            // Calculate offset from marker position to mouse click in viewport space
-            const viewport = document.getElementById('mapViewport');
-            const viewportRect = viewport.getBoundingClientRect();
-
-            // Mouse position in viewport space (accounting for scale and translate)
-            const mouseViewportX = (e.clientX - viewportRect.left - translateX) / scale;
-            const mouseViewportY = (e.clientY - viewportRect.top - translateY) / scale;
-
-            // Calculate offset from marker center to mouse
-            dragOffsetX = mouseViewportX - currentLeft;
-            dragOffsetY = mouseViewportY - currentTop;
-
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-        document.addEventListener('mousemove', function(e) {
-            if (!isDragging) return;
-
-            const viewport = document.getElementById('mapViewport');
-            const viewportRect = viewport.getBoundingClientRect();
-
-            // Calculate mouse position in viewport space
-            const mouseViewportX = (e.clientX - viewportRect.left - translateX) / scale;
-            const mouseViewportY = (e.clientY - viewportRect.top - translateY) / scale;
-
-            // Set new position
-            const newX = mouseViewportX - dragOffsetX;
-            const newY = mouseViewportY - dragOffsetY;
-
-            markerEl.style.left = newX + 'px';
-            markerEl.style.top = newY + 'px';
-        });
-
-        document.addEventListener('mouseup', async function() {
-            if (!isDragging) return;
-
-            isDragging = false;
-            markerEl.style.cursor = 'pointer';
-            markerEl.style.zIndex = '10';
-
-            // Calculate percentage position
-            const img = document.getElementById('mapImage');
-            const pixelX = parseFloat(markerEl.style.left);
-            const pixelY = parseFloat(markerEl.style.top);
-
-            const percentX = (pixelX / img.offsetWidth * 100).toFixed(4);
-            const percentY = (pixelY / img.offsetHeight * 100).toFixed(4);
-
-            // Update dataset
-            markerEl.dataset.posX = percentX;
-            markerEl.dataset.posY = percentY;
-
-            // Save to server
-            const markerId = markerEl.dataset.markerId;
-            try {
-                const formData = new FormData();
-                formData.append('action', 'update');
-                formData.append('marker_id', markerId);
-                formData.append('pos_x', percentX);
-                formData.append('pos_y', percentY);
-
-                const response = await fetch('<?= BASE_PATH ?>einsatz/lagekarte-api.php', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-                if (!result.success) {
-                    console.error('Failed to update marker position:', result.error);
-                    showAlert('Fehler beim Verschieben des Markers: ' + result.error, 'danger');
-                    // Revert position
-                    updateMarkerPositions();
+            if (isEmoji) {
+                const svg = generateTacticalSymbolSvg(markerData);
+                if (svg) {
+                    iconEl.innerHTML = svg;
+                    updatedCount++;
                 }
-            } catch (error) {
-                console.error('Error updating marker position:', error);
-                showAlert('Fehler beim Verschieben des Markers', 'danger');
-                // Revert position
-                updateMarkerPositions();
             }
         });
-    }
 
-    function updateMarkerPositions() {
-        const img = document.getElementById('mapImage');
-        const markers = document.querySelectorAll('.map-marker');
-
-        markers.forEach(marker => {
-            const posX = parseFloat(marker.dataset.posX);
-            const posY = parseFloat(marker.dataset.posY);
-
-            // Calculate pixel position based on actual image dimensions
-            const pixelX = (posX / 100) * img.offsetWidth;
-            const pixelY = (posY / 100) * img.offsetHeight;
-
-            marker.style.left = pixelX + 'px';
-            marker.style.top = pixelY + 'px';
-        });
-    }
-
-    function getFallbackIcon(markerType) {
-        const icons = {
-            kraftfahrzeug: '🚗',
-            loeschfahrzeug: '🚒',
-            drehleiter: '🚒',
-            tankloesch: '🚒',
-            rettungswagen: '🚑',
-            einsatzleitung: '🎯',
-            bereitstellung: '📍',
-            sammelplatz: '🏥',
-            brandstelle: '🔥',
-            gefahrstoff: '☢️',
-            einsturz: '⚠️',
-            'person-verletzt': '👤',
-            'person-vermisst': '👤',
-            wasserentnahme: '💧',
-            hydrant: '💧',
-            custom: '📝',
-            other: '📌'
-        };
-        return icons[markerType] || '📌';
+        if (updatedCount > 0) {
+            console.log(`✓ ${updatedCount} Marker mit taktischen Zeichen aktualisiert`);
+            updateMarkerScale();
+        }
     }
 </script>
