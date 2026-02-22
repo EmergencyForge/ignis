@@ -224,6 +224,7 @@ class ConfigManager
             'rp' => 'RP Daten',
             'funktionen' => 'Funktionen',
             'integrationen' => 'Integrationen',
+            'rechtliches' => 'Rechtliches',
         ];
 
         return $names[$category] ?? ucfirst($category);
