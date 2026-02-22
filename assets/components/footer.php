@@ -11,9 +11,7 @@
             </div>
             <div class="col-md-4 text-end">
                 <?php
-                /** @phpstan-ignore-next-line Constants loaded from DB at runtime */
                 $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? LEGAL_IMPRESSUM_URL : '';
-                /** @phpstan-ignore-next-line Constants loaded from DB at runtime */
                 $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? LEGAL_DATENSCHUTZ_URL : '';
                 ?>
                 <?php if ($impressumUrl !== ''): ?>
