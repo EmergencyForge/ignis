@@ -11,8 +11,10 @@
             </div>
             <div class="col-md-4 text-end">
                 <?php
-                $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? (string) constant('LEGAL_IMPRESSUM_URL') : '';
-                $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? (string) constant('LEGAL_DATENSCHUTZ_URL') : '';
+                /** @phpstan-ignore-next-line Constants loaded from DB at runtime */
+                $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? LEGAL_IMPRESSUM_URL : '';
+                /** @phpstan-ignore-next-line Constants loaded from DB at runtime */
+                $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? LEGAL_DATENSCHUTZ_URL : '';
                 ?>
                 <?php if ($impressumUrl !== ''): ?>
                     <a href="<?= htmlspecialchars($impressumUrl) ?>" target="_blank" class="text-light small">Impressum</a>
