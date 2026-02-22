@@ -65,6 +65,10 @@ try {
     if (!defined('REGISTRATION_MODE')) define('REGISTRATION_MODE', 'open');
     if (!defined('BASE_PATH')) define('BASE_PATH', '/');
     if (!defined('KB_PUBLIC_ACCESS')) define('KB_PUBLIC_ACCESS', false);
+
+    // RECHTLICHES
+    if (!defined('LEGAL_IMPRESSUM_URL')) define('LEGAL_IMPRESSUM_URL', '');
+    if (!defined('LEGAL_DATENSCHUTZ_URL')) define('LEGAL_DATENSCHUTZ_URL', '');
 }
 
 // Ensure KB_PUBLIC_ACCESS has a default even after successful config load

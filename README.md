@@ -16,6 +16,7 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
 - [Chart.js](https://www.chartjs.org/)
 - [SortableJS](https://github.com/SortableJS/Sortable)
 - [Taktische Zeichen](https://taktische-zeichen.dev/)
+- [Leaflet](https://leafletjs.com/)
 
 > [!CAUTION]
-> Es handelte sich hierbei um ein **Hobbyprojekt**! Es ist dementsprechend eine Lernerfahrung mit stetigen Anpassungen. Ich garantiere **nicht** für Fehlerfreiheit und Datensicherheit!
+> Es handelte sich hierbei um ein **kontinuierliches Entwicklungsprojekt**! Es kommt zu stetigen Anpassungen. Wir garantieren **nicht** für Fehlerfreiheit und Datensicherheit!

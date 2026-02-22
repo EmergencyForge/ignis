@@ -430,6 +430,9 @@ $migrationFiles = [
 
     // 16.02.2026 - Timezone-Fix: Bestehende Berlin-Zeiten nach UTC migrieren
     ['file' => 'migrate_fix_sitrep_timezone_16022026.php', 'type' => 'data'],
+
+    // 22.02.2026 - Rechtliches (Impressum, Datenschutz)
+    ['file' => 'insert_config_22022026_legal.php', 'type' => 'insert'],
 ];
 
 $executed = 0;

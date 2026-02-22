@@ -10,6 +10,19 @@
                 <p class="small">&copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
             </div>
             <div class="col-md-4 text-end">
+                <?php
+                $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? LEGAL_IMPRESSUM_URL : '';
+                $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? LEGAL_DATENSCHUTZ_URL : '';
+                ?>
+                <?php if ($impressumUrl !== ''): ?>
+                    <a href="<?= htmlspecialchars($impressumUrl) ?>" target="_blank" class="text-light small">Impressum</a>
+                <?php endif; ?>
+                <?php if ($datenschutzUrl !== ''): ?>
+                    <?php if ($impressumUrl !== ''): ?>
+                        <span class="text-light small mx-1">|</span>
+                    <?php endif; ?>
+                    <a href="<?= htmlspecialchars($datenschutzUrl) ?>" target="_blank" class="text-light small">Datenschutz</a>
+                <?php endif; ?>
             </div>
         </div>
     </div>

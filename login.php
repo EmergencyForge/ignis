@@ -111,6 +111,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
         </div>
         <p class="mt-3 small text-center">Hintergrundvideo: <a href="https://www.youtube.com/watch?v=9z1qetAaiBA" target="_blank" rel="nofollow">Rosenbauer Group: "Alles für diesen Moment. - Rosenbauer" (YouTube)</a><br>
             &copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
+        <?php
+        $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? LEGAL_IMPRESSUM_URL : '';
+        $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? LEGAL_DATENSCHUTZ_URL : '';
+        ?>
+        <?php if ($impressumUrl !== '' || $datenschutzUrl !== ''): ?>
+            <p class="small text-center">
+                <?php if ($impressumUrl !== ''): ?>
+                    <a href="<?= htmlspecialchars($impressumUrl) ?>" target="_blank" class="text-light">Impressum</a>
+                <?php endif; ?>
+                <?php if ($impressumUrl !== '' && $datenschutzUrl !== ''): ?>
+                    <span class="mx-1">|</span>
+                <?php endif; ?>
+                <?php if ($datenschutzUrl !== ''): ?>
+                    <a href="<?= htmlspecialchars($datenschutzUrl) ?>" target="_blank" class="text-light">Datenschutz</a>
+                <?php endif; ?>
+            </p>
+        <?php endif; ?>
     </div>
 </body>
 
