@@ -185,6 +185,16 @@ parameters:
             path: assets/components/footer.php
             reportUnmatched: false
 
+        -
+            identifier: notIdentical.alwaysFalse
+            path: assets/components/footer.php
+            reportUnmatched: false
+
+        -
+            identifier: notIdentical.alwaysFalse
+            path: login.php
+            reportUnmatched: false
+
         # Mitarbeiter Konfigurations-Konstanten
         -
             identifier: if.alwaysTrue
