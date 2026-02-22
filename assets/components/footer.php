@@ -11,8 +11,8 @@
             </div>
             <div class="col-md-4 text-end">
                 <?php
-                $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? (string) LEGAL_IMPRESSUM_URL : '';
-                $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? (string) LEGAL_DATENSCHUTZ_URL : '';
+                $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? (string) constant('LEGAL_IMPRESSUM_URL') : '';
+                $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? (string) constant('LEGAL_DATENSCHUTZ_URL') : '';
                 ?>
                 <?php if ($impressumUrl !== ''): ?>
                     <a href="<?= htmlspecialchars($impressumUrl) ?>" target="_blank" class="text-light small">Impressum</a>
