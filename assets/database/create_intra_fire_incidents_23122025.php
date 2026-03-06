@@ -13,7 +13,7 @@ try {
         `owner_name` VARCHAR(255) NULL,
         `owner_contact` VARCHAR(255) NULL,
 
-        `status` ENUM('negativ','in_sichtung','gesichtet') NOT NULL DEFAULT 'in_sichtung',
+        `status` TINYINT(3) NOT NULL DEFAULT 0,
         `finalized` TINYINT(1) NOT NULL DEFAULT 0,
         `finalized_at` TIMESTAMP NULL,
         `finalized_by` INT NULL,

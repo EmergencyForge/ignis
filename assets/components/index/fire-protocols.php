@@ -41,20 +41,14 @@
                 if (!$row['finalized']) {
                     $status = "<span class='badge text-bg-secondary'>In Bearbeitung</span>";
                 } else {
-                    switch ($row['status']) {
-                        case 'in_sichtung':
-                            $status = "<span class='badge text-bg-danger'>Ungesichtet</span>";
-                            break;
-                        case 'gesichtet':
-                            $status = "<span class='badge text-bg-success'>Gesichtet</span>";
-                            break;
-                        case 'negativ':
-                            $status = "<span class='badge text-bg-danger'>Negativ</span>";
-                            break;
-                        default:
-                            $status = "<span class='badge text-bg-secondary'>Unbekannt</span>";
-                            break;
-                    }
+                    $statusMap = [
+                        0 => "<span class='badge'>Ungesehen</span>",
+                        1 => "<span class='badge text-bg-warning'>In Prüfung</span>",
+                        2 => "<span class='badge text-bg-success'>Freigegeben</span>",
+                        3 => "<span class='badge text-bg-danger'>Ungenügend</span>",
+                        4 => "<span class='badge text-bg-dark'>Ausgeblendet</span>",
+                    ];
+                    $status = $statusMap[(int)$row['status']] ?? "<span class='badge text-bg-secondary'>Unbekannt</span>";
                 }
 
                 echo "<tr>";

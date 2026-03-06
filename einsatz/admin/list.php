@@ -92,12 +92,15 @@ try {
                             $statusClass = 'status-muted';
                             $statusText = 'Unfertig';
                         } else {
-                            $statusClass = 'status-danger';
-                            $statusText = 'Ungesichtet';
-                            if ($i['status'] === 'gesichtet') {
-                                $statusClass = 'status-success';
-                                $statusText = 'Gesichtet';
-                            }
+                            $statusMap = [
+                                0 => ['status-muted', 'Ungesehen'],
+                                1 => ['status-warning', 'In Prüfung'],
+                                2 => ['status-success', 'Freigegeben'],
+                                3 => ['status-danger', 'Ungenügend'],
+                                4 => ['status-muted', 'Ausgeblendet'],
+                            ];
+                            $s = (int)$i['status'];
+                            [$statusClass, $statusText] = $statusMap[$s] ?? ['status-muted', 'Unbekannt'];
                         }
                         ?>
                         <tr>

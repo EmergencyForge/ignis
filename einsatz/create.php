@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->beginTransaction();
 
             // Insert incident
-            $stmt = $pdo->prepare("INSERT INTO intra_fire_incidents (incident_number, location, keyword, caller_name, caller_contact, started_at, leader_id, owner_type, owner_name, owner_contact, notes, status, created_by, location_x, location_y) VALUES (?,?,?,?,?,?,?,?,?,?,?, 'in_sichtung', ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO intra_fire_incidents (incident_number, location, keyword, caller_name, caller_contact, started_at, leader_id, owner_type, owner_name, owner_contact, notes, status, created_by, location_x, location_y) VALUES (?,?,?,?,?,?,?,?,?,?,?, 0, ?, ?, ?)");
             $stmt->execute([
                 $incident_number,
                 $location,

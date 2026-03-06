@@ -204,15 +204,15 @@ function fmt_elapsed(int|string $seconds): string
                                     $badge = 'bg-secondary';
                                     $statusText = 'Unfertig';
                                 } else {
-                                    $badge = 'bg-danger';
-                                    $statusText = 'Ungesichtet';
-                                    if ($incident['status'] === 'gesichtet') {
-                                        $badge = 'bg-success';
-                                        $statusText = 'Gesichtet';
-                                    } elseif ($incident['status'] === 'negativ') {
-                                        $badge = 'bg-danger';
-                                        $statusText = 'Negativ';
-                                    }
+                                    $statusMap = [
+                                        0 => ['bg-secondary', 'Ungesehen'],
+                                        1 => ['bg-warning', 'In Prüfung'],
+                                        2 => ['bg-success', 'Freigegeben'],
+                                        3 => ['bg-danger', 'Ungenügend'],
+                                        4 => ['bg-dark', 'Ausgeblendet'],
+                                    ];
+                                    $s = (int)$incident['status'];
+                                    [$badge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
                                 }
                                 ?>
                                 <span class="badge <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
@@ -285,8 +285,11 @@ function fmt_elapsed(int|string $seconds): string
                             <div class="mb-3">
                                 <label class="form-label">Status</label>
                                 <select name="status" class="form-select">
-                                    <option value="in_sichtung" <?= $incident['status'] === 'in_sichtung' ? 'selected' : '' ?>>Ungesichtet</option>
-                                    <option value="gesichtet" <?= $incident['status'] === 'gesichtet' ? 'selected' : '' ?>>Gesichtet</option>
+                                    <option value="0" <?= (int)$incident['status'] === 0 ? 'selected' : '' ?>>Ungesehen</option>
+                                    <option value="1" <?= (int)$incident['status'] === 1 ? 'selected' : '' ?>>In Prüfung</option>
+                                    <option value="2" <?= (int)$incident['status'] === 2 ? 'selected' : '' ?>>Freigegeben</option>
+                                    <option value="3" <?= (int)$incident['status'] === 3 ? 'selected' : '' ?>>Ungenügend</option>
+                                    <option value="4" <?= (int)$incident['status'] === 4 ? 'selected' : '' ?>>Ausgeblendet</option>
                                 </select>
                             </div>
                         </div>

@@ -807,7 +807,7 @@ try {
                 $insertFireIncidentStmt = $pdo->prepare("
                     INSERT INTO intra_fire_incidents 
                     (incident_number, location, keyword, caller_name, caller_contact, started_at, status, notes, created_by, created_at, location_x, location_y) 
-                    VALUES (:incident_number, :location, :keyword, :caller_name, :caller_contact, :started_at, 'in_sichtung', :notes, NULL, :created_at, :location_x, :location_y)
+                    VALUES (:incident_number, :location, :keyword, :caller_name, :caller_contact, :started_at, 0, :notes, NULL, :created_at, :location_x, :location_y)
                 ");
                 $insertFireIncidentStmt->execute([
                     ':incident_number' => (string)$dispatchId,

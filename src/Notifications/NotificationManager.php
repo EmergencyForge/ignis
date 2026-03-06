@@ -337,11 +337,13 @@ class NotificationManager
             $incidentId = $incidentData['id'] ?? null;
 
             $statusLabels = [
-                'in_sichtung' => 'In Sichtung',
-                'gesichtet' => 'Gesichtet',
-                'negativ' => 'Negativ'
+                0 => 'Ungesehen',
+                1 => 'In Prüfung',
+                2 => 'Freigegeben',
+                3 => 'Ungenügend',
+                4 => 'Ausgeblendet'
             ];
-            $statusLabel = $statusLabels[$status] ?? $status;
+            $statusLabel = $statusLabels[(int)$status] ?? $status;
 
             $title = "Ihr Protokoll #{$incidentNumber} wurde bearbeitet";
             $message = "Status: {$statusLabel}. Bearbeiter: {$qmUsername}";

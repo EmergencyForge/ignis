@@ -433,6 +433,9 @@ $migrationFiles = [
 
     // 22.02.2026 - Rechtliches (Impressum, Datenschutz)
     ['file' => 'insert_config_22022026_legal.php', 'type' => 'insert'],
+
+    // 06.03.2026 - Fire Incident Status: ENUM → TINYINT (wie eNOTF)
+    ['file' => 'alter_intra_fire_incidents_20260306_status_tinyint.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

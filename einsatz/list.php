@@ -122,15 +122,16 @@ function fmt_dt(?string $ts): string
                             if (!$inc['finalized']) {
                                 $statusBadge = 'bg-warning';
                                 $statusText = 'In Bearbeitung';
-                            } elseif ($inc['status'] === 'gesichtet') {
-                                $statusBadge = 'bg-success';
-                                $statusText = 'Gesichtet';
-                            } elseif ($inc['status'] === 'negativ') {
-                                $statusBadge = 'bg-danger';
-                                $statusText = 'Negativ';
                             } else {
-                                $statusBadge = 'bg-secondary';
-                                $statusText = 'Ungesichtet';
+                                $statusMap = [
+                                    0 => ['bg-secondary', 'Ungesehen'],
+                                    1 => ['bg-warning', 'In Prüfung'],
+                                    2 => ['bg-success', 'Freigegeben'],
+                                    3 => ['bg-danger', 'Ungenügend'],
+                                    4 => ['bg-dark', 'Ausgeblendet'],
+                                ];
+                                $s = (int)$inc['status'];
+                                [$statusBadge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
                             }
                             ?>
                             <div class="col-md-6 col-lg-4">

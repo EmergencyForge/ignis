@@ -39,7 +39,7 @@ if ($ziel) {
     $SITE_TITLE = 'Arrivalboard &rsaquo; eNOTF';
     include __DIR__ . '/../../assets/components/enotf/_head.php';
     ?>
-    <meta http-equiv="refresh" content="60">
+
 </head>
 
 <body data-bs-theme="dark" style="overflow-x:hidden; display: flex; flex-direction: column; min-height: 100vh;" id="edivi__arrivalboard">
@@ -143,6 +143,9 @@ if ($ziel) {
                 <img src="https://emergencyforge.de/assets/img/defaultLogo.webp" alt="EmergencyForge Logo" height="48px" width="auto">
             </div>
             <div class="col text-end d-flex justify-content-end align-items-center">
+                <button id="sound-toggle" onclick="toggleSound()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:1.2rem;margin-right:1rem;opacity:1;transition:opacity 0.2s" title="Benachrichtigungston deaktivieren">
+                    <i class="fa-solid fa-bell" id="sound-icon"></i>
+                </button>
                 <div class="d-flex flex-column align-items-end me-3">
                     <span id="current-time"><?= $currentTime ?></span>
                     <span id="current-date"><?= $currentDate ?></span>
@@ -153,6 +156,149 @@ if ($ziel) {
     <?php
     include __DIR__ . '/../../assets/functions/enotf/clock.php';
     ?>
+    <script>
+    // Sound state: enabled by default, AudioContext created eagerly
+    var audioCtx = null;
+    var soundEnabled = true;
+
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) {
+        console.warn('AudioContext creation failed:', e);
+    }
+
+    // Resume suspended AudioContext on first user interaction anywhere on page
+    document.addEventListener('click', function resumeAudio() {
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        document.removeEventListener('click', resumeAudio);
+    }, { once: true });
+
+    function toggleSound() {
+        if (soundEnabled) {
+            soundEnabled = false;
+            if (audioCtx) { audioCtx.close(); audioCtx = null; }
+            document.getElementById('sound-icon').className = 'fa-solid fa-bell-slash';
+            document.getElementById('sound-toggle').style.opacity = '0.7';
+            document.getElementById('sound-toggle').title = 'Benachrichtigungston aktivieren';
+        } else {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                soundEnabled = true;
+                document.getElementById('sound-icon').className = 'fa-solid fa-bell';
+                document.getElementById('sound-toggle').style.opacity = '1';
+                document.getElementById('sound-toggle').title = 'Benachrichtigungston deaktivieren';
+                playBellSound();
+            } catch(e) {
+                console.warn('AudioContext creation failed:', e);
+            }
+        }
+    }
+
+    function playBellSound() {
+        if (!soundEnabled || !audioCtx) return;
+        try {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            // Bell-like tone: two oscillators for a richer sound
+            [830, 1660].forEach(function(freq) {
+                var osc = audioCtx.createOscillator();
+                var gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(audioCtx.currentTime);
+                osc.stop(audioCtx.currentTime + 1.5);
+            });
+        } catch(e) {
+            console.warn('Audio playback failed:', e);
+        }
+    }
+
+    (function() {
+        var basePath = '<?= BASE_PATH ?>';
+        var ziel = <?= json_encode($ziel) ?>;
+        var knownIds = new Set(<?= json_encode(array_map(function($r) { return (int)$r['id']; }, $result)) ?>);
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function formatRow(row) {
+            var arrival = '\u2014';
+            if (row.arrival) {
+                try {
+                    var d = new Date(row.arrival.replace(' ', 'T'));
+                    arrival = d.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit', hour12: false });
+                } catch(e) { arrival = row.arrival; }
+            }
+
+            var rowClass = 'edivi__arrivalboard-prio-0';
+            if (row.priority == 1) rowClass = 'edivi__arrivalboard-prio-1';
+            else if (row.priority == 2) rowClass = 'edivi__arrivalboard-prio-2';
+
+            var geschlecht;
+            if (row.geschlecht == 1) geschlecht = '<i class="fa-solid fa-venus"></i>';
+            else if (row.geschlecht == 0) geschlecht = '<i class="fa-solid fa-mars"></i>';
+            else if (row.geschlecht == 2) geschlecht = '<i class="fa-solid fa-mars-and-venus"></i>';
+            else geschlecht = '<i class="fa-solid fa-question" style="opacity:0.5"></i>';
+
+            var alter = row.alter || '\u2014';
+            var kreislauf = row.kreislauf == 1 ? 'stabil' : '<span style="color:red">instabil</span>';
+            var intubiert = row.intubiert == 0 ? 'nein' : '<span style="color:red">ja</span>';
+
+            return '<tr class="' + rowClass + '">' +
+                '<td class="edivi__arrivalboard-time"><span>' + escapeHtml(arrival) + '</span><br>' + escapeHtml(row.fahrzeug) + '</td>' +
+                '<td>' + escapeHtml(row.diagnose) + '</td>' +
+                '<td class="edivi__arrivalboard-gender">' + geschlecht + '<br>' + escapeHtml(alter) + '</td>' +
+                '<td class="edivi__arrivalboard-text">' + escapeHtml(row.text) + '</td>' +
+                '<td class="text-center">' + kreislauf + '</td>' +
+                '<td class="text-center">' + escapeHtml(row.gcs) + '</td>' +
+                '<td class="text-center">' + intubiert + '</td>' +
+            '</tr>';
+        }
+
+        function pollPreregistrations() {
+            var url = basePath + 'enotf/schnittstelle/api-prereg.php' + (ziel ? '?klinik=' + encodeURIComponent(ziel) : '');
+            fetch(url)
+                .then(function(res) { return res.json(); })
+                .then(function(json) {
+                    if (!json.success) return;
+                    var rows = json.data;
+                    var newIds = new Set(rows.map(function(r) { return parseInt(r.id); }));
+
+                    // Check for new entries
+                    var hasNew = false;
+                    newIds.forEach(function(id) {
+                        if (!knownIds.has(id)) hasNew = true;
+                    });
+
+                    if (hasNew) {
+                        playBellSound();
+                    }
+
+                    knownIds = newIds;
+
+                    // Update table
+                    var tbody = document.querySelector('#edivi__content table tbody');
+                    if (tbody) {
+                        tbody.innerHTML = rows.map(formatRow).join('');
+                    }
+                })
+                .catch(function(err) {
+                    console.warn('Polling error:', err);
+                });
+        }
+
+        // Poll every 15 seconds
+        setInterval(pollPreregistrations, 15000);
+    })();
+    </script>
 </body>
 
 </html>

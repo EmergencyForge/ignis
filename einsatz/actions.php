@@ -190,7 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$id]);
             $inc = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($inc && $inc['location'] && $inc['keyword'] && $inc['started_at'] && !empty($inc['leader_id'])) {
-                $upd = $pdo->prepare("UPDATE intra_fire_incidents SET finalized = 1, finalized_at = NOW(), finalized_by = ?, status = 'in_sichtung' WHERE id = ?");
+                $upd = $pdo->prepare("UPDATE intra_fire_incidents SET finalized = 1, finalized_at = NOW(), finalized_by = ?, status = 0 WHERE id = ?");
                 $upd->execute([$_SESSION['userid'] ?? null, $id]);
 
                 logAction(
@@ -233,15 +233,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Set QM status
         if ($action === 'set_status' && Permissions::check(['admin', 'fire.incident.qm'])) {
-            $status = $_POST['status'] ?? 'in_sichtung';
-            if (in_array($status, ['gesichtet', 'in_sichtung', 'negativ'], true)) {
+            $status = (int)($_POST['status'] ?? 0);
+            if (in_array($status, [0, 1, 2, 3, 4], true)) {
                 $upd = $pdo->prepare("UPDATE intra_fire_incidents SET status = ?, updated_by = ?, updated_at = NOW() WHERE id = ?");
                 $upd->execute([$status, $_SESSION['userid'] ?? null, $id]);
 
                 $statusLabels = [
-                    'in_sichtung' => 'In Sichtung',
-                    'gesichtet' => 'Gesichtet',
-                    'negativ' => 'Negativ'
+                    0 => 'Ungesehen',
+                    1 => 'In Prüfung',
+                    2 => 'Freigegeben',
+                    3 => 'Ungenügend',
+                    4 => 'Ausgeblendet'
                 ];
 
                 logAction(

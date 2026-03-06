@@ -49,15 +49,15 @@ if ($incident) {
                         <h6 class="card-title">QM-Status</h6>
                         <p class="card-text">
                             <?php
-                            $badge = 'bg-danger';
-                            $statusText = 'Ungesichtet';
-                            if ($incident['status'] === 'gesichtet') {
-                                $badge = 'bg-success';
-                                $statusText = 'Gesichtet';
-                            } elseif ($incident['status'] === 'negativ') {
-                                $badge = 'bg-danger';
-                                $statusText = 'Negativ';
-                            }
+                            $statusMap = [
+                                0 => ['bg-secondary', 'Ungesehen'],
+                                1 => ['bg-warning', 'In Prüfung'],
+                                2 => ['bg-success', 'Freigegeben'],
+                                3 => ['bg-danger', 'Ungenügend'],
+                                4 => ['bg-dark', 'Ausgeblendet'],
+                            ];
+                            $s = (int)$incident['status'];
+                            [$badge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
                             ?>
                             <span class="badge <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
                         </p>
