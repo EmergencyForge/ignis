@@ -119,6 +119,174 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         flex-shrink: 0;
     }
 
+    /* Search Button in User Row */
+    .sidebar-search-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        background: rgba(255,255,255,0.08);
+        color: var(--sidebar-icon-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        margin-left: auto;
+        font-size: 0.85rem;
+        transition: all 0.15s;
+    }
+    .sidebar-search-btn:hover {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+    }
+
+    /* Search Modal Overlay */
+    .global-search-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 1080;
+        display: none;
+        align-items: flex-start;
+        justify-content: center;
+        padding-top: 12vh;
+        backdrop-filter: blur(4px);
+    }
+    .global-search-overlay.show {
+        display: flex;
+    }
+    .global-search-modal {
+        width: 100%;
+        max-width: 560px;
+        background: var(--sidebar-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 14px;
+        box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+        overflow: hidden;
+        animation: gsm-in 0.15s ease;
+    }
+    @keyframes gsm-in {
+        from { opacity: 0; transform: scale(0.96) translateY(-10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .gsm-input-wrap {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        gap: 0.6rem;
+    }
+    .gsm-input-wrap i {
+        color: var(--sidebar-icon-color);
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+    .gsm-input-wrap input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 0.95rem;
+        outline: none;
+    }
+    .gsm-input-wrap input::placeholder {
+        color: var(--sidebar-icon-color);
+    }
+    .gsm-input-wrap .gsm-shortcut {
+        color: var(--sidebar-icon-color);
+        font-size: 0.65rem;
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 4px;
+        padding: 0.1rem 0.35rem;
+        flex-shrink: 0;
+        font-family: inherit;
+    }
+    .gsm-results {
+        max-height: 420px;
+        overflow-y: auto;
+        padding: 0.35rem 0;
+        scrollbar-width: thin;
+        scrollbar-color: var(--darkgray) transparent;
+    }
+    .gsm-results:empty {
+        display: none;
+    }
+    .gsr-group-title {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1rem 0.2rem;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-dimmed);
+        font-weight: 600;
+    }
+    .gsr-group-title:not(:first-child) {
+        border-top: 1px solid rgba(255,255,255,0.06);
+        margin-top: 0.25rem;
+        padding-top: 0.55rem;
+    }
+    .gsr-group-title i {
+        font-size: 0.7rem;
+    }
+    .gsr-item {
+        display: block;
+        padding: 0.45rem 1rem;
+        color: #ccc;
+        text-decoration: none;
+        transition: background 0.12s;
+        border-radius: 8px;
+        margin: 1px 0.4rem;
+    }
+    .gsr-item:hover,
+    .gsr-item.gsr-active {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+        text-decoration: none;
+    }
+    .gsr-item-title {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: #fff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .gsr-item-sub {
+        font-size: 0.75rem;
+        color: var(--sidebar-icon-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .gsr-empty,
+    .gsr-loading {
+        padding: 1.25rem 1rem;
+        text-align: center;
+        color: var(--sidebar-icon-color);
+        font-size: 0.85rem;
+    }
+    .gsm-footer {
+        border-top: 1px solid rgba(255,255,255,0.06);
+        padding: 0.45rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.7rem;
+        color: var(--sidebar-icon-color);
+    }
+    .gsm-footer kbd {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 3px;
+        padding: 0.05rem 0.3rem;
+        font-size: 0.65rem;
+        color: var(--sidebar-icon-color);
+        font-family: inherit;
+    }
+
     /* Navigation */
     .sidebar-nav {
         flex: 1;
@@ -374,6 +542,9 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <?= htmlspecialchars($_SESSION['role_name'] ?? 'Benutzer') ?>
             </span>
         </div>
+        <button class="sidebar-search-btn" id="globalSearchOpen" title="Suchen (Ctrl+K)">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
     </div>
 
     <!-- Navigation -->
@@ -531,6 +702,25 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 </div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+<!-- ===================== -->
+<!-- GLOBAL SEARCH MODAL   -->
+<!-- ===================== -->
+<div class="global-search-overlay" id="globalSearchOverlay">
+    <div class="global-search-modal">
+        <div class="gsm-input-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="globalSearchInput" placeholder="Suchen..." autocomplete="off" />
+            <span class="gsm-shortcut">ESC</span>
+        </div>
+        <div class="gsm-results" id="globalSearchResults"></div>
+        <div class="gsm-footer">
+            <span><kbd>&uarr;</kbd> <kbd>&darr;</kbd> Navigation</span>
+            <span><kbd>Enter</kbd> &Ouml;ffnen</span>
+            <span><kbd>Esc</kbd> Schlie&szlig;en</span>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function() {
         var currentPage = $("body").data("page");
@@ -662,6 +852,139 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         var tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
         tooltipTriggerList.forEach(function(el) {
             new bootstrap.Tooltip(el);
+        });
+
+        // ========================================
+        // GLOBAL SEARCH MODAL
+        // ========================================
+        var $overlay = $("#globalSearchOverlay");
+        var $searchInput = $("#globalSearchInput");
+        var $searchResults = $("#globalSearchResults");
+        var searchTimer = null;
+        var searchXhr = null;
+        var activeIndex = -1;
+
+        function openSearch() {
+            $overlay.addClass("show");
+            $searchInput.val("").focus();
+            $searchResults.empty();
+            activeIndex = -1;
+        }
+
+        function closeSearch() {
+            $overlay.removeClass("show");
+            if (searchXhr) searchXhr.abort();
+            clearTimeout(searchTimer);
+        }
+
+        // Open triggers
+        $("#globalSearchOpen").on("click", openSearch);
+
+        // Close on overlay background click
+        $overlay.on("click", function(e) {
+            if ($(e.target).is($overlay)) closeSearch();
+        });
+
+        // Search input handler
+        $searchInput.on("input", function() {
+            var q = $(this).val().trim();
+            clearTimeout(searchTimer);
+            if (searchXhr) searchXhr.abort();
+            activeIndex = -1;
+
+            if (q.length < 2) {
+                $searchResults.empty();
+                return;
+            }
+
+            $searchResults.html('<div class="gsr-loading"><i class="fa-solid fa-spinner fa-spin"></i> Suche...</div>');
+
+            searchTimer = setTimeout(function() {
+                searchXhr = $.getJSON("<?= BASE_PATH ?>assets/functions/system/global-search-api.php", { q: q })
+                    .done(function(data) {
+                        renderSearchResults(data.results || [], q);
+                    })
+                    .fail(function(jqXHR, status) {
+                        if (status !== "abort") {
+                            $searchResults.html('<div class="gsr-empty">Fehler bei der Suche</div>');
+                        }
+                    });
+            }, 300);
+        });
+
+        function renderSearchResults(groups, query) {
+            if (groups.length === 0) {
+                $searchResults.html('<div class="gsr-empty">Keine Ergebnisse f&uuml;r &bdquo;' + escapeHtml(query) + '&ldquo;</div>');
+                return;
+            }
+
+            var html = '';
+            groups.forEach(function(group) {
+                html += '<div class="gsr-group-title"><i class="fa-solid ' + group.icon + '"></i> ' + escapeHtml(group.module) + '</div>';
+                group.items.forEach(function(item) {
+                    var url = "<?= BASE_PATH ?>" + item.url;
+                    html += '<a href="' + escapeHtml(url) + '" class="gsr-item">';
+                    html += '<div class="gsr-item-title">' + highlightMatch(escapeHtml(item.title), query) + '</div>';
+                    if (item.subtitle) {
+                        html += '<div class="gsr-item-sub">' + highlightMatch(escapeHtml(item.subtitle), query) + '</div>';
+                    }
+                    html += '</a>';
+                });
+            });
+            $searchResults.html(html);
+            activeIndex = -1;
+        }
+
+        function highlightMatch(text, query) {
+            var words = query.split(/\s+/);
+            words.forEach(function(w) {
+                if (w.length < 2) return;
+                var escaped = w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                text = text.replace(new RegExp('(' + escaped + ')', 'gi'), '<mark>$1</mark>');
+            });
+            return text;
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        // Keyboard navigation inside modal
+        $searchInput.on("keydown", function(e) {
+            var $items = $searchResults.find(".gsr-item");
+            if (!$items.length) return;
+
+            if (e.key === "ArrowDown") {
+                e.preventDefault();
+                activeIndex = Math.min(activeIndex + 1, $items.length - 1);
+                $items.removeClass("gsr-active").eq(activeIndex).addClass("gsr-active");
+                $items.eq(activeIndex)[0].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                activeIndex = Math.max(activeIndex - 1, 0);
+                $items.removeClass("gsr-active").eq(activeIndex).addClass("gsr-active");
+                $items.eq(activeIndex)[0].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === "Enter" && activeIndex >= 0) {
+                e.preventDefault();
+                window.location.href = $items.eq(activeIndex).attr("href");
+            }
+        });
+
+        // Global keyboard shortcuts
+        $(document).on("keydown", function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+                e.preventDefault();
+                if ($overlay.hasClass("show")) {
+                    closeSearch();
+                } else {
+                    openSearch();
+                }
+            }
+            if (e.key === "Escape" && $overlay.hasClass("show")) {
+                closeSearch();
+            }
         });
     });
 </script>
