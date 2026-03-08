@@ -161,31 +161,31 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         $canDelete = ($row['createdby'] == 2);
                                         $protType = ($row['prot_by'] == 1) ? 'NA' : 'RD';
                                     ?>
-                                            <div class="edivi__einsatz-wrapper" data-enr="<?= htmlspecialchars($row['enr']) ?>" data-can-delete="<?= $canDelete ? '1' : '0' ?>">
-                                                <div class="edivi__einsatz-delete-bg">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </div>
-                                                <div class="edivi__einsatz-container edivi__einsatz-swipeable">
-                                                    <a href="protokoll/index.php?enr=<?= $row['enr'] ?>" class="edivi__einsatz-link" draggable="false">
-                                                        <div class="row edivi__einsatz edivi__einsatz-set">
-                                                            <div class="col-2 edivi__einsatz-type"><span><?= htmlspecialchars($label) ?></span></div>
-                                                            <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><br><?= $row['edatum'] ?> <?= $row['ezeit'] ?> Uhr</div>
-                                                            <div class="col edivi__einsatz-name"><span>Patient:</span><br><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></div>
-                                                            <div class="col edivi__einsatz-freigeber"><span>Protokollant:</span><br><?= $row['pfname'] ?></div>
-                                                        </div>
-                                                    </a>
-                                                </div>
+                                        <div class="edivi__einsatz-wrapper" data-enr="<?= htmlspecialchars($row['enr']) ?>" data-can-delete="<?= $canDelete ? '1' : '0' ?>">
+                                            <div class="edivi__einsatz-delete-bg">
+                                                <i class="fa-solid fa-trash"></i>
                                             </div>
+                                            <div class="edivi__einsatz-container edivi__einsatz-swipeable">
+                                                <a href="protokoll/index.php?enr=<?= $row['enr'] ?>" class="edivi__einsatz-link" draggable="false">
+                                                    <div class="row edivi__einsatz edivi__einsatz-set">
+                                                        <div class="col-2 edivi__einsatz-type"><span><?= htmlspecialchars($label) ?></span></div>
+                                                        <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><br><?= $row['edatum'] ?> <?= $row['ezeit'] ?> Uhr</div>
+                                                        <div class="col edivi__einsatz-name"><span>Patient:</span><br><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></div>
+                                                        <div class="col edivi__einsatz-freigeber"><span>Protokollant:</span><br><?= $row['pfname'] ?></div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
                                     <?php
                                     }
                                     ?>
                                 </div>
                             </div>
-                            <div class="row ps-3">
+                            <!-- <div class="row ps-3">
                                 <div class="col p-0" style="margin: 10px 0;">
                                     <button type="submit" class="edivi__nidabutton w-100" name="delete_all">alle löschen</button>
                                 </div>
-                            </div>
+                            </div> -->
                         </div>
                         <div class="col">
                             <?php
@@ -280,6 +280,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             overflow: hidden;
             margin-bottom: 2px;
         }
+
         .edivi__einsatz-delete-bg {
             position: absolute;
             right: 0;
@@ -294,6 +295,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             display: grid;
             place-items: center;
         }
+
         .edivi__einsatz-swipeable {
             position: relative;
             transition: transform 0.2s ease;
@@ -303,118 +305,159 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             -webkit-user-select: none;
             width: 100%;
         }
+
         .edivi__einsatz-swipeable a {
             -webkit-user-drag: none;
             user-drag: none;
         }
+
         .edivi__einsatz-wrapper.swiped .edivi__einsatz-swipeable {
             transform: translateX(-80px);
         }
     </style>
     <script>
-    (function() {
-        const wrappers = document.querySelectorAll('.edivi__einsatz-wrapper');
-        let currentlyOpen = null;
-        let justSwiped = false; // Verhindert, dass Click-Event den Swipe rückgängig macht
+        (function() {
+            const wrappers = document.querySelectorAll('.edivi__einsatz-wrapper');
+            let currentlyOpen = null;
+            let justSwiped = false; // Verhindert, dass Click-Event den Swipe rückgängig macht
 
-        wrappers.forEach(wrapper => {
-            const swipeable = wrapper.querySelector('.edivi__einsatz-swipeable');
-            const deleteBtn = wrapper.querySelector('.edivi__einsatz-delete-bg');
-            const link = wrapper.querySelector('.edivi__einsatz-link');
-            const enr = wrapper.dataset.enr;
-            const canDelete = wrapper.dataset.canDelete === '1';
+            wrappers.forEach(wrapper => {
+                const swipeable = wrapper.querySelector('.edivi__einsatz-swipeable');
+                const deleteBtn = wrapper.querySelector('.edivi__einsatz-delete-bg');
+                const link = wrapper.querySelector('.edivi__einsatz-link');
+                const enr = wrapper.dataset.enr;
+                const canDelete = wrapper.dataset.canDelete === '1';
 
-            let startX = 0;
-            let currentX = 0;
-            let hasMoved = false;
+                let startX = 0;
+                let currentX = 0;
+                let hasMoved = false;
 
-            // Verhindere natives Drag-Verhalten auf dem Link
-            link.addEventListener('dragstart', (e) => e.preventDefault());
+                // Verhindere natives Drag-Verhalten auf dem Link
+                link.addEventListener('dragstart', (e) => e.preventDefault());
 
-            // Link-Klick abfangen und nur bei echtem Klick (ohne Swipe) navigieren
-            link.addEventListener('click', (e) => {
-                if (hasMoved || wrapper.classList.contains('swiped')) {
+                // Link-Klick abfangen und nur bei echtem Klick (ohne Swipe) navigieren
+                link.addEventListener('click', (e) => {
+                    if (hasMoved || wrapper.classList.contains('swiped')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                });
+
+                // Touch events
+                swipeable.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                    currentX = startX;
+                    hasMoved = false;
+                    swipeable.style.transition = 'none';
+                }, {
+                    passive: true
+                });
+
+                swipeable.addEventListener('touchmove', (e) => {
+                    currentX = e.touches[0].clientX;
+                    const diff = startX - currentX;
+
+                    if (Math.abs(diff) > 5) {
+                        hasMoved = true;
+                    }
+
+                    if (diff > 0 && diff <= 80) {
+                        swipeable.style.transform = `translateX(-${diff}px)`;
+                    }
+                }, {
+                    passive: true
+                });
+
+                swipeable.addEventListener('touchend', () => {
+                    swipeable.style.transition = 'transform 0.2s ease';
+                    const diff = startX - currentX;
+
+                    if (diff > 40) {
+                        // Öffnen
+                        if (currentlyOpen && currentlyOpen !== wrapper) {
+                            currentlyOpen.classList.remove('swiped');
+                            currentlyOpen.querySelector('.edivi__einsatz-swipeable').style.transform = '';
+                        }
+                        wrapper.classList.add('swiped');
+                        swipeable.style.transform = 'translateX(-80px)';
+                        currentlyOpen = wrapper;
+                        justSwiped = true;
+                        setTimeout(() => {
+                            justSwiped = false;
+                        }, 300);
+                    } else {
+                        // Schließen
+                        wrapper.classList.remove('swiped');
+                        swipeable.style.transform = '';
+                        if (currentlyOpen === wrapper) {
+                            currentlyOpen = null;
+                        }
+                    }
+
+                    setTimeout(() => {
+                        hasMoved = false;
+                    }, 100);
+                });
+
+                // Mouse events für Desktop
+                let mouseDown = false;
+
+                swipeable.addEventListener('mousedown', (e) => {
+                    startX = e.clientX;
+                    currentX = startX;
+                    mouseDown = true;
+                    hasMoved = false;
+                    swipeable.style.transition = 'none';
                     e.preventDefault();
-                    e.stopPropagation();
-                }
-            });
+                });
 
-            // Touch events
-            swipeable.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                currentX = startX;
-                hasMoved = false;
-                swipeable.style.transition = 'none';
-            }, { passive: true });
+                swipeable.addEventListener('mousemove', (e) => {
+                    if (!mouseDown) return;
+                    currentX = e.clientX;
+                    const diff = startX - currentX;
 
-            swipeable.addEventListener('touchmove', (e) => {
-                currentX = e.touches[0].clientX;
-                const diff = startX - currentX;
-
-                if (Math.abs(diff) > 5) {
-                    hasMoved = true;
-                }
-
-                if (diff > 0 && diff <= 80) {
-                    swipeable.style.transform = `translateX(-${diff}px)`;
-                }
-            }, { passive: true });
-
-            swipeable.addEventListener('touchend', () => {
-                swipeable.style.transition = 'transform 0.2s ease';
-                const diff = startX - currentX;
-
-                if (diff > 40) {
-                    // Öffnen
-                    if (currentlyOpen && currentlyOpen !== wrapper) {
-                        currentlyOpen.classList.remove('swiped');
-                        currentlyOpen.querySelector('.edivi__einsatz-swipeable').style.transform = '';
+                    if (Math.abs(diff) > 5) {
+                        hasMoved = true;
                     }
-                    wrapper.classList.add('swiped');
-                    swipeable.style.transform = 'translateX(-80px)';
-                    currentlyOpen = wrapper;
-                    justSwiped = true;
-                    setTimeout(() => { justSwiped = false; }, 300);
-                } else {
-                    // Schließen
-                    wrapper.classList.remove('swiped');
-                    swipeable.style.transform = '';
-                    if (currentlyOpen === wrapper) {
-                        currentlyOpen = null;
+
+                    if (diff > 0 && diff <= 80) {
+                        swipeable.style.transform = `translateX(-${diff}px)`;
                     }
-                }
+                });
 
-                setTimeout(() => { hasMoved = false; }, 100);
-            });
+                swipeable.addEventListener('mouseleave', () => {
+                    if (mouseDown) {
+                        mouseDown = false;
+                        swipeable.style.transition = 'transform 0.2s ease';
+                        const diff = startX - currentX;
 
-            // Mouse events für Desktop
-            let mouseDown = false;
+                        if (diff > 40) {
+                            if (currentlyOpen && currentlyOpen !== wrapper) {
+                                currentlyOpen.classList.remove('swiped');
+                                currentlyOpen.querySelector('.edivi__einsatz-swipeable').style.transform = '';
+                            }
+                            wrapper.classList.add('swiped');
+                            swipeable.style.transform = 'translateX(-80px)';
+                            currentlyOpen = wrapper;
+                            justSwiped = true;
+                            setTimeout(() => {
+                                justSwiped = false;
+                            }, 300);
+                        } else {
+                            wrapper.classList.remove('swiped');
+                            swipeable.style.transform = '';
+                            if (currentlyOpen === wrapper) {
+                                currentlyOpen = null;
+                            }
+                        }
+                        setTimeout(() => {
+                            hasMoved = false;
+                        }, 100);
+                    }
+                });
 
-            swipeable.addEventListener('mousedown', (e) => {
-                startX = e.clientX;
-                currentX = startX;
-                mouseDown = true;
-                hasMoved = false;
-                swipeable.style.transition = 'none';
-                e.preventDefault();
-            });
-
-            swipeable.addEventListener('mousemove', (e) => {
-                if (!mouseDown) return;
-                currentX = e.clientX;
-                const diff = startX - currentX;
-
-                if (Math.abs(diff) > 5) {
-                    hasMoved = true;
-                }
-
-                if (diff > 0 && diff <= 80) {
-                    swipeable.style.transform = `translateX(-${diff}px)`;
-                }
-            });
-
-            swipeable.addEventListener('mouseleave', () => {
-                if (mouseDown) {
+                swipeable.addEventListener('mouseup', () => {
+                    if (!mouseDown) return;
                     mouseDown = false;
                     swipeable.style.transition = 'transform 0.2s ease';
                     const diff = startX - currentX;
@@ -428,7 +471,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         swipeable.style.transform = 'translateX(-80px)';
                         currentlyOpen = wrapper;
                         justSwiped = true;
-                        setTimeout(() => { justSwiped = false; }, 300);
+                        setTimeout(() => {
+                            justSwiped = false;
+                        }, 300);
                     } else {
                         wrapper.classList.remove('swiped');
                         swipeable.style.transform = '';
@@ -436,85 +481,72 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             currentlyOpen = null;
                         }
                     }
-                    setTimeout(() => { hasMoved = false; }, 100);
-                }
-            });
-
-            swipeable.addEventListener('mouseup', () => {
-                if (!mouseDown) return;
-                mouseDown = false;
-                swipeable.style.transition = 'transform 0.2s ease';
-                const diff = startX - currentX;
-
-                if (diff > 40) {
-                    if (currentlyOpen && currentlyOpen !== wrapper) {
-                        currentlyOpen.classList.remove('swiped');
-                        currentlyOpen.querySelector('.edivi__einsatz-swipeable').style.transform = '';
-                    }
-                    wrapper.classList.add('swiped');
-                    swipeable.style.transform = 'translateX(-80px)';
-                    currentlyOpen = wrapper;
-                    justSwiped = true;
-                    setTimeout(() => { justSwiped = false; }, 300);
-                } else {
-                    wrapper.classList.remove('swiped');
-                    swipeable.style.transform = '';
-                    if (currentlyOpen === wrapper) {
-                        currentlyOpen = null;
-                    }
-                }
-                setTimeout(() => { hasMoved = false; }, 100);
-            });
-
-            // Delete button click
-            deleteBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                if (!canDelete) {
-                    await showAlert('Protokolle der Leitstelle können nicht gelöscht werden.', {
-                        title: 'Nicht erlaubt',
-                        type: 'error'
-                    });
-                    wrapper.classList.remove('swiped');
-                    swipeable.style.transform = '';
-                    currentlyOpen = null;
-                    return;
-                }
-
-                const confirmed = await showConfirm('Möchten Sie dieses Protokoll wirklich löschen?', {
-                    title: 'Protokoll löschen',
-                    confirmText: 'Löschen',
-                    cancelText: 'Abbrechen',
-                    danger: true
+                    setTimeout(() => {
+                        hasMoved = false;
+                    }, 100);
                 });
 
-                if (!confirmed) {
-                    wrapper.classList.remove('swiped');
-                    swipeable.style.transform = '';
-                    currentlyOpen = null;
-                    return;
-                }
+                // Delete button click
+                deleteBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                try {
-                    const response = await fetch('<?= BASE_PATH ?>api/enotf-delete-protocol.php', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ enr: enr })
+                    if (!canDelete) {
+                        await showAlert('Protokolle der Leitstelle können nicht gelöscht werden.', {
+                            title: 'Nicht erlaubt',
+                            type: 'error'
+                        });
+                        wrapper.classList.remove('swiped');
+                        swipeable.style.transform = '';
+                        currentlyOpen = null;
+                        return;
+                    }
+
+                    const confirmed = await showConfirm('Möchten Sie dieses Protokoll wirklich löschen?', {
+                        title: 'Protokoll löschen',
+                        confirmText: 'Löschen',
+                        cancelText: 'Abbrechen',
+                        danger: true
                     });
 
-                    const data = await response.json();
+                    if (!confirmed) {
+                        wrapper.classList.remove('swiped');
+                        swipeable.style.transform = '';
+                        currentlyOpen = null;
+                        return;
+                    }
 
-                    if (data.success) {
-                        wrapper.style.transition = 'opacity 0.3s ease, height 0.3s ease';
-                        wrapper.style.opacity = '0';
-                        wrapper.style.height = '0';
-                        wrapper.style.overflow = 'hidden';
-                        setTimeout(() => wrapper.remove(), 300);
-                    } else {
-                        await showAlert(data.message || 'Fehler beim Löschen des Protokolls.', {
+                    try {
+                        const response = await fetch('<?= BASE_PATH ?>api/enotf-delete-protocol.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                enr: enr
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            wrapper.style.transition = 'opacity 0.3s ease, height 0.3s ease';
+                            wrapper.style.opacity = '0';
+                            wrapper.style.height = '0';
+                            wrapper.style.overflow = 'hidden';
+                            setTimeout(() => wrapper.remove(), 300);
+                        } else {
+                            await showAlert(data.message || 'Fehler beim Löschen des Protokolls.', {
+                                title: 'Fehler',
+                                type: 'error'
+                            });
+                            wrapper.classList.remove('swiped');
+                            swipeable.style.transform = '';
+                            currentlyOpen = null;
+                        }
+                    } catch (error) {
+                        console.error('Fehler:', error);
+                        await showAlert('Fehler beim Löschen des Protokolls.', {
                             title: 'Fehler',
                             type: 'error'
                         });
@@ -522,29 +554,19 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         swipeable.style.transform = '';
                         currentlyOpen = null;
                     }
-                } catch (error) {
-                    console.error('Fehler:', error);
-                    await showAlert('Fehler beim Löschen des Protokolls.', {
-                        title: 'Fehler',
-                        type: 'error'
-                    });
-                    wrapper.classList.remove('swiped');
-                    swipeable.style.transform = '';
+                });
+            });
+
+            // Schließen bei Klick außerhalb
+            document.addEventListener('click', (e) => {
+                if (justSwiped) return; // Ignoriere Klicks direkt nach einem Swipe
+                if (currentlyOpen && !currentlyOpen.contains(e.target)) {
+                    currentlyOpen.classList.remove('swiped');
+                    currentlyOpen.querySelector('.edivi__einsatz-swipeable').style.transform = '';
                     currentlyOpen = null;
                 }
             });
-        });
-
-        // Schließen bei Klick außerhalb
-        document.addEventListener('click', (e) => {
-            if (justSwiped) return; // Ignoriere Klicks direkt nach einem Swipe
-            if (currentlyOpen && !currentlyOpen.contains(e.target)) {
-                currentlyOpen.classList.remove('swiped');
-                currentlyOpen.querySelector('.edivi__einsatz-swipeable').style.transform = '';
-                currentlyOpen = null;
-            }
-        });
-    })();
+        })();
     </script>
 </body>
 

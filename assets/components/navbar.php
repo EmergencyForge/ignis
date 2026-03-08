@@ -188,7 +188,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         transition: max-height 0.3s ease;
     }
     .sidebar-submenu.open {
-        max-height: 600px;
+        max-height: 1000px;
     }
 
     .sidebar-section-title {
@@ -488,6 +488,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                     <a href="<?= BASE_PATH ?>settings/system/config.php" class="sidebar-sublink"><i class="fa-solid fa-gear"></i> Konfiguration</a>
                     <a href="<?= BASE_PATH ?>settings/system/index.php" class="sidebar-sublink"><i class="fa-solid fa-download"></i> Updater</a>
                     <a href="<?= BASE_PATH ?>settings/system/telemetry.php" class="sidebar-sublink"><i class="fa-solid fa-wifi"></i> Telemetrie</a>
+                    <a href="<?= BASE_PATH ?>settings/system/performance.php" class="sidebar-sublink"><i class="fa-solid fa-gauge-high"></i> Performance</a>
                 <?php endif; ?>
             </div>
         <?php endif; ?>
@@ -630,8 +631,19 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         $(".sidebar-toggle").on("click", function(e) {
             e.preventDefault();
             $(this).toggleClass("open");
-            $(this).next(".sidebar-submenu").toggleClass("open");
+            var $submenu = $(this).next(".sidebar-submenu");
+            $submenu.toggleClass("open");
             saveSidebarState();
+
+            // Scroll last item of opened submenu into view
+            if ($submenu.hasClass("open")) {
+                setTimeout(function() {
+                    var lastItem = $submenu.find(".sidebar-sublink:last, .sidebar-section-title:last").last()[0];
+                    if (lastItem) {
+                        lastItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }, 350);
+            }
         });
 
         // Mobile sidebar toggle
