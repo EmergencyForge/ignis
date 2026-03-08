@@ -62,6 +62,20 @@ $tagStmt = $pdo->prepare("SELECT t.id, t.name, t.color FROM intra_kb_entry_tags 
 $tagStmt->execute(['id' => $id]);
 $entryTags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
 
+// Lade verknüpfte Einträge (bidirektional)
+$relStmt = $pdo->prepare("
+    SELECT kb.id, kb.title, kb.subtitle, kb.type, kb.competency_level,
+           kc.name as category_name, kc.icon as category_icon
+    FROM intra_kb_entry_relations r
+    JOIN intra_kb_entries kb ON kb.id = CASE WHEN r.entry_id = :id1 THEN r.related_entry_id ELSE r.entry_id END
+    LEFT JOIN intra_kb_categories kc ON kb.category_id = kc.id
+    WHERE (r.entry_id = :id2 OR r.related_entry_id = :id3)
+    AND kb.is_archived = 0
+    ORDER BY kb.title ASC
+");
+$relStmt->execute(['id1' => $id, 'id2' => $id, 'id3' => $id]);
+$relatedEntries = $relStmt->fetchAll(PDO::FETCH_ASSOC);
+
 $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
 ?>
 
@@ -554,6 +568,41 @@ $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
                                     <?= KBHelper::sanitizeContent($entry['content']) ?>
                                 </div>
                             </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($relatedEntries)): ?>
+                        <!-- Verknüpfte Einträge -->
+                        <div class="mt-4">
+                            <h5><i class="fa-solid fa-link"></i> Verknüpfte Einträge</h5>
+                            <div class="row row-cols-1 row-cols-md-2 g-3 mt-1">
+                                <?php foreach ($relatedEntries as $rel):
+                                    $relComp = KBHelper::getCompetencyInfo($rel['competency_level']);
+                                ?>
+                                    <div class="col">
+                                        <a href="<?= BASE_PATH ?>wissensdb/view.php?id=<?= $rel['id'] ?>" class="text-decoration-none">
+                                            <div class="d-flex align-items-center p-3 rounded" style="background-color: rgba(255,255,255,0.05); border: 1px solid #444; transition: background-color 0.2s;"
+                                                 onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'" onmouseout="this.style.backgroundColor='rgba(255,255,255,0.05)'">
+                                                <div class="me-3">
+                                                    <i class="fa-solid fa-<?= $rel['type'] === 'medication' ? 'pills' : ($rel['type'] === 'measure' ? 'hand-holding-medical' : 'file-lines') ?> fa-lg" style="color: <?= KBHelper::getTypeColor($rel['type']) ?>;"></i>
+                                                </div>
+                                                <div class="flex-grow-1 min-width-0">
+                                                    <div class="fw-bold text-white"><?= htmlspecialchars($rel['title']) ?></div>
+                                                    <?php if (!empty($rel['subtitle'])): ?>
+                                                        <small class="text-muted"><?= htmlspecialchars(mb_strimwidth($rel['subtitle'], 0, 80, '...')) ?></small>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <div class="ms-2 d-flex flex-column gap-1 align-items-end">
+                                                    <span class="badge" style="background-color: <?= KBHelper::getTypeColor($rel['type']) ?>; font-size: 0.65rem;"><?= KBHelper::getTypeLabel($rel['type']) ?></span>
+                                                    <?php if ($relComp): ?>
+                                                        <span class="badge" style="background-color: <?= $relComp['bg'] ?>; color: <?= $relComp['text'] ?? '#fff' ?>; font-size: 0.65rem;"><?= $relComp['label'] ?></span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
                         <?php endif; ?>
 
                         <!-- Edit Info with Action Buttons -->

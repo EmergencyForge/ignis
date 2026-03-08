@@ -105,6 +105,100 @@ class KBHelper
     }
 
     /**
+     * Create a text snippet from HTML content around the first match of a search query
+     *
+     * @param string|null $html The HTML content
+     * @param string $query The search query
+     * @param int $snippetLength Max character length of the snippet
+     * @return string|null Plain text snippet or null if no match found
+     */
+    public static function createSearchSnippet(?string $html, string $query, int $snippetLength = 200): ?string
+    {
+        if ($html === null || $html === '' || $query === '') {
+            return null;
+        }
+
+        // Strip HTML tags to get plain text
+        $text = strip_tags($html);
+        // Normalize whitespace
+        $text = preg_replace('/\s+/', ' ', trim($text));
+
+        if ($text === '') {
+            return null;
+        }
+
+        // Find position of first match (case-insensitive)
+        $words = preg_split('/\s+/', $query);
+        $pos = false;
+        foreach ($words as $word) {
+            if (mb_strlen($word) < 2) {
+                continue;
+            }
+            $pos = mb_stripos($text, $word);
+            if ($pos !== false) {
+                break;
+            }
+        }
+
+        if ($pos === false) {
+            // No match in content, return beginning
+            if (mb_strlen($text) <= $snippetLength) {
+                return $text;
+            }
+            return mb_substr($text, 0, $snippetLength) . '...';
+        }
+
+        // Calculate window around the match
+        $halfLen = (int)($snippetLength / 2);
+        $start = max(0, $pos - $halfLen);
+        $end = min(mb_strlen($text), $start + $snippetLength);
+
+        // Adjust start if we're near the end
+        if ($end - $start < $snippetLength && $start > 0) {
+            $start = max(0, $end - $snippetLength);
+        }
+
+        $snippet = mb_substr($text, $start, $end - $start);
+
+        // Add ellipsis
+        if ($start > 0) {
+            $snippet = '...' . $snippet;
+        }
+        if ($end < mb_strlen($text)) {
+            $snippet .= '...';
+        }
+
+        return $snippet;
+    }
+
+    /**
+     * Highlight search terms in text with <mark> tags
+     *
+     * @param string $text The text to highlight in
+     * @param string $query The search query (space-separated terms)
+     * @return string Text with highlighted matches
+     */
+    public static function highlightSearchTerms(string $text, string $query): string
+    {
+        if ($query === '') {
+            return $text;
+        }
+
+        $words = preg_split('/\s+/', $query);
+        foreach ($words as $word) {
+            $word = trim($word);
+            if (mb_strlen($word) < 2) {
+                continue;
+            }
+            // Escape regex special chars
+            $escaped = preg_quote($word, '/');
+            $text = preg_replace('/(' . $escaped . ')/iu', '<mark>$1</mark>', $text);
+        }
+
+        return $text;
+    }
+
+    /**
      * Sanitize HTML content for safe output
      * Allows only safe HTML tags used by CKEditor
      * 

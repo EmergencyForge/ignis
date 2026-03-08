@@ -57,7 +57,19 @@ if ($editId) {
     $tagStmt2 = $pdo->prepare("SELECT tag_id FROM intra_kb_entry_tags WHERE entry_id = :id");
     $tagStmt2->execute(['id' => $editId]);
     $entryTags = $tagStmt2->fetchAll(PDO::FETCH_COLUMN);
+
+    // Lade verknüpfte Einträge
+    $relStmt = $pdo->prepare("
+        SELECT kb.id, kb.title, kb.type
+        FROM intra_kb_entry_relations r
+        JOIN intra_kb_entries kb ON kb.id = CASE WHEN r.entry_id = :id1 THEN r.related_entry_id ELSE r.entry_id END
+        WHERE (r.entry_id = :id2 OR r.related_entry_id = :id3)
+        ORDER BY kb.title ASC
+    ");
+    $relStmt->execute(['id1' => $editId, 'id2' => $editId, 'id3' => $editId]);
+    $entryRelations = $relStmt->fetchAll(PDO::FETCH_ASSOC);
 }
+$entryRelations = $entryRelations ?? [];
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -68,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $content = $_POST['content'] ?? '';
     $category_id = !empty($_POST['category_id']) ? (int)$_POST['category_id'] : null;
     $selectedTags = $_POST['tags'] ?? [];
+    $selectedRelations = $_POST['relations'] ?? [];
     
     // Medication fields
     $med_wirkstoff = trim($_POST['med_wirkstoff'] ?? '');
@@ -168,6 +181,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                 }
 
+                // Verknüpfungen aktualisieren
+                $pdo->prepare("DELETE FROM intra_kb_entry_relations WHERE entry_id = :id1 OR related_entry_id = :id2")->execute(['id1' => $editId, 'id2' => $editId]);
+                if (!empty($selectedRelations)) {
+                    $relInsert = $pdo->prepare("INSERT IGNORE INTO intra_kb_entry_relations (entry_id, related_entry_id) VALUES (:eid, :rid)");
+                    foreach ($selectedRelations as $relId) {
+                        $relId = (int)$relId;
+                        if ($relId === $editId || $relId <= 0) continue;
+                        // Sicherstellen: entry_id < related_entry_id (CHECK constraint)
+                        $a = min($editId, $relId);
+                        $b = max($editId, $relId);
+                        $relInsert->execute(['eid' => $a, 'rid' => $b]);
+                    }
+                }
+
                 Flash::success('Eintrag erfolgreich aktualisiert');
                 header("Location: " . BASE_PATH . "wissensdb/view.php?id=" . $editId);
                 exit();
@@ -221,6 +248,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $tagInsert = $pdo->prepare("INSERT IGNORE INTO intra_kb_entry_tags (entry_id, tag_id) VALUES (:entry_id, :tag_id)");
                     foreach ($selectedTags as $tagId) {
                         $tagInsert->execute(['entry_id' => $newId, 'tag_id' => (int)$tagId]);
+                    }
+                }
+
+                // Verknüpfungen speichern
+                if (!empty($selectedRelations)) {
+                    $relInsert = $pdo->prepare("INSERT IGNORE INTO intra_kb_entry_relations (entry_id, related_entry_id) VALUES (:eid, :rid)");
+                    foreach ($selectedRelations as $relId) {
+                        $relId = (int)$relId;
+                        if ($relId <= 0) continue;
+                        $a = min((int)$newId, $relId);
+                        $b = max((int)$newId, $relId);
+                        $relInsert->execute(['eid' => $a, 'rid' => $b]);
                     }
                 }
 
@@ -634,6 +673,28 @@ $formData = $entry ?? [
                             <textarea name="content" id="content" class="form-control" rows="2"><?= htmlspecialchars($formData['content']) ?></textarea>
                         </div>
 
+                        <!-- Verknüpfte Einträge -->
+                        <div class="intra__tile p-4 mb-4">
+                            <h4 class="mb-3"><i class="fa-solid fa-link"></i> Verknüpfte Einträge</h4>
+                            <p class="text-muted small">Querverweise zu zusammenhängenden Einträgen hinzufügen</p>
+
+                            <div class="position-relative mb-3">
+                                <input type="text" class="form-control" id="relationSearch" placeholder="Eintrag suchen..." autocomplete="off">
+                                <div id="relationSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; display: none; max-height: 250px; overflow-y: auto;"></div>
+                            </div>
+
+                            <div id="relationsList" class="d-flex flex-wrap gap-2">
+                                <?php foreach ($entryRelations as $rel): ?>
+                                    <div class="badge bg-secondary d-flex align-items-center gap-2 p-2 relation-item" data-id="<?= $rel['id'] ?>">
+                                        <input type="hidden" name="relations[]" value="<?= $rel['id'] ?>">
+                                        <i class="fa-solid fa-<?= $rel['type'] === 'medication' ? 'pills' : ($rel['type'] === 'measure' ? 'hand-holding-medical' : 'file-lines') ?>"></i>
+                                        <span><?= htmlspecialchars($rel['title']) ?></span>
+                                        <button type="button" class="btn-close btn-close-white" style="font-size: 0.6rem;" onclick="this.parentElement.remove()"></button>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
                         <?php if ($isEdit): ?>
                         <!-- Admin Options (only when editing) -->
                         <div class="intra__tile p-4 mb-4">
@@ -832,6 +893,74 @@ $formData = $entry ?? [
 
         typeSelect.addEventListener('change', updateTypeFields);
         updateTypeFields(); // Initial state
+
+        // Verknüpfte Einträge - Suchlogik
+        const relSearch = document.getElementById('relationSearch');
+        const relSuggestions = document.getElementById('relationSuggestions');
+        const relList = document.getElementById('relationsList');
+        let relTimer;
+
+        relSearch.addEventListener('input', function() {
+            clearTimeout(relTimer);
+            const q = this.value.trim();
+            if (q.length < 2) { relSuggestions.style.display = 'none'; return; }
+
+            relTimer = setTimeout(function() {
+                fetch('<?= BASE_PATH ?>wissensdb/search-api.php?q=' + encodeURIComponent(q))
+                    .then(r => r.json())
+                    .then(data => {
+                        if (!data.results || data.results.length === 0) {
+                            relSuggestions.style.display = 'none';
+                            return;
+                        }
+                        // IDs der bereits verknüpften Einträge
+                        const existing = Array.from(relList.querySelectorAll('.relation-item')).map(el => el.dataset.id);
+                        <?php if ($isEdit): ?>
+                        const currentId = '<?= $editId ?>';
+                        <?php else: ?>
+                        const currentId = null;
+                        <?php endif; ?>
+
+                        let html = '';
+                        data.results.forEach(function(item) {
+                            if (existing.includes(String(item.id)) || String(item.id) === currentId) return;
+                            const icon = item.type === 'medication' ? 'pills' : (item.type === 'measure' ? 'hand-holding-medical' : 'file-lines');
+                            html += '<button type="button" class="list-group-item list-group-item-action d-flex align-items-center gap-2" onclick="addRelation(' + item.id + ', \'' + icon + '\', this)" data-title="' + item.title.replace(/"/g, '&quot;') + '">';
+                            html += '<i class="fa-solid fa-' + icon + '" style="color:' + item.type_color + '"></i>';
+                            html += '<span>' + item.title + '</span>';
+                            html += '<span class="badge ms-auto" style="background-color:' + item.type_color + ';font-size:0.65rem;">' + item.type_label + '</span>';
+                            html += '</button>';
+                        });
+
+                        if (html === '') {
+                            relSuggestions.style.display = 'none';
+                        } else {
+                            relSuggestions.innerHTML = html;
+                            relSuggestions.style.display = 'block';
+                        }
+                    });
+            }, 300);
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!relSearch.contains(e.target) && !relSuggestions.contains(e.target)) {
+                relSuggestions.style.display = 'none';
+            }
+        });
+
+        window.addRelation = function(id, icon, btn) {
+            const title = btn.dataset.title;
+            const badge = document.createElement('div');
+            badge.className = 'badge bg-secondary d-flex align-items-center gap-2 p-2 relation-item';
+            badge.dataset.id = id;
+            badge.innerHTML = '<input type="hidden" name="relations[]" value="' + id + '">'
+                + '<i class="fa-solid fa-' + icon + '"></i>'
+                + '<span>' + title + '</span>'
+                + '<button type="button" class="btn-close btn-close-white" style="font-size:0.6rem;" onclick="this.parentElement.remove()"></button>';
+            relList.appendChild(badge);
+            relSearch.value = '';
+            relSuggestions.style.display = 'none';
+        };
     </script>
 </body>
 

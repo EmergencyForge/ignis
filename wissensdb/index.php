@@ -78,11 +78,39 @@ if ($tagFilter > 0) {
 }
 
 if (!empty($searchQuery)) {
-    $sql .= " AND (kb.title LIKE :search1 OR kb.subtitle LIKE :search2 OR kb.content LIKE :search3)";
-    $searchParam = '%' . $searchQuery . '%';
-    $params['search1'] = $searchParam;
-    $params['search2'] = $searchParam;
-    $params['search3'] = $searchParam;
+    // FULLTEXT-Suche mit BOOLEAN MODE für partielle Treffer
+    $ftQuery = '';
+    $words = preg_split('/\s+/', trim($searchQuery));
+    foreach ($words as $w) {
+        $w = trim($w);
+        if (mb_strlen($w) >= 2) {
+            // Sonderzeichen für BOOLEAN MODE escapen
+            $w = preg_replace('/[+\-><()~*"@]+/', '', $w);
+            if ($w !== '') {
+                $ftQuery .= '+' . $w . '* ';
+            }
+        }
+    }
+    $ftQuery = trim($ftQuery);
+
+    if ($ftQuery !== '') {
+        $sql .= " AND (
+            MATCH(kb.title, kb.subtitle, kb.content) AGAINST(:ft_main IN BOOLEAN MODE)
+            OR MATCH(kb.med_wirkstoff, kb.med_wirkstoffgruppe, kb.med_indikationen, kb.med_kontraindikationen, kb.med_dosierung, kb.med_besonderheiten) AGAINST(:ft_med IN BOOLEAN MODE)
+            OR MATCH(kb.mass_indikationen, kb.mass_kontraindikationen, kb.mass_durchfuehrung, kb.mass_risiken) AGAINST(:ft_mass IN BOOLEAN MODE)
+            OR kb.id IN (SELECT et.entry_id FROM intra_kb_entry_tags et JOIN intra_kb_tags t ON et.tag_id = t.id WHERE t.name LIKE :ft_tag)
+        )";
+        $params['ft_main'] = $ftQuery;
+        $params['ft_med'] = $ftQuery;
+        $params['ft_mass'] = $ftQuery;
+        $params['ft_tag'] = '%' . $searchQuery . '%';
+    } else {
+        // Fallback für sehr kurze Suchbegriffe (< 2 Zeichen pro Wort)
+        $sql .= " AND (kb.title LIKE :search1 OR kb.subtitle LIKE :search2)";
+        $searchParam = '%' . $searchQuery . '%';
+        $params['search1'] = $searchParam;
+        $params['search2'] = $searchParam;
+    }
 }
 
 // Order by pinned first, then by update/creation date
@@ -277,6 +305,12 @@ if (!empty($entryIds)) {
             padding: 2px 6px;
             border-radius: 3px;
         }
+        mark {
+            background-color: rgba(255, 213, 79, 0.4);
+            color: inherit;
+            padding: 1px 2px;
+            border-radius: 2px;
+        }
     </style>
 </head>
 
@@ -427,11 +461,27 @@ if (!empty($entryIds)) {
                                                         <span class="badge bg-warning text-dark">Archiviert</span>
                                                     <?php endif; ?>
                                                 </div>
-                                                <h5 class="card-title"><?= htmlspecialchars($entry['title']) ?></h5>
+                                                <h5 class="card-title"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['title']), $searchQuery) : htmlspecialchars($entry['title']) ?></h5>
                                                 <?php if (!empty($entry['subtitle'])): ?>
-                                                    <p class="card-text text-muted small"><?= htmlspecialchars($entry['subtitle']) ?></p>
+                                                    <p class="card-text text-muted small"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['subtitle']), $searchQuery) : htmlspecialchars($entry['subtitle']) ?></p>
                                                 <?php endif; ?>
-                                                
+
+                                                <?php if (!empty($searchQuery)):
+                                                    // Suche das beste Snippet aus allen Textfeldern
+                                                    $snippetFields = [$entry['content'], $entry['med_indikationen'], $entry['med_dosierung'],
+                                                        $entry['med_kontraindikationen'], $entry['med_besonderheiten'],
+                                                        $entry['mass_indikationen'], $entry['mass_durchfuehrung'], $entry['mass_kontraindikationen']];
+                                                    $snippet = null;
+                                                    foreach ($snippetFields as $field) {
+                                                        $snippet = KBHelper::createSearchSnippet($field, $searchQuery);
+                                                        if ($snippet !== null) break;
+                                                    }
+                                                    if ($snippet !== null): ?>
+                                                    <p class="card-text small text-muted mt-1" style="font-size: 0.8rem;">
+                                                        <?= KBHelper::highlightSearchTerms(htmlspecialchars($snippet), $searchQuery) ?>
+                                                    </p>
+                                                <?php endif; endif; ?>
+
                                                 <?php if ($entry['type'] === 'medication' && !empty($entry['med_wirkstoffgruppe'])): ?>
                                                     <p class="card-text small"><strong>Wirkstoffgruppe:</strong> <?= htmlspecialchars($entry['med_wirkstoffgruppe']) ?></p>
                                                 <?php endif; ?>
@@ -512,9 +562,12 @@ if (!empty($entryIds)) {
                             let html = '';
                             data.results.forEach(function(item) {
                                 html += '<a href="<?= BASE_PATH ?>wissensdb/view.php?id=' + item.id + '" class="search-suggestion-item">';
-                                html += '<div class="search-suggestion-title">' + escapeHtml(item.title) + '</div>';
+                                html += '<div class="search-suggestion-title">' + highlightTerms(escapeHtml(item.title), query) + '</div>';
                                 if (item.subtitle) {
-                                    html += '<div class="search-suggestion-subtitle">' + escapeHtml(item.subtitle) + '</div>';
+                                    html += '<div class="search-suggestion-subtitle">' + highlightTerms(escapeHtml(item.subtitle), query) + '</div>';
+                                }
+                                if (item.snippet) {
+                                    html += '<div class="search-suggestion-subtitle" style="font-size:0.8rem;margin-top:2px;">' + highlightTerms(escapeHtml(item.snippet), query) + '</div>';
                                 }
                                 html += '<div class="search-suggestion-meta">';
                                 html += '<span class="search-suggestion-badge" style="background-color: ' + item.type_color + '; color: #fff;">' + item.type_label + '</span>';
@@ -555,6 +608,16 @@ if (!empty($entryIds)) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
+        }
+
+        function highlightTerms(text, query) {
+            var words = query.trim().split(/\s+/);
+            words.forEach(function(word) {
+                if (word.length < 2) return;
+                var escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                text = text.replace(new RegExp('(' + escaped + ')', 'gi'), '<mark>$1</mark>');
+            });
+            return text;
         }
     });
     </script>

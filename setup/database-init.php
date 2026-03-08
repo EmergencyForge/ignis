@@ -448,6 +448,12 @@ $migrationFiles = [
 
     // 08.03.2026 - KB Hierarchische Kategorien & Tags
     ['file' => 'create_intra_kb_categories_tags_08032026.php', 'type' => 'create', 'tables' => ['intra_kb_categories', 'intra_kb_tags', 'intra_kb_entry_tags']],
+
+    // 08.03.2026 - KB Volltextsuche: Erweiterte FULLTEXT-Indizes
+    ['file' => 'alter_intra_kb_entries_08032026_fulltext.php', 'type' => 'alter'],
+
+    // 08.03.2026 - KB Verknüpfte Einträge (Querverweise)
+    ['file' => 'create_intra_kb_entry_relations_08032026.php', 'type' => 'create'],
 ];
 
 $executed = 0;
