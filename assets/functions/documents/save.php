@@ -33,7 +33,8 @@ try {
 
         $manager->updateTemplate($input['id'], [
             'name' => $input['name'],
-            'category' => $input['category'],
+            'category' => $input['category'] ?? null,
+            'category_id' => $input['category_id'] ?? null,
             'description' => $input['description'] ?? null,
             'template_file' => $input['template_file'] ?? null
         ]);
@@ -49,7 +50,8 @@ try {
 
         $templateId = $manager->createTemplate([
             'name' => $input['name'],
-            'category' => $input['category'],
+            'category' => $input['category'] ?? null,
+            'category_id' => $input['category_id'] ?? null,
             'description' => $input['description'] ?? null,
             'template_file' => $templateFile
         ]);

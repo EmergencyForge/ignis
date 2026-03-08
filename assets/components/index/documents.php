@@ -19,25 +19,27 @@
             $profileid = $userData['id'];
 
             $query = "
-        SELECT 
-            pd.docid, 
-            pd.ausstellerid, 
-            pd.ausstellungsdatum, 
-            pd.type, 
+        SELECT
+            pd.docid,
+            pd.ausstellerid,
+            pd.ausstellungsdatum,
+            pd.type,
             pd.template_id,
             pd.aussteller_name,
             pd.pdf_path,
-            u.discord_id AS user_id, 
+            u.discord_id AS user_id,
             COALESCE(m.fullname, u.fullname) as fullname,
             u.aktenid,
             t.name as template_name,
             t.category as template_category,
+            dk.color as category_color,
             COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name
-        FROM intra_mitarbeiter_dokumente pd 
-        LEFT JOIN intra_users u ON pd.ausstellerid = u.discord_id 
+        FROM intra_mitarbeiter_dokumente pd
+        LEFT JOIN intra_users u ON pd.ausstellerid = u.discord_id
         LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
         LEFT JOIN intra_dokument_templates t ON pd.template_id = t.id
-        WHERE pd.profileid = :profileid 
+        LEFT JOIN intra_dokument_kategorien dk ON t.category_id = dk.id
+        WHERE pd.profileid = :profileid
         ORDER BY pd.ausstellungsdatum DESC
     ";
 
@@ -74,7 +76,9 @@
 
                     $pdfPath = BASE_PATH . "storage/documents/" . $doks['docid'] . ".pdf";
 
-                    if ($doks['type'] == 99) {
+                    if ($doks['type'] == 99 && !empty($doks['category_color'])) {
+                        $bg = $doks['category_color'];
+                    } elseif ($doks['type'] == 99) {
                         $bg = match ($doks['template_category']) {
                             'urkunde' => 'text-bg-secondary',
                             'zertifikat' => 'text-bg-dark',

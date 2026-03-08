@@ -23,6 +23,10 @@ $dienstgrade = $dienstgradeStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $rdQualisStmt = $pdo->query("SELECT id, name, name_m, name_w FROM intra_mitarbeiter_rdquali WHERE trainable = 1 AND none = 0 ORDER BY priority ASC");
 $rdQualis = $rdQualisStmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Lade Dokumenten-Kategorien
+$katStmt = $pdo->query("SELECT id, name, color, icon FROM intra_dokument_kategorien ORDER BY sort_order ASC, name ASC");
+$kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -125,13 +129,15 @@ $rdQualis = $rdQualisStmt->fetchAll(PDO::FETCH_ASSOC);
 
                                 <div class="mb-3">
                                     <label for="templateCategory" class="form-label">Kategorie <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="templateCategory" name="category" required>
+                                    <select class="form-select" id="templateCategory" name="category_id" required>
                                         <option value="">Bitte wählen</option>
-                                        <option value="urkunde">Urkunde</option>
-                                        <option value="zertifikat">Zertifikat</option>
-                                        <option value="schreiben">Schreiben</option>
-                                        <option value="sonstiges">Sonstiges</option>
+                                        <?php foreach ($kategorien as $kat): ?>
+                                            <option value="<?= (int)$kat['id'] ?>"><?= htmlspecialchars($kat['name']) ?></option>
+                                        <?php endforeach; ?>
                                     </select>
+                                    <div class="form-text">
+                                        <a href="<?= BASE_PATH ?>settings/documents/categories.php">Kategorien verwalten</a>
+                                    </div>
                                 </div>
 
                                 <div class="mb-3">
@@ -591,7 +597,7 @@ $rdQualis = $rdQualisStmt->fetchAll(PDO::FETCH_ASSOC);
 
             const formData = {
                 name: templateName,
-                category: document.getElementById('templateCategory').value,
+                category_id: parseInt(document.getElementById('templateCategory').value),
                 description: document.getElementById('templateDescription').value,
                 template_file: templateFile,
                 fields: fields
@@ -652,7 +658,7 @@ $rdQualis = $rdQualisStmt->fetchAll(PDO::FETCH_ASSOC);
                         <div>
                             <strong>${template.name}</strong>
                             <br>
-                            <small class="text-muted">${template.category}</small>
+                            <small class="text-muted">${template.category_name || template.category || '-'}</small>
                         </div>
                         <div>
                             <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id}, event)">
@@ -677,7 +683,7 @@ $rdQualis = $rdQualisStmt->fetchAll(PDO::FETCH_ASSOC);
 
                 document.getElementById('templateId').value = template.id;
                 document.getElementById('templateName').value = template.name;
-                document.getElementById('templateCategory').value = template.category;
+                document.getElementById('templateCategory').value = template.category_id || '';
                 document.getElementById('templateDescription').value = template.description || '';
                 document.getElementById('templateFile').value = template.template_file || '';
 

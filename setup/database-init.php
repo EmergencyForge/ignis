@@ -442,6 +442,9 @@ $migrationFiles = [
 
     // 08.03.2026 - Einladungssystem (Label + Ablaufdatum für Registrierungscodes)
     ['file' => 'alter_intra_registration_codes_08032026_invitations.php', 'type' => 'alter'],
+
+    // 08.03.2026 - Dokumenten-Kategorien (dynamische Kategorien statt ENUM)
+    ['file' => 'create_intra_dokument_kategorien_08032026.php', 'type' => 'create'],
 ];
 
 $executed = 0;

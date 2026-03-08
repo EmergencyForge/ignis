@@ -19,20 +19,45 @@ class DocumentTemplateManager
     public function createTemplate(array $data): int
     {
         $stmt = $this->pdo->prepare("
-            INSERT INTO intra_dokument_templates 
-            (name, category, description, template_file, created_by) 
-            VALUES (:name, :category, :description, :template_file, :created_by)
+            INSERT INTO intra_dokument_templates
+            (name, category, category_id, description, template_file, created_by)
+            VALUES (:name, :category, :category_id, :description, :template_file, :created_by)
         ");
+
+        // category_id aus der neuen Kategorien-Tabelle, category als ENUM-Fallback
+        $categoryId = $data['category_id'] ?? null;
+        $category = $data['category'] ?? $this->resolveCategoryEnum($categoryId);
 
         $stmt->execute([
             'name' => $data['name'],
-            'category' => $data['category'],
+            'category' => $category,
+            'category_id' => $categoryId,
             'description' => $data['description'] ?? null,
             'template_file' => $data['template_file'] ?? null,
             'created_by' => $_SESSION['user_id'] ?? null
         ]);
 
         return (int) $this->pdo->lastInsertId();
+    }
+
+    private function resolveCategoryEnum(?int $categoryId): string
+    {
+        if (!$categoryId) {
+            return 'sonstiges';
+        }
+
+        $stmt = $this->pdo->prepare("SELECT name FROM intra_dokument_kategorien WHERE id = :id");
+        $stmt->execute(['id' => $categoryId]);
+        $name = $stmt->fetchColumn();
+
+        // Mappe auf bestehende ENUM-Werte für Abwärtskompatibilität
+        $enumMap = [
+            'Urkunde' => 'urkunde',
+            'Zertifikat' => 'zertifikat',
+            'Schreiben' => 'schreiben',
+        ];
+
+        return $enumMap[$name] ?? 'sonstiges';
     }
 
     /**
@@ -107,17 +132,27 @@ class DocumentTemplateManager
     /**
      * Listet alle verfügbaren Templates auf
      */
-    public function listTemplates(?string $category = null): array
+    public function listTemplates(?string $category = null, ?int $categoryId = null): array
     {
-        $sql = "SELECT * FROM intra_dokument_templates";
+        $sql = "SELECT t.*, dk.name as category_name, dk.color as category_color, dk.icon as category_icon
+                FROM intra_dokument_templates t
+                LEFT JOIN intra_dokument_kategorien dk ON t.category_id = dk.id";
         $params = [];
+        $where = [];
 
-        if ($category) {
-            $sql .= " WHERE category = :category";
+        if ($categoryId) {
+            $where[] = "t.category_id = :category_id";
+            $params['category_id'] = $categoryId;
+        } elseif ($category) {
+            $where[] = "t.category = :category";
             $params['category'] = $category;
         }
 
-        $sql .= " ORDER BY name ASC";
+        if (!empty($where)) {
+            $sql .= " WHERE " . implode(' AND ', $where);
+        }
+
+        $sql .= " ORDER BY dk.sort_order ASC, t.name ASC";
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
@@ -332,10 +367,14 @@ class DocumentTemplateManager
      */
     public function updateTemplate(int $templateId, array $data): bool
     {
+        $categoryId = $data['category_id'] ?? null;
+        $category = $data['category'] ?? $this->resolveCategoryEnum($categoryId);
+
         $stmt = $this->pdo->prepare("
-        UPDATE intra_dokument_templates 
-        SET name = :name, 
-            category = :category, 
+        UPDATE intra_dokument_templates
+        SET name = :name,
+            category = :category,
+            category_id = :category_id,
             description = :description,
             template_file = :template_file,
             updated_at = CURRENT_TIMESTAMP
@@ -345,7 +384,8 @@ class DocumentTemplateManager
         return $stmt->execute([
             'id' => $templateId,
             'name' => $data['name'],
-            'category' => $data['category'],
+            'category' => $category,
+            'category_id' => $categoryId,
             'description' => $data['description'] ?? null,
             'template_file' => $data['template_file'] ?? null
         ]);
