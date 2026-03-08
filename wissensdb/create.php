@@ -20,11 +20,19 @@ if (!Permissions::check(['admin', 'kb.edit'])) {
     exit();
 }
 
+// Lade Kategorien und Tags für Auswahlfelder
+$catStmt = $pdo->query("SELECT id, parent_id, name, icon FROM intra_kb_categories ORDER BY sort_order ASC, name ASC");
+$allCategories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$tagStmt = $pdo->query("SELECT id, name, color FROM intra_kb_tags ORDER BY name ASC");
+$allTags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Check if editing existing entry
 $editId = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $isEdit = false;
 $entry = null;
 $updaterName = null;
+$entryTags = [];
 
 if ($editId) {
     $isEdit = true;
@@ -44,6 +52,11 @@ if ($editId) {
     }
     
     $updaterName = $entry['updater_name'] ?? null;
+
+    // Lade Tags des Eintrags
+    $tagStmt2 = $pdo->prepare("SELECT tag_id FROM intra_kb_entry_tags WHERE entry_id = :id");
+    $tagStmt2->execute(['id' => $editId]);
+    $entryTags = $tagStmt2->fetchAll(PDO::FETCH_COLUMN);
 }
 
 // Handle form submission
@@ -53,6 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $subtitle = trim($_POST['subtitle'] ?? '');
     $competency_level = !empty($_POST['competency_level']) ? $_POST['competency_level'] : null;
     $content = $_POST['content'] ?? '';
+    $category_id = !empty($_POST['category_id']) ? (int)$_POST['category_id'] : null;
+    $selectedTags = $_POST['tags'] ?? [];
     
     // Medication fields
     $med_wirkstoff = trim($_POST['med_wirkstoff'] ?? '');
@@ -89,8 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($isEdit) {
                 // Update existing entry
-                $sql = "UPDATE intra_kb_entries SET 
+                $sql = "UPDATE intra_kb_entries SET
                         type = :type,
+                        category_id = :category_id,
                         title = :title,
                         subtitle = :subtitle,
                         competency_level = :competency_level,
@@ -118,6 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     'type' => $type,
+                    'category_id' => $category_id,
                     'title' => $title,
                     'subtitle' => $subtitle,
                     'competency_level' => $competency_level,
@@ -141,21 +158,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'user_id' => $_SESSION['userid'],
                     'id' => $editId
                 ]);
-                
+
+                // Tags aktualisieren
+                $pdo->prepare("DELETE FROM intra_kb_entry_tags WHERE entry_id = :id")->execute(['id' => $editId]);
+                if (!empty($selectedTags)) {
+                    $tagInsert = $pdo->prepare("INSERT IGNORE INTO intra_kb_entry_tags (entry_id, tag_id) VALUES (:entry_id, :tag_id)");
+                    foreach ($selectedTags as $tagId) {
+                        $tagInsert->execute(['entry_id' => $editId, 'tag_id' => (int)$tagId]);
+                    }
+                }
+
                 Flash::success('Eintrag erfolgreich aktualisiert');
                 header("Location: " . BASE_PATH . "wissensdb/view.php?id=" . $editId);
                 exit();
             } else {
                 // Create new entry
                 $sql = "INSERT INTO intra_kb_entries (
-                        type, title, subtitle, competency_level, content,
+                        type, category_id, title, subtitle, competency_level, content,
                         med_wirkstoff, med_wirkstoffgruppe, med_wirkmechanismus,
                         med_indikationen, med_kontraindikationen, med_uaw, med_dosierung, med_besonderheiten,
                         mass_wirkprinzip, mass_indikationen, mass_kontraindikationen,
                         mass_risiken, mass_alternativen, mass_durchfuehrung,
                         created_by
                     ) VALUES (
-                        :type, :title, :subtitle, :competency_level, :content,
+                        :type, :category_id, :title, :subtitle, :competency_level, :content,
                         :med_wirkstoff, :med_wirkstoffgruppe, :med_wirkmechanismus,
                         :med_indikationen, :med_kontraindikationen, :med_uaw, :med_dosierung, :med_besonderheiten,
                         :mass_wirkprinzip, :mass_indikationen, :mass_kontraindikationen,
@@ -166,6 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute([
                     'type' => $type,
+                    'category_id' => $category_id,
                     'title' => $title,
                     'subtitle' => $subtitle,
                     'competency_level' => $competency_level,
@@ -186,8 +213,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'mass_durchfuehrung' => $mass_durchfuehrung,
                     'user_id' => $_SESSION['userid']
                 ]);
-                
+
                 $newId = $pdo->lastInsertId();
+
+                // Tags verknüpfen
+                if (!empty($selectedTags)) {
+                    $tagInsert = $pdo->prepare("INSERT IGNORE INTO intra_kb_entry_tags (entry_id, tag_id) VALUES (:entry_id, :tag_id)");
+                    foreach ($selectedTags as $tagId) {
+                        $tagInsert->execute(['entry_id' => $newId, 'tag_id' => (int)$tagId]);
+                    }
+                }
+
                 Flash::success('Eintrag erfolgreich erstellt');
                 header("Location: " . BASE_PATH . "wissensdb/view.php?id=" . $newId);
                 exit();
@@ -201,6 +237,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Prefill form values
 $formData = $entry ?? [
     'type' => $_POST['type'] ?? 'general',
+    'category_id' => $_POST['category_id'] ?? '',
     'title' => $_POST['title'] ?? '',
     'subtitle' => $_POST['subtitle'] ?? '',
     'competency_level' => $_POST['competency_level'] ?? '',
@@ -438,6 +475,54 @@ $formData = $entry ?? [
                                 <input type="text" name="subtitle" id="subtitle" class="form-control"
                                        value="<?= htmlspecialchars($formData['subtitle']) ?>"
                                        placeholder="z.B. Ruhigstellung, Extremitäten-Immobilisation, SAM-Splint">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="category_id" class="form-label">Kategorie</label>
+                                    <select name="category_id" id="category_id" class="form-select">
+                                        <option value="">Keine Kategorie</option>
+                                        <?php
+                                        // Hierarchische Anzeige mit Einrückung
+                                        function renderCategoryOptions(array $categories, int $selectedId = 0, ?int $parentId = null, int $depth = 0): void
+                                        {
+                                            foreach ($categories as $cat) {
+                                                if ((int)($cat['parent_id'] ?? 0) !== ($parentId ?? 0) && ($parentId !== null || $cat['parent_id'] !== null)) {
+                                                    continue;
+                                                }
+                                                if ($parentId === null && $cat['parent_id'] !== null) {
+                                                    continue;
+                                                }
+                                                $prefix = str_repeat('— ', $depth);
+                                                $selected = ((int)$cat['id'] === $selectedId) ? 'selected' : '';
+                                                $icon = !empty($cat['icon']) ? '<i class="' . htmlspecialchars($cat['icon']) . '"></i> ' : '';
+                                                echo "<option value=\"{$cat['id']}\" {$selected}>{$prefix}" . htmlspecialchars($cat['name']) . "</option>";
+                                                // Kinder rendern
+                                                renderCategoryOptions($categories, $selectedId, (int)$cat['id'], $depth + 1);
+                                            }
+                                        }
+                                        renderCategoryOptions($allCategories, (int)($formData['category_id'] ?? 0));
+                                        ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Tags</label>
+                                    <div class="d-flex flex-wrap gap-2" style="min-height: 38px;">
+                                        <?php foreach ($allTags as $tag):
+                                            $checked = in_array($tag['id'], $entryTags) ? 'checked' : '';
+                                        ?>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" name="tags[]" value="<?= $tag['id'] ?>" id="tag_<?= $tag['id'] ?>" <?= $checked ?>>
+                                                <label class="form-check-label" for="tag_<?= $tag['id'] ?>">
+                                                    <span class="badge" style="background-color: <?= htmlspecialchars($tag['color']) ?>; color: #fff;"><?= htmlspecialchars($tag['name']) ?></span>
+                                                </label>
+                                            </div>
+                                        <?php endforeach; ?>
+                                        <?php if (empty($allTags)): ?>
+                                            <small class="text-muted">Noch keine Tags vorhanden.</small>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

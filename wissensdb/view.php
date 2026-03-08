@@ -27,10 +27,14 @@ if (!$id) {
 
 // Fetch entry with names from linked Discord profiles
 $stmt = $pdo->prepare("
-    SELECT kb.*, 
+    SELECT kb.*,
+           kc.name as category_name, kc.icon as category_icon,
+           kc_parent.name as parent_category_name, kc_parent.icon as parent_category_icon,
            COALESCE(creator_m.fullname, creator.fullname) as creator_name,
            COALESCE(updater_m.fullname, updater.fullname) as updater_name
     FROM intra_kb_entries kb
+    LEFT JOIN intra_kb_categories kc ON kb.category_id = kc.id
+    LEFT JOIN intra_kb_categories kc_parent ON kc.parent_id = kc_parent.id
     LEFT JOIN intra_users creator ON kb.created_by = creator.id
     LEFT JOIN intra_mitarbeiter creator_m ON creator.discord_id = creator_m.discordtag
     LEFT JOIN intra_users updater ON kb.updated_by = updater.id
@@ -52,6 +56,11 @@ if ($entry['is_archived'] && (!$isLoggedIn || !Permissions::check(['admin', 'kb.
     header("Location: " . BASE_PATH . "wissensdb/index.php");
     exit();
 }
+
+// Lade Tags des Eintrags
+$tagStmt = $pdo->prepare("SELECT t.id, t.name, t.color FROM intra_kb_entry_tags et JOIN intra_kb_tags t ON et.tag_id = t.id WHERE et.entry_id = :id ORDER BY t.name");
+$tagStmt->execute(['id' => $id]);
+$entryTags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
 ?>
@@ -357,6 +366,26 @@ $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
                     <?php if ($entry['is_archived']): ?>
                         <div class="alert alert-warning">
                             <i class="fa-solid fa-archive"></i> Dieser Eintrag ist archiviert.
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($entry['category_name']) || !empty($entryTags)): ?>
+                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                            <?php if (!empty($entry['category_name'])): ?>
+                                <span class="text-muted small">
+                                    <i class="fa-solid fa-folder"></i>
+                                    <?php if (!empty($entry['parent_category_name'])): ?>
+                                        <?php if (!empty($entry['parent_category_icon'])): ?><i class="<?= htmlspecialchars($entry['parent_category_icon']) ?>"></i> <?php endif; ?>
+                                        <a href="<?= BASE_PATH ?>wissensdb/index.php?category=<?= (int)$entry['category_id'] ?>" class="text-muted"><?= htmlspecialchars($entry['parent_category_name']) ?></a>
+                                        <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem;"></i>
+                                    <?php endif; ?>
+                                    <?php if (!empty($entry['category_icon'])): ?><i class="<?= htmlspecialchars($entry['category_icon']) ?>"></i> <?php endif; ?>
+                                    <a href="<?= BASE_PATH ?>wissensdb/index.php?category=<?= (int)$entry['category_id'] ?>" class="text-muted"><?= htmlspecialchars($entry['category_name']) ?></a>
+                                </span>
+                            <?php endif; ?>
+                            <?php foreach ($entryTags as $etag): ?>
+                                <a href="<?= BASE_PATH ?>wissensdb/index.php?tag=<?= (int)$etag['id'] ?>" class="badge text-decoration-none" style="background-color: <?= htmlspecialchars($etag['color']) ?>; color: #fff;"><?= htmlspecialchars($etag['name']) ?></a>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
 

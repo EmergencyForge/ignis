@@ -20,15 +20,26 @@ if (!$publicAccess && !$isLoggedIn) {
 // Get filter parameters
 $typeFilter = $_GET['type'] ?? 'all';
 $searchQuery = $_GET['search'] ?? '';
+$categoryFilter = isset($_GET['category']) ? (int)$_GET['category'] : 0;
+$tagFilter = isset($_GET['tag']) ? (int)$_GET['tag'] : 0;
 // Only allow viewing archived entries if user has kb.archive permission
-$showArchived = isset($_GET['archived']) && $_GET['archived'] === '1' 
+$showArchived = isset($_GET['archived']) && $_GET['archived'] === '1'
                 && $isLoggedIn && Permissions::check(['admin', 'kb.archive']);
 
+// Lade Kategorien und Tags für Filter
+$catStmt = $pdo->query("SELECT id, parent_id, name, icon FROM intra_kb_categories ORDER BY sort_order ASC, name ASC");
+$allCategories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$tagStmt = $pdo->query("SELECT t.id, t.name, t.color, COUNT(et.entry_id) as cnt FROM intra_kb_tags t LEFT JOIN intra_kb_entry_tags et ON t.id = et.tag_id GROUP BY t.id ORDER BY t.name ASC");
+$allTags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Build query with names from linked Discord profiles
-$sql = "SELECT kb.*, 
-        COALESCE(creator_m.fullname, creator.fullname) as creator_name, 
+$sql = "SELECT kb.*,
+        kc.name as category_name, kc.icon as category_icon,
+        COALESCE(creator_m.fullname, creator.fullname) as creator_name,
         COALESCE(updater_m.fullname, updater.fullname) as updater_name
         FROM intra_kb_entries kb
+        LEFT JOIN intra_kb_categories kc ON kb.category_id = kc.id
         LEFT JOIN intra_users creator ON kb.created_by = creator.id
         LEFT JOIN intra_mitarbeiter creator_m ON creator.discord_id = creator_m.discordtag
         LEFT JOIN intra_users updater ON kb.updated_by = updater.id
@@ -46,6 +57,26 @@ if ($typeFilter !== 'all') {
     $params['type'] = $typeFilter;
 }
 
+if ($categoryFilter > 0) {
+    // Auch Unterkategorien einschliessen
+    $childIds = [$categoryFilter];
+    $childStmt = $pdo->prepare("SELECT id FROM intra_kb_categories WHERE parent_id = :pid");
+    $childStmt->execute(['pid' => $categoryFilter]);
+    while ($childId = $childStmt->fetchColumn()) {
+        $childIds[] = (int)$childId;
+    }
+    $placeholders = implode(',', array_fill(0, count($childIds), '?'));
+    $sql .= " AND kb.category_id IN ($placeholders)";
+    foreach ($childIds as $i => $cid) {
+        $params[] = $cid;
+    }
+}
+
+if ($tagFilter > 0) {
+    $sql .= " AND kb.id IN (SELECT entry_id FROM intra_kb_entry_tags WHERE tag_id = :tag_id)";
+    $params['tag_id'] = $tagFilter;
+}
+
 if (!empty($searchQuery)) {
     $sql .= " AND (kb.title LIKE :search1 OR kb.subtitle LIKE :search2 OR kb.content LIKE :search3)";
     $searchParam = '%' . $searchQuery . '%';
@@ -60,6 +91,18 @@ $sql .= " ORDER BY kb.is_pinned DESC, kb.updated_at DESC, kb.created_at DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Tags pro Eintrag laden
+$entryIds = array_column($entries, 'id');
+$entryTagsMap = [];
+if (!empty($entryIds)) {
+    $placeholders = implode(',', array_fill(0, count($entryIds), '?'));
+    $tagMapStmt = $pdo->prepare("SELECT et.entry_id, t.name, t.color FROM intra_kb_entry_tags et JOIN intra_kb_tags t ON et.tag_id = t.id WHERE et.entry_id IN ($placeholders)");
+    $tagMapStmt->execute($entryIds);
+    foreach ($tagMapStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+        $entryTagsMap[$row['entry_id']][] = $row;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -266,6 +309,9 @@ $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <h1>Wissensdatenbank</h1>
                         <div class="header-actions">
                             <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
+                                <a href="<?= BASE_PATH ?>wissensdb/manage-taxonomy.php" class="btn btn-outline-secondary">
+                                    <i class="fa-solid fa-tags"></i> Kategorien & Tags
+                                </a>
                                 <a href="<?= BASE_PATH ?>wissensdb/create.php" class="btn btn-success">
                                     <i class="fa-solid fa-plus"></i> Neuer Eintrag
                                 </a>
@@ -278,35 +324,67 @@ $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <!-- Filter Section -->
                     <div class="intra__tile py-3 px-4 mb-4">
                         <form method="GET" class="row g-3 align-items-end">
-                            <div class="col-md-3">
-                                <label for="type" class="form-label">Kategorie</label>
+                            <div class="col-md-2">
+                                <label for="type" class="form-label">Typ</label>
                                 <select name="type" id="type" class="form-select">
-                                    <option value="all" <?= $typeFilter === 'all' ? 'selected' : '' ?>>Alle Kategorien</option>
+                                    <option value="all" <?= $typeFilter === 'all' ? 'selected' : '' ?>>Alle Typen</option>
                                     <option value="general" <?= $typeFilter === 'general' ? 'selected' : '' ?>>Allgemein</option>
                                     <option value="medication" <?= $typeFilter === 'medication' ? 'selected' : '' ?>>Medikamente</option>
                                     <option value="measure" <?= $typeFilter === 'measure' ? 'selected' : '' ?>>Maßnahmen</option>
                                 </select>
                             </div>
-                            <div class="col-md-5">
+                            <?php if (!empty($allCategories)): ?>
+                            <div class="col-md-2">
+                                <label for="category" class="form-label">Kategorie</label>
+                                <select name="category" id="category" class="form-select">
+                                    <option value="">Alle</option>
+                                    <?php
+                                    function renderFilterCatOptions(array $cats, int $sel, ?int $pid = null, int $d = 0): void {
+                                        foreach ($cats as $c) {
+                                            if ($pid === null && $c['parent_id'] !== null) continue;
+                                            if ($pid !== null && (int)($c['parent_id'] ?? 0) !== $pid) continue;
+                                            $p = str_repeat('— ', $d);
+                                            $s = ((int)$c['id'] === $sel) ? 'selected' : '';
+                                            echo "<option value=\"{$c['id']}\" {$s}>{$p}" . htmlspecialchars($c['name']) . "</option>";
+                                            renderFilterCatOptions($cats, $sel, (int)$c['id'], $d + 1);
+                                        }
+                                    }
+                                    renderFilterCatOptions($allCategories, $categoryFilter);
+                                    ?>
+                                </select>
+                            </div>
+                            <?php endif; ?>
+                            <?php if (!empty($allTags)): ?>
+                            <div class="col-md-2">
+                                <label for="tag" class="form-label">Tag</label>
+                                <select name="tag" id="tag" class="form-select">
+                                    <option value="">Alle</option>
+                                    <?php foreach ($allTags as $t): ?>
+                                        <option value="<?= $t['id'] ?>" <?= $tagFilter === (int)$t['id'] ? 'selected' : '' ?>><?= htmlspecialchars($t['name']) ?> (<?= $t['cnt'] ?>)</option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <?php endif; ?>
+                            <div class="col">
                                 <label for="search" class="form-label">Suche</label>
                                 <div class="position-relative">
-                                    <input type="text" name="search" id="search" class="form-control" 
+                                    <input type="text" name="search" id="search" class="form-control"
                                            placeholder="Titel, Beschreibung..." value="<?= htmlspecialchars($searchQuery) ?>"
                                            autocomplete="off">
                                     <div id="search-suggestions" class="search-suggestions"></div>
                                 </div>
                             </div>
                             <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.archive'])): ?>
-                                <div class="col-md-2">
+                                <div class="col-auto">
                                     <div class="form-check mt-4">
-                                        <input class="form-check-input" type="checkbox" name="archived" value="1" 
+                                        <input class="form-check-input" type="checkbox" name="archived" value="1"
                                                id="showArchived" <?= $showArchived ? 'checked' : '' ?>>
                                         <label class="form-check-label" for="showArchived">Archiviert</label>
                                     </div>
                                 </div>
                             <?php endif; ?>
-                            <div class="col-md-2">
-                                <button type="submit" class="btn btn-soft-primary w-100">
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-soft-primary">
                                     <i class="fa-solid fa-search"></i> Filtern
                                 </button>
                             </div>
@@ -338,6 +416,9 @@ $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                             <span class="badge me-1" style="background-color: <?= SYSTEM_COLOR ?>; color: #ffffff;" title="Angepinnt"><i class="fa-solid fa-thumbtack"></i></span>
                                                         <?php endif; ?>
                                                         <span class="badge kb-type-badge bg-dark"><?= KBHelper::getTypeLabel($entry['type']) ?></span>
+                                                        <?php if (!empty($entry['category_name'])): ?>
+                                                            <span class="badge kb-type-badge bg-secondary"><?php if (!empty($entry['category_icon'])): ?><i class="<?= htmlspecialchars($entry['category_icon']) ?>"></i> <?php endif; ?><?= htmlspecialchars($entry['category_name']) ?></span>
+                                                        <?php endif; ?>
                                                         <?php if ($competency): ?>
                                                             <span class="badge kb-type-badge ms-1" style="background-color: <?= $competency['bg'] ?>; color: <?= $competency['text'] ?? '#ffffff' ?>;"><?= $competency['label'] ?></span>
                                                         <?php endif; ?>
@@ -353,6 +434,13 @@ $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 
                                                 <?php if ($entry['type'] === 'medication' && !empty($entry['med_wirkstoffgruppe'])): ?>
                                                     <p class="card-text small"><strong>Wirkstoffgruppe:</strong> <?= htmlspecialchars($entry['med_wirkstoffgruppe']) ?></p>
+                                                <?php endif; ?>
+                                                <?php if (!empty($entryTagsMap[$entry['id']])): ?>
+                                                    <div class="d-flex flex-wrap gap-1 mt-2">
+                                                        <?php foreach ($entryTagsMap[$entry['id']] as $etag): ?>
+                                                            <span class="badge" style="background-color: <?= htmlspecialchars($etag['color']) ?>; font-size: 0.65rem;"><?= htmlspecialchars($etag['name']) ?></span>
+                                                        <?php endforeach; ?>
+                                                    </div>
                                                 <?php endif; ?>
                                             </div>
                                             <div class="kb-card-footer">

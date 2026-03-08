@@ -445,6 +445,9 @@ $migrationFiles = [
 
     // 08.03.2026 - Dokumenten-Kategorien (dynamische Kategorien statt ENUM)
     ['file' => 'create_intra_dokument_kategorien_08032026.php', 'type' => 'create'],
+
+    // 08.03.2026 - KB Hierarchische Kategorien & Tags
+    ['file' => 'create_intra_kb_categories_tags_08032026.php', 'type' => 'create', 'tables' => ['intra_kb_categories', 'intra_kb_tags', 'intra_kb_entry_tags']],
 ];
 
 $executed = 0;
