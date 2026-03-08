@@ -183,7 +183,15 @@ try {
 
             if (!$codeRecord) {
                 unset($_SESSION['registration_code']);
-                $_SESSION['registration_error'] = 'Ungültiger oder bereits verwendeter Registrierungscode.';
+                $_SESSION['registration_error'] = 'Ungültiger oder bereits verwendeter Einladungslink.';
+                header('Location: ' . BASE_PATH . 'login.php');
+                exit;
+            }
+
+            // Ablaufdatum prüfen
+            if (!empty($codeRecord['expires_at']) && strtotime($codeRecord['expires_at']) < time()) {
+                unset($_SESSION['registration_code']);
+                $_SESSION['registration_error'] = 'Dieser Einladungslink ist abgelaufen.';
                 header('Location: ' . BASE_PATH . 'login.php');
                 exit;
             }

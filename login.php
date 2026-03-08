@@ -30,17 +30,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
     $code = trim($_POST['registration_code']);
 
     if (!empty($code)) {
-        // Verify the code exists and is not used
-        $codeStmt = $pdo->prepare("SELECT 1 FROM intra_registration_codes WHERE code = :code AND is_used = 0");
+        // Verify the code exists, is not used, and not expired
+        $codeStmt = $pdo->prepare("SELECT expires_at FROM intra_registration_codes WHERE code = :code AND is_used = 0");
         $codeStmt->execute(['code' => $code]);
+        $codeRecord = $codeStmt->fetch();
 
-        if ($codeStmt->fetchColumn()) {
-            $_SESSION['registration_code'] = $code;
-            // Redirect to Discord auth
-            header('Location: ' . BASE_PATH . 'auth/discord.php');
-            exit;
+        if ($codeRecord) {
+            // Ablaufdatum prüfen
+            if (!empty($codeRecord['expires_at']) && strtotime($codeRecord['expires_at']) < time()) {
+                $error = 'Dieser Einladungscode ist abgelaufen.';
+            } else {
+                $_SESSION['registration_code'] = $code;
+                // Redirect to Discord auth
+                header('Location: ' . BASE_PATH . 'auth/discord.php');
+                exit;
+            }
         } else {
-            $error = 'Ungültiger oder bereits verwendeter Registrierungscode.';
+            $error = 'Ungültiger oder bereits verwendeter Einladungscode.';
         }
     }
 }

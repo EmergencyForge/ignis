@@ -439,6 +439,9 @@ $migrationFiles = [
 
     // 08.03.2026 - Benutzer Soft-Delete (Deaktivierung statt Löschung)
     ['file' => 'alter_intra_users_08032026_soft_delete.php', 'type' => 'alter'],
+
+    // 08.03.2026 - Einladungssystem (Label + Ablaufdatum für Registrierungscodes)
+    ['file' => 'alter_intra_registration_codes_08032026_invitations.php', 'type' => 'alter'],
 ];
 
 $executed = 0;
