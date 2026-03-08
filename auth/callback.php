@@ -131,6 +131,13 @@ try {
     $user = $stmt->fetch();
 
     if ($user) {
+        // Deaktivierte Benutzer ablehnen
+        if (isset($user['is_active']) && $user['is_active'] == 0) {
+            $_SESSION['registration_error'] = 'Dein Benutzerkonto wurde deaktiviert. Bitte wende dich an einen Administrator.';
+            header('Location: ' . BASE_PATH . 'login.php');
+            exit;
+        }
+
         $_SESSION['userid'] = $user['id'];
         $_SESSION['cirs_username'] = $user['username'];
         $_SESSION['aktenid'] = $user['aktenid'];

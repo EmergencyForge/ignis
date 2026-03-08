@@ -46,19 +46,27 @@ if (!Permissions::check(['admin', 'users.view'])) {
                     <?php
                     Flash::render();
                     ?>
+                    <div class="mb-3">
+                        <div class="btn-group btn-group-sm" role="group" id="statusFilter">
+                            <button type="button" class="btn btn-outline-light active" data-filter="all">Alle</button>
+                            <button type="button" class="btn btn-outline-success" data-filter="active">Aktiv</button>
+                            <button type="button" class="btn btn-outline-secondary" data-filter="inactive">Deaktiviert</button>
+                        </div>
+                    </div>
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="userTable">
                             <thead>
                                 <th scope="col">UID</th>
                                 <th scope="col">Name (Benutzername)</th>
                                 <th scope="col">Rolle/Gruppe</th>
+                                <th scope="col">Status</th>
                                 <th scope="col">Angelegt am</th>
                                 <th scope="col"></th>
                             </thead>
                             <tbody>
                                 <?php
                                 require __DIR__ . '/../assets/config/database.php';
-                                $stmt = $pdo->prepare("SELECT u.id, u.username, u.created_at, u.role, u.full_admin, u.discord_id, COALESCE(m.fullname, 'Kein Profil verbunden') as fullname FROM intra_users u LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag");
+                                $stmt = $pdo->prepare("SELECT u.id, u.username, u.created_at, u.role, u.full_admin, u.discord_id, u.is_active, COALESCE(m.fullname, 'Kein Profil verbunden') as fullname FROM intra_users u LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag");
                                 $stmt->execute();
                                 $result = $stmt->fetchAll();
 
@@ -75,11 +83,19 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                         $role_name = $result2[$row['role']]['name'];
                                     }
 
+                                    $isActive = isset($row['is_active']) ? $row['is_active'] : 1;
+                                    $statusBadge = $isActive
+                                        ? "<span class='badge text-bg-success'>Aktiv</span>"
+                                        : "<span class='badge text-bg-secondary'>Deaktiviert</span>";
+                                    $rowClass = $isActive ? '' : ' class="opacity-50"';
+                                    $statusData = $isActive ? 'active' : 'inactive';
+
                                     $date = (new DateTime($row['created_at']))->format('d.m.Y | H:i');
-                                    echo "<tr>";
-                                    echo "<td >" . $row['id'] . "</td>";
+                                    echo "<tr{$rowClass} data-status='{$statusData}'>";
+                                    echo "<td>" . $row['id'] . "</td>";
                                     echo "<td>" . htmlspecialchars($row['fullname']) .  " (<strong>" . htmlspecialchars($row['username']) . "</strong>)</td>";
                                     echo "<td><span class='badge text-bg-" . $role_color . "'>" . $role_name . "</span></td>";
+                                    echo "<td>{$statusBadge}</td>";
                                     echo "<td><span style='display:none'>" . $row['created_at'] . "</span>" . $date . "</td>";
                                     if (Permissions::check(['admin', 'users.edit'])) {
                                         echo "<td><div class='col-actions'><a href='" . BASE_PATH . "benutzer/edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-soft-primary btn-icon' data-tooltip='Bearbeiten'><i class='fa-solid fa-pen-to-square'></i></a></div>";
@@ -103,6 +119,15 @@ if (!Permissions::check(['admin', 'users.view'])) {
     <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
+            // Custom filter for status
+            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                if (settings.nTable.id !== 'userTable') return true;
+                var filter = $('#statusFilter .active').data('filter');
+                if (filter === 'all') return true;
+                var row = settings.aoData[dataIndex].nTr;
+                return $(row).data('status') === filter;
+            });
+
             var table = $('#userTable').DataTable({
                 stateSave: true,
                 paging: true,
@@ -136,6 +161,13 @@ if (!Permissions::check(['admin', 'users.view'])) {
                         "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
                     }
                 }
+            });
+
+            // Status filter button click
+            $('#statusFilter button').on('click', function() {
+                $('#statusFilter button').removeClass('active');
+                $(this).addClass('active');
+                table.draw();
             });
         });
     </script>

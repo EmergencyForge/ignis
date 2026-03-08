@@ -87,7 +87,18 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span> <?php if (Permissions::check(['admin', 'users.delete'])) : ?><button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash"></i> Benutzer löschen</button><?php endif; ?></h1>
+                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span>
+                        <?php if (Permissions::check(['admin', 'users.delete'])) : ?>
+                            <?php $isActive = isset($row['is_active']) ? $row['is_active'] : 1; ?>
+                            <?php if ($isActive) : ?>
+                                <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#deactivateModal"><i class="fa-solid fa-user-slash"></i> Benutzer deaktivieren</button>
+                            <?php else : ?>
+                                <span class="badge text-bg-secondary me-2">Deaktiviert</span>
+                                <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#reactivateModal"><i class="fa-solid fa-user-check"></i> Benutzer reaktivieren</button>
+                            <?php endif; ?>
+                            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash"></i> Endgültig löschen</button>
+                        <?php endif; ?>
+                    </h1>
                     <?php
                     Flash::render();
                     ?>
@@ -190,8 +201,55 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         </div>
     </div>
 
-    <!-- MODAL BEGIN -->
+    <!-- MODALS BEGIN -->
     <?php if (Permissions::check(['admin', 'users.delete'])) : ?>
+        <?php $isActive = isset($row['is_active']) ? $row['is_active'] : 1; ?>
+
+        <!-- Deaktivieren Modal -->
+        <?php if ($isActive) : ?>
+        <div class="modal fade" id="deactivateModal" tabindex="-1" aria-labelledby="deactivateModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="deactivateModalLabel">Benutzer deaktivieren</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Möchtest du den Benutzer <span class="fw-bold"><?= htmlspecialchars($row['username']) ?></span> deaktivieren?
+                        <div class="mt-2 text-muted small">Der Benutzer kann sich nicht mehr einloggen, kann aber jederzeit reaktiviert werden. Alle Daten bleiben erhalten.</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="btn btn-warning" onclick="window.location.href='toggle-active.php?id=<?= $row['id'] ?>&action=deactivate';">Deaktivieren</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Reaktivieren Modal -->
+        <?php if (!$isActive) : ?>
+        <div class="modal fade" id="reactivateModal" tabindex="-1" aria-labelledby="reactivateModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="reactivateModalLabel">Benutzer reaktivieren</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Möchtest du den Benutzer <span class="fw-bold"><?= htmlspecialchars($row['username']) ?></span> wieder aktivieren?
+                        <div class="mt-2 text-muted small">Der Benutzer kann sich danach wieder einloggen.</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="btn btn-success" onclick="window.location.href='toggle-active.php?id=<?= $row['id'] ?>&action=reactivate';">Reaktivieren</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Endgültig löschen Modal -->
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -200,17 +258,19 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        Willst du wirklich den Benutzer <span class="fw-bold"><?= $row['username'] ?></span> löschen?
+                        <div class="text-danger fw-bold mb-2">Achtung: Diese Aktion ist unwiderruflich!</div>
+                        Willst du wirklich den Benutzer <span class="fw-bold"><?= htmlspecialchars($row['username']) ?></span> endgültig löschen?
+                        <div class="mt-2 text-muted small">Alle zugehörigen Audit-Logs und Benachrichtigungen werden ebenfalls gelöscht. Erwäge stattdessen eine Deaktivierung.</div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Ne, Upsi</button>
-                        <button type="button" class="btn btn-ghost-danger" onclick="window.location.href='delete.php?id=<?= $row['id'] ?>';">Benutzer endgültig löschen</button>
+                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="btn btn-ghost-danger" onclick="window.location.href='delete.php?id=<?= $row['id'] ?>';">Endgültig löschen</button>
                     </div>
                 </div>
             </div>
         </div>
     <?php endif; ?>
-    <!-- MODAL END -->
+    <!-- MODALS END -->
     <?php include __DIR__ . "/../assets/components/footer.php"; ?>
 
     <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>

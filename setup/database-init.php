@@ -436,6 +436,9 @@ $migrationFiles = [
 
     // 06.03.2026 - Fire Incident Status: ENUM → TINYINT (wie eNOTF)
     ['file' => 'alter_intra_fire_incidents_20260306_status_tinyint.php', 'type' => 'alter'],
+
+    // 08.03.2026 - Benutzer Soft-Delete (Deaktivierung statt Löschung)
+    ['file' => 'alter_intra_users_08032026_soft_delete.php', 'type' => 'alter'],
 ];
 
 $executed = 0;
