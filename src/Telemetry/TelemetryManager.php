@@ -136,7 +136,21 @@ class TelemetryManager
             'server_name' => defined('SERVER_NAME') ? SERVER_NAME : null,
             'system_name' => defined('SYSTEM_NAME') ? SYSTEM_NAME : null,
             'org_type' => defined('RP_ORGTYPE') ? RP_ORGTYPE : null,
+            'database_version' => $this->getDatabaseVersion(),
+            'os' => PHP_OS_FAMILY,
+            'webserver' => $_SERVER['SERVER_SOFTWARE'] ?? null,
+            'timezone' => date_default_timezone_get(),
+            'locale' => setlocale(LC_ALL, '0') ?: null,
         ];
+    }
+
+    private function getDatabaseVersion(): ?string
+    {
+        try {
+            return $this->pdo->getAttribute(PDO::ATTR_SERVER_VERSION);
+        } catch (\PDOException $e) {
+            return null;
+        }
     }
 
     private function collectStats(): array
@@ -144,10 +158,19 @@ class TelemetryManager
         $stats = [
             'active_employees' => 0,
             'total_employees' => 0,
+            'total_users' => 0,
             'active_users' => 0,
+            'logins_last_30_days' => 0,
             'vehicles' => 0,
             'enotf_last_30_days' => 0,
+            'enotf_total' => 0,
             'fire_incidents_last_30_days' => 0,
+            'fire_incidents_total' => 0,
+            'manv_total' => 0,
+            'documents_total' => 0,
+            'knowledge_base_articles' => 0,
+            'discord_webhooks_configured' => 0,
+            'days_since_install' => 0,
         ];
 
         try {
@@ -176,21 +199,33 @@ class TelemetryManager
             } catch (\PDOException $e) {
             }
 
+            // Gesamt User
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_users");
+                $stats['total_users'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
+
             // Aktive User (Login in letzten 30 Tagen via Session-Logs)
             try {
-                // Versuche zuerst session_logs (genauer)
                 $stmt = $this->pdo->query("
-                    SELECT COUNT(DISTINCT user_id) FROM intra_session_logs 
+                    SELECT COUNT(DISTINCT user_id) FROM intra_session_logs
                     WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
                 ");
                 $stats['active_users'] = (int) $stmt->fetchColumn();
             } catch (\PDOException $e) {
                 // Fallback: Alle User zählen
-                try {
-                    $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_users");
-                    $stats['active_users'] = (int) $stmt->fetchColumn();
-                } catch (\PDOException $e2) {
-                }
+                $stats['active_users'] = $stats['total_users'];
+            }
+
+            // Logins letzte 30 Tage (Gesamtzahl, nicht distinct)
+            try {
+                $stmt = $this->pdo->query("
+                    SELECT COUNT(*) FROM intra_session_logs
+                    WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
+                ");
+                $stats['logins_last_30_days'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
             }
 
             // Fahrzeuge
@@ -200,23 +235,71 @@ class TelemetryManager
             } catch (\PDOException $e) {
             }
 
-            // eNOTF Einträge (letzte 30 Tage)
+            // eNOTF Einträge (letzte 30 Tage + gesamt)
             try {
                 $stmt = $this->pdo->query("
-                    SELECT COUNT(*) FROM intra_edivi 
+                    SELECT COUNT(*) FROM intra_edivi
                     WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
                 ");
                 $stats['enotf_last_30_days'] = (int) $stmt->fetchColumn();
+
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_edivi");
+                $stats['enotf_total'] = (int) $stmt->fetchColumn();
             } catch (\PDOException $e) {
             }
 
-            // Feuerwehr-Einsätze (letzte 30 Tage)
+            // Feuerwehr-Einsätze (letzte 30 Tage + gesamt)
             try {
                 $stmt = $this->pdo->query("
-                    SELECT COUNT(*) FROM intra_fire_incidents 
+                    SELECT COUNT(*) FROM intra_fire_incidents
                     WHERE created_at > DATE_SUB(NOW(), INTERVAL 30 DAY)
                 ");
                 $stats['fire_incidents_last_30_days'] = (int) $stmt->fetchColumn();
+
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_fire_incidents");
+                $stats['fire_incidents_total'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
+
+            // MANV-Lagen gesamt
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_manv_lagen");
+                $stats['manv_total'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
+
+            // Dokument-Templates gesamt
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_dokument_templates");
+                $stats['documents_total'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
+
+            // Wissensbasis-Artikel gesamt
+            try {
+                $stmt = $this->pdo->query("SELECT COUNT(*) FROM intra_kb_entries");
+                $stats['knowledge_base_articles'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
+
+            // Konfigurierte Discord-Webhooks
+            try {
+                $stmt = $this->pdo->query("
+                    SELECT COUNT(*) FROM intra_config
+                    WHERE config_key LIKE 'DISCORD_WEBHOOK_%'
+                    AND config_value IS NOT NULL AND config_value != ''
+                ");
+                $stats['discord_webhooks_configured'] = (int) $stmt->fetchColumn();
+            } catch (\PDOException $e) {
+            }
+
+            // Tage seit Installation (basierend auf ältestem User oder Config-Eintrag)
+            try {
+                $stmt = $this->pdo->query("
+                    SELECT DATEDIFF(NOW(), MIN(created_at)) FROM intra_users
+                ");
+                $days = $stmt->fetchColumn();
+                $stats['days_since_install'] = $days !== false ? (int) $days : 0;
             } catch (\PDOException $e) {
             }
         } catch (\PDOException $e) {
