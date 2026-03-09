@@ -1,0 +1,65 @@
+services:
+  app:
+    build: .
+    container_name: intrarp-app
+    ports:
+      - "8080:80"
+    environment:
+      - DB_HOST=db
+      - DB_USER=intrarp
+      - DB_PASS=intrarp_secret
+      - DB_NAME=intrarp
+      - APP_ENV=development
+      - BASE_PATH=/
+      - LOG_LEVEL=debug
+      - LOG_PATH=storage/logs
+    volumes:
+      # Mount source code for live editing in development
+      - .:/var/www/html
+      # Persist storage data
+      - intrarp-storage:/var/www/html/storage
+      - intrarp-uploads:/var/www/html/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mariadb:11
+    container_name: intrarp-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_secret
+      - MYSQL_DATABASE=intrarp
+      - MYSQL_USER=intrarp
+      - MYSQL_PASSWORD=intrarp_secret
+    ports:
+      - "3306:3306"
+    volumes:
+      - intrarp-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: intrarp-pma
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=intrarp
+      - PMA_PASSWORD=intrarp_secret
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - tools
+
+volumes:
+  intrarp-db:
+  intrarp-storage:
+  intrarp-uploads:

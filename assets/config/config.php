@@ -5,7 +5,13 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use App\Auth\Permissions;
 use App\Config\ConfigManager;
+use App\Logging\ErrorHandler;
 use App\Session\SessionManager;
+
+// ============================================================================
+// Globales Error-Handling & Logging registrieren
+// ============================================================================
+ErrorHandler::register();
 
 // ============================================================================
 // Session mit Sicherheitsoptimierungen starten
@@ -36,7 +42,7 @@ try {
     $configManager->loadAndDefineConfig();
 } catch (Exception $e) {
     // Fallback to default values if database is not available or table doesn't exist
-    error_log("Could not load config from database: " . $e->getMessage());
+    \App\Logging\Logger::warning("Could not load config from database: " . $e->getMessage());
 
     // BASIS DATEN - Fallback defaults
     if (!defined('API_KEY')) define('API_KEY', 'CHANGE_ME');

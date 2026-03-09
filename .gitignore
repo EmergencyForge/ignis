@@ -2,6 +2,7 @@ phpinfo.php
 .env
 vendor
 php_errors.log
+storage/logs/
 storage/documents/**.pdf
 support_errors.log
 *.backup
@@ -13,3 +14,5 @@ system/updates/*.zip
 system/updates/temp/
 intrap
 /preview-*.html
+.phpunit.cache
+.phpunit.cache/

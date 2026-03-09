@@ -373,6 +373,7 @@ if (!empty($entryIds)) {
                                 <select name="category" id="category" class="form-select">
                                     <option value="">Alle</option>
                                     <?php
+                                    /** @param array<int, array<string, mixed>> $cats */
                                     function renderFilterCatOptions(array $cats, int $sel, ?int $pid = null, int $d = 0): void {
                                         foreach ($cats as $c) {
                                             if ($pid === null && $c['parent_id'] !== null) continue;
@@ -555,7 +556,7 @@ if (!empty($entryIds)) {
             
             // Debounce the search
             debounceTimer = setTimeout(function() {
-                fetch('<?= BASE_PATH ?>wissensdb/search-api.php?q=' + encodeURIComponent(query))
+                fetch('<?= BASE_PATH ?>api/knowledgebase/search.php?q=' + encodeURIComponent(query))
                     .then(response => response.json())
                     .then(data => {
                         if (data.results && data.results.length > 0) {

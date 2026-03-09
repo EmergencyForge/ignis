@@ -91,7 +91,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 
-<body data-bs-theme="dark" data-page="settings">
+<body data-bs-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <!-- ------------ -->

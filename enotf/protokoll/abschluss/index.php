@@ -611,7 +611,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             // Sofort auf Gelb setzen (Senden läuft)
             if (syncIconEl) syncIconEl.style.color = '#f0ad4e';
 
-            fetch('<?= BASE_PATH ?>api/enotf-patient-sync.php', {
+            fetch('<?= BASE_PATH ?>api/enotf/patient-sync.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ enr: '<?= $enr ?>' })

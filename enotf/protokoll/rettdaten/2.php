@@ -266,7 +266,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
         // POI-Daten laden
         function loadPOIs(searchTerm = '') {
-            const url = '<?= BASE_PATH ?>assets/functions/enotf/poi/poi-search.php' + (searchTerm ? '?search=' + encodeURIComponent(searchTerm) : '');
+            const url = '<?= BASE_PATH ?>api/enotf/poi/poi-search.php' + (searchTerm ? '?search=' + encodeURIComponent(searchTerm) : '');
 
             fetch(url)
                 .then(response => response.json())
@@ -415,7 +415,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             formData.append('ziel_poi', poi);
             formData.append('ziel_adresse', JSON.stringify(adressData));
 
-            fetch('<?= BASE_PATH ?>assets/functions/enotf/poi/save-field.php', {
+            fetch('<?= BASE_PATH ?>api/enotf/poi/save-field.php', {
                     method: 'POST',
                     body: formData
                 })

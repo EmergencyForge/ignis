@@ -24,6 +24,7 @@ parameters:
                 - assets/components/enotf/topbar.php
                 - assets/functions/enotf/pin_middleware.php
                 - assets/functions/enotf/share/accept-request.php
+                - api/enotf/share/accept-request.php
             reportUnmatched: false
 
         -
@@ -46,7 +47,7 @@ parameters:
             path: assets/functions/enotf/pin_middleware.php
             reportUnmatched: false
 
-        # REGISTRATION_MODE Konstante wird zur Laufzeit geladen
+        # REGISTRATION_MODE + SYSTEM_URL Konstanten werden zur Laufzeit geladen
         -
             identifier: identical.alwaysFalse
             paths:
@@ -54,7 +55,22 @@ parameters:
                 - benutzer/registration-codes.php
             reportUnmatched: false
 
-        # EINSATZ_REQUIRE_USER_AUTH Konstante wird zur Laufzeit geladen
+        -
+            identifier: booleanAnd.alwaysFalse
+            path: benutzer/registration-codes.php
+            reportUnmatched: false
+
+        -
+            identifier: notIdentical.alwaysFalse
+            path: benutzer/registration-codes.php
+            reportUnmatched: false
+
+        -
+            identifier: notIdentical.alwaysTrue
+            path: benutzer/registration-codes.php
+            reportUnmatched: false
+
+        # EINSATZ_REQUIRE_USER_AUTH / FIRE_INCIDENT_REQUIRE_USER_AUTH Konstante wird zur Laufzeit geladen
         -
             identifier: booleanAnd.alwaysFalse
             paths:
@@ -64,6 +80,7 @@ parameters:
                 - einsatz/list.php
                 - einsatz/login-fahrzeug.php
                 - einsatz/view.php
+                - api/fire/lagekarte.php
             reportUnmatched: false
 
         -
@@ -75,6 +92,7 @@ parameters:
                 - einsatz/list.php
                 - einsatz/login-fahrzeug.php
                 - einsatz/view.php
+                - api/fire/lagekarte.php
             reportUnmatched: false
 
         -
@@ -223,6 +241,17 @@ parameters:
             path: setup/database-init.php
             reportUnmatched: false
 
+        # Defensive coding - Migration tables array check
+        -
+            identifier: booleanAnd.rightAlwaysTrue
+            path: setup/database-init.php
+            reportUnmatched: false
+
+        -
+            identifier: empty.offset
+            path: setup/database-init.php
+            reportUnmatched: false
+
         -
             identifier: instanceof.alwaysTrue
             path: settings/system/telemetry.php
@@ -240,6 +269,7 @@ parameters:
                 - wissensdb/index.php
                 - wissensdb/search-api.php
                 - wissensdb/view.php
+                - api/knowledgebase/search.php
             reportUnmatched: false
 
         -
@@ -248,6 +278,7 @@ parameters:
                 - wissensdb/index.php
                 - wissensdb/search-api.php
                 - wissensdb/view.php
+                - api/knowledgebase/search.php
             reportUnmatched: false
 
         -
@@ -256,6 +287,7 @@ parameters:
                 - wissensdb/index.php
                 - wissensdb/search-api.php
                 - wissensdb/view.php
+                - api/knowledgebase/search.php
             reportUnmatched: false
 
         # src/ Infrastruktur-Code - komplexe dynamische Arrays und defensive Coding Patterns

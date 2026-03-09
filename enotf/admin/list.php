@@ -366,7 +366,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
             modal.show();
 
             // Load preview via AJAX
-            fetch('<?= BASE_PATH ?>enotf/admin/bulk-delete-empty.php')
+            fetch('<?= BASE_PATH ?>api/enotf/bulk-delete-empty.php')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.fields) {
@@ -451,7 +451,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
             formData.append('preview', '1');
             formData.append('timePeriod', timePeriod);
 
-            fetch('<?= BASE_PATH ?>enotf/admin/bulk-delete-empty.php', {
+            fetch('<?= BASE_PATH ?>api/enotf/bulk-delete-empty.php', {
                     method: 'POST',
                     body: formData
                 })
@@ -557,7 +557,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
             formData.append('timePeriod', window.bulkDeleteTimePeriod || '30');
             formData.append('timePeriod', window.bulkDeleteTimePeriod || '30');
 
-            fetch('<?= BASE_PATH ?>enotf/admin/bulk-delete-empty.php', {
+            fetch('<?= BASE_PATH ?>api/enotf/bulk-delete-empty.php', {
                     method: 'POST',
                     body: formData
                 })

@@ -257,7 +257,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
                         // Speichern
                         $.ajax({
-                            url: '/assets/functions/save_fields.php',
+                            url: '/api/enotf/save-fields.php',
                             method: 'POST',
                             data: {
                                 enr: enr,

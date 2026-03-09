@@ -94,7 +94,8 @@ if (!Permissions::check(['admin', 'dashboard.manage'])) {
                                                     <li class="d-flex justify-content-between align-items-center mb-4">
                                                         <h4><i class="<?= $tile['icon'] ?>"></i> <?= $tile['title'] ?></h4>
                                                         <button type="button"
-                                                            class="btn btn-sm btn-soft-primary btn-icon edit-tile-btn"
+                                                            class="btn btn-sm btn-soft-primary edit-tile-btn"
+                                                            style="white-space:nowrap;"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#editTileModal"
                                                             data-id="<?= $tile['id'] ?>"

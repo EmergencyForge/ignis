@@ -32,7 +32,7 @@ class AuditLogger
                 'global' => $global,
             ]);
         } catch (PDOException $e) {
-            error_log('Audit log failed: ' . $e->getMessage());
+            \App\Logging\Logger::error('Audit log failed: ' . $e->getMessage());
         }
     }
 }

@@ -195,7 +195,7 @@
             console.log('Saving psych field with values:', selectedValues, 'as JSON:', jsonValue);
 
             $.ajax({
-                url: '<?= BASE_PATH ?>assets/functions/save_fields.php',
+                url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
                 type: 'POST',
                 data: {
                     enr: enr,
@@ -241,7 +241,7 @@
             console.log('Saving field: ebesonderheiten[] value:', jsonValue);
 
             $.ajax({
-                url: '<?= BASE_PATH ?>assets/functions/save_fields.php',
+                url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
                 type: 'POST',
                 data: {
                     enr: enr,
@@ -287,7 +287,7 @@
             console.log('Saving field: rettungstechnik[] value:', jsonValue);
 
             $.ajax({
-                url: '<?= BASE_PATH ?>assets/functions/save_fields.php',
+                url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
                 type: 'POST',
                 data: {
                     enr: enr,
@@ -413,7 +413,7 @@
                 console.log('Saving field:', fieldName, 'value:', currentValue);
 
                 $.ajax({
-                    url: '<?= BASE_PATH ?>assets/functions/save_fields.php',
+                    url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
                     type: 'POST',
                     data: {
                         enr: enr,
@@ -466,7 +466,7 @@
             $(this).prop('disabled', true);
 
             $.ajax({
-                url: '<?= BASE_PATH ?>assets/functions/save_fields.php',
+                url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
                 type: 'POST',
                 data: {
                     enr: enr,
@@ -606,7 +606,7 @@
 
                     fieldsToSave.forEach(field => {
                         const promise = $.ajax({
-                            url: '<?= BASE_PATH ?>assets/functions/save_fields.php',
+                            url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
                             type: 'POST',
                             data: {
                                 enr: enr,

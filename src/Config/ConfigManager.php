@@ -58,7 +58,7 @@ class ConfigManager
             self::$configCache = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return self::$configCache;
         } catch (PDOException $e) {
-            error_log("Failed to load config: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to load config: " . $e->getMessage());
             return [];
         }
     }
@@ -107,7 +107,7 @@ class ConfigManager
 
             return $default;
         } catch (PDOException $e) {
-            error_log("Failed to get config value: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to get config value: " . $e->getMessage());
             return null;
         }
     }
@@ -134,7 +134,7 @@ class ConfigManager
 
             return $stmt->execute([$value, $userId, $key]);
         } catch (PDOException $e) {
-            error_log("Failed to update config value: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to update config value: " . $e->getMessage());
             return false;
         }
     }
@@ -179,7 +179,7 @@ class ConfigManager
             }
         } catch (PDOException $e) {
             $this->pdo->rollBack();
-            error_log("Failed to update multiple config values: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to update multiple config values: " . $e->getMessage());
             return ['success' => false, 'updated' => [], 'failed' => array_keys($updates)];
         }
     }

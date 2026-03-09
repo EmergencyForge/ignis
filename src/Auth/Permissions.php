@@ -43,7 +43,7 @@ class Permissions
                 }
             }
         } catch (PDOException $e) {
-            error_log("Permission DB error: " . $e->getMessage());
+            \App\Logging\Logger::error("Permission DB error: " . $e->getMessage());
         }
 
         return [];

@@ -391,7 +391,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             delayTimer = setTimeout(function() {
                 $.ajax({
-                    url: '<?= BASE_PATH ?>assets/functions/checkdnr.php',
+                    url: '<?= BASE_PATH ?>api/personnel/check-dienstnr-legacy.php',
                     method: 'POST',
                     data: {
                         dienstnr: dienstnr

@@ -110,6 +110,19 @@ body:has(.intra-sidebar) strong, body:has(.intra-sidebar) b, body:has(.intra-sid
     padding-top: 56px;
   }
 }
+@media (max-width: 767.98px) {
+  .footer .row {
+    flex-direction: column;
+    text-align: center;
+  }
+  .footer .col-md-4 {
+    text-align: center !important;
+  }
+  .footer img {
+    margin-bottom: 0.25rem;
+  }
+}
+
 .bg-secondary-color {
   background-color: var(--secondary-color) !important;
 }

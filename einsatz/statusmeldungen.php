@@ -270,7 +270,7 @@ $statusConfig = [
 
         // Periodisch Status von Server abfragen (für no_dispatch Updates)
         setInterval(() => {
-            fetch(basePath + 'einsatz/status-api.php', {
+            fetch(basePath + 'api/fire/status.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'get_status' })
@@ -319,7 +319,7 @@ $statusConfig = [
             const btn = document.querySelector(`.status-btn[data-status="${newStatus}"]`);
             if (btn) btn.classList.add('sending');
 
-            fetch(basePath + 'einsatz/status-api.php', {
+            fetch(basePath + 'api/fire/status.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -129,7 +129,7 @@
 
     // Lade verfügbare Fahrzeuge (außer dem eigenen)
     function loadAvailableVehicles() {
-        fetch('<?= BASE_PATH ?>assets/functions/enotf/share/get-available-vehicles.php')
+        fetch('<?= BASE_PATH ?>api/enotf/share/get-available-vehicles.php')
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.vehicles) {
@@ -256,7 +256,7 @@
         this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wird gesendet...';
 
         // Sende Share-Request
-        fetch('<?= BASE_PATH ?>assets/functions/enotf/share/send-request.php', {
+        fetch('<?= BASE_PATH ?>api/enotf/share/send-request.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -331,7 +331,7 @@
     }
 
     function loadExistingProtocols() {
-        fetch('<?= BASE_PATH ?>assets/functions/enotf/share/get-own-protocols.php')
+        fetch('<?= BASE_PATH ?>api/enotf/share/get-own-protocols.php')
             .then(response => response.json())
             .then(data => {
                 console.log('Geladene Protokolle:', data);
@@ -364,7 +364,7 @@
         this.disabled = true;
         this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wird verarbeitet...';
 
-        fetch('<?= BASE_PATH ?>assets/functions/enotf/share/accept-request.php', {
+        fetch('<?= BASE_PATH ?>api/enotf/share/accept-request.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -419,7 +419,7 @@
     document.getElementById('rejectShareBtn')?.addEventListener('click', function() {
         this.disabled = true;
 
-        fetch('<?= BASE_PATH ?>assets/functions/enotf/share/reject-request.php', {
+        fetch('<?= BASE_PATH ?>api/enotf/share/reject-request.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -493,7 +493,7 @@
 
     // Polling für Share-Requests (wird in der Hauptseite aufgerufen)
     function checkForShareRequests() {
-        fetch('<?= BASE_PATH ?>assets/functions/enotf/share/check-requests.php')
+        fetch('<?= BASE_PATH ?>api/enotf/share/check-requests.php')
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.has_requests && data.request) {

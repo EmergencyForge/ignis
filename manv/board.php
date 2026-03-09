@@ -410,7 +410,7 @@ foreach ($patienten as $patient) {
             $('#confirmTransportBtn').on('click', function() {
                 if (currentPatientId) {
                     $.ajax({
-                        url: '<?= BASE_PATH ?>api/manv-api.php',
+                        url: '<?= BASE_PATH ?>api/manv/api.php',
                         method: 'POST',
                         data: {
                             action: 'transport_abfahrt',
