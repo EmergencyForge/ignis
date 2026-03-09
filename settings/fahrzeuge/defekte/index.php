@@ -622,7 +622,7 @@ $statusLabels = [
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var handlerUrl = '<?= BASE_PATH ?>settings/fahrzeuge/defekte/handler.php';
+        var handlerUrl = '<?= BASE_PATH ?>api/vehicles/defects-handler.php';
         var categoryLabels = <?= json_encode($categoryLabels) ?>;
         var statusLabels = { open: ['Offen', 'danger'], in_progress: ['In Bearbeitung', 'warning'], deferred: ['Aufgeschoben', 'primary'], resolved: ['Gelöst', 'success'] };
 

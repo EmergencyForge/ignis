@@ -517,7 +517,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     }
 
                     try {
-                        const response = await fetch('<?= BASE_PATH ?>api/enotf-delete-protocol.php', {
+                        const response = await fetch('<?= BASE_PATH ?>api/enotf/delete-protocol.php', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'

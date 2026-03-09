@@ -452,7 +452,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 const combined = datumInput.value + ' ' + zeitInput.value + ':00';
 
                                 $.ajax({
-                                    url: '<?= BASE_PATH ?>assets/functions/save_fields.php',
+                                    url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
                                     type: 'POST',
                                     data: {
                                         enr: enr,

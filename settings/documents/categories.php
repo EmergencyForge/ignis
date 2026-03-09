@@ -237,7 +237,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
 
             try {
-                var response = await fetch(BASE_PATH + 'assets/functions/documents/categories.php', {
+                var response = await fetch(BASE_PATH + 'api/documents/categories.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -267,7 +267,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (!confirmed) return;
 
             try {
-                var response = await fetch(BASE_PATH + 'assets/functions/documents/categories.php?id=' + id, {
+                var response = await fetch(BASE_PATH + 'api/documents/categories.php?id=' + id, {
                     method: 'DELETE'
                 });
 

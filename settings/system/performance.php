@@ -302,7 +302,7 @@ if (!Permissions::check(['admin'])) {
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Lade...';
 
             try {
-                const response = await fetch(BASE_PATH + 'assets/functions/system/performance-api.php');
+                const response = await fetch(BASE_PATH + 'api/system/performance.php');
                 const data = await response.json();
 
                 if (data.error) {

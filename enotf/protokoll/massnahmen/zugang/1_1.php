@@ -158,7 +158,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
             $('#c_zugang-0').on('change', function() {
                 if ($(this).is(':checked')) {
                     $.ajax({
-                        url: '<?= BASE_PATH ?>assets/functions/save_fields.php',
+                        url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
                         type: 'POST',
                         data: {
                             enr: '<?= $enr ?>',

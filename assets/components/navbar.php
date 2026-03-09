@@ -1063,7 +1063,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             $searchResults.html('<div class="gsr-loading"><i class="fa-solid fa-spinner fa-spin"></i> Suche...</div>');
 
             searchTimer = setTimeout(function() {
-                searchXhr = $.getJSON("<?= BASE_PATH ?>assets/functions/system/global-search-api.php", { q: q })
+                searchXhr = $.getJSON("<?= BASE_PATH ?>api/system/global-search.php", { q: q })
                     .done(function(data) {
                         renderSearchResults(data.results || [], q);
                     })
@@ -1228,7 +1228,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             localStorage.setItem(THEME_KEY, accent);
 
             $.ajax({
-                url: "<?= BASE_PATH ?>assets/functions/system/theme-api.php",
+                url: "<?= BASE_PATH ?>api/system/theme.php",
                 method: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({ accent: accent })
@@ -1241,7 +1241,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             applyAccent(savedAccent);
         } else {
             // Kein localStorage → Theme aus DB laden (z.B. neues Gerät)
-            $.getJSON("<?= BASE_PATH ?>assets/functions/system/theme-api.php", function(data) {
+            $.getJSON("<?= BASE_PATH ?>api/system/theme.php", function(data) {
                 if (data.config && data.config.accent) {
                     localStorage.setItem(THEME_KEY, data.config.accent);
                     applyAccent(data.config.accent);

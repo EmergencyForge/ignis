@@ -606,7 +606,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             const templateId = document.getElementById('templateId').value;
 
             try {
-                const response = await fetch(BASE_PATH + 'assets/functions/documents/save.php', {
+                const response = await fetch(BASE_PATH + 'api/documents/save.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -632,7 +632,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
         async function loadTemplates() {
             try {
-                const response = await fetch(BASE_PATH + 'assets/functions/documents/list.php');
+                const response = await fetch(BASE_PATH + 'api/documents/list.php');
                 templates = await response.json();
                 renderTemplateList();
             } catch (error) {
@@ -678,7 +678,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
         async function loadTemplate(id) {
             try {
-                const response = await fetch(BASE_PATH + `assets/functions/documents/get.php?id=${id}`);
+                const response = await fetch(BASE_PATH + `api/documents/get.php?id=${id}`);
                 const template = await response.json();
 
                 document.getElementById('templateId').value = template.id;
@@ -703,7 +703,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             }
 
             try {
-                const response = await fetch(BASE_PATH + `assets/functions/documents/delete.php?id=${id}`, {
+                const response = await fetch(BASE_PATH + `api/documents/delete.php?id=${id}`, {
                     method: 'DELETE'
                 });
                 const result = await response.json();

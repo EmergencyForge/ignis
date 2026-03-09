@@ -907,7 +907,7 @@ $formData = $entry ?? [
             if (q.length < 2) { relSuggestions.style.display = 'none'; return; }
 
             relTimer = setTimeout(function() {
-                fetch('<?= BASE_PATH ?>wissensdb/search-api.php?q=' + encodeURIComponent(q))
+                fetch('<?= BASE_PATH ?>api/knowledgebase/search.php?q=' + encodeURIComponent(q))
                     .then(r => r.json())
                     .then(data => {
                         if (!data.results || data.results.length === 0) {

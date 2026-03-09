@@ -103,7 +103,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         }
 
         function checkForConflict(enr, protBy) {
-            return fetch('<?= BASE_PATH ?>assets/functions/enotf/check_conflict.php', {
+            return fetch('<?= BASE_PATH ?>api/enotf/check-conflict.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',

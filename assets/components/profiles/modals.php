@@ -184,7 +184,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
             formContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div><p>Lade Formular...</p></div>';
 
             try {
-                const response = await fetch(BASE_PATH + `assets/functions/documents/get.php?id=${templateId}`);
+                const response = await fetch(BASE_PATH + `api/documents/get.php?id=${templateId}`);
                 const template = await response.json();
 
                 if (template.error) {
@@ -365,7 +365,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
             }
 
             try {
-                const response = await fetch(BASE_PATH + 'assets/functions/documents/create-custom.php', {
+                const response = await fetch(BASE_PATH + 'api/documents/create-custom.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

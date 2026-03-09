@@ -265,7 +265,7 @@ $tags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
             var id = document.getElementById('catId').value;
             if (id) data.id = parseInt(id);
 
-            var res = await fetch(BASE_PATH + 'wissensdb/api-categories.php', {
+            var res = await fetch(BASE_PATH + 'api/knowledgebase/categories.php', {
                 method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
             });
             var result = await res.json();
@@ -275,7 +275,7 @@ $tags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
 
         async function deleteCat(id, name) {
             if (!await showConfirm('Kategorie "' + name + '" löschen?', {danger: true, confirmText: 'Löschen', title: 'Kategorie löschen'})) return;
-            var res = await fetch(BASE_PATH + 'wissensdb/api-categories.php?id=' + id, {method: 'DELETE'});
+            var res = await fetch(BASE_PATH + 'api/knowledgebase/categories.php?id=' + id, {method: 'DELETE'});
             var result = await res.json();
             if (result.success) location.reload();
             else showToast('Fehler: ' + result.error, 'error');
@@ -313,7 +313,7 @@ $tags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
             var id = document.getElementById('tagId').value;
             if (id) data.id = parseInt(id);
 
-            var res = await fetch(BASE_PATH + 'wissensdb/api-tags.php', {
+            var res = await fetch(BASE_PATH + 'api/knowledgebase/tags.php', {
                 method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
             });
             var result = await res.json();
@@ -323,7 +323,7 @@ $tags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
 
         async function deleteTag(id, name) {
             if (!await showConfirm('Tag "' + name + '" löschen? Alle Verknüpfungen werden entfernt.', {danger: true, confirmText: 'Löschen', title: 'Tag löschen'})) return;
-            var res = await fetch(BASE_PATH + 'wissensdb/api-tags.php?id=' + id, {method: 'DELETE'});
+            var res = await fetch(BASE_PATH + 'api/knowledgebase/tags.php?id=' + id, {method: 'DELETE'});
             var result = await res.json();
             if (result.success) location.reload();
             else showToast('Fehler: ' + result.error, 'error');

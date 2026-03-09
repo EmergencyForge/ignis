@@ -461,7 +461,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 e.preventDefault();
                 var fd = new FormData(form);
 
-                fetch('<?= BASE_PATH ?>settings/fahrzeuge/defekte/handler.php', {
+                fetch('<?= BASE_PATH ?>api/vehicles/defects-handler.php', {
                     method: 'POST',
                     body: fd
                 })

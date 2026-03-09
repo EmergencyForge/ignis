@@ -556,7 +556,7 @@ if (!empty($entryIds)) {
             
             // Debounce the search
             debounceTimer = setTimeout(function() {
-                fetch('<?= BASE_PATH ?>wissensdb/search-api.php?q=' + encodeURIComponent(query))
+                fetch('<?= BASE_PATH ?>api/knowledgebase/search.php?q=' + encodeURIComponent(query))
                     .then(response => response.json())
                     .then(data => {
                         if (data.results && data.results.length > 0) {

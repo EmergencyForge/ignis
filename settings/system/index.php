@@ -701,7 +701,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function checkComposerStatus() {
-            fetch('<?= BASE_PATH ?>api/composer-status.php?action=check', {
+            fetch('<?= BASE_PATH ?>api/system/composer-status.php?action=check', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -724,7 +724,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         function executeComposerInstall() {
-            fetch('<?= BASE_PATH ?>api/composer-status.php?action=execute', {
+            fetch('<?= BASE_PATH ?>api/system/composer-status.php?action=execute', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
