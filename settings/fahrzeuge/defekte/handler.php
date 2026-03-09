@@ -5,24 +5,46 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../../assets/config/database.php';
 
 use App\Auth\Permissions;
+use App\Notifications\NotificationManager;
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['userid'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Nicht authentifiziert']);
-    exit;
-}
-
-if (!Permissions::check(['admin', 'vehicles.view'])) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Keine Berechtigung']);
-    exit;
-}
-
 $action = $_POST['action'] ?? $_GET['action'] ?? '';
-$userId = (int)$_SESSION['userid'];
-$username = $_SESSION['cirs_username'] ?? 'Unbekannt';
+$isEnotfUser = !isset($_SESSION['userid']) && isset($_SESSION['fahrername']);
+
+// eNOTF-User dürfen nur Defekte erstellen
+if ($isEnotfUser) {
+    if ($action !== 'create') {
+        http_response_code(401);
+        echo json_encode(['error' => 'Nicht authentifiziert']);
+        exit;
+    }
+    // Gemeldete Person aus Formular oder Fallback auf Fahrername
+    $reporterName = trim($_POST['reported_by_name'] ?? '') ?: ($_SESSION['fahrername'] ?? '');
+    // User-ID über Name aus intra_mitarbeiter → intra_users ermitteln
+    $enotfStmt = $pdo->prepare("SELECT u.id FROM intra_users u
+        JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
+        WHERE m.fullname = :name LIMIT 1");
+    $enotfStmt->execute(['name' => $reporterName]);
+    $enotfUserId = $enotfStmt->fetchColumn();
+    $userId = $enotfUserId ? (int)$enotfUserId : 0;
+    $username = $reporterName ?: 'Unbekannt';
+} else {
+    if (!isset($_SESSION['userid'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Nicht authentifiziert']);
+        exit;
+    }
+
+    if (!Permissions::check(['admin', 'vehicles.view'])) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Keine Berechtigung']);
+        exit;
+    }
+
+    $userId = (int)$_SESSION['userid'];
+    $username = $_SESSION['cirs_username'] ?? 'Unbekannt';
+}
 
 // Defekt-Kategorien
 $allowedCategories = [
@@ -68,12 +90,12 @@ try {
                 $sql .= " AND d.vehicle_id = :vid";
                 $params['vid'] = $vehicleId;
             }
-            if ($statusFilter && in_array($statusFilter, ['open', 'in_progress', 'resolved'])) {
+            if ($statusFilter && in_array($statusFilter, ['open', 'in_progress', 'deferred', 'resolved'])) {
                 $sql .= " AND d.status = :status";
                 $params['status'] = $statusFilter;
             }
 
-            $sql .= " ORDER BY d.vehicle_operable ASC, FIELD(d.status, 'open', 'in_progress', 'deferred', 'resolved'), d.created_at DESC";
+            $sql .= " ORDER BY FIELD(d.status, 'open', 'in_progress', 'deferred', 'resolved'), CASE WHEN d.status != 'resolved' THEN d.vehicle_operable END ASC, d.created_at DESC";
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
@@ -127,7 +149,7 @@ try {
 
         // ── Neuen Defekt erstellen ──
         case 'create':
-            if (!Permissions::check(['admin', 'vehicles.manage', 'vehicles.view'])) {
+            if (!$isEnotfUser && !Permissions::check(['admin', 'vehicles.manage', 'vehicles.view'])) {
                 http_response_code(403);
                 echo json_encode(['error' => 'Keine Berechtigung']);
                 exit;
@@ -141,6 +163,11 @@ try {
 
             if (!$vehicleId || !$title) {
                 echo json_encode(['error' => 'Fahrzeug und Titel sind Pflichtfelder']);
+                exit;
+            }
+
+            if (!$userId && !$isEnotfUser) {
+                echo json_encode(['error' => 'Benutzer konnte nicht zugeordnet werden']);
                 exit;
             }
 
@@ -162,12 +189,62 @@ try {
             $defectId = (int)$pdo->lastInsertId();
 
             // Log: Erstellt
-            logDefectAction($pdo, $defectId, $userId, 'created', 'Defekt gemeldet: ' . $title);
+            $logDetails = 'Defekt gemeldet: ' . $title;
+            if ($isEnotfUser && !$userId) {
+                $logDetails .= ' (Gemeldet durch: ' . $username . ')';
+            }
+            logDefectAction($pdo, $defectId, $userId, 'created', $logDetails);
 
             // Bei nicht einsatzfähig: Fahrzeug deaktivieren
             if (!$operable) {
                 $pdo->prepare("UPDATE intra_fahrzeuge SET active = 0 WHERE id = :id")->execute(['id' => $vehicleId]);
                 logDefectAction($pdo, $defectId, $userId, 'vehicle_disabled', 'Fahrzeug als nicht einsatzfähig markiert');
+            }
+
+            // Benachrichtigung an alle User mit vehicles.view
+            try {
+                $vehicleNameStmt = $pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE id = :id");
+                $vehicleNameStmt->execute(['id' => $vehicleId]);
+                $vehicleName = $vehicleNameStmt->fetchColumn() ?: 'Unbekannt';
+
+                $notificationManager = new NotificationManager($pdo);
+
+                // Alle User laden, deren Rolle vehicles.view enthält oder die full_admin sind
+                $allUsers = $pdo->query("SELECT u.id, u.full_admin, r.permissions
+                    FROM intra_users u
+                    LEFT JOIN intra_users_roles r ON u.role = r.id
+                    WHERE u.is_active = 1")->fetchAll(PDO::FETCH_ASSOC);
+
+                foreach ($allUsers as $u) {
+                    if ($u['id'] == $userId) continue; // Ersteller nicht benachrichtigen
+
+                    $hasPermission = false;
+                    if ($u['full_admin']) {
+                        $hasPermission = true;
+                    } else {
+                        $perms = json_decode($u['permissions'] ?? '[]', true);
+                        if (is_array($perms) && (in_array('vehicles.view', $perms) || in_array('admin', $perms))) {
+                            $hasPermission = true;
+                        }
+                    }
+
+                    if ($hasPermission) {
+                        $notifTitle = 'Neuer Defekt: ' . $title;
+                        $notifMsg = 'Fahrzeug: ' . $vehicleName;
+                        if (!$operable) {
+                            $notifMsg .= ' — Nicht einsatzfähig!';
+                        }
+                        $notificationManager->create(
+                            (int)$u['id'],
+                            'system',
+                            $notifTitle,
+                            $notifMsg,
+                            BASE_PATH . 'settings/fahrzeuge/defekte/index.php'
+                        );
+                    }
+                }
+            } catch (\Exception $e) {
+                error_log("Defekt-Benachrichtigungsfehler: " . $e->getMessage());
             }
 
             echo json_encode(['success' => true, 'id' => $defectId, 'message' => 'Defekt gemeldet']);

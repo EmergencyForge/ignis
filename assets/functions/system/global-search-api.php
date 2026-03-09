@@ -108,6 +108,18 @@ try {
         }
     }
 
+    // 8. Fahrzeug-Defekte
+    if (Permissions::check(['admin', 'vehicles.view'])) {
+        $items = searchDefects($pdo, $searchParam);
+        if (!empty($items)) {
+            $results[] = [
+                'module' => 'Defekt-Meldungen',
+                'icon' => 'fa-triangle-exclamation',
+                'items' => $items
+            ];
+        }
+    }
+
     echo json_encode(['results' => $results]);
 } catch (Exception $e) {
     http_response_code(500);
@@ -333,6 +345,48 @@ function searchTemplates(PDO $pdo, string $searchParam): array
             'title' => $row['name'],
             'subtitle' => $subtitle,
             'url' => 'settings/documents/templates.php'
+        ];
+    }
+    return $items;
+}
+
+/**
+ * Search vehicle defects
+ */
+function searchDefects(PDO $pdo, string $searchParam): array
+{
+    $statusLabels = [
+        'open' => 'Offen', 'in_progress' => 'In Bearbeitung',
+        'deferred' => 'Aufgeschoben', 'resolved' => 'Gelöst'
+    ];
+
+    try {
+        $sql = "SELECT d.id, d.title, d.description, d.status, d.created_at,
+                       f.name AS vehicle_name, f.identifier AS vehicle_identifier
+                FROM intra_fahrzeuge_defects d
+                JOIN intra_fahrzeuge f ON d.vehicle_id = f.id
+                WHERE d.title LIKE :s1 OR d.description LIKE :s2
+                   OR f.name LIKE :s3 OR f.identifier LIKE :s4
+                ORDER BY d.created_at DESC
+                LIMIT 5";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['s1' => $searchParam, 's2' => $searchParam, 's3' => $searchParam, 's4' => $searchParam]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        return [];
+    }
+
+    $items = [];
+    foreach ($rows as $row) {
+        $status = $statusLabels[$row['status']] ?? $row['status'];
+        $subtitle = $row['vehicle_name'] . ' (' . $row['vehicle_identifier'] . ') — ' . $status;
+        if ($row['created_at']) {
+            $subtitle .= ' — ' . date('d.m.Y', strtotime($row['created_at']));
+        }
+        $items[] = [
+            'title' => $row['title'],
+            'subtitle' => $subtitle,
+            'url' => 'settings/fahrzeuge/defekte/index.php'
         ];
     }
     return $items;

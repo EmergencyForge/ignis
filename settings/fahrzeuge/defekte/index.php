@@ -101,7 +101,7 @@ if ($tableExists) {
         $params['status'] = $filterStatus;
     }
 
-    $sql .= " ORDER BY d.vehicle_operable ASC, FIELD(d.status, 'open', 'in_progress', 'deferred', 'resolved'), d.created_at DESC";
+    $sql .= " ORDER BY FIELD(d.status, 'open', 'in_progress', 'deferred', 'resolved'), CASE WHEN d.status != 'resolved' THEN d.vehicle_operable END ASC, d.created_at DESC";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
@@ -224,6 +224,18 @@ $statusLabels = [
 
                     <!-- Defekt-Liste -->
                     <div class="intra__tile">
+                        <?php if (!empty($defects)): ?>
+                            <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+                                    <input type="text" id="defectLocalSearch" class="form-control" placeholder="Defekte durchsuchen (Titel, Fahrzeug, Kategorie, Melder...)">
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                        <div id="defectNoResults" class="p-4 text-center text-muted" style="display:none;">
+                            <i class="fa-solid fa-search fa-2x mb-2" style="opacity:0.4;"></i>
+                            <div>Keine Treffer</div>
+                        </div>
                         <?php if (empty($defects)): ?>
                             <div class="p-4 text-center text-muted">
                                 <i class="fa-solid fa-check-circle fa-2x mb-2" style="opacity:0.4;"></i>
@@ -236,7 +248,7 @@ $statusLabels = [
                                 $catLabel = $categoryLabels[$d['category']] ?? $d['category'];
                                 $operable = (int)$d['vehicle_operable'];
                             ?>
-                                <div class="defect-item <?= $isResolved ? 'defect-resolved' : '' ?>" data-id="<?= $d['id'] ?>" style="cursor:pointer;">
+                                <div class="defect-item <?= $isResolved ? 'defect-resolved' : '' ?>" data-id="<?= $d['id'] ?>" data-search="<?= htmlspecialchars(mb_strtolower($d['title'] . ' ' . $d['vehicle_name'] . ' ' . $d['vehicle_identifier'] . ' ' . ($d['kennzeichen'] ?? '') . ' ' . $catLabel . ' ' . ($d['reporter_name'] ?? '') . ' ' . ($d['description'] ?? '') . ' ' . ($d['resolution_note'] ?? ''))) ?>" style="cursor:pointer;">
                                     <div class="defect-operable-bar <?= $operable ? 'operable-yes' : 'operable-no' ?>"></div>
                                     <div class="defect-body">
                                         <div class="defect-header">
@@ -778,6 +790,24 @@ $statusLabels = [
             var div = document.createElement('div');
             div.textContent = s;
             return div.innerHTML;
+        }
+
+        // Lokale Suche
+        var searchInput = document.getElementById('defectLocalSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                var q = this.value.toLowerCase().trim();
+                var items = document.querySelectorAll('.defect-item');
+                var visibleCount = 0;
+                items.forEach(function(item) {
+                    var searchData = item.dataset.search || '';
+                    var match = !q || searchData.indexOf(q) !== -1;
+                    item.style.display = match ? '' : 'none';
+                    if (match) visibleCount++;
+                });
+                var noResults = document.getElementById('defectNoResults');
+                if (noResults) noResults.style.display = visibleCount === 0 ? '' : 'none';
+            });
         }
     });
     </script>

@@ -165,6 +165,20 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <input type="hidden" name="vehicle_id" value="<?= $vehicle['id'] ?>">
                                         <input type="hidden" name="action" value="create">
                                         <div class="mb-2">
+                                            <label class="form-label text-light">Meldung durch</label>
+                                            <select name="reported_by_name" class="form-select form-select-sm">
+                                                <?php if (!empty($_SESSION['fahrername'])): ?>
+                                                    <option value="<?= htmlspecialchars($_SESSION['fahrername']) ?>">Fahrer — <?= htmlspecialchars($_SESSION['fahrername']) ?></option>
+                                                <?php endif; ?>
+                                                <?php if (!empty($_SESSION['beifahrername'])): ?>
+                                                    <option value="<?= htmlspecialchars($_SESSION['beifahrername']) ?>">Beifahrer — <?= htmlspecialchars($_SESSION['beifahrername']) ?></option>
+                                                <?php endif; ?>
+                                                <?php if (!empty($_SESSION['praktikantname'])): ?>
+                                                    <option value="<?= htmlspecialchars($_SESSION['praktikantname']) ?>">Praktikant — <?= htmlspecialchars($_SESSION['praktikantname']) ?></option>
+                                                <?php endif; ?>
+                                            </select>
+                                        </div>
+                                        <div class="mb-2">
                                             <label class="form-label text-light">Titel</label>
                                             <input type="text" name="title" class="form-control form-control-sm" placeholder="Kurze Beschreibung des Defekts" required>
                                         </div>
@@ -242,7 +256,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 )
                                             ) last_log ON last_log.defect_id = d.id
                                             WHERE d.vehicle_id = :vid AND d.status != 'resolved'
-                                            ORDER BY d.vehicle_operable ASC, d.created_at DESC");
+                                            ORDER BY d.created_at DESC");
                                         $defStmt->execute(['vid' => $vehicle['id']]);
                                         $openDefects = $defStmt->fetchAll(PDO::FETCH_ASSOC);
                                     } catch (PDOException $e) {
