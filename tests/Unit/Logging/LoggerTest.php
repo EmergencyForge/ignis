@@ -100,7 +100,7 @@ class LoggerTest extends TestCase
         Logger::critical('test critical');
 
         // If we got here, no exception was thrown
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 
     #[Test]
@@ -109,6 +109,6 @@ class LoggerTest extends TestCase
         Logger::info('test with context', ['key' => 'value', 'number' => 42]);
 
         // No exception means success
-        $this->assertTrue(true);
+        $this->addToAssertionCount(1);
     }
 }

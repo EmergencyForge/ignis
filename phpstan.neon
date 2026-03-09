@@ -24,6 +24,7 @@ parameters:
                 - assets/components/enotf/topbar.php
                 - assets/functions/enotf/pin_middleware.php
                 - assets/functions/enotf/share/accept-request.php
+                - api/enotf/share/accept-request.php
             reportUnmatched: false
 
         -
@@ -69,7 +70,7 @@ parameters:
             path: benutzer/registration-codes.php
             reportUnmatched: false
 
-        # EINSATZ_REQUIRE_USER_AUTH Konstante wird zur Laufzeit geladen
+        # EINSATZ_REQUIRE_USER_AUTH / FIRE_INCIDENT_REQUIRE_USER_AUTH Konstante wird zur Laufzeit geladen
         -
             identifier: booleanAnd.alwaysFalse
             paths:
@@ -79,6 +80,7 @@ parameters:
                 - einsatz/list.php
                 - einsatz/login-fahrzeug.php
                 - einsatz/view.php
+                - api/fire/lagekarte.php
             reportUnmatched: false
 
         -
@@ -90,6 +92,7 @@ parameters:
                 - einsatz/list.php
                 - einsatz/login-fahrzeug.php
                 - einsatz/view.php
+                - api/fire/lagekarte.php
             reportUnmatched: false
 
         -
@@ -266,6 +269,7 @@ parameters:
                 - wissensdb/index.php
                 - wissensdb/search-api.php
                 - wissensdb/view.php
+                - api/knowledgebase/search.php
             reportUnmatched: false
 
         -
@@ -274,6 +278,7 @@ parameters:
                 - wissensdb/index.php
                 - wissensdb/search-api.php
                 - wissensdb/view.php
+                - api/knowledgebase/search.php
             reportUnmatched: false
 
         -
@@ -282,6 +287,7 @@ parameters:
                 - wissensdb/index.php
                 - wissensdb/search-api.php
                 - wissensdb/view.php
+                - api/knowledgebase/search.php
             reportUnmatched: false
 
         # src/ Infrastruktur-Code - komplexe dynamische Arrays und defensive Coding Patterns
