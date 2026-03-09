@@ -373,6 +373,7 @@ if (!empty($entryIds)) {
                                 <select name="category" id="category" class="form-select">
                                     <option value="">Alle</option>
                                     <?php
+                                    /** @param array<int, array<string, mixed>> $cats */
                                     function renderFilterCatOptions(array $cats, int $sel, ?int $pid = null, int $d = 0): void {
                                         foreach ($cats as $c) {
                                             if ($pid === null && $c['parent_id'] !== null) continue;

@@ -523,6 +523,7 @@ $formData = $entry ?? [
                                         <option value="">Keine Kategorie</option>
                                         <?php
                                         // Hierarchische Anzeige mit Einrückung
+                                        /** @param array<int, array<string, mixed>> $categories */
                                         function renderCategoryOptions(array $categories, int $selectedId = 0, ?int $parentId = null, int $depth = 0): void
                                         {
                                             foreach ($categories as $cat) {
@@ -915,11 +916,7 @@ $formData = $entry ?? [
                         }
                         // IDs der bereits verknüpften Einträge
                         const existing = Array.from(relList.querySelectorAll('.relation-item')).map(el => el.dataset.id);
-                        <?php if ($isEdit): ?>
-                        const currentId = '<?= $editId ?>';
-                        <?php else: ?>
-                        const currentId = null;
-                        <?php endif; ?>
+                        var currentId = <?php echo $isEdit ? "'" . $editId . "'" : 'null'; ?>;
 
                         let html = '';
                         data.results.forEach(function(item) {

@@ -46,12 +46,27 @@ parameters:
             path: assets/functions/enotf/pin_middleware.php
             reportUnmatched: false
 
-        # REGISTRATION_MODE Konstante wird zur Laufzeit geladen
+        # REGISTRATION_MODE + SYSTEM_URL Konstanten werden zur Laufzeit geladen
         -
             identifier: identical.alwaysFalse
             paths:
                 - auth/callback.php
                 - benutzer/registration-codes.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.alwaysFalse
+            path: benutzer/registration-codes.php
+            reportUnmatched: false
+
+        -
+            identifier: notIdentical.alwaysFalse
+            path: benutzer/registration-codes.php
+            reportUnmatched: false
+
+        -
+            identifier: notIdentical.alwaysTrue
+            path: benutzer/registration-codes.php
             reportUnmatched: false
 
         # EINSATZ_REQUIRE_USER_AUTH Konstante wird zur Laufzeit geladen
@@ -220,6 +235,17 @@ parameters:
 
         -
             identifier: booleanAnd.alwaysFalse
+            path: setup/database-init.php
+            reportUnmatched: false
+
+        # Defensive coding - Migration tables array check
+        -
+            identifier: booleanAnd.rightAlwaysTrue
+            path: setup/database-init.php
+            reportUnmatched: false
+
+        -
+            identifier: empty.offset
             path: setup/database-init.php
             reportUnmatched: false
 

@@ -128,6 +128,8 @@ try {
 
 /**
  * Search Knowledge Base using FULLTEXT
+ *
+ * @return list<array{title: string, subtitle: string, url: string}>
  */
 function searchKnowledgeBase(PDO $pdo, string $query, string $searchParam): array
 {
@@ -187,6 +189,8 @@ function searchKnowledgeBase(PDO $pdo, string $query, string $searchParam): arra
 
 /**
  * Search Mitarbeiter (personnel)
+ *
+ * @return list<array{title: string, subtitle: string, url: string}>
  */
 function searchMitarbeiter(PDO $pdo, string $searchParam): array
 {
@@ -212,6 +216,8 @@ function searchMitarbeiter(PDO $pdo, string $searchParam): array
 
 /**
  * Search fire incidents
+ *
+ * @return list<array{title: string, subtitle: string, url: string}>
  */
 function searchFireIncidents(PDO $pdo, string $searchParam): array
 {
@@ -246,6 +252,8 @@ function searchFireIncidents(PDO $pdo, string $searchParam): array
 
 /**
  * Search eNOTF protocols
+ *
+ * @return list<array{title: string, subtitle: string, url: string}>
  */
 function searchEnotf(PDO $pdo, string $searchParam): array
 {
@@ -276,6 +284,8 @@ function searchEnotf(PDO $pdo, string $searchParam): array
 
 /**
  * Search documents (Mitarbeiter-Dokumente)
+ *
+ * @return list<array{title: string, subtitle: string, url: string}>
  */
 function searchDocuments(PDO $pdo, string $searchParam): array
 {
@@ -311,6 +321,8 @@ function searchDocuments(PDO $pdo, string $searchParam): array
 
 /**
  * Search document templates
+ *
+ * @return list<array{title: string, subtitle: string, url: string}>
  */
 function searchTemplates(PDO $pdo, string $searchParam): array
 {
@@ -352,6 +364,8 @@ function searchTemplates(PDO $pdo, string $searchParam): array
 
 /**
  * Search vehicle defects
+ *
+ * @return list<array{title: string, subtitle: string, url: string}>
  */
 function searchDefects(PDO $pdo, string $searchParam): array
 {
@@ -394,6 +408,8 @@ function searchDefects(PDO $pdo, string $searchParam): array
 
 /**
  * Search vehicles
+ *
+ * @return list<array{title: string, subtitle: string, url: string}>
  */
 function searchVehicles(PDO $pdo, string $searchParam): array
 {
