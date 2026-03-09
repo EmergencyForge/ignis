@@ -1363,6 +1363,225 @@ td.dt-empty {
   --stat-bg-color: #660000;
 }
 
+/* ========================================
+   RESPONSIVE OPTIMIZATIONS
+   ======================================== */
+
+/* Tablet & small desktop (768px - 991px) */
+@media (max-width: 991.98px) {
+  .page-header {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .page-header h1 {
+    font-size: 1.2rem;
+  }
+  .page-header .header-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .dt-search input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .intra__stats-card .card-text {
+    font-size: 2rem;
+  }
+  .intra__stats-card i {
+    font-size: 4rem;
+  }
+}
+
+/* Mobile (< 768px) */
+@media (max-width: 767.98px) {
+  .page-header {
+    margin-bottom: 1rem;
+  }
+  .page-header h1 {
+    font-size: 1.1rem;
+    width: 100%;
+  }
+  .page-header .header-actions {
+    width: 100%;
+  }
+  .page-header .header-actions .btn {
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  /* Tables: horizontal scroll */
+  .table-responsive,
+  .intra__tile:has(.table) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table thead th {
+    font-size: 0.68rem;
+    padding: 0.5rem 0.5rem;
+  }
+  .table tbody td {
+    font-size: 0.8rem;
+    padding: 0.45rem 0.5rem;
+  }
+
+  /* DataTables controls */
+  .dt-search {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  .dt-search input {
+    width: 100%;
+    min-width: 0;
+  }
+  .dt-length {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  .dt-info {
+    font-size: 0.72rem;
+    text-align: center;
+    width: 100%;
+  }
+  .dt-paging {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Filter rows */
+  .row:has(> [class*="col-auto"]) {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .row:has(> [class*="col-auto"]) > [class*="col-auto"] {
+    width: 100%;
+  }
+  .row:has(> [class*="col-auto"]) select.form-select,
+  .row:has(> [class*="col-auto"]) input.form-control {
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  /* Stats cards */
+  .intra__stats-card .card-text {
+    font-size: 1.75rem;
+  }
+  .intra__stats-card .card-title {
+    font-size: 0.7rem;
+  }
+  .intra__stats-card i {
+    font-size: 3.5rem;
+    right: -1rem;
+    bottom: -0.5rem;
+  }
+
+  /* Toast container */
+  #intra-toast-container {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
+    max-width: none;
+  }
+
+  /* Buttons */
+  .btn-toolbar-group {
+    flex-wrap: wrap;
+  }
+
+  /* Tiles */
+  .intra__tile {
+    padding: 0.75rem;
+  }
+
+  /* Cards */
+  .card-styled .card-header-styled {
+    padding: 0.55rem 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .card-styled .card-body-styled {
+    padding: 0.65rem 0.75rem;
+  }
+
+  /* Admin breadcrumb */
+  .admin-breadcrumb {
+    font-size: 0.72rem;
+    flex-wrap: wrap;
+  }
+
+  /* Modals */
+  .modal .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  /* Action columns in tables */
+  .col-actions {
+    gap: 2px;
+  }
+  .col-actions .btn-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Small phones (< 576px) */
+@media (max-width: 575.98px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  /* Global search modal */
+  .global-search-overlay {
+    padding-top: 5vh;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .global-search-modal {
+    max-width: 100%;
+    border-radius: 12px;
+  }
+  .gsm-results {
+    max-height: 55vh;
+  }
+  .gsm-footer {
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.65rem;
+  }
+
+  /* Footer */
+  .footer .row {
+    text-align: center !important;
+  }
+  .footer .col-md-4 {
+    text-align: center !important;
+    margin-bottom: 0.5rem;
+  }
+  .footer .col-md-4:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Stats cards text */
+  .intra__stats-card .card-text {
+    font-size: 1.5rem;
+  }
+
+  /* Toggle rows */
+  .toggle-row {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .toggle-label {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 .einsatz-sidebar {
   width: var(--sidebar-width);
   min-height: 100vh;

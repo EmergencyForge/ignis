@@ -287,6 +287,127 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         font-family: inherit;
     }
 
+    /* ========================================
+       THEME PICKER
+       ======================================== */
+    .sidebar-theme-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: none;
+        background: rgba(255,255,255,0.08);
+        color: var(--sidebar-icon-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        font-size: 0.85rem;
+        transition: all 0.15s;
+        position: relative;
+    }
+    .sidebar-theme-btn:hover {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+    }
+
+    /* Theme Picker Popover */
+    .theme-picker-popover {
+        position: absolute;
+        bottom: calc(100% + 8px);
+        right: 0;
+        width: 220px;
+        background: var(--sidebar-bg);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        padding: 0.75rem;
+        display: none;
+        z-index: 1060;
+        animation: tp-in 0.15s ease;
+    }
+    .theme-picker-popover.show {
+        display: block;
+    }
+    @keyframes tp-in {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .tp-title {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-dimmed);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    .tp-presets {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin-bottom: 0.6rem;
+    }
+    .tp-swatch {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .tp-swatch:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .tp-swatch.active {
+        border-color: #fff;
+    }
+    .tp-swatch.active::after {
+        content: '\f00c';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 0.6rem;
+        color: #fff;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .tp-custom-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        padding-top: 0.6rem;
+    }
+    .tp-custom-label {
+        font-size: 0.75rem;
+        color: var(--sidebar-icon-color);
+        flex: 1;
+    }
+    .tp-custom-input {
+        width: 32px;
+        height: 32px;
+        border: 2px solid rgba(255,255,255,0.15);
+        border-radius: 8px;
+        cursor: pointer;
+        padding: 0;
+        background: none;
+        flex-shrink: 0;
+    }
+    .tp-custom-input::-webkit-color-swatch-wrapper {
+        padding: 2px;
+    }
+    .tp-custom-input::-webkit-color-swatch {
+        border: none;
+        border-radius: 4px;
+    }
+    .tp-custom-input::-moz-color-swatch {
+        border: none;
+        border-radius: 4px;
+    }
+
     /* Navigation */
     .sidebar-nav {
         flex: 1;
@@ -665,8 +786,38 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         <?php endif; ?>
     </nav>
 
-    <!-- Bottom: Notifications + Logout -->
+    <!-- Bottom: Theme + Notifications + Logout -->
     <div class="sidebar-bottom">
+        <!-- Akzentfarbe (vorerst ausgeblendet)
+        <div class="sidebar-link" style="justify-content:space-between;cursor:default;">
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+                <i class="fa-solid fa-palette" style="width:22px;text-align:center;font-size:0.95rem;"></i>
+                <span>Akzentfarbe</span>
+            </div>
+            <div style="position:relative;">
+                <button class="sidebar-theme-btn" id="themePickerToggle" title="Akzentfarbe wählen">
+                    <span class="tp-current-dot" style="width:14px;height:14px;border-radius:50%;background:var(--main-color);display:block;"></span>
+                </button>
+                <div class="theme-picker-popover" id="themePickerPopover">
+                    <div class="tp-title">Akzentfarbe</div>
+                    <div class="tp-presets">
+                        <div class="tp-swatch" data-accent="red" style="background:#d10000;" title="Rot"></div>
+                        <div class="tp-swatch" data-accent="blue" style="background:#2563eb;" title="Blau"></div>
+                        <div class="tp-swatch" data-accent="green" style="background:#16a34a;" title="Grün"></div>
+                        <div class="tp-swatch" data-accent="purple" style="background:#7c3aed;" title="Lila"></div>
+                        <div class="tp-swatch" data-accent="orange" style="background:#ea580c;" title="Orange"></div>
+                        <div class="tp-swatch" data-accent="teal" style="background:#0d9488;" title="Teal"></div>
+                        <div class="tp-swatch" data-accent="pink" style="background:#db2777;" title="Pink"></div>
+                        <div class="tp-swatch" data-accent="amber" style="background:#d97706;" title="Bernstein"></div>
+                    </div>
+                    <div class="tp-custom-row">
+                        <span class="tp-custom-label">Eigene Farbe</span>
+                        <input type="color" class="tp-custom-input" id="themeCustomColor" value="#d10000" title="Eigene Akzentfarbe wählen">
+                    </div>
+                </div>
+            </div>
+        </div>
+        -->
         <a href="<?= BASE_PATH ?>benachrichtigungen/index.php" class="sidebar-link">
             <i class="fa-solid fa-bell"></i><span>Benachrichtigungen</span>
             <?php if ($unreadCount > 0): ?>
@@ -692,6 +843,9 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         <img src="<?= SYSTEM_LOGO ?>" alt="<?= SYSTEM_NAME ?>">
     </a>
     <div class="sidebar-mobile-right">
+        <button class="sidebar-toggle-btn global-search-mobile-btn" style="margin-right:0;font-size:1rem;" aria-label="Suchen">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
         <?php if ($unreadCount > 0): ?>
             <a href="<?= BASE_PATH ?>benachrichtigungen/index.php" class="sidebar-link" style="padding:0.4rem;margin:0;">
                 <i class="fa-solid fa-bell" style="margin-right:0;width:auto;"></i>
@@ -878,7 +1032,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         }
 
         // Open triggers
-        $("#globalSearchOpen").on("click", openSearch);
+        $("#globalSearchOpen, .global-search-mobile-btn").on("click", openSearch);
 
         // Close on overlay background click
         $overlay.on("click", function(e) {
@@ -986,5 +1140,169 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 closeSearch();
             }
         });
+
+        // ========================================
+        // THEME PICKER (Accent Color)
+        // ========================================
+        var THEME_KEY = 'intra_theme_accent';
+        var $themeToggle = $("#themePickerToggle");
+        var $themePopover = $("#themePickerPopover");
+        var $themeSwatches = $themePopover.find(".tp-swatch");
+        var $customColor = $("#themeCustomColor");
+        var themeDebounce = null;
+
+        // Preset-Farben Mapping
+        var accentPresets = {
+            red:    { main: '#d10000', dimmed: '#660000' },
+            blue:   { main: '#2563eb', dimmed: '#1e40af' },
+            green:  { main: '#16a34a', dimmed: '#15803d' },
+            purple: { main: '#7c3aed', dimmed: '#6d28d9' },
+            orange: { main: '#ea580c', dimmed: '#c2410c' },
+            teal:   { main: '#0d9488', dimmed: '#0f766e' },
+            pink:   { main: '#db2777', dimmed: '#be185d' },
+            amber:  { main: '#d97706', dimmed: '#b45309' }
+        };
+
+        // Hilfsfunktion: Dimmed-Farbe aus Hex berechnen
+        function dimColor(hex) {
+            var r = parseInt(hex.slice(1,3), 16);
+            var g = parseInt(hex.slice(3,5), 16);
+            var b = parseInt(hex.slice(5,7), 16);
+            r = Math.max(0, Math.round(r * 0.65));
+            g = Math.max(0, Math.round(g * 0.65));
+            b = Math.max(0, Math.round(b * 0.65));
+            return '#' + [r, g, b].map(function(c) { return c.toString(16).padStart(2, '0'); }).join('');
+        }
+
+        // Hilfsfunktion: Hex zu RGB
+        function hexToRgb(hex) {
+            var r = parseInt(hex.slice(1,3), 16);
+            var g = parseInt(hex.slice(3,5), 16);
+            var b = parseInt(hex.slice(5,7), 16);
+            return r + ', ' + g + ', ' + b;
+        }
+
+        // Akzentfarbe anwenden
+        function applyAccent(accent) {
+            var mainColor, dimmedColor;
+
+            if (accentPresets[accent]) {
+                mainColor = accentPresets[accent].main;
+                dimmedColor = accentPresets[accent].dimmed;
+            } else if (/^#[0-9a-fA-F]{6}$/.test(accent)) {
+                mainColor = accent;
+                dimmedColor = dimColor(accent);
+            } else {
+                return;
+            }
+
+            document.documentElement.style.setProperty('--main-color', mainColor);
+            document.documentElement.style.setProperty('--main-color-dimmed', dimmedColor);
+            document.documentElement.style.setProperty('--main-color-rgb', hexToRgb(mainColor));
+            document.documentElement.style.setProperty('--fw-red', mainColor);
+
+            // Swatch-Auswahl aktualisieren
+            $themeSwatches.removeClass('active');
+            if (accentPresets[accent]) {
+                $themeSwatches.filter('[data-accent="' + accent + '"]').addClass('active');
+            }
+
+            // Dot-Vorschau aktualisieren
+            $themeToggle.find('.tp-current-dot').css('background', mainColor);
+
+            // Custom-Input sync
+            $customColor.val(mainColor);
+        }
+
+        // Farbe speichern (localStorage + DB)
+        function saveAccent(accent) {
+            localStorage.setItem(THEME_KEY, accent);
+
+            $.ajax({
+                url: "<?= BASE_PATH ?>assets/functions/system/theme-api.php",
+                method: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ accent: accent })
+            });
+        }
+
+        // Beim Laden: Theme aus localStorage sofort anwenden
+        var savedAccent = localStorage.getItem(THEME_KEY);
+        if (savedAccent) {
+            applyAccent(savedAccent);
+        } else {
+            // Kein localStorage → Theme aus DB laden (z.B. neues Gerät)
+            $.getJSON("<?= BASE_PATH ?>assets/functions/system/theme-api.php", function(data) {
+                if (data.config && data.config.accent) {
+                    localStorage.setItem(THEME_KEY, data.config.accent);
+                    applyAccent(data.config.accent);
+                }
+            });
+        }
+
+        // Toggle Popover
+        $themeToggle.on("click", function(e) {
+            e.stopPropagation();
+            $themePopover.toggleClass("show");
+        });
+
+        // Swatch-Klick
+        $themeSwatches.on("click", function(e) {
+            e.stopPropagation();
+            var accent = $(this).data("accent");
+            applyAccent(accent);
+            saveAccent(accent);
+            setTimeout(function() { $themePopover.removeClass("show"); }, 200);
+        });
+
+        // Custom-Color-Picker
+        $customColor.on("input", function() {
+            var hex = $(this).val();
+            applyAccent(hex);
+            clearTimeout(themeDebounce);
+            themeDebounce = setTimeout(function() {
+                saveAccent(hex);
+            }, 500);
+        });
+
+        // Popover schließen bei Klick außerhalb
+        $(document).on("click", function(e) {
+            if (!$(e.target).closest("#themePickerPopover, #themePickerToggle").length) {
+                $themePopover.removeClass("show");
+            }
+        });
     });
+</script>
+
+<!-- Theme: Frühzeitiges Anwenden (vor DOM-Render, kein Flackern) -->
+<script>
+(function() {
+    var accent = localStorage.getItem('intra_theme_accent');
+    if (!accent) return;
+    var presets = {
+        red:    { m: '#d10000', d: '#660000' },
+        blue:   { m: '#2563eb', d: '#1e40af' },
+        green:  { m: '#16a34a', d: '#15803d' },
+        purple: { m: '#7c3aed', d: '#6d28d9' },
+        orange: { m: '#ea580c', d: '#c2410c' },
+        teal:   { m: '#0d9488', d: '#0f766e' },
+        pink:   { m: '#db2777', d: '#be185d' },
+        amber:  { m: '#d97706', d: '#b45309' }
+    };
+    var mc, dc;
+    if (presets[accent]) {
+        mc = presets[accent].m;
+        dc = presets[accent].d;
+    } else if (/^#[0-9a-fA-F]{6}$/.test(accent)) {
+        mc = accent;
+        var r = parseInt(accent.slice(1,3),16), g = parseInt(accent.slice(3,5),16), b = parseInt(accent.slice(5,7),16);
+        dc = '#' + [r,g,b].map(function(c){ return Math.max(0,Math.round(c*0.65)).toString(16).padStart(2,'0'); }).join('');
+    } else return;
+    var rgb = parseInt(mc.slice(1,3),16)+', '+parseInt(mc.slice(3,5),16)+', '+parseInt(mc.slice(5,7),16);
+    var s = document.documentElement.style;
+    s.setProperty('--main-color', mc);
+    s.setProperty('--main-color-dimmed', dc);
+    s.setProperty('--main-color-rgb', rgb);
+    s.setProperty('--fw-red', mc);
+})();
 </script>
