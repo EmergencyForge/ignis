@@ -736,8 +736,23 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             <i class="fa-solid fa-book-medical"></i><span>Wissensdatenbank</span>
         </a>
 
+        <!-- Fahrzeuge -->
+        <?php if (Permissions::check(['admin', 'vehicles.view'])): ?>
+            <a href="#" class="sidebar-link sidebar-toggle" data-page="fahrzeuge" data-menu="fahrzeuge">
+                <i class="fa-solid fa-truck"></i><span>Fahrzeuge</span>
+                <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
+            </a>
+            <div class="sidebar-submenu" data-submenu="fahrzeuge">
+                <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php" class="sidebar-sublink"><i class="fa-solid fa-list"></i> Übersicht</a>
+                <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index.php" class="sidebar-sublink"><i class="fa-solid fa-triangle-exclamation"></i> Defekt-Meldungen</a>
+                <?php if (Permissions::check(['admin', 'vehicles.manage'])): ?>
+                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/beladelisten/index.php" class="sidebar-sublink"><i class="fa-solid fa-list-check"></i> Beladelisten</a>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
         <!-- Einstellungen -->
-        <?php if (Permissions::check(['admin', 'personnel.view', 'vehicles.view', 'edivi.view', 'dashboard.manage'])): ?>
+        <?php if (Permissions::check(['admin', 'personnel.view', 'edivi.view', 'dashboard.manage'])): ?>
             <a href="#" class="sidebar-link sidebar-toggle" data-page="settings" data-menu="settings">
                 <i class="fa-solid fa-sliders"></i><span>Einstellungen</span>
                 <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
@@ -753,12 +768,6 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                         <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="sidebar-sublink"><i class="fa-solid fa-file-lines"></i> Dokumente</a>
                         <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="sidebar-sublink"><i class="fa-solid fa-clipboard"></i> Antragstypen</a>
                     <?php endif; ?>
-                <?php endif; ?>
-
-                <?php if (Permissions::check(['admin', 'vehicles.view'])): ?>
-                    <span class="sidebar-section-title">Fahrzeuge</span>
-                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php" class="sidebar-sublink"><i class="fa-solid fa-truck"></i> Fahrzeuge bearbeiten</a>
-                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/beladelisten/index.php" class="sidebar-sublink"><i class="fa-solid fa-list-check"></i> Beladelisten</a>
                 <?php endif; ?>
 
                 <?php if (Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>

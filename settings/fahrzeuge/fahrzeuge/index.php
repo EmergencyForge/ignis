@@ -26,7 +26,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
     ?>
 </head>
 
-<body data-bs-theme="dark" data-page="settings">
+<body data-bs-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <!-- ------------ -->
@@ -45,6 +45,9 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                     <div class="page-header mb-4">
                         <h1>Fahrzeugverwaltung</h1>
                         <div class="header-actions">
+                            <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index.php" class="btn btn-outline-warning">
+                                <i class="fa-solid fa-triangle-exclamation"></i> Defekt-Meldungen
+                            </a>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
                                     <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
@@ -63,6 +66,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                                     <th scope="col">Bezeichnung (Typ)</th>
                                     <th scope="col">Kennzeichen</th>
                                     <th scope="col">Fahrzeugtyp</th>
+                                    <th scope="col">Defekte</th>
                                     <th scope="col">Aktiv?</th>
                                     <th scope="col"></th>
                                 </tr>
@@ -70,8 +74,17 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                             <tbody>
                                 <?php
                                 require __DIR__ . '/../../../assets/config/database.php';
-                                $stmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge");
-                                $stmt->execute();
+                                try {
+                                    $stmt = $pdo->prepare("SELECT f.*,
+                                        (SELECT COUNT(*) FROM intra_fahrzeuge_defects d WHERE d.vehicle_id = f.id AND d.status != 'resolved') AS open_defects,
+                                        (SELECT MIN(d.vehicle_operable) FROM intra_fahrzeuge_defects d WHERE d.vehicle_id = f.id AND d.status != 'resolved') AS min_operable
+                                        FROM intra_fahrzeuge f");
+                                    $stmt->execute();
+                                } catch (PDOException $e) {
+                                    // Fallback: Tabelle existiert noch nicht
+                                    $stmt = $pdo->prepare("SELECT *, 0 AS open_defects, NULL AS min_operable FROM intra_fahrzeuge");
+                                    $stmt->execute();
+                                }
                                 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 foreach ($result as $row) {
                                     switch ($row['rd_type']) {
@@ -134,11 +147,22 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                                         $actions .= "<a title='Fahrzeug kopieren' href='#' class='btn btn-sm btn-soft-success btn-icon copy-btn'{$dataStr}><i class='fa-solid fa-copy'></i></a>";
                                     }
 
+                                    $openDefects = (int)($row['open_defects'] ?? 0);
+                                    $minOperable = $row['min_operable'];
+                                    $defectBadge = '';
+                                    if ($openDefects > 0) {
+                                        $badgeColor = ($minOperable !== null && (int)$minOperable === 0) ? 'danger' : 'warning';
+                                        $defectBadge = "<a href='" . BASE_PATH . "settings/fahrzeuge/defekte/index.php?vehicle=" . $row['id'] . "' class='badge text-bg-{$badgeColor}' title='Offene Defekte anzeigen'>{$openDefects}</a>";
+                                    } else {
+                                        $defectBadge = "<span class='text-muted'>—</span>";
+                                    }
+
                                     echo "<tr>";
                                     echo "<td " . $dimmed . ">" . $row['priority'] . "</td>";
                                     echo "<td " . $dimmed . ">" . $row['name'] . " (" . $row['veh_type'] .  ")</td>";
                                     echo "<td " . $dimmed . ">" . $kennzeichenDisplay . "</td>";
                                     echo "<td>" . $docYes . "</td>";
+                                    echo "<td>" . $defectBadge . "</td>";
                                     echo "<td>" . $vehActive . "</td>";
                                     echo "<td>{$actions}</td>";
                                     echo "</tr>";

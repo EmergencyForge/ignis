@@ -454,6 +454,12 @@ $migrationFiles = [
 
     // 08.03.2026 - KB Verknüpfte Einträge (Querverweise)
     ['file' => 'create_intra_kb_entry_relations_08032026.php', 'type' => 'create'],
+
+    // 09.03.2026 - Theming: User-Theme-Konfiguration
+    ['file' => 'alter_intra_users_09032026_theme.php', 'type' => 'alter'],
+
+    // 09.03.2026 - Fahrzeug Defekt-Meldungen
+    ['file' => 'create_intra_fahrzeuge_defects_09032026.php', 'type' => 'create'],
 ];
 
 $executed = 0;
