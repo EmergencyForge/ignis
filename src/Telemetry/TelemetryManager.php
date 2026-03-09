@@ -51,7 +51,7 @@ class TelemetryManager
             ");
             return $stmt->execute();
         } catch (\PDOException $e) {
-            error_log("Failed to enable telemetry: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to enable telemetry: " . $e->getMessage());
             return false;
         }
     }
@@ -66,7 +66,7 @@ class TelemetryManager
             ");
             return $stmt->execute();
         } catch (\PDOException $e) {
-            error_log("Failed to disable telemetry: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to disable telemetry: " . $e->getMessage());
             return false;
         }
     }
@@ -102,7 +102,7 @@ class TelemetryManager
                 ");
                 $stmt->execute(['INSTALLATION_ID', $installationId]);
             } catch (\PDOException $e) {
-                error_log("Failed to save installation ID: " . $e->getMessage());
+                \App\Logging\Logger::warning("Failed to save installation ID: " . $e->getMessage());
             }
         }
 
@@ -220,7 +220,7 @@ class TelemetryManager
             } catch (\PDOException $e) {
             }
         } catch (\PDOException $e) {
-            error_log("Telemetry stats collection error: " . $e->getMessage());
+            \App\Logging\Logger::warning("Telemetry stats collection error: " . $e->getMessage());
         }
 
         return $stats;
@@ -272,7 +272,7 @@ class TelemetryManager
             } catch (\PDOException $e) {
             }
         } catch (\PDOException $e) {
-            error_log("Telemetry module check error: " . $e->getMessage());
+            \App\Logging\Logger::warning("Telemetry module check error: " . $e->getMessage());
         }
 
         return $modules;
@@ -409,7 +409,7 @@ class TelemetryManager
             ");
             $stmt->execute([$until]);
         } catch (\PDOException $e) {
-            error_log("Failed to set rate limit cooldown: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to set rate limit cooldown: " . $e->getMessage());
         }
     }
 
@@ -433,7 +433,7 @@ class TelemetryManager
             ");
             $stmt->execute([date('c')]);
         } catch (\PDOException $e) {
-            error_log("Failed to update last heartbeat: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to update last heartbeat: " . $e->getMessage());
         }
     }
 

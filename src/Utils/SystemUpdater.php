@@ -470,7 +470,7 @@ class SystemUpdater
 
             if (!file_put_contents($this->composerPendingFile, json_encode($composerStatus, JSON_PRETTY_PRINT))) {
                 // Non-critical: composer will need manual installation
-                error_log('Warning: Could not write composer pending file: ' . $this->composerPendingFile);
+                \App\Logging\Logger::warning('Warning: Could not write composer pending file: ' . $this->composerPendingFile);
             }
 
             // Step 7: Clear cache
@@ -662,7 +662,7 @@ class SystemUpdater
                             @chmod($destPath, 0644);
                             // If still not writable, log warning but continue
                             if (!is_writable($destPath)) {
-                                error_log('Warning: Could not make file writable: ' . $destPath);
+                                \App\Logging\Logger::warning('Warning: Could not make file writable: ' . $destPath);
                             }
                         }
                     }
@@ -684,7 +684,7 @@ class SystemUpdater
                     // Log verification for important files (non-critical)
                     if ($isImportantFile && !$isCriticalFile) {
                         if (filesize($destPath) !== filesize($item)) {
-                            error_log('Warning: Important file may not have been updated correctly: ' . $subPath);
+                            \App\Logging\Logger::warning('Warning: Important file may not have been updated correctly: ' . $subPath);
                         }
                     }
                 }
@@ -922,7 +922,7 @@ class SystemUpdater
         if (json_last_error() !== JSON_ERROR_NONE) {
             // Corrupted file, remove it and return not pending
             if (file_exists($this->composerPendingFile) && !unlink($this->composerPendingFile)) {
-                error_log('Warning: Could not remove corrupted composer pending file: ' . $this->composerPendingFile);
+                \App\Logging\Logger::warning('Warning: Could not remove corrupted composer pending file: ' . $this->composerPendingFile);
             }
             return [
                 'pending' => false,
@@ -957,7 +957,7 @@ class SystemUpdater
         // Remove pending status file if successful
         if ($result['success']) {
             if (file_exists($this->composerPendingFile) && !unlink($this->composerPendingFile)) {
-                error_log('Warning: Could not remove composer pending file after successful install: ' . $this->composerPendingFile);
+                \App\Logging\Logger::warning('Warning: Could not remove composer pending file after successful install: ' . $this->composerPendingFile);
             }
         }
 

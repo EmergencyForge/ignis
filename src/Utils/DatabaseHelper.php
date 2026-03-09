@@ -55,7 +55,7 @@ class DatabaseHelper
             $pdo->exec($sql);
             return true;
         } catch (PDOException $e) {
-            error_log("Index creation failed for $table.$indexName: " . $e->getMessage());
+            \App\Logging\Logger::error("Index creation failed for $table.$indexName: " . $e->getMessage());
             return false;
         }
     }
@@ -73,7 +73,7 @@ class DatabaseHelper
             $pdo->exec("ALTER TABLE `$table` DROP INDEX `$indexName`");
             return true;
         } catch (PDOException $e) {
-            error_log("Index drop failed for $table.$indexName: " . $e->getMessage());
+            \App\Logging\Logger::error("Index drop failed for $table.$indexName: " . $e->getMessage());
             return false;
         }
     }
@@ -128,7 +128,7 @@ class DatabaseHelper
             $pdo->exec($sql);
             return true;
         } catch (PDOException $e) {
-            error_log("Column creation failed for $table.$column: " . $e->getMessage());
+            \App\Logging\Logger::error("Column creation failed for $table.$column: " . $e->getMessage());
             return false;
         }
     }

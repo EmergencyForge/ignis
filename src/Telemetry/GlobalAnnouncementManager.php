@@ -47,7 +47,7 @@ class GlobalAnnouncementManager
             ");
             return $stmt->execute();
         } catch (\PDOException $e) {
-            error_log("Failed to enable announcements: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to enable announcements: " . $e->getMessage());
             return false;
         }
     }
@@ -62,7 +62,7 @@ class GlobalAnnouncementManager
             ");
             return $stmt->execute();
         } catch (\PDOException $e) {
-            error_log("Failed to disable announcements: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to disable announcements: " . $e->getMessage());
             return false;
         }
     }
@@ -115,7 +115,7 @@ class GlobalAnnouncementManager
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
-            error_log("Failed to get announcements: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to get announcements: " . $e->getMessage());
             return [];
         }
     }
@@ -133,7 +133,7 @@ class GlobalAnnouncementManager
             ");
             return $stmt->execute([$announcementId, $userId]);
         } catch (\PDOException $e) {
-            error_log("Failed to dismiss announcement: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to dismiss announcement: " . $e->getMessage());
             return false;
         }
     }
@@ -183,7 +183,7 @@ class GlobalAnnouncementManager
                 $this->refreshCache();
             }
         } catch (\PDOException $e) {
-            error_log("Cache check failed: " . $e->getMessage());
+            \App\Logging\Logger::warning("Cache check failed: " . $e->getMessage());
         }
     }
 
@@ -287,7 +287,7 @@ class GlobalAnnouncementManager
             $stmt->execute([$days]);
             return $stmt->rowCount();
         } catch (\PDOException $e) {
-            error_log("Failed to cleanup dismissals: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to cleanup dismissals: " . $e->getMessage());
             return 0;
         }
     }

@@ -28,7 +28,7 @@ class NotificationManager
         // Validate notification type
         $validTypes = ['antrag', 'protokoll', 'dokument', 'system', 'fire_protocol'];
         if (!in_array($type, $validTypes)) {
-            error_log("Invalid notification type: {$type}");
+            \App\Logging\Logger::warning("Invalid notification type: {$type}");
             return false;
         }
 
@@ -40,7 +40,7 @@ class NotificationManager
 
             return $stmt->execute([$userId, $type, $title, $message, $link]);
         } catch (\PDOException $e) {
-            error_log("Failed to create notification: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to create notification: " . $e->getMessage());
             return false;
         }
     }
@@ -59,7 +59,7 @@ class NotificationManager
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result ? (int)$result['id'] : null;
         } catch (\PDOException $e) {
-            error_log("Failed to get user ID: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to get user ID: " . $e->getMessage());
             return null;
         }
     }
@@ -94,7 +94,7 @@ class NotificationManager
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result ? (int)$result['id'] : null;
         } catch (\PDOException $e) {
-            error_log("Failed to get user ID by fullname: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to get user ID by fullname: " . $e->getMessage());
             return null;
         }
     }
@@ -118,7 +118,7 @@ class NotificationManager
             $stmt->execute([$userId, $limit]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
-            error_log("Failed to get unread notifications: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to get unread notifications: " . $e->getMessage());
             return [];
         }
     }
@@ -140,7 +140,7 @@ class NotificationManager
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return (int)($result['count'] ?? 0);
         } catch (\PDOException $e) {
-            error_log("Failed to get unread count: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to get unread count: " . $e->getMessage());
             return 0;
         }
     }
@@ -165,7 +165,7 @@ class NotificationManager
             $stmt->execute([$userId, $limit, $offset]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
-            error_log("Failed to get notifications: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to get notifications: " . $e->getMessage());
             return [];
         }
     }
@@ -187,7 +187,7 @@ class NotificationManager
             ");
             return $stmt->execute([$notificationId, $userId]);
         } catch (\PDOException $e) {
-            error_log("Failed to mark notification as read: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to mark notification as read: " . $e->getMessage());
             return false;
         }
     }
@@ -208,7 +208,7 @@ class NotificationManager
             ");
             return $stmt->execute([$userId]);
         } catch (\PDOException $e) {
-            error_log("Failed to mark all as read: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to mark all as read: " . $e->getMessage());
             return false;
         }
     }
@@ -229,7 +229,7 @@ class NotificationManager
             ");
             return $stmt->execute([$notificationId, $userId]);
         } catch (\PDOException $e) {
-            error_log("Failed to delete notification: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to delete notification: " . $e->getMessage());
             return false;
         }
     }
@@ -250,7 +250,7 @@ class NotificationManager
             $stmt->execute([$days]);
             return $stmt->rowCount();
         } catch (\PDOException $e) {
-            error_log("Failed to delete old notifications: " . $e->getMessage());
+            \App\Logging\Logger::warning("Failed to delete old notifications: " . $e->getMessage());
             return 0;
         }
     }
@@ -295,7 +295,7 @@ class NotificationManager
 
             return $this->create($userId, 'fire_protocol', $title, $message, $link);
         } catch (\PDOException $e) {
-            error_log("Failed to create fire protocol finalized notification: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to create fire protocol finalized notification: " . $e->getMessage());
             return false;
         }
     }
@@ -351,7 +351,7 @@ class NotificationManager
 
             return $this->create($userId, 'fire_protocol', $title, $message, $link);
         } catch (\PDOException $e) {
-            error_log("Failed to create fire protocol status change notification: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to create fire protocol status change notification: " . $e->getMessage());
             return false;
         }
     }

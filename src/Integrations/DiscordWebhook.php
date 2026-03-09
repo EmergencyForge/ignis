@@ -62,7 +62,7 @@ class DiscordWebhook
 
             return self::$webhookCache;
         } catch (PDOException $e) {
-            \error_log("Failed to load Discord webhooks: " . $e->getMessage());
+            \App\Logging\Logger::error("Failed to load Discord webhooks: " . $e->getMessage());
             return [
                 'enotf_protocol' => '',
                 'fire_protocol' => '',
@@ -199,11 +199,11 @@ class DiscordWebhook
         $webhookUrl = $webhooks['enotf_prereg'];
 
         \file_put_contents($logFile, "[" . \date('Y-m-d H:i:s') . "] [DiscordWebhook] Webhook-URL: " . ($webhookUrl ?: 'LEER') . "\n", FILE_APPEND);
-        \error_log("Discord Webhook (Voranmeldung): URL = " . ($webhookUrl ?: 'LEER'));
+        \App\Logging\Logger::debug("Discord Webhook (Voranmeldung): URL = " . ($webhookUrl ?: 'LEER'));
 
         if (empty($webhookUrl)) {
             \file_put_contents($logFile, "[" . \date('Y-m-d H:i:s') . "] [DiscordWebhook] ABBRUCH: Keine URL konfiguriert\n", FILE_APPEND);
-            \error_log("Discord Webhook (Voranmeldung): Keine Webhook-URL konfiguriert");
+            \App\Logging\Logger::warning("Discord Webhook (Voranmeldung): Keine Webhook-URL konfiguriert");
             return false; // Webhook not configured
         }
 
@@ -300,13 +300,13 @@ class DiscordWebhook
 
         $logFile = __DIR__ . '/../../enotf/schnittstelle/php_errors.log';
         \file_put_contents($logFile, "[" . \date('Y-m-d H:i:s') . "] [DiscordWebhook] Sende Webhook: Priorität='" . $priority . "', Fahrzeug='" . $fahrzeug . "'\n", FILE_APPEND);
-        \error_log("Discord Webhook (Voranmeldung): Sende Payload mit Priorität '" . $priority . "', Fahrzeug '" . $fahrzeug . "'");
+        \App\Logging\Logger::debug("Discord Webhook (Voranmeldung): Sende Payload mit Priorität '" . $priority . "', Fahrzeug '" . $fahrzeug . "'");
         // Debug: Komplettes Payload ausgeben
         \file_put_contents($logFile, "[" . \date('Y-m-d H:i:s') . "] [DiscordWebhook] JSON Payload:\n" . \json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND);
         $result = $this->sendWebhook($webhookUrl, $payload);
 
         \file_put_contents($logFile, "[" . \date('Y-m-d H:i:s') . "] [DiscordWebhook] Ergebnis: " . ($result ? 'ERFOLG' : 'FEHLER') . "\n", FILE_APPEND);
-        \error_log("Discord Webhook (Voranmeldung): Ergebnis = " . ($result ? 'ERFOLG' : 'FEHLER'));
+        \App\Logging\Logger::debug("Discord Webhook (Voranmeldung): Ergebnis = " . ($result ? 'ERFOLG' : 'FEHLER'));
         return $result;
     }
 
@@ -321,8 +321,8 @@ class DiscordWebhook
     {
         try {
             $jsonPayload = \json_encode($payload);
-            \error_log("Discord Webhook: Sende Request an " . \substr($webhookUrl, 0, 50) . "...");
-            \error_log("Discord Webhook: Payload-Größe: " . \strlen($jsonPayload) . " bytes");
+            \App\Logging\Logger::debug("Discord Webhook: Sende Request an " . \substr($webhookUrl, 0, 50) . "...");
+            \App\Logging\Logger::debug("Discord Webhook: Payload-Größe: " . \strlen($jsonPayload) . " bytes");
 
             $ch = \curl_init($webhookUrl);
             \curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
@@ -338,20 +338,20 @@ class DiscordWebhook
             $curlError = \curl_error($ch);
             \curl_close($ch);
 
-            \error_log("Discord Webhook: HTTP Status = {$httpCode}");
+            \App\Logging\Logger::debug("Discord Webhook: HTTP Status = {$httpCode}");
             if ($curlError) {
-                \error_log("Discord Webhook: cURL Error = {$curlError}");
+                \App\Logging\Logger::error("Discord Webhook: cURL Error = {$curlError}");
             }
 
             if ($httpCode >= 200 && $httpCode < 300) {
-                \error_log("Discord Webhook: Erfolgreich gesendet");
+                \App\Logging\Logger::debug("Discord Webhook: Erfolgreich gesendet");
                 return true;
             } else {
-                \error_log("Discord webhook failed with HTTP {$httpCode}: {$response}");
+                \App\Logging\Logger::error("Discord webhook failed with HTTP {$httpCode}: {$response}");
                 return false;
             }
         } catch (\Exception $e) {
-            \error_log("Discord webhook exception: " . $e->getMessage());
+            \App\Logging\Logger::error("Discord webhook exception: " . $e->getMessage());
             return false;
         }
     }
