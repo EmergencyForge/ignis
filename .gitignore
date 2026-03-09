@@ -14,3 +14,4 @@ system/updates/*.zip
 system/updates/temp/
 intrap
 /preview-*.html
+.phpunit.cache
