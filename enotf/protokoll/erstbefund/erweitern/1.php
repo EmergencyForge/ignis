@@ -127,6 +127,13 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             fill: rgba(231, 76, 60, 0.6);
         }
 
+        .bodymap-zone[data-severity="99"] {
+            fill: rgba(120, 120, 120, 0.45);
+            stroke: #888;
+            stroke-width: 0.3;
+            stroke-dasharray: 1.5 1;
+        }
+
         .bodymap-outline {
             fill: none;
             stroke: #999;
@@ -227,6 +234,9 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
         }
         .bodymap-detail-severity button.active-schwer {
             background: rgba(231, 76, 60, 0.35); border-color: #e74c3c; color: #e74c3c;
+        }
+        .bodymap-detail-severity button.active-nu {
+            background: rgba(120, 120, 120, 0.35); border-color: #888; color: #aaa;
         }
 
         .bodymap-detail-woundtype {
@@ -396,6 +406,10 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
                                             <div class="bodymap-legend-color" style="background: rgba(231,76,60,0.65); border: 1px solid #e74c3c;"></div>
                                             <span>Schwer</span>
                                         </div>
+                                        <div class="bodymap-legend-item">
+                                            <div class="bodymap-legend-color" style="background: rgba(120,120,120,0.5); border: 1px dashed #888;"></div>
+                                            <span>Nicht untersucht</span>
+                                        </div>
                                     </div>
 
                                     <div class="bodymap-detail" id="bodymap-detail">
@@ -453,6 +467,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
     (function() {
         const enr = <?= json_encode($enr) ?>;
         const basePath = <?= json_encode(BASE_PATH) ?>;
+        const isReadOnly = <?= $ist_freigegeben ? 'true' : 'false' ?>;
 
         const woundTypeMap = {
             'v_muster_k': 'v_muster_k1', 'v_muster_w': 'v_muster_w1',
@@ -470,7 +485,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
         const severityFields = ['v_muster_k', 'v_muster_w', 'v_muster_t', 'v_muster_a', 'v_muster_al', 'v_muster_bl'];
 
         const severityCycle = { '1': '2', '2': '3', '3': '4', '4': '1' };
-        const severityClasses = { '1': 'active-keine', '2': 'active-leicht', '3': 'active-mittel', '4': 'active-schwer' };
+        const severityClasses = { '1': 'active-keine', '2': 'active-leicht', '3': 'active-mittel', '4': 'active-schwer', '99': 'active-nu' };
 
         let selectedField = null;
 
@@ -478,7 +493,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
         function getSeverity(field) {
             if (!window.__dynamicDaten) return '1';
             var val = String(window.__dynamicDaten[field] || '');
-            return (val === '2' || val === '3' || val === '4') ? val : '1';
+            return (val === '2' || val === '3' || val === '4' || val === '99') ? val : '1';
         }
 
         function initZones() {
@@ -500,6 +515,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
         }
 
         function saveField(field, value, label, clearNull) {
+            if (isReadOnly) return;
             var ajaxData = { enr: enr, field: field };
             if (!clearNull) ajaxData.value = value;
 
@@ -519,13 +535,15 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             });
         }
 
-        // Auto-set all empty fields to "keine" (1) on load
+        // Default empty fields to "keine" (1) locally for UI display only — no AJAX
         function autoInitKeineFields() {
             if (!window.__dynamicDaten) return;
             severityFields.forEach(function(field) {
                 var val = window.__dynamicDaten[field];
                 if (val === null || val === '' || val === undefined || val === 0 || val === '0') {
-                    saveField(field, 1, fieldLabels[field] || field, false);
+                    window.__dynamicDaten[field] = '1';
+                    var h = document.querySelector('input[type="hidden"][name="' + field + '"]');
+                    if (h) h.value = '1';
                 }
             });
         }
@@ -546,7 +564,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
                 }
             });
 
-            var isInjured = currentSeverity === '2' || currentSeverity === '3' || currentSeverity === '4';
+            var isInjured = (currentSeverity === '2' || currentSeverity === '3' || currentSeverity === '4');
             var woundBtns = document.getElementById('bodymap-woundtype-btns');
             woundBtns.classList.toggle('visible', isInjured);
 
@@ -582,7 +600,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             updateZoneColors(selectedField, value);
             saveField(selectedField, value, label, false);
 
-            if (value === '1') {
+            if (value === '1' || value === '99') {
                 if (window.__dynamicDaten) window.__dynamicDaten[woundTypeMap[selectedField]] = null;
                 saveField(woundTypeMap[selectedField], null, label + ' (Wundart)', true);
             }
@@ -641,7 +659,8 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
                 z.style.pointerEvents = 'none';
                 z.style.cursor = 'default';
             });
-            document.querySelectorAll('.bodymap-detail button').forEach(function(b) { b.disabled = true; });
+            var detailPanel = document.querySelector('.bodymap-detail');
+            if (detailPanel) detailPanel.style.display = 'none';
             document.querySelectorAll('input, textarea').forEach(function(e) { e.setAttribute('readonly', 'readonly'); });
             document.querySelectorAll('select').forEach(function(e) { e.setAttribute('disabled', 'disabled'); });
             document.querySelectorAll('.btn-check, .form-check-input').forEach(function(e) { e.setAttribute('disabled', 'disabled'); });

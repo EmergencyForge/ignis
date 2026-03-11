@@ -71,10 +71,6 @@ if ($daten['d_gcs_1'] === NULL || $daten['d_gcs_2'] === NULL || $daten['d_gcs_3'
     echo '[2] Erstbefund: GCS ist nicht gesetzt.<br>';
 }
 
-if ($daten['v_muster_k'] === NULL || $daten['v_muster_t'] === NULL || $daten['v_muster_a'] === NULL || $daten['v_muster_al'] === NULL || $daten['v_muster_bl'] === NULL || $daten['v_muster_w'] === NULL) {
-    echo '[2] Erstbefund: Verletzungen sind nicht gesetzt.<br>';
-}
-
 if ($daten['psych'] === NULL) {
     echo '[2] Erstbefund: Psychischer Zustand ist nicht gesetzt.<br>';
 }
