@@ -143,15 +143,25 @@ if (isset($_POST['enr']) && isset($_POST['field'])) {
 
     if (in_array($field, $allowedFields)) {
         try {
-            $query = "UPDATE intra_edivi SET $field = :value, last_edit = NOW() WHERE enr = :enr AND freigegeben <> 1";
-            $stmt = $pdo->prepare($query);
-            $stmt->execute(['value' => $value, 'enr' => $enr]);
+            $checkStmt = $pdo->prepare("SELECT freigegeben FROM intra_edivi WHERE enr = :enr");
+            $checkStmt->execute(['enr' => $enr]);
+            $row = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($stmt->rowCount() === 0) {
+            if ($row === false) {
+                http_response_code(404);
+                echo "Protokoll nicht gefunden.";
+                exit();
+            }
+
+            if ((int)$row['freigegeben'] === 1) {
                 http_response_code(403);
                 echo "Protokoll ist freigegeben und kann nicht mehr bearbeitet werden.";
                 exit();
             }
+
+            $query = "UPDATE intra_edivi SET $field = :value, last_edit = NOW() WHERE enr = :enr";
+            $stmt = $pdo->prepare($query);
+            $stmt->execute(['value' => $value, 'enr' => $enr]);
 
             // Bei Namensänderung: patname synchron halten + pat_synced zurücksetzen
             if ($field === 'pat_vorname' || $field === 'pat_nachname') {
@@ -161,7 +171,7 @@ if (isset($_POST['enr']) && isset($_POST['field'])) {
                 $vn = trim($current['pat_vorname'] ?? '');
                 $nn = trim($current['pat_nachname'] ?? '');
                 $combined = $nn . (!empty($nn) && !empty($vn) ? ', ' : '') . $vn;
-                $pdo->prepare("UPDATE intra_edivi SET patname = ?, pat_synced = 0 WHERE enr = ? AND freigegeben <> 1")->execute([$combined, $enr]);
+                $pdo->prepare("UPDATE intra_edivi SET patname = ?, pat_synced = 0 WHERE enr = ?")->execute([$combined, $enr]);
             }
 
             if ($field === 'c_zugang') {
