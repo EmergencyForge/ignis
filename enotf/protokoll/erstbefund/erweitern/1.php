@@ -484,7 +484,6 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
         // All severity fields
         const severityFields = ['v_muster_k', 'v_muster_w', 'v_muster_t', 'v_muster_a', 'v_muster_al', 'v_muster_bl'];
 
-        const severityCycle = { '1': '2', '2': '3', '3': '4', '4': '1' };
         const severityClasses = { '1': 'active-keine', '2': 'active-leicht', '3': 'active-mittel', '4': 'active-schwer', '99': 'active-nu' };
 
         let selectedField = null;
@@ -541,9 +540,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             severityFields.forEach(function(field) {
                 var val = window.__dynamicDaten[field];
                 if (val === null || val === '' || val === undefined || val === 0 || val === '0') {
-                    window.__dynamicDaten[field] = '1';
-                    var h = document.querySelector('input[type="hidden"][name="' + field + '"]');
-                    if (h) h.value = '1';
+                    saveField(field, '1', fieldLabels[field] || field);
                 }
             });
         }
