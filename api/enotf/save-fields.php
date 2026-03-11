@@ -10,7 +10,34 @@ if (isset($_POST['enr']) && isset($_POST['field'])) {
     $field = $_POST['field'];
     $value = array_key_exists('value', $_POST) ? $_POST['value'] : null;
 
-    $allowedFields = ['pat_vorname', 'pat_nachname', 'patgebdat', 'patsex', 'edatum', 'ezeit', 'eort', 'awfrei_1', 'awsicherung_neu', 'zyanose_1', 'o2gabe', 'b_symptome', 'b_auskult', 'b_beatmung', 'spo2', 'atemfreq', 'etco2', 'c_zugang', 'c_kreislauf', 'c_ekg', 'rrsys', 'rrdias', 'herzfreq', 'medis', 'd_bewusstsein', 'd_ex_1', 'd_pupillenw_1', 'd_pupillenw_2', 'd_lichtreakt_1', 'd_lichtreakt_2', 'd_gcs_1', 'd_gcs_2', 'd_gcs_3', 'v_muster_k', 'v_muster_k1', 'v_muster_t', 'v_muster_t1', 'v_muster_a', 'v_muster_a1', 'v_muster_al', 'v_muster_al1', 'v_muster_bl', 'v_muster_bl1', 'v_muster_w', 'v_muster_w1', 'sz_nrs', 'sz_toleranz_1', 'bz', 'temp', 'anmerkungen', 'diagnose_haupt', 'diagnose_weitere', 'diagnose', 'fzg_transp', 'fzg_transp_perso', 'fzg_transp_perso_2', 'fzg_transp_perso_3', 'fzg_na', 'fzg_na_perso', 'fzg_na_perso_2', 'fzg_na_perso_3', 'fzg_sonst', 'transportziel', 'pfname', 'prot_by', 'spo2', 'atemfreq', 'etco2', 'rrsys', 'rrdias', 'herzfreq', 'bz', 'temp', 'psych', 'uebergabe_ort', 'uebergabe_an', 'awsicherung_1', 'hws_immo', 'entlastungspunktion', 'c_puls_rad', 'c_puls_reg', 'eart', 'ebesonderheiten', 'na_nachf', 'rettungstechnik', 'lagerung', 'waerme_passiv', 'e_reposition', 'e_verband', 'e_krintervention', 'e_kuehlung', 'waerme_aktiv', 'e_narkose', 'e_tourniquet', 'e_cpr', 'c_rekap', 'c_blutung', 'salarm', 's1', 's2', 's3', 's4', 'spat', 's7', 's8', 'sende', 'symptombeginn_datum', 'symptombeginn_zeit', 'symptombeginn_geschaetzt', 'symptombeginn_nf', 'naca_initial', 'naca_uebergabe', 'elokation'];
+    $allowedFields = [
+        'pat_vorname', 'pat_nachname', 'patgebdat', 'patsex',
+        'edatum', 'ezeit', 'eort', 'eart', 'ebesonderheiten', 'elokation',
+        'awfrei_1', 'awsicherung_1', 'awsicherung_neu', 'hws_immo',
+        'zyanose_1', 'o2gabe', 'b_symptome', 'b_auskult', 'b_beatmung',
+        'spo2', 'atemfreq', 'etco2',
+        'c_zugang', 'c_kreislauf', 'c_ekg', 'c_puls_rad', 'c_puls_reg', 'c_rekap', 'c_blutung',
+        'rrsys', 'rrdias', 'herzfreq',
+        'medis', 'entlastungspunktion',
+        'd_bewusstsein', 'd_ex_1', 'd_pupillenw_1', 'd_pupillenw_2',
+        'd_lichtreakt_1', 'd_lichtreakt_2', 'd_gcs_1', 'd_gcs_2', 'd_gcs_3',
+        'v_muster_k', 'v_muster_k1', 'v_muster_t', 'v_muster_t1',
+        'v_muster_a', 'v_muster_a1', 'v_muster_al', 'v_muster_al1',
+        'v_muster_bl', 'v_muster_bl1', 'v_muster_w', 'v_muster_w1',
+        'sz_nrs', 'sz_toleranz_1', 'bz', 'temp', 'psych',
+        'anmerkungen', 'diagnose_haupt', 'diagnose_weitere', 'diagnose',
+        'fzg_transp', 'fzg_transp_perso', 'fzg_transp_perso_2', 'fzg_transp_perso_3',
+        'fzg_na', 'fzg_na_perso', 'fzg_na_perso_2', 'fzg_na_perso_3', 'fzg_sonst',
+        'transportziel', 'pfname', 'prot_by',
+        'uebergabe_ort', 'uebergabe_an',
+        'na_nachf', 'rettungstechnik', 'lagerung',
+        'waerme_passiv', 'waerme_aktiv',
+        'e_reposition', 'e_verband', 'e_krintervention', 'e_kuehlung',
+        'e_narkose', 'e_tourniquet', 'e_cpr',
+        'salarm', 's1', 's2', 's3', 's4', 'spat', 's7', 's8', 'sende',
+        'symptombeginn_datum', 'symptombeginn_zeit', 'symptombeginn_geschaetzt', 'symptombeginn_nf',
+        'naca_initial', 'naca_uebergabe',
+    ];
 
     if ($field === 'freigeber') {
         if (empty($value)) {
@@ -116,6 +143,22 @@ if (isset($_POST['enr']) && isset($_POST['field'])) {
 
     if (in_array($field, $allowedFields)) {
         try {
+            $checkStmt = $pdo->prepare("SELECT freigegeben FROM intra_edivi WHERE enr = :enr");
+            $checkStmt->execute(['enr' => $enr]);
+            $row = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($row === false) {
+                http_response_code(404);
+                echo "Protokoll nicht gefunden.";
+                exit();
+            }
+
+            if ((int)$row['freigegeben'] === 1) {
+                http_response_code(403);
+                echo "Protokoll ist freigegeben und kann nicht mehr bearbeitet werden.";
+                exit();
+            }
+
             $query = "UPDATE intra_edivi SET $field = :value, last_edit = NOW() WHERE enr = :enr";
             $stmt = $pdo->prepare($query);
             $stmt->execute(['value' => $value, 'enr' => $enr]);

@@ -4,7 +4,7 @@
         <span>Rett. Daten</span>
     </a>
     <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/index.php?enr=<?= $daten['enr'] ?>" data-page="erstbefund"
-        data-requires="awfrei_1,zyanose_1,b_symptome,b_auskult,c_kreislauf,c_ekg,d_bewusstsein,d_ex_1,d_pupillenw_1,d_pupillenw_2,d_lichtreakt_1,d_lichtreakt_2,d_gcs_1,d_gcs_2,d_gcs_3,v_muster_k,v_muster_t,v_muster_a,v_muster_al,v_muster_bl,v_muster_w,spo2,atemfreq,rrsys,herzfreq,bz,psych,c_puls_rad,c_puls_reg">
+        data-requires="awfrei_1,zyanose_1,b_symptome,b_auskult,c_kreislauf,c_ekg,d_bewusstsein,d_ex_1,d_pupillenw_1,d_pupillenw_2,d_lichtreakt_1,d_lichtreakt_2,d_gcs_1,d_gcs_2,d_gcs_3,spo2,atemfreq,rrsys,herzfreq,bz,psych,c_puls_rad,c_puls_reg">
         <span>Erstbefund</span>
     </a>
     <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/index.php?enr=<?= $daten['enr'] ?>" data-page="anamnese" data-requires="naca_initial, elokation"><span>Anamnese</span></a>
