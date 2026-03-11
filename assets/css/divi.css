@@ -1,3 +1,4 @@
+@charset "UTF-8";
 :root {
   --secondary-color: #011e4a;
   --secondary-color-dimmed: #0a2e5a;
@@ -45,8 +46,10 @@ input[type=time] {
 }
 
 .divi-content textarea {
-  resize: vertical; /* Make the textarea resizable only vertically */
-  max-height: 250px; /* Set the maximum height to 200 pixels */
+  resize: vertical;
+  /* Make the textarea resizable only vertically */
+  max-height: 250px;
+  /* Set the maximum height to 200 pixels */
   background-color: #fff;
   border-top: none;
   border-left: none;
@@ -579,6 +582,14 @@ body {
   box-shadow: 0 0 0 0.2rem rgba(87, 131, 207, 0.25);
 }
 
+[class*=edivi__interactbutton] [type=radio].btn-check + label:after {
+  content: "";
+}
+
+[class*=edivi__interactbutton] [type=radio].btn-check:checked + label:after {
+  content: "";
+}
+
 [class*=edivi__interactbutton] > label.edivi__unauffaellig,
 [class*=edivi__interactbutton] .btn-check:checked + label.edivi__unauffaellig {
   color: #2ecc71;
@@ -616,7 +627,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: rgb(255, 255, 0);
+  background: yellow;
   right: 10px;
 }
 [class*=edivi__interactbutton] > label.edivi__zugang-22G:after,
@@ -625,7 +636,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: rgb(0, 0, 255);
+  background: blue;
   right: 10px;
 }
 [class*=edivi__interactbutton] > label.edivi__zugang-20G:after,
@@ -634,7 +645,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: rgb(255, 192, 203);
+  background: pink;
   right: 10px;
 }
 [class*=edivi__interactbutton] > label.edivi__zugang-18G:after,
@@ -643,7 +654,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: rgb(0, 128, 0);
+  background: green;
   right: 10px;
 }
 [class*=edivi__interactbutton] > label.edivi__zugang-18G_kurz:after,
@@ -652,8 +663,8 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: rgb(0, 128, 0);
-  box-shadow: 0 0 0 2px #fff inset, 0 0 0 2px rgb(0, 128, 0);
+  background: green;
+  box-shadow: 0 0 0 2px #fff inset, 0 0 0 2px green;
   right: 10px;
 }
 [class*=edivi__interactbutton] > label.edivi__zugang-17G:after,
@@ -662,7 +673,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: rgb(255, 255, 255);
+  background: white;
   right: 10px;
 }
 [class*=edivi__interactbutton] > label.edivi__zugang-16G:after,
@@ -671,7 +682,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: rgb(128, 128, 128);
+  background: gray;
   right: 10px;
 }
 [class*=edivi__interactbutton] > label.edivi__zugang-14G:after,
@@ -680,7 +691,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: rgb(255, 165, 0);
+  background: orange;
   right: 10px;
 }
 
@@ -699,12 +710,12 @@ body {
 }
 
 [class*=edivi__interactbutton] > label:after {
-  content: "\f0c8";
+  content: "";
   font-family: "Font Awesome 7 Free";
   position: absolute;
   right: 7px;
   top: 50%;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 300;
   transform: translateY(-50%);
   color: var(--white);
@@ -712,7 +723,7 @@ body {
 }
 
 [class*=edivi__interactbutton] .btn-check:checked + label:after {
-  content: "\f14a";
+  content: "";
 }
 
 [class*=edivi__interactbutton] > .edivi__interactbutton-input,
@@ -755,8 +766,9 @@ body {
   #edivi__nidanav > a:after {
     font-size: 1.6rem;
   }
+
   [class*=edivi__interactbutton] > a,
-  [class*=edivi__interactbutton] > label {
+[class*=edivi__interactbutton] > label {
     font-size: 0.9rem;
     max-height: none;
     min-height: 50px;
@@ -767,11 +779,13 @@ body {
     font-size: 1.4rem;
     left: 5px;
   }
+
   [class*=edivi__interactbutton] > *:after {
     display: none;
   }
+
   [class*=edivi__interactbutton] > a,
-  [class*=edivi__interactbutton] > label {
+[class*=edivi__interactbutton] > label {
     padding-right: 4px;
     padding: 15px 10px;
     padding-left: 10px;
@@ -791,8 +805,9 @@ body {
     font-size: 1.2rem;
     left: 4px;
   }
+
   [class*=edivi__interactbutton] > a,
-  [class*=edivi__interactbutton] > label {
+[class*=edivi__interactbutton] > label {
     padding: 12px 8px;
     font-size: 0.85rem;
     min-height: 45px;
@@ -809,8 +824,9 @@ body {
     font-size: 1rem;
     left: 3px;
   }
+
   [class*=edivi__interactbutton] > a,
-  [class*=edivi__interactbutton] > label {
+[class*=edivi__interactbutton] > label {
     padding: 10px 6px;
     font-size: 0.8rem;
     min-height: 40px;
@@ -823,32 +839,37 @@ body {
     flex-wrap: wrap;
     width: 100%;
   }
+
   #edivi__nidanav > a {
     flex: 1 1 auto;
     min-width: calc(50% - 2px);
     text-align: center;
     padding-left: 8px;
   }
+
   #edivi__nidanav > a:after {
     display: none;
   }
+
   #edivi__nidanav > a:before {
     width: 100%;
     height: 3px;
     top: 0;
     left: 0;
   }
+
   #edivi__nidanav > a.edivi__nidanav-unfilled:before,
-  #edivi__nidanav > a.edivi__nidanav-partfilled:before,
-  #edivi__nidanav > a.edivi__nidanav-filled:before {
+#edivi__nidanav > a.edivi__nidanav-partfilled:before,
+#edivi__nidanav > a.edivi__nidanav-filled:before {
     top: 0;
   }
+
   #edivi__content {
     margin-top: 1rem;
   }
 }
 .edivi__interactbutton-more > a:after {
-  content: "\f105";
+  content: "";
   font-family: "Font Awesome 7 Free";
   position: absolute;
   right: 7px;
@@ -861,7 +882,7 @@ body {
 }
 
 [class*=edivi__interactbutton] > a.has-submenu:after {
-  content: "\f105";
+  content: "";
   font-family: "Font Awesome 7 Free";
   position: absolute;
   right: 7px;
@@ -894,14 +915,17 @@ body {
     flex: 0 0 100% !important;
     max-width: 100% !important;
   }
+
   #edivi__container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
+
   #edivi__content {
     flex: 1;
   }
+
   .edivi__freigabe-buttons {
     position: relative !important;
     margin-top: auto !important;
@@ -914,8 +938,8 @@ body {
 }
 @media (max-width: 1155px) {
   #edivi__content .row > .col,
-  #edivi__content .row > .col-8,
-  #edivi__login #edivi__content .row > .col-2 {
+#edivi__content .row > .col-8,
+#edivi__login #edivi__content .row > .col-2 {
     max-width: 100%;
   }
 }
@@ -1050,40 +1074,49 @@ body#edivi__print {
     padding: 10mm;
     font-size: 8pt;
   }
+
   #edivi__print h6,
-  #edivi__print p {
+#edivi__print p {
     font-size: 8pt !important;
   }
+
   #edivi__print h5 {
     font-size: 9pt !important;
   }
+
   #edivi__print input,
-  #edivi__print textarea,
-  #edivi__print select {
+#edivi__print textarea,
+#edivi__print select {
     font-size: 9pt !important;
     font-weight: 600;
   }
+
   #edivi__print .container {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
   }
+
   #edivi__print .row {
     display: flex !important;
     flex-wrap: wrap !important;
   }
+
   #edivi__print .col {
     flex: 1 !important;
   }
+
   #edivi__print label {
     opacity: 0.6;
     z-index: -1;
     font-size: 6pt !important;
   }
+
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+
   @page {
     margin: 0;
   }
@@ -1677,7 +1710,7 @@ body[data-page=verlauf] .edivi__vitalparam-mainbuttons {
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 58.33%;
+  width: calc(58.33%);
   z-index: 1000;
 }
 body[data-page=verlauf] .edivi__vitalparam-mainbuttons > .col {
@@ -1709,7 +1742,7 @@ body[data-page=verlauf] .edivi__vitalparam-mainbuttons button {
   }
   body[data-page=verlauf] .edivi__vitalparam-mainbuttons {
     flex-direction: column;
-    width: 100% !important;
+    width: calc(100%) !important;
   }
   body[data-page=verlauf] .edivi__vitalparam-mainbuttons > .col {
     border-left: none !important;
@@ -1719,7 +1752,7 @@ body[data-page=verlauf] .edivi__vitalparam-mainbuttons button {
     border-top: none;
   }
   body[data-page=verlauf] .col-5,
-  body[data-page=verlauf] .keypad-container {
+body[data-page=verlauf] .keypad-container {
     width: 100%;
     padding-bottom: 200px;
   }

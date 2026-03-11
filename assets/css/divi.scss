@@ -595,6 +595,16 @@ body {
   }
 }
 
+[class*="edivi__interactbutton"] [type="radio"].btn-check + label:after {
+  content: "\f111";
+}
+
+[class*="edivi__interactbutton"]
+  [type="radio"].btn-check:checked
+  + label:after {
+  content: "\f192";
+}
+
 [class*="edivi__interactbutton"] {
   > label.edivi__unauffaellig,
   .btn-check:checked + label.edivi__unauffaellig {
@@ -741,7 +751,7 @@ body {
   position: absolute;
   right: 7px;
   top: 50%;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-weight: 300;
   transform: translateY(-50%);
   color: var(--white);

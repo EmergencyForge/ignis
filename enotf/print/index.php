@@ -995,7 +995,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             72 => 'Hyperglykämie',
                             73 => 'Urämie / ANV',
                             74 => 'Exsikkose',
-                            75 => 'bek. Dialyspflicht',
+                            75 => 'bek. Dialysepflicht',
                             79 => 'sonstige Erkrankung Stoffwechsel',
 
                             // Sonstige (81-99)

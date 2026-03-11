@@ -131,7 +131,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <label for="diagnose_haupt-74">Exsikkose</label>
 
                             <input type="radio" class="btn-check" id="diagnose_haupt-75" name="diagnose_haupt" value="75" <?php echo ($daten['diagnose_haupt'] == 75 ? 'checked' : '') ?> autocomplete="off">
-                            <label for="diagnose_haupt-75">bek. Dialyspflicht</label>
+                            <label for="diagnose_haupt-75">bek. Dialysepflicht</label>
 
                             <input type="radio" class="btn-check" id="diagnose_haupt-79" name="diagnose_haupt" value="79" <?php echo ($daten['diagnose_haupt'] == 79 ? 'checked' : '') ?> autocomplete="off">
                             <label for="diagnose_haupt-79">sonstige Erkrankung Stoffwechsel</label>

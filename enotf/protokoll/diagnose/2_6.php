@@ -140,7 +140,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <label for="diagnose_weitere-74">Exsikkose</label>
 
                             <input type="checkbox" class="btn-check" id="diagnose_weitere-75" name="diagnose_weitere[]" value="75" <?php echo (in_array(75, $diagnose_weitere) ? 'checked' : '') ?> autocomplete="off">
-                            <label for="diagnose_weitere-75">bek. Dialyspflicht</label>
+                            <label for="diagnose_weitere-75">bek. Dialysepflicht</label>
 
                             <input type="checkbox" class="btn-check" id="diagnose_weitere-79" name="diagnose_weitere[]" value="79" <?php echo (in_array(79, $diagnose_weitere) ? 'checked' : '') ?> autocomplete="off">
                             <label for="diagnose_weitere-79">sonstige Erkrankung Stoffwechsel</label>
