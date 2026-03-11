@@ -91,7 +91,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/neurologie/index.php?enr=<?= $daten['enr'] ?>" data-requires="d_bewusstsein,d_ex_1,d_pupillenw_1,d_pupillenw_2,d_lichtreakt_1,d_lichtreakt_2,d_gcs_1,d_gcs_2,d_gcs_3">
                                 <span>Neurologie</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/erweitern/index.php?enr=<?= $daten['enr'] ?>" data-requires="v_muster_k,v_muster_t,v_muster_a,v_muster_al,v_muster_bl,v_muster_w" class="active">
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/erweitern/index.php?enr=<?= $daten['enr'] ?>" class="active">
                                 <span>Erweitern</span>
                             </a>
                             <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/ekg/index.php?enr=<?= $daten['enr'] ?>" data-requires="c_ekg">
@@ -111,7 +111,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 data-quickfill='{"v_muster_k": 1, "v_muster_w": 1, "v_muster_t": 1, "v_muster_a": 1, "v_muster_al": 1, "v_muster_bl": 1}'
                                 autocomplete="off">
                             <label for="erweitern-ohne-path" class="edivi__unauffaellig">keine</label>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/erweitern/1.php?enr=<?= $daten['enr'] ?>" data-requires="v_muster_k,v_muster_w,v_muster_t,v_muster_a,v_muster_al,v_muster_bl">
+                            <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/erweitern/1.php?enr=<?= $daten['enr'] ?>">
                                 <span>Verletzungen</span>
                             </a>
                             <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/erweitern/2.php?enr=<?= $daten['enr'] ?>" class="active">
