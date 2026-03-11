@@ -338,7 +338,7 @@ if (!empty($daten['rettungstechnik'])) {
     ?>
 </head>
 
-<body data-bs-theme="dark" data-page="massnahmen" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" data-page="massnahmen" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <?php
     include __DIR__ . '/../../../assets/components/enotf/topbar.php';
     ?>

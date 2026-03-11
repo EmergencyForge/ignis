@@ -67,7 +67,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
 </head>
 
-<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <div class="container-fluid" id="edivi__container">
         <div class="row h-100">
             <div class="col" id="edivi__content">
@@ -78,19 +78,21 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </a>
                     </div>
                     <div class="col border-start" style="--bs-border-color: #333333">
-                        <div class="row border-bottom" style="--bs-border-color: #333333">
-                            <div class="col">Angemeldet:</div>
-                        </div>
-                        <div class="row">
-                            <div class="col"><?= $_SESSION['fahrername'] ?></div>
-                            <div class="col border-start" style="--bs-border-color: #333333"><?= $_SESSION['beifahrername'] ?? 'Fehler Fehler' ?></div>
-                            <?php if (!empty($_SESSION['praktikantname'])): ?>
-                                <div class="col border-start" style="--bs-border-color: #333333"><?= $_SESSION['praktikantname'] ?></div>
-                            <?php endif; ?>
-                        </div>
+                        <a href="login.php?prefill=1" class="text-decoration-none text-reset d-block">
+                            <div class="row border-bottom" style="--bs-border-color: #333333">
+                                <div class="col">Angemeldet:</div>
+                            </div>
+                            <div class="row">
+                                <div class="col" data-crew-name="fahrername"><?= $_SESSION['fahrername'] ?></div>
+                                <div class="col border-start" style="--bs-border-color: #333333" data-crew-name="beifahrername"><?= $_SESSION['beifahrername'] ?? '' ?></div>
+                                <?php if (!empty($_SESSION['praktikantname'])): ?>
+                                    <div class="col border-start" style="--bs-border-color: #333333" data-crew-name="praktikantname"><?= $_SESSION['praktikantname'] ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </a>
                     </div>
                     <div class="col-2 border-start" style="padding:0;--bs-border-color: #333333">
-                        <a href="loggedout.php" class="edivi__nidabutton-primary w-100 h-100 d-flex justify-content-center align-content-center">abmelden</a>
+                        <button class="edivi__nidabutton-primary w-100 h-100 d-flex justify-content-center align-content-center" type="button" data-bs-toggle="modal" data-bs-target="#logoutModal">abmelden</button>
                     </div>
                 </div>
 
@@ -480,6 +482,24 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         }
     });
     </script>
+    <!-- Logout Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="logoutModalLabel">Abmelden</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <div class="modal-body">
+                    Wie möchten Sie sich abmelden?
+                </div>
+                <div class="modal-footer border-secondary">
+                    <a href="loggedout.php?mode=self" class="btn btn-outline-light">Mich abmelden</a>
+                    <a href="loggedout.php?mode=all" class="btn btn-danger">Alle abmelden</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

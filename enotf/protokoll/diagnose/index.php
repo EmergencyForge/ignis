@@ -242,7 +242,7 @@ if (!empty($diagnose_weitere_array)) {
     ?>
 </head>
 
-<body data-bs-theme="dark" data-page="diagnose" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" data-page="diagnose" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <?php
     include __DIR__ . '/../../../assets/components/enotf/topbar.php';
     ?>

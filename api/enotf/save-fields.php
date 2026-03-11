@@ -141,6 +141,22 @@ if (isset($_POST['enr']) && isset($_POST['field'])) {
         }
     }
 
+    // Datumsfelder: DD.MM.YYYY → YYYY-MM-DD konvertieren für DB (DATE-Spalten)
+    $dateFields = ['edatum', 'patgebdat', 'symptombeginn_datum'];
+    if (in_array($field, $dateFields) && !empty($value)) {
+        // DD.MM.YYYY → YYYY-MM-DD
+        $dateParts = explode('.', $value);
+        if (count($dateParts) === 3) {
+            $value = $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0];
+        }
+        // Validierung: muss YYYY-MM-DD sein
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            http_response_code(400);
+            echo "Ungültiges Datumsformat";
+            exit();
+        }
+    }
+
     if (in_array($field, $allowedFields)) {
         try {
             $checkStmt = $pdo->prepare("SELECT freigegeben FROM intra_edivi WHERE enr = :enr");

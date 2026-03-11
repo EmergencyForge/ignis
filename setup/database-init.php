@@ -460,6 +460,9 @@ $migrationFiles = [
 
     // 09.03.2026 - Fahrzeug Defekt-Meldungen
     ['file' => 'create_intra_fahrzeuge_defects_09032026.php', 'type' => 'create'],
+
+    // 11.03.2026 - eNOTF Sessions (Multi-User Synchronisation)
+    ['file' => 'create_intra_enotf_sessions_11032026.php', 'type' => 'create', 'tables' => ['intra_enotf_sessions', 'intra_enotf_session_members']],
 ];
 
 $executed = 0;

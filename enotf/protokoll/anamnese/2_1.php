@@ -67,7 +67,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
 </head>
 
-<body data-bs-theme="dark" data-page="anamnese" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" data-page="anamnese" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <?php
     include __DIR__ . '/../../../assets/components/enotf/topbar.php';
     ?>
@@ -101,7 +101,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <label class="edivi__interactbutton-text">Datum</label>
                             <input type="date" name="symptombeginn_datum" id="symptombeginn_datum"
                                 class="edivi__interactbutton-input"
-                                value="<?= $daten['symptombeginn_datum'] ?? '' ?>"
+                                value="<?= !empty($daten['symptombeginn_datum']) ? date('d.m.Y', strtotime($daten['symptombeginn_datum'])) : '' ?>"
                                 data-ignore-autosave>
                             <input type="checkbox" class="btn-check" id="symptombeginn_geschaetzt_1"
                                 name="symptombeginn_geschaetzt" value="1"
@@ -164,7 +164,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const enr = <?= json_encode($enr) ?>;
-            const heute = new Date().toISOString().split('T')[0];
+            const _now = new Date();
+            const heute = String(_now.getDate()).padStart(2, '0') + '.' + String(_now.getMonth() + 1).padStart(2, '0') + '.' + _now.getFullYear();
             const datumInput = document.getElementById('symptombeginn_datum');
             const zeitInput = document.getElementById('symptombeginn_zeit');
             const geschaetztCheckbox = document.getElementById('symptombeginn_geschaetzt_1');
