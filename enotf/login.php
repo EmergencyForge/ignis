@@ -338,12 +338,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <div id="session-info-container" style="display:none;">
                                 <div class="session-info-box">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <strong style="color:#e0a800;">Aktive Besatzung auf diesem Fahrzeug</strong>
+                                        <strong style="color:#e0a800;">Es ist bereits eine Besatzung auf diesem Fahrzeug angemeldet</strong>
                                     </div>
                                     <div id="session-crew-list"></div>
                                     <div class="mt-3 d-flex gap-2">
                                         <button type="button" class="edivi__nidabutton flex-grow-1" id="btn-join-session">Beitreten</button>
-                                        <button type="button" class="edivi__nidabutton flex-grow-1" id="btn-new-session" style="opacity:0.7;">Neue Besatzung</button>
+                                        <button type="button" class="edivi__nidabutton flex-grow-1" id="btn-new-session">Neue Besatzung</button>
+                                        <button type="button" class="edivi__nidabutton" id="btn-delete-session" style="background-color:#dc3545;border-color:#dc3545;aspect-ratio:1;padding:0;width:42px;min-width:42px;" title="Session löschen"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -361,10 +362,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             </div>
                                         </div>
                                         <div class="col-4">
-                                            <select id="join-quali" class="form-select">
-                                                <option value="">Quali</option>
+                                            <select id="join-quali" class="form-select" data-custom-dropdown="true" data-placeholder="Qualifikation">
+                                                <option value=""></option>
                                                 <?php foreach ($qualifikationen as $quali): ?>
-                                                    <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>"><?= htmlspecialchars($quali['abkuerzung']) ?></option>
+                                                    <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>"><?= htmlspecialchars($quali['name']) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </div>
@@ -586,6 +587,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
             document.getElementById('session-info-container').style.display = 'none';
             document.getElementById('join-form-container').style.display = '';
+
+            // Custom Dropdown für Quali initialisieren
+            const joinQualiEl = document.getElementById('join-quali');
+            if (joinQualiEl && typeof eNOTFCustomDropdown !== 'undefined') {
+                eNOTFCustomDropdown.refresh(joinQualiEl);
+            }
         });
 
         // Neue Besatzung: Standard-Formular verwenden, Session-Info ausblenden
@@ -594,6 +601,33 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             document.getElementById('session-info-container').style.display = 'none';
             document.getElementById('join-form-container').style.display = 'none';
             document.getElementById('spacer-area').style.display = '';
+        });
+
+        // Session löschen: aktive Session deaktivieren
+        document.getElementById('btn-delete-session').addEventListener('click', async function() {
+            if (!currentSessionData) return;
+
+            const confirmed = (typeof showConfirm === 'function')
+                ? await showConfirm('Möchten Sie die aktive Session auf diesem Fahrzeug wirklich beenden?', { title: 'Session beenden', confirmText: 'Beenden', cancelText: 'Abbrechen', danger: true })
+                : confirm('Möchten Sie die aktive Session auf diesem Fahrzeug wirklich beenden?');
+
+            if (!confirmed) return;
+
+            fetch(basePath + 'api/enotf/delete-vehicle-session.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ vehicle: document.getElementById('protfzg').value })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    currentSessionData = null;
+                    document.getElementById('session-info-container').style.display = 'none';
+                    document.getElementById('join-form-container').style.display = 'none';
+                    document.getElementById('spacer-area').style.display = '';
+                }
+            })
+            .catch(() => {});
         });
 
         // Beitreten absenden

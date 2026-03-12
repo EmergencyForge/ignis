@@ -135,6 +135,16 @@
         el.textContent = crew[field] || "";
       }
     });
+
+    // Praktikant-Spalte ein-/ausblenden
+    var praktikantEl = document.querySelector('[data-crew-name="praktikantname"]');
+    if (praktikantEl) {
+      if (crew.praktikantname) {
+        praktikantEl.classList.remove("d-none");
+      } else {
+        praktikantEl.classList.add("d-none");
+      }
+    }
   }
 
   /**

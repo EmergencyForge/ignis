@@ -82,12 +82,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <div class="row border-bottom" style="--bs-border-color: #333333">
                                 <div class="col">Angemeldet:</div>
                             </div>
-                            <div class="row">
+                            <div class="row" id="crew-display-row">
                                 <div class="col" data-crew-name="fahrername"><?= $_SESSION['fahrername'] ?></div>
                                 <div class="col border-start" style="--bs-border-color: #333333" data-crew-name="beifahrername"><?= $_SESSION['beifahrername'] ?? '' ?></div>
-                                <?php if (!empty($_SESSION['praktikantname'])): ?>
-                                    <div class="col border-start" style="--bs-border-color: #333333" data-crew-name="praktikantname"><?= $_SESSION['praktikantname'] ?></div>
-                                <?php endif; ?>
+                                <div class="col border-start <?= empty($_SESSION['praktikantname']) ? 'd-none' : '' ?>" style="--bs-border-color: #333333" data-crew-name="praktikantname"><?= $_SESSION['praktikantname'] ?? '' ?></div>
                             </div>
                         </a>
                     </div>
