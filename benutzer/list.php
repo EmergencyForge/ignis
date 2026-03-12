@@ -47,10 +47,10 @@ if (!Permissions::check(['admin', 'users.view'])) {
                     Flash::render();
                     ?>
                     <div class="mb-3">
-                        <div class="btn-group btn-group-sm" role="group" id="statusFilter">
-                            <button type="button" class="btn btn-outline-light active" data-filter="all">Alle</button>
-                            <button type="button" class="btn btn-outline-success" data-filter="active">Aktiv</button>
-                            <button type="button" class="btn btn-outline-secondary" data-filter="inactive">Deaktiviert</button>
+                        <div class="filter-group" role="group" id="statusFilter">
+                            <button type="button" class="filter-btn active" data-filter="all">Alle</button>
+                            <button type="button" class="filter-btn" data-filter="active">Aktiv</button>
+                            <button type="button" class="filter-btn" data-filter="inactive">Deaktiviert</button>
                         </div>
                     </div>
                     <div class="intra__tile py-2 px-3">
@@ -122,7 +122,7 @@ if (!Permissions::check(['admin', 'users.view'])) {
             // Custom filter for status
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
                 if (settings.nTable.id !== 'userTable') return true;
-                var filter = $('#statusFilter .active').data('filter');
+                var filter = $('#statusFilter .filter-btn.active').data('filter');
                 if (filter === 'all') return true;
                 var row = settings.aoData[dataIndex].nTr;
                 return $(row).data('status') === filter;
@@ -164,8 +164,8 @@ if (!Permissions::check(['admin', 'users.view'])) {
             });
 
             // Status filter button click
-            $('#statusFilter button').on('click', function() {
-                $('#statusFilter button').removeClass('active');
+            $('#statusFilter .filter-btn').on('click', function() {
+                $('#statusFilter .filter-btn').removeClass('active');
                 $(this).addClass('active');
                 table.draw();
             });
