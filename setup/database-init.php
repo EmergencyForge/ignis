@@ -463,6 +463,9 @@ $migrationFiles = [
 
     // 11.03.2026 - eNOTF Sessions (Multi-User Synchronisation)
     ['file' => 'create_intra_enotf_sessions_11032026.php', 'type' => 'create', 'tables' => ['intra_enotf_sessions', 'intra_enotf_session_members']],
+
+    // 12.03.2026 - Sonderrechte
+    ['file' => 'alter_intra_edivi_12032026_sonderrechte.php', 'type' => 'alter'],
 ];
 
 $executed = 0;

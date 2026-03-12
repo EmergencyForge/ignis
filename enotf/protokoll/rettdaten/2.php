@@ -153,12 +153,16 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </table>
                                 </div>
                             </div>
+                            <?php $srTransport = $daten['sonderrechte_transport'] ?? null; ?>
                             <div class="row my-1">
                                 <div class="col">
                                     <h5>Straße</h5>
                                 </div>
                                 <div class="col-3">
                                     <h5>HNR / Postal</h5>
+                                </div>
+                                <div class="col-2">
+                                    <h5>SR Transport</h5>
                                 </div>
                             </div>
                             <div class="row">
@@ -183,6 +187,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+                                <div class="col-2">
+                                    <button type="button" id="btn-sonderrechte-transport" class="w-100 form-control edivi__target" style="cursor:pointer;text-align:center;background-color:#333333;border:1px solid #595959;border-radius:0;color:#fff;font-size:1.2rem;padding:0.2rem;"><?php
+                                        if ($srTransport === 'ja') echo 'ja';
+                                        elseif ($srTransport === 'nein') echo 'nein';
+                                        else echo '—';
+                                    ?></button>
                                 </div>
                             </div>
                             <div class="row my-1">
@@ -463,6 +474,43 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 toast.remove();
             }, 5000);
         }
+    </script>
+    <script>
+        // Sonderrechte Transport Tri-State Toggle: leer → nein → ja → leer
+        (function() {
+            var btn = document.getElementById('btn-sonderrechte-transport');
+            var currentValue = <?= json_encode($daten['sonderrechte_transport'] ?? null) ?>;
+
+            btn.addEventListener('click', function() {
+                if (currentValue === null || currentValue === '') {
+                    currentValue = 'nein';
+                } else if (currentValue === 'nein') {
+                    currentValue = 'ja';
+                } else {
+                    currentValue = null;
+                }
+                updateButton();
+                saveValue();
+            });
+
+            function updateButton() {
+                if (currentValue === 'ja') {
+                    btn.textContent = 'ja';
+                } else if (currentValue === 'nein') {
+                    btn.textContent = 'nein';
+                } else {
+                    btn.textContent = '\u2014';
+                }
+            }
+
+            function saveValue() {
+                var formData = new FormData();
+                formData.append('enr', <?= json_encode($enr) ?>);
+                formData.append('field', 'sonderrechte_transport');
+                formData.append('value', currentValue || '');
+                fetch('<?= BASE_PATH ?>api/enotf/save-fields.php', { method: 'POST', body: formData });
+            }
+        })();
     </script>
     <script>
         var modalCloseButton = document.querySelector('#myModal4 .btn-close');

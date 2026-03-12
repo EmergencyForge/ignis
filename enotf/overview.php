@@ -113,7 +113,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <div class="row ps-3">
                                 <div class="col edivi__box p-4" style="overflow-x: hidden; overflow-y:auto; height: 70vh;">
                                     <?php
-                                    $stmt = $pdo->prepare("SELECT patname, patgebdat, edatum, ezeit, enr, prot_by, freigegeben, pfname, createdby FROM intra_edivi WHERE freigegeben = 0 AND (fzg_transp = :fzg_transp OR fzg_na = :fzg_na) AND hidden = 0 AND hidden_user = 0 ORDER BY created_at ASC");
+                                    $stmt = $pdo->prepare("SELECT patname, patgebdat, edatum, ezeit, enr, prot_by, freigegeben, pfname, createdby, ziel_poi, ziel_adresse FROM intra_edivi WHERE freigegeben = 0 AND (fzg_transp = :fzg_transp OR fzg_na = :fzg_na) AND hidden = 0 AND hidden_user = 0 ORDER BY created_at ASC");
                                     $stmt->bindValue(':fzg_transp', $_SESSION['protfzg'], PDO::PARAM_STR);
                                     $stmt->bindValue(':fzg_na',     $_SESSION['protfzg'], PDO::PARAM_STR);
                                     $stmt->execute();
@@ -160,6 +160,25 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
                                         $canDelete = ($row['createdby'] == 2);
                                         $protType = ($row['prot_by'] == 1) ? 'NA' : 'NF';
+
+                                        // Zielort aufbereiten
+                                        $zielInfo = '';
+                                        if (!empty($row['ziel_poi']) || !empty($row['ziel_adresse'])) {
+                                            $zielParts = [];
+                                            if (!empty($row['ziel_poi'])) {
+                                                $zielParts[] = htmlspecialchars($row['ziel_poi']);
+                                            }
+                                            if (!empty($row['ziel_adresse'])) {
+                                                $zielAddr = json_decode($row['ziel_adresse'], true);
+                                                if (is_array($zielAddr)) {
+                                                    if (!empty($zielAddr['hnr'])) $zielParts[] = htmlspecialchars($zielAddr['hnr']);
+                                                    if (!empty($zielAddr['ort'])) $zielParts[] = htmlspecialchars($zielAddr['ort']);
+                                                }
+                                            }
+                                            if (!empty($zielParts)) {
+                                                $zielInfo = implode(', ', $zielParts);
+                                            }
+                                        }
                                     ?>
                                         <div class="edivi__einsatz-wrapper" data-enr="<?= htmlspecialchars($row['enr']) ?>" data-can-delete="<?= $canDelete ? '1' : '0' ?>">
                                             <div class="edivi__einsatz-delete-bg">
@@ -168,10 +187,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="edivi__einsatz-container edivi__einsatz-swipeable">
                                                 <a href="protokoll/index.php?enr=<?= $row['enr'] ?>" class="edivi__einsatz-link" draggable="false">
                                                     <div class="row edivi__einsatz edivi__einsatz-set">
-                                                        <div class="col-2 edivi__einsatz-type"><?php if ($row['createdby'] == 1): ?><i class="fa-solid fa-bell" style="color:#fff;font-size:1.4rem;margin-right:6px;"></i><?php endif; ?><span><?= htmlspecialchars($label) ?></span></div>
-                                                        <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><br><?= $row['edatum'] ?> <?= $row['ezeit'] ?> Uhr</div>
-                                                        <div class="col edivi__einsatz-name"><span>Patient:</span><br><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></div>
-                                                        <div class="col edivi__einsatz-freigeber"><span>Protokollant:</span><br><?= $row['pfname'] ?></div>
+                                                        <div class="col-2 edivi__einsatz-type"><?php if ($row['createdby'] == 1): ?><i class="fa-solid fa-bell" style="color:#fff;font-size:1.4rem;margin-right:10px;"></i><?php endif; ?><span><?= htmlspecialchars($label) ?></span></div>
+                                                        <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><?= $row['edatum'] ?><br><?= $row['ezeit'] ?> Uhr</div>
+                                                        <div class="col-8 edivi__einsatz-name"><span>Patient:</span><strong><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></strong><?php if (!empty($zielInfo)): ?><small><i class="fa-solid fa-bed" style="margin-right:4px;"></i><?= $zielInfo ?></small><?php endif; ?></div>
                                                     </div>
                                                 </a>
                                             </div>
@@ -571,16 +589,16 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <!-- Logout Modal -->
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-light">
-                <div class="modal-header border-secondary">
+            <div class="modal-content">
+                <div class="modal-header">
                     <h5 class="modal-title" id="logoutModalLabel">Abmelden</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body">
                     Wie möchten Sie sich abmelden?
                 </div>
-                <div class="modal-footer border-secondary">
-                    <a href="loggedout.php?mode=self" class="btn btn-outline-light">Mich abmelden</a>
+                <div class="modal-footer">
+                    <a href="loggedout.php?mode=self" class="btn btn-light">Mich abmelden</a>
                     <a href="loggedout.php?mode=all" class="btn btn-danger">Alle abmelden</a>
                 </div>
             </div>

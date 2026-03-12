@@ -37,6 +37,7 @@ if (isset($_POST['enr']) && isset($_POST['field'])) {
         'salarm', 's1', 's2', 's3', 's4', 'spat', 's7', 's8', 'sende',
         'symptombeginn_datum', 'symptombeginn_zeit', 'symptombeginn_geschaetzt', 'symptombeginn_nf',
         'naca_initial', 'naca_uebergabe',
+        'sonderrechte_anfahrt', 'sonderrechte_transport',
     ];
 
     if ($field === 'freigeber') {

@@ -15,6 +15,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/fortawesome/font-awesome/css/all.min.css">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-custom-dropdown.css">
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-modals.css">
 <script src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
 <script src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
 <script src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>

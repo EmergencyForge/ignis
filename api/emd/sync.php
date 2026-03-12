@@ -1108,9 +1108,16 @@ try {
                     }
                 }
 
+                // Sonderrechte Anfahrt aus bluelight-Feld ableiten
+                $sonderrechteAnfahrt = null;
+                if ($dispatchData && isset($dispatchData['bluelight'])) {
+                    $sonderrechteAnfahrt = ($dispatchData['bluelight'] === 'yes') ? 'ja' : 'nein';
+                    logSync("Dispatch #$dispatchId: bluelight='{$dispatchData['bluelight']}' → sonderrechte_anfahrt='$sonderrechteAnfahrt'", 'DEBUG');
+                }
+
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, patname, pat_vorname, pat_nachname, patgebdat, created_at, createdby)
-                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, :patname, :pat_vorname, :pat_nachname, :patgebdat, NOW(), 1)
+                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, patname, pat_vorname, pat_nachname, patgebdat, sonderrechte_anfahrt, created_at, createdby)
+                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, :patname, :pat_vorname, :pat_nachname, :patgebdat, :sonderrechte_anfahrt, NOW(), 1)
                 ");
                 $insertStmt->execute([
                     ':enr' => $enrToUse,
@@ -1121,7 +1128,8 @@ try {
                     ':patname' => $patientName,
                     ':pat_vorname' => $patientVorname,
                     ':pat_nachname' => $patientNachname,
-                    ':patgebdat' => $patientBirthdate
+                    ':patgebdat' => $patientBirthdate,
+                    ':sonderrechte_anfahrt' => $sonderrechteAnfahrt
                 ]);
 
                 logSync("Notarzt-Eintrag $enrToUse erstellt: {$vehicle['identifier']}", 'INFO');
@@ -1167,9 +1175,16 @@ try {
                     }
                 }
 
+                // Sonderrechte Anfahrt aus bluelight-Feld ableiten
+                $sonderrechteAnfahrt = null;
+                if ($dispatchData && isset($dispatchData['bluelight'])) {
+                    $sonderrechteAnfahrt = ($dispatchData['bluelight'] === 'yes') ? 'ja' : 'nein';
+                    logSync("Dispatch #$dispatchId: bluelight='{$dispatchData['bluelight']}' → sonderrechte_anfahrt='$sonderrechteAnfahrt'", 'DEBUG');
+                }
+
                 $insertStmt = $pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, patname, pat_vorname, pat_nachname, patgebdat, created_at, createdby)
-                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, :patname, :pat_vorname, :pat_nachname, :patgebdat, NOW(), 1)
+                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, patname, pat_vorname, pat_nachname, patgebdat, sonderrechte_anfahrt, created_at, createdby)
+                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, :patname, :pat_vorname, :pat_nachname, :patgebdat, :sonderrechte_anfahrt, NOW(), 1)
                 ");
                 $insertStmt->execute([
                     ':enr' => $enrToUse,
@@ -1180,7 +1195,8 @@ try {
                     ':patname' => $patientName,
                     ':pat_vorname' => $patientVorname,
                     ':pat_nachname' => $patientNachname,
-                    ':patgebdat' => $patientBirthdate
+                    ':patgebdat' => $patientBirthdate,
+                    ':sonderrechte_anfahrt' => $sonderrechteAnfahrt
                 ]);
 
                 logSync("Transport-Eintrag $enrToUse erstellt: {$vehicle['identifier']}", 'INFO');

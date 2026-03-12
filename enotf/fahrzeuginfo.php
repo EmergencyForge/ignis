@@ -483,16 +483,16 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <!-- Logout Modal -->
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-light">
-                <div class="modal-header border-secondary">
+            <div class="modal-content">
+                <div class="modal-header">
                     <h5 class="modal-title" id="logoutModalLabel">Abmelden</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body">
                     Wie möchten Sie sich abmelden?
                 </div>
-                <div class="modal-footer border-secondary">
-                    <a href="loggedout.php?mode=self" class="btn btn-outline-light">Mich abmelden</a>
+                <div class="modal-footer">
+                    <a href="loggedout.php?mode=self" class="btn btn-light">Mich abmelden</a>
                     <a href="loggedout.php?mode=all" class="btn btn-danger">Alle abmelden</a>
                 </div>
             </div>
