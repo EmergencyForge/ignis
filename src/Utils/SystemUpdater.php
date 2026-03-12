@@ -212,8 +212,10 @@ class SystemUpdater
 
             // Security: Validate version format
             // Allow up to 5 version segments (e.g., v0.5.4.3.1) plus optional pre-release suffix
+            // Also allow dev-branch-commit format for branch updates (e.g., dev-main-abc12345)
             // Note: {0,4} means 0 to 4 additional segments after the first, totaling 1 to 5 segments
-            if (!preg_match('/^v?\d+(\.\d+){0,4}(-[a-zA-Z0-9.-]+)?$/', $newVersion)) {
+            if (!preg_match('/^v?\d+(\.\d+){0,4}(-[a-zA-Z0-9.-]+)?$/', $newVersion) &&
+                !preg_match('/^dev-[a-zA-Z0-9._\/-]+-[a-f0-9]{7,8}$/', $newVersion)) {
                 throw new Exception('Ungültiges Versionsformat.');
             }
 
@@ -1268,6 +1270,118 @@ class SystemUpdater
         }
 
         return true;
+    }
+
+    /**
+     * Fetch all branches from GitHub API
+     *
+     * @return array List of branch names
+     */
+    public function fetchBranches(): array
+    {
+        try {
+            $url = "{$this->githubApiUrl}/branches?per_page=100";
+
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'GET',
+                    'header' => [
+                        'User-Agent: intraRP-Updater',
+                        'Accept: application/vnd.github+json'
+                    ],
+                    'timeout' => 10
+                ]
+            ]);
+
+            $response = @file_get_contents($url, false, $context);
+
+            if ($response === false) {
+                return [];
+            }
+
+            $branches = json_decode($response, true);
+
+            if (!is_array($branches)) {
+                return [];
+            }
+
+            return $branches;
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Fetch the latest commit of a specific branch from GitHub API
+     *
+     * @param string $branch Branch name
+     * @return array|null Commit info or null on error
+     */
+    public function fetchBranchLatestCommit(string $branch): ?array
+    {
+        try {
+            $url = "{$this->githubApiUrl}/commits/" . urlencode($branch);
+
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'GET',
+                    'header' => [
+                        'User-Agent: intraRP-Updater',
+                        'Accept: application/vnd.github+json'
+                    ],
+                    'timeout' => 10
+                ]
+            ]);
+
+            $response = @file_get_contents($url, false, $context);
+
+            if ($response === false) {
+                return null;
+            }
+
+            $commit = json_decode($response, true);
+
+            if (!is_array($commit) || !isset($commit['sha'])) {
+                return null;
+            }
+
+            return $commit;
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Download and apply update from a specific branch commit
+     *
+     * @param string $branch Branch name
+     * @param string $commitSha Full commit SHA
+     * @return array Result of the update operation
+     */
+    public function downloadAndApplyBranchUpdate(string $branch, string $commitSha): array
+    {
+        // Construct the zipball URL for the specific commit
+        $downloadUrl = "https://api.github.com/repos/{$this->githubRepo}/zipball/{$commitSha}";
+
+        // Use a dev version string: branch-shortsha
+        $shortSha = substr($commitSha, 0, 8);
+        $devVersion = "dev-{$branch}-{$shortSha}";
+
+        $result = $this->downloadAndApplyUpdate($downloadUrl, $devVersion, true);
+
+        // Update version.json with the full commit hash for proper detection
+        if ($result['success']) {
+            $this->updateVersionFile([
+                'version' => $devVersion,
+                'updated_at' => date('Y-m-d H:i:s'),
+                'build_number' => (int)($this->currentVersion['build_number'] ?? 0) + 1,
+                'commit_hash' => $commitSha,
+                'prerelease' => true,
+                'branch' => $branch
+            ]);
+        }
+
+        return $result;
     }
 
     /**

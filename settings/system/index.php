@@ -32,6 +32,9 @@ $checking = false;
 $versionAge = $updater->getVersionAge();
 $isUpdateRecommended = $updater->isUpdateRecommended();
 $isPreRelease = $updater->isPreRelease();
+$isDevMode = isset($_GET['dev']);
+$devBranches = [];
+$devBranchInfo = null;
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -88,7 +91,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        if (!preg_match('/^v?\d+(\.\d+){0,4}(-[a-zA-Z0-9.-]+)?$/', $newVersion)) {
+        if (!preg_match('/^v?\d+(\.\d+){0,4}(-[a-zA-Z0-9.-]+)?$/', $newVersion) &&
+            !preg_match('/^dev-[a-zA-Z0-9._\/-]+-[a-f0-9]{7,8}$/', $newVersion)) {
             $errorMsg = 'Ungültiges Versionsformat.';
             if ($isAjax) {
                 header('Content-Type: application/json');
@@ -162,6 +166,88 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit();
             }
         }
+    } elseif (isset($_POST['dev_install_branch'])) {
+        $branch = $_POST['dev_branch'] ?? '';
+        $commitSha = $_POST['dev_commit_sha'] ?? '';
+
+        $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
+        if (empty($branch) || !preg_match('/^[a-zA-Z0-9._\/-]+$/', $branch)) {
+            $errorMsg = 'Ungültiger Branch-Name.';
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => true, 'message' => $errorMsg]);
+                session_write_close();
+                exit();
+            } else {
+                Flash::set('error', $errorMsg);
+                header("Location: " . $_SERVER['REQUEST_URI'] . (strpos($_SERVER['REQUEST_URI'], '?') === false ? '?dev' : ''));
+                exit();
+            }
+        }
+
+        if (empty($commitSha) || !preg_match('/^[a-f0-9]{40}$/', $commitSha)) {
+            $errorMsg = 'Ungültiger Commit-SHA.';
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => true, 'message' => $errorMsg]);
+                session_write_close();
+                exit();
+            } else {
+                Flash::set('error', $errorMsg);
+                header("Location: " . $_SERVER['REQUEST_URI'] . (strpos($_SERVER['REQUEST_URI'], '?') === false ? '?dev' : ''));
+                exit();
+            }
+        }
+
+        $installResult = $updater->downloadAndApplyBranchUpdate($branch, $commitSha);
+
+        $auditLogger = new AuditLogger($pdo);
+        $auditLogger->log(
+            $_SESSION['userid'],
+            'system_update_dev_install',
+            json_encode(['branch' => $branch, 'commit' => $commitSha, 'result' => $installResult]),
+            'System',
+            0
+        );
+
+        if ($isAjax) {
+            header('Content-Type: application/json');
+            if ($installResult['success']) {
+                $_SESSION['composer_pending'] = isset($installResult['composer_pending']) && $installResult['composer_pending'];
+                echo json_encode([
+                    'success' => true,
+                    'message' => $installResult['message'],
+                    'composer_pending' => $_SESSION['composer_pending']
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false,
+                    'error' => true,
+                    'message' => $installResult['message']
+                ]);
+            }
+            session_write_close();
+            exit();
+        } else {
+            if ($installResult['success']) {
+                $_SESSION['composer_pending'] = isset($installResult['composer_pending']) && $installResult['composer_pending'];
+                Flash::set('success', $installResult['message']);
+            } else {
+                Flash::set('error', $installResult['message']);
+            }
+            header("Location: " . $_SERVER['REQUEST_URI'] . (strpos($_SERVER['REQUEST_URI'], '?') === false ? '?dev' : ''));
+            exit();
+        }
+    }
+}
+
+// Dev mode: fetch branches
+if ($isDevMode) {
+    $devBranches = $updater->fetchBranches();
+    if (isset($_GET['branch']) && !empty($_GET['branch'])) {
+        $selectedBranch = $_GET['branch'];
+        $devBranchInfo = $updater->fetchBranchLatestCommit($selectedBranch);
     }
 }
 ?>
@@ -616,6 +702,243 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <?php endif; ?>
                             </div>
                         </div>
+                    <?php endif; ?>
+
+                    <?php if ($isDevMode): ?>
+                        <!-- Dev Mode: Branch Update -->
+                        <div class="card mb-4 border-warning">
+                            <div class="card-header bg-warning bg-opacity-10">
+                                <h5 class="mb-0"><i class="fa-solid fa-code-branch me-2"></i>Entwickler-Modus: Branch-Update</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-warning mb-3">
+                                    <i class="fa-solid fa-exclamation-triangle"></i>
+                                    <strong>Achtung:</strong> Branch-Updates installieren den neuesten Commit eines Branches.
+                                    Diese Versionen sind möglicherweise instabil und nicht für den Produktiveinsatz geeignet.
+                                </div>
+
+                                <?php if (!empty($devBranches)): ?>
+                                    <div class="mb-3">
+                                        <label for="dev-branch-select" class="form-label">Branch auswählen:</label>
+                                        <select class="form-select" id="dev-branch-select">
+                                            <option value="">-- Branch wählen --</option>
+                                            <?php foreach ($devBranches as $branch): ?>
+                                                <option value="<?= htmlspecialchars($branch['name']) ?>"
+                                                    <?= (isset($selectedBranch) && $selectedBranch === $branch['name']) ? 'selected' : '' ?>>
+                                                    <?= htmlspecialchars($branch['name']) ?>
+                                                    <?= ($branch['name'] === 'main') ? ' (Standard)' : '' ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+
+                                    <script>
+                                        document.getElementById('dev-branch-select').addEventListener('change', function() {
+                                            if (this.value) {
+                                                window.location.href = '?dev&branch=' + encodeURIComponent(this.value);
+                                            }
+                                        });
+                                    </script>
+
+                                    <?php if ($devBranchInfo): ?>
+                                        <div class="card bg-dark mb-3">
+                                            <div class="card-body">
+                                                <h6><i class="fa-solid fa-code-commit me-2"></i>Neuester Commit auf <code><?= htmlspecialchars($selectedBranch) ?></code></h6>
+                                                <dl class="row mb-0">
+                                                    <dt class="col-sm-3">SHA:</dt>
+                                                    <dd class="col-sm-9"><code><?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?></code> <small class="text-muted">(<?= htmlspecialchars($devBranchInfo['sha']) ?>)</small></dd>
+
+                                                    <dt class="col-sm-3">Nachricht:</dt>
+                                                    <dd class="col-sm-9"><?= htmlspecialchars($devBranchInfo['commit']['message'] ?? '') ?></dd>
+
+                                                    <dt class="col-sm-3">Autor:</dt>
+                                                    <dd class="col-sm-9"><?= htmlspecialchars($devBranchInfo['commit']['author']['name'] ?? '') ?></dd>
+
+                                                    <dt class="col-sm-3">Datum:</dt>
+                                                    <dd class="col-sm-9">
+                                                        <?php
+                                                        $commitDate = $devBranchInfo['commit']['author']['date'] ?? null;
+                                                        echo $commitDate ? date('d.m.Y H:i', strtotime($commitDate)) : '-';
+                                                        ?>
+                                                    </dd>
+                                                </dl>
+
+                                                <?php
+                                                $currentHash = $currentVersion['commit_hash'] ?? '';
+                                                $targetHash = $devBranchInfo['sha'] ?? '';
+                                                $isSameCommit = !empty($currentHash) && str_starts_with($targetHash, $currentHash);
+                                                ?>
+
+                                                <?php if ($isSameCommit): ?>
+                                                    <div class="alert alert-info mt-3 mb-0">
+                                                        <i class="fa-solid fa-check-circle"></i> Sie sind bereits auf diesem Commit.
+                                                    </div>
+                                                <?php else: ?>
+                                                    <form method="post" id="dev-install-form" class="mt-3">
+                                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                        <input type="hidden" name="dev_install_branch" value="1">
+                                                        <input type="hidden" name="dev_branch" value="<?= htmlspecialchars($selectedBranch) ?>">
+                                                        <input type="hidden" name="dev_commit_sha" value="<?= htmlspecialchars($devBranchInfo['sha']) ?>">
+                                                        <button type="button" id="dev-install-btn" class="btn btn-warning w-100">
+                                                            <i class="fa-solid fa-download"></i> Commit installieren (<?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?>)
+                                                        </button>
+                                                    </form>
+
+                                                    <script>
+                                                        document.getElementById('dev-install-btn').addEventListener('click', async function() {
+                                                            const branch = <?= json_encode($selectedBranch) ?>;
+                                                            const sha = <?= json_encode(substr($devBranchInfo['sha'], 0, 8)) ?>;
+                                                            const confirmed = await showConfirm(
+                                                                'Branch "' + branch + '" (Commit ' + sha + ') installieren?\n\n' +
+                                                                'Ein Backup wird automatisch erstellt.\n' +
+                                                                'Dieser Vorgang kann einige Minuten dauern.', {
+                                                                    title: 'Branch-Update installieren?',
+                                                                    confirmText: 'Installieren',
+                                                                    cancelText: 'Abbrechen',
+                                                                    confirmClass: 'btn-warning',
+                                                                    danger: false
+                                                                }
+                                                            );
+
+                                                            if (confirmed) {
+                                                                const progressModal = new bootstrap.Modal(document.getElementById('update-progress-modal'));
+                                                                const modalElement = document.getElementById('update-progress-modal');
+                                                                progressModal.show();
+
+                                                                const progressBar = document.getElementById('update-progress-bar');
+                                                                const progressText = document.getElementById('update-progress-text');
+                                                                const statusText = document.getElementById('update-status-text');
+
+                                                                const steps = [
+                                                                    { percent: 10, text: 'Download wird vorbereitet...' },
+                                                                    { percent: 25, text: 'Branch-Commit wird heruntergeladen...' },
+                                                                    { percent: 40, text: 'Dateien werden extrahiert...' },
+                                                                    { percent: 55, text: 'Backup wird erstellt...' },
+                                                                    { percent: 70, text: 'Update wird installiert...' },
+                                                                    { percent: 85, text: 'Dateien werden kopiert...' },
+                                                                    { percent: 95, text: 'Installation wird abgeschlossen...' }
+                                                                ];
+
+                                                                let currentStep = 0;
+                                                                const updateProgress = () => {
+                                                                    if (currentStep < steps.length) {
+                                                                        const step = steps[currentStep];
+                                                                        progressBar.style.width = step.percent + '%';
+                                                                        progressText.textContent = step.percent + '%';
+                                                                        statusText.innerHTML = '<small class="text-muted">' + step.text + '</small>';
+                                                                        currentStep++;
+                                                                    }
+                                                                };
+
+                                                                const progressInterval = setInterval(updateProgress, 2000);
+                                                                updateProgress();
+
+                                                                const formData = new FormData(document.getElementById('dev-install-form'));
+
+                                                                try {
+                                                                    const response = await fetch(window.location.href, {
+                                                                        method: 'POST',
+                                                                        body: formData,
+                                                                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                                                                    });
+
+                                                                    clearInterval(progressInterval);
+
+                                                                    if (!response.ok) {
+                                                                        throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                                                                    }
+
+                                                                    const result = await response.json();
+
+                                                                    if (result.success) {
+                                                                        progressBar.style.width = '100%';
+                                                                        progressText.textContent = '100%';
+                                                                        statusText.innerHTML = '<small class="text-success"><i class="fa-solid fa-check-circle"></i> Update abgeschlossen!</small>';
+                                                                        setTimeout(() => { window.location.href = '?dev'; }, 1500);
+                                                                    } else {
+                                                                        progressBar.classList.remove('progress-bar-animated');
+                                                                        progressBar.classList.add('bg-danger');
+                                                                        const errorMsg = result.message || 'Unbekannter Fehler.';
+                                                                        statusText.innerHTML = '<small class="text-danger"><i class="fa-solid fa-exclamation-triangle"></i> </small>';
+                                                                        statusText.querySelector('small').appendChild(document.createTextNode(errorMsg));
+
+                                                                        setTimeout(() => {
+                                                                            modalElement.querySelector('.modal-header').innerHTML =
+                                                                                '<h5 class="modal-title text-danger"><i class="fa-solid fa-exclamation-triangle me-2"></i>Update fehlgeschlagen</h5>' +
+                                                                                '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>';
+                                                                            modalElement.querySelector('.modal-body .alert-info').classList.add('d-none');
+                                                                        }, 1000);
+                                                                    }
+                                                                } catch (error) {
+                                                                    clearInterval(progressInterval);
+                                                                    progressBar.classList.remove('progress-bar-animated');
+                                                                    progressBar.classList.add('bg-danger');
+                                                                    statusText.innerHTML = '<small class="text-danger"><i class="fa-solid fa-exclamation-triangle"></i> Netzwerkfehler: </small>';
+                                                                    statusText.querySelector('small').appendChild(document.createTextNode(error.message));
+
+                                                                    setTimeout(() => {
+                                                                        modalElement.querySelector('.modal-header').innerHTML =
+                                                                            '<h5 class="modal-title text-danger"><i class="fa-solid fa-exclamation-triangle me-2"></i>Update fehlgeschlagen</h5>' +
+                                                                            '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>';
+                                                                        modalElement.querySelector('.modal-body .alert-info').classList.add('d-none');
+                                                                    }, 1000);
+                                                                }
+                                                            }
+                                                        });
+                                                    </script>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <div class="alert alert-danger">
+                                        <i class="fa-solid fa-exclamation-triangle"></i>
+                                        Konnte Branches nicht von GitHub laden. Bitte Internetverbindung prüfen.
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <!-- Progress Modal for dev mode (reuses the same modal) -->
+                        <?php if (!$checking || !$updateInfo || !($updateInfo['available'] ?? false)): ?>
+                            <div class="modal fade" id="update-progress-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">
+                                                <i class="fa-solid fa-download me-2"></i>
+                                                Update wird installiert
+                                            </h5>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="text-center mb-3">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Wird geladen...</span>
+                                                </div>
+                                            </div>
+                                            <div class="progress mb-3" style="height: 25px;">
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                    role="progressbar"
+                                                    id="update-progress-bar"
+                                                    style="width: 0%">
+                                                    <span id="update-progress-text">0%</span>
+                                                </div>
+                                            </div>
+                                            <div id="update-status-text" class="text-center">
+                                                <small class="text-muted">Update wird vorbereitet...</small>
+                                            </div>
+                                            <div class="alert alert-info mt-3 mb-0">
+                                                <small>
+                                                    <i class="fa-solid fa-info-circle me-1"></i>
+                                                    <strong>Hinweis:</strong> Bitte schließen Sie dieses Fenster nicht.
+                                                    Der Vorgang kann mehrere Minuten dauern.
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             </div>
