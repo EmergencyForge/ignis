@@ -59,12 +59,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     </div>
                     <div class="row my-5 mx-5">
                         <div class="col">
-                            <button class="edivi__nidabutton-primary w-100" id="rdprot" name="rdprot" onclick="setProtBy(0)">Rettungsdienst-Protokoll</button>
+                            <button class="edivi__nidabutton w-100 d-flex align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="rdprot" name="rdprot" onclick="setProtBy(0)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NF</span> Notfallprotokoll</button>
                         </div>
                     </div>
                     <div class="row my-5 mx-5">
                         <div class="col">
-                            <button class="edivi__nidabutton-primary w-100" id="naprot" name="naprot" onclick="setProtBy(1)">Notarzt-Protokoll</button>
+                            <button class="edivi__nidabutton w-100 d-flex align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="naprot" name="naprot" onclick="setProtBy(1)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NA</span> Notarztprotokoll</button>
                         </div>
                     </div>
                     <div class="row my-5 mx-5">

@@ -159,7 +159,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         }
 
                                         $canDelete = ($row['createdby'] == 2);
-                                        $protType = ($row['prot_by'] == 1) ? 'NA' : 'RD';
+                                        $protType = ($row['prot_by'] == 1) ? 'NA' : 'NF';
                                     ?>
                                         <div class="edivi__einsatz-wrapper" data-enr="<?= htmlspecialchars($row['enr']) ?>" data-can-delete="<?= $canDelete ? '1' : '0' ?>">
                                             <div class="edivi__einsatz-delete-bg">
@@ -168,7 +168,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="edivi__einsatz-container edivi__einsatz-swipeable">
                                                 <a href="protokoll/index.php?enr=<?= $row['enr'] ?>" class="edivi__einsatz-link" draggable="false">
                                                     <div class="row edivi__einsatz edivi__einsatz-set">
-                                                        <div class="col-2 edivi__einsatz-type"><span><?= htmlspecialchars($label) ?></span></div>
+                                                        <div class="col-2 edivi__einsatz-type"><?php if ($row['createdby'] == 1): ?><i class="fa-solid fa-bell" style="color:#fff;font-size:1.4rem;margin-right:6px;"></i><?php endif; ?><span><?= htmlspecialchars($label) ?></span></div>
                                                         <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><br><?= $row['edatum'] ?> <?= $row['ezeit'] ?> Uhr</div>
                                                         <div class="col edivi__einsatz-name"><span>Patient:</span><br><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></div>
                                                         <div class="col edivi__einsatz-freigeber"><span>Protokollant:</span><br><?= $row['pfname'] ?></div>
