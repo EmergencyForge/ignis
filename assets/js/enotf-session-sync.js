@@ -129,23 +129,47 @@
 
   /**
    * Update header crew display (live, no page reload)
+   * Rebuilds the crew display inside #topbar-crew-display
    */
   function updateHeaderDisplay(crew) {
-    var crewCols = document.querySelectorAll("[data-crew-name]");
-    crewCols.forEach(function (el) {
-      var field = el.getAttribute("data-crew-name");
-      if (crew[field] !== undefined) {
-        el.textContent = crew[field] || "";
-        // Optionale Felder ein-/ausblenden
-        if (field !== "fahrername") {
-          if (crew[field]) {
-            el.classList.remove("d-none");
-          } else {
-            el.classList.add("d-none");
-          }
-        }
+    var container = document.getElementById("topbar-crew-display");
+    if (!container) return;
+
+    // Finde oder erstelle den Crew-Content-Bereich (erstes div Kind)
+    var contentDiv = container.querySelector(".crew-live-content");
+    if (!contentDiv) {
+      // Erstmaliger Aufbau: vorhandenen Inhalt ersetzen
+      // "Anmelden" Text am Ende beibehalten
+      var anmeldenEl = container.querySelector("small");
+      var anmeldenText = anmeldenEl ? anmeldenEl.outerHTML : '<small style="font-size: 0.65rem;">Anmelden</small>';
+
+      container.innerHTML = '<div class="d-flex align-items-start crew-live-content"></div>' + anmeldenText;
+      contentDiv = container.querySelector(".crew-live-content");
+    }
+
+    // Crew-HTML aufbauen
+    var html = '<div class="d-flex flex-column align-items-end justify-content-start">';
+    html += "<span>" + escapeHtml(crew.fahrername || "") + "</span>";
+    html += "</div>";
+
+    if (crew.beifahrername || crew.praktikantname) {
+      html += '<div class="d-flex flex-column align-items-start ms-3">';
+      if (crew.beifahrername) {
+        html += "<span>" + escapeHtml(crew.beifahrername) + "</span>";
       }
-    });
+      if (crew.praktikantname) {
+        html += "<span>" + escapeHtml(crew.praktikantname) + "</span>";
+      }
+      html += "</div>";
+    }
+
+    contentDiv.innerHTML = html;
+  }
+
+  function escapeHtml(str) {
+    var div = document.createElement("div");
+    div.appendChild(document.createTextNode(str));
+    return div.innerHTML;
   }
 
   /**
