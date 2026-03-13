@@ -69,7 +69,10 @@
         }
 
         updateSessionIcon("connected");
-        console.log('[SessionSync] Poll OK, crew:', JSON.stringify(data.crew), 'container:', !!document.getElementById('topbar-crew-display'));
+        // DEBUG: sichtbar auf der Seite
+        var dbg = document.getElementById('_sync_dbg');
+        if (!dbg) { dbg = document.createElement('div'); dbg.id = '_sync_dbg'; dbg.style.cssText = 'position:fixed;bottom:0;left:0;background:#000;color:#0f0;font:11px monospace;padding:4px 8px;z-index:99999;opacity:0.85;'; document.body.appendChild(dbg); }
+        dbg.textContent = '[Sync] crew=' + JSON.stringify(data.crew) + ' | container=' + !!document.getElementById('topbar-crew-display');
 
         // Header immer aktualisieren (auch beim ersten Poll,
         // falls PHP-Session veraltet war)
