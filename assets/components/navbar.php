@@ -920,20 +920,9 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             } catch (e) {}
         }
 
-        // Restore saved state
-        var savedState = loadSidebarState();
+        // Restore state: only the active page's parent menu stays open
         var parentPage = pageMapping[currentPage] || null;
 
-        // First: apply saved state for all menus
-        $(".sidebar-toggle[data-menu]").each(function() {
-            var menu = $(this).data("menu");
-            if (savedState[menu]) {
-                $(this).addClass("open");
-                $(this).next(".sidebar-submenu").addClass("open");
-            }
-        });
-
-        // Then: always ensure active page's parent is open (overrides saved state)
         if (parentPage) {
             $(".sidebar-toggle[data-menu='" + parentPage + "']")
                 .addClass("active open")
@@ -980,11 +969,19 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         });
         $(window).on("beforeunload", saveScroll);
 
-        // Toggle submenu expand/collapse with state saving
+        // Toggle submenu expand/collapse (accordion: nur ein Menü gleichzeitig offen)
         $(".sidebar-toggle").on("click", function(e) {
             e.preventDefault();
-            $(this).toggleClass("open");
+            var isOpening = !$(this).hasClass("open");
             var $submenu = $(this).next(".sidebar-submenu");
+
+            if (isOpening) {
+                // Alle anderen Menüs zuklappen
+                $(".sidebar-toggle.open").not(this).removeClass("open")
+                    .next(".sidebar-submenu").removeClass("open");
+            }
+
+            $(this).toggleClass("open");
             $submenu.toggleClass("open");
             saveSidebarState();
 
