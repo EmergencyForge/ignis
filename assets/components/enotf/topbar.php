@@ -112,7 +112,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                     elseif ($daten['pat_synced'] == 1) $patSyncColor = '#28a745';
                 }
                 ?>
-                <div class="d-flex flex-column align-items-center me-3" style="font-size: 0.95rem; gap: 4px; padding-left: 15px; border-left: 2px solid #424242;">
+                <div class="d-flex flex-column align-items-start me-3" style="font-size: 0.95rem; gap: 4px; padding-left: 15px; border-left: 2px solid #424242;">
                     <?php if (in_array('pat_sync', $topbar_sync)): ?>
                         <div class="d-flex align-items-center" style="gap: 8px;">
                             <?php if (in_array('leitstelle', $topbar_sync)): ?>
@@ -128,7 +128,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                         </div>
                         <div class="d-flex align-items-center">
                             <span id="pat-sync-icon" title="Patientendaten-Sync">
-                                <i class="fa-solid fa-wifi" style="color: <?= $patSyncColor ?>;"></i>
+                                <i class="fa-solid fa-up-down" style="color: <?= $patSyncColor ?>;"></i>
                             </span>
                         </div>
                     <?php else: ?>

@@ -82,6 +82,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             <a href="javascript:void(0)" class="edivi__iconlink" data-bs-toggle="modal" data-bs-target="#logoutModal">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i><br>
                 <small>Abmelden</small>
+            </a>
+            <a href="' . BASE_PATH . 'enotf/fahrzeuginfo.php" class="edivi__iconlink">
+                <i class="fa-solid fa-truck-medical"></i><br>
+                <small>Fahrzeuginfo</small>
             </a>';
         $topbar_sync = ['leitstelle', 'session'];
         $topbar_show_notices = false;
