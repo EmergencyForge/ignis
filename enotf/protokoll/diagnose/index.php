@@ -270,7 +270,7 @@ if (!empty($diagnose_weitere_array)) {
                             <div class="row">
                                 <div class="col">
                                     <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
-                                        <h5 class="text-light px-2 py-1 edivi__group-check">Diagnose (führend)</h5>
+                                        <h5 class="text-light px-2 py-1 edivi__group-check">Diagnose (führend) <i id="icon-diagnose_fuehrend" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
                                         <div class="col">
                                             <div class="row my-2">
                                                 <div class="col">

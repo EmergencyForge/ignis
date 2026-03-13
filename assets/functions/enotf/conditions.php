@@ -219,7 +219,7 @@ function enotf_get_base_required(): array
             'section' => 6,
             'message' => '[6] Maßnahmen: Zugang ist nicht gesetzt.',
             'check'   => function ($d) { return $d['c_zugang'] === null; },
-            'html'    => [],
+            'html'    => ['zugang_display'],
             'db'      => ['c_zugang'],
         ],
         'medis' => [

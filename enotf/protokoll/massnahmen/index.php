@@ -476,7 +476,8 @@ if (!empty($daten['rettungstechnik'])) {
                             <div class="row">
                                 <div class="col">
                                     <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
-                                        <h5 class="text-light px-2 py-1">Zugänge</h5>
+                                        <h5 class="text-light px-2 py-1">Zugänge <i id="icon-zugang_display" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
+                                        <input type="hidden" name="zugang_display" class="edivi__input-check" value="<?= $daten['c_zugang'] !== null ? $daten['c_zugang'] : '' ?>">
                                         <div class="col">
                                             <div class="row">
                                                 <div class="col">
@@ -503,7 +504,7 @@ if (!empty($daten['rettungstechnik'])) {
                             <div class="row">
                                 <div class="col">
                                     <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/medikamente/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
-                                        <h5 class="text-light px-2 py-1 edivi__group-check">Medikamente</h5>
+                                        <h5 class="text-light px-2 py-1 edivi__group-check">Medikamente <i id="icon-medikamente" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
                                         <div class="col">
                                             <div class="row">
                                                 <div class="col">
