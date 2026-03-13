@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $priority = isset($_POST['priority']) ? (int)$_POST['priority'] : 0;
     $rd_type = isset($_POST['rd_type']) ? (int)$_POST['rd_type'] : 0;
     $active = isset($_POST['active']) ? 1 : 0;
+    $allowed_jobs = trim($_POST['allowed_jobs'] ?? '') ?: null;
 
     // Tactical symbol data
     $grundzeichen = trim($_POST['grundzeichen'] ?? '');
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO intra_fahrzeuge (name, kennzeichen, veh_type, identifier, priority, rd_type, active, grundzeichen, organisation, fachaufgabe, einheit, symbol, typ, text, tz_name) VALUES (:name, :kennzeichen, :veh_type, :identifier, :priority, :rd_type, :active, :grundzeichen, :organisation, :fachaufgabe, :einheit, :symbol, :typ, :text, :tz_name)");
+        $stmt = $pdo->prepare("INSERT INTO intra_fahrzeuge (name, kennzeichen, veh_type, identifier, priority, rd_type, allowed_jobs, active, grundzeichen, organisation, fachaufgabe, einheit, symbol, typ, text, tz_name) VALUES (:name, :kennzeichen, :veh_type, :identifier, :priority, :rd_type, :allowed_jobs, :active, :grundzeichen, :organisation, :fachaufgabe, :einheit, :symbol, :typ, :text, :tz_name)");
         $stmt->execute([
             ':name' => $name,
             ':kennzeichen' => $kennzeichen,
@@ -47,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':identifier' => $identifier,
             ':priority' => $priority,
             ':rd_type' => $rd_type,
+            ':allowed_jobs' => $allowed_jobs,
             ':active' => $active,
             ':grundzeichen' => $grundzeichen ?: null,
             ':organisation' => $organisation ?: null,

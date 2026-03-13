@@ -35,3 +35,18 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <meta property="og:title" content="<?php echo SYSTEM_NAME ?> - Intranet <?php echo SERVER_CITY ?>" />
 <meta property="og:image" content="https://<?php echo SYSTEM_URL ?>/assets/img/aelrd.png" />
 <meta property="og:description" content="Verwaltungsportal der <?php echo RP_ORGTYPE . " " .  SERVER_CITY ?>" />
+<!-- CitizenFX: Session-ID an FiveM-Client senden -->
+<script>
+(function() {
+    if (navigator.userAgent.includes('CitizenFX')) {
+        fetch('<?= BASE_PATH ?>api/character/get-session-id.php')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.session_id) {
+                    window.postMessage({ type: 'intraRP_session', session_id: data.session_id }, '*');
+                }
+            })
+            .catch(function() {});
+    }
+})();
+</script>

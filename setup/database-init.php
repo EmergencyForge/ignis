@@ -466,6 +466,10 @@ $migrationFiles = [
 
     // 12.03.2026 - Sonderrechte
     ['file' => 'alter_intra_edivi_12032026_sonderrechte.php', 'type' => 'alter'],
+
+    // 13.03.2026 - Charakter-basierte Fahrzeugzugriffskontrolle
+    ['file' => 'alter_intra_fahrzeuge_13032026_allowed_jobs.php', 'type' => 'alter'],
+    ['file' => 'insert_config_13032026_enotf_char_control.php', 'type' => 'insert'],
 ];
 
 $executed = 0;

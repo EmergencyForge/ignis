@@ -24,6 +24,14 @@ date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
+// Charakter-basierte Zugriffskontrolle
+$charLockEnabled = defined('ENOTF_CHAR_LOCK') && ENOTF_CHAR_LOCK === true;
+$charName = $_SESSION['char_name'] ?? '';
+$charLocked = $charLockEnabled && !empty($charName);
+
+$jobFilterEnabled = defined('ENOTF_JOB_FILTER') && ENOTF_JOB_FILTER === true;
+$charJob = $_SESSION['char_job'] ?? null;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mode = $_POST['login_mode'] ?? 'new';
     $vehicle = $_POST['protfzg'];
@@ -33,6 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $joinPosition = $_POST['join_position'] ?? null;
         $joinName = $_POST['join_name'] ?? null;
         $joinQuali = $_POST['join_quali'] ?? null;
+
+        // Charakter-Sperre: Name muss dem eigenen entsprechen
+        if ($charLocked && $joinName !== $charName) {
+            header("Location: " . BASE_PATH . "enotf/login.php?error=char_mismatch");
+            exit();
+        }
 
         if (!$joinPosition || !$joinName) {
             // Fallback: normale Anmeldung
@@ -81,6 +95,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($mode === 'new') {
+        // Charakter-Sperre: Validierung
+        if ($charLocked) {
+            $submittedNames = array_filter([
+                $_POST['fahrername'] ?? '',
+                $_POST['beifahrername'] ?? '',
+                $_POST['praktikantname'] ?? '',
+            ]);
+            // Genau ein Name muss dem eigenen entsprechen, die anderen leer
+            $hasOwnName = false;
+            foreach ($submittedNames as $name) {
+                if ($name === $charName) {
+                    $hasOwnName = true;
+                } else {
+                    // Fremder Name eingetragen
+                    header("Location: " . BASE_PATH . "enotf/login.php?error=char_mismatch");
+                    exit();
+                }
+            }
+            if (!$hasOwnName) {
+                header("Location: " . BASE_PATH . "enotf/login.php?error=char_mismatch");
+                exit();
+            }
+        }
+
         // Neue Session erstellen
         $_SESSION['fahrername']      = $_POST['fahrername'];
         $_SESSION['fahrerquali']     = $_POST['fahrerquali'];
@@ -261,7 +299,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <div class="row mb-2">
                                 <div class="col">
                                     <div class="name-autocomplete-wrapper">
-                                        <input type="text" class="form-control my-2" name="fahrername" id="fahrername" placeholder="" autocomplete="off" required value="<?= htmlspecialchars($prefill['fahrername'] ?? '') ?>" />
+                                        <input type="text" class="form-control my-2" name="fahrername" id="fahrername" placeholder="" autocomplete="off" required value="<?= htmlspecialchars($charLocked ? $charName : ($prefill['fahrername'] ?? '')) ?>" <?= $charLocked ? 'readonly' : '' ?> />
                                         <div class="name-dropdown" id="fahrername-dropdown"></div>
                                     </div>
                                     <label for="fahrername">Fahrer-Name</label>
@@ -279,7 +317,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <div class="row mb-2">
                                 <div class="col">
                                     <div class="name-autocomplete-wrapper">
-                                        <input type="text" class="form-control my-2" name="beifahrername" id="beifahrername" placeholder="" autocomplete="off" value="<?= htmlspecialchars($prefill['beifahrername'] ?? '') ?>" />
+                                        <input type="text" class="form-control my-2" name="beifahrername" id="beifahrername" placeholder="" autocomplete="off" value="<?= htmlspecialchars($charLocked ? '' : ($prefill['beifahrername'] ?? '')) ?>" <?= $charLocked ? 'readonly' : '' ?> />
                                         <div class="name-dropdown" id="beifahrername-dropdown"></div>
                                     </div>
                                     <label for="beifahrername">Beifahrer-Name</label>
@@ -297,7 +335,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <div class="row mb-2">
                                 <div class="col">
                                     <div class="name-autocomplete-wrapper">
-                                        <input type="text" class="form-control my-2" name="praktikantname" id="praktikantname" placeholder="" autocomplete="off" value="<?= htmlspecialchars($prefill['praktikantname'] ?? '') ?>" />
+                                        <input type="text" class="form-control my-2" name="praktikantname" id="praktikantname" placeholder="" autocomplete="off" value="<?= htmlspecialchars($charLocked ? '' : ($prefill['praktikantname'] ?? '')) ?>" <?= $charLocked ? 'readonly' : '' ?> />
                                         <div class="name-dropdown" id="praktikantname-dropdown"></div>
                                     </div>
                                     <label for="praktikantname">Praktikant-Name</label>
@@ -313,8 +351,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                             </div>
                             <div class="row">
+                                <?php if (!$charLocked): ?>
                                 <div class="col"><button type="button" class="edivi__nidabutton w-100" id="crew__delete" name="crew__delete">Besatzung löschen</button></div>
                                 <div class="col"><button type="button" class="edivi__nidabutton w-100" id="crew__switch" name="crew__switch">Fahrer / Beifahrer tauschen</button></div>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <div class="col">
@@ -323,8 +363,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <select name="protfzg" id="protfzg" class="form-select my-2" required data-custom-dropdown="true" data-search-threshold="5">
                                         <option value="" disabled <?= empty($prefill['protfzg'] ?? '') ? 'selected' : '' ?>>Fahrzeug wählen</option>
                                         <?php
-                                        $stmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge WHERE active = 1 AND rd_type IN (1, 2) ORDER BY priority ASC");
-                                        $stmt->execute();
+                                        if ($jobFilterEnabled && !empty($charJob)) {
+                                            $stmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge WHERE active = 1 AND rd_type IN (1, 2) AND (allowed_jobs IS NULL OR allowed_jobs = '' OR FIND_IN_SET(:job, allowed_jobs) > 0) ORDER BY priority ASC");
+                                            $stmt->execute([':job' => $charJob]);
+                                        } else {
+                                            $stmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge WHERE active = 1 AND rd_type IN (1, 2) ORDER BY priority ASC");
+                                            $stmt->execute();
+                                        }
                                         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         foreach ($result as $row) {
                                             $selected = ($prefill['protfzg'] ?? '') === $row['identifier'] ? 'selected' : '';
@@ -357,7 +402,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <div class="row mb-2">
                                         <div class="col">
                                             <div class="name-autocomplete-wrapper">
-                                                <input type="text" class="form-control" id="join-name" placeholder="Name" autocomplete="off" />
+                                                <input type="text" class="form-control" id="join-name" placeholder="Name" autocomplete="off" value="<?= $charLocked ? htmlspecialchars($charName) : '' ?>" <?= $charLocked ? 'readonly' : '' ?> />
                                                 <div class="name-dropdown" id="join-name-dropdown"></div>
                                             </div>
                                         </div>
@@ -462,7 +507,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         setupNameAutocomplete('praktikantname', 'praktikantname-dropdown');
         setupNameAutocomplete('join-name', 'join-name-dropdown');
 
-        document.getElementById('crew__delete').addEventListener('click', function() {
+        document.getElementById('crew__delete')?.addEventListener('click', function() {
             // Text-Inputs leeren
             ['fahrername', 'beifahrername', 'praktikantname'].forEach(function(id) {
                 document.getElementById(id).value = '';
@@ -475,7 +520,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             });
         });
 
-        document.getElementById('crew__switch').addEventListener('click', function() {
+        document.getElementById('crew__switch')?.addEventListener('click', function() {
             const fName = document.getElementById('fahrername');
             const bName = document.getElementById('beifahrername');
             const fQuali = document.getElementById('fahrerquali');

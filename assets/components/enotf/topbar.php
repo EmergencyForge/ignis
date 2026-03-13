@@ -86,7 +86,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
             <?php endif; ?>
         </div>
         <div class="col text-end d-flex justify-content-end align-items-center">
-            <a href="<?= BASE_PATH ?>enotf/login.php?prefill=1" class="d-flex flex-column align-items-center text-decoration-none text-reset align-self-stretch justify-content-center" id="topbar-crew-display" style="font-size: 0.85rem; line-height: 1.2; padding: 5px 15px;">
+            <a href="<?= BASE_PATH ?>enotf/login.php?prefill=1" class="d-flex flex-column align-items-center text-decoration-none text-reset align-self-stretch justify-content-between" id="topbar-crew-display" style="font-size: 0.85rem; line-height: 1.2; padding: 5px 15px;">
                 <div class="d-flex align-items-start">
                     <div class="d-flex flex-column align-items-end justify-content-start">
                         <span><?= htmlspecialchars($_SESSION['fahrername'] ?? '') ?></span>
