@@ -257,7 +257,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                             </div>
                             <div class="row shadow edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/rettdaten/2.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
-                                <h5 class="text-light px-2 py-1">Transportziel</h5>
+                                <h5 class="text-light px-2 py-1 edivi__group-check">Transportziel</h5>
                                 <div class="col">
                                     <div class="row my-2">
                                         <div class="col">

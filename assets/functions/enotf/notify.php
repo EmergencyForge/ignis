@@ -71,6 +71,7 @@
                     var cols = sectionDbCols[section] || [];
                     if (cols.length > 0) {
                         $link.attr('data-requires', cols.join(','));
+                        $link.removeClass('edivi__nidanav-nocheck');
                     } else {
                         $link.removeAttr('data-requires');
                         $link.removeClass('edivi__nidanav-unfilled edivi__nidanav-partfilled edivi__nidanav-filled');
