@@ -61,7 +61,4 @@ $_SESSION['beifahrerquali'] = $session['beifahrerquali'];
 $_SESSION['praktikantname'] = $session['praktikantname'];
 $_SESSION['praktikantquali'] = $session['praktikantquali'];
 
-// Session-Lock sofort freigeben um Blocking anderer Requests zu vermeiden
-session_write_close();
-
 echo json_encode(['success' => true]);
