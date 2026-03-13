@@ -59,7 +59,7 @@ $defaultUrl = BASE_PATH . "enotf/protokoll/index.php?enr=" . $daten['enr'];
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
-$currentDate = date('d.m.Y');
+$currentDate = date('Y-m-d');
 
 // LOGGING: Prüfe ob POST-Request
 $logFile = __DIR__ . '/php_errors.log';
@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
             'arrival' => $arrivalDateTime,
             'fahrzeug' => $_POST['fahrzeug'],
             'diagnose' => $_POST['diagnose'],
-            'geschlecht' => $daten['patsex'] ?? 9,
+            'geschlecht' => (isset($daten['patsex']) && in_array($daten['patsex'], [0, 1, 2], false)) ? $daten['patsex'] : 9,
             'alter' => $_POST['_AGE_'] ?? NULL,
             'text' => $_POST['text'] ?? NULL,
             'kreislauf' => $_POST['kreislauf'],
@@ -557,10 +557,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <label for="geschlecht" class="edivi__description">Geschlecht</label>
                                             <select name="geschlecht" id="geschlecht" class="w-100 form-select" readonly autocomplete="off" data-custom-dropdown="true">
                                                 <option disabled hidden selected>---</option>
-                                                <option value="0" <?php echo ($daten['patsex'] == 0 ? 'selected' : '') ?>>männlich</option>
+                                                <option value="0" <?php echo (isset($daten['patsex']) && $daten['patsex'] == 0 ? 'selected' : '') ?>>männlich</option>
                                                 <option value="1" <?php echo ($daten['patsex'] == 1 ? 'selected' : '') ?>>weiblich</option>
                                                 <option value="2" <?php echo ($daten['patsex'] == 2 ? 'selected' : '') ?>>divers</option>
-                                                <option value="9" <?php echo (!isset($daten['patsex']) || $daten['patsex'] === null || $daten['patsex'] === '' ? 'selected' : '') ?>>unbekannt</option>
                                             </select>
                                         </div>
                                         <div class="col">
