@@ -190,7 +190,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                             </div>
                             <div class="row shadow edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/rettdaten/1.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
-                                <h5 class="text-light px-2 py-1">Transport von</h5>
+                                <h5 class="text-light px-2 py-1 edivi__group-check">Transport von / Einsatzort</h5>
                                 <div class="col">
                                     <div class="row my-2">
                                         <div class="col">
@@ -201,7 +201,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <div class="row my-2">
                                         <div class="col">
                                             <label for="transp_display" class="edivi__description">Von Adresse</label>
-                                            <input type="text" name="transp_display" id="transp_display" class="w-100 form-control" value="<?= htmlspecialchars($transp_display) ?>" readonly>
+                                            <input type="text" name="transp_display" id="transp_display" class="w-100 form-control edivi__input-check" value="<?= htmlspecialchars($transp_display) ?>" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -268,7 +268,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <div class="row my-2">
                                         <div class="col">
                                             <label for="ziel_poi_adresse" class="edivi__description">Ziel Adresse</label>
-                                            <input type="text" name="ziel_poi_adresse" id="ziel_poi_adresse" class="w-100 form-control" value="<?= htmlspecialchars($ziel_display) ?>" readonly>
+                                            <input type="text" name="ziel_poi_adresse" id="ziel_poi_adresse" class="w-100 form-control edivi__input-check" value="<?= htmlspecialchars($ziel_display) ?>" readonly>
                                         </div>
                                     </div>
                                 </div>

@@ -74,6 +74,13 @@ function enotf_get_base_required(): array
             'html'    => ['sende', 'sende_datum'],
             'db'      => ['sende'],
         ],
+        'transp_adresse' => [
+            'section' => 1,
+            'message' => '[1] Rett. Daten: Von Adresse ist nicht gesetzt.',
+            'check'   => function ($d) { return empty($d['transp_adresse']); },
+            'html'    => ['transp_display'],
+            'db'      => ['transp_adresse'],
+        ],
 
         // ──── [2] Erstbefund ────
         'atemwege' => [
@@ -281,18 +288,24 @@ function enotf_get_condition_overrides(): array
  */
 function enotf_get_condition_additions(): array
 {
-    return [
-        // Beispiel:
-        // 21 => [
-        //     'na_details' => [
-        //         'section' => 7,
-        //         'message' => '[7] Abschluss: NA-Details sind nicht gesetzt.',
-        //         'check'   => function ($d) { return empty($d['na_details']); },
-        //         'html'    => ['na_details'],
-        //         'db'      => ['na_details'],
-        //     ],
-        // ],
-    ];
+    $zielAdresse = [
+            'ziel_adresse' => [
+                'section' => 1,
+                'message' => '[1] Rett. Daten: Transportziel (Ziel Adresse) ist nicht gesetzt.',
+                'check'   => function ($d) { return empty($d['ziel_adresse']); },
+                'html'    => ['ziel_poi_adresse'],
+                'db'      => ['ziel_adresse'],
+            ],
+        ];
+
+        return [
+            // Transport ohne NA (oder mit TNA)
+            2  => $zielAdresse,
+            // Transport mit NA (bodengebunden)
+            21 => $zielAdresse,
+            // Transport mit NA (RTH)
+            22 => $zielAdresse,
+        ];
 }
 
 // ──── API-Funktionen ────
