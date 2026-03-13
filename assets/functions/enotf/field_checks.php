@@ -4,22 +4,19 @@ $_enotfConditions = enotf_get_conditions_for_js();
 $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['transportziel'] : '';
 ?>
 <script>
-(function() {
-    // ──── Conditions-Daten von PHP ────
+    // ──── Conditions-Daten von PHP (global für notify.php) ────
     var CONDITIONS = <?= json_encode($_enotfConditions) ?>;
-    var currentTransportziel = <?= json_encode($_enotfTransportziel) ?>;
+    var _enotfCurrentTransportziel = <?= json_encode($_enotfTransportziel) ?>;
 
     /**
      * Berechnet welche HTML-Felder bei der aktuellen Versorgungsart Pflicht sind.
-     * Gibt ein Set von HTML-name-Attributen zurück.
      */
-    function getRequiredHtmlNames(tz) {
+    function _enotfGetRequiredHtmlNames(tz) {
         var names = {};
         var base = CONDITIONS.base;
         var overrides = CONDITIONS.overrides[String(tz)] || [];
         var additions = CONDITIONS.additions[String(tz)] || {};
 
-        // Basis-Felder hinzufügen (außer overridden)
         for (var key in base) {
             if (overrides.indexOf(key) === -1) {
                 var htmlNames = base[key].html || [];
@@ -28,57 +25,46 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
                 }
             }
         }
-
-        // Additions hinzufügen
         for (var addKey in additions) {
             var addHtml = additions[addKey].html || [];
             for (var j = 0; j < addHtml.length; j++) {
                 names[addHtml[j]] = true;
             }
         }
-
         return names;
     }
 
     /**
-     * Wendet Conditions an: Setzt edivi__input-check nur auf Pflichtfelder,
-     * entfernt es von optionalen und setzt edivi__input-optional.
+     * Wendet Conditions an: Setzt edivi__input-check nur auf Pflichtfelder.
+     * Global verfügbar für notify.php.
      */
     function applyConditions(tz) {
-        var requiredNames = getRequiredHtmlNames(tz);
+        var requiredNames = _enotfGetRequiredHtmlNames(tz);
 
         // Alle Felder mit edivi__input-check ODER edivi__input-optional durchgehen
-        var allFields = document.querySelectorAll('.edivi__input-check, .edivi__input-optional');
-        allFields.forEach(function(el) {
+        document.querySelectorAll('.edivi__input-check, .edivi__input-optional').forEach(function(el) {
             var name = el.getAttribute('name');
             if (!name) return;
 
             if (requiredNames[name]) {
-                // Pflichtfeld: edivi__input-check setzen
                 el.classList.add('edivi__input-check');
                 el.classList.remove('edivi__input-optional');
-                el.removeAttribute('data-condition-optional');
             } else {
-                // Optionales Feld: check entfernen
                 el.classList.remove('edivi__input-check', 'edivi__input-checked');
                 el.classList.add('edivi__input-optional');
-                el.setAttribute('data-condition-optional', '1');
                 el.style.borderLeft = '';
             }
         });
 
-        // Gruppen-Headings: automatisch aus Kindern berechnen
+        // Gruppen-Headings automatisch aus Kindern berechnen
         document.querySelectorAll('h5.edivi__group-check, h5.edivi__group-optional').forEach(function(heading) {
             var box = heading.closest('.edivi__box');
             if (!box) return;
-
-            var requiredChildren = box.querySelectorAll('.edivi__input-check');
-            if (requiredChildren.length === 0) {
-                // Keine Pflichtfelder mehr in der Gruppe → optional
+            var remaining = box.querySelectorAll('.edivi__input-check');
+            if (remaining.length === 0) {
                 heading.classList.remove('edivi__group-check', 'edivi__group-checked', 'edivi__group-partchecked');
                 heading.classList.add('edivi__group-optional');
             } else {
-                // Mindestens ein Pflichtfeld → Gruppe ist aktiv
                 heading.classList.remove('edivi__group-optional');
                 heading.classList.add('edivi__group-check');
             }
@@ -86,10 +72,9 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
     }
 
     /**
-     * Prüft ob ein einzelnes Input-Feld ausgefüllt ist und setzt edivi__input-checked.
+     * Prüft ob ein einzelnes Input-Feld ausgefüllt ist.
      */
-    function toggleInputChecked(el) {
-        // Nur auf Pflichtfelder anwenden
+    function _enotfToggleInputChecked(el) {
         if (!el.classList.contains('edivi__input-check')) return;
 
         if (el.tagName === 'SELECT') {
@@ -107,20 +92,15 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
             }
         }
 
-        // In Gruppen: individuellen Border ausblenden (Gruppe zeigt Status)
         var box = el.closest('.edivi__box');
         var groupHeading = box ? box.querySelector('h5.edivi__group-check') : null;
-        if (groupHeading) {
-            el.style.borderLeft = '0';
-        } else {
-            el.style.borderLeft = '';
-        }
+        el.style.borderLeft = groupHeading ? '0' : '';
     }
 
     /**
      * Berechnet den Status aller Gruppen-Headings (rot/gelb/grün).
      */
-    function checkGroupStatus() {
+    function _enotfCheckGroupStatus() {
         document.querySelectorAll('h5.edivi__group-check').forEach(function(heading) {
             var box = heading.closest('.edivi__box');
             if (!box) return;
@@ -150,62 +130,88 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
         });
     }
 
+    /**
+     * Vollständiges Re-Apply: Conditions + Input-Checks + Groups + Nav.
+     * Aufgerufen bei jeder Versorgung-Änderung (live).
+     */
+    function enotfReapplyAll(tz) {
+        _enotfCurrentTransportziel = String(tz || '');
+
+        // 1. Field-Check Conditions
+        applyConditions(tz);
+
+        // 2. Event-Listener auf neu aktive Felder
+        document.querySelectorAll('.edivi__input-check').forEach(function(el) {
+            if (!el._conditionListenerAdded) {
+                el._conditionListenerAdded = true;
+                el.addEventListener('input', function() {
+                    _enotfToggleInputChecked(el);
+                    _enotfCheckGroupStatus();
+                });
+                el.addEventListener('change', function() {
+                    _enotfToggleInputChecked(el);
+                    _enotfCheckGroupStatus();
+                });
+            }
+        });
+
+        // 3. Alle Felder neu prüfen
+        document.querySelectorAll('.edivi__input-check').forEach(_enotfToggleInputChecked);
+        _enotfCheckGroupStatus();
+
+        // 4. Nav data-requires aktualisieren (wenn updateNavRequires existiert)
+        if (typeof updateNavRequires === 'function') {
+            updateNavRequires(tz);
+        }
+
+        // 5. Nav-Fill-States aktualisieren (wenn vorhanden)
+        if (typeof updateNavFillStates === 'function' && window.__dynamicDaten) {
+            updateNavFillStates(window.__dynamicDaten);
+        }
+
+        // 6. Validation-Links aktualisieren (wenn vorhanden)
+        if (typeof validateLinks === 'function') {
+            validateLinks();
+        }
+    }
+
     // ──── Initialisierung ────
 
-    // 1. Conditions anwenden (optional/pflicht bestimmen)
-    applyConditions(currentTransportziel);
+    // 1. Conditions anwenden
+    applyConditions(_enotfCurrentTransportziel);
 
-    // 2. Alle Pflichtfelder initial prüfen
+    // 2. Alle Pflichtfelder initial prüfen + Listener
     document.querySelectorAll('.edivi__input-check').forEach(function(el) {
-        toggleInputChecked(el);
+        el._conditionListenerAdded = true;
+        _enotfToggleInputChecked(el);
         el.addEventListener('input', function() {
-            toggleInputChecked(el);
-            checkGroupStatus();
+            _enotfToggleInputChecked(el);
+            _enotfCheckGroupStatus();
         });
         el.addEventListener('change', function() {
-            toggleInputChecked(el);
-            checkGroupStatus();
+            _enotfToggleInputChecked(el);
+            _enotfCheckGroupStatus();
         });
     });
 
-    // 3. Gruppen-Status berechnen
-    checkGroupStatus();
+    // 3. Gruppen-Status
+    _enotfCheckGroupStatus();
 
-    // 4. Auf Versorgung-Dropdown-Änderungen reagieren (live auf rettdaten/index.php)
+    // 4. Versorgung-Dropdown: sofort live reagieren
     document.addEventListener('DOMContentLoaded', function() {
         var tzSelect = document.getElementById('transportziel');
         if (tzSelect) {
             tzSelect.addEventListener('change', function() {
-                currentTransportziel = this.value;
-                applyConditions(this.value);
-
-                // Event-Listener auf neu aktive Felder setzen
-                document.querySelectorAll('.edivi__input-check').forEach(function(el) {
-                    if (!el._conditionListenerAdded) {
-                        el._conditionListenerAdded = true;
-                        el.addEventListener('input', function() {
-                            toggleInputChecked(el);
-                            checkGroupStatus();
-                        });
-                        el.addEventListener('change', function() {
-                            toggleInputChecked(el);
-                            checkGroupStatus();
-                        });
-                    }
-                });
-
-                // Alle Felder neu prüfen
-                document.querySelectorAll('.edivi__input-check').forEach(toggleInputChecked);
-                checkGroupStatus();
+                enotfReapplyAll(this.value);
             });
         }
     });
 
     // 5. Re-check nach Custom-Dropdown-Initialisierung
     setTimeout(function() {
-        applyConditions(currentTransportziel);
-        document.querySelectorAll('.edivi__input-check').forEach(toggleInputChecked);
-        checkGroupStatus();
+        applyConditions(_enotfCurrentTransportziel);
+        document.querySelectorAll('.edivi__input-check').forEach(_enotfToggleInputChecked);
+        _enotfCheckGroupStatus();
     }, 500);
 
     // 6. Klickbare Boxen (Navigation)
@@ -216,5 +222,4 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
             });
         });
     });
-})();
 </script>

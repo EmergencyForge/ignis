@@ -29,7 +29,8 @@
             $(this).data('original-value', $(this).val());
         });
 
-        // Nav data-requires dynamisch aus CONDITIONS aktualisieren
+        // Nav data-requires dynamisch aus CONDITIONS aktualisieren (global für field_checks.php)
+        window.updateNavRequires = updateNavRequires;
         function updateNavRequires(tz) {
             if (typeof CONDITIONS === 'undefined') return;
             var sectionMap = {1: 'stammdaten', 2: 'erstbefund', 3: 'anamnese', 4: 'diagnose', 6: 'massnahmen', 7: 'abschluss'};
@@ -79,6 +80,7 @@
             }
         }
 
+        window.updateNavFillStates = updateNavFillStates;
         function updateNavFillStates(data) {
             $("#edivi__nidanav a[data-requires]").each(function() {
                 const $link = $(this);
@@ -118,6 +120,7 @@
             });
         }
 
+        window.validateLinks = validateLinks;
         function validateLinks() {
             $("[class*='edivi__interactbutton'] a[data-requires]").each(function() {
                 const $link = $(this);
@@ -484,11 +487,10 @@
                         window.__dynamicDaten[fieldName] = currentValue;
                         console.log('Updated __dynamicDaten[' + fieldName + ']:', currentValue);
 
-                        // Bei Versorgung-Änderung: Nav-Requires und Conditions aktualisieren
+                        // Bei Versorgung-Änderung: komplettes Re-Apply (Conditions + Nav + Groups)
                         if (fieldName === 'transportziel') {
-                            updateNavRequires(currentValue);
-                            if (typeof applyConditions === 'function') {
-                                applyConditions(currentValue);
+                            if (typeof enotfReapplyAll === 'function') {
+                                enotfReapplyAll(currentValue);
                             }
                         }
 
