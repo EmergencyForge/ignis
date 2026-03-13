@@ -11,6 +11,11 @@
 
 use App\Auth\Permissions;
 
+// Session-Crew-Daten bei jedem Seitenaufruf aus DB aktualisieren
+if (isset($pdo)) {
+    include_once __DIR__ . '/../../functions/enotf/session_refresh.php';
+}
+
 $topbar_sync           = $topbar_sync ?? ['leitstelle', 'session', 'pat_sync'];
 $topbar_show_abmelden  = $topbar_show_abmelden ?? false;
 $topbar_show_notices   = $topbar_show_notices ?? true;
