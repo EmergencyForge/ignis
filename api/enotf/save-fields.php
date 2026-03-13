@@ -3,6 +3,9 @@ require_once __DIR__ . '/../../assets/config/config.php';
 require __DIR__ . '/../../assets/config/database.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+// Session-Lock sofort freigeben — dieser Endpoint braucht keine Session-Daten
+session_write_close();
+
 use App\Integrations\DiscordWebhook;
 
 if (isset($_POST['enr']) && isset($_POST['field'])) {
