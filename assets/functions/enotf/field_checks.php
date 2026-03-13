@@ -35,43 +35,59 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
     }
 
     /**
+     * Icon-Cache: einmal pro Feld erstellt, dann wiederverwendet.
+     */
+    var _enotfIconCache = {};
+
+    /**
      * Findet oder erstellt das Validierungs-Icon für ein Feld.
-     * Icons werden neben dem Label-Text in der .edivi__box angezeigt.
      */
     function _enotfGetOrCreateIcon(el) {
-        var name = el.getAttribute('name');
-        if (!name) return null;
-        var baseName = name.replace('_datum', '');
-        var iconId = 'icon-' + baseName;
+        try {
+            var name = el.getAttribute('name');
+            if (!name) return null;
 
-        // Existierendes Icon suchen
-        var icon = document.getElementById(iconId);
-        if (icon) return icon;
+            // _datum Felder teilen sich das Icon mit dem Hauptfeld
+            var baseName = name.replace('_datum', '');
 
-        // Nur ein Icon pro Basis-Feld erstellen (nicht für _datum Duplikate)
-        if (name !== baseName) return document.getElementById(iconId) || null;
+            // Cache-Hit
+            if (_enotfIconCache[baseName]) return _enotfIconCache[baseName];
 
-        // Label finden
-        var label = null;
-        // Zuerst: label[for="id"]
-        if (el.id) {
-            label = document.querySelector('label[for="' + el.id + '"]');
-        }
-        // Fallback: label im gleichen Container
-        if (!label) {
+            // Existierendes Icon im DOM suchen (z.B. manuell im PHP gesetzt)
+            var icon = document.getElementById('icon-' + baseName);
+            if (icon) {
+                _enotfIconCache[baseName] = icon;
+                return icon;
+            }
+
+            // Nur ein Icon pro Basis-Feld erstellen (nicht für _datum)
+            if (name !== baseName) return null;
+
+            // Nicht in einer edivi__box? Kein Icon nötig.
+            if (!el.closest('.edivi__box')) return null;
+
+            // Label finden
+            var label = null;
             var col = el.closest('.col');
-            if (col) label = col.querySelector('label');
-        }
-        if (!label) return null;
+            if (col) {
+                label = col.querySelector('.edivi__description');
+                if (!label) label = col.querySelector('label');
+            }
+            if (!label) return null;
 
-        // Icon erstellen und ans Label anhängen
-        icon = document.createElement('i');
-        icon.id = iconId;
-        icon.className = 'fa-solid fa-circle-exclamation';
-        icon.style.cssText = 'color:#d91425; margin-left:4px; display:none;';
-        label.appendChild(document.createTextNode(' '));
-        label.appendChild(icon);
-        return icon;
+            // Icon erstellen
+            icon = document.createElement('i');
+            icon.id = 'icon-' + baseName;
+            icon.className = 'fa-solid fa-circle-exclamation';
+            icon.style.cssText = 'color:#d91425; margin-left:4px; display:none;';
+            label.appendChild(document.createTextNode(' '));
+            label.appendChild(icon);
+
+            _enotfIconCache[baseName] = icon;
+            return icon;
+        } catch (e) {
+            return null;
+        }
     }
 
     /**
@@ -91,7 +107,6 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
             if (requiredNames[name]) {
                 el.classList.add('edivi__input-check');
                 el.classList.remove('edivi__input-optional');
-                // Icon: anzeigen wenn Feld leer
                 if (icon) {
                     var isEmpty = false;
                     if (el.tagName === 'SELECT') {
@@ -106,7 +121,6 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
                 el.classList.remove('edivi__input-check', 'edivi__input-checked');
                 el.classList.add('edivi__input-optional');
                 el.style.borderLeft = '';
-                // Icon verstecken wenn Feld optional
                 if (icon) icon.style.display = 'none';
             }
         });
@@ -155,10 +169,7 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
         if (icon) icon.style.display = isFilled ? 'none' : '';
 
         // Border in Boxen immer unterdrücken (Icons übernehmen)
-        var box = el.closest('.edivi__box');
-        if (box) {
-            el.style.borderLeft = '0';
-        }
+        el.style.borderLeft = '0';
     }
 
     /**
