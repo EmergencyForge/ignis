@@ -32,9 +32,6 @@ $charLocked = $charLockEnabled && !empty($charName);
 $jobFilterEnabled = defined('ENOTF_JOB_FILTER') && ENOTF_JOB_FILTER === true;
 $charJob = $_SESSION['char_job'] ?? null;
 
-// DEBUG: Temporär - zeigt Session-Daten in der Browser-Konsole
-error_log('[eNOTF-CharLock] charLockEnabled=' . ($charLockEnabled ? 'true' : 'false') . ' charName="' . $charName . '" charJob="' . ($charJob ?? 'NULL') . '" session_id=' . session_id());
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mode = $_POST['login_mode'] ?? 'new';
     $vehicle = $_POST['protfzg'];
@@ -100,22 +97,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($mode === 'new') {
         // Charakter-Sperre: Validierung
         if ($charLocked) {
-            $submittedNames = array_filter([
-                $_POST['fahrername'] ?? '',
-                $_POST['beifahrername'] ?? '',
-                $_POST['praktikantname'] ?? '',
-            ]);
-            // Genau ein Name muss dem eigenen entsprechen, die anderen leer
-            $hasOwnName = false;
-            foreach ($submittedNames as $name) {
-                if ($name === $charName) {
-                    $hasOwnName = true;
-                } else {
-                    // Fremder Name eingetragen
-                    header("Location: " . BASE_PATH . "enotf/login.php?error=char_mismatch");
-                    exit();
-                }
-            }
+            $submittedNames = [
+                'fahrer' => $_POST['fahrername'] ?? '',
+                'beifahrer' => $_POST['beifahrername'] ?? '',
+                'praktikant' => $_POST['praktikantname'] ?? '',
+            ];
+            // Eigener Name muss in mindestens einer Position stehen
+            $hasOwnName = in_array($charName, $submittedNames, true);
             if (!$hasOwnName) {
                 header("Location: " . BASE_PATH . "enotf/login.php?error=char_mismatch");
                 exit();
@@ -186,7 +174,7 @@ if (isset($_GET['prefill']) && $_GET['prefill'] === '1' && isset($_SESSION['fahr
         'beifahrername'  => $_SESSION['beifahrername'] ?? '',
         'beifahrerquali' => $_SESSION['beifahrerquali'] ?? '',
         'praktikantname' => $_SESSION['praktikantname'] ?? '',
-        'praktikantquali'=> $_SESSION['praktikantquali'] ?? '',
+        'praktikantquali' => $_SESSION['praktikantquali'] ?? '',
         'protfzg'        => $_SESSION['protfzg'] ?? '',
     ];
 }
@@ -299,66 +287,116 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     </div>
                     <div class="row">
                         <div class="col">
-                            <div class="row mb-2">
-                                <div class="col">
-                                    <div class="name-autocomplete-wrapper">
-                                        <input type="text" class="form-control my-2" name="fahrername" id="fahrername" placeholder="" autocomplete="off" required value="<?= htmlspecialchars($charLocked ? $charName : ($prefill['fahrername'] ?? '')) ?>" <?= $charLocked ? 'readonly' : '' ?> />
-                                        <div class="name-dropdown" id="fahrername-dropdown"></div>
+                            <?php
+                            // Char-Lock + Prefill: Bestimme eigene Position
+                            $charLockOwnPosition = null;
+                            if ($charLocked && !empty($prefill)) {
+                                if (($prefill['fahrername'] ?? '') === $charName) $charLockOwnPosition = 'fahrer';
+                                elseif (($prefill['beifahrername'] ?? '') === $charName) $charLockOwnPosition = 'beifahrer';
+                                elseif (($prefill['praktikantname'] ?? '') === $charName) $charLockOwnPosition = 'praktikant';
+                            }
+                            $hasPrefill = !empty($prefill);
+                            ?>
+                            <?php if ($charLocked && !$hasPrefill): ?>
+                                <!-- Char-Lock ohne Prefill: Positions-Wähler -->
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <select class="form-select my-2" id="charlock-position" data-custom-dropdown="true" data-placeholder="Position wählen">
+                                            <option value="fahrer" selected>Fahrer</option>
+                                            <option value="beifahrer">Beifahrer</option>
+                                            <option value="praktikant">Praktikant</option>
+                                        </select>
+                                        <label>Meine Position</label>
                                     </div>
-                                    <label for="fahrername">Fahrer-Name</label>
-                                </div>
-                                <div class="col-3">
-                                    <select class="form-select my-2" name="fahrerquali" id="fahrerquali" required data-custom-dropdown="true" data-placeholder="Qualifikation">
-                                        <option value="" <?= empty($prefill['fahrerquali'] ?? '') ? 'selected' : '' ?>></option>
-                                        <?php foreach ($qualifikationen as $quali): ?>
-                                            <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>" <?= ($prefill['fahrerquali'] ?? '') === $quali['abkuerzung'] ? 'selected' : '' ?>><?= htmlspecialchars($quali['abkuerzung']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <label for="fahrerquali">Qualifikation</label>
-                                </div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col">
-                                    <div class="name-autocomplete-wrapper">
-                                        <input type="text" class="form-control my-2" name="beifahrername" id="beifahrername" placeholder="" autocomplete="off" value="<?= htmlspecialchars($charLocked ? '' : ($prefill['beifahrername'] ?? '')) ?>" <?= $charLocked ? 'readonly' : '' ?> />
-                                        <div class="name-dropdown" id="beifahrername-dropdown"></div>
+                                    <div class="col-3">
+                                        <select class="form-select my-2" id="charlock-quali" data-custom-dropdown="true" data-placeholder="Qualifikation">
+                                            <option value=""></option>
+                                            <?php foreach ($qualifikationen as $quali): ?>
+                                                <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>"><?= htmlspecialchars($quali['abkuerzung']) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <label>Qualifikation</label>
                                     </div>
-                                    <label for="beifahrername">Beifahrer-Name</label>
                                 </div>
-                                <div class="col-3">
-                                    <select class="form-select my-2" name="beifahrerquali" id="beifahrerquali" data-custom-dropdown="true" data-placeholder="Qualifikation">
-                                        <option value="" <?= empty($prefill['beifahrerquali'] ?? '') ? 'selected' : '' ?>></option>
-                                        <?php foreach ($qualifikationen as $quali): ?>
-                                            <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>" <?= ($prefill['beifahrerquali'] ?? '') === $quali['abkuerzung'] ? 'selected' : '' ?>><?= htmlspecialchars($quali['abkuerzung']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <label for="beifahrerquali">Qualifikation</label>
+                                <div class="text-muted mb-2" style="font-size:0.85rem;">
+                                    <i class="fa-solid fa-lock me-1"></i>Anmeldung als: <strong><?= htmlspecialchars($charName) ?></strong>
                                 </div>
-                            </div>
-                            <div class="row mb-2">
-                                <div class="col">
-                                    <div class="name-autocomplete-wrapper">
-                                        <input type="text" class="form-control my-2" name="praktikantname" id="praktikantname" placeholder="" autocomplete="off" value="<?= htmlspecialchars($charLocked ? '' : ($prefill['praktikantname'] ?? '')) ?>" <?= $charLocked ? 'readonly' : '' ?> />
-                                        <div class="name-dropdown" id="praktikantname-dropdown"></div>
+                                <!-- Hidden fields: werden per JS befüllt -->
+                                <input type="hidden" name="fahrername" id="fahrername" value="" />
+                                <input type="hidden" name="fahrerquali" id="fahrerquali" value="" />
+                                <input type="hidden" name="beifahrername" id="beifahrername" value="" />
+                                <input type="hidden" name="beifahrerquali" id="beifahrerquali" value="" />
+                                <input type="hidden" name="praktikantname" id="praktikantname" value="" />
+                                <input type="hidden" name="praktikantquali" id="praktikantquali" value="" />
+                            <?php else: ?>
+                                <?php
+                                    // Bei Char-Lock + Prefill: eigene Position readonly, fremde Positionen (außer Praktikant) readonly
+                                    $fahrerRo = ''; $beifahrerRo = ''; $praktikantRo = '';
+                                    if ($charLocked && $charLockOwnPosition) {
+                                        $fahrerRo = ($charLockOwnPosition === 'fahrer' || ($charLockOwnPosition !== 'fahrer' && !empty($prefill['fahrername'] ?? ''))) ? 'readonly' : '';
+                                        $beifahrerRo = ($charLockOwnPosition === 'beifahrer' || ($charLockOwnPosition !== 'beifahrer' && !empty($prefill['beifahrername'] ?? ''))) ? 'readonly' : '';
+                                        // Praktikant ist IMMER frei editierbar
+                                    }
+                                ?>
+                                <div class="row mb-2">
+                                    <div class="col">
+                                        <div class="name-autocomplete-wrapper">
+                                            <input type="text" class="form-control my-2" name="fahrername" id="fahrername" placeholder="" autocomplete="off" required value="<?= htmlspecialchars($prefill['fahrername'] ?? '') ?>" <?= $fahrerRo ?> />
+                                            <div class="name-dropdown" id="fahrername-dropdown"></div>
+                                        </div>
+                                        <label for="fahrername">Fahrer-Name</label>
                                     </div>
-                                    <label for="praktikantname">Praktikant-Name</label>
+                                    <div class="col-3">
+                                        <select class="form-select my-2" name="fahrerquali" id="fahrerquali" required data-custom-dropdown="true" data-placeholder="Qualifikation">
+                                            <option value="" <?= empty($prefill['fahrerquali'] ?? '') ? 'selected' : '' ?>></option>
+                                            <?php foreach ($qualifikationen as $quali): ?>
+                                                <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>" <?= ($prefill['fahrerquali'] ?? '') === $quali['abkuerzung'] ? 'selected' : '' ?>><?= htmlspecialchars($quali['abkuerzung']) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <label for="fahrerquali">Qualifikation</label>
+                                    </div>
                                 </div>
-                                <div class="col-3">
-                                    <select class="form-select my-2" name="praktikantquali" id="praktikantquali" data-custom-dropdown="true" data-placeholder="Qualifikation">
-                                        <option value="" <?= empty($prefill['praktikantquali'] ?? '') ? 'selected' : '' ?>></option>
-                                        <?php foreach ($qualifikationen as $quali): ?>
-                                            <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>" <?= ($prefill['praktikantquali'] ?? '') === $quali['abkuerzung'] ? 'selected' : '' ?>><?= htmlspecialchars($quali['abkuerzung']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <label for="praktikantquali">Qualifikation</label>
+                                <div class="row mb-2">
+                                    <div class="col">
+                                        <div class="name-autocomplete-wrapper">
+                                            <input type="text" class="form-control my-2" name="beifahrername" id="beifahrername" placeholder="" autocomplete="off" value="<?= htmlspecialchars($prefill['beifahrername'] ?? '') ?>" <?= $beifahrerRo ?> />
+                                            <div class="name-dropdown" id="beifahrername-dropdown"></div>
+                                        </div>
+                                        <label for="beifahrername">Beifahrer-Name</label>
+                                    </div>
+                                    <div class="col-3">
+                                        <select class="form-select my-2" name="beifahrerquali" id="beifahrerquali" data-custom-dropdown="true" data-placeholder="Qualifikation">
+                                            <option value="" <?= empty($prefill['beifahrerquali'] ?? '') ? 'selected' : '' ?>></option>
+                                            <?php foreach ($qualifikationen as $quali): ?>
+                                                <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>" <?= ($prefill['beifahrerquali'] ?? '') === $quali['abkuerzung'] ? 'selected' : '' ?>><?= htmlspecialchars($quali['abkuerzung']) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <label for="beifahrerquali">Qualifikation</label>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <?php if (!$charLocked): ?>
-                                <div class="col"><button type="button" class="edivi__nidabutton w-100" id="crew__delete" name="crew__delete">Besatzung löschen</button></div>
-                                <div class="col"><button type="button" class="edivi__nidabutton w-100" id="crew__switch" name="crew__switch">Fahrer / Beifahrer tauschen</button></div>
-                                <?php endif; ?>
-                            </div>
+                                <div class="row mb-2">
+                                    <div class="col">
+                                        <div class="name-autocomplete-wrapper">
+                                            <input type="text" class="form-control my-2" name="praktikantname" id="praktikantname" placeholder="" autocomplete="off" value="<?= htmlspecialchars($prefill['praktikantname'] ?? '') ?>" />
+                                            <div class="name-dropdown" id="praktikantname-dropdown"></div>
+                                        </div>
+                                        <label for="praktikantname">Praktikant-Name</label>
+                                    </div>
+                                    <div class="col-3">
+                                        <select class="form-select my-2" name="praktikantquali" id="praktikantquali" data-custom-dropdown="true" data-placeholder="Qualifikation">
+                                            <option value="" <?= empty($prefill['praktikantquali'] ?? '') ? 'selected' : '' ?>></option>
+                                            <?php foreach ($qualifikationen as $quali): ?>
+                                                <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>" <?= ($prefill['praktikantquali'] ?? '') === $quali['abkuerzung'] ? 'selected' : '' ?>><?= htmlspecialchars($quali['abkuerzung']) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <label for="praktikantquali">Qualifikation</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col"><button type="button" class="edivi__nidabutton w-100" id="crew__delete" name="crew__delete">Besatzung löschen</button></div>
+                                    <div class="col"><button type="button" class="edivi__nidabutton w-100" id="crew__switch" name="crew__switch">Fahrer / Beifahrer tauschen</button></div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                         <div class="col">
                             <div class="row">
@@ -575,10 +613,24 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             const crewList = document.getElementById('session-crew-list');
             crewList.innerHTML = '';
 
-            const positions = [
-                { key: 'fahrer', label: 'Fahrer', nameKey: 'fahrername', qualiKey: 'fahrerquali' },
-                { key: 'beifahrer', label: 'Beifahrer', nameKey: 'beifahrername', qualiKey: 'beifahrerquali' },
-                { key: 'praktikant', label: 'Praktikant', nameKey: 'praktikantname', qualiKey: 'praktikantquali' }
+            const positions = [{
+                    key: 'fahrer',
+                    label: 'Fahrer',
+                    nameKey: 'fahrername',
+                    qualiKey: 'fahrerquali'
+                },
+                {
+                    key: 'beifahrer',
+                    label: 'Beifahrer',
+                    nameKey: 'beifahrername',
+                    qualiKey: 'beifahrerquali'
+                },
+                {
+                    key: 'praktikant',
+                    label: 'Praktikant',
+                    nameKey: 'praktikantname',
+                    qualiKey: 'praktikantquali'
+                }
             ];
 
             positions.forEach(pos => {
@@ -625,7 +677,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             const posSelect = document.getElementById('join-position-select');
             posSelect.innerHTML = '';
 
-            const posLabels = { fahrer: 'Fahrer', beifahrer: 'Beifahrer', praktikant: 'Praktikant' };
+            const posLabels = {
+                fahrer: 'Fahrer',
+                beifahrer: 'Beifahrer',
+                praktikant: 'Praktikant'
+            };
             currentSessionData.free_positions.forEach(pos => {
                 const opt = document.createElement('option');
                 opt.value = pos;
@@ -655,27 +711,36 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         document.getElementById('btn-delete-session').addEventListener('click', async function() {
             if (!currentSessionData) return;
 
-            const confirmed = (typeof showConfirm === 'function')
-                ? await showConfirm('Möchten Sie die aktive Session auf diesem Fahrzeug wirklich beenden?', { title: 'Session beenden', confirmText: 'Beenden', cancelText: 'Abbrechen', danger: true })
-                : confirm('Möchten Sie die aktive Session auf diesem Fahrzeug wirklich beenden?');
+            const confirmed = (typeof showConfirm === 'function') ?
+                await showConfirm('Möchten Sie die aktive Session auf diesem Fahrzeug wirklich beenden?', {
+                    title: 'Session beenden',
+                    confirmText: 'Beenden',
+                    cancelText: 'Abbrechen',
+                    danger: true
+                }) :
+                confirm('Möchten Sie die aktive Session auf diesem Fahrzeug wirklich beenden?');
 
             if (!confirmed) return;
 
             fetch(basePath + 'api/enotf/delete-vehicle-session.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ vehicle: document.getElementById('protfzg').value })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    currentSessionData = null;
-                    document.getElementById('session-info-container').style.display = 'none';
-                    document.getElementById('join-form-container').style.display = 'none';
-                    document.getElementById('spacer-area').style.display = '';
-                }
-            })
-            .catch(() => {});
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        vehicle: document.getElementById('protfzg').value
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        currentSessionData = null;
+                        document.getElementById('session-info-container').style.display = 'none';
+                        document.getElementById('join-form-container').style.display = 'none';
+                        document.getElementById('spacer-area').style.display = '';
+                    }
+                })
+                .catch(() => {});
         });
 
         // Beitreten absenden
@@ -700,16 +765,42 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
         // Prefill: Custom Dropdowns refreshen
         <?php if (!empty($prefill)): ?>
-        document.addEventListener('DOMContentLoaded', function() {
-            ['fahrerquali', 'beifahrerquali', 'praktikantquali', 'protfzg'].forEach(function(id) {
-                const el = document.getElementById(id);
-                if (el) eNOTFCustomDropdown.refresh(el);
+            document.addEventListener('DOMContentLoaded', function() {
+                ['fahrerquali', 'beifahrerquali', 'praktikantquali', 'protfzg'].forEach(function(id) {
+                    const el = document.getElementById(id);
+                    if (el) eNOTFCustomDropdown.refresh(el);
+                });
+                // Session-Check für vorausgewähltes Fahrzeug auslösen
+                if (protfzgSelect.value) {
+                    checkVehicleSession(protfzgSelect.value);
+                }
             });
-            // Session-Check für vorausgewähltes Fahrzeug auslösen
-            if (protfzgSelect.value) {
-                checkVehicleSession(protfzgSelect.value);
-            }
-        });
+        <?php endif; ?>
+
+        // Char-Lock: Positions-Wähler → Hidden-Fields befüllen beim Submit
+        <?php if ($charLocked && !$hasPrefill): ?>
+        (function() {
+            var charName = <?= json_encode($charName) ?>;
+            var form = document.getElementById('login-form-new');
+            if (!form) return;
+
+            form.addEventListener('submit', function() {
+                var pos = document.getElementById('charlock-position').value;
+                var quali = document.getElementById('charlock-quali').value;
+
+                // Alle zurücksetzen
+                document.getElementById('fahrername').value = '';
+                document.getElementById('fahrerquali').value = '';
+                document.getElementById('beifahrername').value = '';
+                document.getElementById('beifahrerquali').value = '';
+                document.getElementById('praktikantname').value = '';
+                document.getElementById('praktikantquali').value = '';
+
+                // Gewählte Position befüllen
+                document.getElementById(pos + 'name').value = charName;
+                document.getElementById(pos + 'quali').value = quali;
+            });
+        })();
         <?php endif; ?>
     </script>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>

@@ -127,6 +127,22 @@ try {
 <head>
     <?php include __DIR__ . '/../assets/components/_base/admin/head.php'; ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-custom-dropdown.css">
+    <!-- CitizenFX: Session-ID an FiveM-Client senden -->
+    <script>
+    (function() {
+        if (navigator.userAgent.includes('CitizenFX')) {
+            fetch('<?= BASE_PATH ?>api/character/get-session-id.php')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.session_id) {
+                        var target = (window.parent !== window) ? window.parent : window;
+                        target.postMessage({ type: 'intraRP_session', session_id: data.session_id }, '*');
+                    }
+                })
+                .catch(function() {});
+        }
+    })();
+    </script>
 
     <style>
         html::-webkit-scrollbar,
