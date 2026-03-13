@@ -32,6 +32,9 @@ $charLocked = $charLockEnabled && !empty($charName);
 $jobFilterEnabled = defined('ENOTF_JOB_FILTER') && ENOTF_JOB_FILTER === true;
 $charJob = $_SESSION['char_job'] ?? null;
 
+// DEBUG: Temporär - zeigt Session-Daten in der Browser-Konsole
+error_log('[eNOTF-CharLock] charLockEnabled=' . ($charLockEnabled ? 'true' : 'false') . ' charName="' . $charName . '" charJob="' . ($charJob ?? 'NULL') . '" session_id=' . session_id());
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mode = $_POST['login_mode'] ?? 'new';
     $vehicle = $_POST['protfzg'];

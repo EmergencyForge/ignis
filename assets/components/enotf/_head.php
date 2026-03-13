@@ -43,7 +43,9 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.session_id) {
-                    window.postMessage({ type: 'intraRP_session', session_id: data.session_id }, '*');
+                    // An parent senden (NUI-Seite), falls im iframe — sonst an eigenes window
+                    var target = (window.parent !== window) ? window.parent : window;
+                    target.postMessage({ type: 'intraRP_session', session_id: data.session_id }, '*');
                 }
             })
             .catch(function() {});
