@@ -25,6 +25,8 @@
     sessionToken = body.getAttribute("data-session-token");
     basePath = body.getAttribute("data-base-path") || "/";
 
+    console.log('[SessionSync] init, token:', sessionToken ? sessionToken.substring(0, 8) + '...' : 'NONE');
+
     if (!sessionToken) {
       updateSessionIcon("unknown");
       return;
@@ -67,6 +69,7 @@
         }
 
         updateSessionIcon("connected");
+        console.log('[SessionSync] Poll OK, crew:', JSON.stringify(data.crew), 'container:', !!document.getElementById('topbar-crew-display'));
 
         // Header immer aktualisieren (auch beim ersten Poll,
         // falls PHP-Session veraltet war)
@@ -81,7 +84,8 @@
 
         cachedCrew = data.crew;
       })
-      .catch(function () {
+      .catch(function (err) {
+        console.warn('[SessionSync] Poll error:', err);
         consecutiveErrors++;
         if (consecutiveErrors >= 3) {
           updateSessionIcon("disconnected");
