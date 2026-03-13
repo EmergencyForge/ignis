@@ -63,9 +63,9 @@ function enotf_get_base_required(): array
         'spat' => [
             'section' => 1,
             'message' => '[1] Rett. Daten: Patientenankunft ist nicht gesetzt.',
-            'check'   => function ($d) { return !empty($d['s4']) && empty($d['spat']); },
-            'html'    => [],
-            'db'      => [],
+            'check'   => function ($d) { return empty($d['spat']); },
+            'html'    => ['spat', 'spat_datum'],
+            'db'      => ['spat'],
         ],
         'sende' => [
             'section' => 1,
@@ -270,7 +270,7 @@ function enotf_get_condition_overrides(): array
     return [
         // Fehleinsatz - kein Patient
         4 => [
-            'patsex',
+            'patsex', 'spat',
             'atemwege', 'zyanose', 'b_symptome', 'b_auskult',
             'c_kreislauf', 'c_ekg', 'c_puls',
             'd_bewusstsein', 'd_extremitaeten', 'd_pupillen', 'd_gcs',
@@ -298,13 +298,32 @@ function enotf_get_condition_additions(): array
             ],
         ];
 
+        $transportZeiten = [
+            's7' => [
+                'section' => 1,
+                'message' => '[1] Rett. Daten: E.-ab (7) ist nicht gesetzt.',
+                'check'   => function ($d) { return empty($d['s7']); },
+                'html'    => ['s7', 's7_datum'],
+                'db'      => ['s7'],
+            ],
+            's8' => [
+                'section' => 1,
+                'message' => '[1] Rett. Daten: KH an (8) ist nicht gesetzt.',
+                'check'   => function ($d) { return empty($d['s8']); },
+                'html'    => ['s8', 's8_datum'],
+                'db'      => ['s8'],
+            ],
+        ];
+
+        $transportAll = array_merge($zielAdresse, $transportZeiten);
+
         return [
             // Transport ohne NA (oder mit TNA)
-            2  => $zielAdresse,
+            2  => $transportAll,
             // Transport mit NA (bodengebunden)
-            21 => $zielAdresse,
+            21 => $transportAll,
             // Transport mit NA (RTH)
-            22 => $zielAdresse,
+            22 => $transportAll,
         ];
 }
 

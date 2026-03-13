@@ -300,19 +300,28 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <input type="date" name="s4_datum" id="s4_datum" class="w-100 form-control mt-1 text-center" style="font-size:1rem;color:#a2a2a2;" value="<?= !empty($zeiten['s4']) ? date('d.m.Y', strtotime($zeiten['s4'])) : '' ?>" required>
                                         </div>
                                         <div class="col">
-                                            <label for="spat" class="edivi__description">Pat.-an</label>
-                                            <input type="time" name="spat" id="spat" class="w-100 form-control text-center" value="<?= !empty($zeiten['spat']) ? date('H:i', strtotime($zeiten['spat'])) : '' ?>" required>
-                                            <input type="date" name="spat_datum" id="spat_datum" class="w-100 form-control mt-1 text-center" style="font-size:1rem;color:#a2a2a2;" value="<?= !empty($zeiten['spat']) ? date('d.m.Y', strtotime($zeiten['spat'])) : '' ?>" required>
+                                            <label for="spat" class="edivi__description">
+                                                Pat.-an
+                                                <i id="icon-spat" class="fa-solid fa-circle-exclamation" style="color:#d91425; <?= !empty($zeiten['spat']) ? 'display:none;' : '' ?>"></i>
+                                            </label>
+                                            <input type="time" name="spat" id="spat" class="w-100 form-control text-center edivi__input-check" value="<?= !empty($zeiten['spat']) ? date('H:i', strtotime($zeiten['spat'])) : '' ?>" required>
+                                            <input type="date" name="spat_datum" id="spat_datum" class="w-100 form-control mt-1 text-center edivi__input-check" style="font-size:1rem;color:#a2a2a2;" value="<?= !empty($zeiten['spat']) ? date('d.m.Y', strtotime($zeiten['spat'])) : '' ?>" required>
                                         </div>
                                         <div class="col">
-                                            <label for="s7" class="edivi__description">E.-ab (7)</label>
-                                            <input type="time" name="s7" id="s7" class="w-100 form-control text-center" value="<?= !empty($zeiten['s7']) ? date('H:i', strtotime($zeiten['s7'])) : '' ?>" required>
-                                            <input type="date" name="s7_datum" id="s7_datum" class="w-100 form-control mt-1 text-center" style="font-size:1rem;color:#a2a2a2;" value="<?= !empty($zeiten['s7']) ? date('d.m.Y', strtotime($zeiten['s7'])) : '' ?>" required>
+                                            <label for="s7" class="edivi__description">
+                                                E.-ab (7)
+                                                <i id="icon-s7" class="fa-solid fa-circle-exclamation" style="color:#d91425; <?= !empty($zeiten['s7']) ? 'display:none;' : '' ?>"></i>
+                                            </label>
+                                            <input type="time" name="s7" id="s7" class="w-100 form-control text-center edivi__input-optional" value="<?= !empty($zeiten['s7']) ? date('H:i', strtotime($zeiten['s7'])) : '' ?>" required>
+                                            <input type="date" name="s7_datum" id="s7_datum" class="w-100 form-control mt-1 text-center edivi__input-optional" style="font-size:1rem;color:#a2a2a2;" value="<?= !empty($zeiten['s7']) ? date('d.m.Y', strtotime($zeiten['s7'])) : '' ?>" required>
                                         </div>
                                         <div class="col">
-                                            <label for="s8" class="edivi__description">KH an (8)</label>
-                                            <input type="time" name="s1" id="s8" class="w-100 form-control text-center" value="<?= !empty($zeiten['s8']) ? date('H:i', strtotime($zeiten['s8'])) : '' ?>" required>
-                                            <input type="date" name="s8_datum" id="s8_datum" class="w-100 form-control mt-1 text-center" style="font-size:1rem;color:#a2a2a2;" value="<?= !empty($zeiten['s8']) ? date('d.m.Y', strtotime($zeiten['s8'])) : '' ?>" required>
+                                            <label for="s8" class="edivi__description">
+                                                KH an (8)
+                                                <i id="icon-s8" class="fa-solid fa-circle-exclamation" style="color:#d91425; <?= !empty($zeiten['s8']) ? 'display:none;' : '' ?>"></i>
+                                            </label>
+                                            <input type="time" name="s8" id="s8" class="w-100 form-control text-center edivi__input-optional" value="<?= !empty($zeiten['s8']) ? date('H:i', strtotime($zeiten['s8'])) : '' ?>" required>
+                                            <input type="date" name="s8_datum" id="s8_datum" class="w-100 form-control mt-1 text-center edivi__input-optional" style="font-size:1rem;color:#a2a2a2;" value="<?= !empty($zeiten['s8']) ? date('d.m.Y', strtotime($zeiten['s8'])) : '' ?>" required>
                                         </div>
                                         <div class="col">
                                             <label for="s1" class="edivi__description">frei (1)</label>

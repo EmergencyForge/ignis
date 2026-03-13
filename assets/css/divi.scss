@@ -308,13 +308,15 @@ body {
 }
 
 #edivi__container .edivi__box input.edivi__input-check,
-#edivi__container .edivi__box select.edivi__input-check {
-  border-left: 3px solid red;
+#edivi__container .edivi__box select.edivi__input-check,
+#edivi__container .edivi__box textarea.edivi__input-check {
+  border-left: 0;
 }
 
 #edivi__container .edivi__box input.edivi__input-checked,
-#edivi__container .edivi__box select.edivi__input-checked {
-  border-left: 3px solid #55b530;
+#edivi__container .edivi__box select.edivi__input-checked,
+#edivi__container .edivi__box textarea.edivi__input-checked {
+  border-left: 0;
 }
 
 #edivi__container .edivi__box .edivi__verletzungen-col {

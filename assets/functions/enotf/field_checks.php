@@ -35,6 +35,46 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
     }
 
     /**
+     * Findet oder erstellt das Validierungs-Icon für ein Feld.
+     * Icons werden neben dem Label-Text in der .edivi__box angezeigt.
+     */
+    function _enotfGetOrCreateIcon(el) {
+        var name = el.getAttribute('name');
+        if (!name) return null;
+        var baseName = name.replace('_datum', '');
+        var iconId = 'icon-' + baseName;
+
+        // Existierendes Icon suchen
+        var icon = document.getElementById(iconId);
+        if (icon) return icon;
+
+        // Nur ein Icon pro Basis-Feld erstellen (nicht für _datum Duplikate)
+        if (name !== baseName) return document.getElementById(iconId) || null;
+
+        // Label finden
+        var label = null;
+        // Zuerst: label[for="id"]
+        if (el.id) {
+            label = document.querySelector('label[for="' + el.id + '"]');
+        }
+        // Fallback: label im gleichen Container
+        if (!label) {
+            var col = el.closest('.col');
+            if (col) label = col.querySelector('label');
+        }
+        if (!label) return null;
+
+        // Icon erstellen und ans Label anhängen
+        icon = document.createElement('i');
+        icon.id = iconId;
+        icon.className = 'fa-solid fa-circle-exclamation';
+        icon.style.cssText = 'color:#d91425; margin-left:4px; display:none;';
+        label.appendChild(document.createTextNode(' '));
+        label.appendChild(icon);
+        return icon;
+    }
+
+    /**
      * Wendet Conditions an: Setzt edivi__input-check nur auf Pflichtfelder.
      * Global verfügbar für notify.php.
      */
@@ -46,13 +86,28 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
             var name = el.getAttribute('name');
             if (!name) return;
 
+            var icon = _enotfGetOrCreateIcon(el);
+
             if (requiredNames[name]) {
                 el.classList.add('edivi__input-check');
                 el.classList.remove('edivi__input-optional');
+                // Icon: anzeigen wenn Feld leer
+                if (icon) {
+                    var isEmpty = false;
+                    if (el.tagName === 'SELECT') {
+                        var opt = el.querySelector('option:checked');
+                        isEmpty = !opt || opt.disabled;
+                    } else {
+                        isEmpty = !el.value || el.value.trim() === '';
+                    }
+                    icon.style.display = isEmpty ? '' : 'none';
+                }
             } else {
                 el.classList.remove('edivi__input-check', 'edivi__input-checked');
                 el.classList.add('edivi__input-optional');
                 el.style.borderLeft = '';
+                // Icon verstecken wenn Feld optional
+                if (icon) icon.style.display = 'none';
             }
         });
 
@@ -77,24 +132,33 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
     function _enotfToggleInputChecked(el) {
         if (!el.classList.contains('edivi__input-check')) return;
 
+        var isFilled = false;
         if (el.tagName === 'SELECT') {
             var opt = el.querySelector('option:checked');
             if (opt && !opt.disabled) {
                 el.classList.add('edivi__input-checked');
+                isFilled = true;
             } else {
                 el.classList.remove('edivi__input-checked');
             }
         } else {
             if (el.value && el.value.trim() !== '') {
                 el.classList.add('edivi__input-checked');
+                isFilled = true;
             } else {
                 el.classList.remove('edivi__input-checked');
             }
         }
 
+        // Icon aktualisieren
+        var icon = _enotfGetOrCreateIcon(el);
+        if (icon) icon.style.display = isFilled ? 'none' : '';
+
+        // Border in Boxen immer unterdrücken (Icons übernehmen)
         var box = el.closest('.edivi__box');
-        var groupHeading = box ? box.querySelector('h5.edivi__group-check') : null;
-        el.style.borderLeft = groupHeading ? '0' : '';
+        if (box) {
+            el.style.borderLeft = '0';
+        }
     }
 
     /**
@@ -177,7 +241,7 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
 
     // ──── Initialisierung ────
 
-    // 1. Conditions anwenden
+    // 1. Conditions anwenden (erstellt auch Icons)
     applyConditions(_enotfCurrentTransportziel);
 
     // 2. Alle Pflichtfelder initial prüfen + Listener
