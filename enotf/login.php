@@ -110,7 +110,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Neue Session erstellen
         $_SESSION['fahrername']      = $_POST['fahrername'];
         $_SESSION['fahrerquali']     = $_POST['fahrerquali'];
         $_SESSION['beifahrername']   = $_POST['beifahrername'] ?? null;
@@ -119,39 +118,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['praktikantquali'] = $_POST['praktikantquali'] ?? null;
         $_SESSION['protfzg']         = $vehicle;
 
-        // Bestehende aktive Sessions für dieses Fahrzeug deaktivieren
-        $deactivateStmt = $pdo->prepare("UPDATE intra_enotf_sessions SET active = 0 WHERE vehicle_identifier = :vehicle AND active = 1");
-        $deactivateStmt->execute([':vehicle' => $vehicle]);
+        // Prüfe ob dieser User bereits Teil einer aktiven Session auf diesem Fahrzeug ist
+        $existingToken = $_SESSION['enotf_session_token'] ?? null;
+        $existingSessionId = null;
 
-        // Neue Fahrzeug-Session anlegen
-        $insertStmt = $pdo->prepare("
-            INSERT INTO intra_enotf_sessions (vehicle_identifier, fahrername, fahrerquali, beifahrername, beifahrerquali, praktikantname, praktikantquali)
-            VALUES (:vehicle, :fn, :fq, :bn, :bq, :pn, :pq)
-        ");
-        $insertStmt->execute([
-            ':vehicle' => $vehicle,
-            ':fn' => $_SESSION['fahrername'],
-            ':fq' => $_SESSION['fahrerquali'],
-            ':bn' => $_SESSION['beifahrername'],
-            ':bq' => $_SESSION['beifahrerquali'],
-            ':pn' => $_SESSION['praktikantname'],
-            ':pq' => $_SESSION['praktikantquali'],
-        ]);
-        $sessionId = $pdo->lastInsertId();
+        if ($existingToken) {
+            $checkStmt = $pdo->prepare("
+                SELECT s.id FROM intra_enotf_session_members m
+                JOIN intra_enotf_sessions s ON s.id = m.session_id
+                WHERE m.session_token = :token AND s.vehicle_identifier = :vehicle AND s.active = 1
+                LIMIT 1
+            ");
+            $checkStmt->execute([':token' => $existingToken, ':vehicle' => $vehicle]);
+            $existingSessionId = $checkStmt->fetchColumn();
+        }
 
-        // Session-Token für den Ersteller generieren
-        $sessionToken = bin2hex(random_bytes(32));
+        if ($existingSessionId) {
+            // Bestehende Session aktualisieren (Crew-Daten update, keine Deaktivierung)
+            $updateStmt = $pdo->prepare("
+                UPDATE intra_enotf_sessions
+                SET fahrername = :fn, fahrerquali = :fq,
+                    beifahrername = :bn, beifahrerquali = :bq,
+                    praktikantname = :pn, praktikantquali = :pq
+                WHERE id = :id
+            ");
+            $updateStmt->execute([
+                ':fn' => $_SESSION['fahrername'],
+                ':fq' => $_SESSION['fahrerquali'],
+                ':bn' => $_SESSION['beifahrername'],
+                ':bq' => $_SESSION['beifahrerquali'],
+                ':pn' => $_SESSION['praktikantname'],
+                ':pq' => $_SESSION['praktikantquali'],
+                ':id' => $existingSessionId,
+            ]);
+            // Token und Position bleiben erhalten
+        } else {
+            // Neue Session erstellen
+            // Bestehende aktive Sessions für dieses Fahrzeug deaktivieren
+            $deactivateStmt = $pdo->prepare("UPDATE intra_enotf_sessions SET active = 0 WHERE vehicle_identifier = :vehicle AND active = 1");
+            $deactivateStmt->execute([':vehicle' => $vehicle]);
 
-        // Fahrer ist immer besetzt, also Member anlegen
-        $memberStmt = $pdo->prepare("INSERT INTO intra_enotf_session_members (session_id, session_token, position) VALUES (:sid, :token, :position)");
-        $memberStmt->execute([':sid' => $sessionId, ':token' => $sessionToken, ':position' => 'fahrer']);
+            // Neue Fahrzeug-Session anlegen
+            $insertStmt = $pdo->prepare("
+                INSERT INTO intra_enotf_sessions (vehicle_identifier, fahrername, fahrerquali, beifahrername, beifahrerquali, praktikantname, praktikantquali)
+                VALUES (:vehicle, :fn, :fq, :bn, :bq, :pn, :pq)
+            ");
+            $insertStmt->execute([
+                ':vehicle' => $vehicle,
+                ':fn' => $_SESSION['fahrername'],
+                ':fq' => $_SESSION['fahrerquali'],
+                ':bn' => $_SESSION['beifahrername'],
+                ':bq' => $_SESSION['beifahrerquali'],
+                ':pn' => $_SESSION['praktikantname'],
+                ':pq' => $_SESSION['praktikantquali'],
+            ]);
+            $sessionId = $pdo->lastInsertId();
 
-        // Wenn Beifahrer angegeben, auch als Member anlegen (gleicher Token da gleicher Browser)
-        // Nein: Bei "Neue Besatzung" meldet ein Browser alle Positionen an.
-        // Der Browser der die neue Besatzung erstellt, bekommt die Position "fahrer" zugewiesen.
+            // Session-Token für den Ersteller generieren
+            $sessionToken = bin2hex(random_bytes(32));
+            $memberStmt = $pdo->prepare("INSERT INTO intra_enotf_session_members (session_id, session_token, position) VALUES (:sid, :token, :position)");
+            $memberStmt->execute([':sid' => $sessionId, ':token' => $sessionToken, ':position' => 'fahrer']);
 
-        $_SESSION['enotf_session_token'] = $sessionToken;
-        $_SESSION['enotf_position'] = 'fahrer';
+            $_SESSION['enotf_session_token'] = $sessionToken;
+            $_SESSION['enotf_position'] = 'fahrer';
+        }
 
         header("Location: overview.php");
         exit();
@@ -451,7 +481,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <select id="join-quali" class="form-select" data-custom-dropdown="true" data-placeholder="Qualifikation">
                                                 <option value=""></option>
                                                 <?php foreach ($qualifikationen as $quali): ?>
-                                                    <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>"><?= htmlspecialchars($quali['name']) ?></option>
+                                                    <option value="<?= htmlspecialchars($quali['abkuerzung']) ?>"><?= htmlspecialchars($quali['abkuerzung']) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </div>

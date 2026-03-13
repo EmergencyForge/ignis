@@ -920,15 +920,6 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             } catch (e) {}
         }
 
-        // Restore state: only the active page's parent menu stays open
-        var parentPage = pageMapping[currentPage] || null;
-
-        if (parentPage) {
-            $(".sidebar-toggle[data-menu='" + parentPage + "']")
-                .addClass("active open")
-                .next(".sidebar-submenu").addClass("open");
-        }
-
         // Highlight active top-level link
         $(".sidebar-link[data-page='" + currentPage + "']").addClass("active");
 
@@ -946,6 +937,26 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             }
         });
         if (bestMatch) bestMatch.addClass("active-sub");
+
+        // Open only the menu that contains the active page/sublink
+        var parentPage = pageMapping[currentPage] || null;
+        var activeMenu = null;
+
+        if (parentPage) {
+            activeMenu = parentPage;
+        } else if (bestMatch) {
+            // Sublink gefunden: dessen Parent-Submenu öffnen
+            var $parentSubmenu = bestMatch.closest(".sidebar-submenu");
+            if ($parentSubmenu.length) {
+                activeMenu = $parentSubmenu.data("submenu");
+            }
+        }
+
+        if (activeMenu) {
+            $(".sidebar-toggle[data-menu='" + activeMenu + "']")
+                .addClass("active open")
+                .next(".sidebar-submenu").addClass("open");
+        }
 
         // Scroll position persistence
         var $sidebarNav = $(".sidebar-nav");
