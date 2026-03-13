@@ -35,6 +35,33 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
     }
 
     /**
+     * Berechnet welche DB-Spalten bei der aktuellen Versorgungsart aktiv/Pflicht sind.
+     * Wird von validateLinks in notify.php genutzt.
+     */
+    function _enotfGetActiveDbCols(tz) {
+        var cols = {};
+        var base = CONDITIONS.base;
+        var overrides = CONDITIONS.overrides[String(tz)] || [];
+        var additions = CONDITIONS.additions[String(tz)] || {};
+
+        for (var key in base) {
+            if (overrides.indexOf(key) === -1) {
+                var dbCols = base[key].db || [];
+                for (var i = 0; i < dbCols.length; i++) {
+                    cols[dbCols[i]] = true;
+                }
+            }
+        }
+        for (var addKey in additions) {
+            var addDb = additions[addKey].db || [];
+            for (var j = 0; j < addDb.length; j++) {
+                cols[addDb[j]] = true;
+            }
+        }
+        return cols;
+    }
+
+    /**
      * Icon-Cache: einmal pro Feld erstellt, dann wiederverwendet.
      */
     var _enotfIconCache = {};
@@ -66,12 +93,28 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
             // Nicht in einer edivi__box? Kein Icon nötig.
             if (!el.closest('.edivi__box')) return null;
 
-            // Label finden
+            // Label finden — verschiedene DOM-Strukturen unterstützen
             var label = null;
+            // 1. edivi__description im gleichen .col
             var col = el.closest('.col');
             if (col) {
                 label = col.querySelector('.edivi__description');
                 if (!label) label = col.querySelector('label');
+            }
+            // 2. Fallback: im gleichen .row nach .edivi__description suchen
+            if (!label) {
+                var row = el.closest('.row');
+                if (row) {
+                    label = row.querySelector('.edivi__description');
+                    if (!label) label = row.querySelector('label');
+                }
+            }
+            // 3. Fallback: im gleichen edivi__box
+            if (!label) {
+                var box = el.closest('.edivi__box');
+                if (box) {
+                    label = box.querySelector('.edivi__description');
+                }
             }
             if (!label) return null;
 

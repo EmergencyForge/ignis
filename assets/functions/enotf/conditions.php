@@ -180,14 +180,14 @@ function enotf_get_base_required(): array
             'section' => 3,
             'message' => '[3] Anamnese: NACA-Score (initial) ist nicht gesetzt.',
             'check'   => function ($d) { return $d['naca_initial'] === null; },
-            'html'    => [],
+            'html'    => ['naca_initial_display'],
             'db'      => ['naca_initial'],
         ],
         'elokation' => [
             'section' => 3,
             'message' => '[3] Anamnese: Einsatzort ist nicht gesetzt.',
             'check'   => function ($d) { return $d['elokation'] === null; },
-            'html'    => [],
+            'html'    => ['elokation_display'],
             'db'      => ['elokation'],
         ],
 

@@ -1020,25 +1020,17 @@ body {
   font-size: 1.4rem;
 }
 
-#edivi__container .edivi__box .edivi__group-check {
-  border-left: 3px solid #d91425;
-}
-
-#edivi__container .edivi__box .edivi__group-partchecked {
-  border-left: 3px solid #f7ec5d;
-}
-
-#edivi__container .edivi__box .edivi__group-checked {
-  border-left: 3px solid #55b530;
+#edivi__container .edivi__box .edivi__group-check,
+#edivi__container .edivi__box .edivi__group-partchecked,
+#edivi__container .edivi__box .edivi__group-checked,
+#edivi__container .edivi__box .edivi__group-optional {
+  border-left: 0;
 }
 
 #edivi__container .edivi__box input.edivi__input-optional,
-#edivi__container .edivi__box select.edivi__input-optional {
-  border-left: 3px solid transparent;
-}
-
-#edivi__container .edivi__box .edivi__group-optional {
-  border-left: 3px solid transparent;
+#edivi__container .edivi__box select.edivi__input-optional,
+#edivi__container .edivi__box textarea.edivi__input-optional {
+  border-left: 0;
 }
 
 @media (max-width: 1700px) {

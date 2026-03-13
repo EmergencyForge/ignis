@@ -123,25 +123,51 @@
 
         window.validateLinks = validateLinks;
         function validateLinks() {
+            // Aktive DB-Spalten aus Conditions berechnen
+            var activeDbCols = null;
+            if (typeof _enotfGetActiveDbCols === 'function' && typeof _enotfCurrentTransportziel !== 'undefined') {
+                activeDbCols = _enotfGetActiveDbCols(_enotfCurrentTransportziel);
+            }
+
             $("[class*='edivi__interactbutton'] a[data-requires]").each(function() {
                 const $link = $(this);
                 const requirements = $link.data("requires") || $link.attr("data-requires");
-                console.log("Link:", $link.text().trim(), "Requirements:", requirements);
 
                 if (requirements && requirements !== "" && !$link.hasClass("edivi__validation-ignore")) {
-                    const validationResult = validateRequirements(requirements);
+                    // Nur aktive DB-Spalten validieren (wenn Conditions verfügbar)
+                    var filteredReqs = requirements;
+                    if (activeDbCols) {
+                        var groups = requirements.split(',');
+                        var activeGroups = [];
+                        for (var i = 0; i < groups.length; i++) {
+                            var fields = groups[i].split('|');
+                            var anyActive = false;
+                            for (var j = 0; j < fields.length; j++) {
+                                if (activeDbCols[fields[j].trim()]) {
+                                    anyActive = true;
+                                    break;
+                                }
+                            }
+                            if (anyActive) activeGroups.push(groups[i]);
+                        }
+                        filteredReqs = activeGroups.join(',');
+                    }
 
                     $link.removeClass("edivi__validation-green edivi__validation-red edivi__validation-yellow");
 
-                    if (validationResult === true) {
-                        $link.addClass("edivi__validation-green");
-                    } else if (validationResult === 'partial') {
-                        $link.addClass("edivi__validation-yellow");
+                    if (!filteredReqs) {
+                        // Alle Requirements sind durch Conditions deaktiviert → keine Farbe
+                        return;
                     } else {
-                        $link.addClass("edivi__validation-red");
+                        const validationResult = validateRequirements(filteredReqs);
+                        if (validationResult === true) {
+                            $link.addClass("edivi__validation-green");
+                        } else if (validationResult === 'partial') {
+                            $link.addClass("edivi__validation-yellow");
+                        } else {
+                            $link.addClass("edivi__validation-red");
+                        }
                     }
-
-                    console.log("Link validated:", $link.text().trim(), "Status:", validationResult);
                 }
             });
         }
