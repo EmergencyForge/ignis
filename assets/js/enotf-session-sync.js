@@ -68,12 +68,15 @@
 
         updateSessionIcon("connected");
 
-        // Crew-Daten vergleichen
-        if (cachedCrew && hasCrewChanged(cachedCrew, data.crew)) {
-          // PHP-Session aktualisieren
-          syncPhpSession();
-          // Header live updaten
+        // Header immer aktualisieren (auch beim ersten Poll,
+        // falls PHP-Session veraltet war)
+        if (data.crew) {
           updateHeaderDisplay(data.crew);
+        }
+
+        // PHP-Session aktualisieren wenn sich Daten geändert haben
+        if (cachedCrew && hasCrewChanged(cachedCrew, data.crew)) {
+          syncPhpSession();
         }
 
         cachedCrew = data.crew;
