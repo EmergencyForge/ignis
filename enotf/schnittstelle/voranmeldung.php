@@ -93,7 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
 
     if ($allFilled) {
         file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Alle Pflichtfelder gefüllt, führe INSERT aus...\n", FILE_APPEND);
-        $arrivalDateTime = $_POST['arrival_date'] . ' ' . $_POST['arrival_time'] . ':00';
+        // Datum normalisieren: DD.MM.YYYY → YYYY-MM-DD (falls Browser kein natives date-input hat)
+        $rawDate = $_POST['arrival_date'];
+        if (preg_match('/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/', $rawDate, $m)) {
+            $rawDate = $m[3] . '-' . str_pad($m[2], 2, '0', STR_PAD_LEFT) . '-' . str_pad($m[1], 2, '0', STR_PAD_LEFT);
+        }
+        $arrivalDateTime = $rawDate . ' ' . $_POST['arrival_time'] . ':00';
         $stmt = $pdo->prepare("
             INSERT INTO intra_edivi_prereg (
                 priority,

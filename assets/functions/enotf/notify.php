@@ -29,6 +29,56 @@
             $(this).data('original-value', $(this).val());
         });
 
+        // Nav data-requires dynamisch aus CONDITIONS aktualisieren
+        function updateNavRequires(tz) {
+            if (typeof CONDITIONS === 'undefined') return;
+            var sectionMap = {1: 'stammdaten', 2: 'erstbefund', 3: 'anamnese', 4: 'diagnose', 6: 'massnahmen', 7: 'abschluss'};
+            var overrides = CONDITIONS.overrides[String(tz)] || [];
+            var additions = CONDITIONS.additions[String(tz)] || {};
+
+            // Pro Section die aktiven DB-Spalten sammeln
+            var sectionDbCols = {};
+            for (var key in CONDITIONS.base) {
+                if (overrides.indexOf(key) !== -1) continue;
+                var rule = CONDITIONS.base[key];
+                var sec = rule.section;
+                if (!sectionDbCols[sec]) sectionDbCols[sec] = [];
+                var dbCols = rule.db || [];
+                for (var i = 0; i < dbCols.length; i++) {
+                    if (sectionDbCols[sec].indexOf(dbCols[i]) === -1) {
+                        sectionDbCols[sec].push(dbCols[i]);
+                    }
+                }
+            }
+            for (var addKey in additions) {
+                var addRule = additions[addKey];
+                var addSec = addRule.section;
+                if (!sectionDbCols[addSec]) sectionDbCols[addSec] = [];
+                var addDb = addRule.db || [];
+                for (var j = 0; j < addDb.length; j++) {
+                    if (sectionDbCols[addSec].indexOf(addDb[j]) === -1) {
+                        sectionDbCols[addSec].push(addDb[j]);
+                    }
+                }
+            }
+
+            // data-requires auf Nav-Links setzen
+            for (var section in sectionMap) {
+                var page = sectionMap[section];
+                var $link = $('#edivi__nidanav a[data-page="' + page + '"]');
+                if ($link.length) {
+                    var cols = sectionDbCols[section] || [];
+                    if (cols.length > 0) {
+                        $link.attr('data-requires', cols.join(','));
+                    } else {
+                        $link.removeAttr('data-requires');
+                        $link.removeClass('edivi__nidanav-unfilled edivi__nidanav-partfilled edivi__nidanav-filled');
+                        $link.addClass('edivi__nidanav-nocheck');
+                    }
+                }
+            }
+        }
+
         function updateNavFillStates(data) {
             $("#edivi__nidanav a[data-requires]").each(function() {
                 const $link = $(this);
@@ -59,6 +109,12 @@
                     .toggleClass("edivi__nidanav-filled", isFullyFilled)
                     .toggleClass("edivi__nidanav-partfilled", isPartiallyFilled)
                     .toggleClass("edivi__nidanav-unfilled", filledGroups === 0);
+            });
+
+            // Nav-Links ohne data-requires → nocheck
+            $("#edivi__nidanav a:not([data-requires])").each(function() {
+                const $link = $(this);
+                $link.removeClass('edivi__nidanav-unfilled edivi__nidanav-partfilled edivi__nidanav-filled');
             });
         }
 
@@ -427,6 +483,14 @@
 
                         window.__dynamicDaten[fieldName] = currentValue;
                         console.log('Updated __dynamicDaten[' + fieldName + ']:', currentValue);
+
+                        // Bei Versorgung-Änderung: Nav-Requires und Conditions aktualisieren
+                        if (fieldName === 'transportziel') {
+                            updateNavRequires(currentValue);
+                            if (typeof applyConditions === 'function') {
+                                applyConditions(currentValue);
+                            }
+                        }
 
                         updateNavFillStates(window.__dynamicDaten);
                         validateLinks();
