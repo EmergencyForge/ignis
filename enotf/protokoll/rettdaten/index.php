@@ -162,6 +162,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <option value="0">männlich</option>
                                                     <option value="1">weiblich</option>
                                                     <option value="2">divers</option>
+                                                    <option value="9">unbekannt</option>
                                                 </select>
                                             <?php
                                             } else {
@@ -171,6 +172,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <option value="0" <?php echo ($daten['patsex'] == 0 ? 'selected' : '') ?>>männlich</option>
                                                     <option value="1" <?php echo ($daten['patsex'] == 1 ? 'selected' : '') ?>>weiblich</option>
                                                     <option value="2" <?php echo ($daten['patsex'] == 2 ? 'selected' : '') ?>>divers</option>
+                                                    <option value="9" <?php echo ($daten['patsex'] == 9 ? 'selected' : '') ?>>unbekannt</option>
                                                 </select>
                                             <?php
                                             }
