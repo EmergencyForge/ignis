@@ -95,8 +95,8 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
 
             // Label finden — verschiedene DOM-Strukturen unterstützen
             var label = null;
-            // 1. edivi__description im gleichen .col
-            var col = el.closest('.col');
+            // 1. edivi__description im gleichen Bootstrap-col (col, col-6, col-sm-4, etc.)
+            var col = el.closest('div[class*="col"]');
             if (col) {
                 label = col.querySelector('.edivi__description');
                 if (!label) label = col.querySelector('label');
@@ -117,6 +117,14 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
                 }
             }
             if (!label) return null;
+
+            // Duplikat-Check: bereits ein Exclamation-Icon im Label?
+            var existing = label.querySelector('.fa-circle-exclamation');
+            if (existing) {
+                _enotfIconCache[baseName] = existing;
+                if (!existing.id) existing.id = 'icon-' + baseName;
+                return existing;
+            }
 
             // Icon erstellen
             icon = document.createElement('i');
@@ -145,6 +153,10 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
             var name = el.getAttribute('name');
             if (!name) return;
 
+            // Custom-Dropdown-Container finden (falls vorhanden)
+            var ddWrapper = el.closest('.enotf-dropdown-wrapper');
+            var ddContainer = ddWrapper ? ddWrapper.querySelector('.enotf-dropdown-container') : null;
+
             var icon = _enotfGetOrCreateIcon(el);
 
             if (requiredNames[name]) {
@@ -160,10 +172,13 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
                     }
                     icon.style.display = isEmpty ? '' : 'none';
                 }
+                // Border auf Container auch unterdrücken
+                if (ddContainer) ddContainer.style.borderLeft = '0';
             } else {
                 el.classList.remove('edivi__input-check', 'edivi__input-checked');
                 el.classList.add('edivi__input-optional');
                 el.style.borderLeft = '';
+                if (ddContainer) ddContainer.style.borderLeft = '';
                 if (icon) icon.style.display = 'none';
             }
         });
@@ -213,6 +228,12 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
 
         // Border in Boxen immer unterdrücken (Icons übernehmen)
         el.style.borderLeft = '0';
+        // Auch auf Custom-Dropdown-Container anwenden
+        var wrapper = el.closest('.enotf-dropdown-wrapper');
+        if (wrapper) {
+            var container = wrapper.querySelector('.enotf-dropdown-container');
+            if (container) container.style.borderLeft = '0';
+        }
     }
 
     /**
@@ -223,7 +244,7 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
             var box = heading.closest('.edivi__box');
             if (!box) return;
 
-            var inputs = box.querySelectorAll('.edivi__input-check');
+            var inputs = box.querySelectorAll('input.edivi__input-check, select.edivi__input-check, textarea.edivi__input-check');
             var filled = 0;
             var total = inputs.length;
 
@@ -237,6 +258,12 @@ $_enotfTransportziel = isset($daten['transportziel']) ? (string)(int)$daten['tra
                 }
                 if (isFilled) filled++;
                 input.style.borderLeft = '0';
+                // Custom-Dropdown-Container Border auch unterdrücken
+                var ddW = input.closest('.enotf-dropdown-wrapper');
+                if (ddW) {
+                    var ddC = ddW.querySelector('.enotf-dropdown-container');
+                    if (ddC) ddC.style.borderLeft = '0';
+                }
             });
 
             heading.classList.remove('edivi__group-checked', 'edivi__group-partchecked');

@@ -40,45 +40,16 @@
   }
 
   /**
-   * Handle input event - format as user types
+   * Handle input event - only filter invalid characters, no auto-formatting
+   * Formatting happens on blur
    */
   function handleInput(e) {
     var input = e.target;
-    var value = input.value.replace(/[^0-9]/g, "");
     var cursorPos = input.selectionStart;
-
-    if (value.length === 0) {
-      return;
-    }
-
-    // Limit to 8 digits (DDMMYYYY)
-    if (value.length > 8) {
-      value = value.substring(0, 8);
-    }
-
-    // Auto-format with dots
-    var formattedValue = "";
-
-    if (value.length >= 5) {
-      formattedValue =
-        value.substring(0, 2) +
-        "." +
-        value.substring(2, 4) +
-        "." +
-        value.substring(4);
-    } else if (value.length >= 3) {
-      formattedValue = value.substring(0, 2) + "." + value.substring(2);
-    } else {
-      formattedValue = value;
-    }
-
-    input.value = formattedValue;
-
-    // Maintain cursor position after dot insertion
-    if (cursorPos === 2 && formattedValue.length >= 3) {
-      input.setSelectionRange(3, 3);
-    } else if (cursorPos === 5 && formattedValue.length >= 6) {
-      input.setSelectionRange(6, 6);
+    var cleaned = input.value.replace(/[^0-9.]/g, "");
+    if (cleaned !== input.value) {
+      input.value = cleaned;
+      input.setSelectionRange(cursorPos, cursorPos);
     }
   }
 

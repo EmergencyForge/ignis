@@ -214,7 +214,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <div class="row my-2">
                                         <div class="col">
                                             <label for="enr" class="edivi__description">Einsatznummer</label>
-                                            <input type="text" name="enr" id="enr" class="w-100 form-control edivi__input-check" value="<?= $_GET['enr'] ?>" readonly>
+                                            <input type="text" name="enr" id="enr" class="w-100 form-control" value="<?= $_GET['enr'] ?>" readonly>
                                         </div>
                                         <div class="col">
                                             <label for="edatum" class="edivi__description">Einsatzdatum</label>

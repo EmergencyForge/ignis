@@ -74,6 +74,13 @@ function enotf_get_base_required(): array
             'html'    => ['sende', 'sende_datum'],
             'db'      => ['sende'],
         ],
+        'eart' => [
+            'section' => 1,
+            'message' => '[1] Rett. Daten: Einsatzart ist nicht gesetzt.',
+            'check'   => function ($d) { return $d['eart'] === null; },
+            'html'    => ['eart'],
+            'db'      => ['eart'],
+        ],
         'transp_adresse' => [
             'section' => 1,
             'message' => '[1] Rett. Daten: Von Adresse ist nicht gesetzt.',

@@ -142,18 +142,28 @@ if (isset($_POST['enr']) && isset($_POST['field'])) {
         }
     }
 
-    // Datumsfelder: DD.MM.YYYY → YYYY-MM-DD konvertieren für DB (DATE-Spalten)
+    // Datumsfelder: in YYYY-MM-DD konvertieren für DB (DATE-Spalten)
     $dateFields = ['edatum', 'patgebdat', 'symptombeginn_datum'];
     if (in_array($field, $dateFields) && !empty($value)) {
-        // DD.MM.YYYY → YYYY-MM-DD
-        $dateParts = explode('.', $value);
-        if (count($dateParts) === 3) {
-            $value = $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0];
+        // Bereits ISO-Format?
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            // OK, nichts zu tun
         }
-        // Validierung: muss YYYY-MM-DD sein
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+        // DD.MM.YYYY Format?
+        elseif (preg_match('/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/', $value, $m)) {
+            $value = $m[3] . '-' . str_pad($m[2], 2, '0', STR_PAD_LEFT) . '-' . str_pad($m[1], 2, '0', STR_PAD_LEFT);
+        }
+        // Unbekanntes Format
+        else {
             http_response_code(400);
             echo "Ungültiges Datumsformat";
+            exit();
+        }
+        // Validierung: Datum muss gültig sein
+        $dt = DateTime::createFromFormat('Y-m-d', $value);
+        if (!$dt || $dt->format('Y-m-d') !== $value) {
+            http_response_code(400);
+            echo "Ungültiges Datum";
             exit();
         }
     }

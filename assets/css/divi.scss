@@ -309,13 +309,15 @@ body {
 
 #edivi__container .edivi__box input.edivi__input-check,
 #edivi__container .edivi__box select.edivi__input-check,
-#edivi__container .edivi__box textarea.edivi__input-check {
+#edivi__container .edivi__box textarea.edivi__input-check,
+#edivi__container .edivi__box .enotf-dropdown-container.edivi__input-check {
   border-left: 0;
 }
 
 #edivi__container .edivi__box input.edivi__input-checked,
 #edivi__container .edivi__box select.edivi__input-checked,
-#edivi__container .edivi__box textarea.edivi__input-checked {
+#edivi__container .edivi__box textarea.edivi__input-checked,
+#edivi__container .edivi__box .enotf-dropdown-container.edivi__input-checked {
   border-left: 0;
 }
 
@@ -1029,7 +1031,8 @@ body {
 
 #edivi__container .edivi__box input.edivi__input-optional,
 #edivi__container .edivi__box select.edivi__input-optional,
-#edivi__container .edivi__box textarea.edivi__input-optional {
+#edivi__container .edivi__box textarea.edivi__input-optional,
+#edivi__container .edivi__box .enotf-dropdown-container.edivi__input-optional {
   border-left: 0;
 }
 
