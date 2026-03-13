@@ -68,31 +68,23 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 </head>
 
 <body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
+    <?php
+    $topbar_left_html = '
+        <a href="' . BASE_PATH . 'enotf/overview.php" class="edivi__iconlink">
+            <i class="fa-solid fa-arrow-left"></i><br>
+            <small>Zurück</small>
+        </a>
+        <a href="javascript:void(0)" class="edivi__iconlink" data-bs-toggle="modal" data-bs-target="#logoutModal">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i><br>
+            <small>Abmelden</small>
+        </a>';
+    $topbar_sync = ['leitstelle', 'session'];
+    $topbar_show_notices = false;
+    include __DIR__ . '/../assets/components/enotf/topbar.php';
+    ?>
     <div class="container-fluid" id="edivi__container">
         <div class="row h-100">
             <div class="col" id="edivi__content">
-                <div class="row border-bottom edivi__header-overview" style="--bs-border-color: #333333">
-                    <div class="col">
-                        <a href="index.php" class="text-decoration-none text-light" style="font-size:1.6rem">
-                            <i class="fa-solid fa-arrow-left"></i> Zurück zur Übersicht
-                        </a>
-                    </div>
-                    <div class="col border-start" style="--bs-border-color: #333333">
-                        <a href="login.php?prefill=1" class="text-decoration-none text-reset d-block">
-                            <div class="row border-bottom" style="--bs-border-color: #333333">
-                                <div class="col">Angemeldet:</div>
-                            </div>
-                            <div class="row" id="crew-display-row">
-                                <div class="col" data-crew-name="fahrername"><?= $_SESSION['fahrername'] ?></div>
-                                <div class="col border-start" style="--bs-border-color: #333333" data-crew-name="beifahrername"><?= $_SESSION['beifahrername'] ?? '' ?></div>
-                                <div class="col border-start <?= empty($_SESSION['praktikantname']) ? 'd-none' : '' ?>" style="--bs-border-color: #333333" data-crew-name="praktikantname"><?= $_SESSION['praktikantname'] ?? '' ?></div>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-2 border-start" style="padding:0;--bs-border-color: #333333">
-                        <button class="edivi__nidabutton-primary w-100 h-100 d-flex justify-content-center align-content-center" type="button" data-bs-toggle="modal" data-bs-target="#logoutModal">abmelden</button>
-                    </div>
-                </div>
 
                 <div class="hr my-2" style="color:transparent"></div>
 

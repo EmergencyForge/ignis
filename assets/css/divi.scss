@@ -1025,6 +1025,13 @@ body {
 #edivi__topbar {
   border-bottom: 2px solid var(--main-color);
   color: var(--white);
+  padding-left: 0;
+  padding-right: 0;
+}
+#edivi__content > #edivi__topbar {
+  margin-left: calc(-0.5 * var(--bs-gutter-x));
+  margin-right: calc(-0.5 * var(--bs-gutter-x));
+  width: auto;
 }
 #edivi__topbar span#current-time {
   font-size: 1.6rem;

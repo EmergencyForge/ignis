@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
     <div class="container d-flex justify-content-center align-items-center flex-column h-100">
         <div class="row" style="width:30%">
             <div class="col text-center">
-                <img src="https://emergencyforge.de/assets/img/defaultLogo.webp" alt="EmergencyForge Logo" class="mb-4" width="75%" height="auto">
+                <img src="https://web-assets.emergencyforge.de/images/defaultLogo.webp" alt="EmergencyForge Logo" class="mb-4" width="75%" height="auto">
                 <div class="card px-4 py-3 text-center">
                     <h1 id="loginHeader"><?php echo SYSTEM_NAME ?></h1>
                     <p class="subtext">Das Intranet der Stadt <?php echo SERVER_CITY ?>!</p>
