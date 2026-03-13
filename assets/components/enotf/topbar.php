@@ -89,18 +89,12 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
             <a href="<?= BASE_PATH ?>enotf/login.php?prefill=1" class="d-flex flex-column align-items-center text-decoration-none text-reset align-self-stretch justify-content-between" id="topbar-crew-display" style="font-size: 0.85rem; line-height: 1.2; padding: 5px 15px;">
                 <div class="d-flex align-items-start">
                     <div class="d-flex flex-column align-items-end justify-content-start">
-                        <span><?= htmlspecialchars($_SESSION['fahrername'] ?? '') ?></span>
+                        <span data-crew-name="fahrername"><?= htmlspecialchars($_SESSION['fahrername'] ?? '') ?></span>
                     </div>
-                    <?php if (!empty($_SESSION['beifahrername']) || !empty($_SESSION['praktikantname'])): ?>
-                        <div class="d-flex flex-column align-items-start ms-3">
-                            <?php if (!empty($_SESSION['beifahrername'])): ?>
-                                <span><?= htmlspecialchars($_SESSION['beifahrername']) ?></span>
-                            <?php endif; ?>
-                            <?php if (!empty($_SESSION['praktikantname'])): ?>
-                                <span><?= htmlspecialchars($_SESSION['praktikantname']) ?></span>
-                            <?php endif; ?>
-                        </div>
-                    <?php endif; ?>
+                    <div class="d-flex flex-column align-items-start ms-3">
+                        <span data-crew-name="beifahrername" class="<?= empty($_SESSION['beifahrername']) ? 'd-none' : '' ?>"><?= htmlspecialchars($_SESSION['beifahrername'] ?? '') ?></span>
+                        <span data-crew-name="praktikantname" class="<?= empty($_SESSION['praktikantname']) ? 'd-none' : '' ?>"><?= htmlspecialchars($_SESSION['praktikantname'] ?? '') ?></span>
+                    </div>
                 </div>
                 <small style="font-size: 0.65rem;">Anmelden</small>
             </a>

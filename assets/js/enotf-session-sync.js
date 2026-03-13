@@ -133,18 +133,16 @@
       var field = el.getAttribute("data-crew-name");
       if (crew[field] !== undefined) {
         el.textContent = crew[field] || "";
+        // Optionale Felder ein-/ausblenden
+        if (field !== "fahrername") {
+          if (crew[field]) {
+            el.classList.remove("d-none");
+          } else {
+            el.classList.add("d-none");
+          }
+        }
       }
     });
-
-    // Praktikant-Spalte ein-/ausblenden
-    var praktikantEl = document.querySelector('[data-crew-name="praktikantname"]');
-    if (praktikantEl) {
-      if (crew.praktikantname) {
-        praktikantEl.classList.remove("d-none");
-      } else {
-        praktikantEl.classList.add("d-none");
-      }
-    }
   }
 
   /**
