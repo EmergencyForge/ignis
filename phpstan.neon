@@ -152,9 +152,39 @@ parameters:
             path: enotf/login.php
             reportUnmatched: false
 
+        -
+            identifier: booleanAnd.leftAlwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.rightAlwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: ternary.alwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanNot.alwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
         # einsatz/login-fahrzeug.php - gleiche optionale Konfigurations-Konstanten
         -
             identifier: if.alwaysFalse
+            path: einsatz/login-fahrzeug.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.leftAlwaysFalse
+            path: einsatz/login-fahrzeug.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.rightAlwaysFalse
             path: einsatz/login-fahrzeug.php
             reportUnmatched: false
 
