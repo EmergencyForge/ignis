@@ -60,8 +60,8 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 32px;
-            padding: 4px 8px;
+            gap: 12px;
+            padding: 0;
             height: 100%;
         }
 
@@ -69,8 +69,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            gap: 48px;
-            margin-bottom: 12px;
+            gap: 32px;
         }
 
         .bodymap-view-label {
@@ -83,14 +82,16 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
         }
 
         .bodymap-svg {
-            height: calc(100vh - 150px);
-            max-height: 440px;
+            height: calc(100vh - 200px);
+            max-height: 560px;
+            min-height: 180px;
             width: auto;
         }
 
         .bodymap-svg-back {
-            height: calc(100vh - 150px);
-            max-height: 440px;
+            height: calc(100vh - 200px);
+            max-height: 560px;
+            min-height: 180px;
             width: auto;
             opacity: 0.6;
         }
@@ -298,7 +299,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
                                     <!-- Front view -->
                                     <div>
                                         <div class="bodymap-view-label">Vorne</div>
-                                        <svg class="bodymap-svg" viewBox="0 0 206.326 206.326" xmlns="http://www.w3.org/2000/svg">
+                                        <svg class="bodymap-svg" viewBox="55 0 96 210" xmlns="http://www.w3.org/2000/svg">
                                             <defs>
                                                 <clipPath id="body-clip-front">
                                                     <path d="<?= $bodyPath ?>" />
@@ -344,7 +345,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
                                     <!-- Back view -->
                                     <div>
                                         <div class="bodymap-view-label">Hinten</div>
-                                        <svg class="bodymap-svg-back" viewBox="0 0 206.326 206.326" xmlns="http://www.w3.org/2000/svg">
+                                        <svg class="bodymap-svg-back" viewBox="55 0 96 210" xmlns="http://www.w3.org/2000/svg">
                                             <defs>
                                                 <clipPath id="body-clip-back">
                                                     <path d="<?= $bodyPath ?>" />
