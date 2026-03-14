@@ -58,8 +58,9 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
     <style>
         .bodymap-container {
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
+            flex-direction: column;
+            align-items: center;
+            gap: 32px;
             padding: 4px 8px;
             height: 100%;
         }
@@ -68,7 +69,8 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            gap: 4px;
+            gap: 48px;
+            margin-bottom: 12px;
         }
 
         .bodymap-view-label {
@@ -150,39 +152,19 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
 
         /* Panel */
         .bodymap-panel {
-            width: 220px;
-            flex-shrink: 0;
+            width: 100%;
+            max-width: 400px;
         }
+
 
         .bodymap-legend {
-            margin-bottom: 14px;
-            padding: 10px;
-            background: #252525;
-            border: 1px solid #444;
+            display: none;
         }
 
-        .bodymap-legend h6 {
-            font-size: 0.7rem;
-            color: #aaa;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-
-        .bodymap-legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-            font-size: 0.8rem;
-            color: #ccc;
-        }
-
+        .bodymap-legend h6,
+        .bodymap-legend-item,
         .bodymap-legend-color {
-            width: 14px;
-            height: 14px;
-            border-radius: 2px;
-            flex-shrink: 0;
+            display: none;
         }
 
         .bodymap-detail {
@@ -273,13 +255,10 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             letter-spacing: 0.5px;
         }
 
-        @media (max-width: 1200px) {
-            .bodymap-panel { width: 180px; }
-        }
-
-        @media (max-width: 1001px) {
-            .bodymap-container { flex-direction: column; align-items: center; }
-            .bodymap-panel { width: 100%; max-width: 300px; }
+        @media (max-width: 500px) {
+            .bodymap-views {
+                gap: 8px;
+            }
         }
     </style>
 </head>
