@@ -79,3 +79,5 @@ try {
 
 // Ensure KB_PUBLIC_ACCESS has a default even after successful config load
 if (!defined('KB_PUBLIC_ACCESS')) define('KB_PUBLIC_ACCESS', false);
+if (!defined('ENOTF_CHAR_LOCK')) define('ENOTF_CHAR_LOCK', false);
+if (!defined('ENOTF_JOB_FILTER')) define('ENOTF_JOB_FILTER', false);

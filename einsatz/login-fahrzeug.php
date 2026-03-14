@@ -28,6 +28,14 @@ if (defined('FIRE_INCIDENT_REQUIRE_USER_AUTH') && FIRE_INCIDENT_REQUIRE_USER_AUT
 
 require __DIR__ . '/../assets/config/database.php';
 
+// Charakter-basierte Zugriffskontrolle
+$charLockEnabled = defined('ENOTF_CHAR_LOCK') && ENOTF_CHAR_LOCK === true;
+$charName = $_SESSION['char_name'] ?? '';
+$charLocked = $charLockEnabled && !empty($charName);
+
+$jobFilterEnabled = defined('ENOTF_JOB_FILTER') && ENOTF_JOB_FILTER === true;
+$charJob = $_SESSION['char_job'] ?? null;
+
 // Handle logout from vehicle
 if (isset($_GET['logout'])) {
     unset($_SESSION['einsatz_vehicle_id']);
@@ -64,6 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Flash::error('Fahrzeug nicht gefunden oder nicht verfügbar.');
             } elseif (!$operator) {
                 Flash::error('Mitarbeiter nicht gefunden.');
+            } elseif ($charLocked && $operator['fullname'] !== $charName) {
+                Flash::error('Sie können sich nur unter Ihrem eigenen Namen anmelden.');
             } else {
                 // Store in session
                 $_SESSION['einsatz_vehicle_id'] = (int)$vehicle['id'];
@@ -81,18 +91,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Load available vehicles (rd_type = 3)
+// Load available vehicles (rd_type = 3) with optional job filter
 $vehicles = [];
 try {
-    $vehicles = $pdo->query("SELECT id, name, identifier, rd_type FROM intra_fahrzeuge WHERE active = 1 AND rd_type = 3 ORDER BY priority ASC, name ASC")->fetchAll(PDO::FETCH_ASSOC);
+    if ($jobFilterEnabled && !empty($charJob)) {
+        $vehStmt = $pdo->prepare("SELECT id, name, identifier, rd_type FROM intra_fahrzeuge WHERE active = 1 AND rd_type = 3 AND (allowed_jobs IS NULL OR allowed_jobs = '' OR FIND_IN_SET(:job, allowed_jobs) > 0) ORDER BY priority ASC, name ASC");
+        $vehStmt->execute([':job' => $charJob]);
+        $vehicles = $vehStmt->fetchAll(PDO::FETCH_ASSOC);
+    } else {
+        $vehicles = $pdo->query("SELECT id, name, identifier, rd_type FROM intra_fahrzeuge WHERE active = 1 AND rd_type = 3 ORDER BY priority ASC, name ASC")->fetchAll(PDO::FETCH_ASSOC);
+    }
 } catch (PDOException $e) {
     Flash::error('Fehler beim Laden der Fahrzeuge.');
 }
 
 // Load all personnel
 $personnel = [];
+$lockedOperator = null;
 try {
     $personnel = $pdo->query("SELECT id, fullname FROM intra_mitarbeiter ORDER BY fullname ASC")->fetchAll(PDO::FETCH_ASSOC);
+
+    // Bei Char-Lock: passenden Mitarbeiter finden
+    if ($charLocked) {
+        $lockStmt = $pdo->prepare("SELECT id, fullname FROM intra_mitarbeiter WHERE fullname = :name LIMIT 1");
+        $lockStmt->execute([':name' => $charName]);
+        $lockedOperator = $lockStmt->fetch(PDO::FETCH_ASSOC);
+    }
 } catch (PDOException $e) {
     Flash::error('Fehler beim Laden der Mitarbeiter.');
 }
@@ -103,6 +127,22 @@ try {
 <head>
     <?php include __DIR__ . '/../assets/components/_base/admin/head.php'; ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-custom-dropdown.css">
+    <!-- CitizenFX: Session-ID an FiveM-Client senden -->
+    <script>
+    (function() {
+        if (navigator.userAgent.includes('CitizenFX')) {
+            fetch('<?= BASE_PATH ?>api/character/get-session-id.php')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.session_id) {
+                        var target = (window.parent !== window) ? window.parent : window;
+                        target.postMessage({ type: 'intraRP_session', session_id: data.session_id }, '*');
+                    }
+                })
+                .catch(function() {});
+        }
+    })();
+    </script>
 
     <style>
         html::-webkit-scrollbar,
@@ -228,15 +268,21 @@ try {
                                         <i class="fa-solid fa-user me-1"></i>
                                         Besatzung / Name *
                                     </label>
-                                    <select name="operator_id" id="operatorSelect" class="form-select form-select-lg" required data-custom-dropdown="true" data-search-threshold="5">
-                                        <option value="">-- Bitte Mitarbeiter wählen --</option>
-                                        <?php foreach ($personnel as $p): ?>
-                                            <option value="<?= (int)$p['id'] ?>">
-                                                <?= htmlspecialchars($p['fullname']) ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <small class="text-muted">Wählen Sie Ihren Namen aus der Liste</small>
+                                    <?php if ($charLocked && $lockedOperator): ?>
+                                        <input type="hidden" name="operator_id" value="<?= (int)$lockedOperator['id'] ?>">
+                                        <input type="text" class="form-select form-select-lg" value="<?= htmlspecialchars($lockedOperator['fullname']) ?>" readonly>
+                                        <small class="text-muted"><i class="fa-solid fa-lock me-1"></i>Charakter-Sperre aktiv</small>
+                                    <?php else: ?>
+                                        <select name="operator_id" id="operatorSelect" class="form-select form-select-lg" required data-custom-dropdown="true" data-search-threshold="5">
+                                            <option value="">-- Bitte Mitarbeiter wählen --</option>
+                                            <?php foreach ($personnel as $p): ?>
+                                                <option value="<?= (int)$p['id'] ?>">
+                                                    <?= htmlspecialchars($p['fullname']) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <small class="text-muted">Wählen Sie Ihren Namen aus der Liste</small>
+                                    <?php endif; ?>
                                 </div>
 
                                 <div class="d-grid gap-2">

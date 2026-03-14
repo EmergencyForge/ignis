@@ -1,0 +1,134 @@
+/**
+ * eNOTF Custom Modal Styling
+ * Überschreibt Bootstrap-Modal-Styles nur innerhalb des eNOTF-Bereichs.
+ * Wird über _head.php nur im eNOTF geladen — Admin-Modals bleiben unberührt.
+ */
+
+/* Modal Content */
+body[id="edivi__login"] .modal-content,
+body[data-pin-enabled] .modal-content {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 0;
+    color: #fff;
+}
+
+/* Modal Header */
+body[id="edivi__login"] .modal-header,
+body[data-pin-enabled] .modal-header {
+    background-color: #222;
+    border-bottom: none;
+    border-radius: 0;
+    padding: 12px 16px;
+}
+
+body[id="edivi__login"] .modal-title,
+body[data-pin-enabled] .modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Modal Body */
+body[id="edivi__login"] .modal-body,
+body[data-pin-enabled] .modal-body {
+    background-color: #222;
+    padding: 16px;
+}
+
+/* Modal Footer */
+body[id="edivi__login"] .modal-footer,
+body[data-pin-enabled] .modal-footer {
+    background-color: #222;
+    border-top: none;
+    border-radius: 0;
+    padding: 12px 16px;
+}
+
+/* Close Button */
+body[id="edivi__login"] .btn-close,
+body[data-pin-enabled] .btn-close {
+    filter: invert(1);
+}
+
+/* Buttons innerhalb der Modals */
+body[id="edivi__login"] .modal-footer .btn,
+body[data-pin-enabled] .modal-footer .btn {
+    border-radius: 0;
+    font-size: 1rem;
+    padding: 8px 20px;
+}
+
+body[id="edivi__login"] .modal-footer .btn-secondary,
+body[data-pin-enabled] .modal-footer .btn-secondary {
+    background-color: #474747;
+    border-color: #474747;
+    color: #fff;
+}
+
+body[id="edivi__login"] .modal-footer .btn-secondary:hover,
+body[data-pin-enabled] .modal-footer .btn-secondary:hover {
+    background-color: #5f5f5f;
+    border-color: #5f5f5f;
+}
+
+body[id="edivi__login"] .modal-footer .btn-primary,
+body[data-pin-enabled] .modal-footer .btn-primary {
+    background-color: var(--main-color, #dc3545);
+    border-color: var(--main-color, #dc3545);
+    color: #fff;
+}
+
+body[id="edivi__login"] .modal-footer .btn-primary:hover,
+body[data-pin-enabled] .modal-footer .btn-primary:hover {
+    background-color: var(--main-color-dimmed, #b02a37);
+    border-color: var(--main-color-dimmed, #b02a37);
+}
+
+body[id="edivi__login"] .modal-footer .btn-danger,
+body[data-pin-enabled] .modal-footer .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+body[id="edivi__login"] .modal-footer .btn-danger:hover,
+body[data-pin-enabled] .modal-footer .btn-danger:hover {
+    background-color: #b02a37;
+    border-color: #b02a37;
+}
+
+/* Outline Buttons (z.B. "Mich abmelden") */
+body[id="edivi__login"] .modal-footer .btn-outline-light,
+body[data-pin-enabled] .modal-footer .btn-outline-light {
+    border-radius: 0;
+    font-size: 1rem;
+    padding: 8px 20px;
+}
+
+/* Modal Backdrop */
+body[id="edivi__login"] .modal-backdrop,
+body[data-pin-enabled] .modal-backdrop {
+    background-color: #000;
+}
+
+/* Form Controls innerhalb von Modals */
+body[id="edivi__login"] .modal-body .form-control,
+body[data-pin-enabled] .modal-body .form-control {
+    background-color: #333;
+    border: 1px solid #444;
+    border-radius: 0;
+    color: #fff;
+}
+
+body[id="edivi__login"] .modal-body .form-control:focus,
+body[data-pin-enabled] .modal-body .form-control:focus {
+    background-color: #3a3a3a;
+    border-color: var(--main-color, #dc3545);
+    box-shadow: none;
+    color: #fff;
+}
+
+/* Dialog-Container (für dynamisch erstellte Modals via dialogs.js) */
+body[id="edivi__login"] #intra-dialogs-container .modal-dialog,
+body[data-pin-enabled] #intra-dialogs-container .modal-dialog {
+    /* Inherit all styles above */
+}

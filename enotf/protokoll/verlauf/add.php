@@ -156,7 +156,7 @@ $currentDateTime = date('Y-m-d\TH:i');
     ?>
 </head>
 
-<body data-bs-theme="dark" data-page="verlauf" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" data-page="verlauf" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <div class="container-fluid" id="edivi__container">
         <div class="row h-100">
             <div class="col" id="edivi__content">

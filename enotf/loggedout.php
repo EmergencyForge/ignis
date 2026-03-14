@@ -24,6 +24,56 @@ date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
+$mode = $_GET['mode'] ?? 'all';
+$vehicle = $_SESSION['protfzg'] ?? null;
+$position = $_SESSION['enotf_position'] ?? null;
+$sessionToken = $_SESSION['enotf_session_token'] ?? null;
+
+if ($mode === 'self' && $vehicle && $position && $sessionToken) {
+    // Einzeln abmelden: Eigene Position in der Fahrzeug-Session leeren
+    $posNameCol = $position . 'name';
+    $posQualiCol = $position . 'quali';
+
+    // Session-ID über Token finden
+    $stmt = $pdo->prepare("
+        SELECT m.session_id FROM intra_enotf_session_members m
+        JOIN intra_enotf_sessions s ON s.id = m.session_id
+        WHERE m.session_token = :token AND s.active = 1
+        LIMIT 1
+    ");
+    $stmt->execute([':token' => $sessionToken]);
+    $member = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($member) {
+        $sessionId = $member['session_id'];
+
+        // Position in der Session leeren
+        $updateStmt = $pdo->prepare("UPDATE intra_enotf_sessions SET $posNameCol = NULL, $posQualiCol = NULL WHERE id = :id");
+        $updateStmt->execute([':id' => $sessionId]);
+
+        // Eigenen Member-Eintrag löschen
+        $deleteStmt = $pdo->prepare("DELETE FROM intra_enotf_session_members WHERE session_token = :token");
+        $deleteStmt->execute([':token' => $sessionToken]);
+
+        // Prüfen ob noch Positionen besetzt sind
+        $checkStmt = $pdo->prepare("SELECT fahrername, beifahrername, praktikantname FROM intra_enotf_sessions WHERE id = :id");
+        $checkStmt->execute([':id' => $sessionId]);
+        $remaining = $checkStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (empty($remaining['fahrername']) && empty($remaining['beifahrername']) && empty($remaining['praktikantname'])) {
+            // Letzte Person hat sich abgemeldet → Session deaktivieren
+            $pdo->prepare("UPDATE intra_enotf_sessions SET active = 0 WHERE id = :id")->execute([':id' => $sessionId]);
+        }
+    }
+} else {
+    // Alle abmelden: Gesamte Fahrzeug-Session deaktivieren
+    if ($vehicle) {
+        $pdo->prepare("UPDATE intra_enotf_sessions SET active = 0 WHERE vehicle_identifier = :vehicle AND active = 1")
+            ->execute([':vehicle' => $vehicle]);
+    }
+}
+
+// PHP-Session-Variablen löschen
 unset(
     $_SESSION['fahrername'],
     $_SESSION['fahrerquali'],
@@ -31,7 +81,9 @@ unset(
     $_SESSION['beifahrerquali'],
     $_SESSION['praktikantname'],
     $_SESSION['praktikantquali'],
-    $_SESSION['protfzg']
+    $_SESSION['protfzg'],
+    $_SESSION['enotf_session_token'],
+    $_SESSION['enotf_position']
 );
 
 $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'false';

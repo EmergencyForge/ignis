@@ -120,6 +120,74 @@ parameters:
                 - enotf/print/index.php
             reportUnmatched: false
 
+        # ENOTF_CHAR_LOCK / ENOTF_JOB_FILTER / ENOTF_USE_PIN Konstanten - Defaults sind false,
+        # können aber per Benutzer-Config überschrieben werden
+        -
+            identifier: booleanAnd.alwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: identical.alwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.rightAlwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: if.alwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: nullCoalesce.offset
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: notIdentical.alwaysTrue
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.leftAlwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.rightAlwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: ternary.alwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanNot.alwaysFalse
+            path: enotf/login.php
+            reportUnmatched: false
+
+        # einsatz/login-fahrzeug.php - gleiche optionale Konfigurations-Konstanten
+        -
+            identifier: if.alwaysFalse
+            path: einsatz/login-fahrzeug.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.leftAlwaysFalse
+            path: einsatz/login-fahrzeug.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.rightAlwaysFalse
+            path: einsatz/login-fahrzeug.php
+            reportUnmatched: false
+
         -
             identifier: notIdentical.alwaysFalse
             path: enotf/lockscreen.php
@@ -288,6 +356,12 @@ parameters:
                 - wissensdb/search-api.php
                 - wissensdb/view.php
                 - api/knowledgebase/search.php
+            reportUnmatched: false
+
+        # Conditions-System: Komplexe verschachtelte Arrays mit Closures
+        -
+            identifier: missingType.iterableValue
+            path: assets/functions/enotf/conditions.php
             reportUnmatched: false
 
         # src/ Infrastruktur-Code - komplexe dynamische Arrays und defensive Coding Patterns

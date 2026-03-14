@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rd_type = isset($_POST['rd_type']) ? (int)$_POST['rd_type'] : 0;
     $active = isset($_POST['active']) ? 1 : 0;
     $identifier = trim($_POST['identifier'] ?? '');
+    $allowed_jobs = trim($_POST['allowed_jobs'] ?? '') ?: null;
 
     // Tactical symbol data
     $grundzeichen = trim($_POST['grundzeichen'] ?? '');
@@ -39,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("UPDATE intra_fahrzeuge SET name = :name, kennzeichen = :kennzeichen, veh_type = :veh_type, identifier = :identifier, priority = :priority, rd_type = :rd_type, active = :active, grundzeichen = :grundzeichen, organisation = :organisation, fachaufgabe = :fachaufgabe, einheit = :einheit, symbol = :symbol, typ = :typ, text = :text, tz_name = :tz_name WHERE id = :id");
+        $stmt = $pdo->prepare("UPDATE intra_fahrzeuge SET name = :name, kennzeichen = :kennzeichen, veh_type = :veh_type, identifier = :identifier, priority = :priority, rd_type = :rd_type, allowed_jobs = :allowed_jobs, active = :active, grundzeichen = :grundzeichen, organisation = :organisation, fachaufgabe = :fachaufgabe, einheit = :einheit, symbol = :symbol, typ = :typ, text = :text, tz_name = :tz_name WHERE id = :id");
 
         $stmt->execute([
             ':name' => $name,
@@ -48,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':identifier' => $identifier,
             ':priority' => $priority,
             ':rd_type' => $rd_type,
+            ':allowed_jobs' => $allowed_jobs,
             ':active' => $active,
             ':grundzeichen' => $grundzeichen ?: null,
             ':organisation' => $organisation ?: null,

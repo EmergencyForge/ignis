@@ -19,44 +19,40 @@ while ($row = $statsStmt->fetch(PDO::FETCH_ASSOC)) {
     <div class="col">
         <div class="card my-2 intra__stats-card intra__stats-users">
             <div class="card-body">
-                <h5 class="card-title">Registrierte Benutzer</h5>
-                <p class="card-text display-4">
+                <h5 class="card-title"><i class="fa-solid fa-user-tie"></i> Registrierte Benutzer</h5>
+                <p class="card-text">
                     <?= htmlspecialchars((string)($statsData['users'] ?? 0)) ?>
                 </p>
-                <i class="fa-solid fa-user-tie"></i>
             </div>
         </div>
     </div>
     <div class="col">
         <div class="card my-2 intra__stats-card intra__stats-workers">
             <div class="card-body">
-                <h5 class="card-title">Angelegte Mitarbeiter</h5>
-                <p class="card-text display-4">
+                <h5 class="card-title"><i class="fa-solid fa-users"></i> Angelegte Mitarbeiter</h5>
+                <p class="card-text">
                     <?= htmlspecialchars((string)($statsData['mitarbeiter'] ?? 0)) ?>
                 </p>
-                <i class="fa-solid fa-users"></i>
             </div>
         </div>
     </div>
     <div class="col">
         <div class="card my-2 intra__stats-card intra__stats-enotf">
             <div class="card-body">
-                <h5 class="card-title">eNOTF-Protokolle</h5>
-                <p class="card-text display-4">
+                <h5 class="card-title"><i class="fa-solid fa-house-medical-flag"></i> eNOTF-Protokolle</h5>
+                <p class="card-text">
                     <?= htmlspecialchars((string)($statsData['enotf'] ?? 0)) ?>
                 </p>
-                <i class="fa-solid fa-house-medical-flag"></i>
             </div>
         </div>
     </div>
     <div class="col">
         <div class="card my-2 intra__stats-card intra__stats-documents">
             <div class="card-body">
-                <h5 class="card-title">Erstellte Dokumente</h5>
-                <p class="card-text display-4">
+                <h5 class="card-title"><i class="fa-solid fa-folder-open"></i> Erstellte Dokumente</h5>
+                <p class="card-text">
                     <?= htmlspecialchars((string)($statsData['dokumente'] ?? 0)) ?>
                 </p>
-                <i class="fa-solid fa-folder-open"></i>
             </div>
         </div>
     </div>

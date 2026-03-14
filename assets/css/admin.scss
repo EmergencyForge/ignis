@@ -1,5 +1,17 @@
 :root {
   --stat-bg-color: var(--body-bg-lighter);
+
+  // Unified radius scale
+  --radius-sm: 4px;   // badges, small elements
+  --radius-md: 6px;   // buttons, inputs, row-actions
+  --radius-lg: 8px;   // tiles, cards, sidebar-links
+  --radius-xl: 10px;  // modals, large tiles
+
+  // Font size scale
+  --fs-xs: 0.72rem;   // hints, table-headers, badges
+  --fs-sm: 0.78rem;   // breadcrumbs, labels
+  --fs-base: 0.82rem; // body text, table cells
+  --fs-md: 0.88rem;   // sidebar links, modal titles
 }
 
 // ========================================
@@ -71,7 +83,7 @@ button.btn,
 input.btn,
 a.btn,
 div.btn {
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-weight: 500;
   letter-spacing: 0.01em;
   transition: all 0.15s ease;
@@ -197,7 +209,7 @@ div.btn {
   border: none;
   color: var(--text-normal);
   padding: 0.4rem 0.75rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-weight: 500;
 
   &:hover {
@@ -217,7 +229,7 @@ div.btn {
   border: none;
   color: #c44545;
   padding: 0.4rem 0.75rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-weight: 500;
 
   &:hover {
@@ -345,78 +357,83 @@ div.btn {
 }
 
 // ========================================
-// BADGES
+// BADGES (transparent background style)
 // ========================================
 .badge {
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-weight: 500;
-  font-size: 0.75em;
+  font-size: 0.72em;
   letter-spacing: 0.02em;
-  padding: 0.35em 0.65em;
+  padding: 0.25em 0.55em;
 }
 
-// Softer badge colors for dark theme
+// Transparent badge colors for dark theme
 .badge.bg-success {
   --bs-bg-opacity: 1;
-  background-color: #3a7d44 !important;
+  background-color: rgba(58, 125, 68, 0.2) !important;
+  color: #6abf76 !important;
 }
 .badge.bg-danger {
   --bs-bg-opacity: 1;
-  background-color: #b03a3a !important;
+  background-color: rgba(176, 58, 58, 0.2) !important;
+  color: #d46b6b !important;
 }
 .badge.bg-primary {
   --bs-bg-opacity: 1;
-  background-color: #4a6fa5 !important;
+  background-color: rgba(74, 111, 165, 0.2) !important;
+  color: #7ba3d4 !important;
 }
 .badge.bg-warning {
   --bs-bg-opacity: 1;
-  background-color: #c49a2a !important;
-  color: #fff !important;
+  background-color: rgba(196, 154, 42, 0.2) !important;
+  color: #ddb84a !important;
 }
 .badge.bg-secondary {
   --bs-bg-opacity: 1;
-  background-color: #3d3a44 !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: var(--text-dimmed) !important;
 }
 .badge.bg-dark {
   --bs-bg-opacity: 1;
-  background-color: #2a2830 !important;
-  border: 1px solid #3d3a44;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text-dimmed) !important;
+  border: 1px solid var(--darkgray);
 }
 .badge.bg-info {
   --bs-bg-opacity: 1;
-  background-color: #2a7f8f !important;
-  color: #fff !important;
+  background-color: rgba(42, 127, 143, 0.2) !important;
+  color: #5bb8cc !important;
 }
 
 // text-bg-* overrides (Bootstrap 5.3 combined text+bg helpers)
 .badge.text-bg-success {
-  background-color: #3a7d44 !important;
-  color: #fff !important;
+  background-color: rgba(58, 125, 68, 0.2) !important;
+  color: #6abf76 !important;
 }
 .badge.text-bg-danger {
-  background-color: #b03a3a !important;
-  color: #fff !important;
+  background-color: rgba(176, 58, 58, 0.2) !important;
+  color: #d46b6b !important;
 }
 .badge.text-bg-primary {
-  background-color: #4a6fa5 !important;
-  color: #fff !important;
+  background-color: rgba(74, 111, 165, 0.2) !important;
+  color: #7ba3d4 !important;
 }
 .badge.text-bg-warning {
-  background-color: #c49a2a !important;
-  color: #fff !important;
+  background-color: rgba(196, 154, 42, 0.2) !important;
+  color: #ddb84a !important;
 }
 .badge.text-bg-secondary {
-  background-color: #3d3a44 !important;
-  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: var(--text-dimmed) !important;
 }
 .badge.text-bg-dark {
-  background-color: #2a2830 !important;
-  color: #fff !important;
-  border: 1px solid #3d3a44;
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: var(--text-dimmed) !important;
+  border: 1px solid var(--darkgray);
 }
 .badge.text-bg-info {
-  background-color: #2a7f8f !important;
-  color: #fff !important;
+  background-color: rgba(42, 127, 143, 0.2) !important;
+  color: #5bb8cc !important;
 }
 
 // Status-Dot Badges: pill with colored dot indicator
@@ -476,11 +493,11 @@ div.btn {
   display: inline-flex;
   gap: 2px;
   background: #232128;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 3px;
 
   .btn {
-    border-radius: 7px;
+    border-radius: var(--radius-sm);
     border: none !important;
     font-size: 0.8rem;
     padding: 0.35rem 0.75rem;
@@ -504,7 +521,7 @@ div.btn {
 textarea.form-control,
 input.form-control,
 select.form-select {
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background-color: var(--input-bg);
   color: var(--input-text);
   border-color: var(--darkgray);
@@ -532,7 +549,7 @@ select.form-select {
 }
 
 .modal .modal-content {
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   background-color: #29282f;
   border: 1px solid var(--darkgray);
 }
@@ -583,8 +600,8 @@ select.form-select {
 
 .intra__tile {
   background-color: var(--body-bg-lighter);
-  box-shadow: var(--bs-box-shadow) !important;
-  border-radius: 12px;
+  box-shadow: none !important;
+  border-radius: var(--radius-xl);
   border: 1px solid var(--darkgray) !important;
   padding: 1rem;
 }
@@ -593,12 +610,12 @@ select.form-select {
 .card.bg-dark {
   background-color: var(--body-bg-lighter) !important;
   border: 1px solid var(--darkgray);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
 
   .card-header {
     background: rgba(255, 255, 255, 0.02);
     border-bottom: 1px solid var(--darkgray);
-    border-radius: 12px 12px 0 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   }
 }
 
@@ -762,7 +779,7 @@ select.form-select {
   input {
     background: var(--input-bg);
     border: 1px solid var(--darkgray);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     color: #fff;
     padding: 0.45rem 0.75rem 0.45rem 2.2rem;
     font-size: 0.82rem;
@@ -790,7 +807,7 @@ select.form-select {
   select {
     background: var(--input-bg);
     border: 1px solid var(--darkgray);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     color: #fff;
     padding: 0.4rem 2rem 0.4rem 0.65rem;
     font-size: 0.82rem;
@@ -817,7 +834,7 @@ select.form-select {
   background: transparent;
   border: none;
   color: var(--text-dimmed);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   padding: 0.35rem 0.65rem;
   font-size: 0.8rem;
   font-weight: 500;
@@ -891,7 +908,7 @@ td.dt-empty {
     font-size: 0.7rem;
     font-weight: 400;
     padding: 0.3rem 0.55rem;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     white-space: nowrap;
     pointer-events: none;
     z-index: 10;
@@ -957,7 +974,7 @@ td.dt-empty {
   align-items: center;
   gap: 0.4rem;
   background: rgba(255, 255, 255, 0.04);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 0.35rem 0.6rem;
   font-size: 0.78rem;
   color: var(--text-dimmed);
@@ -993,9 +1010,9 @@ td.dt-empty {
 }
 
 .empty-state-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-xl);
   background: rgba(255, 255, 255, 0.04);
   display: inline-flex;
   align-items: center;
@@ -1026,7 +1043,7 @@ td.dt-empty {
   gap: 0.65rem;
   border: none;
   border-left: 3px solid;
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
   padding: 0.7rem 1rem;
   font-size: 0.85rem;
   margin-bottom: 0.75rem;
@@ -1076,7 +1093,7 @@ td.dt-empty {
 .alert:not(.alert-styled) {
   border: none;
   border-left: 3px solid;
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
   font-size: 0.85rem;
 }
 
@@ -1185,7 +1202,7 @@ td.dt-empty {
 // ========================================
 .styled-details {
   border: 1px solid var(--darkgray);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   margin-bottom: 0.5rem;
   overflow: hidden;
 
@@ -1248,7 +1265,7 @@ td.dt-empty {
 .card-styled {
   background: var(--body-bg-lighter);
   border: 1px solid var(--darkgray);
-  border-radius: 10px;
+  border-radius: var(--radius-xl);
   overflow: hidden;
   margin-bottom: 0.5rem;
 
@@ -1306,7 +1323,7 @@ td.dt-empty {
   gap: 0.6rem;
   background: #29282f;
   border: 1px solid var(--darkgray);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   padding: 0.7rem 1rem;
   font-size: 0.82rem;
   color: var(--text-normal);
@@ -1405,53 +1422,63 @@ td.dt-empty {
 }
 
 // ========================================
-// STATS CARDS
+// STATS CARDS (compact, consistent style)
 // ========================================
 .intra__stats-card {
-  background-color: var(--stat-bg-color) !important;
-  box-shadow: var(--bs-box-shadow) !important;
-  border-radius: 12px !important;
-  border: 0 !important;
+  background-color: var(--body-bg-lighter) !important;
+  border: 1px solid var(--darkgray) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: none !important;
   position: relative;
   overflow: hidden;
 
+  .card-body {
+    padding: 1rem 1.25rem;
+  }
+
   .card-title {
-    font-size: .8rem;
-    text-transform: uppercase;
-    letter-spacing: .05rem;
-    color: rgba(255,255,255,0.85) !important;
-    margin: 0 !important;
+    font-size: var(--fs-sm);
+    color: var(--text-dimmed) !important;
+    margin: 0 0 0.35rem !important;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    i {
+      font-size: 0.7rem;
+      position: static;
+      color: var(--text-dimmed);
+    }
   }
 
   .card-text {
-    font-size: 2.75rem;
-    font-weight: bold;
+    font-size: 1.6rem;
+    font-weight: 600;
     color: var(--white);
     margin: 0 !important;
+    line-height: 1.2;
   }
 
-  i {
-    position: absolute;
-    right: -1.5rem;
-    bottom: -1rem;
-    font-size: 6rem;
-    color: rgba(255, 255, 255, 0.25);
+  .stat-sub {
+    font-size: var(--fs-xs);
+    color: var(--text-dimmed);
+    margin-top: 0.2rem;
   }
 
-  &.intra__stats-users {
-    --stat-bg-color: #D10000;
+  // Decorative background icon: hidden by default now
+  > .card-body > i:last-child:not(.card-title i) {
+    display: none;
   }
 
-  &.intra__stats-workers {
-    --stat-bg-color: #B80000;
-  }
-
-  &.intra__stats-enotf {
-    --stat-bg-color: #8F0000;
-  }
-
+  // Legacy color variants: no longer colored, all use same bg
+  &.intra__stats-users,
+  &.intra__stats-workers,
+  &.intra__stats-enotf,
   &.intra__stats-documents {
-    --stat-bg-color: #660000;
+    --stat-bg-color: var(--body-bg-lighter);
   }
 }
 
@@ -1582,4 +1609,128 @@ td.dt-empty {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   padding: 0.5rem 0;
   flex-shrink: 0;
+}
+
+// ========================================
+// TILE HEADER & FOOTER
+// ========================================
+.tile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+
+  .tile-header-title {
+    font-size: var(--fs-base);
+    font-weight: 500;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+
+    i {
+      color: var(--text-dimmed);
+      font-size: var(--fs-sm);
+    }
+
+    .tile-count {
+      font-weight: 400;
+      color: var(--text-dimmed);
+      font-size: var(--fs-sm);
+    }
+  }
+}
+
+.tile-footer {
+  padding: 0.6rem 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .tile-footer-info {
+    font-size: var(--fs-xs);
+    color: var(--text-dimmed);
+  }
+}
+
+// ========================================
+// SEGMENTED FILTER GROUP
+// ========================================
+.filter-group {
+  display: inline-flex;
+  gap: 2px;
+  background: var(--body-bg-darker);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  border: 1px solid var(--darkgray);
+
+  .filter-btn,
+  .btn {
+    padding: 0.3rem 0.65rem;
+    font-size: 0.75rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-dimmed);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.1s ease;
+
+    &:hover {
+      color: var(--text-normal);
+      transform: none;
+      box-shadow: none;
+    }
+
+    &.active {
+      background: var(--body-bg-lighter);
+      color: #fff;
+    }
+  }
+}
+
+// ========================================
+// UNDERLINE TABS
+// ========================================
+.admin-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--darkgray);
+  margin-bottom: 1.25rem;
+
+  .admin-tab {
+    padding: 0.5rem 0.85rem;
+    font-size: 0.8rem;
+    color: var(--text-dimmed);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.1s ease;
+
+    &:hover {
+      color: var(--text-normal);
+      text-decoration: none;
+    }
+
+    &.active {
+      color: #fff;
+      border-bottom-color: #4a6fa5;
+    }
+  }
+}
+
+// ========================================
+// PAGE HEADER (with subtitle support)
+// ========================================
+.page-header {
+  .page-subtitle {
+    font-size: var(--fs-sm);
+    color: var(--text-dimmed);
+    margin-top: 0.15rem;
+    font-weight: 400;
+  }
 }

@@ -67,32 +67,20 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
 </head>
 
-<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
+    <?php
+    $topbar_left_html = '
+        <a href="' . BASE_PATH . 'enotf/overview.php" class="edivi__iconlink">
+            <i class="fa-solid fa-chevron-left"></i><br>
+            <small>Zurück</small>
+        </a>';
+    $topbar_sync = ['leitstelle', 'session'];
+    $topbar_show_notices = false;
+    include __DIR__ . '/../assets/components/enotf/topbar.php';
+    ?>
     <div class="container-fluid" id="edivi__container">
         <div class="row h-100">
             <div class="col" id="edivi__content">
-                <div class="row border-bottom edivi__header-overview" style="--bs-border-color: #333333">
-                    <div class="col">
-                        <a href="index.php" class="text-decoration-none text-light" style="font-size:1.6rem">
-                            <i class="fa-solid fa-arrow-left"></i> Zurück zur Übersicht
-                        </a>
-                    </div>
-                    <div class="col border-start" style="--bs-border-color: #333333">
-                        <div class="row border-bottom" style="--bs-border-color: #333333">
-                            <div class="col">Angemeldet:</div>
-                        </div>
-                        <div class="row">
-                            <div class="col"><?= $_SESSION['fahrername'] ?></div>
-                            <div class="col border-start" style="--bs-border-color: #333333"><?= $_SESSION['beifahrername'] ?? 'Fehler Fehler' ?></div>
-                            <?php if (!empty($_SESSION['praktikantname'])): ?>
-                                <div class="col border-start" style="--bs-border-color: #333333"><?= $_SESSION['praktikantname'] ?></div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <div class="col-2 border-start" style="padding:0;--bs-border-color: #333333">
-                        <a href="loggedout.php" class="edivi__nidabutton-primary w-100 h-100 d-flex justify-content-center align-content-center">abmelden</a>
-                    </div>
-                </div>
 
                 <div class="hr my-2" style="color:transparent"></div>
 
@@ -480,6 +468,24 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         }
     });
     </script>
+    <!-- Logout Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="logoutModalLabel">Abmelden</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <div class="modal-body">
+                    Wie möchten Sie sich abmelden?
+                </div>
+                <div class="modal-footer">
+                    <a href="loggedout.php?mode=self" class="btn btn-light">Mich abmelden</a>
+                    <a href="loggedout.php?mode=all" class="btn btn-danger">Alle abmelden</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

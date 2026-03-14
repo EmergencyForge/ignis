@@ -29,6 +29,59 @@
             $(this).data('original-value', $(this).val());
         });
 
+        // Nav data-requires dynamisch aus CONDITIONS aktualisieren (global für field_checks.php)
+        window.updateNavRequires = updateNavRequires;
+        function updateNavRequires(tz) {
+            if (typeof CONDITIONS === 'undefined') return;
+            var sectionMap = {1: 'stammdaten', 2: 'erstbefund', 3: 'anamnese', 4: 'diagnose', 6: 'massnahmen', 7: 'abschluss'};
+            var overrides = CONDITIONS.overrides[String(tz)] || [];
+            var additions = CONDITIONS.additions[String(tz)] || {};
+
+            // Pro Section die aktiven DB-Spalten sammeln
+            var sectionDbCols = {};
+            for (var key in CONDITIONS.base) {
+                if (overrides.indexOf(key) !== -1) continue;
+                var rule = CONDITIONS.base[key];
+                var sec = rule.section;
+                if (!sectionDbCols[sec]) sectionDbCols[sec] = [];
+                var dbCols = rule.db || [];
+                for (var i = 0; i < dbCols.length; i++) {
+                    if (sectionDbCols[sec].indexOf(dbCols[i]) === -1) {
+                        sectionDbCols[sec].push(dbCols[i]);
+                    }
+                }
+            }
+            for (var addKey in additions) {
+                var addRule = additions[addKey];
+                var addSec = addRule.section;
+                if (!sectionDbCols[addSec]) sectionDbCols[addSec] = [];
+                var addDb = addRule.db || [];
+                for (var j = 0; j < addDb.length; j++) {
+                    if (sectionDbCols[addSec].indexOf(addDb[j]) === -1) {
+                        sectionDbCols[addSec].push(addDb[j]);
+                    }
+                }
+            }
+
+            // data-requires auf Nav-Links setzen
+            for (var section in sectionMap) {
+                var page = sectionMap[section];
+                var $link = $('#edivi__nidanav a[data-page="' + page + '"]');
+                if ($link.length) {
+                    var cols = sectionDbCols[section] || [];
+                    if (cols.length > 0) {
+                        $link.attr('data-requires', cols.join(','));
+                        $link.removeClass('edivi__nidanav-nocheck');
+                    } else {
+                        $link.removeAttr('data-requires');
+                        $link.removeClass('edivi__nidanav-unfilled edivi__nidanav-partfilled edivi__nidanav-filled');
+                        $link.addClass('edivi__nidanav-nocheck');
+                    }
+                }
+            }
+        }
+
+        window.updateNavFillStates = updateNavFillStates;
         function updateNavFillStates(data) {
             $("#edivi__nidanav a[data-requires]").each(function() {
                 const $link = $(this);
@@ -60,28 +113,61 @@
                     .toggleClass("edivi__nidanav-partfilled", isPartiallyFilled)
                     .toggleClass("edivi__nidanav-unfilled", filledGroups === 0);
             });
+
+            // Nav-Links ohne data-requires → nocheck
+            $("#edivi__nidanav a:not([data-requires])").each(function() {
+                const $link = $(this);
+                $link.removeClass('edivi__nidanav-unfilled edivi__nidanav-partfilled edivi__nidanav-filled');
+            });
         }
 
+        window.validateLinks = validateLinks;
         function validateLinks() {
+            // Aktive DB-Spalten aus Conditions berechnen
+            var activeDbCols = null;
+            if (typeof _enotfGetActiveDbCols === 'function' && typeof _enotfCurrentTransportziel !== 'undefined') {
+                activeDbCols = _enotfGetActiveDbCols(_enotfCurrentTransportziel);
+            }
+
             $("[class*='edivi__interactbutton'] a[data-requires]").each(function() {
                 const $link = $(this);
                 const requirements = $link.data("requires") || $link.attr("data-requires");
-                console.log("Link:", $link.text().trim(), "Requirements:", requirements);
 
                 if (requirements && requirements !== "" && !$link.hasClass("edivi__validation-ignore")) {
-                    const validationResult = validateRequirements(requirements);
+                    // Nur aktive DB-Spalten validieren (wenn Conditions verfügbar)
+                    var filteredReqs = requirements;
+                    if (activeDbCols) {
+                        var groups = requirements.split(',');
+                        var activeGroups = [];
+                        for (var i = 0; i < groups.length; i++) {
+                            var fields = groups[i].split('|');
+                            var anyActive = false;
+                            for (var j = 0; j < fields.length; j++) {
+                                if (activeDbCols[fields[j].trim()]) {
+                                    anyActive = true;
+                                    break;
+                                }
+                            }
+                            if (anyActive) activeGroups.push(groups[i]);
+                        }
+                        filteredReqs = activeGroups.join(',');
+                    }
 
                     $link.removeClass("edivi__validation-green edivi__validation-red edivi__validation-yellow");
 
-                    if (validationResult === true) {
-                        $link.addClass("edivi__validation-green");
-                    } else if (validationResult === 'partial') {
-                        $link.addClass("edivi__validation-yellow");
+                    if (!filteredReqs) {
+                        // Alle Requirements sind durch Conditions deaktiviert → keine Farbe
+                        return;
                     } else {
-                        $link.addClass("edivi__validation-red");
+                        const validationResult = validateRequirements(filteredReqs);
+                        if (validationResult === true) {
+                            $link.addClass("edivi__validation-green");
+                        } else if (validationResult === 'partial') {
+                            $link.addClass("edivi__validation-yellow");
+                        } else {
+                            $link.addClass("edivi__validation-red");
+                        }
                     }
-
-                    console.log("Link validated:", $link.text().trim(), "Status:", validationResult);
                 }
             });
         }
@@ -427,6 +513,13 @@
 
                         window.__dynamicDaten[fieldName] = currentValue;
                         console.log('Updated __dynamicDaten[' + fieldName + ']:', currentValue);
+
+                        // Bei Versorgung-Änderung: komplettes Re-Apply (Conditions + Nav + Groups)
+                        if (fieldName === 'transportziel') {
+                            if (typeof enotfReapplyAll === 'function') {
+                                enotfReapplyAll(currentValue);
+                            }
+                        }
 
                         updateNavFillStates(window.__dynamicDaten);
                         validateLinks();

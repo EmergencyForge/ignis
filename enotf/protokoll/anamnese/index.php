@@ -94,7 +94,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
 </head>
 
-<body data-bs-theme="dark" data-page="anamnese" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" data-page="anamnese" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <?php
     include __DIR__ . '/../../../assets/components/enotf/topbar.php';
     ?>
@@ -166,7 +166,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label class="edivi__description">Initial</label>
-                                                    <input type="text" class="w-100 form-control edivi__input-check" value="<?= $naca_labels[$daten['naca_initial'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="naca_initial_display" class="w-100 form-control edivi__input-check" value="<?= $naca_labels[$daten['naca_initial'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                                 <div class="col">
                                                     <label class="edivi__description">bei Übergabe</label>
@@ -180,12 +180,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <div class="row">
                                 <div class="col-6">
                                     <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/anamnese/3.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
-                                        <h5 class="text-light px-2 py-1">Einsatzort</h5>
+                                        <h5 class="text-light px-2 py-1">Einsatzort <i id="icon-elokation_display" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
                                         <div class="col">
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label class="edivi__description" style="display:none">Einsatzort</label>
-                                                    <input type="text" class="w-100 form-control" value="<?= $elokation_labels[$daten['elokation'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="elokation_display" class="w-100 form-control edivi__input-check" value="<?= $elokation_labels[$daten['elokation'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>

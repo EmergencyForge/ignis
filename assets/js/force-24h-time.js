@@ -40,41 +40,16 @@
   }
 
   /**
-   * Handle input event - format as user types
+   * Handle input event - only filter invalid characters, no auto-formatting
+   * Formatting happens on blur
    */
   function handleInput(e) {
     const input = e.target;
-    let value = input.value.replace(/[^0-9]/g, ""); // Remove non-digits
     const cursorPos = input.selectionStart;
-
-    // Don't process if empty
-    if (value.length === 0) {
-      return;
-    }
-
-    // Limit to 4 digits
-    if (value.length > 4) {
-      value = value.substring(0, 4);
-    }
-
-    // Auto-format as user types
-    let formattedValue = "";
-
-    if (value.length >= 3) {
-      // Has at least HHM - format as HH:MM
-      const hours = value.substring(0, 2);
-      const minutes = value.substring(2, 4);
-      formattedValue = hours + ":" + minutes;
-    } else if (value.length >= 1) {
-      // Just digits, no colon yet
-      formattedValue = value;
-    }
-
-    input.value = formattedValue;
-
-    // Try to maintain cursor position
-    if (cursorPos === 2 && formattedValue.length === 3) {
-      input.setSelectionRange(3, 3); // After colon
+    const cleaned = input.value.replace(/[^0-9:]/g, "");
+    if (cleaned !== input.value) {
+      input.value = cleaned;
+      input.setSelectionRange(cursorPos, cursorPos);
     }
   }
 

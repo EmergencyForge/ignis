@@ -128,6 +128,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                                             'identifier' => $row['identifier'],
                                             'rd_type' => $row['rd_type'],
                                             'active' => $row['active'],
+                                            'allowed_jobs' => $row['allowed_jobs'] ?? '',
                                             'tz-grundzeichen' => $row['grundzeichen'] ?? '',
                                             'tz-organisation' => $row['organisation'] ?? '',
                                             'tz-fachaufgabe' => $row['fachaufgabe'] ?? '',
@@ -224,9 +225,14 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                                 </select>
                             </div>
 
-                            <div class="form-check">
+                            <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" name="active" id="fahrzeug-active">
                                 <label class="form-check-label" for="fahrzeug-active">Aktiv?</label>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="fahrzeug-allowed_jobs" class="form-label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
+                                <input type="text" class="form-control" name="allowed_jobs" id="fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
                             </div>
 
                             <?php
@@ -302,9 +308,14 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                                 </select>
                             </div>
 
-                            <div class="form-check">
+                            <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" name="active" id="new-fahrzeug-active" checked>
                                 <label class="form-check-label" for="new-fahrzeug-active">Aktiv?</label>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="new-fahrzeug-allowed_jobs" class="form-label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
+                                <input type="text" class="form-control" name="allowed_jobs" id="new-fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
                             </div>
 
                             <?php
@@ -382,6 +393,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                     document.getElementById('fahrzeug-identifier').value = this.dataset.identifier;
                     document.getElementById('fahrzeug-rd_type').value = this.dataset.rd_type || '0';
                     document.getElementById('fahrzeug-active').checked = this.dataset.active == 1;
+                    document.getElementById('fahrzeug-allowed_jobs').value = this.dataset.allowed_jobs || '';
 
                     // Reset preview first
                     const previewContainer = document.getElementById('fahrzeug-tz-preview');
@@ -435,6 +447,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                     document.getElementById('new-fahrzeug-identifier').value = this.dataset.identifier + '(1)';
                     document.getElementById('new-fahrzeug-rd_type').value = this.dataset.rd_type || '0';
                     document.getElementById('new-fahrzeug-active').checked = this.dataset.active == 1;
+                    document.getElementById('new-fahrzeug-allowed_jobs').value = this.dataset.allowed_jobs || '';
 
                     // Copy tactical symbol data
                     document.getElementById('new-fahrzeug-grundzeichen').value = this.dataset.tzGrundzeichen || '';

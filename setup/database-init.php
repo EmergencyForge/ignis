@@ -460,6 +460,16 @@ $migrationFiles = [
 
     // 09.03.2026 - Fahrzeug Defekt-Meldungen
     ['file' => 'create_intra_fahrzeuge_defects_09032026.php', 'type' => 'create'],
+
+    // 11.03.2026 - eNOTF Sessions (Multi-User Synchronisation)
+    ['file' => 'create_intra_enotf_sessions_11032026.php', 'type' => 'create', 'tables' => ['intra_enotf_sessions', 'intra_enotf_session_members']],
+
+    // 12.03.2026 - Sonderrechte
+    ['file' => 'alter_intra_edivi_12032026_sonderrechte.php', 'type' => 'alter'],
+
+    // 13.03.2026 - Charakter-basierte Fahrzeugzugriffskontrolle
+    ['file' => 'alter_intra_fahrzeuge_13032026_allowed_jobs.php', 'type' => 'alter'],
+    ['file' => 'insert_config_13032026_enotf_char_control.php', 'type' => 'insert'],
 ];
 
 $executed = 0;

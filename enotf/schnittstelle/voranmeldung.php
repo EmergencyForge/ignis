@@ -59,7 +59,7 @@ $defaultUrl = BASE_PATH . "enotf/protokoll/index.php?enr=" . $daten['enr'];
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
-$currentDate = date('d.m.Y');
+$currentDate = date('Y-m-d');
 
 // LOGGING: Prüfe ob POST-Request
 $logFile = __DIR__ . '/php_errors.log';
@@ -93,7 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
 
     if ($allFilled) {
         file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Alle Pflichtfelder gefüllt, führe INSERT aus...\n", FILE_APPEND);
-        $arrivalDateTime = $_POST['arrival_date'] . ' ' . $_POST['arrival_time'] . ':00';
+        // Datum normalisieren: DD.MM.YYYY → YYYY-MM-DD (falls Browser kein natives date-input hat)
+        $rawDate = $_POST['arrival_date'];
+        if (preg_match('/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/', $rawDate, $m)) {
+            $rawDate = $m[3] . '-' . str_pad($m[2], 2, '0', STR_PAD_LEFT) . '-' . str_pad($m[1], 2, '0', STR_PAD_LEFT);
+        }
+        $arrivalDateTime = $rawDate . ' ' . $_POST['arrival_time'] . ':00';
         $stmt = $pdo->prepare("
             INSERT INTO intra_edivi_prereg (
                 priority,
@@ -127,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
             'arrival' => $arrivalDateTime,
             'fahrzeug' => $_POST['fahrzeug'],
             'diagnose' => $_POST['diagnose'],
-            'geschlecht' => $daten['patsex'] ?? 9,
+            'geschlecht' => (isset($daten['patsex']) && in_array($daten['patsex'], [0, 1, 2], false)) ? $daten['patsex'] : 9,
             'alter' => $_POST['_AGE_'] ?? NULL,
             'text' => $_POST['text'] ?? NULL,
             'kreislauf' => $_POST['kreislauf'],
@@ -466,7 +471,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
 </head>
 
-<body data-bs-theme="dark" style="overflow-x:hidden" data-pin-enabled="<?= $pinEnabled ?>">
+<body data-bs-theme="dark" style="overflow-x:hidden" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="container-fluid" id="edivi__container">
@@ -557,10 +562,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <label for="geschlecht" class="edivi__description">Geschlecht</label>
                                             <select name="geschlecht" id="geschlecht" class="w-100 form-select" readonly autocomplete="off" data-custom-dropdown="true">
                                                 <option disabled hidden selected>---</option>
-                                                <option value="0" <?php echo ($daten['patsex'] == 0 ? 'selected' : '') ?>>männlich</option>
+                                                <option value="0" <?php echo (isset($daten['patsex']) && $daten['patsex'] == 0 ? 'selected' : '') ?>>männlich</option>
                                                 <option value="1" <?php echo ($daten['patsex'] == 1 ? 'selected' : '') ?>>weiblich</option>
                                                 <option value="2" <?php echo ($daten['patsex'] == 2 ? 'selected' : '') ?>>divers</option>
-                                                <option value="9" <?php echo (!isset($daten['patsex']) || $daten['patsex'] === null || $daten['patsex'] === '' ? 'selected' : '') ?>>unbekannt</option>
                                             </select>
                                         </div>
                                         <div class="col">
