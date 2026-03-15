@@ -1,4 +1,4 @@
-<div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999;"></div>
+<div id="toast-container"></div>
 <script>
     $(document).ready(function() {
         const enr = <?= json_encode($enr) ?>;
@@ -230,28 +230,88 @@
         validateLinks();
 
         function showToast(message, type = 'success') {
-            var bgColor = (type === 'success') ? '#28a745' : '#dc3545';
-            var toast = $('<div></div>').text(message).css({
-                'border-left': '4px solid ' + bgColor,
-                'background-color': '#333',
-                'color': '#fff',
-                'padding': '10px 20px',
-                'margin-top': '10px',
-                'border-radius': '0',
-                'box-shadow': '0 2px 6px rgba(0, 0, 0, 0.2)',
-                'font-family': 'Arial, sans-serif',
-                'font-size': '14px',
-                'opacity': '0.95'
+            var timeouts = { success: 1500, error: 8000, warning: 5000, info: 4000 };
+            var timeout = timeouts[type] || 4000;
+
+            var $container = $('#toast-container');
+            while ($container.children().length >= 5) {
+                var $oldest = $container.children().first();
+                $oldest.remove();
+            }
+
+            var $toast = $('<div class="enotf-toast enotf-toast--' + type + '">' +
+                '<span class="enotf-toast__dot"></span>' +
+                '<span class="enotf-toast__text"></span>' +
+                '<span class="enotf-toast__close"><i class="fa-solid fa-xmark"></i></span>' +
+            '</div>');
+
+            $toast.find('.enotf-toast__text').text(message);
+
+            $toast.find('.enotf-toast__close').on('click', function() {
+                dismissToast($toast);
             });
-            $('#toast-container').append(toast);
-            setTimeout(function() {
-                toast.fadeOut(500, function() {
-                    $(this).remove();
+
+            $container.append($toast);
+
+            if (timeout > 0) {
+                var timerId = setTimeout(function() { dismissToast($toast); }, timeout);
+                $toast.data('timer', timerId);
+
+                $toast.on('mouseenter', function() {
+                    clearTimeout($toast.data('timer'));
                 });
-            }, 4000);
+                $toast.on('mouseleave', function() {
+                    $toast.data('timer', setTimeout(function() { dismissToast($toast); }, timeout));
+                });
+            }
+        }
+
+        function dismissToast($toast) {
+            if ($toast.hasClass('enotf-toast--leaving')) return;
+            $toast.addClass('enotf-toast--leaving');
+            setTimeout(function() { $toast.remove(); }, 200);
         }
 
         window.showToast = showToast;
+
+        // Toast-Queue fuer Batching (Quick-Fill etc.)
+        var ToastQueue = {
+            pending: [],
+            timer: null,
+            batchDelay: 500,
+
+            add: function(message, type) {
+                type = type || 'success';
+                this.pending.push({ message: message, type: type });
+                if (this.timer) clearTimeout(this.timer);
+                this.timer = setTimeout(function() { ToastQueue.flush(); }, this.batchDelay);
+            },
+
+            flush: function() {
+                var grouped = {};
+                this.pending.forEach(function(item) {
+                    if (!grouped[item.type]) grouped[item.type] = [];
+                    grouped[item.type].push(item.message);
+                });
+
+                Object.keys(grouped).forEach(function(type) {
+                    var messages = grouped[type];
+                    if (messages.length === 1) {
+                        showToast(messages[0], type);
+                    } else {
+                        var summary = type === 'success'
+                            ? messages.length + ' Felder gespeichert'
+                            : messages.length + ' Fehler aufgetreten';
+                        showToast(summary, type);
+                    }
+                });
+
+                this.pending = [];
+                this.timer = null;
+            }
+        };
+
+        window.ToastQueue = ToastQueue;
 
         const exclusiveValues = [1, 98, 99];
 
@@ -289,7 +349,7 @@
                     value: jsonValue
                 },
                 success: function(response) {
-                    showToast("✔️ 'Psychischer Zustand' gespeichert.", 'success');
+                    showToast("Feld gespeichert", 'success');
 
                     window.__dynamicDaten['psych'] = jsonValue;
                     updateNavFillStates(window.__dynamicDaten);
@@ -298,7 +358,7 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('Error saving psych field:', xhr.responseText);
-                    showToast("❌ Fehler beim Speichern: " + (xhr.responseText || error), 'error');
+                    showToast("Fehler beim Speichern", 'error');
                 }
             });
         });
@@ -335,7 +395,7 @@
                     value: jsonValue
                 },
                 success: function(response) {
-                    showToast("✔️ 'Einsatzverlauf Besonderheiten' gespeichert.", 'success');
+                    showToast("Feld gespeichert", 'success');
 
                     window.__dynamicDaten['ebesonderheiten'] = jsonValue;
                     updateNavFillStates(window.__dynamicDaten);
@@ -344,7 +404,7 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('Error saving ebesonderheiten field:', xhr.responseText);
-                    showToast("❌ Fehler beim Speichern: " + (xhr.responseText || error), 'error');
+                    showToast("Fehler beim Speichern", 'error');
                 }
             });
         });
@@ -381,7 +441,7 @@
                     value: jsonValue
                 },
                 success: function(response) {
-                    showToast("✔️ 'Rettungstechnik' gespeichert.", 'success');
+                    showToast("Feld gespeichert", 'success');
 
                     window.__dynamicDaten['rettungstechnik'] = jsonValue;
                     updateNavFillStates(window.__dynamicDaten);
@@ -390,7 +450,7 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('Error saving rettungstechnik field:', xhr.responseText);
-                    showToast("❌ Fehler beim Speichern: " + (xhr.responseText || error), 'error');
+                    showToast("Fehler beim Speichern", 'error');
                 }
             });
         });
@@ -487,15 +547,6 @@
             if (!activeRequests[fieldName]) {
                 activeRequests[fieldName] = true;
 
-                let labelText = $('label[for="' + $this.attr('id') + '"]').text().trim();
-                if (!labelText) {
-                    const firstInput = $('input[name="' + fieldName + '"]').first();
-                    labelText = $('label[for="' + firstInput.attr('id') + '"]').text().trim();
-                }
-                if (!labelText) {
-                    labelText = fieldName;
-                }
-
                 console.log('Saving field:', fieldName, 'value:', currentValue);
 
                 $.ajax({
@@ -507,7 +558,7 @@
                         value: currentValue
                     },
                     success: function(response) {
-                        showToast("✔️ '" + labelText + "' gespeichert.", 'success');
+                        showToast("Feld gespeichert", 'success');
 
                         $('input[name="' + fieldName + '"]').data('original-value', currentValue);
 
@@ -526,7 +577,7 @@
                         updateQuickFillCheckboxes();
                     },
                     error: function() {
-                        showToast("❌ Fehler beim Speichern von '" + labelText + "'", 'error');
+                        showToast("Fehler beim Speichern", 'error');
                     },
                     complete: function() {
                         activeRequests[fieldName] = false;
@@ -546,13 +597,13 @@
 
             const plausibilityContent = document.getElementById('plausibility');
             if (plausibilityContent && plausibilityContent.innerText.trim().length > 0) {
-                showToast("❌ Abschluss nicht möglich: Plausibilitätsprüfung nicht bestanden!", 'error');
+                showToast("Abschluss nicht möglich: Plausibilitätsprüfung nicht bestanden", 'error');
                 return;
             }
 
             const pfname = <?= json_encode($daten['pfname']) ?>;
             if (!pfname || pfname.trim() === "") {
-                showToast("❌ Kein Protokollant angegeben!", 'error');
+                showToast("Kein Protokollant angegeben", 'error');
                 return;
             }
 
@@ -570,12 +621,12 @@
                     if (response.includes("erfolgreich")) {
                         window.location.href = "<?= BASE_PATH ?>enotf/protokoll/index.php?enr=" + enr;
                     } else {
-                        showToast("❌ " + response, 'error');
+                        showToast(response, 'error');
                         $('#final').prop('disabled', false);
                     }
                 },
                 error: function() {
-                    showToast("❌ Fehler beim Abschließen.", 'error');
+                    showToast("Fehler beim Abschließen", 'error');
                     $('#final').prop('disabled', false);
                 }
             });
@@ -691,7 +742,7 @@
                     });
 
                     if (fieldsToSave.length === 0) {
-                        showToast("✔️ Alle Felder bereits korrekt gesetzt.", 'success');
+                        showToast("Alle Felder bereits korrekt gesetzt", 'success');
                         return;
                     }
 
@@ -727,7 +778,7 @@
 
                     $.when.apply($, savePromises)
                         .done(function() {
-                            showToast("✔️ '" + labelText + "' - Alle Felder gespeichert (" + fieldsToSave.length + ").", 'success');
+                            showToast(fieldsToSave.length + " Felder gespeichert", 'success');
 
                             updateNavFillStates(window.__dynamicDaten);
                             validateLinks();
@@ -741,7 +792,7 @@
                             updateQuickFillCheckboxes();
                         })
                         .fail(function(xhr) {
-                            showToast("❌ Fehler beim Speichern: " + (xhr.responseText || 'Unbekannter Fehler'), 'error');
+                            showToast("Fehler beim Speichern", 'error');
                             $checkbox.prop('checked', false);
                         });
 
@@ -751,7 +802,7 @@
 
             } catch (e) {
                 console.error('Error in quickfill handler:', e);
-                showToast("❌ Fehler beim Verarbeiten der Quick-Fill Daten", 'error');
+                showToast("Fehler beim Verarbeiten der Quick-Fill Daten", 'error');
                 $checkbox.prop('checked', false);
             }
         });

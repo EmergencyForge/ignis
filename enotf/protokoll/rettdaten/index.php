@@ -479,12 +479,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         value: combined
                                     },
                                     success: function(response) {
-                                        showToast("✔️ '" + feld + "' gespeichert.", 'success');
+                                        showToast("Feld gespeichert", 'success');
                                         window.__dynamicDaten[feld] = combined;
                                         updateIcon(feld, true);
                                     },
                                     error: function() {
-                                        showToast("❌ Fehler beim Speichern von '" + feld + "'", 'error');
+                                        showToast("Fehler beim Speichern von '" + feld + "'", 'error');
                                     }
                                 });
                             } else {

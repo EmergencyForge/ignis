@@ -251,7 +251,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     response.trim().toLowerCase().startsWith('<html')) {
                                     console.error('Fehler: Server hat HTML zurückgegeben');
                                     if (typeof showToast === 'function') {
-                                        showToast('❌ Fehler beim Speichern der Diagnosen', 'error');
+                                        showToast('Fehler beim Speichern der Diagnosen', 'error');
                                     }
                                 } else {
                                     console.log('✓ Erfolgreich gespeichert:', response);
@@ -263,8 +263,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         const count = currentPageValues.length;
                                         const totalCount = finalValues.length;
                                         const message = count === 0 ?
-                                            `✔️ Diagnosen dieser Kategorie zurückgesetzt (${totalCount} gesamt)` :
-                                            `✔️ ${count} ${count === 1 ? 'Diagnose' : 'Diagnosen'} dieser Kategorie (${totalCount} gesamt)`;
+                                            `Diagnosen dieser Kategorie zurückgesetzt (${totalCount} gesamt)` :
+                                            `${count} ${count === 1 ? 'Diagnose' : 'Diagnosen'} dieser Kategorie (${totalCount} gesamt)`;
                                         showToast(message, 'success');
                                     }
 
@@ -279,7 +279,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 console.error('  Status:', xhr.status);
                                 console.error('  Response:', xhr.responseText.substring(0, 500));
                                 if (typeof showToast === 'function') {
-                                    showToast('❌ Fehler beim Speichern der Diagnosen', 'error');
+                                    showToast('Fehler beim Speichern der Diagnosen', 'error');
                                 }
                             }
                         });

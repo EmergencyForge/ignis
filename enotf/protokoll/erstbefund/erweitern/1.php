@@ -503,13 +503,13 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
                 type: 'POST',
                 data: ajaxData,
                 success: function() {
-                    if (window.showToast) window.showToast("✔️ '" + label + "' gespeichert.", 'success');
+                    if (window.showToast) window.showToast("Feld gespeichert", 'success');
                     var h = document.querySelector('input[type="hidden"][name="' + field + '"]');
                     if (h) h.value = clearNull ? '' : value;
                     if (window.__dynamicDaten) window.__dynamicDaten[field] = clearNull ? null : value;
                 },
                 error: function() {
-                    if (window.showToast) window.showToast("❌ Fehler beim Speichern von '" + label + "'", 'error');
+                    if (window.showToast) window.showToast("Fehler beim Speichern von '" + label + "'", 'error');
                 }
             });
         }
