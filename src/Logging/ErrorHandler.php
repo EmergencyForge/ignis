@@ -67,7 +67,11 @@ class ErrorHandler
      */
     public static function handleException(Throwable $exception): void
     {
+        // Generate unique error ID for tracking
+        $errorId = self::generateErrorId();
+
         $context = [
+            'error_id' => $errorId,
             'exception' => get_class($exception),
             'file' => $exception->getFile(),
             'line' => $exception->getLine(),
@@ -75,13 +79,14 @@ class ErrorHandler
             'trace' => $exception->getTraceAsString(),
         ];
 
-        // Log the exception with full context
-        Logger::critical("Uncaught Exception: {$exception->getMessage()}", $context);
+        // Log the exception with full context and error ID
+        Logger::critical("Uncaught Exception [{$errorId}]: {$exception->getMessage()}", $context);
 
         // Log previous exceptions in the chain
         $previous = $exception->getPrevious();
         while ($previous !== null) {
-            Logger::error("Caused by: {$previous->getMessage()}", [
+            Logger::error("Caused by [{$errorId}]: {$previous->getMessage()}", [
+                'error_id' => $errorId,
                 'exception' => get_class($previous),
                 'file' => $previous->getFile(),
                 'line' => $previous->getLine(),
@@ -95,9 +100,9 @@ class ErrorHandler
         }
 
         if (self::isApiRequest()) {
-            self::renderJsonError($exception);
+            self::renderJsonError($exception, $errorId);
         } elseif (php_sapi_name() !== 'cli') {
-            self::renderHtmlError($exception);
+            self::renderHtmlError($exception, errorId: $errorId);
         }
     }
 
@@ -118,7 +123,10 @@ class ErrorHandler
             return;
         }
 
-        Logger::critical("[PHP Fatal] {$error['message']}", [
+        $errorId = self::generateErrorId();
+
+        Logger::critical("[PHP Fatal] [{$errorId}] {$error['message']}", [
+            'error_id' => $errorId,
             'file' => $error['file'],
             'line' => $error['line'],
             'type' => $error['type'],
@@ -135,9 +143,10 @@ class ErrorHandler
                 'error' => self::isDevelopment()
                     ? $error['message']
                     : 'Ein interner Serverfehler ist aufgetreten.',
+                'error_id' => $errorId,
             ]);
         } elseif (php_sapi_name() !== 'cli') {
-            self::renderHtmlError(null, $error['message']);
+            self::renderHtmlError(null, $error['message'], $errorId);
         }
     }
 
@@ -189,9 +198,17 @@ class ErrorHandler
     }
 
     /**
+     * Generate a unique, short error ID for tracking
+     */
+    private static function generateErrorId(): string
+    {
+        return strtoupper(substr(bin2hex(random_bytes(4)), 0, 8));
+    }
+
+    /**
      * Render JSON error for API requests
      */
-    private static function renderJsonError(Throwable $exception): void
+    private static function renderJsonError(Throwable $exception, string $errorId = ''): void
     {
         if (!headers_sent()) {
             header('Content-Type: application/json');
@@ -202,6 +219,7 @@ class ErrorHandler
             'error' => self::isDevelopment()
                 ? $exception->getMessage()
                 : 'Ein interner Serverfehler ist aufgetreten.',
+            'error_id' => $errorId,
         ];
 
         if (self::isDevelopment()) {
@@ -219,7 +237,7 @@ class ErrorHandler
     /**
      * Render HTML error page for browser requests
      */
-    private static function renderHtmlError(?Throwable $exception, ?string $message = null): void
+    private static function renderHtmlError(?Throwable $exception, ?string $message = null, string $errorId = ''): void
     {
         $errorMessage = $message ?? ($exception ? $exception->getMessage() : 'Unbekannter Fehler');
         $isDev = self::isDevelopment();
@@ -247,6 +265,10 @@ class ErrorHandler
                 echo '<pre>' . htmlspecialchars($exception->getTraceAsString()) . '</pre>';
             }
         } else {
+            if ($errorId) {
+                echo '<p style="font-family:monospace;background:#0f3460;padding:0.5rem 1rem;border-radius:6px;display:inline-block">Fehlercode: <strong>' . htmlspecialchars($errorId) . '</strong></p>';
+                echo '<p style="font-size:0.85rem;color:#999">Bitte teilen Sie diesen Code dem Administrator mit.</p>';
+            }
             echo '<p>Bitte versuchen Sie es später erneut oder kontaktieren Sie den Administrator.</p>';
         }
 

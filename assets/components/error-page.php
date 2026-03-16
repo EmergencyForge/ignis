@@ -352,6 +352,30 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
         }
         .err-btn-ghost:hover { background: rgba(255,255,255,0.06); color: #fff; transform: none; box-shadow: none; }
 
+        /* Error ID box */
+        .err-error-id-box {
+            background: var(--body-bg-darker);
+            border: 1px dashed var(--darkgray);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+        }
+        .err-error-id-label {
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--text-dimmed);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.35rem;
+        }
+        .err-error-id-value {
+            font-family: var(--font-mono);
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-title);
+            letter-spacing: 0.12em;
+            user-select: all;
+        }
+
         /* Production card */
         .err-prod-card {
             max-width: 520px;
@@ -388,31 +412,32 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
 <body>
     <div class="err-header">
         <div class="container">
-            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                <span class="err-badge err-badge-danger">500</span>
-                <span class="err-badge err-badge-primary"><?= htmlspecialchars($requestMethod) ?></span>
-                <?php if ($isDev): ?>
-                    <span class="err-badge err-badge-warning">UNHANDLED</span>
-                <?php endif; ?>
-                <span class="err-badge err-badge-dark">intraRP <?= htmlspecialchars($appVersion) ?></span>
-                <span class="err-badge err-badge-secondary">PHP <?= htmlspecialchars($phpVersion) ?></span>
-                <?php if ($isDev && $exceptionCode): ?>
-                    <span class="err-badge err-badge-danger">CODE <?= htmlspecialchars((string)$exceptionCode) ?></span>
-                <?php endif; ?>
-            </div>
-
-            <div class="err-exception-name"><?= htmlspecialchars(_err_classBasename($exceptionClass)) ?></div>
             <?php if ($isDev): ?>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                    <span class="err-badge err-badge-danger">500</span>
+                    <span class="err-badge err-badge-primary"><?= htmlspecialchars($requestMethod) ?></span>
+                    <span class="err-badge err-badge-warning">UNHANDLED</span>
+                    <span class="err-badge err-badge-dark">intraRP <?= htmlspecialchars($appVersion) ?></span>
+                    <span class="err-badge err-badge-secondary">PHP <?= htmlspecialchars($phpVersion) ?></span>
+                    <?php if ($exceptionCode): ?>
+                        <span class="err-badge err-badge-danger">CODE <?= htmlspecialchars((string)$exceptionCode) ?></span>
+                    <?php endif; ?>
+                </div>
+                <div class="err-exception-name"><?= htmlspecialchars(_err_classBasename($exceptionClass)) ?></div>
                 <div class="err-exception-fqcn"><?= htmlspecialchars($exceptionClass) ?></div>
                 <div class="err-message"><?= htmlspecialchars($errorMessage) ?></div>
+                <div class="err-url-bar">
+                    <span class="err-badge err-badge-danger" style="font-size:0.7em"><?= htmlspecialchars($requestMethod) ?></span>
+                    <?= htmlspecialchars($requestUrl) ?>
+                </div>
             <?php else: ?>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                    <span class="err-badge err-badge-danger">500</span>
+                    <span class="err-badge err-badge-dark">intraRP <?= htmlspecialchars($appVersion) ?></span>
+                </div>
+                <div class="err-exception-name">Serverfehler</div>
                 <div class="err-message">Es ist ein interner Fehler aufgetreten.</div>
             <?php endif; ?>
-
-            <div class="err-url-bar">
-                <span class="err-badge err-badge-danger" style="font-size:0.7em"><?= htmlspecialchars($requestMethod) ?></span>
-                <?= htmlspecialchars($requestUrl) ?>
-            </div>
         </div>
     </div>
 
@@ -426,15 +451,21 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                 </div>
                 <h5 class="text-white mb-2">Ein unerwarteter Fehler ist aufgetreten</h5>
                 <p class="text-muted mb-4" style="font-size:0.88rem;">
-                    Der Fehler wurde automatisch protokolliert. Bitte versuchen Sie es später erneut
-                    oder kontaktieren Sie den Administrator.
+                    Der Fehler wurde automatisch protokolliert. Bitte teilen Sie den untenstehenden
+                    Fehlercode dem Administrator mit, damit der Fehler identifiziert werden kann.
                 </p>
 
-                <div class="err-prod-meta mb-4">
-                    <div class="err-prod-row">
-                        <span class="err-prod-label">Fehlertyp</span>
-                        <span class="err-prod-value"><?= htmlspecialchars(_err_classBasename($exceptionClass)) ?></span>
+                <?php if (!empty($errorId)): ?>
+                    <div class="err-error-id-box mb-4">
+                        <div class="err-error-id-label">Fehlercode</div>
+                        <div class="err-error-id-value" id="errorIdValue"><?= htmlspecialchars($errorId) ?></div>
+                        <button class="err-btn-ghost" onclick="copyErrorId()" id="copyIdBtn" style="margin-top: 0.5rem">
+                            <i class="fa-regular fa-copy"></i> Fehlercode kopieren
+                        </button>
                     </div>
+                <?php endif; ?>
+
+                <div class="err-prod-meta mb-4">
                     <div class="err-prod-row">
                         <span class="err-prod-label">Zeitpunkt</span>
                         <span class="err-prod-value"><?= date('d.m.Y H:i:s') ?></span>
@@ -666,6 +697,20 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
         </div>
     <?php endif; ?>
     </div>
+
+    <?php if (!$isDev && !empty($errorId)): ?>
+    <script>
+        function copyErrorId() {
+            const id = document.getElementById('errorIdValue').textContent;
+            navigator.clipboard.writeText(id).then(() => {
+                const btn = document.getElementById('copyIdBtn');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Kopiert!';
+                setTimeout(() => btn.innerHTML = orig, 1500);
+            });
+        }
+    </script>
+    <?php endif; ?>
 
     <?php if ($isDev): ?>
     <script>
