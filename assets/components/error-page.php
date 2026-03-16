@@ -32,6 +32,7 @@ foreach ($_SERVER as $key => $value) {
 }
 
 if (!function_exists('_err_readSource')) {
+    /** @return array<int, string> */
     function _err_readSource(string $file, int $line, int $padding = 8): array {
         if (!is_file($file) || !is_readable($file)) return [];
         $lines = @file($file);
