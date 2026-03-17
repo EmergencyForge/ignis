@@ -470,6 +470,12 @@ $migrationFiles = [
     // 13.03.2026 - Charakter-basierte Fahrzeugzugriffskontrolle
     ['file' => 'alter_intra_fahrzeuge_13032026_allowed_jobs.php', 'type' => 'alter'],
     ['file' => 'insert_config_13032026_enotf_char_control.php', 'type' => 'insert'],
+
+    // 17.03.2026 - Visueller Dokument-Template-Editor
+    ['file' => 'alter_intra_dokument_templates_17032026.php', 'type' => 'alter'],
+    ['file' => 'create_intra_dokument_template_layouts_17032026.php', 'type' => 'create'],
+    ['file' => 'create_intra_dokument_template_assets_17032026.php', 'type' => 'create'],
+    ['file' => 'migrate_twig_to_visual_17032026.php', 'type' => 'data'],
 ];
 
 $executed = 0;

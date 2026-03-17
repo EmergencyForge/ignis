@@ -36,7 +36,8 @@ try {
             'category' => $input['category'] ?? null,
             'category_id' => $input['category_id'] ?? null,
             'description' => $input['description'] ?? null,
-            'template_file' => $input['template_file'] ?? null
+            'template_file' => $input['template_file'] ?? null,
+            'editor_type' => $input['editor_type'] ?? 'visual',
         ]);
 
         // Lösche alte Felder
@@ -53,7 +54,8 @@ try {
             'category' => $input['category'] ?? null,
             'category_id' => $input['category_id'] ?? null,
             'description' => $input['description'] ?? null,
-            'template_file' => $templateFile
+            'template_file' => $templateFile,
+            'editor_type' => $input['editor_type'] ?? 'visual',
         ]);
     }
 
@@ -96,7 +98,7 @@ try {
         'template_created' => $templateCreated,
         'fields_changed' => $fieldsChanged && !$templateCreated
     ]);
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     Flash::error($e->getMessage());
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
