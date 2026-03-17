@@ -18,26 +18,57 @@ class DocumentTemplateManager
      */
     public function createTemplate(array $data): int
     {
-        $stmt = $this->pdo->prepare("
-            INSERT INTO intra_dokument_templates
-            (name, category, category_id, description, template_file, created_by)
-            VALUES (:name, :category, :category_id, :description, :template_file, :created_by)
-        ");
-
         // category_id aus der neuen Kategorien-Tabelle, category als ENUM-Fallback
         $categoryId = $data['category_id'] ?? null;
         $category = $data['category'] ?? $this->resolveCategoryEnum($categoryId);
 
-        $stmt->execute([
+        $params = [
             'name' => $data['name'],
             'category' => $category,
             'category_id' => $categoryId,
             'description' => $data['description'] ?? null,
             'template_file' => $data['template_file'] ?? null,
             'created_by' => $_SESSION['user_id'] ?? null
-        ]);
+        ];
+
+        if ($this->hasEditorTypeColumn()) {
+            $sql = "INSERT INTO intra_dokument_templates
+                (name, category, category_id, description, template_file, editor_type, created_by)
+                VALUES (:name, :category, :category_id, :description, :template_file, :editor_type, :created_by)";
+            $params['editor_type'] = $data['editor_type'] ?? 'visual';
+        } else {
+            $sql = "INSERT INTO intra_dokument_templates
+                (name, category, category_id, description, template_file, created_by)
+                VALUES (:name, :category, :category_id, :description, :template_file, :created_by)";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
 
         return (int) $this->pdo->lastInsertId();
+    }
+
+    /**
+     * Prüft ob die editor_type-Spalte existiert (Abwärtskompatibilität)
+     */
+    private function hasEditorTypeColumn(): bool
+    {
+        static $hasColumn = null;
+        if ($hasColumn !== null) return $hasColumn;
+
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = 'intra_dokument_templates'
+                AND COLUMN_NAME = 'editor_type'
+            ");
+            $stmt->execute();
+            $hasColumn = (bool) $stmt->fetchColumn();
+        } catch (\PDOException $e) {
+            $hasColumn = false;
+        }
+        return $hasColumn;
     }
 
     private function resolveCategoryEnum(?int $categoryId): string
@@ -370,25 +401,32 @@ class DocumentTemplateManager
         $categoryId = $data['category_id'] ?? null;
         $category = $data['category'] ?? $this->resolveCategoryEnum($categoryId);
 
-        $stmt = $this->pdo->prepare("
-        UPDATE intra_dokument_templates
-        SET name = :name,
-            category = :category,
-            category_id = :category_id,
-            description = :description,
-            template_file = :template_file,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = :id
-    ");
-
-        return $stmt->execute([
+        $params = [
             'id' => $templateId,
             'name' => $data['name'],
             'category' => $category,
             'category_id' => $categoryId,
             'description' => $data['description'] ?? null,
-            'template_file' => $data['template_file'] ?? null
-        ]);
+            'template_file' => $data['template_file'] ?? null,
+        ];
+
+        if ($this->hasEditorTypeColumn()) {
+            $sql = "UPDATE intra_dokument_templates
+                SET name = :name, category = :category, category_id = :category_id,
+                    description = :description, template_file = :template_file,
+                    editor_type = :editor_type, updated_at = CURRENT_TIMESTAMP
+                WHERE id = :id";
+            $params['editor_type'] = $data['editor_type'] ?? 'visual';
+        } else {
+            $sql = "UPDATE intra_dokument_templates
+                SET name = :name, category = :category, category_id = :category_id,
+                    description = :description, template_file = :template_file,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = :id";
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($params);
     }
 
     /**

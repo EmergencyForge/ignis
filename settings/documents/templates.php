@@ -653,14 +653,21 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                 const item = document.createElement('a');
                 item.href = '#';
                 item.className = 'list-group-item list-group-item-action';
+                const isVisual = template.editor_type === 'visual';
+                const editorBadge = isVisual
+                    ? '<span class="badge bg-info ms-2" style="font-size:0.65rem;">Visual</span>'
+                    : '<span class="badge bg-secondary ms-2" style="font-size:0.65rem;">Twig</span>';
                 item.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <strong>${template.name}</strong>
+                            <strong>${template.name}</strong>${editorBadge}
                             <br>
                             <small class="text-muted">${template.category_name || template.category || '-'}</small>
                         </div>
-                        <div>
+                        <div class="d-flex gap-1">
+                            <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
+                                <i class="fa-solid fa-paintbrush"></i>
+                            </a>
                             <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id}, event)">
                                 Löschen
                             </button>
@@ -668,7 +675,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 `;
                 item.addEventListener('click', (e) => {
-                    if (e.target.tagName !== 'BUTTON') {
+                    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && !e.target.closest('a')) {
                         loadTemplate(template.id);
                     }
                 });

@@ -31,8 +31,16 @@ class DocumentRenderer
      */
     public function renderDocument(int $docId): string
     {
+        // Prüfe ob die Visual-Editor-Spalten existieren
+        $hasVisualColumns = $this->hasVisualEditorColumns();
+
+        $selectCols = 'd.*, t.template_file, t.is_system';
+        if ($hasVisualColumns) {
+            $selectCols .= ', t.editor_type, t.layout_id';
+        }
+
         $stmt = $this->pdo->prepare("
-            SELECT d.*, t.template_file, t.is_system
+            SELECT {$selectCols}
             FROM intra_mitarbeiter_dokumente d
             LEFT JOIN intra_dokument_templates t ON d.template_id = t.id
             WHERE d.id = :docid
@@ -44,8 +52,37 @@ class DocumentRenderer
             throw new \Exception("Dokument oder Template nicht gefunden");
         }
 
-        // Alle Dokumente durch Twig rendern
+        // Visuelles Template → VisualTemplateRenderer
+        if (($doc['editor_type'] ?? 'twig') === 'visual' && !empty($doc['layout_id'])) {
+            $visualRenderer = new VisualTemplateRenderer($this->pdo);
+            return $visualRenderer->renderDocument($doc);
+        }
+
+        // Twig-Template (Standard/Legacy)
         return $this->renderCustomDocument($doc);
+    }
+
+    /**
+     * Prüft ob die Visual-Editor-Spalten existieren (Abwärtskompatibilität)
+     */
+    private function hasVisualEditorColumns(): bool
+    {
+        static $hasColumns = null;
+        if ($hasColumns !== null) return $hasColumns;
+
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = 'intra_dokument_templates'
+                AND COLUMN_NAME = 'editor_type'
+            ");
+            $stmt->execute();
+            $hasColumns = (bool) $stmt->fetchColumn();
+        } catch (\PDOException $e) {
+            $hasColumns = false;
+        }
+        return $hasColumns;
     }
 
     /**
