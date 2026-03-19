@@ -895,6 +895,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             'benutzer': 'personal',
             'mitarbeiter': 'personal',
             'edivi': 'protokolle',
+            'fahrzeuge': 'fahrzeuge',
             'settings': 'settings'
         };
 
