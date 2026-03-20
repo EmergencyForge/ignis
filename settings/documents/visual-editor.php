@@ -78,7 +78,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             display: flex;
             align-items: flex-start;
             justify-content: center;
-            padding: 20px;
+            padding: 30px 20px 20px 30px;
             background: #1a1a2e;
         }
         .editor-properties {
@@ -335,8 +335,14 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 <i class="fa-solid fa-chevron-right"></i>
             </div>
 
-            <div class="canvas-container-wrapper" id="canvas-wrapper">
-                <canvas id="editor-canvas"></canvas>
+            <div id="ruler-canvas-group" style="display:inline-block;position:relative;">
+                <!-- Horizontales Lineal (oben) -->
+                <canvas id="ruler-h" style="position:absolute;top:-20px;left:0;height:20px;pointer-events:none;"></canvas>
+                <!-- Vertikales Lineal (links) -->
+                <canvas id="ruler-v" style="position:absolute;left:-20px;top:0;width:20px;pointer-events:none;"></canvas>
+                <div class="canvas-container-wrapper" id="canvas-wrapper">
+                    <canvas id="editor-canvas"></canvas>
+                </div>
             </div>
         </div>
 

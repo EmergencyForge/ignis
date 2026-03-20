@@ -15,6 +15,18 @@
             this.selectionProps = document.getElementById('selection-props');
         }
 
+        /** Konvertiert beliebige CSS-Farbwerte zu #rrggbb für <input type="color"> */
+        toHex(color) {
+            if (!color || color === 'transparent' || color === '') return '#000000';
+            if (/^#[0-9a-f]{6}$/i.test(color)) return color;
+            // rgb(r,g,b) → #rrggbb
+            const m = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+            if (m) {
+                return '#' + [m[1], m[2], m[3]].map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+            }
+            return '#000000';
+        }
+
         show(obj) {
             this.currentObj = obj;
             if (this.noSelectionMsg) this.noSelectionMsg.style.display = 'none';
@@ -130,12 +142,12 @@
             if (obj.type === 'textbox' || obj.type === 'text') {
                 html += '<div class="prop-row">';
                 html += '<label>Text</label>';
-                html += '<input type="color" class="form-control form-control-sm form-control-color" id="prop-fill" value="' + (obj.fill || '#000000') + '" style="width:40px;height:28px;">';
+                html += '<input type="color" class="form-control form-control-sm form-control-color" id="prop-fill" value="' + this.toHex(obj.fill) + '" style="width:40px;height:28px;">';
                 html += '</div>';
 
                 html += '<div class="prop-row">';
                 html += '<label>Hg.</label>';
-                html += '<input type="color" class="form-control form-control-sm form-control-color" id="prop-bgColor" value="' + (obj.backgroundColor || '#ffffff') + '" style="width:40px;height:28px;">';
+                html += '<input type="color" class="form-control form-control-sm form-control-color" id="prop-bgColor" value="' + this.toHex(obj.backgroundColor || '#ffffff') + '" style="width:40px;height:28px;">';
                 html += '<label class="form-check mb-0 ms-2" style="width:auto;">';
                 html += '<input class="form-check-input" type="checkbox" id="prop-bgTransparent"' + (!obj.backgroundColor || obj.backgroundColor === '' ? ' checked' : '') + '>';
                 html += '<span class="form-check-label" style="font-size:0.75rem;">Transparent</span>';
@@ -143,14 +155,14 @@
             } else {
                 html += '<div class="prop-row">';
                 html += '<label>Füllung</label>';
-                html += '<input type="color" class="form-control form-control-sm form-control-color" id="prop-fill" value="' + (obj.fill || '#000000') + '" style="width:40px;height:28px;">';
+                html += '<input type="color" class="form-control form-control-sm form-control-color" id="prop-fill" value="' + this.toHex(obj.fill) + '" style="width:40px;height:28px;">';
                 html += '</div>';
             }
 
             // Stroke / Border
             html += '<div class="prop-row">';
             html += '<label>Rand</label>';
-            html += '<input type="color" class="form-control form-control-sm form-control-color" id="prop-stroke" value="' + (obj.stroke || '#000000') + '" style="width:40px;height:28px;">';
+            html += '<input type="color" class="form-control form-control-sm form-control-color" id="prop-stroke" value="' + this.toHex(obj.stroke) + '" style="width:40px;height:28px;">';
             html += '<input type="number" class="form-control form-control-sm" id="prop-strokeWidth" value="' + (obj.strokeWidth || 0) + '" min="0" max="20" style="width:55px;">';
             html += '<span style="font-size:0.75rem;color:var(--bs-secondary-color);">px</span>';
             html += '</div>';
@@ -267,6 +279,7 @@
             document.getElementById('prop-opacity')?.addEventListener('change', (e) => {
                 updateAndSave('opacity', parseFloat(e.target.value));
             });
+
         }
 
         renderPropRow(label, id, type, value, suffix, step) {

@@ -1,9 +1,16 @@
 /**
- * Template Editor Core — Fabric.js v6
+ * Template Editor Core — Fabric.js v7
  * Canvas-Management, Save/Load, Undo/Redo
  */
 (function () {
     'use strict';
+
+    // v7 Breaking Change: originX/originY defaults changed to 'center'
+    // Restore v6 behavior (left/top) for backward compatibility with saved layouts
+    if (fabric.FabricObject) {
+        fabric.FabricObject.ownDefaults.originX = 'left';
+        fabric.FabricObject.ownDefaults.originY = 'top';
+    }
 
     const CONFIG = window.TEMPLATE_EDITOR_CONFIG;
     const PX_PER_MM = CONFIG.mmToPx;
@@ -67,10 +74,86 @@
 
         applyZoom() {
             this.canvas.setZoom(this.zoom);
-            this.canvas.setWidth(CONFIG.canvasWidth * this.zoom);
-            this.canvas.setHeight(CONFIG.canvasHeight * this.zoom);
+            // v7: setWidth/setHeight removed → setDimensions
+            this.canvas.setDimensions({
+                width: CONFIG.canvasWidth * this.zoom,
+                height: CONFIG.canvasHeight * this.zoom,
+            });
             document.getElementById('zoom-level').textContent = Math.round(this.zoom * 100) + '%';
             this.canvas.renderAll();
+            this.drawRulers();
+        }
+
+        drawRulers() {
+            const hCanvas = document.getElementById('ruler-h');
+            const vCanvas = document.getElementById('ruler-v');
+            if (!hCanvas || !vCanvas) return;
+
+            const z = this.zoom;
+            const w = CONFIG.canvasWidth * z;
+            const h = CONFIG.canvasHeight * z;
+            const mmPx = PX_PER_MM * z; // mm in Bildschirm-Pixel
+
+            // Horizontales Lineal
+            hCanvas.width = w;
+            hCanvas.height = 20;
+            const hCtx = hCanvas.getContext('2d');
+            hCtx.fillStyle = '#1e1e2e';
+            hCtx.fillRect(0, 0, w, 20);
+            hCtx.strokeStyle = '#555';
+            hCtx.fillStyle = '#888';
+            hCtx.font = '9px sans-serif';
+            hCtx.textAlign = 'center';
+
+            for (let mm = 0; mm <= 210; mm++) {
+                const x = mm * mmPx;
+                if (mm % 10 === 0) {
+                    hCtx.beginPath();
+                    hCtx.moveTo(x, 12);
+                    hCtx.lineTo(x, 20);
+                    hCtx.stroke();
+                    if (mm > 0) hCtx.fillText(mm.toString(), x, 10);
+                } else if (mm % 5 === 0) {
+                    hCtx.beginPath();
+                    hCtx.moveTo(x, 15);
+                    hCtx.lineTo(x, 20);
+                    hCtx.stroke();
+                }
+            }
+
+            // Vertikales Lineal
+            vCanvas.width = 20;
+            vCanvas.height = h;
+            const vCtx = vCanvas.getContext('2d');
+            vCtx.fillStyle = '#1e1e2e';
+            vCtx.fillRect(0, 0, 20, h);
+            vCtx.strokeStyle = '#555';
+            vCtx.fillStyle = '#888';
+            vCtx.font = '9px sans-serif';
+            vCtx.textAlign = 'right';
+
+            for (let mm = 0; mm <= 297; mm++) {
+                const y = mm * mmPx;
+                if (mm % 10 === 0) {
+                    vCtx.beginPath();
+                    vCtx.moveTo(12, y);
+                    vCtx.lineTo(20, y);
+                    vCtx.stroke();
+                    if (mm > 0) {
+                        vCtx.save();
+                        vCtx.translate(10, y);
+                        vCtx.rotate(-Math.PI / 2);
+                        vCtx.textAlign = 'center';
+                        vCtx.fillText(mm.toString(), 0, 0);
+                        vCtx.restore();
+                    }
+                } else if (mm % 5 === 0) {
+                    vCtx.beginPath();
+                    vCtx.moveTo(15, y);
+                    vCtx.lineTo(20, y);
+                    vCtx.stroke();
+                }
+            }
         }
 
         setZoom(newZoom) {
@@ -239,10 +322,12 @@
         onSelectionChanged() {
             const obj = this.canvas.getActiveObject();
             if (obj) window.EditorEvents?.emit('selection:changed', obj);
+            this.updateLayerList();
         }
 
         onSelectionCleared() {
             window.EditorEvents?.emit('selection:cleared');
+            this.updateLayerList();
         }
 
         // --- Dirty Indicator ---
@@ -663,6 +748,7 @@
 
             const objects = this.canvas.getObjects();
             const active = this.canvas.getActiveObject();
+            const activeObjects = this.canvas.getActiveObjects();
 
             let html = '';
             for (let i = objects.length - 1; i >= 0; i--) {
@@ -670,7 +756,7 @@
                 // Hilfslinien und Snap-Linien nicht in der Layer-Liste anzeigen
                 if (obj._isGuide || obj._isSnapLine) continue;
                 const custom = obj.custom || {};
-                const isActive = obj === active;
+                const isActive = obj === active || activeObjects.includes(obj);
                 let icon = 'fa-solid fa-question';
                 let label = 'Element';
 

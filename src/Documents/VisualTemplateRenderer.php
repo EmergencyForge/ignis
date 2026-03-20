@@ -357,20 +357,26 @@ HTML;
      */
     private function renderGroupElement(array $obj, array $fieldValues): string
     {
+        $custom = $obj['custom'] ?? [];
+
         $groupLeft = $obj['left'] ?? 0;
         $groupTop = $obj['top'] ?? 0;
+        $scaleX = $obj['scaleX'] ?? 1;
+        $scaleY = $obj['scaleY'] ?? 1;
         $objects = $obj['objects'] ?? [];
 
         $html = '';
         foreach ($objects as $child) {
-            // Offset relativ zur Gruppe
-            $child['left'] = ($child['left'] ?? 0) + $groupLeft;
-            $child['top'] = ($child['top'] ?? 0) + $groupTop;
+            $child['left'] = (($child['left'] ?? 0) * $scaleX) + $groupLeft;
+            $child['top'] = (($child['top'] ?? 0) * $scaleY) + $groupTop;
+            if (isset($child['scaleX'])) $child['scaleX'] *= $scaleX;
+            if (isset($child['scaleY'])) $child['scaleY'] *= $scaleY;
             $html .= $this->fabricObjectToHtml($child, $fieldValues);
         }
 
         return $html;
     }
+
 
     /**
      * Ersetzt Platzhalter im Text

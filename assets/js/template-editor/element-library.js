@@ -148,7 +148,8 @@
             return '<div class="element-item" data-action="add-line">'
                 + '<i class="fa-solid fa-minus"></i><span>Horizontale Linie</span></div>'
                 + '<div class="element-item" data-action="add-rect">'
-                + '<i class="fa-regular fa-square"></i><span>Rahmen / Rechteck</span></div>';
+                + '<i class="fa-regular fa-square"></i><span>Rahmen / Rechteck</span></div>'
+;
         }
 
         bindEvents() {
