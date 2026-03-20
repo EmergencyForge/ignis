@@ -101,7 +101,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <label class="edivi__interactbutton-text">Datum</label>
                             <input type="date" name="symptombeginn_datum" id="symptombeginn_datum"
                                 class="edivi__interactbutton-input"
-                                value="<?= !empty($daten['symptombeginn_datum']) ? date('d.m.Y', strtotime($daten['symptombeginn_datum'])) : '' ?>"
+                                value="<?= !empty($daten['symptombeginn_datum']) ? date('Y-m-d', strtotime($daten['symptombeginn_datum'])) : '' ?>"
                                 data-ignore-autosave>
                             <input type="checkbox" class="btn-check" id="symptombeginn_geschaetzt_1"
                                 name="symptombeginn_geschaetzt" value="1"
