@@ -98,6 +98,58 @@
             getEditor()?.redo();
         });
 
+        // Versionsverlauf
+        document.getElementById('btn-versions')?.addEventListener('click', async () => {
+            const list = document.getElementById('versions-list');
+            if (!list) return;
+            list.innerHTML = '<div class="text-center p-3"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+            new bootstrap.Modal(document.getElementById('versionsModal')).show();
+
+            try {
+                const res = await fetch(CONFIG.basePath + 'api/documents/layout-versions.php?template_id=' + CONFIG.templateId);
+                const data = await res.json();
+                if (!data.success || !data.versions?.length) {
+                    list.innerHTML = '<div class="text-muted text-center p-3">Keine Versionen vorhanden</div>';
+                    return;
+                }
+                let html = '<div class="list-group list-group-flush">';
+                data.versions.forEach(v => {
+                    const active = v.is_active ? ' <span class="badge bg-success">Aktiv</span>' : '';
+                    const date = new Date(v.created_at).toLocaleString('de-DE');
+                    html += '<div class="list-group-item d-flex justify-content-between align-items-center">';
+                    html += '<div><strong>Version ' + v.version + '</strong>' + active + '<br><small class="text-muted">' + date + '</small></div>';
+                    if (!v.is_active) {
+                        html += '<button class="btn btn-sm btn-outline-primary" data-restore="' + v.id + '">Wiederherstellen</button>';
+                    }
+                    html += '</div>';
+                });
+                html += '</div>';
+                list.innerHTML = html;
+
+                // Restore-Buttons
+                list.querySelectorAll('[data-restore]').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        if (!confirm('Version wiederherstellen? Aktuelle Änderungen gehen verloren.')) return;
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                        const res = await fetch(CONFIG.basePath + 'api/documents/layout-versions.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ template_id: CONFIG.templateId, layout_id: parseInt(btn.dataset.restore) }),
+                        });
+                        const result = await res.json();
+                        if (result.success) {
+                            bootstrap.Modal.getInstance(document.getElementById('versionsModal'))?.hide();
+                            getEditor()?.loadLayout();
+                            if (window.showToast) window.showToast('Version wiederhergestellt', 'success');
+                        }
+                    });
+                });
+            } catch (err) {
+                list.innerHTML = '<div class="text-danger text-center p-3">Fehler: ' + escapeHtml(err.message) + '</div>';
+            }
+        });
+
         // Zoom
         document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
             const editor = getEditor();
@@ -127,8 +179,8 @@
             getEditor()?.setMarginPreset(e.target.value);
         });
 
-        // Alignment-Dropdown
-        document.querySelectorAll('[data-align]').forEach(item => {
+        // Alignment-Dropdown (scoped auf Toolbar, nicht Properties-Panel)
+        document.querySelector('.editor-toolbar')?.querySelectorAll('[data-align]').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 getEditor()?.alignObject(item.dataset.align);
@@ -140,7 +192,7 @@
             getEditor()?.save();
         });
 
-        // Vorschau
+        // Vorschau (PDF)
         document.getElementById('btn-preview')?.addEventListener('click', async () => {
             const editor = getEditor();
             if (!editor) return;
@@ -156,12 +208,18 @@
                     body: JSON.stringify({
                         template_id: CONFIG.templateId,
                         canvas_json: JSON.stringify(json),
+                        format: 'pdf',
                     }),
                 });
 
-                const html = await response.text();
-                iframe.srcdoc = html;
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                iframe.src = url;
                 new bootstrap.Modal(document.getElementById('previewModal')).show();
+                // URL aufräumen wenn Modal geschlossen wird
+                document.getElementById('previewModal')?.addEventListener('hidden.bs.modal', () => {
+                    URL.revokeObjectURL(url);
+                }, { once: true });
             } catch (err) {
                 console.error('Preview error:', err);
                 if (window.showToast) {
@@ -171,13 +229,6 @@
         });
     });
 
-    function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
-
-    function escapeAttr(str) {
-        return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
+    function escapeHtml(str) { return window.EditorUtils.escapeHtml(str); }
+    function escapeAttr(str) { return window.EditorUtils.escapeAttr(str); }
 })();

@@ -46,32 +46,32 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <style>
         /* Inline fallback falls SCSS noch nicht kompiliert */
         body { overflow: hidden; }
-        .editor-header {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.4rem 1rem;
-            border-bottom: 1px solid var(--bs-border-color);
-            background: var(--bs-body-bg);
-        }
-        .editor-header .separator {
-            width: 1px;
-            height: 20px;
-            background: var(--bs-border-color);
-            margin: 0 0.25rem;
-        }
         .editor-wrapper {
             display: flex;
-            height: calc(100vh - 76px); /* Header + Toolbar */
+            height: calc(100vh - 38px); /* Toolbar only */
             overflow: hidden;
         }
         .editor-sidebar {
-            width: 280px;
-            min-width: 280px;
+            width: 260px;
+            min-width: 260px;
             overflow-y: auto;
             border-right: 1px solid var(--bs-border-color);
             background: var(--bs-body-bg);
+            transition: width 0.2s, min-width 0.2s, padding 0.2s;
+            position: relative;
         }
+        .editor-sidebar.collapsed {
+            width: 0; min-width: 0; padding: 0; overflow: hidden;
+            border-right: none;
+        }
+        .sidebar-toggle {
+            position: absolute; top: 8px; z-index: 10;
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--bs-body-bg); border: 1px solid var(--bs-border-color);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 0.65rem; color: var(--bs-secondary-color);
+        }
+        .sidebar-toggle:hover { background: var(--bs-tertiary-bg); }
         .editor-canvas-area {
             flex: 1;
             overflow: auto;
@@ -82,33 +82,46 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             background: #1a1a2e;
         }
         .editor-properties {
-            width: 300px;
-            min-width: 300px;
+            width: 280px;
+            min-width: 280px;
             overflow-y: auto;
             border-left: 1px solid var(--bs-border-color);
             background: var(--bs-body-bg);
+            transition: width 0.2s, min-width 0.2s, padding 0.2s;
+            position: relative;
+        }
+        .editor-properties.collapsed {
+            width: 0; min-width: 0; padding: 0; overflow: hidden;
+            border-left: none;
         }
         .canvas-container-wrapper {
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
             background: #fff;
         }
+        .editor-canvas-area.drag-over .canvas-container-wrapper {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6), 0 4px 20px rgba(0,0,0,0.4);
+        }
         .editor-toolbar {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
-            padding: 0.35rem 1rem;
+            gap: 0.35rem;
+            padding: 0.3rem 0.75rem;
             border-bottom: 1px solid var(--bs-border-color);
             background: var(--bs-body-bg);
             flex-wrap: nowrap;
             overflow-x: auto;
+            min-height: 38px;
         }
-        .editor-toolbar .btn { font-size: 0.85rem; }
+        .editor-toolbar .btn { font-size: 0.8rem; padding: 0.2rem 0.5rem; }
         .editor-toolbar .separator {
             width: 1px;
-            height: 24px;
+            height: 22px;
             background: var(--bs-border-color);
-            margin: 0 0.25rem;
+            margin: 0 0.15rem;
         }
+        .editor-toolbar .form-check { margin: 0; display: flex; align-items: center; gap: 0.25rem; }
+        .editor-toolbar .form-check-label { line-height: 1; }
+        .editor-toolbar .form-select { height: auto; padding-top: 0.2rem; padding-bottom: 0.2rem; }
         .sidebar-section { padding: 0.75rem; }
         .sidebar-section-title {
             font-size: 0.75rem;
@@ -129,6 +142,11 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             gap: 0.5rem;
         }
         .element-item:hover { background: var(--bs-tertiary-bg); }
+        .element-item.field-placed { opacity: 0.5; }
+        .element-item.field-placed::after {
+            content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+            font-size: 0.6rem; color: var(--bs-success); margin-left: auto;
+        }
         .element-item i { width: 16px; text-align: center; opacity: 0.6; }
         .prop-group { padding: 0.75rem; border-bottom: 1px solid var(--bs-border-color); }
         .prop-group-title {
@@ -181,30 +199,29 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 </head>
 
 <body data-bs-theme="dark">
-    <!-- Zeile 1: Navigation + Dokumentenname -->
-    <div class="editor-header">
-        <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="btn btn-sm btn-outline-secondary">
-            <i class="fa-solid fa-arrow-left"></i> Zurück
-        </a>
-        <div class="separator"></div>
-        <span style="font-size: 0.9rem;">
-            <strong><?= htmlspecialchars($template['name']) ?></strong>
-        </span>
-    </div>
-
-    <!-- Zeile 2: Aktions-Toolbar (fix) -->
+    <!-- Einzeilige Toolbar -->
     <div class="editor-toolbar">
+        <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="btn btn-sm btn-outline-secondary" id="btn-back"
+           onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();if(confirm('Ungespeicherte Änderungen verwerfen?'))window.location=this.href;}">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <span class="text-truncate" style="font-size:0.8rem;max-width:200px;opacity:0.7;" title="<?= htmlspecialchars($template['name']) ?>">
+            <strong id="editor-template-name"><?= htmlspecialchars($template['name']) ?></strong>
+        </span>
+
+        <div class="separator"></div>
+
         <button class="btn btn-sm btn-outline-light" id="btn-add-text" title="Text hinzufügen">
-            <i class="fa-solid fa-font"></i> Text
+            <i class="fa-solid fa-font"></i>
         </button>
         <button class="btn btn-sm btn-outline-light" id="btn-add-field" title="Feld hinzufügen">
-            <i class="fa-solid fa-input-text"></i> Feld
+            <i class="fa-solid fa-i-cursor"></i>
         </button>
         <button class="btn btn-sm btn-outline-light" id="btn-add-image" title="Bild hinzufügen">
-            <i class="fa-solid fa-image"></i> Bild
+            <i class="fa-solid fa-image"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-set-background" title="Hintergrundbild setzen">
-            <i class="fa-solid fa-panorama"></i> Hintergrund
+        <button class="btn btn-sm btn-outline-light" id="btn-set-background" title="Hintergrundbild">
+            <i class="fa-solid fa-panorama"></i>
         </button>
 
         <div class="separator"></div>
@@ -216,15 +233,14 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <i class="fa-solid fa-trash"></i>
         </button>
         <button class="btn btn-sm btn-outline-light" id="btn-bring-front" title="Nach vorne">
-            <i class="fa-solid fa-layer-group"></i><i class="fa-solid fa-arrow-up" style="font-size:0.6rem;margin-left:2px;"></i>
+            <i class="fa-solid fa-layer-group"></i><i class="fa-solid fa-arrow-up" style="font-size:0.55rem;margin-left:1px;"></i>
         </button>
         <button class="btn btn-sm btn-outline-light" id="btn-send-back" title="Nach hinten">
-            <i class="fa-solid fa-layer-group"></i><i class="fa-solid fa-arrow-down" style="font-size:0.6rem;margin-left:2px;"></i>
+            <i class="fa-solid fa-layer-group"></i><i class="fa-solid fa-arrow-down" style="font-size:0.55rem;margin-left:1px;"></i>
         </button>
 
         <div class="separator"></div>
 
-        <!-- Alignment -->
         <div class="dropdown">
             <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Ausrichten">
                 <i class="fa-solid fa-align-center"></i>
@@ -240,18 +256,19 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 <li><a class="dropdown-item" href="#" data-align="center-v"><i class="fa-solid fa-arrows-up-down me-2"></i>Mitte</a></li>
                 <li><a class="dropdown-item" href="#" data-align="bottom"><i class="fa-solid fa-arrow-down me-2"></i>Unten</a></li>
                 <li><hr class="dropdown-divider"></li>
-                <li class="dropdown-header" style="font-size:0.7rem;">Schnellposition</li>
                 <li><a class="dropdown-item" href="#" data-align="page-center"><i class="fa-solid fa-crosshairs me-2"></i>Seitenmitte</a></li>
             </ul>
         </div>
-
-        <div class="separator"></div>
 
         <button class="btn btn-sm btn-outline-light" id="btn-undo" title="Rückgängig (Ctrl+Z)">
             <i class="fa-solid fa-undo"></i>
         </button>
         <button class="btn btn-sm btn-outline-light" id="btn-redo" title="Wiederholen (Ctrl+Y)">
             <i class="fa-solid fa-redo"></i>
+        </button>
+
+        <button class="btn btn-sm btn-outline-light" id="btn-versions" title="Versionsverlauf">
+            <i class="fa-solid fa-clock-rotate-left"></i>
         </button>
 
         <div class="separator"></div>
@@ -265,25 +282,34 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
         <div class="separator"></div>
 
-        <label class="form-check form-check-inline mb-0" style="font-size:0.8rem;">
-            <input class="form-check-input" type="checkbox" id="chk-snap-grid">
-            <span class="form-check-label">Einrasten</span>
+        <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;">
+            <input class="form-check-input" type="checkbox" id="chk-snap-grid" style="width:0.85em;height:0.85em;">
+            <span class="form-check-label">Snap</span>
         </label>
-        <label class="form-check form-check-inline mb-0" style="font-size:0.8rem;">
-            <input class="form-check-input" type="checkbox" id="chk-guides">
-            <span class="form-check-label">Hilfslinien</span>
+        <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;">
+            <input class="form-check-input" type="checkbox" id="chk-guides" style="width:0.85em;height:0.85em;">
+            <span class="form-check-label">Guides</span>
         </label>
-        <select class="form-select form-select-sm" id="sel-margins" style="width:auto;font-size:0.8rem;">
+        <select class="form-select form-select-sm" id="sel-margins" style="width:auto;font-size:0.75rem;padding:0.25rem 2rem 0.25rem 0.5rem;">
             <option value="schmal" selected>Schmal (1,27cm)</option>
             <option value="normal">Normal (2,5cm)</option>
-            <option value="mittel">Mittel (2,54/1,91cm)</option>
+            <option value="mittel">Mittel (1,91cm)</option>
         </select>
+
+        <div class="ms-auto d-flex gap-1">
+            <button class="btn btn-sm btn-outline-info" id="btn-preview" title="Vorschau">
+                <i class="fa-solid fa-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-success" id="btn-save" title="Speichern (Ctrl+S)">
+                <i class="fa-solid fa-floppy-disk"></i>
+            </button>
+        </div>
     </div>
 
     <!-- Main editor layout -->
     <div class="editor-wrapper">
         <!-- Left sidebar: Element library + Layers -->
-        <div class="editor-sidebar">
+        <div class="editor-sidebar" id="sidebar-left">
             <div class="sidebar-section" id="element-library">
                 <!-- Wird von element-library.js befüllt -->
             </div>
@@ -298,25 +324,24 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             </div>
         </div>
 
-        <!-- Canvas area -->
-        <div class="editor-canvas-area" id="canvas-area">
+        <!-- Canvas area (mit Toggle-Buttons an den Rändern) -->
+        <div class="editor-canvas-area" id="canvas-area" style="position:relative;">
+            <!-- Toggle links -->
+            <div class="sidebar-toggle" id="toggle-left" style="left:8px;" onclick="toggleSidebar('sidebar-left','toggle-left')" title="Elemente-Panel">
+                <i class="fa-solid fa-chevron-left"></i>
+            </div>
+            <!-- Toggle rechts -->
+            <div class="sidebar-toggle" id="toggle-right" style="right:8px;" onclick="toggleSidebar('sidebar-right','toggle-right')" title="Eigenschaften-Panel">
+                <i class="fa-solid fa-chevron-right"></i>
+            </div>
+
             <div class="canvas-container-wrapper" id="canvas-wrapper">
                 <canvas id="editor-canvas"></canvas>
             </div>
         </div>
 
-        <!-- Right sidebar: Actions + Properties panel -->
-        <div class="editor-properties" id="properties-panel">
-            <!-- Aktionen: Vorschau + Speichern -->
-            <div class="p-2 d-flex gap-2 border-bottom" style="border-color: var(--bs-border-color) !important;">
-                <button class="btn btn-sm btn-outline-info flex-fill" id="btn-preview" title="Vorschau">
-                    <i class="fa-solid fa-eye"></i> Vorschau
-                </button>
-                <button class="btn btn-sm btn-success flex-fill" id="btn-save">
-                    <i class="fa-solid fa-floppy-disk"></i> Speichern
-                </button>
-            </div>
-
+        <!-- Right sidebar: Properties panel -->
+        <div class="editor-properties" id="sidebar-right">
             <div id="no-selection-msg">
                 <i class="fa-solid fa-mouse-pointer" style="font-size:2rem;opacity:0.3;"></i>
                 <p class="mt-2">Wähle ein Element auf dem Canvas aus, um seine Eigenschaften zu bearbeiten.</p>
@@ -382,6 +407,50 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         </div>
     </div>
 
+    <!-- Versions-Modal -->
+    <div class="modal fade" id="versionsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fa-solid fa-clock-rotate-left me-2"></i>Versionsverlauf</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0" id="versions-list" style="max-height:400px;overflow-y:auto;">
+                    <div class="text-center p-3"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Toggle-Logik -->
+    <script>
+        function toggleSidebar(sidebarId, toggleId) {
+            const sidebar = document.getElementById(sidebarId);
+            const toggle = document.getElementById(toggleId);
+            if (!sidebar) return;
+            const isCollapsed = sidebar.classList.toggle('collapsed');
+            localStorage.setItem('editor-' + sidebarId, isCollapsed);
+            // Chevron-Richtung umkehren
+            const icon = toggle?.querySelector('i');
+            if (icon && sidebarId === 'sidebar-left') {
+                icon.className = isCollapsed ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-left';
+            } else if (icon && sidebarId === 'sidebar-right') {
+                icon.className = isCollapsed ? 'fa-solid fa-chevron-left' : 'fa-solid fa-chevron-right';
+            }
+        }
+        // Restore aus localStorage
+        if (localStorage.getItem('editor-sidebar-left') === 'true') {
+            document.getElementById('sidebar-left')?.classList.add('collapsed');
+            const icon = document.getElementById('toggle-left')?.querySelector('i');
+            if (icon) icon.className = 'fa-solid fa-chevron-right';
+        }
+        if (localStorage.getItem('editor-sidebar-right') === 'true') {
+            document.getElementById('sidebar-right')?.classList.add('collapsed');
+            const icon = document.getElementById('toggle-right')?.querySelector('i');
+            if (icon) icon.className = 'fa-solid fa-chevron-left';
+        }
+    </script>
+
     <!-- Template data for JS -->
     <script>
         window.TEMPLATE_EDITOR_CONFIG = {
@@ -408,6 +477,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <script src="<?= BASE_PATH ?>assets/_ext/fabricjs/fabric.min.js"></script>
 
     <!-- Editor modules -->
+    <script src="<?= BASE_PATH ?>assets/js/template-editor/utils.js"></script>
     <script src="<?= BASE_PATH ?>assets/js/template-editor/editor-core.js"></script>
     <script src="<?= BASE_PATH ?>assets/js/template-editor/element-library.js"></script>
     <script src="<?= BASE_PATH ?>assets/js/template-editor/toolbar.js"></script>

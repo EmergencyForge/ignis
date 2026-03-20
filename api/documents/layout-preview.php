@@ -29,9 +29,33 @@ try {
         $input['canvas_json'] ?? null
     );
 
-    // HTML direkt zurückgeben für iframe
-    header('Content-Type: text/html; charset=UTF-8');
-    echo $html;
+    $format = $input['format'] ?? 'html';
+
+    if ($format === 'pdf') {
+        // PDF-Direktvorschau über dompdf
+        $dompdf = new \Dompdf\Dompdf([
+            'defaultFont' => 'DejaVu Sans',
+            'isRemoteEnabled' => false,
+            'isHtml5ParserEnabled' => true,
+            'defaultPaperSize' => 'A4',
+            'defaultPaperOrientation' => 'portrait',
+            'dpi' => 96,
+            'fontDir' => __DIR__ . '/../../storage/fonts/',
+            'fontCache' => __DIR__ . '/../../storage/fonts/',
+        ]);
+
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="preview.pdf"');
+        echo $dompdf->output();
+    } else {
+        // HTML direkt zurückgeben für iframe
+        header('Content-Type: text/html; charset=UTF-8');
+        echo $html;
+    }
 } catch (Exception $e) {
     // Fehler als HTML im iframe anzeigen
     header('Content-Type: text/html; charset=UTF-8');

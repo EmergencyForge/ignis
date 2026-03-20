@@ -22,7 +22,7 @@
             html += this.renderSection('System-Variablen', 'fa-solid fa-gear', this.getSystemVarItems());
 
             // Template-Felder
-            html += this.renderSection('Template-Felder', 'fa-solid fa-input-text', this.getFieldItems());
+            html += this.renderSection('Template-Felder', 'fa-solid fa-i-cursor', this.getFieldItems());
 
             // Dokument-Daten
             html += this.renderSection('Dokument-Daten', 'fa-solid fa-file-lines', this.getDocumentDataItems());
@@ -100,7 +100,7 @@
 
             let html = '';
             fields.forEach(f => {
-                const icon = typeIcons[f.field_type] || 'fa-solid fa-input-text';
+                const icon = typeIcons[f.field_type] || 'fa-solid fa-i-cursor';
                 html += '<div class="element-item" data-action="add-field" data-field="' + this.escapeAttr(f.field_name) + '" data-label="' + this.escapeAttr(f.field_label) + '">';
                 html += '<i class="' + icon + '"></i>';
                 html += '<span>' + this.escapeHtml(f.field_label) + '</span>';
@@ -153,8 +153,92 @@
 
         bindEvents() {
             this.container.querySelectorAll('.element-item').forEach(item => {
+                // Click als Fallback
                 item.addEventListener('click', () => this.handleClick(item));
+
+                // Drag-and-Drop
+                item.setAttribute('draggable', 'true');
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('application/json', JSON.stringify({
+                        action: item.dataset.action,
+                        var: item.dataset.var || '',
+                        field: item.dataset.field || '',
+                        label: item.dataset.label || item.querySelector('span')?.textContent || '',
+                        img: item.dataset.img || '',
+                        block: item.dataset.block || '',
+                    }));
+                    e.dataTransfer.effectAllowed = 'copy';
+                    item.style.opacity = '0.5';
+                });
+                item.addEventListener('dragend', () => {
+                    item.style.opacity = '1';
+                });
             });
+
+            // Canvas Drop-Target
+            const canvasArea = document.getElementById('canvas-area');
+            if (canvasArea) {
+                canvasArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'copy';
+                    canvasArea.classList.add('drag-over');
+                });
+                canvasArea.addEventListener('dragleave', () => {
+                    canvasArea.classList.remove('drag-over');
+                });
+                canvasArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    canvasArea.classList.remove('drag-over');
+
+                    const data = JSON.parse(e.dataTransfer.getData('application/json') || '{}');
+                    if (!data.action) return;
+
+                    // Berechne Canvas-Position aus Drop-Koordinaten
+                    const editor = window.TemplateEditor;
+                    if (!editor) return;
+                    const wrapper = document.getElementById('canvas-wrapper');
+                    const rect = wrapper.getBoundingClientRect();
+                    const dropX = (e.clientX - rect.left) / editor.zoom;
+                    const dropY = (e.clientY - rect.top) / editor.zoom;
+
+                    this.addAtPosition(data, dropX, dropY);
+                });
+            }
+        }
+
+        /** Fügt ein Element an der angegebenen Canvas-Position ein */
+        addAtPosition(data, x, y) {
+            const editor = window.TemplateEditor;
+            if (!editor) return;
+
+            const posOpts = { left: x, top: y };
+
+            switch (data.action) {
+                case 'add-sysvar':
+                    editor.addSystemVar(data.var, data.label, posOpts);
+                    break;
+                case 'add-sysimg':
+                    this.addSystemImage(data.img, posOpts);
+                    break;
+                case 'add-field':
+                    editor.addFieldPlaceholder(data.field, data.label, posOpts);
+                    break;
+                case 'add-docvar':
+                    editor.addFieldPlaceholder(data.var, data.label, {
+                        ...posOpts,
+                        custom: { elementType: 'field_placeholder', fieldName: data.var, fieldLabel: data.label },
+                    });
+                    break;
+                case 'add-block':
+                    this.addPrefabBlock(data.block);
+                    break;
+                case 'add-line':
+                    editor.addLine(posOpts);
+                    break;
+                case 'add-rect':
+                    editor.addRect(posOpts);
+                    break;
+            }
         }
 
         handleClick(item) {
@@ -200,16 +284,18 @@
             }
         }
 
-        addSystemImage(type) {
+        addSystemImage(type, posOpts = {}) {
             const editor = window.TemplateEditor;
             const basePath = CONFIG.basePath;
 
             if (type === 'logo') {
                 editor.addImage(basePath + 'assets/img/schrift_fw_schwarz.png', null, {
+                    ...posOpts,
                     custom: { elementType: 'system_image', imageType: 'logo' },
                 });
             } else if (type === 'wappen') {
                 editor.addImage(basePath + 'assets/img/wappen_small.png', null, {
+                    ...posOpts,
                     custom: { elementType: 'system_image', imageType: 'wappen' },
                 });
             }
@@ -236,44 +322,53 @@
         }
 
         addHeaderBlock(editor, mm) {
-            // Org-Adresse links
-            editor.addSystemVar('RP_ORGTYPE', 'Organisationstyp', {
-                left: mm(25), top: mm(20), width: mm(100), fontSize: 10,
-            });
-            editor.addSystemVar('SERVER_CITY', 'Stadt', {
-                left: mm(25), top: mm(27), width: mm(100), fontSize: 10,
-            });
-            editor.addSystemVar('RP_STREET', 'Straße', {
-                left: mm(25), top: mm(34), width: mm(100), fontSize: 10,
-            });
-
-            // Datum rechts
-            editor.addFieldPlaceholder('ausstellungsdatum', 'Datum', {
-                left: mm(140), top: mm(45), width: mm(45), fontSize: 14, fontWeight: 'bold',
-                custom: { elementType: 'field_placeholder', fieldName: 'ausstellungsdatum', fieldLabel: 'Datum' },
-            });
+            const objects = [
+                new fabric.Textbox('{{ RP_ORGTYPE }} {{ SERVER_CITY }}', {
+                    left: 0, top: 0, width: mm(100), fontSize: 10, fontFamily: 'DejaVu Sans',
+                    custom: { elementType: 'system_var', varName: 'RP_ORGTYPE' },
+                }),
+                new fabric.Textbox('{{ RP_STREET }}', {
+                    left: 0, top: mm(7), width: mm(100), fontSize: 10, fontFamily: 'DejaVu Sans',
+                    custom: { elementType: 'system_var', varName: 'RP_STREET' },
+                }),
+                new fabric.Textbox('{{ RP_ZIP }} {{ SERVER_CITY }}', {
+                    left: 0, top: mm(14), width: mm(100), fontSize: 10, fontFamily: 'DejaVu Sans',
+                    custom: { elementType: 'system_var', varName: 'RP_ZIP' },
+                }),
+                new fabric.Textbox('{{ ausstellungsdatum }}', {
+                    left: mm(115), top: mm(25), width: mm(45), fontSize: 14, fontWeight: 'bold', fontFamily: 'DejaVu Sans',
+                    custom: { elementType: 'field_placeholder', fieldName: 'ausstellungsdatum', fieldLabel: 'Datum' },
+                }),
+            ];
+            editor.addBlock(objects);
         }
 
         addRecipientBlock(editor, mm) {
-            editor.addFieldPlaceholder('anrede_text', 'Anrede', {
-                left: mm(25), top: mm(70), width: mm(80), fontSize: 11,
-                custom: { elementType: 'field_placeholder', fieldName: 'anrede_text', fieldLabel: 'Anrede' },
-            });
-            editor.addFieldPlaceholder('erhalter', 'Empfänger', {
-                left: mm(25), top: mm(77), width: mm(100), fontSize: 11,
-                custom: { elementType: 'field_placeholder', fieldName: 'erhalter', fieldLabel: 'Empfänger' },
-            });
+            const objects = [
+                new fabric.Textbox('{{ anrede_text }}', {
+                    left: 0, top: 0, width: mm(80), fontSize: 11, fontFamily: 'DejaVu Sans',
+                    custom: { elementType: 'field_placeholder', fieldName: 'anrede_text', fieldLabel: 'Anrede' },
+                }),
+                new fabric.Textbox('{{ erhalter }}', {
+                    left: 0, top: mm(7), width: mm(100), fontSize: 11, fontFamily: 'DejaVu Sans',
+                    custom: { elementType: 'field_placeholder', fieldName: 'erhalter', fieldLabel: 'Empfänger' },
+                }),
+            ];
+            editor.addBlock(objects);
         }
 
         addSignatureBlock(editor, mm) {
-            editor.addFieldPlaceholder('issuer.fullname', 'Aussteller-Name', {
-                left: mm(25), top: mm(240), width: mm(80), fontSize: 11, fontWeight: 'bold',
-                custom: { elementType: 'field_placeholder', fieldName: 'issuer.fullname', fieldLabel: 'Aussteller-Name' },
-            });
-            editor.addFieldPlaceholder('issuer.dienstgrad_text', 'Aussteller-Dienstgrad', {
-                left: mm(25), top: mm(247), width: mm(80), fontSize: 10,
-                custom: { elementType: 'field_placeholder', fieldName: 'issuer.dienstgrad_text', fieldLabel: 'Aussteller-Dienstgrad' },
-            });
+            const objects = [
+                new fabric.Textbox('{{ issuer.fullname }}', {
+                    left: 0, top: 0, width: mm(80), fontSize: 11, fontWeight: 'bold', fontFamily: 'DejaVu Sans',
+                    custom: { elementType: 'field_placeholder', fieldName: 'issuer.fullname', fieldLabel: 'Aussteller-Name' },
+                }),
+                new fabric.Textbox('{{ issuer.dienstgrad_text }}', {
+                    left: 0, top: mm(7), width: mm(80), fontSize: 10, fontFamily: 'DejaVu Sans',
+                    custom: { elementType: 'field_placeholder', fieldName: 'issuer.dienstgrad_text', fieldLabel: 'Aussteller-Dienstgrad' },
+                }),
+            ];
+            editor.addBlock(objects);
         }
 
         addElectronicNote(editor, mm) {
@@ -284,15 +379,30 @@
             });
         }
 
-        escapeHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
+        /** Markiert bereits platzierte Felder in der Sidebar */
+        updateFieldStatus() {
+            const editor = window.TemplateEditor;
+            if (!editor || !this.container) return;
+
+            // Sammle alle platzierten Feld-Namen
+            const placed = new Set();
+            editor.getCanvas().getObjects().forEach(obj => {
+                const c = obj.custom || {};
+                if (c.fieldName) placed.add(c.fieldName);
+                if (c.varName) placed.add(c.varName);
+            });
+
+            // Sidebar-Items aktualisieren
+            this.container.querySelectorAll('.element-item').forEach(item => {
+                const fieldName = item.dataset.field || item.dataset.var || '';
+                if (!fieldName) return;
+                const isPlaced = placed.has(fieldName);
+                item.classList.toggle('field-placed', isPlaced);
+            });
         }
 
-        escapeAttr(str) {
-            return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
+        escapeHtml(str) { return window.EditorUtils.escapeHtml(str); }
+        escapeAttr(str) { return window.EditorUtils.escapeAttr(str); }
     }
 
     document.addEventListener('DOMContentLoaded', () => {

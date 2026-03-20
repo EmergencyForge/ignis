@@ -172,15 +172,8 @@
             }
         }
 
-        escapeHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        escapeAttr(str) {
-            return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        }
+        escapeHtml(str) { return window.EditorUtils.escapeHtml(str); }
+        escapeAttr(str) { return window.EditorUtils.escapeAttr(str); }
     }
 
     document.addEventListener('DOMContentLoaded', () => {

@@ -26,8 +26,33 @@
 
         hide() {
             this.currentObj = null;
-            if (this.noSelectionMsg) this.noSelectionMsg.style.display = 'block';
             if (this.selectionProps) this.selectionProps.style.display = 'none';
+            if (this.noSelectionMsg) {
+                this.noSelectionMsg.style.display = 'block';
+                this.renderDocumentProps();
+            }
+        }
+
+        /** Zeigt Dokument-Eigenschaften wenn kein Element selektiert */
+        renderDocumentProps() {
+            if (!this.noSelectionMsg) return;
+            const editor = window.TemplateEditor;
+            if (!editor) return;
+
+            const objCount = editor.getCanvas().getObjects().filter(o => !o._isGuide && !o._isSnapLine).length;
+            const preset = editor.marginPreset || 'schmal';
+            const presetLabels = { schmal: 'Schmal (1,27cm)', normal: 'Normal (2,5cm)', mittel: 'Mittel (2,54/1,91cm)' };
+
+            let html = '<div style="padding:1rem;font-size:0.8rem;">';
+            html += '<div style="font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--bs-secondary-color);margin-bottom:0.75rem;">Dokument</div>';
+            html += '<div style="margin-bottom:0.5rem;"><span style="color:var(--bs-secondary-color);">Format:</span> A4 (210 × 297 mm)</div>';
+            html += '<div style="margin-bottom:0.5rem;"><span style="color:var(--bs-secondary-color);">Ränder:</span> ' + (presetLabels[preset] || preset) + '</div>';
+            html += '<div style="margin-bottom:0.5rem;"><span style="color:var(--bs-secondary-color);">Elemente:</span> ' + objCount + '</div>';
+            html += '<hr style="opacity:0.15;margin:0.75rem 0;">';
+            html += '<div style="color:var(--bs-secondary-color);font-size:0.75rem;">Wähle ein Element auf dem Canvas aus, um seine Eigenschaften zu bearbeiten.</div>';
+            html += '</div>';
+
+            this.noSelectionMsg.innerHTML = html;
         }
 
         render(obj) {
@@ -201,14 +226,17 @@
                 e.currentTarget.classList.toggle('active');
             });
 
-            // Text Align
-            document.querySelectorAll('[data-align]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    updateAndSave('textAlign', btn.dataset.align);
-                    document.querySelectorAll('[data-align]').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+            // Text Align (scoped auf Properties-Panel, nicht Toolbar)
+            if (this.selectionProps) {
+                this.selectionProps.querySelectorAll('[data-align]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Verhindert Bubble zur Toolbar
+                        updateAndSave('textAlign', btn.dataset.align);
+                        this.selectionProps.querySelectorAll('[data-align]').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    });
                 });
-            });
+            }
 
             // Colors
             document.getElementById('prop-fill')?.addEventListener('input', (e) => update('fill', e.target.value));
@@ -279,22 +307,16 @@
             return labels[custom.elementType] || 'Element';
         }
 
-        pxToMm(px) {
-            return Math.round((px / PX_PER_MM) * 10) / 10;
-        }
-
-        mmToPx(mm) {
-            return mm * PX_PER_MM;
-        }
-
-        escapeHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
+        pxToMm(px) { return window.EditorUtils.pxToMm(px); }
+        mmToPx(mm) { return window.EditorUtils.mmToPx(mm); }
+        escapeHtml(str) { return window.EditorUtils.escapeHtml(str); }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         window.PropertiesPanel = new PropertiesPanel();
+
+        // Event-Bus Subscriptions
+        window.EditorEvents?.on('selection:changed', (obj) => window.PropertiesPanel.show(obj));
+        window.EditorEvents?.on('selection:cleared', () => window.PropertiesPanel.hide());
     });
 })();

@@ -17,9 +17,22 @@
             this.undoStack = [];
             this.redoStack = [];
             this.isSaving = false;
-            this.isDirty = false;
+            this._isDirty = false;
             this.marginPreset = 'schmal';
             this.init();
+        }
+
+        get isDirty() { return this._isDirty; }
+        set isDirty(val) {
+            this._isDirty = val;
+            this.updateDirtyIndicator();
+            // Auto-Save: 60s nach letzter Änderung
+            if (val) {
+                clearTimeout(this._autoSaveTimer);
+                this._autoSaveTimer = setTimeout(() => {
+                    if (this._isDirty && !this.isSaving) this.save();
+                }, 60000);
+            }
         }
 
         init() {
@@ -77,6 +90,15 @@
                 this.onSelectionChanged();
             });
 
+            // Kontextmenü
+            this.canvas.upperCanvasEl.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const pointer = this.canvas.getScenePoint(e);
+                const target = this.canvas.findTarget(e);
+                if (target) this.canvas.setActiveObject(target);
+                this.showContextMenu(e.clientX, e.clientY, !!target);
+            });
+
             this.canvas.on('object:added', () => {
                 this.updateLayerList();
             });
@@ -85,55 +107,94 @@
                 this.updateLayerList();
             });
 
-            // Snap to grid + Hilfslinien
+            // Snap to grid + Snap-to-Object + dynamische Hilfslinien
+            this._snapLines = [];
             this.canvas.on('object:moving', (e) => {
+                // Entferne alte Snap-Linien
+                this._snapLines.forEach(l => this.canvas.remove(l));
+                this._snapLines = [];
+
                 if (!this.snapToGrid) return;
                 const obj = e.target;
                 const grid = this.gridSize;
-                const snapThreshold = 8; // px Fangbereich
+                const snapThreshold = 8;
 
-                // Snap-Punkte sammeln: Raster + Seitenränder + Mittellinien
+                // Snap-Punkte: Seitenränder + Mittellinien
                 const m = this.margins;
-                const snapX = [
-                    m.left,                                    // Linker Rand
-                    CONFIG.canvasWidth - m.right,               // Rechter Rand
-                    CONFIG.canvasWidth / 2,                     // Seitenmitte H
-                ];
-                const snapY = [
-                    m.top,                                     // Oberer Rand
-                    CONFIG.canvasHeight - m.bottom,             // Unterer Rand
-                    CONFIG.canvasHeight / 2,                    // Seitenmitte V
-                ];
+                const snapX = [m.left, CONFIG.canvasWidth - m.right, CONFIG.canvasWidth / 2];
+                const snapY = [m.top, CONFIG.canvasHeight - m.bottom, CONFIG.canvasHeight / 2];
+
+                // Snap-to-Object: Kanten und Mitten anderer Objekte sammeln
+                this.canvas.getObjects().forEach(other => {
+                    if (other === obj || other._isGuide || other._isSnapLine) return;
+                    const oW = (other.width || 0) * (other.scaleX || 1);
+                    const oH = (other.height || 0) * (other.scaleY || 1);
+                    snapX.push(other.left, other.left + oW, other.left + oW / 2);
+                    snapY.push(other.top, other.top + oH, other.top + oH / 2);
+                });
 
                 let newLeft = Math.round(obj.left / grid) * grid;
                 let newTop = Math.round(obj.top / grid) * grid;
 
                 const objW = (obj.width || 0) * (obj.scaleX || 1);
                 const objH = (obj.height || 0) * (obj.scaleY || 1);
+                const snappedX = [];
+                const snappedY = [];
 
-                // Prüfe ob Objekt-Kanten oder -Mitte nahe an Hilfslinien sind
                 for (const sx of snapX) {
-                    if (Math.abs(obj.left - sx) < snapThreshold) newLeft = sx;                          // Linke Kante
-                    if (Math.abs(obj.left + objW - sx) < snapThreshold) newLeft = sx - objW;            // Rechte Kante
-                    if (Math.abs(obj.left + objW / 2 - sx) < snapThreshold) newLeft = sx - objW / 2;   // Mitte
+                    if (Math.abs(obj.left - sx) < snapThreshold) { newLeft = sx; snappedX.push(sx); }
+                    else if (Math.abs(obj.left + objW - sx) < snapThreshold) { newLeft = sx - objW; snappedX.push(sx); }
+                    else if (Math.abs(obj.left + objW / 2 - sx) < snapThreshold) { newLeft = sx - objW / 2; snappedX.push(sx); }
                 }
                 for (const sy of snapY) {
-                    if (Math.abs(obj.top - sy) < snapThreshold) newTop = sy;                            // Obere Kante
-                    if (Math.abs(obj.top + objH - sy) < snapThreshold) newTop = sy - objH;              // Untere Kante
-                    if (Math.abs(obj.top + objH / 2 - sy) < snapThreshold) newTop = sy - objH / 2;     // Mitte
+                    if (Math.abs(obj.top - sy) < snapThreshold) { newTop = sy; snappedY.push(sy); }
+                    else if (Math.abs(obj.top + objH - sy) < snapThreshold) { newTop = sy - objH; snappedY.push(sy); }
+                    else if (Math.abs(obj.top + objH / 2 - sy) < snapThreshold) { newTop = sy - objH / 2; snappedY.push(sy); }
                 }
 
                 obj.set({ left: newLeft, top: newTop });
+
+                // Dynamische Snap-Linien zeichnen (magenta)
+                const lineProps = { stroke: '#ff00ff', strokeWidth: 1, selectable: false, evented: false, excludeFromExport: true, _isSnapLine: true };
+                snappedX.forEach(x => {
+                    const line = new fabric.Line([x, 0, x, CONFIG.canvasHeight], lineProps);
+                    this.canvas.add(line);
+                    this._snapLines.push(line);
+                });
+                snappedY.forEach(y => {
+                    const line = new fabric.Line([0, y, CONFIG.canvasWidth, y], lineProps);
+                    this.canvas.add(line);
+                    this._snapLines.push(line);
+                });
+            });
+
+            // Snap-Linien entfernen nach Bewegung
+            this.canvas.on('object:modified', () => {
+                this._snapLines.forEach(l => this.canvas.remove(l));
+                this._snapLines = [];
             });
         }
 
         bindKeyboard() {
             document.addEventListener('keydown', (e) => {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+                // Ignoriere Eingabefelder (außer Escape)
+                const inInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT';
+                if (inInput && e.key !== 'Escape') return;
 
                 if (e.key === 'Delete' || e.key === 'Backspace') {
                     e.preventDefault();
                     this.deleteSelected();
+                } else if (e.key === 'Escape') {
+                    this.canvas.discardActiveObject();
+                    this.canvas.renderAll();
+                } else if (e.ctrlKey && e.key === 'a') {
+                    e.preventDefault();
+                    const objs = this.canvas.getObjects().filter(o => !o._isGuide);
+                    if (objs.length > 0) {
+                        const sel = new fabric.ActiveSelection(objs, { canvas: this.canvas });
+                        this.canvas.setActiveObject(sel);
+                        this.canvas.renderAll();
+                    }
                 } else if (e.ctrlKey && e.key === 'z') {
                     e.preventDefault();
                     this.undo();
@@ -146,29 +207,80 @@
                 } else if (e.ctrlKey && e.key === 's') {
                     e.preventDefault();
                     this.save();
+                } else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    const obj = this.canvas.getActiveObject();
+                    if (!obj) return;
+                    e.preventDefault();
+                    const step = e.shiftKey ? 10 : 1;
+                    switch (e.key) {
+                        case 'ArrowLeft':  obj.set('left', (obj.left || 0) - step); break;
+                        case 'ArrowRight': obj.set('left', (obj.left || 0) + step); break;
+                        case 'ArrowUp':    obj.set('top', (obj.top || 0) - step); break;
+                        case 'ArrowDown':  obj.set('top', (obj.top || 0) + step); break;
+                    }
+                    obj.setCoords();
+                    this.canvas.renderAll();
+                    this.isDirty = true;
+                    window.EditorEvents?.emit('selection:changed', obj);
+                    // Debounced saveState für Nudging
+                    clearTimeout(this._nudgeTimer);
+                    this._nudgeTimer = setTimeout(() => this.saveState(), 300);
+                }
+            });
+
+            // Beforeunload-Warning bei ungespeicherten Änderungen
+            window.addEventListener('beforeunload', (e) => {
+                if (this.isDirty) {
+                    e.preventDefault();
                 }
             });
         }
 
         onSelectionChanged() {
             const obj = this.canvas.getActiveObject();
-            if (obj && window.PropertiesPanel) {
-                window.PropertiesPanel.show(obj);
-            }
+            if (obj) window.EditorEvents?.emit('selection:changed', obj);
         }
 
         onSelectionCleared() {
-            if (window.PropertiesPanel) {
-                window.PropertiesPanel.hide();
+            window.EditorEvents?.emit('selection:cleared');
+        }
+
+        // --- Dirty Indicator ---
+
+        updateDirtyIndicator() {
+            const nameEl = document.getElementById('editor-template-name');
+            if (nameEl) {
+                const baseName = CONFIG.templateName || 'Dokument';
+                nameEl.textContent = this._isDirty ? baseName + ' *' : baseName;
             }
+            const saveBtn = document.getElementById('btn-save');
+            if (saveBtn) {
+                saveBtn.classList.toggle('btn-warning', this._isDirty);
+                saveBtn.classList.toggle('btn-success', !this._isDirty);
+                saveBtn.title = this._isDirty ? 'Ungespeicherte Änderungen (Ctrl+S)' : 'Gespeichert ✓';
+            }
+        }
+
+        /** Berechnet die Viewport-Mitte auf dem Canvas (Zoom-berücksichtigt) */
+        getViewportCenter() {
+            const area = document.getElementById('canvas-area');
+            if (!area) return { left: CONFIG.canvasWidth / 2 - 100, top: CONFIG.canvasHeight / 2 };
+            const rect = area.getBoundingClientRect();
+            const scrollLeft = area.scrollLeft || 0;
+            const scrollTop = area.scrollTop || 0;
+            return {
+                left: (rect.width / 2 + scrollLeft) / this.zoom - 100,
+                top: (rect.height / 2 + scrollTop) / this.zoom - 20,
+            };
         }
 
         // --- Element Operations ---
 
         addText(text, options = {}) {
+            const center = this.getViewportCenter();
             const defaults = {
-                left: 100,
-                top: 100,
+                left: center.left,
+                top: center.top,
                 width: 200,
                 fontSize: 14,
                 fontFamily: 'DejaVu Sans',
@@ -185,9 +297,10 @@
         }
 
         addFieldPlaceholder(fieldName, fieldLabel, options = {}) {
+            const center = this.getViewportCenter();
             const defaults = {
-                left: 100,
-                top: 100,
+                left: center.left,
+                top: center.top,
                 width: 250,
                 fontSize: 12,
                 fontFamily: 'DejaVu Sans',
@@ -208,9 +321,10 @@
         }
 
         addSystemVar(varName, displayText, options = {}) {
+            const center = this.getViewportCenter();
             const defaults = {
-                left: 100,
-                top: 100,
+                left: center.left,
+                top: center.top,
                 width: 200,
                 fontSize: 12,
                 fontFamily: 'DejaVu Sans',
@@ -238,9 +352,10 @@
                 if (img.width > 200) {
                     img.scaleToWidth(200);
                 }
+                const center = this.getViewportCenter();
                 img.set(Object.assign({
-                    left: 100,
-                    top: 100,
+                    left: center.left,
+                    top: center.top,
                     custom: {
                         elementType: 'image',
                         assetId: assetId,
@@ -434,9 +549,7 @@
             this.canvas.renderAll();
             this.saveState();
             this.isDirty = true;
-            if (window.PropertiesPanel) {
-                window.PropertiesPanel.show(obj);
-            }
+            window.EditorEvents?.emit('selection:changed', obj);
         }
 
         // --- Hilfslinien (Seitenränder + Raster) ---
@@ -554,6 +667,8 @@
             let html = '';
             for (let i = objects.length - 1; i >= 0; i--) {
                 const obj = objects[i];
+                // Hilfslinien und Snap-Linien nicht in der Layer-Liste anzeigen
+                if (obj._isGuide || obj._isSnapLine) continue;
                 const custom = obj.custom || {};
                 const isActive = obj === active;
                 let icon = 'fa-solid fa-question';
@@ -565,7 +680,7 @@
                         label = (obj.text || '').substring(0, 25) || 'Text';
                         break;
                     case 'field_placeholder':
-                        icon = 'fa-solid fa-input-text';
+                        icon = 'fa-solid fa-i-cursor';
                         label = custom.fieldLabel || custom.fieldName || 'Feld';
                         break;
                     case 'system_var':
@@ -606,6 +721,9 @@
             }
 
             container.innerHTML = html || '<div class="text-muted" style="font-size:0.8rem;padding:0.5rem;">Keine Elemente</div>';
+
+            // Feld-Status in der Sidebar aktualisieren
+            if (window.ElementLibrary) window.ElementLibrary.updateFieldStatus();
 
             container.querySelectorAll('.layer-item').forEach(item => {
                 item.addEventListener('click', () => {
@@ -799,21 +917,81 @@
             this.updateLayerList();
         }
 
-        // --- Utility ---
+        // --- Kontextmenü ---
 
-        pxToMm(px) {
-            return Math.round((px / PX_PER_MM) * 100) / 100;
+        showContextMenu(x, y, hasTarget) {
+            this.hideContextMenu();
+            const menu = document.createElement('div');
+            menu.id = 'editor-context-menu';
+            menu.className = 'dropdown-menu dropdown-menu-dark show';
+            menu.style.cssText = `position:fixed;left:${x}px;top:${y}px;z-index:9999;`;
+
+            const item = (icon, label, action, disabled = false) =>
+                `<a class="dropdown-item${disabled ? ' disabled' : ''}" href="#" data-ctx="${action}"><i class="fa-solid ${icon} me-2" style="width:16px;"></i>${label}</a>`;
+
+            let html = '';
+            if (hasTarget) {
+                html += item('fa-copy', 'Duplizieren', 'duplicate');
+                html += item('fa-trash', 'Löschen', 'delete');
+                html += '<li><hr class="dropdown-divider"></li>';
+                html += item('fa-layer-group', 'Nach vorne', 'bring-front');
+                html += item('fa-layer-group', 'Nach hinten', 'send-back');
+                html += '<li><hr class="dropdown-divider"></li>';
+                html += item('fa-align-center', 'Horizontal zentrieren', 'center-h');
+                html += item('fa-arrows-up-down', 'Vertikal zentrieren', 'center-v');
+                html += item('fa-crosshairs', 'Seitenmitte', 'page-center');
+            } else {
+                html += item('fa-paste', 'Text einfügen', 'paste-text');
+                html += item('fa-arrows-to-dot', 'Alle auswählen', 'select-all');
+            }
+
+            menu.innerHTML = html;
+            document.body.appendChild(menu);
+
+            // Menü nicht über Bildschirmrand hinaus
+            const rect = menu.getBoundingClientRect();
+            if (rect.right > window.innerWidth) menu.style.left = (x - rect.width) + 'px';
+            if (rect.bottom > window.innerHeight) menu.style.top = (y - rect.height) + 'px';
+
+            menu.querySelectorAll('[data-ctx]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.hideContextMenu();
+                    switch (btn.dataset.ctx) {
+                        case 'duplicate': this.duplicateSelected(); break;
+                        case 'delete': this.deleteSelected(); break;
+                        case 'bring-front': this.bringForward(); break;
+                        case 'send-back': this.sendBackward(); break;
+                        case 'center-h': this.alignObject('center-h'); break;
+                        case 'center-v': this.alignObject('center-v'); break;
+                        case 'page-center': this.alignObject('page-center'); break;
+                        case 'paste-text': this.addText('Neuer Text'); break;
+                        case 'select-all':
+                            const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine);
+                            if (objs.length) {
+                                this.canvas.setActiveObject(new fabric.ActiveSelection(objs, { canvas: this.canvas }));
+                                this.canvas.renderAll();
+                            }
+                            break;
+                    }
+                });
+            });
+
+            // Menü schließen bei Klick außerhalb
+            setTimeout(() => {
+                document.addEventListener('click', () => this.hideContextMenu(), { once: true });
+            }, 10);
         }
 
-        mmToPx(mm) {
-            return mm * PX_PER_MM;
+        hideContextMenu() {
+            document.getElementById('editor-context-menu')?.remove();
         }
 
-        escapeHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
+        // --- Utility (delegiert an EditorUtils) ---
+
+        pxToMm(px) { return window.EditorUtils.pxToMm(px); }
+        mmToPx(mm) { return window.EditorUtils.mmToPx(mm); }
+        escapeHtml(str) { return window.EditorUtils.escapeHtml(str); }
 
         getCanvas() {
             return this.canvas;
