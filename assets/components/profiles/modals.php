@@ -403,3 +403,23 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
     </script>
 <?php } ?>
 <!-- MODAL ENDE -->
+
+<!-- MODAL -->
+<div class="modal fade" id="modalPersoDelete" tabindex="-1" aria-labelledby="modalPersoDeleteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPersoDeleteLabel">Mitarbeiter löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Möchtest du diesen Mitarbeiter wirklich unwiderruflich löschen?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                <a href="<?= BASE_PATH ?>mitarbeiter/delete.php?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>" class="btn btn-danger">Löschen</a>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MODAL ENDE -->
