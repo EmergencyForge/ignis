@@ -147,7 +147,7 @@ $currentDateTime = date('Y-m-d\TH:i');
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <?php

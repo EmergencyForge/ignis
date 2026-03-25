@@ -233,7 +233,7 @@ if (!empty($diagnose_weitere_array)) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <?php

@@ -56,7 +56,7 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <?php

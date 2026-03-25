@@ -28,7 +28,13 @@
         $appresult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($appresult)) {
-            echo "<tr><td colspan='6' class='text-center'>Es sind keine Anträge hinterlegt.</td></tr>";
+            echo "<tr><td colspan='6'>
+                <div class='empty-state'>
+                    <div class='empty-state-icon'><i class='fa-solid fa-clipboard'></i></div>
+                    <h6>Noch keine Anträge</h6>
+                    <p>Reiche deinen ersten Antrag über den Button oben rechts ein.</p>
+                </div>
+            </td></tr>";
         } else {
             foreach ($appresult as $row) {
                 $adddat = date("d.m.Y | H:i", strtotime($row['time_added']));

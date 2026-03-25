@@ -329,7 +329,7 @@ if (!empty($daten['rettungstechnik'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <?php

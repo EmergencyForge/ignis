@@ -61,7 +61,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <?php

@@ -118,7 +118,7 @@ $createDate = new DateTime($antrag['time_added'] ?? 'now');
 ?>
 
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="de" data-bs-theme="light">
 
 <head>
 

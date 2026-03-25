@@ -32,7 +32,7 @@ $fwginfo = $stmtf->fetchAll(PDO::FETCH_UNIQUE);
 ?>
 
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="de" data-bs-theme="light">
 
 <head>
     <?php
