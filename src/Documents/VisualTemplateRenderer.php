@@ -279,7 +279,7 @@ HTML;
 
         $style = $this->cssArrayToString($css);
 
-        return "<img src=\"{$src}\" style=\"{$style}\" />\n";
+        return "<img src=\"{$src}\" style=\"{$style}\" alt=\"\" />\n";
     }
 
     /**

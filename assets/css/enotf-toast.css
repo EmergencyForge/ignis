@@ -77,3 +77,15 @@
     from { transform: translateX(0);    opacity: 1; }
     to   { transform: translateX(30px); opacity: 0; }
 }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .enotf-toast {
+        animation: none;
+        opacity: 1;
+    }
+    .enotf-toast--leaving {
+        animation: none;
+        opacity: 0;
+    }
+}

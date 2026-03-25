@@ -462,3 +462,30 @@ body {
     background-position: 0 50%;
   }
 }
+
+// ========================================
+// REDUCED MOTION
+// ========================================
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// ========================================
+// GLOBAL FOCUS-VISIBLE FALLBACK
+// ========================================
+:focus-visible {
+  outline: 2px solid var(--main-color, #d10000);
+  outline-offset: 2px;
+}
+
+// Remove outline only on mouse click, keep for keyboard
+:focus:not(:focus-visible) {
+  outline: none;
+}

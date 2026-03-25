@@ -2570,8 +2570,10 @@ body[data-page="verlauf"] .value-indicator {
   text-decoration: none;
 }
 
-.edivi__iconlink-button:focus {
+.edivi__iconlink-button:focus-visible {
   outline: none;
+  box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.35);
+  border-radius: 3px;
 }
 
 #freigabeButton::after {
