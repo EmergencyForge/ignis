@@ -1,4 +1,3 @@
-@charset "UTF-8";
 :root {
   --secondary-color: #011e4a;
   --secondary-color-dimmed: #0a2e5a;
@@ -632,11 +631,11 @@ body {
 }
 
 [class*=edivi__interactbutton] [type=radio].btn-check + label:after {
-  content: "";
+  content: "\f111";
 }
 
 [class*=edivi__interactbutton] [type=radio].btn-check:checked + label:after {
-  content: "";
+  content: "\f192";
 }
 
 [class*=edivi__interactbutton] > label.edivi__unauffaellig,
@@ -776,7 +775,7 @@ body {
 }
 
 [class*=edivi__interactbutton] > label:after {
-  content: "";
+  content: "\f0c8";
   font-family: "Font Awesome 7 Free";
   position: absolute;
   right: 7px;
@@ -789,7 +788,7 @@ body {
 }
 
 [class*=edivi__interactbutton] .btn-check:checked + label:after {
-  content: "";
+  content: "\f14a";
 }
 
 [class*=edivi__interactbutton] > .edivi__interactbutton-input,
@@ -831,13 +830,11 @@ body {
     max-height: none;
     min-height: 50px;
   }
-
   #edivi__nidanav > a:after {
     font-size: 1.6rem;
   }
-
   [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton] > label {
     font-size: 0.9rem;
     max-height: none;
     min-height: 50px;
@@ -848,13 +845,11 @@ body {
     font-size: 1.4rem;
     left: 5px;
   }
-
   [class*=edivi__interactbutton] > *:after {
     display: none;
   }
-
   [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton] > label {
     padding-right: 4px;
     padding: 15px 10px;
     padding-left: 10px;
@@ -870,14 +865,12 @@ body {
     font-size: 0.85rem;
     min-height: 45px;
   }
-
   #edivi__nidanav > a:after {
     font-size: 1.2rem;
     left: 4px;
   }
-
   [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton] > label {
     padding: 12px 8px;
     font-size: 0.85rem;
     min-height: 45px;
@@ -890,14 +883,12 @@ body {
     font-size: 0.8rem;
     min-height: 40px;
   }
-
   #edivi__nidanav > a:after {
     font-size: 1rem;
     left: 3px;
   }
-
   [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton] > label {
     padding: 10px 6px;
     font-size: 0.8rem;
     min-height: 40px;
@@ -910,37 +901,32 @@ body {
     flex-wrap: wrap;
     width: 100%;
   }
-
   #edivi__nidanav > a {
     flex: 1 1 auto;
     min-width: calc(50% - 2px);
     text-align: center;
     padding-left: 8px;
   }
-
   #edivi__nidanav > a:after {
     display: none;
   }
-
   #edivi__nidanav > a:before {
     width: 100%;
     height: 3px;
     top: 0;
     left: 0;
   }
-
   #edivi__nidanav > a.edivi__nidanav-unfilled:before,
-#edivi__nidanav > a.edivi__nidanav-partfilled:before,
-#edivi__nidanav > a.edivi__nidanav-filled:before {
+  #edivi__nidanav > a.edivi__nidanav-partfilled:before,
+  #edivi__nidanav > a.edivi__nidanav-filled:before {
     top: 0;
   }
-
   #edivi__content {
     margin-top: 1rem;
   }
 }
 .edivi__interactbutton-more > a:after {
-  content: "";
+  content: "\f105";
   font-family: "Font Awesome 7 Free";
   position: absolute;
   right: 7px;
@@ -953,7 +939,7 @@ body {
 }
 
 [class*=edivi__interactbutton] > a.has-submenu:after {
-  content: "";
+  content: "\f105";
   font-family: "Font Awesome 7 Free";
   position: absolute;
   right: 7px;
@@ -988,17 +974,14 @@ body {
     flex: 0 0 100% !important;
     max-width: 100% !important;
   }
-
   #edivi__container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
-
   #edivi__content {
     flex: 1;
   }
-
   .edivi__freigabe-buttons {
     position: relative !important;
     margin-top: auto !important;
@@ -1011,8 +994,8 @@ body {
 }
 @media (max-width: 1155px) {
   #edivi__content .row > .col,
-#edivi__content .row > .col-8,
-#edivi__login #edivi__content .row > .col-2 {
+  #edivi__content .row > .col-8,
+  #edivi__login #edivi__content .row > .col-2 {
     max-width: 100%;
   }
 }
@@ -1165,49 +1148,40 @@ body#edivi__print {
     padding: 10mm;
     font-size: 8pt;
   }
-
   #edivi__print h6,
-#edivi__print p {
+  #edivi__print p {
     font-size: 8pt !important;
   }
-
   #edivi__print h5 {
     font-size: 9pt !important;
   }
-
   #edivi__print input,
-#edivi__print textarea,
-#edivi__print select {
+  #edivi__print textarea,
+  #edivi__print select {
     font-size: 9pt !important;
     font-weight: 600;
   }
-
   #edivi__print .container {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
   }
-
   #edivi__print .row {
     display: flex !important;
     flex-wrap: wrap !important;
   }
-
   #edivi__print .col {
     flex: 1 !important;
   }
-
   #edivi__print label {
     opacity: 0.6;
     z-index: -1;
     font-size: 6pt !important;
   }
-
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-
   @page {
     margin: 0;
   }
@@ -1915,23 +1889,19 @@ body[data-page=verlauf] .edivi__vitalparam-mainbuttons button {
   body[data-page=verlauf] .col.position-relative {
     padding-bottom: 0;
   }
-
   body[data-page=verlauf] .edivi__vitalparam-mainbuttons {
     flex-direction: column;
     width: 100% !important;
   }
-
   body[data-page=verlauf] .edivi__vitalparam-mainbuttons > .col {
     border-left: none !important;
     border-top: 4px solid #191919;
   }
-
   body[data-page=verlauf] .edivi__vitalparam-mainbuttons > .col:first-child {
     border-top: none;
   }
-
   body[data-page=verlauf] .col-5,
-body[data-page=verlauf] .keypad-container {
+  body[data-page=verlauf] .keypad-container {
     width: 100%;
     padding-bottom: 200px;
   }
@@ -2297,16 +2267,13 @@ body[data-page=verlauf] .keypad-container {
     width: 70px;
     min-width: 70px;
   }
-
   body[data-page=verlauf] .range-value {
     font-size: 0.7rem;
   }
-
   body[data-page=verlauf] .strip-label {
     font-size: 0.7rem;
     padding: 4px 2px;
   }
-
   body[data-page=verlauf] .range-segment {
     flex-direction: row;
     justify-content: center;
@@ -2314,7 +2281,6 @@ body[data-page=verlauf] .keypad-container {
     border-bottom: 5px solid;
     padding: 4px 2px;
   }
-
   body[data-page=verlauf] .range-segment .range-value {
     font-size: 0.7rem;
     writing-mode: horizontal-tb;
@@ -2328,23 +2294,19 @@ body[data-page=verlauf] .keypad-container {
   body[data-page=verlauf] .col-5 {
     flex-direction: column;
   }
-
   body[data-page=verlauf] .range-strip-wrapper {
     width: 100%;
     order: -1;
     margin-bottom: 15px;
   }
-
   body[data-page=verlauf] .range-strip-container {
     min-height: 120px;
     max-height: 120px;
   }
-
   body[data-page=verlauf] .range-strip {
     flex-direction: row;
     gap: 2px;
   }
-
   body[data-page=verlauf] .range-item {
     flex-direction: column;
     border-left: none;
@@ -2352,12 +2314,10 @@ body[data-page=verlauf] .keypad-container {
     justify-content: center;
     padding: 4px 2px;
   }
-
   body[data-page=verlauf] .range-value {
     font-size: 0.7rem;
     writing-mode: horizontal-tb;
   }
-
   body[data-page=verlauf] .strip-label {
     margin-bottom: 8px;
     min-height: 30px;
@@ -2404,7 +2364,6 @@ body[data-page=verlauf] .value-indicator {
     height: 100%;
     transform: translateX(-50%);
   }
-
   @keyframes indicatorSlideIn {
     from {
       opacity: 0;
@@ -2518,8 +2477,10 @@ body[data-page=verlauf] .value-indicator {
   text-decoration: none;
 }
 
-.edivi__iconlink-button:focus {
+.edivi__iconlink-button:focus-visible {
   outline: none;
+  box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.35);
+  border-radius: 3px;
 }
 
 #freigabeButton::after {

@@ -707,8 +707,10 @@ select.form-select {
       text-decoration: none;
     }
 
-    &:focus {
+    &:focus-visible {
       outline: none;
+      box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.3);
+      border-radius: var(--radius-sm);
     }
   }
 }
@@ -1733,4 +1735,46 @@ td.dt-empty {
     margin-top: 0.15rem;
     font-weight: 400;
   }
+}
+
+// ========================================
+// TEXT OVERFLOW HARDENING
+// ========================================
+
+// Modal titles: prevent overflow on long text
+.modal-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+// Table cells: allow wrapping on long content
+.table tbody td {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+// Card titles: prevent layout break
+.card-title {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+// Toast messages: handle long text gracefully
+.toast-message {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+// Sidebar links: already has ellipsis, ensure min-width
+.sidebar-link-text {
+  min-width: 0;
+}
+
+// Breadcrumb overflow protection
+.admin-breadcrumb {
+  overflow: hidden;
+  flex-wrap: wrap;
 }
