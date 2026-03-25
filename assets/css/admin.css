@@ -1339,50 +1339,38 @@ td.dt-empty {
     width: 0;
   }
 }
-.intra__stats-card {
-  background-color: var(--body-bg-lighter) !important;
-  border: 1px solid var(--darkgray) !important;
-  border-radius: var(--radius-lg) !important;
-  box-shadow: none !important;
-  position: relative;
-  overflow: hidden;
-}
-.intra__stats-card .card-body {
-  padding: 1rem 1.25rem;
-}
-.intra__stats-card .card-title {
-  font-size: var(--fs-sm);
-  color: var(--text-dimmed) !important;
-  margin: 0 0 0.35rem !important;
-  text-transform: none;
-  letter-spacing: normal;
-  font-weight: 500;
+.intra__stats-strip {
   display: flex;
+  gap: 1px;
+  background: var(--darkgray);
+  border: 1px solid var(--darkgray);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.intra__stat-item {
+  flex: 1;
+  background: var(--body-bg-lighter);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.15rem;
 }
-.intra__stats-card .card-title i {
-  font-size: 0.7rem;
-  position: static;
-  color: var(--text-dimmed);
-}
-.intra__stats-card .card-text {
-  font-size: 1.6rem;
+
+.intra__stat-value {
+  font-size: 1.4rem;
   font-weight: 600;
-  color: var(--white);
-  margin: 0 !important;
+  color: var(--text-title);
   line-height: 1.2;
 }
-.intra__stats-card .stat-sub {
+
+.intra__stat-label {
   font-size: var(--fs-xs);
   color: var(--text-dimmed);
-  margin-top: 0.2rem;
-}
-.intra__stats-card > .card-body > i:last-child:not(.card-title i) {
-  display: none;
-}
-.intra__stats-card.intra__stats-users, .intra__stats-card.intra__stats-workers, .intra__stats-card.intra__stats-enotf, .intra__stats-card.intra__stats-documents {
-  --stat-bg-color: var(--body-bg-lighter);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .einsatz-sidebar {
@@ -1630,8 +1618,12 @@ td.dt-empty {
     width: 100%;
     flex-wrap: wrap;
   }
-  .intra__stats-card .card-text {
-    font-size: 1.3rem;
+  .intra__stats-strip {
+    flex-wrap: wrap;
+  }
+  .intra__stat-item {
+    flex: 1 1 calc(50% - 1px);
+    min-width: 0;
   }
   .table-responsive,
   .dataTables_wrapper {
@@ -1688,11 +1680,14 @@ td.dt-empty {
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     padding: 0.6rem 0.85rem;
   }
-  .intra__stats-card .card-body {
-    padding: 0.75rem 1rem;
+  .intra__stat-value {
+    font-size: 1.1rem;
   }
-  .intra__stats-card .card-text {
-    font-size: 1.2rem;
+  .intra__stat-label {
+    font-size: 0.65rem;
+  }
+  .intra__stat-item {
+    padding: 0.5rem 0.6rem;
   }
   .table thead th {
     padding: 0.5rem;
@@ -1758,7 +1753,7 @@ td.dt-empty {
   .page-header h1 {
     font-size: 1rem;
   }
-  .intra__stats-card .card-text {
+  .intra__stat-value {
     font-size: 1rem;
   }
 }
