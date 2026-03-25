@@ -6,6 +6,11 @@
  */
 
 require_once __DIR__ . '/../../assets/config/config.php';
+require_once __DIR__ . '/../../assets/config/database.php';
+require_once __DIR__ . '/../../src/Documents/TemplateLayoutManager.php';
+
+use App\Documents\TemplateLayoutManager;
+use App\Auth\Permissions;
 
 header('Content-Type: application/json');
 
@@ -15,7 +20,7 @@ if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
     exit;
 }
 
-$layoutManager = new \App\Documents\TemplateLayoutManager($pdo);
+$layoutManager = new TemplateLayoutManager($pdo);
 
 try {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {

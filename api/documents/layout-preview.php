@@ -62,6 +62,8 @@ try {
     echo '<!DOCTYPE html><html><body style="font-family:sans-serif;padding:2rem;">';
     echo '<h3 style="color:#dc3545;">Vorschau-Fehler</h3>';
     echo '<p>' . htmlspecialchars($e->getMessage()) . '</p>';
-    echo '<pre style="font-size:0.8rem;color:#666;">' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
+    if (defined('APP_DEBUG') && APP_DEBUG) {
+        echo '<pre style="font-size:0.8rem;color:#666;">' . htmlspecialchars($e->getTraceAsString()) . '</pre>';
+    }
     echo '</body></html>';
 }
