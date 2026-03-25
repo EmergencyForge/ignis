@@ -524,7 +524,8 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     }
 
     .sidebar-section-title {
-        display: block;
+        display: flex;
+        align-items: center;
         padding: 0.5rem 0.75rem 0.15rem 1.75rem;
         font-size: 0.65rem;
         text-transform: uppercase;
@@ -537,6 +538,21 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         padding-top: 0.3rem;
         margin-top: 0;
     }
+
+    /* Section category dots */
+    .sidebar-section-title[data-section]::before {
+        content: '';
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        margin-right: 0.4rem;
+        flex-shrink: 0;
+    }
+    .sidebar-section-title[data-section="enotf"]::before,
+    .sidebar-section-title[data-section="enotf-settings"]::before { background: var(--main-color); }
+    .sidebar-section-title[data-section="firetab"]::before { background: var(--btn-success-bg, #3a7d44); }
+    .sidebar-section-title[data-section="manv"]::before { background: var(--btn-warning-bg, #c49a2a); }
+    .sidebar-section-title[data-section="system"]::before { background: var(--link-color, #7ba3d4); }
 
     .sidebar-sublink {
         display: flex;
@@ -776,18 +792,18 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
         </a>
         <div class="sidebar-submenu" data-submenu="protokolle"><div class="sidebar-submenu-inner">
-            <span class="sidebar-section-title">eNOTF</span>
+            <span class="sidebar-section-title" data-section="enotf">eNOTF</span>
             <a href="<?= BASE_PATH ?>enotf/" target="_blank" class="sidebar-sublink">eNOTF öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
             <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
                 <a href="<?= BASE_PATH ?>enotf/admin/list.php" class="sidebar-sublink">Prüfliste</a>
             <?php endif; ?>
 
             <?php if (Permissions::check(['admin', 'manv.manage'])): ?>
-                <span class="sidebar-section-title">MANV-Board</span>
+                <span class="sidebar-section-title" data-section="manv">MANV-Board</span>
                 <a href="<?= BASE_PATH ?>manv/index.php" class="sidebar-sublink">MANV-Board</a>
             <?php endif; ?>
 
-            <span class="sidebar-section-title">FW Einsatzprotokolle</span>
+            <span class="sidebar-section-title" data-section="firetab">FW Einsatzprotokolle</span>
             <a href="<?= BASE_PATH ?>einsatz/create.php" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
             <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
                 <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="sidebar-sublink">Qualitätsmanagement</a>
@@ -834,7 +850,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <?php endif; ?>
 
                 <?php if (Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>
-                    <span class="sidebar-section-title">eNOTF</span>
+                    <span class="sidebar-section-title" data-section="enotf-settings">eNOTF</span>
                     <?php if (Permissions::check(['admin', 'pois.view'])): ?>
                         <a href="<?= BASE_PATH ?>settings/pois/index.php" class="sidebar-sublink">POIs</a>
                     <?php endif; ?>
@@ -844,7 +860,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                     <?php endif; ?>
                 <?php endif; ?>
 
-                <span class="sidebar-section-title">System</span>
+                <span class="sidebar-section-title" data-section="system">System</span>
                 <?php if (Permissions::check(['admin', 'dashboard.manage'])): ?>
                     <a href="<?= BASE_PATH ?>settings/dashboard/index.php" class="sidebar-sublink">Dashboard</a>
                 <?php endif; ?>

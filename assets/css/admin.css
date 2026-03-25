@@ -640,6 +640,18 @@ select.form-select option {
   font-weight: 600;
   letter-spacing: -0.005em;
 }
+.intra__tile[data-section=documents] {
+  border-left: 3px solid var(--link-color);
+}
+.intra__tile[data-section=applications] {
+  border-left: 3px solid var(--btn-warning-bg);
+}
+.intra__tile[data-section=enotf] {
+  border-left: 3px solid var(--main-color);
+}
+.intra__tile[data-section=firetab] {
+  border-left: 3px solid var(--btn-success-bg);
+}
 
 .row:nth-child(3) .intra__tile {
   animation-delay: 0.05s;

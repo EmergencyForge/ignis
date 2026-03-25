@@ -43,13 +43,13 @@ use App\Helpers\Flash;
 
             <!-- Content sections: generous spacing between groups -->
             <div class="row" style="margin-top:var(--space-xl)">
-                <div class="col intra__tile">
+                <div class="col intra__tile" data-section="documents">
                     <h4 class="mb-3">Eigene Dokumente</h4>
                     <?php include __DIR__ . '/assets/components/index/documents.php' ?>
                 </div>
             </div>
             <div class="row" style="margin-top:var(--space-lg)">
-                <div class="col intra__tile">
+                <div class="col intra__tile" data-section="applications">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h4 class="mb-0">Eigene Anträge</h4>
                         <a href="<?= BASE_PATH ?>antrag/select.php" class="btn btn-success btn-sm"><i class="fa-solid fa-plus"></i> Antrag einreichen</a>
@@ -60,13 +60,13 @@ use App\Helpers\Flash;
 
             <!-- Protokolle group: tighter spacing (related) -->
             <div class="row" style="margin-top:var(--space-xl)">
-                <div class="col intra__tile">
+                <div class="col intra__tile" data-section="enotf">
                     <h4 class="mb-3">Eigene eNOTF-Protokolle</h4>
                     <?php include __DIR__ . '/assets/components/index/protocols.php' ?>
                 </div>
             </div>
             <div class="row" style="margin-top:var(--space-lg)">
-                <div class="col intra__tile">
+                <div class="col intra__tile" data-section="firetab">
                     <h4 class="mb-3">Eigene fireTab-Protokolle</h4>
                     <?php include __DIR__ . '/assets/components/index/fire-protocols.php' ?>
                 </div>
