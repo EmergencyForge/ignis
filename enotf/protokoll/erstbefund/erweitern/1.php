@@ -48,7 +48,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <?php

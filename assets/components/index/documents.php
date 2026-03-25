@@ -14,7 +14,13 @@
         $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$userData) {
-            echo "<tr><td colspan='5' class='text-center'>Benutzerprofil nicht gefunden.</td></tr>";
+            echo "<tr><td colspan='5'>
+                <div class='empty-state'>
+                    <div class='empty-state-icon'><i class='fa-solid fa-user-plus'></i></div>
+                    <h6>Kein Mitarbeiterprofil verknüpft</h6>
+                    <p>Um Dokumente zu sehen, muss ein Mitarbeiterprofil mit deinem Konto verknüpft sein.</p>
+                </div>
+            </td></tr>";
         } else {
             $profileid = $userData['id'];
 
@@ -63,7 +69,13 @@
             ];
 
             if (empty($dokuresult)) {
-                echo "<tr><td colspan='5' class='text-center'>Es sind keine Dokumente hinterlegt.</td></tr>";
+                echo "<tr><td colspan='5'>
+                <div class='empty-state'>
+                    <div class='empty-state-icon'><i class='fa-solid fa-folder-open'></i></div>
+                    <h6>Noch keine Dokumente</h6>
+                    <p>Hier werden deine persönlichen Dokumente wie Urkunden und Zertifikate angezeigt.</p>
+                </div>
+            </td></tr>";
             } else {
                 foreach ($dokuresult as $doks) {
                     $austdatum = date("d.m.Y", strtotime($doks['ausstellungsdatum']));

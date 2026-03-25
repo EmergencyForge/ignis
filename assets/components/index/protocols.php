@@ -36,7 +36,13 @@
         $ediviRows = $stmtdivi->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($ediviRows)) {
-            echo "<tr><td colspan='5' class='text-center'>Es sind keine Protokolle hinterlegt.</td></tr>";
+            echo "<tr><td colspan='5'>
+                <div class='empty-state'>
+                    <div class='empty-state-icon'><i class='fa-solid fa-file-medical'></i></div>
+                    <h6>Noch keine eNOTF-Protokolle</h6>
+                    <p>Deine abgeschlossenen Einsatzprotokolle erscheinen hier automatisch.</p>
+                </div>
+            </td></tr>";
         } else {
             foreach ($ediviRows as $row) {
                 $datetime = new DateTime($row['sendezeit']);

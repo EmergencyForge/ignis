@@ -32,7 +32,7 @@ if ($ziel) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <?php

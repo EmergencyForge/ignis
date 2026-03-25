@@ -81,4 +81,18 @@
         }, { once: true });
     }
 
+    /**
+     * Add loading state to a button, run async action, then remove loading state.
+     * Usage: btnLoading(buttonEl, async () => { await fetch(...) })
+     * @param {HTMLElement} btn - The button element
+     * @param {Function} asyncFn - Async function to execute
+     */
+    window.btnLoading = function(btn, asyncFn) {
+        if (btn.classList.contains('btn-loading')) return Promise.resolve();
+        btn.classList.add('btn-loading');
+        return Promise.resolve(asyncFn()).finally(function() {
+            btn.classList.remove('btn-loading');
+        });
+    };
+
 })(window);

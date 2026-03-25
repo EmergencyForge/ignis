@@ -10,6 +10,29 @@
   --fs-sm: 0.78rem;   // breadcrumbs, labels
   --fs-base: 0.82rem; // body text, table cells
   --fs-md: 0.88rem;   // sidebar links, modal titles
+
+  // Spacing scale
+  --space-xs: 0.25rem;  // 4px  — tight inline spacing
+  --space-sm: 0.5rem;   // 8px  — within components
+  --space-md: 1rem;     // 16px — between siblings
+  --space-lg: 1.5rem;   // 24px — between sections
+  --space-xl: 2.5rem;   // 40px — between major groups
+
+  // Interactive color tokens
+  --link-color: #7ba3d4;
+  --link-hover: #92b5e0;
+  --btn-primary-bg: #4a6fa5;
+  --btn-primary-hover: #5680b8;
+  --btn-primary-active: #3f6094;
+  --btn-success-bg: #3a7d44;
+  --btn-success-hover: #449951;
+  --btn-success-active: #326e3b;
+  --btn-danger-bg: #b03a3a;
+  --btn-danger-hover: #c44545;
+  --btn-danger-active: #9c3232;
+  --btn-warning-bg: #c49a2a;
+  --btn-warning-hover: #d4a832;
+  --btn-warning-active: #b08a24;
 }
 
 // ========================================
@@ -50,12 +73,12 @@
 // LINK COLORS (dezenter als Bootstrap default)
 // ========================================
 a {
-  color: #7ba3d4;
+  color: var(--link-color);
   text-decoration: none;
   transition: color 0.1s ease;
 
   &:hover {
-    color: #92b5e0;
+    color: var(--link-hover);
   }
 
   &:not(.btn):not(.sidebar-link):not(.nav-link):hover {
@@ -100,41 +123,41 @@ div.btn {
 
 // Muted button colors for dark theme
 .btn-primary {
-  --bs-btn-bg: #4a6fa5;
-  --bs-btn-border-color: #4a6fa5;
-  --bs-btn-hover-bg: #5680b8;
-  --bs-btn-hover-border-color: #5680b8;
-  --bs-btn-active-bg: #3f6094;
-  --bs-btn-active-border-color: #3f6094;
+  --bs-btn-bg: var(--btn-primary-bg);
+  --bs-btn-border-color: var(--btn-primary-bg);
+  --bs-btn-hover-bg: var(--btn-primary-hover);
+  --bs-btn-hover-border-color: var(--btn-primary-hover);
+  --bs-btn-active-bg: var(--btn-primary-active);
+  --bs-btn-active-border-color: var(--btn-primary-active);
 }
 
 .btn-success {
-  --bs-btn-bg: #3a7d44;
-  --bs-btn-border-color: #3a7d44;
-  --bs-btn-hover-bg: #449951;
-  --bs-btn-hover-border-color: #449951;
-  --bs-btn-active-bg: #326e3b;
-  --bs-btn-active-border-color: #326e3b;
+  --bs-btn-bg: var(--btn-success-bg);
+  --bs-btn-border-color: var(--btn-success-bg);
+  --bs-btn-hover-bg: var(--btn-success-hover);
+  --bs-btn-hover-border-color: var(--btn-success-hover);
+  --bs-btn-active-bg: var(--btn-success-active);
+  --bs-btn-active-border-color: var(--btn-success-active);
 }
 
 .btn-danger {
-  --bs-btn-bg: #b03a3a;
-  --bs-btn-border-color: #b03a3a;
-  --bs-btn-hover-bg: #c44545;
-  --bs-btn-hover-border-color: #c44545;
-  --bs-btn-active-bg: #9c3232;
-  --bs-btn-active-border-color: #9c3232;
+  --bs-btn-bg: var(--btn-danger-bg);
+  --bs-btn-border-color: var(--btn-danger-bg);
+  --bs-btn-hover-bg: var(--btn-danger-hover);
+  --bs-btn-hover-border-color: var(--btn-danger-hover);
+  --bs-btn-active-bg: var(--btn-danger-active);
+  --bs-btn-active-border-color: var(--btn-danger-active);
 }
 
 .btn-warning {
-  --bs-btn-bg: #c49a2a;
-  --bs-btn-border-color: #c49a2a;
+  --bs-btn-bg: var(--btn-warning-bg);
+  --bs-btn-border-color: var(--btn-warning-bg);
   --bs-btn-color: #fff;
-  --bs-btn-hover-bg: #d4a832;
-  --bs-btn-hover-border-color: #d4a832;
+  --bs-btn-hover-bg: var(--btn-warning-hover);
+  --bs-btn-hover-border-color: var(--btn-warning-hover);
   --bs-btn-hover-color: #fff;
-  --bs-btn-active-bg: #b08a24;
-  --bs-btn-active-border-color: #b08a24;
+  --bs-btn-active-bg: var(--btn-warning-active);
+  --bs-btn-active-border-color: var(--btn-warning-active);
   --bs-btn-active-color: #fff;
 }
 
@@ -532,6 +555,8 @@ select.form-select {
     background-color: var(--input-bg);
     color: var(--input-text);
     border-color: var(--main-color);
+    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 209, 0, 0), 0.12);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 }
 
@@ -540,10 +565,26 @@ select.form-select {
   background-color: var(--input-bg);
   border: 1px solid var(--darkgray);
 
+  &:focus {
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 209, 0, 0), 0.12);
+  }
+
   option {
     background-color: var(--input-bg);
     color: var(--input-text);
   }
+}
+
+// Modal entrance: scale + fade (replaces Bootstrap's basic fade)
+.modal.fade .modal-dialog {
+  transform: scale(0.95) translateY(-10px);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 0.2s ease;
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1) translateY(0);
 }
 
 .modal .modal-content {
@@ -598,10 +639,34 @@ select.form-select {
 
 .intra__tile {
   background-color: var(--body-bg-lighter);
-  box-shadow: none !important;
+  box-shadow: none;
   border-radius: var(--radius-xl);
-  border: 1px solid var(--darkgray) !important;
+  border: 1px solid var(--darkgray);
   padding: 1rem;
+  animation: tile-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  > h4, > .row h4, > .d-flex h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+}
+
+// Stagger tiles on page load
+.row:nth-child(3) .intra__tile { animation-delay: 0.05s; }
+.row:nth-child(4) .intra__tile { animation-delay: 0.10s; }
+.row:nth-child(5) .intra__tile { animation-delay: 0.15s; }
+.row:nth-child(6) .intra__tile { animation-delay: 0.20s; }
+
+@keyframes tile-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // Bootstrap card.bg-dark override for dark theme
@@ -924,13 +989,14 @@ td.dt-empty {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-lg);
 
   h1 {
-    font-size: 1.4rem;
-    font-weight: 500;
+    font-size: 1.6rem;
+    font-weight: 600;
     margin: 0;
-    color: #fff;
+    color: var(--text-title);
+    letter-spacing: -0.01em;
   }
 
   .header-actions {
@@ -1014,7 +1080,7 @@ td.dt-empty {
   width: 48px;
   height: 48px;
   border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(var(--main-color-rgb, 209, 0, 0), 0.08);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1022,7 +1088,8 @@ td.dt-empty {
 
   i {
     font-size: 1.5rem;
-    color: var(--text-dimmed);
+    color: var(--main-color);
+    opacity: 0.6;
   }
 }
 
@@ -1048,6 +1115,7 @@ td.dt-empty {
   padding: 0.7rem 1rem;
   font-size: 0.85rem;
   margin-bottom: 0.75rem;
+  animation: alert-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 
   i:first-child {
     font-size: 0.95rem;
@@ -1088,6 +1156,11 @@ td.dt-empty {
     border-left-color: #2a7f8f;
     color: #5bb8cc;
   }
+}
+
+@keyframes alert-enter {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 // Base Bootstrap alert overrides for dark theme
@@ -1172,7 +1245,7 @@ td.dt-empty {
     inset: 0;
     background: #3d3a44;
     border-radius: 11px;
-    transition: background 0.2s ease;
+    transition: background 0.25s cubic-bezier(0.22, 1.2, 0.36, 1);
     cursor: pointer;
 
     &::after {
@@ -1184,7 +1257,8 @@ td.dt-empty {
       height: 16px;
       background: #818189;
       border-radius: 50%;
-      transition: all 0.2s ease;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  background 0.2s ease;
     }
   }
 
@@ -1196,6 +1270,27 @@ td.dt-empty {
       background: #fff;
     }
   }
+}
+
+// ========================================
+// MICRO-INTERACTIONS (delight)
+// ========================================
+
+// Checkbox: subtle pulse on check
+.form-check-input:checked {
+  animation: check-pulse 0.25s cubic-bezier(0.22, 1.2, 0.36, 1);
+}
+
+@keyframes check-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+// Bootstrap form-switch: spring physics on the thumb
+.form-switch .form-check-input {
+  transition: background-color 0.2s ease,
+              background-position 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 // ========================================
@@ -1230,7 +1325,7 @@ td.dt-empty {
       font-weight: 900;
       font-size: 0.6rem;
       color: var(--text-dimmed);
-      transition: transform 0.2s ease;
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     &:hover {
@@ -1246,6 +1341,12 @@ td.dt-empty {
     padding: 0.75rem 0.85rem;
     border-top: 1px solid var(--darkgray);
     font-size: 0.82rem;
+    animation: details-reveal 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes details-reveal {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   pre {
@@ -1336,17 +1437,26 @@ td.dt-empty {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 
   &.toast-visible {
-    animation: toast-slide-in 0.25s ease forwards;
+    animation: toast-slide-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
   &.toast-dismissing {
-    animation: toast-slide-out 0.2s ease forwards;
+    animation: toast-slide-out 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 }
 
 .toast-icon {
   font-size: 1rem;
   flex-shrink: 0;
+}
+
+.toast-visible .toast-icon {
+  animation: toast-icon-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+@keyframes toast-icon-pop {
+  from { transform: scale(0.5); opacity: 0.3; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .toast-msg {
@@ -1408,13 +1518,13 @@ td.dt-empty {
 }
 
 @keyframes toast-slide-in {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(40px) scale(0.95); opacity: 0; }
+  to { transform: translateX(0) scale(1); opacity: 1; }
 }
 
 @keyframes toast-slide-out {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100%); opacity: 0; }
+  from { transform: translateX(0) scale(1); opacity: 1; }
+  to { transform: translateX(40px) scale(0.95); opacity: 0; }
 }
 
 @keyframes toast-countdown {
@@ -1430,6 +1540,7 @@ td.dt-empty {
   gap: 1px;
   background: var(--darkgray);
   border: 1px solid var(--darkgray);
+  border-top: 2px solid var(--main-color);
   border-radius: var(--radius-lg);
   overflow: hidden;
   margin-bottom: 1rem;
@@ -1446,10 +1557,10 @@ td.dt-empty {
 }
 
 .intra__stat-value {
-  font-size: 1.4rem;
-  font-weight: 600;
+  font-size: 1.75rem;
+  font-weight: 700;
   color: var(--text-title);
-  line-height: 1.2;
+  line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1458,6 +1569,86 @@ td.dt-empty {
   color: var(--text-dimmed);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+// ========================================
+// ADMIN SETUP CHECKLIST
+// ========================================
+.intra__setup-checklist {
+  background: var(--body-bg-lighter);
+  border: 1px solid var(--darkgray);
+  border-left: 3px solid var(--main-color);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-bottom: var(--space-md);
+  animation: tile-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.setup-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.setup-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-normal);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-title);
+    text-decoration: none;
+  }
+
+  &.done {
+    opacity: 0.5;
+
+    .setup-step-icon {
+      background: var(--btn-success-bg);
+      color: #fff;
+    }
+
+    strong {
+      text-decoration: line-through;
+    }
+  }
+}
+
+.setup-step-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(var(--main-color-rgb, 209, 0, 0), 0.12);
+  color: var(--main-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.setup-step-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  strong {
+    font-size: var(--fs-base);
+    font-weight: 500;
+    color: var(--text-title);
+  }
+
+  small {
+    font-size: var(--fs-xs);
+    color: var(--text-dimmed);
+  }
 }
 
 // ========================================
