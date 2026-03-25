@@ -145,7 +145,7 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <?php

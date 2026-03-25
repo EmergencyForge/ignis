@@ -1,6 +1,4 @@
 :root {
-  --stat-bg-color: var(--body-bg-lighter);
-
   // Unified radius scale
   --radius-sm: 4px;   // badges, small elements
   --radius-md: 6px;   // buttons, inputs, row-actions
@@ -12,6 +10,35 @@
   --fs-sm: 0.78rem;   // breadcrumbs, labels
   --fs-base: 0.82rem; // body text, table cells
   --fs-md: 0.88rem;   // sidebar links, modal titles
+
+  // Spacing scale
+  --space-xs: 0.25rem;  // 4px  — tight inline spacing
+  --space-sm: 0.5rem;   // 8px  — within components
+  --space-md: 1rem;     // 16px — between siblings
+  --space-lg: 1.5rem;   // 24px — between sections
+  --space-xl: 2.5rem;   // 40px — between major groups
+
+  // Easing curves (shared across admin + sidebar)
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);    // refined UI transitions
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);      // confident, decisive
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);         // slight overshoot
+  --spring-gentle: cubic-bezier(0.22, 1.2, 0.36, 1);   // subtle overshoot
+
+  // Interactive color tokens
+  --link-color: #7ba3d4;
+  --link-hover: #92b5e0;
+  --btn-primary-bg: #4a6fa5;
+  --btn-primary-hover: #5680b8;
+  --btn-primary-active: #3f6094;
+  --btn-success-bg: #3a7d44;
+  --btn-success-hover: #449951;
+  --btn-success-active: #326e3b;
+  --btn-danger-bg: #b03a3a;
+  --btn-danger-hover: #c44545;
+  --btn-danger-active: #9c3232;
+  --btn-warning-bg: #c49a2a;
+  --btn-warning-hover: #d4a832;
+  --btn-warning-active: #b08a24;
 }
 
 // ========================================
@@ -52,12 +79,12 @@
 // LINK COLORS (dezenter als Bootstrap default)
 // ========================================
 a {
-  color: #7ba3d4;
+  color: var(--link-color);
   text-decoration: none;
   transition: color 0.1s ease;
 
   &:hover {
-    color: #92b5e0;
+    color: var(--link-hover);
   }
 
   &:not(.btn):not(.sidebar-link):not(.nav-link):hover {
@@ -102,41 +129,41 @@ div.btn {
 
 // Muted button colors for dark theme
 .btn-primary {
-  --bs-btn-bg: #4a6fa5;
-  --bs-btn-border-color: #4a6fa5;
-  --bs-btn-hover-bg: #5680b8;
-  --bs-btn-hover-border-color: #5680b8;
-  --bs-btn-active-bg: #3f6094;
-  --bs-btn-active-border-color: #3f6094;
+  --bs-btn-bg: var(--btn-primary-bg);
+  --bs-btn-border-color: var(--btn-primary-bg);
+  --bs-btn-hover-bg: var(--btn-primary-hover);
+  --bs-btn-hover-border-color: var(--btn-primary-hover);
+  --bs-btn-active-bg: var(--btn-primary-active);
+  --bs-btn-active-border-color: var(--btn-primary-active);
 }
 
 .btn-success {
-  --bs-btn-bg: #3a7d44;
-  --bs-btn-border-color: #3a7d44;
-  --bs-btn-hover-bg: #449951;
-  --bs-btn-hover-border-color: #449951;
-  --bs-btn-active-bg: #326e3b;
-  --bs-btn-active-border-color: #326e3b;
+  --bs-btn-bg: var(--btn-success-bg);
+  --bs-btn-border-color: var(--btn-success-bg);
+  --bs-btn-hover-bg: var(--btn-success-hover);
+  --bs-btn-hover-border-color: var(--btn-success-hover);
+  --bs-btn-active-bg: var(--btn-success-active);
+  --bs-btn-active-border-color: var(--btn-success-active);
 }
 
 .btn-danger {
-  --bs-btn-bg: #b03a3a;
-  --bs-btn-border-color: #b03a3a;
-  --bs-btn-hover-bg: #c44545;
-  --bs-btn-hover-border-color: #c44545;
-  --bs-btn-active-bg: #9c3232;
-  --bs-btn-active-border-color: #9c3232;
+  --bs-btn-bg: var(--btn-danger-bg);
+  --bs-btn-border-color: var(--btn-danger-bg);
+  --bs-btn-hover-bg: var(--btn-danger-hover);
+  --bs-btn-hover-border-color: var(--btn-danger-hover);
+  --bs-btn-active-bg: var(--btn-danger-active);
+  --bs-btn-active-border-color: var(--btn-danger-active);
 }
 
 .btn-warning {
-  --bs-btn-bg: #c49a2a;
-  --bs-btn-border-color: #c49a2a;
+  --bs-btn-bg: var(--btn-warning-bg);
+  --bs-btn-border-color: var(--btn-warning-bg);
   --bs-btn-color: #fff;
-  --bs-btn-hover-bg: #d4a832;
-  --bs-btn-hover-border-color: #d4a832;
+  --bs-btn-hover-bg: var(--btn-warning-hover);
+  --bs-btn-hover-border-color: var(--btn-warning-hover);
   --bs-btn-hover-color: #fff;
-  --bs-btn-active-bg: #b08a24;
-  --bs-btn-active-border-color: #b08a24;
+  --bs-btn-active-bg: var(--btn-warning-active);
+  --bs-btn-active-border-color: var(--btn-warning-active);
   --bs-btn-active-color: #fff;
 }
 
@@ -534,6 +561,8 @@ select.form-select {
     background-color: var(--input-bg);
     color: var(--input-text);
     border-color: var(--main-color);
+    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 209, 0, 0), 0.12);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 }
 
@@ -542,10 +571,26 @@ select.form-select {
   background-color: var(--input-bg);
   border: 1px solid var(--darkgray);
 
+  &:focus {
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 209, 0, 0), 0.12);
+  }
+
   option {
     background-color: var(--input-bg);
     color: var(--input-text);
   }
+}
+
+// Modal entrance: scale + fade (replaces Bootstrap's basic fade)
+.modal.fade .modal-dialog {
+  transform: scale(0.95) translateY(-10px);
+  transition: transform 0.3s var(--ease-out-quint),
+              opacity 0.2s ease;
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1) translateY(0);
 }
 
 .modal .modal-content {
@@ -600,10 +645,40 @@ select.form-select {
 
 .intra__tile {
   background-color: var(--body-bg-lighter);
-  box-shadow: none !important;
+  box-shadow: none;
   border-radius: var(--radius-xl);
-  border: 1px solid var(--darkgray) !important;
+  border: 1px solid var(--darkgray);
   padding: 1rem;
+  animation: tile-enter 0.4s var(--ease-out-quint) both;
+
+  > h4, > .row h4, > .d-flex h4 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+
+  // Section color accents (dashboard tiles)
+  &[data-section="documents"]    { border-left: 3px solid var(--link-color); }
+  &[data-section="applications"] { border-left: 3px solid var(--btn-warning-bg); }
+  &[data-section="enotf"]        { border-left: 3px solid var(--main-color); }
+  &[data-section="firetab"]      { border-left: 3px solid var(--btn-success-bg); }
+}
+
+// Stagger tiles on page load
+.row:nth-child(3) .intra__tile { animation-delay: 0.05s; }
+.row:nth-child(4) .intra__tile { animation-delay: 0.10s; }
+.row:nth-child(5) .intra__tile { animation-delay: 0.15s; }
+.row:nth-child(6) .intra__tile { animation-delay: 0.20s; }
+
+@keyframes tile-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 // Bootstrap card.bg-dark override for dark theme
@@ -707,8 +782,10 @@ select.form-select {
       text-decoration: none;
     }
 
-    &:focus {
+    &:focus-visible {
       outline: none;
+      box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.3);
+      border-radius: var(--radius-sm);
     }
   }
 }
@@ -744,6 +821,7 @@ select.form-select {
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   vertical-align: middle;
   font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .table tbody tr {
@@ -923,13 +1001,14 @@ td.dt-empty {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-lg);
 
   h1 {
-    font-size: 1.4rem;
-    font-weight: 500;
+    font-size: 1.6rem;
+    font-weight: 600;
     margin: 0;
-    color: #fff;
+    color: var(--text-title);
+    letter-spacing: -0.01em;
   }
 
   .header-actions {
@@ -1013,7 +1092,7 @@ td.dt-empty {
   width: 48px;
   height: 48px;
   border-radius: var(--radius-xl);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(var(--main-color-rgb, 209, 0, 0), 0.08);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1021,7 +1100,8 @@ td.dt-empty {
 
   i {
     font-size: 1.5rem;
-    color: var(--text-dimmed);
+    color: var(--main-color);
+    opacity: 0.6;
   }
 }
 
@@ -1047,6 +1127,7 @@ td.dt-empty {
   padding: 0.7rem 1rem;
   font-size: 0.85rem;
   margin-bottom: 0.75rem;
+  animation: alert-enter 0.35s var(--ease-out-quint);
 
   i:first-child {
     font-size: 0.95rem;
@@ -1087,6 +1168,11 @@ td.dt-empty {
     border-left-color: #2a7f8f;
     color: #5bb8cc;
   }
+}
+
+@keyframes alert-enter {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 // Base Bootstrap alert overrides for dark theme
@@ -1171,7 +1257,7 @@ td.dt-empty {
     inset: 0;
     background: #3d3a44;
     border-radius: 11px;
-    transition: background 0.2s ease;
+    transition: background 0.25s var(--spring-gentle);
     cursor: pointer;
 
     &::after {
@@ -1183,7 +1269,8 @@ td.dt-empty {
       height: 16px;
       background: #818189;
       border-radius: 50%;
-      transition: all 0.2s ease;
+      transition: transform 0.25s var(--spring),
+                  background 0.2s ease;
     }
   }
 
@@ -1195,6 +1282,27 @@ td.dt-empty {
       background: #fff;
     }
   }
+}
+
+// ========================================
+// MICRO-INTERACTIONS (delight)
+// ========================================
+
+// Checkbox: subtle pulse on check
+.form-check-input:checked {
+  animation: check-pulse 0.25s var(--spring-gentle);
+}
+
+@keyframes check-pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+// Bootstrap form-switch: spring physics on the thumb
+.form-switch .form-check-input {
+  transition: background-color 0.2s ease,
+              background-position 0.25s var(--spring);
 }
 
 // ========================================
@@ -1229,7 +1337,7 @@ td.dt-empty {
       font-weight: 900;
       font-size: 0.6rem;
       color: var(--text-dimmed);
-      transition: transform 0.2s ease;
+      transition: transform 0.25s var(--ease-out-quint);
     }
 
     &:hover {
@@ -1245,6 +1353,12 @@ td.dt-empty {
     padding: 0.75rem 0.85rem;
     border-top: 1px solid var(--darkgray);
     font-size: 0.82rem;
+    animation: details-reveal 0.3s var(--ease-out-quint);
+  }
+
+  @keyframes details-reveal {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   pre {
@@ -1335,17 +1449,26 @@ td.dt-empty {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 
   &.toast-visible {
-    animation: toast-slide-in 0.25s ease forwards;
+    animation: toast-slide-in 0.4s var(--spring) forwards;
   }
 
   &.toast-dismissing {
-    animation: toast-slide-out 0.2s ease forwards;
+    animation: toast-slide-out 0.25s var(--ease-out-expo) forwards;
   }
 }
 
 .toast-icon {
   font-size: 1rem;
   flex-shrink: 0;
+}
+
+.toast-visible .toast-icon {
+  animation: toast-icon-pop 0.35s var(--spring) 0.15s both;
+}
+
+@keyframes toast-icon-pop {
+  from { transform: scale(0.5); opacity: 0.3; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .toast-msg {
@@ -1407,13 +1530,13 @@ td.dt-empty {
 }
 
 @keyframes toast-slide-in {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from { transform: translateX(40px) scale(0.95); opacity: 0; }
+  to { transform: translateX(0) scale(1); opacity: 1; }
 }
 
 @keyframes toast-slide-out {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(100%); opacity: 0; }
+  from { transform: translateX(0) scale(1); opacity: 1; }
+  to { transform: translateX(40px) scale(0.95); opacity: 0; }
 }
 
 @keyframes toast-countdown {
@@ -1422,63 +1545,121 @@ td.dt-empty {
 }
 
 // ========================================
-// STATS CARDS (compact, consistent style)
+// STATS STRIP (compact inline stats)
 // ========================================
-.intra__stats-card {
-  background-color: var(--body-bg-lighter) !important;
-  border: 1px solid var(--darkgray) !important;
-  border-radius: var(--radius-lg) !important;
-  box-shadow: none !important;
-  position: relative;
+.intra__stats-strip {
+  display: flex;
+  gap: 1px;
+  background: var(--darkgray);
+  border: 1px solid var(--darkgray);
+  border-top: 2px solid var(--main-color);
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  margin-bottom: 1rem;
+}
 
-  .card-body {
-    padding: 1rem 1.25rem;
+.intra__stat-item {
+  flex: 1;
+  background: var(--body-bg-lighter);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.intra__stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-title);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.intra__stat-label {
+  font-size: var(--fs-xs);
+  color: var(--text-dimmed);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+// ========================================
+// ADMIN SETUP CHECKLIST
+// ========================================
+.intra__setup-checklist {
+  background: var(--body-bg-lighter);
+  border: 1px solid var(--darkgray);
+  border-left: 3px solid var(--main-color);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-bottom: var(--space-md);
+  animation: tile-enter 0.4s var(--ease-out-quint) both;
+}
+
+.setup-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.setup-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-normal);
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-title);
+    text-decoration: none;
   }
 
-  .card-title {
-    font-size: var(--fs-sm);
-    color: var(--text-dimmed) !important;
-    margin: 0 0 0.35rem !important;
-    text-transform: none;
-    letter-spacing: normal;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+  &.done {
+    opacity: 0.5;
 
-    i {
-      font-size: 0.7rem;
-      position: static;
-      color: var(--text-dimmed);
+    .setup-step-icon {
+      background: var(--btn-success-bg);
+      color: #fff;
+    }
+
+    strong {
+      text-decoration: line-through;
     }
   }
+}
 
-  .card-text {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--white);
-    margin: 0 !important;
-    line-height: 1.2;
+.setup-step-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(var(--main-color-rgb, 209, 0, 0), 0.12);
+  color: var(--main-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.setup-step-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  strong {
+    font-size: var(--fs-base);
+    font-weight: 500;
+    color: var(--text-title);
   }
 
-  .stat-sub {
+  small {
     font-size: var(--fs-xs);
     color: var(--text-dimmed);
-    margin-top: 0.2rem;
-  }
-
-  // Decorative background icon: hidden by default now
-  > .card-body > i:last-child:not(.card-title i) {
-    display: none;
-  }
-
-  // Legacy color variants: no longer colored, all use same bg
-  &.intra__stats-users,
-  &.intra__stats-workers,
-  &.intra__stats-enotf,
-  &.intra__stats-documents {
-    --stat-bg-color: var(--body-bg-lighter);
   }
 }
 
@@ -1733,4 +1914,268 @@ td.dt-empty {
     margin-top: 0.15rem;
     font-weight: 400;
   }
+}
+
+// ========================================
+// RESPONSIVE ADAPTATIONS
+// ========================================
+
+// --- Tablet (768px - 991px) ---
+@media (max-width: 991.98px) {
+  // Page header: stack title and actions vertically
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+
+    h1 {
+      font-size: 1.2rem;
+    }
+
+    .header-actions {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+  }
+
+  // Stats strip: allow wrapping on tablet
+  .intra__stats-strip {
+    flex-wrap: wrap;
+  }
+
+  .intra__stat-item {
+    flex: 1 1 calc(50% - 1px);
+    min-width: 0;
+  }
+
+  // Tables: horizontal scroll wrapper
+  .table-responsive,
+  .dataTables_wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  // DataTable controls: compact layout
+  .dt-search input {
+    min-width: 160px;
+  }
+
+  // Modals: wider on tablet
+  .modal-dialog {
+    max-width: 90%;
+  }
+
+  // Toast: constrain width
+  #intra-toast-container {
+    max-width: 320px;
+    right: 1rem;
+    bottom: 1rem;
+  }
+}
+
+// --- Mobile (< 768px) ---
+@media (max-width: 767.98px) {
+  // Touch targets: increase small icon buttons for touch
+  .btn-icon.btn-sm {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8rem;
+  }
+
+  .btn-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  // Action column: always visible on touch (no hover-reveal)
+  .col-actions .btn-icon {
+    opacity: 1;
+  }
+
+  // Page header: full-width stacked
+  .page-header {
+    margin-bottom: 1rem;
+
+    h1 {
+      font-size: 1.1rem;
+    }
+
+    .header-actions {
+      gap: 0.35rem;
+    }
+  }
+
+  // Breadcrumb: smaller on mobile
+  .admin-breadcrumb {
+    font-size: 0.72rem;
+    gap: 0.3rem;
+    margin-bottom: 0.4rem;
+  }
+
+  // Tiles/cards: reduce padding
+  .intra__tile {
+    padding: 0.75rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .card.bg-dark {
+    border-radius: var(--radius-lg);
+
+    .card-header {
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 0.6rem 0.85rem;
+    }
+  }
+
+  // Stats strip: compact on mobile
+  .intra__stat-value {
+    font-size: 1.1rem;
+  }
+
+  .intra__stat-label {
+    font-size: 0.65rem;
+  }
+
+  .intra__stat-item {
+    padding: 0.5rem 0.6rem;
+  }
+
+  // Tables: compact cells on mobile
+  .table thead th {
+    padding: 0.5rem;
+    font-size: 0.68rem;
+  }
+
+  .table tbody td {
+    padding: 0.45rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  // DataTable search: full width
+  .dt-search {
+    width: 100%;
+
+    input {
+      min-width: 0;
+      width: 100%;
+    }
+  }
+
+  // DataTable info/length: stack
+  .dt-layout-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  // Modals: full width on mobile
+  .modal-dialog {
+    max-width: 100%;
+    margin: 0.5rem;
+  }
+
+  .modal .modal-body {
+    font-size: 0.82rem;
+  }
+
+  // Toggle rows: more vertical space for touch
+  .toggle-row {
+    padding: 0.7rem 0;
+  }
+
+  // Styled details/accordion: bigger tap area
+  .styled-details summary {
+    padding: 0.75rem 0.85rem;
+  }
+
+  // Sidebar (already hidden via style.scss padding-left:0)
+  // Einsatz sidebar: full width overlay on mobile
+  .einsatz-sidebar {
+    position: fixed;
+    z-index: 1050;
+    width: 260px;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    box-shadow: var(--box-shadow-strong, 0 6px 20px rgba(0, 0, 0, 0.2));
+  }
+
+  // Toast: full width on small screens
+  #intra-toast-container {
+    max-width: calc(100vw - 2rem);
+    right: 1rem;
+    left: 1rem;
+    bottom: 1rem;
+  }
+
+  // CSS Tooltips: hidden on touch (no hover)
+  [data-tooltip]:hover::after {
+    display: none;
+  }
+}
+
+// --- Small mobile (< 480px) ---
+@media (max-width: 479.98px) {
+  // Even more compact table cells
+  .table thead th {
+    padding: 0.4rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.03em;
+  }
+
+  .table tbody td {
+    padding: 0.35rem 0.4rem;
+    font-size: 0.78rem;
+  }
+
+  // Page header: minimal
+  .page-header h1 {
+    font-size: 1rem;
+  }
+
+  // Stats strip: even more compact
+  .intra__stat-value {
+    font-size: 1rem;
+  }
+}
+
+// ========================================
+// TEXT OVERFLOW HARDENING
+// ========================================
+
+// Modal titles: prevent overflow on long text
+.modal-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+// Table cells: allow wrapping on long content
+.table tbody td {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+// Card titles: prevent layout break
+.card-title {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+// Toast messages: handle long text gracefully
+.toast-message {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+// Sidebar links: already has ellipsis, ensure min-width
+.sidebar-link-text {
+  min-width: 0;
+}
+
+// Breadcrumb overflow protection
+.admin-breadcrumb {
+  overflow: hidden;
+  flex-wrap: wrap;
 }

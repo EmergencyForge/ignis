@@ -7,16 +7,16 @@
 /* Modal Content */
 body[id="edivi__login"] .modal-content,
 body[data-pin-enabled] .modal-content {
-    background-color: #1a1a1a;
-    border: 1px solid #333;
+    background-color: var(--body-bg-darker, #232128);
+    border: 1px solid var(--darkgray, #3d3a44);
     border-radius: 0;
-    color: #fff;
+    color: var(--white, #fff);
 }
 
 /* Modal Header */
 body[id="edivi__login"] .modal-header,
 body[data-pin-enabled] .modal-header {
-    background-color: #222;
+    background-color: var(--enotf-surface, #222);
     border-bottom: none;
     border-radius: 0;
     padding: 12px 16px;
@@ -31,14 +31,14 @@ body[data-pin-enabled] .modal-title {
 /* Modal Body */
 body[id="edivi__login"] .modal-body,
 body[data-pin-enabled] .modal-body {
-    background-color: #222;
+    background-color: var(--enotf-surface, #222);
     padding: 16px;
 }
 
 /* Modal Footer */
 body[id="edivi__login"] .modal-footer,
 body[data-pin-enabled] .modal-footer {
-    background-color: #222;
+    background-color: var(--enotf-surface, #222);
     border-top: none;
     border-radius: 0;
     padding: 12px 16px;
@@ -60,40 +60,40 @@ body[data-pin-enabled] .modal-footer .btn {
 
 body[id="edivi__login"] .modal-footer .btn-secondary,
 body[data-pin-enabled] .modal-footer .btn-secondary {
-    background-color: #474747;
-    border-color: #474747;
-    color: #fff;
+    background-color: var(--enotf-surface-light, #4a4a4a);
+    border-color: var(--enotf-surface-light, #4a4a4a);
+    color: var(--white, #fff);
 }
 
 body[id="edivi__login"] .modal-footer .btn-secondary:hover,
 body[data-pin-enabled] .modal-footer .btn-secondary:hover {
-    background-color: #5f5f5f;
-    border-color: #5f5f5f;
+    background-color: var(--enotf-border, #555);
+    border-color: var(--enotf-border, #555);
 }
 
 body[id="edivi__login"] .modal-footer .btn-primary,
 body[data-pin-enabled] .modal-footer .btn-primary {
-    background-color: var(--main-color, #dc3545);
-    border-color: var(--main-color, #dc3545);
-    color: #fff;
+    background-color: var(--main-color, #d10000);
+    border-color: var(--main-color, #d10000);
+    color: var(--white, #fff);
 }
 
 body[id="edivi__login"] .modal-footer .btn-primary:hover,
 body[data-pin-enabled] .modal-footer .btn-primary:hover {
-    background-color: var(--main-color-dimmed, #b02a37);
-    border-color: var(--main-color-dimmed, #b02a37);
+    background-color: var(--main-color-dimmed, #660000);
+    border-color: var(--main-color-dimmed, #660000);
 }
 
 body[id="edivi__login"] .modal-footer .btn-danger,
 body[data-pin-enabled] .modal-footer .btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
+    background-color: var(--main-color, #d10000);
+    border-color: var(--main-color, #d10000);
 }
 
 body[id="edivi__login"] .modal-footer .btn-danger:hover,
 body[data-pin-enabled] .modal-footer .btn-danger:hover {
-    background-color: #b02a37;
-    border-color: #b02a37;
+    background-color: var(--main-color-dimmed, #660000);
+    border-color: var(--main-color-dimmed, #660000);
 }
 
 /* Outline Buttons (z.B. "Mich abmelden") */
@@ -107,24 +107,24 @@ body[data-pin-enabled] .modal-footer .btn-outline-light {
 /* Modal Backdrop */
 body[id="edivi__login"] .modal-backdrop,
 body[data-pin-enabled] .modal-backdrop {
-    background-color: #000;
+    background-color: var(--black, #000);
 }
 
 /* Form Controls innerhalb von Modals */
 body[id="edivi__login"] .modal-body .form-control,
 body[data-pin-enabled] .modal-body .form-control {
-    background-color: #333;
-    border: 1px solid #444;
+    background-color: var(--enotf-surface, #333);
+    border: 1px solid var(--enotf-surface-light, #444);
     border-radius: 0;
-    color: #fff;
+    color: var(--white, #fff);
 }
 
 body[id="edivi__login"] .modal-body .form-control:focus,
 body[data-pin-enabled] .modal-body .form-control:focus {
-    background-color: #3a3a3a;
-    border-color: var(--main-color, #dc3545);
+    background-color: var(--enotf-surface-light, #3a3a3a);
+    border-color: var(--main-color, #d10000);
     box-shadow: none;
-    color: #fff;
+    color: var(--white, #fff);
 }
 
 /* Dialog-Container (für dynamisch erstellte Modals via dialogs.js) */

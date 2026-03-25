@@ -2,7 +2,7 @@
 require_once __DIR__ . '/assets/config/config.php';
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
   <?php

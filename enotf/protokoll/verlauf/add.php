@@ -147,7 +147,7 @@ $currentDateTime = date('Y-m-d\TH:i');
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <?php
@@ -347,9 +347,9 @@ $currentDateTime = date('Y-m-d\TH:i');
                     else isSuccess = true;
                     break;
                 case 'rrdias':
-                    if (value < 80 || value > 199) isDanger = true;
-                    else if (value >= 80 && value < 90 || value > 169) isWarning = true;
-                    else if (value >= 90 && value < 101 || value > 149) isSemiWarning = true;
+                    if (value <= 40 || value >= 121) isDanger = true;
+                    else if (value >= 41 && value <= 50 || value >= 111 && value <= 120) isWarning = true;
+                    else if (value >= 51 && value <= 60 || value >= 101 && value <= 110) isSemiWarning = true;
                     else isSuccess = true;
                     break;
                 case 'herzfreq':
@@ -765,38 +765,38 @@ $currentDateTime = date('Y-m-d\TH:i');
                     }
                 ],
                 'rrdias': [{
-                        min: 199,
-                        max: 260,
+                        min: 121,
+                        max: 140,
                         class: 'danger'
                     },
                     {
-                        min: 169,
-                        max: 199,
+                        min: 111,
+                        max: 121,
                         class: 'warning'
                     },
                     {
-                        min: 149,
-                        max: 169,
+                        min: 101,
+                        max: 111,
                         class: 'semiwarning'
                     },
                     {
-                        min: 101,
-                        max: 149,
+                        min: 61,
+                        max: 101,
                         class: 'success'
                     },
                     {
-                        min: 90,
-                        max: 101,
+                        min: 51,
+                        max: 61,
                         class: 'semiwarning'
                     },
                     {
-                        min: 80,
-                        max: 90,
+                        min: 41,
+                        max: 51,
                         class: 'warning'
                     },
                     {
                         min: 0,
-                        max: 80,
+                        max: 41,
                         class: 'danger'
                     }
                 ],
@@ -932,9 +932,9 @@ $currentDateTime = date('Y-m-d\TH:i');
                 },
                 'rrdias': {
                     label: 'RR diastolisch (mmHg)',
-                    values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250],
+                    values: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130],
                     min: 0,
-                    max: 260
+                    max: 140
                 },
                 'bz': {
                     label: 'Blutzucker (<?= $bzUnit ?>)',

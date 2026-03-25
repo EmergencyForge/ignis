@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../src/Documents/DocumentTemplateManager.php';
 use App\Documents\DocumentTemplateManager;
 
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate');
 
 try {
     $manager = new DocumentTemplateManager($pdo);

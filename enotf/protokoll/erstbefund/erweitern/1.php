@@ -48,7 +48,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <?php
@@ -444,6 +444,17 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
     ?>
 
     <script>
+    // Fix SVG clip-path url(#id) references for iframe/CEF (FiveM) compatibility
+    (function() {
+        var baseUrl = window.location.href.split('#')[0];
+        document.querySelectorAll('[clip-path]').forEach(function(el) {
+            var val = el.getAttribute('clip-path');
+            if (val && val.indexOf('url(#') === 0) {
+                el.setAttribute('clip-path', val.replace('url(#', 'url(' + baseUrl + '#'));
+            }
+        });
+    })();
+
     (function() {
         const enr = <?= json_encode($enr) ?>;
         const basePath = <?= json_encode(BASE_PATH) ?>;

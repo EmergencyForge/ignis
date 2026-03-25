@@ -1,4 +1,3 @@
-@charset "UTF-8";
 :root {
   --secondary-color: #011e4a;
   --secondary-color-dimmed: #0a2e5a;
@@ -12,6 +11,25 @@
   --black: #000;
   --selection-bg: #308dfd;
   --selection-color: var(--white);
+  --triage-red: #dc3545;
+  --triage-yellow: #ffc107;
+  --triage-green: #28a745;
+  --gauge-24g: #ffc107;
+  --gauge-22g: #2563eb;
+  --gauge-20g: #ec4899;
+  --gauge-18g: #28a745;
+  --gauge-17g: #ffffff;
+  --gauge-16g: #9ca3af;
+  --gauge-14g: #f97316;
+  --gauge-arterial: #dc3545;
+  --input-check-pending: var(--triage-red);
+  --input-check-done: #55b530;
+  --enotf-surface: #333333;
+  --enotf-surface-light: #4a4a4a;
+  --enotf-text: #a2a2a2;
+  --enotf-text-light: #999;
+  --enotf-border: #555;
+  --enotf-focus-ring: #5783cf;
 }
 
 * {
@@ -339,15 +357,15 @@ body {
 }
 
 #edivi__container .edivi__box .edivi__verletzungen-col.edivi__verletzungen-red::after {
-  background: red;
+  background: var(--triage-red);
 }
 
 #edivi__container .edivi__box .edivi__verletzungen-col.edivi__verletzungen-yellow::after {
-  background: yellow;
+  background: var(--triage-yellow);
 }
 
 #edivi__container .edivi__box .edivi__verletzungen-col.edivi__verletzungen-green::after {
-  background: green;
+  background: var(--triage-green);
 }
 
 #edivi__container .btn {
@@ -355,8 +373,8 @@ body {
 }
 
 .edivi__box.edivi__log-comment {
-  background: #333333;
-  color: #a2a2a2;
+  background: var(--enotf-surface);
+  color: var(--enotf-text);
   padding: 12px;
   margin: 0;
   font-size: 0.8rem;
@@ -365,8 +383,8 @@ body {
 .edivi__box.edivi__log-comment i {
   padding: 6px 9px;
   border-radius: 2px;
-  background: #a2a2a2;
-  color: #333333;
+  background: var(--enotf-text);
+  color: var(--enotf-surface);
   opacity: 0.6;
 }
 
@@ -402,36 +420,36 @@ body {
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt10::after,
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt9::after {
-  background: yellow;
+  background: var(--gauge-24g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt1::after,
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt8::after {
-  background: blue;
+  background: var(--gauge-22g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt2::after {
-  background: pink;
+  background: var(--gauge-20g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt3::after {
-  background: green;
+  background: var(--gauge-18g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt4::after {
-  background: white;
+  background: var(--gauge-17g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt5::after {
-  background: gray;
+  background: var(--gauge-16g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt6::after {
-  background: orange;
+  background: var(--gauge-14g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt7::after {
-  background: red;
+  background: var(--gauge-arterial);
 }
 
 #edivi__nidanav {
@@ -632,11 +650,11 @@ body {
 }
 
 [class*=edivi__interactbutton] [type=radio].btn-check + label:after {
-  content: "";
+  content: "\f111";
 }
 
 [class*=edivi__interactbutton] [type=radio].btn-check:checked + label:after {
-  content: "";
+  content: "\f192";
 }
 
 [class*=edivi__interactbutton] > label.edivi__unauffaellig,
@@ -684,7 +702,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: yellow;
+  background: var(--gauge-24g);
   right: 10px;
 }
 
@@ -694,7 +712,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: blue;
+  background: var(--gauge-22g);
   right: 10px;
 }
 
@@ -704,7 +722,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: pink;
+  background: var(--gauge-20g);
   right: 10px;
 }
 
@@ -714,7 +732,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: green;
+  background: var(--gauge-18g);
   right: 10px;
 }
 
@@ -724,8 +742,8 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: green;
-  box-shadow: 0 0 0 2px #fff inset, 0 0 0 2px green;
+  background: var(--gauge-18g);
+  box-shadow: 0 0 0 2px #fff inset, 0 0 0 2px var(--gauge-18g);
   right: 10px;
 }
 
@@ -735,7 +753,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: white;
+  background: var(--gauge-17g);
   right: 10px;
 }
 
@@ -745,7 +763,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: gray;
+  background: var(--gauge-16g);
   right: 10px;
 }
 
@@ -755,7 +773,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: orange;
+  background: var(--gauge-14g);
   right: 10px;
 }
 
@@ -776,7 +794,7 @@ body {
 }
 
 [class*=edivi__interactbutton] > label:after {
-  content: "";
+  content: "\f0c8";
   font-family: "Font Awesome 7 Free";
   position: absolute;
   right: 7px;
@@ -789,7 +807,7 @@ body {
 }
 
 [class*=edivi__interactbutton] .btn-check:checked + label:after {
-  content: "";
+  content: "\f14a";
 }
 
 [class*=edivi__interactbutton] > .edivi__interactbutton-input,
@@ -831,13 +849,11 @@ body {
     max-height: none;
     min-height: 50px;
   }
-
   #edivi__nidanav > a:after {
     font-size: 1.6rem;
   }
-
   [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton] > label {
     font-size: 0.9rem;
     max-height: none;
     min-height: 50px;
@@ -848,13 +864,11 @@ body {
     font-size: 1.4rem;
     left: 5px;
   }
-
   [class*=edivi__interactbutton] > *:after {
     display: none;
   }
-
   [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton] > label {
     padding-right: 4px;
     padding: 15px 10px;
     padding-left: 10px;
@@ -870,14 +884,12 @@ body {
     font-size: 0.85rem;
     min-height: 45px;
   }
-
   #edivi__nidanav > a:after {
     font-size: 1.2rem;
     left: 4px;
   }
-
   [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton] > label {
     padding: 12px 8px;
     font-size: 0.85rem;
     min-height: 45px;
@@ -890,14 +902,12 @@ body {
     font-size: 0.8rem;
     min-height: 40px;
   }
-
   #edivi__nidanav > a:after {
     font-size: 1rem;
     left: 3px;
   }
-
   [class*=edivi__interactbutton] > a,
-[class*=edivi__interactbutton] > label {
+  [class*=edivi__interactbutton] > label {
     padding: 10px 6px;
     font-size: 0.8rem;
     min-height: 40px;
@@ -910,37 +920,32 @@ body {
     flex-wrap: wrap;
     width: 100%;
   }
-
   #edivi__nidanav > a {
     flex: 1 1 auto;
     min-width: calc(50% - 2px);
     text-align: center;
     padding-left: 8px;
   }
-
   #edivi__nidanav > a:after {
     display: none;
   }
-
   #edivi__nidanav > a:before {
     width: 100%;
     height: 3px;
     top: 0;
     left: 0;
   }
-
   #edivi__nidanav > a.edivi__nidanav-unfilled:before,
-#edivi__nidanav > a.edivi__nidanav-partfilled:before,
-#edivi__nidanav > a.edivi__nidanav-filled:before {
+  #edivi__nidanav > a.edivi__nidanav-partfilled:before,
+  #edivi__nidanav > a.edivi__nidanav-filled:before {
     top: 0;
   }
-
   #edivi__content {
     margin-top: 1rem;
   }
 }
 .edivi__interactbutton-more > a:after {
-  content: "";
+  content: "\f105";
   font-family: "Font Awesome 7 Free";
   position: absolute;
   right: 7px;
@@ -953,7 +958,7 @@ body {
 }
 
 [class*=edivi__interactbutton] > a.has-submenu:after {
-  content: "";
+  content: "\f105";
   font-family: "Font Awesome 7 Free";
   position: absolute;
   right: 7px;
@@ -988,17 +993,14 @@ body {
     flex: 0 0 100% !important;
     max-width: 100% !important;
   }
-
   #edivi__container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
   }
-
   #edivi__content {
     flex: 1;
   }
-
   .edivi__freigabe-buttons {
     position: relative !important;
     margin-top: auto !important;
@@ -1011,8 +1013,8 @@ body {
 }
 @media (max-width: 1155px) {
   #edivi__content .row > .col,
-#edivi__content .row > .col-8,
-#edivi__login #edivi__content .row > .col-2 {
+  #edivi__content .row > .col-8,
+  #edivi__login #edivi__content .row > .col-2 {
     max-width: 100%;
   }
 }
@@ -1057,29 +1059,12 @@ body {
   border-left: 2px solid #424242;
 }
 
-#edivi__topbar a.edivi__iconlink {
-  display: inline-block;
-  text-align: center;
-  font-size: 38px;
-  padding: 0 10px;
-  color: var(--white);
-  text-decoration: none;
-  line-height: 1;
-}
-
-#edivi__topbar a.edivi__iconlink small {
-  display: block;
-  font-size: 0.6rem;
-  margin-top: 2px;
-  line-height: 1;
-}
-
 #edivi__topbar a.edivi__iconlink,
 #edivi__topbar button.edivi__iconlink {
   display: inline-block;
   text-align: center;
-  font-size: 38px;
-  padding: 0 10px;
+  font-size: 2.375rem;
+  padding: 0 0.625rem;
   color: var(--white);
   text-decoration: none;
   line-height: 1;
@@ -1165,49 +1150,40 @@ body#edivi__print {
     padding: 10mm;
     font-size: 8pt;
   }
-
   #edivi__print h6,
-#edivi__print p {
+  #edivi__print p {
     font-size: 8pt !important;
   }
-
   #edivi__print h5 {
     font-size: 9pt !important;
   }
-
   #edivi__print input,
-#edivi__print textarea,
-#edivi__print select {
+  #edivi__print textarea,
+  #edivi__print select {
     font-size: 9pt !important;
     font-weight: 600;
   }
-
   #edivi__print .container {
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important;
   }
-
   #edivi__print .row {
     display: flex !important;
     flex-wrap: wrap !important;
   }
-
   #edivi__print .col {
     flex: 1 !important;
   }
-
   #edivi__print label {
     opacity: 0.6;
     z-index: -1;
     font-size: 6pt !important;
   }
-
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-
   @page {
     margin: 0;
   }
@@ -1601,15 +1577,15 @@ body#edivi__arrivalboard table td.edivi__arrivalboard-text {
 }
 
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-0 {
-  border-left: 12px solid green;
+  border-left: 12px solid var(--triage-green);
 }
 
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-1 {
-  border-left: 12px solid yellow;
+  border-left: 12px solid var(--triage-yellow);
 }
 
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-2 {
-  border-left: 12px solid red;
+  border-left: 12px solid var(--triage-red);
 }
 
 body#edivi__arrivalboard table th {
@@ -1915,23 +1891,19 @@ body[data-page=verlauf] .edivi__vitalparam-mainbuttons button {
   body[data-page=verlauf] .col.position-relative {
     padding-bottom: 0;
   }
-
   body[data-page=verlauf] .edivi__vitalparam-mainbuttons {
     flex-direction: column;
     width: 100% !important;
   }
-
   body[data-page=verlauf] .edivi__vitalparam-mainbuttons > .col {
     border-left: none !important;
     border-top: 4px solid #191919;
   }
-
   body[data-page=verlauf] .edivi__vitalparam-mainbuttons > .col:first-child {
     border-top: none;
   }
-
   body[data-page=verlauf] .col-5,
-body[data-page=verlauf] .keypad-container {
+  body[data-page=verlauf] .keypad-container {
     width: 100%;
     padding-bottom: 200px;
   }
@@ -1956,16 +1928,17 @@ body[data-page=verlauf] .function-grid {
 }
 
 body[data-page=verlauf] .keypad-btn {
-  background: #333333;
-  color: white;
+  background: var(--enotf-surface);
+  color: var(--white);
   border: none;
   border-radius: 0;
-  padding: 20px;
-  font-size: 20px;
-  font-weight: bold;
+  padding: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
-  transition: all 0.2s;
-  min-height: 60px;
+  transition: background-color 0.2s;
+  min-height: 3.75rem;
 }
 
 body[data-page=verlauf] .keypad-btn:hover {
@@ -2015,9 +1988,9 @@ body[data-page=verlauf] .vital-entry:hover {
 
 body[data-page=verlauf] .vital-content {
   flex: 1;
-  color: white;
-  font-size: 14px;
-  line-height: 1.4;
+  color: var(--white);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 body[data-page=verlauf] .vital-time {
@@ -2043,9 +2016,9 @@ body[data-page=verlauf] .vital-bemerkung {
 }
 
 body[data-page=verlauf] .vital-author {
-  color: #6c757d;
-  font-size: 12px;
-  margin-top: 3px;
+  color: var(--enotf-text-light, #999);
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
 }
 
 body[data-page=verlauf] .delete-btn {
@@ -2072,14 +2045,15 @@ body[data-page=verlauf] .stat-item {
 }
 
 body[data-page=verlauf] .stat-number {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.3rem;
 }
 
 body[data-page=verlauf] .stat-label {
-  font-size: 12px;
-  color: #bbb;
+  font-size: 0.75rem;
+  color: var(--enotf-text-light, #999);
 }
 
 body[data-page=verlauf] .no-vitals {
@@ -2297,16 +2271,13 @@ body[data-page=verlauf] .keypad-container {
     width: 70px;
     min-width: 70px;
   }
-
   body[data-page=verlauf] .range-value {
     font-size: 0.7rem;
   }
-
   body[data-page=verlauf] .strip-label {
     font-size: 0.7rem;
     padding: 4px 2px;
   }
-
   body[data-page=verlauf] .range-segment {
     flex-direction: row;
     justify-content: center;
@@ -2314,7 +2285,6 @@ body[data-page=verlauf] .keypad-container {
     border-bottom: 5px solid;
     padding: 4px 2px;
   }
-
   body[data-page=verlauf] .range-segment .range-value {
     font-size: 0.7rem;
     writing-mode: horizontal-tb;
@@ -2328,23 +2298,19 @@ body[data-page=verlauf] .keypad-container {
   body[data-page=verlauf] .col-5 {
     flex-direction: column;
   }
-
   body[data-page=verlauf] .range-strip-wrapper {
     width: 100%;
     order: -1;
     margin-bottom: 15px;
   }
-
   body[data-page=verlauf] .range-strip-container {
     min-height: 120px;
     max-height: 120px;
   }
-
   body[data-page=verlauf] .range-strip {
     flex-direction: row;
     gap: 2px;
   }
-
   body[data-page=verlauf] .range-item {
     flex-direction: column;
     border-left: none;
@@ -2352,12 +2318,10 @@ body[data-page=verlauf] .keypad-container {
     justify-content: center;
     padding: 4px 2px;
   }
-
   body[data-page=verlauf] .range-value {
     font-size: 0.7rem;
     writing-mode: horizontal-tb;
   }
-
   body[data-page=verlauf] .strip-label {
     margin-bottom: 8px;
     min-height: 30px;
@@ -2404,7 +2368,6 @@ body[data-page=verlauf] .value-indicator {
     height: 100%;
     transform: translateX(-50%);
   }
-
   @keyframes indicatorSlideIn {
     from {
       opacity: 0;
@@ -2518,8 +2481,10 @@ body[data-page=verlauf] .value-indicator {
   text-decoration: none;
 }
 
-.edivi__iconlink-button:focus {
+.edivi__iconlink-button:focus-visible {
   outline: none;
+  box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.35);
+  border-radius: 3px;
 }
 
 #freigabeButton::after {

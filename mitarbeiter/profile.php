@@ -419,7 +419,7 @@ if (isset($_POST['new'])) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="de" data-bs-theme="light">
 
 <head>
     <?php
