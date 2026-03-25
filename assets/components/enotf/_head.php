@@ -6,22 +6,25 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?php echo $SITE_TITLE; ?> &rsaquo; <?php echo SYSTEM_NAME ?></title>
-<!-- Stylesheets -->
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/divi.min.css" />
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
+<!-- Preload critical font -->
+<link rel="preload" href="<?= BASE_PATH ?>assets/fonts/mavenpro/font/maven-pro-v39-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+<!-- Stylesheets: Bootstrap first, then overrides -->
 <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-<script src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
-<script src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/fortawesome/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/divi.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-custom-dropdown.css">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-modals.css">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-toast.css">
-<script src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
-<script src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
-<script src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
-<script src="<?= BASE_PATH ?>assets/js/force-german-date.js"></script>
-<script src="<?= BASE_PATH ?>assets/js/enotf-session-sync.js?v=<?= filemtime(__DIR__ . '/../../js/enotf-session-sync.js') ?>"></script>
+<!-- Scripts: defer to unblock rendering -->
+<script defer src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
+<script defer src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script defer src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
+<script defer src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
+<script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
+<script defer src="<?= BASE_PATH ?>assets/js/force-german-date.js"></script>
+<script defer src="<?= BASE_PATH ?>assets/js/enotf-session-sync.js?v=<?= filemtime(__DIR__ . '/../../js/enotf-session-sync.js') ?>"></script>
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
 <link rel="icon" type="image/svg+xml" href="<?= BASE_PATH ?>assets/favicon/favicon.svg" />

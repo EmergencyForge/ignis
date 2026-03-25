@@ -185,7 +185,7 @@ $fwginfo = $stmtf->fetchAll(PDO::FETCH_UNIQUE);
                                     echo "<td>" . htmlspecialchars($row['fullname']) . "</td>";
                                     echo "<td>";
                                     if (!empty($dginfo2['badge'])) {
-                                        echo "<img src='" . $dginfo2['badge'] . "' height='16px' width='auto' style='padding-right:5px' alt='Dienstgrad' />";
+                                        echo "<img src='" . $dginfo2['badge'] . "' height='16px' width='auto' style='padding-right:5px' alt='Dienstgrad' loading='lazy' />";
                                     }
                                     echo htmlspecialchars($dienstgrad);
                                     echo "</td>";
