@@ -16,7 +16,7 @@ header('Content-Type: application/json');
 
 if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
     http_response_code(403);
-    echo json_encode(['error' => 'Keine Berechtigung']);
+    echo json_encode(['success' => false, 'error' => 'Keine Berechtigung']);
     exit;
 }
 
@@ -46,5 +46,5 @@ try {
     }
 } catch (\Exception $e) {
     http_response_code(400);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }

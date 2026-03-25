@@ -8,6 +8,7 @@ use App\Auth\Permissions;
 if (!Permissions::check(['admin'])) return;
 
 // Safe count helper — returns 0 if table doesn't exist
+/** @return int<0, max> */
 function _setupCount(PDO $pdo, string $table): int {
     try { return (int)$pdo->query("SELECT COUNT(*) FROM $table")->fetchColumn(); }
     catch (Exception $e) { return 0; }

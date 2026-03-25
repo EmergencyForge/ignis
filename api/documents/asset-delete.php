@@ -15,7 +15,7 @@ if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
 
 try {
     $input = json_decode(file_get_contents('php://input'), true);
-    $assetId = (int) ($input['id'] ?? $_GET['id'] ?? 0);
+    $assetId = (int) ($input['id'] ?? 0);
 
     if (!$assetId) {
         throw new \Exception('Asset-ID ist erforderlich');
