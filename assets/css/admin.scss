@@ -650,6 +650,12 @@ select.form-select {
     font-weight: 600;
     letter-spacing: -0.005em;
   }
+
+  // Section color accents (dashboard tiles)
+  &[data-section="documents"]    { border-left: 3px solid var(--link-color); }
+  &[data-section="applications"] { border-left: 3px solid var(--btn-warning-bg); }
+  &[data-section="enotf"]        { border-left: 3px solid var(--main-color); }
+  &[data-section="firetab"]      { border-left: 3px solid var(--btn-success-bg); }
 }
 
 // Stagger tiles on page load
