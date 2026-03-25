@@ -188,8 +188,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$stmtfn = $pdo->query("SELECT fullname FROM intra_mitarbeiter ORDER BY fullname ASC");
-$fullnames = $stmtfn->fetchAll(PDO::FETCH_COLUMN);
+// Lade Personal (lokal + ggf. Federation)
+$fullnames = [];
+$federatedNames = \App\Federation\FederatedPersonnel::getAllNames($pdo);
+foreach ($federatedNames as $entry) {
+    $label = $entry['fullname'];
+    if ($entry['source_name']) {
+        $label .= ' [' . $entry['source_name'] . ']';
+    }
+    $fullnames[] = $label;
+}
 
 // Lade RD Qualifikationen mit Abkürzungen
 $stmtQuali = $pdo->query("SELECT id, name, abkuerzung FROM intra_mitarbeiter_rdquali WHERE none = 0 AND abkuerzung IS NOT NULL ORDER BY priority ASC");

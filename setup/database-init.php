@@ -476,6 +476,11 @@ $migrationFiles = [
     ['file' => 'create_intra_dokument_template_layouts_17032026.php', 'type' => 'create'],
     ['file' => 'create_intra_dokument_template_assets_17032026.php', 'type' => 'create'],
     ['file' => 'migrate_twig_to_visual_17032026.php', 'type' => 'data'],
+
+    // 25.03.2026 - Federation (Instanzuebergreifende Vernetzung)
+    ['file' => 'create_intra_federation_links_25032026.php', 'type' => 'create'],
+    ['file' => 'create_intra_federation_cache_25032026.php', 'type' => 'create', 'tables' => ['intra_federation_cache_personnel', 'intra_federation_cache_enotf', 'intra_federation_cache_fire', 'intra_federation_sync_log']],
+    ['file' => 'insert_config_25032026_federation.php', 'type' => 'insert'],
 ];
 
 $executed = 0;

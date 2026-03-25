@@ -75,6 +75,11 @@ try {
     // RECHTLICHES
     if (!defined('LEGAL_IMPRESSUM_URL')) define('LEGAL_IMPRESSUM_URL', '');
     if (!defined('LEGAL_DATENSCHUTZ_URL')) define('LEGAL_DATENSCHUTZ_URL', '');
+
+    // FEDERATION
+    if (!defined('FEDERATION_ENABLED')) define('FEDERATION_ENABLED', false);
+    if (!defined('FEDERATION_INSTANCE_ID')) define('FEDERATION_INSTANCE_ID', '');
+    if (!defined('FEDERATION_INSTANCE_NAME')) define('FEDERATION_INSTANCE_NAME', '');
 }
 
 // Ensure KB_PUBLIC_ACCESS has a default even after successful config load
