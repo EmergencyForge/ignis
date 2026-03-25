@@ -4,7 +4,7 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 9999;
+    z-index: 1080;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -17,12 +17,12 @@
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    background: #222;
-    color: #bbbac1;
+    background: var(--body-bg-darker, #232128);
+    color: var(--text-normal, #bbbac1);
     font-size: 0.8rem;
     border-radius: 0;
-    border: 1px solid #333;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--darkgray, #3d3a44);
+    box-shadow: var(--box-shadow-light, 0 2px 8px rgba(0, 0, 0, 0.2));
     white-space: nowrap;
     pointer-events: auto;
     animation: enotf-toast-in 0.25s ease forwards;
@@ -40,10 +40,10 @@
     flex-shrink: 0;
 }
 
-.enotf-toast--success .enotf-toast__dot { background: #28a745; }
-.enotf-toast--error .enotf-toast__dot   { background: #dc3545; }
-.enotf-toast--warning .enotf-toast__dot { background: #ffc107; }
-.enotf-toast--info .enotf-toast__dot    { background: #17a2b8; }
+.enotf-toast--success .enotf-toast__dot { background: var(--success-gradient-start, #28a745); }
+.enotf-toast--error .enotf-toast__dot   { background: var(--main-color, #d10000); }
+.enotf-toast--warning .enotf-toast__dot { background: var(--warning-gradient-start, #ffc107); }
+.enotf-toast--info .enotf-toast__dot    { background: var(--info-gradient-start, #17a2b8); }
 
 /* Text */
 .enotf-toast__text {
@@ -55,7 +55,7 @@
 /* Close Button */
 .enotf-toast__close {
     cursor: pointer;
-    color: #818189;
+    color: var(--text-dimmed, #818189);
     font-size: 0.75rem;
     margin-left: 4px;
     flex-shrink: 0;
@@ -64,7 +64,7 @@
 }
 
 .enotf-toast__close:hover {
-    color: #fff;
+    color: var(--text-title, #fff);
 }
 
 /* Animations */
