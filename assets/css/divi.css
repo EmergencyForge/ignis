@@ -11,6 +11,25 @@
   --black: #000;
   --selection-bg: #308dfd;
   --selection-color: var(--white);
+  --triage-red: #dc3545;
+  --triage-yellow: #ffc107;
+  --triage-green: #28a745;
+  --gauge-24g: #ffc107;
+  --gauge-22g: #2563eb;
+  --gauge-20g: #ec4899;
+  --gauge-18g: #28a745;
+  --gauge-17g: #ffffff;
+  --gauge-16g: #9ca3af;
+  --gauge-14g: #f97316;
+  --gauge-arterial: #dc3545;
+  --input-check-pending: var(--triage-red);
+  --input-check-done: #55b530;
+  --enotf-surface: #333333;
+  --enotf-surface-light: #4a4a4a;
+  --enotf-text: #a2a2a2;
+  --enotf-text-light: #999;
+  --enotf-border: #555;
+  --enotf-focus-ring: #5783cf;
 }
 
 * {
@@ -338,15 +357,15 @@ body {
 }
 
 #edivi__container .edivi__box .edivi__verletzungen-col.edivi__verletzungen-red::after {
-  background: red;
+  background: var(--triage-red);
 }
 
 #edivi__container .edivi__box .edivi__verletzungen-col.edivi__verletzungen-yellow::after {
-  background: yellow;
+  background: var(--triage-yellow);
 }
 
 #edivi__container .edivi__box .edivi__verletzungen-col.edivi__verletzungen-green::after {
-  background: green;
+  background: var(--triage-green);
 }
 
 #edivi__container .btn {
@@ -354,8 +373,8 @@ body {
 }
 
 .edivi__box.edivi__log-comment {
-  background: #333333;
-  color: #a2a2a2;
+  background: var(--enotf-surface);
+  color: var(--enotf-text);
   padding: 12px;
   margin: 0;
   font-size: 0.8rem;
@@ -364,8 +383,8 @@ body {
 .edivi__box.edivi__log-comment i {
   padding: 6px 9px;
   border-radius: 2px;
-  background: #a2a2a2;
-  color: #333333;
+  background: var(--enotf-text);
+  color: var(--enotf-surface);
   opacity: 0.6;
 }
 
@@ -401,36 +420,36 @@ body {
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt10::after,
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt9::after {
-  background: yellow;
+  background: var(--gauge-24g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt1::after,
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt8::after {
-  background: blue;
+  background: var(--gauge-22g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt2::after {
-  background: pink;
+  background: var(--gauge-20g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt3::after {
-  background: green;
+  background: var(--gauge-18g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt4::after {
-  background: white;
+  background: var(--gauge-17g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt5::after {
-  background: gray;
+  background: var(--gauge-16g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt6::after {
-  background: orange;
+  background: var(--gauge-14g);
 }
 
 #edivi__container .edivi__box .edivi__zugang-container.edivi__zugang-opt7::after {
-  background: red;
+  background: var(--gauge-arterial);
 }
 
 #edivi__nidanav {
@@ -683,7 +702,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: yellow;
+  background: var(--gauge-24g);
   right: 10px;
 }
 
@@ -693,7 +712,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: blue;
+  background: var(--gauge-22g);
   right: 10px;
 }
 
@@ -703,7 +722,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: pink;
+  background: var(--gauge-20g);
   right: 10px;
 }
 
@@ -713,7 +732,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: green;
+  background: var(--gauge-18g);
   right: 10px;
 }
 
@@ -723,8 +742,8 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: green;
-  box-shadow: 0 0 0 2px #fff inset, 0 0 0 2px green;
+  background: var(--gauge-18g);
+  box-shadow: 0 0 0 2px #fff inset, 0 0 0 2px var(--gauge-18g);
   right: 10px;
 }
 
@@ -734,7 +753,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: white;
+  background: var(--gauge-17g);
   right: 10px;
 }
 
@@ -744,7 +763,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: gray;
+  background: var(--gauge-16g);
   right: 10px;
 }
 
@@ -754,7 +773,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: orange;
+  background: var(--gauge-14g);
   right: 10px;
 }
 
@@ -1575,15 +1594,15 @@ body#edivi__arrivalboard table td.edivi__arrivalboard-text {
 }
 
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-0 {
-  border-left: 12px solid green;
+  border-left: 12px solid var(--triage-green);
 }
 
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-1 {
-  border-left: 12px solid yellow;
+  border-left: 12px solid var(--triage-yellow);
 }
 
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-2 {
-  border-left: 12px solid red;
+  border-left: 12px solid var(--triage-red);
 }
 
 body#edivi__arrivalboard table th {

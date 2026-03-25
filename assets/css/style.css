@@ -216,7 +216,7 @@ body#dashboard {
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;
-  background-color: #002a32;
+  background-color: var(--body-bg-darker, #232128);
   position: relative;
 }
 
@@ -224,7 +224,7 @@ body#alogin {
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;
-  background-color: #002a32;
+  background-color: var(--body-bg-darker, #232128);
   position: relative;
 }
 
@@ -377,32 +377,32 @@ body {
   height: 100%;
   margin: 0;
   position: fixed;
-  background-color: #212529;
+  background-color: var(--body-bg-darker, #232128);
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 9999999;
+  z-index: 2000;
 }
 
 .loader .circle {
-  background: linear-gradient(45deg, #337aff, #572ff3, #e81f6c, #f1c726);
-  background-size: 200%;
+  background: var(--main-color, #d10000);
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  opacity: 0.15;
   transform: translateX(-50%) translateY(-50%);
   position: absolute;
   top: 50%;
   left: 50%;
-  animation: colorfull-spin 2s alternate infinite;
+  animation: loader-pulse 1.6s ease-in-out infinite;
 }
 
 .loader .circle:nth-child(1) {
   width: 80px;
   height: 80px;
   z-index: 1;
+  opacity: 0.25;
   animation-delay: 0.1s;
 }
 
@@ -410,6 +410,7 @@ body {
   width: 60px;
   height: 60px;
   z-index: 2;
+  opacity: 0.4;
   animation-delay: 0.2s;
 }
 
@@ -417,39 +418,27 @@ body {
   width: 40px;
   height: 40px;
   z-index: 3;
+  opacity: 0.6;
   animation-delay: 0.3s;
 }
 
 .loader .circle:nth-child(4) {
-  background: linear-gradient(45deg, #337aff, #572ff3, #e81f6c, #f1c726);
-  background-size: 200%;
+  background: var(--main-color, #d10000);
   width: 20px;
   height: 20px;
   z-index: 4;
+  opacity: 0.9;
   animation-delay: 0.4s;
 }
 
-@keyframes colorfull-spin {
-  0% {
-    border-radius: 50%;
-    transform: translateX(-50%) translateY(-50%) rotate(0);
-    background-position: 0 50%;
-  }
-  20% {
-    border-radius: 50%;
-    transform: translateX(-50%) translateY(-50%) rotate(0);
+@keyframes loader-pulse {
+  0%, 100% {
+    transform: translateX(-50%) translateY(-50%) scale(1);
+    opacity: inherit;
   }
   50% {
-    background-position: 100% 50%;
-  }
-  90% {
-    border-radius: 5%;
-    transform: translateX(-50%) translateY(-50%) rotate(90deg);
-  }
-  100% {
-    border-radius: 5%;
-    transform: translateX(-50%) translateY(-50%) rotate(90deg);
-    background-position: 0 50%;
+    transform: translateX(-50%) translateY(-50%) scale(1.15);
+    opacity: 0.6;
   }
 }
 @media (prefers-reduced-motion: reduce) {
