@@ -1424,64 +1424,40 @@ td.dt-empty {
 }
 
 // ========================================
-// STATS CARDS (compact, consistent style)
+// STATS STRIP (compact inline stats)
 // ========================================
-.intra__stats-card {
-  background-color: var(--body-bg-lighter) !important;
-  border: 1px solid var(--darkgray) !important;
-  border-radius: var(--radius-lg) !important;
-  box-shadow: none !important;
-  position: relative;
+.intra__stats-strip {
+  display: flex;
+  gap: 1px;
+  background: var(--darkgray);
+  border: 1px solid var(--darkgray);
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  margin-bottom: 1rem;
+}
 
-  .card-body {
-    padding: 1rem 1.25rem;
-  }
+.intra__stat-item {
+  flex: 1;
+  background: var(--body-bg-lighter);
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
 
-  .card-title {
-    font-size: var(--fs-sm);
-    color: var(--text-dimmed) !important;
-    margin: 0 0 0.35rem !important;
-    text-transform: none;
-    letter-spacing: normal;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+.intra__stat-value {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-title);
+  line-height: 1.2;
+}
 
-    i {
-      font-size: 0.7rem;
-      position: static;
-      color: var(--text-dimmed);
-    }
-  }
-
-  .card-text {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--white);
-    margin: 0 !important;
-    line-height: 1.2;
-  }
-
-  .stat-sub {
-    font-size: var(--fs-xs);
-    color: var(--text-dimmed);
-    margin-top: 0.2rem;
-  }
-
-  // Decorative background icon: hidden by default now
-  > .card-body > i:last-child:not(.card-title i) {
-    display: none;
-  }
-
-  // Legacy color variants: no longer colored, all use same bg
-  &.intra__stats-users,
-  &.intra__stats-workers,
-  &.intra__stats-enotf,
-  &.intra__stats-documents {
-    --stat-bg-color: var(--body-bg-lighter);
-  }
+.intra__stat-label {
+  font-size: var(--fs-xs);
+  color: var(--text-dimmed);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 // ========================================
@@ -1759,9 +1735,14 @@ td.dt-empty {
     }
   }
 
-  // Stats cards: 2 per row
-  .intra__stats-card .card-text {
-    font-size: 1.3rem;
+  // Stats strip: allow wrapping on tablet
+  .intra__stats-strip {
+    flex-wrap: wrap;
+  }
+
+  .intra__stat-item {
+    flex: 1 1 calc(50% - 1px);
+    min-width: 0;
   }
 
   // Tables: horizontal scroll wrapper
@@ -1843,13 +1824,17 @@ td.dt-empty {
     }
   }
 
-  // Stats cards: single column, compact
-  .intra__stats-card .card-body {
-    padding: 0.75rem 1rem;
+  // Stats strip: compact on mobile
+  .intra__stat-value {
+    font-size: 1.1rem;
   }
 
-  .intra__stats-card .card-text {
-    font-size: 1.2rem;
+  .intra__stat-label {
+    font-size: 0.65rem;
+  }
+
+  .intra__stat-item {
+    padding: 0.5rem 0.6rem;
   }
 
   // Tables: compact cells on mobile
@@ -1944,8 +1929,8 @@ td.dt-empty {
     font-size: 1rem;
   }
 
-  // Stats cards: even more compact
-  .intra__stats-card .card-text {
+  // Stats strip: even more compact
+  .intra__stat-value {
     font-size: 1rem;
   }
 }
