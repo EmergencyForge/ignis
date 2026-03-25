@@ -18,6 +18,12 @@
   --space-lg: 1.5rem;   // 24px — between sections
   --space-xl: 2.5rem;   // 40px — between major groups
 
+  // Easing curves (shared across admin + sidebar)
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);    // refined UI transitions
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);      // confident, decisive
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);         // slight overshoot
+  --spring-gentle: cubic-bezier(0.22, 1.2, 0.36, 1);   // subtle overshoot
+
   // Interactive color tokens
   --link-color: #7ba3d4;
   --link-hover: #92b5e0;
@@ -579,7 +585,7 @@ select.form-select {
 // Modal entrance: scale + fade (replaces Bootstrap's basic fade)
 .modal.fade .modal-dialog {
   transform: scale(0.95) translateY(-10px);
-  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+  transition: transform 0.3s var(--ease-out-quint),
               opacity 0.2s ease;
 }
 
@@ -643,7 +649,7 @@ select.form-select {
   border-radius: var(--radius-xl);
   border: 1px solid var(--darkgray);
   padding: 1rem;
-  animation: tile-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tile-enter 0.4s var(--ease-out-quint) both;
 
   > h4, > .row h4, > .d-flex h4 {
     font-size: 1.05rem;
@@ -1121,7 +1127,7 @@ td.dt-empty {
   padding: 0.7rem 1rem;
   font-size: 0.85rem;
   margin-bottom: 0.75rem;
-  animation: alert-enter 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: alert-enter 0.35s var(--ease-out-quint);
 
   i:first-child {
     font-size: 0.95rem;
@@ -1251,7 +1257,7 @@ td.dt-empty {
     inset: 0;
     background: #3d3a44;
     border-radius: 11px;
-    transition: background 0.25s cubic-bezier(0.22, 1.2, 0.36, 1);
+    transition: background 0.25s var(--spring-gentle);
     cursor: pointer;
 
     &::after {
@@ -1263,7 +1269,7 @@ td.dt-empty {
       height: 16px;
       background: #818189;
       border-radius: 50%;
-      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+      transition: transform 0.25s var(--spring),
                   background 0.2s ease;
     }
   }
@@ -1284,7 +1290,7 @@ td.dt-empty {
 
 // Checkbox: subtle pulse on check
 .form-check-input:checked {
-  animation: check-pulse 0.25s cubic-bezier(0.22, 1.2, 0.36, 1);
+  animation: check-pulse 0.25s var(--spring-gentle);
 }
 
 @keyframes check-pulse {
@@ -1296,7 +1302,7 @@ td.dt-empty {
 // Bootstrap form-switch: spring physics on the thumb
 .form-switch .form-check-input {
   transition: background-color 0.2s ease,
-              background-position 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+              background-position 0.25s var(--spring);
 }
 
 // ========================================
@@ -1331,7 +1337,7 @@ td.dt-empty {
       font-weight: 900;
       font-size: 0.6rem;
       color: var(--text-dimmed);
-      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform 0.25s var(--ease-out-quint);
     }
 
     &:hover {
@@ -1347,7 +1353,7 @@ td.dt-empty {
     padding: 0.75rem 0.85rem;
     border-top: 1px solid var(--darkgray);
     font-size: 0.82rem;
-    animation: details-reveal 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    animation: details-reveal 0.3s var(--ease-out-quint);
   }
 
   @keyframes details-reveal {
@@ -1443,11 +1449,11 @@ td.dt-empty {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 
   &.toast-visible {
-    animation: toast-slide-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: toast-slide-in 0.4s var(--spring) forwards;
   }
 
   &.toast-dismissing {
-    animation: toast-slide-out 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: toast-slide-out 0.25s var(--ease-out-expo) forwards;
   }
 }
 
@@ -1457,7 +1463,7 @@ td.dt-empty {
 }
 
 .toast-visible .toast-icon {
-  animation: toast-icon-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+  animation: toast-icon-pop 0.35s var(--spring) 0.15s both;
 }
 
 @keyframes toast-icon-pop {
@@ -1587,7 +1593,7 @@ td.dt-empty {
   border-radius: var(--radius-lg);
   padding: 1rem 1.25rem;
   margin-bottom: var(--space-md);
-  animation: tile-enter 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: tile-enter 0.4s var(--ease-out-quint) both;
 }
 
 .setup-steps {
