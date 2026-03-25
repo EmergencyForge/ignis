@@ -729,6 +729,7 @@ select.form-select option {
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   vertical-align: middle;
   font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .table tbody tr {
@@ -1364,6 +1365,7 @@ td.dt-empty {
   font-weight: 600;
   color: var(--text-title);
   line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 
 .intra__stat-label {

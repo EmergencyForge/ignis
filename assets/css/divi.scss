@@ -1134,29 +1134,12 @@ body {
   border-left: 2px solid #424242;
 }
 
-#edivi__topbar a.edivi__iconlink {
-  display: inline-block;
-  text-align: center;
-  font-size: 38px;
-  padding: 0 10px;
-  color: var(--white);
-  text-decoration: none;
-  line-height: 1;
-}
-
-#edivi__topbar a.edivi__iconlink small {
-  display: block;
-  font-size: 0.6rem;
-  margin-top: 2px;
-  line-height: 1;
-}
-
 #edivi__topbar a.edivi__iconlink,
 #edivi__topbar button.edivi__iconlink {
   display: inline-block;
   text-align: center;
-  font-size: 38px;
-  padding: 0 10px;
+  font-size: 2.375rem;
+  padding: 0 0.625rem;
   color: var(--white);
   text-decoration: none;
   line-height: 1;
@@ -2045,16 +2028,17 @@ body[data-page="verlauf"] .function-grid {
 }
 
 body[data-page="verlauf"] .keypad-btn {
-  background: #333333;
-  color: white;
+  background: var(--enotf-surface);
+  color: var(--white);
   border: none;
   border-radius: 0;
-  padding: 20px;
-  font-size: 20px;
-  font-weight: bold;
+  padding: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
-  transition: all 0.2s;
-  min-height: 60px;
+  transition: background-color 0.2s;
+  min-height: 3.75rem;
 }
 
 body[data-page="verlauf"] .keypad-btn:hover {
@@ -2104,9 +2088,9 @@ body[data-page="verlauf"] .vital-entry:hover {
 
 body[data-page="verlauf"] .vital-content {
   flex: 1;
-  color: white;
-  font-size: 14px;
-  line-height: 1.4;
+  color: var(--white);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 body[data-page="verlauf"] .vital-time {
@@ -2132,9 +2116,9 @@ body[data-page="verlauf"] .vital-bemerkung {
 }
 
 body[data-page="verlauf"] .vital-author {
-  color: #6c757d;
-  font-size: 12px;
-  margin-top: 3px;
+  color: var(--enotf-text-light, #999);
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
 }
 
 body[data-page="verlauf"] .delete-btn {
@@ -2161,14 +2145,15 @@ body[data-page="verlauf"] .stat-item {
 }
 
 body[data-page="verlauf"] .stat-number {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.3rem;
 }
 
 body[data-page="verlauf"] .stat-label {
-  font-size: 12px;
-  color: #bbb;
+  font-size: 0.75rem;
+  color: var(--enotf-text-light, #999);
 }
 
 body[data-page="verlauf"] .no-vitals {
