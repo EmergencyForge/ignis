@@ -24,13 +24,40 @@ $showArchived = isset($_GET['show_archived']) && $_GET['show_archived'] === '1';
 $incidents = [];
 try {
     if ($showArchived) {
-        // Zeige nur archivierte Einsätze
         $stmt = $pdo->query("SELECT i.*, m.fullname AS leader_name FROM intra_fire_incidents i LEFT JOIN intra_mitarbeiter m ON i.leader_id = m.id WHERE i.archived = 1 ORDER BY i.archived_at DESC");
     } else {
-        // Zeige nur nicht-archivierte Einsätze
         $stmt = $pdo->query("SELECT i.*, m.fullname AS leader_name FROM intra_fire_incidents i LEFT JOIN intra_mitarbeiter m ON i.leader_id = m.id WHERE i.archived = 0 ORDER BY i.created_at DESC");
     }
     $incidents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Resolve federation leader names where local JOIN returned null
+    foreach ($incidents as &$inc) {
+        if (empty($inc['leader_name']) && !empty($inc['leader_id'])) {
+            $inc['leader_name'] = \App\Federation\FederatedPersonnel::resolveName($pdo, $inc['leader_id']);
+        }
+    }
+    unset($inc);
+
+    // Append federated fire incidents (read-only)
+    if (defined('FEDERATION_ENABLED') && FEDERATION_ENABLED && !$showArchived) {
+        try {
+            $fedStmt = $pdo->query("
+                SELECT fcf.cached_data, fl.instance_name
+                FROM intra_federation_cache_fire fcf
+                JOIN intra_federation_links fl ON fl.instance_id = fcf.source_instance_id AND fl.is_active = 1
+                ORDER BY fcf.incident_date DESC
+            ");
+            foreach ($fedStmt->fetchAll(PDO::FETCH_ASSOC) as $fedRow) {
+                $fi = json_decode($fedRow['cached_data'], true);
+                if (!$fi) continue;
+                $fi['_federation_source'] = $fedRow['instance_name'];
+                $fi['_federation_readonly'] = true;
+                $fi['id'] = 'fed_' . ($fi['id'] ?? 0);
+                $incidents[] = $fi;
+            }
+        } catch (\PDOException $e) {
+            // Silently skip
+        }
+    }
 } catch (PDOException $e) {
 }
 ?>
@@ -88,6 +115,14 @@ try {
                 <tbody>
                     <?php foreach ($incidents as $i): ?>
                         <?php
+                        $isFederated = !empty($i['_federation_readonly']);
+                        if ($isFederated) {
+                            $i['finalized'] = $i['finalized'] ?? 1;
+                            $i['status'] = $i['status'] ?? 2;
+                            $i['started_at'] = $i['created_at'] ?? date('Y-m-d H:i:s');
+                            $i['location'] = $i['location'] ?? '';
+                            $i['keyword'] = $i['keyword'] ?? '';
+                        }
                         if (!$i['finalized']) {
                             $statusClass = 'status-muted';
                             $statusText = 'Unfertig';
@@ -104,7 +139,7 @@ try {
                         }
                         ?>
                         <tr>
-                            <td><?= htmlspecialchars($i['incident_number'] ?? '-') ?></td>
+                            <td><?= htmlspecialchars($i['incident_number'] ?? '-') ?><?php if ($isFederated): ?> <span class="badge" style="background:rgba(255,255,255,0.1);font-size:0.6rem;"><?= htmlspecialchars($i['_federation_source'] ?? '') ?></span><?php endif; ?></td>
                             <td><?php
                                 $startDt = new DateTime($i['started_at'], new DateTimeZone('UTC'));
                                 $startDt->setTimezone(new DateTimeZone('Europe/Berlin'));
@@ -115,6 +150,9 @@ try {
                             <td><?= htmlspecialchars($i['leader_name'] ?? '-') ?></td>
                             <td><span class="badge-status <?= $statusClass ?>"><span class="status-dot"></span><?= htmlspecialchars($statusText) ?></span></td>
                             <td>
+                                <?php if ($isFederated): ?>
+                                    <span style="font-size:var(--fs-xs);color:var(--text-dimmed);">read-only</span>
+                                <?php else: ?>
                                 <a class="btn btn-sm btn-soft-primary" href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int)$i['id'] ?>">Öffnen</a>
                                 <?php if ($showArchived): ?>
                                     <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="d-inline">
@@ -132,6 +170,7 @@ try {
                                             <i class="fa-solid fa-archive"></i>
                                         </button>
                                     </form>
+                                <?php endif; ?>
                                 <?php endif; ?>
                             </td>
                         </tr>
