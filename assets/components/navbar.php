@@ -41,12 +41,8 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     /* ========================================
        SIDEBAR STYLES
        ======================================== */
-    /* Spring easing: cubic-bezier that overshoots slightly for physical feel */
-    :root {
-        --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-        --spring-gentle: cubic-bezier(0.22, 1.2, 0.36, 1);
-        --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-    }
+    /* Easing tokens inherited from admin.scss :root
+       --spring, --spring-gentle, --ease-out-expo, --ease-out-quint */
 
     .intra-sidebar {
         position: fixed;
