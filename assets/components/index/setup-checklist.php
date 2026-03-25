@@ -8,7 +8,6 @@ use App\Auth\Permissions;
 if (!Permissions::check(['admin'])) return;
 
 // Safe count helper — returns 0 if table doesn't exist
-/** @return int<0, max> */
 function _setupCount(PDO $pdo, string $table): int {
     try { return (int)$pdo->query("SELECT COUNT(*) FROM $table")->fetchColumn(); }
     catch (Exception $e) { return 0; }
@@ -28,19 +27,19 @@ $checkMitarbeiter = _setupCount($pdo, 'intra_mitarbeiter');
 $checkPois        = _setupCount($pdo, 'intra_edivi_pois');
 $checkFahrzeuge   = _setupCount($pdo, 'intra_fahrzeuge');
 
+// Step completion flags (computed once, reused in HTML)
+$doneConfig       = $checkConfigDone;
+$doneDienstgrade  = $checkDienstgrade > 0;
+$doneQuali        = $checkQuali > 0;
+$doneRollen       = $checkRollen > 0;
+$doneMitarbeiter  = $checkMitarbeiter > 0;
+$donePois         = $checkPois > 0;
+$doneFahrzeuge    = $checkFahrzeuge > 0;
+
 // Required steps (must all be done to hide checklist)
 $requiredSteps = 5;
-$completedRequired = 0;
-if ($checkConfigDone) $completedRequired++;
-if ($checkDienstgrade > 0) $completedRequired++;
-if ($checkQuali > 0) $completedRequired++;
-if ($checkRollen > 0) $completedRequired++;
-if ($checkMitarbeiter > 0) $completedRequired++;
-
-// Optional count
-$completedOptional = 0;
-if ($checkPois > 0) $completedOptional++;
-if ($checkFahrzeuge > 0) $completedOptional++;
+$completedRequired = (int)$doneConfig + (int)$doneDienstgrade + (int)$doneQuali + (int)$doneRollen + (int)$doneMitarbeiter;
+$completedOptional = (int)$donePois + (int)$doneFahrzeuge;
 
 $totalDisplay = $completedRequired + $completedOptional;
 $totalAll = $requiredSteps + 2;
@@ -64,7 +63,7 @@ $stepNum = 1;
         Richte die wichtigsten Bereiche ein, um loszulegen.
     </p>
     <div class="setup-steps">
-        <?php $done = $checkConfigDone; ?>
+        <?php $done = $doneConfig; ?>
         <a href="<?= BASE_PATH ?>settings/system/config.php" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
@@ -73,7 +72,7 @@ $stepNum = 1;
             </span>
         </a>
 
-        <?php $stepNum++; $done = $checkDienstgrade > 0; ?>
+        <?php $stepNum++; $done = $doneDienstgrade; ?>
         <a href="<?= BASE_PATH ?>settings/personal/dienstgrade/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
@@ -82,7 +81,7 @@ $stepNum = 1;
             </span>
         </a>
 
-        <?php $stepNum++; $done = $checkQuali > 0; ?>
+        <?php $stepNum++; $done = $doneQuali; ?>
         <a href="<?= BASE_PATH ?>settings/personal/qualird/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
@@ -91,7 +90,7 @@ $stepNum = 1;
             </span>
         </a>
 
-        <?php $stepNum++; $done = $checkRollen > 0; ?>
+        <?php $stepNum++; $done = $doneRollen; ?>
         <a href="<?= BASE_PATH ?>benutzer/rollen/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
@@ -100,7 +99,7 @@ $stepNum = 1;
             </span>
         </a>
 
-        <?php $stepNum++; $done = $checkMitarbeiter > 0; ?>
+        <?php $stepNum++; $done = $doneMitarbeiter; ?>
         <a href="<?= BASE_PATH ?>mitarbeiter/create.php" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
@@ -114,7 +113,7 @@ $stepNum = 1;
     <div style="margin-top:0.75rem;padding-top:0.6rem;border-top:1px solid var(--darkgray);">
         <div style="font-size:var(--fs-xs);color:var(--text-dimmed);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.4rem;">Optional</div>
         <div class="setup-steps">
-            <?php $done = $checkPois > 0; ?>
+            <?php $done = $donePois; ?>
             <a href="<?= BASE_PATH ?>settings/pois/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
                 <span class="setup-step-icon" style="background:rgba(255,255,255,0.06);color:var(--text-dimmed);"><?= $done ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-map-marker-alt" style="font-size:0.65rem"></i>' ?></span>
                 <span class="setup-step-text">
@@ -123,7 +122,7 @@ $stepNum = 1;
                 </span>
             </a>
 
-            <?php $done = $checkFahrzeuge > 0; ?>
+            <?php $done = $doneFahrzeuge; ?>
             <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
                 <span class="setup-step-icon" style="background:rgba(255,255,255,0.06);color:var(--text-dimmed);"><?= $done ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-truck" style="font-size:0.65rem"></i>' ?></span>
                 <span class="setup-step-text">
