@@ -1,4 +1,5 @@
 :root {
+  // Core tokens (eNOTF context — --darkgray is intentionally lighter than admin)
   --secondary-color: #011e4a;
   --secondary-color-dimmed: #0a2e5a;
   --main-color: #d10000;
@@ -11,6 +12,33 @@
   --black: #000;
   --selection-bg: #308dfd;
   --selection-color: var(--white);
+
+  // eNOTF semantic colors — medical triage (per DIN 13050)
+  --triage-red: #dc3545;
+  --triage-yellow: #ffc107;
+  --triage-green: #28a745;
+
+  // IV catheter gauge colors (medical standard)
+  --gauge-24g: #ffc107;   // yellow
+  --gauge-22g: #2563eb;   // blue
+  --gauge-20g: #ec4899;   // pink
+  --gauge-18g: #28a745;   // green
+  --gauge-17g: #ffffff;   // white/clear
+  --gauge-16g: #9ca3af;   // gray
+  --gauge-14g: #f97316;   // orange
+  --gauge-arterial: #dc3545; // red (arterial/IO access)
+
+  // eNOTF input validation indicators
+  --input-check-pending: var(--triage-red);
+  --input-check-done: #55b530;
+
+  // eNOTF UI surface colors
+  --enotf-surface: #333333;
+  --enotf-surface-light: #4a4a4a;
+  --enotf-text: #a2a2a2;
+  --enotf-text-light: #999;
+  --enotf-border: #555;
+  --enotf-focus-ring: #5783cf;
 }
 
 * {
@@ -340,19 +368,19 @@ body {
 #edivi__container
   .edivi__box
   .edivi__verletzungen-col.edivi__verletzungen-red::after {
-  background: red;
+  background: var(--triage-red);
 }
 
 #edivi__container
   .edivi__box
   .edivi__verletzungen-col.edivi__verletzungen-yellow::after {
-  background: yellow;
+  background: var(--triage-yellow);
 }
 
 #edivi__container
   .edivi__box
   .edivi__verletzungen-col.edivi__verletzungen-green::after {
-  background: green;
+  background: var(--triage-green);
 }
 
 #edivi__container .btn {
@@ -360,8 +388,8 @@ body {
 }
 
 .edivi__box.edivi__log-comment {
-  background: #333333;
-  color: #a2a2a2;
+  background: var(--enotf-surface);
+  color: var(--enotf-text);
   padding: 12px;
   margin: 0;
   font-size: 0.8rem;
@@ -370,8 +398,8 @@ body {
 .edivi__box.edivi__log-comment i {
   padding: 6px 9px;
   border-radius: 2px;
-  background: #a2a2a2;
-  color: #333333;
+  background: var(--enotf-text);
+  color: var(--enotf-surface);
   opacity: 0.6;
 }
 
@@ -411,7 +439,7 @@ body {
 #edivi__container
   .edivi__box
   .edivi__zugang-container.edivi__zugang-opt9::after {
-  background: yellow;
+  background: var(--gauge-24g);
 }
 
 #edivi__container
@@ -420,43 +448,43 @@ body {
 #edivi__container
   .edivi__box
   .edivi__zugang-container.edivi__zugang-opt8::after {
-  background: blue;
+  background: var(--gauge-22g);
 }
 
 #edivi__container
   .edivi__box
   .edivi__zugang-container.edivi__zugang-opt2::after {
-  background: pink;
+  background: var(--gauge-20g);
 }
 
 #edivi__container
   .edivi__box
   .edivi__zugang-container.edivi__zugang-opt3::after {
-  background: green;
+  background: var(--gauge-18g);
 }
 
 #edivi__container
   .edivi__box
   .edivi__zugang-container.edivi__zugang-opt4::after {
-  background: white;
+  background: var(--gauge-17g);
 }
 
 #edivi__container
   .edivi__box
   .edivi__zugang-container.edivi__zugang-opt5::after {
-  background: gray;
+  background: var(--gauge-16g);
 }
 
 #edivi__container
   .edivi__box
   .edivi__zugang-container.edivi__zugang-opt6::after {
-  background: orange;
+  background: var(--gauge-14g);
 }
 
 #edivi__container
   .edivi__box
   .edivi__zugang-container.edivi__zugang-opt7::after {
-  background: red;
+  background: var(--gauge-arterial);
 }
 
 #edivi__nidanav {
@@ -731,7 +759,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: yellow;
+  background: var(--gauge-24g);
   right: 10px;
 }
 
@@ -743,7 +771,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: blue;
+  background: var(--gauge-22g);
   right: 10px;
 }
 
@@ -755,7 +783,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: pink;
+  background: var(--gauge-20g);
   right: 10px;
 }
 
@@ -767,7 +795,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: green;
+  background: var(--gauge-18g);
   right: 10px;
 }
 
@@ -779,10 +807,10 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: green;
+  background: var(--gauge-18g);
   box-shadow:
     0 0 0 2px #fff inset,
-    0 0 0 2px green;
+    0 0 0 2px var(--gauge-18g);
   right: 10px;
 }
 
@@ -794,7 +822,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: white;
+  background: var(--gauge-17g);
   right: 10px;
 }
 
@@ -806,7 +834,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: gray;
+  background: var(--gauge-16g);
   right: 10px;
 }
 
@@ -818,7 +846,7 @@ body {
   height: 0.8rem;
   width: 0.8rem;
   border-radius: 50%;
-  background: orange;
+  background: var(--gauge-14g);
   right: 10px;
 }
 
@@ -1106,29 +1134,12 @@ body {
   border-left: 2px solid #424242;
 }
 
-#edivi__topbar a.edivi__iconlink {
-  display: inline-block;
-  text-align: center;
-  font-size: 38px;
-  padding: 0 10px;
-  color: var(--white);
-  text-decoration: none;
-  line-height: 1;
-}
-
-#edivi__topbar a.edivi__iconlink small {
-  display: block;
-  font-size: 0.6rem;
-  margin-top: 2px;
-  line-height: 1;
-}
-
 #edivi__topbar a.edivi__iconlink,
 #edivi__topbar button.edivi__iconlink {
   display: inline-block;
   text-align: center;
-  font-size: 38px;
-  padding: 0 10px;
+  font-size: 2.375rem;
+  padding: 0 0.625rem;
   color: var(--white);
   text-decoration: none;
   line-height: 1;
@@ -1641,15 +1652,15 @@ body#edivi__arrivalboard table td.edivi__arrivalboard-text {
 }
 
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-0 {
-  border-left: 12px solid green;
+  border-left: 12px solid var(--triage-green);
 }
 
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-1 {
-  border-left: 12px solid yellow;
+  border-left: 12px solid var(--triage-yellow);
 }
 
 body#edivi__arrivalboard table tr.edivi__arrivalboard-prio-2 {
-  border-left: 12px solid red;
+  border-left: 12px solid var(--triage-red);
 }
 
 body#edivi__arrivalboard table th {
@@ -2017,16 +2028,17 @@ body[data-page="verlauf"] .function-grid {
 }
 
 body[data-page="verlauf"] .keypad-btn {
-  background: #333333;
-  color: white;
+  background: var(--enotf-surface);
+  color: var(--white);
   border: none;
   border-radius: 0;
-  padding: 20px;
-  font-size: 20px;
-  font-weight: bold;
+  padding: 1.25rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
-  transition: all 0.2s;
-  min-height: 60px;
+  transition: background-color 0.2s;
+  min-height: 3.75rem;
 }
 
 body[data-page="verlauf"] .keypad-btn:hover {
@@ -2076,9 +2088,9 @@ body[data-page="verlauf"] .vital-entry:hover {
 
 body[data-page="verlauf"] .vital-content {
   flex: 1;
-  color: white;
-  font-size: 14px;
-  line-height: 1.4;
+  color: var(--white);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 body[data-page="verlauf"] .vital-time {
@@ -2104,9 +2116,9 @@ body[data-page="verlauf"] .vital-bemerkung {
 }
 
 body[data-page="verlauf"] .vital-author {
-  color: #6c757d;
-  font-size: 12px;
-  margin-top: 3px;
+  color: var(--enotf-text-light, #999);
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
 }
 
 body[data-page="verlauf"] .delete-btn {
@@ -2133,14 +2145,15 @@ body[data-page="verlauf"] .stat-item {
 }
 
 body[data-page="verlauf"] .stat-number {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.3rem;
 }
 
 body[data-page="verlauf"] .stat-label {
-  font-size: 12px;
-  color: #bbb;
+  font-size: 0.75rem;
+  color: var(--enotf-text-light, #999);
 }
 
 body[data-page="verlauf"] .no-vitals {
@@ -2570,8 +2583,10 @@ body[data-page="verlauf"] .value-indicator {
   text-decoration: none;
 }
 
-.edivi__iconlink-button:focus {
+.edivi__iconlink-button:focus-visible {
   outline: none;
+  box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.35);
+  border-radius: 3px;
 }
 
 #freigabeButton::after {

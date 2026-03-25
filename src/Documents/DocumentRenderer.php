@@ -9,6 +9,8 @@ use App\Helpers\ProtocolDetection;
 
 class DocumentRenderer
 {
+    use DocumentRenderingTrait;
+
     private PDO $pdo;
     private Environment $twig;
     private string $templatePath;
@@ -31,8 +33,16 @@ class DocumentRenderer
      */
     public function renderDocument(int $docId): string
     {
+        // Prüfe ob die Visual-Editor-Spalten existieren
+        $hasVisualColumns = $this->hasVisualEditorColumns();
+
+        $selectCols = 'd.*, t.template_file, t.is_system';
+        if ($hasVisualColumns) {
+            $selectCols .= ', t.editor_type, t.layout_id';
+        }
+
         $stmt = $this->pdo->prepare("
-            SELECT d.*, t.template_file, t.is_system
+            SELECT {$selectCols}
             FROM intra_mitarbeiter_dokumente d
             LEFT JOIN intra_dokument_templates t ON d.template_id = t.id
             WHERE d.id = :docid
@@ -44,8 +54,37 @@ class DocumentRenderer
             throw new \Exception("Dokument oder Template nicht gefunden");
         }
 
-        // Alle Dokumente durch Twig rendern
+        // Visuelles Template → VisualTemplateRenderer
+        if (($doc['editor_type'] ?? 'twig') === 'visual' && !empty($doc['layout_id'])) {
+            $visualRenderer = new VisualTemplateRenderer($this->pdo);
+            return $visualRenderer->renderDocument($doc);
+        }
+
+        // Twig-Template (Standard/Legacy)
         return $this->renderCustomDocument($doc);
+    }
+
+    /**
+     * Prüft ob die Visual-Editor-Spalten existieren (Abwärtskompatibilität)
+     */
+    private function hasVisualEditorColumns(): bool
+    {
+        static $hasColumns = null;
+        if ($hasColumns !== null) return $hasColumns;
+
+        try {
+            $stmt = $this->pdo->prepare("
+                SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = 'intra_dokument_templates'
+                AND COLUMN_NAME = 'editor_type'
+            ");
+            $stmt->execute();
+            $hasColumns = (bool) $stmt->fetchColumn();
+        } catch (\PDOException $e) {
+            $hasColumns = false;
+        }
+        return $hasColumns;
     }
 
     /**
@@ -211,148 +250,6 @@ class DocumentRenderer
     /**
      * Löst geschlechtsspezifische Werte auf
      */
-    private function resolveGenderSpecificValue(array $options, $value, int $gender): string
-    {
-        foreach ($options as $option) {
-            if ($option['value'] == $value) {
-                if ($gender === 1 && isset($option['label_w'])) {
-                    return $option['label_w'];
-                } elseif ($gender === 0 && isset($option['label_m'])) {
-                    return $option['label_m'];
-                }
-                return $option['label'] ?? '';
-            }
-        }
-        return '';
-    }
-
-    private function getImageAsBase64(string $path): ?string
-    {
-        if (!file_exists($path)) {
-            return null;
-        }
-
-        $imageData = file_get_contents($path);
-
-        $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-        $mimeTypes = [
-            'png' => 'image/png',
-            'jpg' => 'image/jpeg',
-            'jpeg' => 'image/jpeg',
-            'gif' => 'image/gif',
-            'svg' => 'image/svg+xml',
-        ];
-
-        $mimeType = $mimeTypes[$extension] ?? 'image/png';
-        $base64 = base64_encode($imageData);
-
-        return "data:$mimeType;base64,$base64";
-    }
-
-    /**
-     * Lädt Optionen für ein Feld basierend auf dessen Typ
-     */
-    private function getFieldOptions(string $fieldType, ?string $fieldOptions): array
-    {
-        switch ($fieldType) {
-            case 'db_dg':
-                $stmt = $this->pdo->query("
-                    SELECT id as value, name as label, name_m as label_m, name_w as label_w 
-                    FROM intra_mitarbeiter_dienstgrade 
-                    WHERE archive = 0 
-                    ORDER BY priority ASC
-                ");
-                return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            case 'db_rdq':
-                $stmt = $this->pdo->query("
-                    SELECT id as value, name as label, name_m as label_m, name_w as label_w 
-                    FROM intra_mitarbeiter_rdquali 
-                    WHERE none = 0 
-                    ORDER BY priority ASC
-                ");
-                return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            case 'select':
-                return $fieldOptions ? json_decode($fieldOptions, true) : [];
-
-            default:
-                return [];
-        }
-    }
-
-    private function formatGermanDate(?string $date): string
-    {
-        if (!$date) return '';
-
-        $dt = new \DateTime($date);
-        $months = [
-            1 => 'Januar',
-            2 => 'Februar',
-            3 => 'März',
-            4 => 'April',
-            5 => 'Mai',
-            6 => 'Juni',
-            7 => 'Juli',
-            8 => 'August',
-            9 => 'September',
-            10 => 'Oktober',
-            11 => 'November',
-            12 => 'Dezember'
-        ];
-
-        return $dt->format('d. ') . $months[(int)$dt->format('m')] . $dt->format(' Y');
-    }
-
-    /**
-     * Lädt Aussteller-Daten
-     */
-    private function getIssuerData(int $discordId): array
-    {
-        $stmt = $this->pdo->prepare("
-            SELECT 
-                u.*, 
-                COALESCE(m.fullname, u.fullname) as fullname,
-                m.dienstgrad, 
-                m.zusatz, 
-                m.geschlecht
-            FROM intra_users u
-            LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
-            WHERE u.discord_id = :id
-        ");
-        $stmt->execute(['id' => $discordId]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($data) {
-            // Lade Dienstgrad-Info
-            if ($data['dienstgrad']) {
-                $stmt = $this->pdo->prepare("
-                    SELECT * FROM intra_mitarbeiter_dienstgrade WHERE id = :id
-                ");
-                $stmt->execute(['id' => $data['dienstgrad']]);
-                $dginfo = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                if ($dginfo) {
-                    if ($data['geschlecht'] == 0) {
-                        $data['dienstgrad_text'] = $dginfo['name_m'];
-                    } elseif ($data['geschlecht'] == 1) {
-                        $data['dienstgrad_text'] = $dginfo['name_w'];
-                    } else {
-                        $data['dienstgrad_text'] = $dginfo['name'];
-                    }
-                    $data['dienstgrad_badge'] = $dginfo['badge'] ?? null;
-                }
-            }
-
-            // Extrahiere Nachnamen
-            if (!empty($data['fullname'])) {
-                $splitname = explode(" ", $data['fullname']);
-                $data['lastname'] = end($splitname);
-            } else {
-                $data['lastname'] = '';
-            }
-        }
-
-        return $data ?? [];
-    }
+    // resolveGenderSpecificValue, getFieldOptions, getIssuerData,
+    // formatGermanDate, getImageAsBase64 — via DocumentRenderingTrait
 }

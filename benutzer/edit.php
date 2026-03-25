@@ -69,7 +69,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
 ?>
 
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="light">
+<html lang="de" data-bs-theme="light">
 
 <head>
     <?php
@@ -96,7 +96,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                                 <span class="badge text-bg-secondary me-2">Deaktiviert</span>
                                 <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#reactivateModal"><i class="fa-solid fa-user-check"></i> Benutzer reaktivieren</button>
                             <?php endif; ?>
-                            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash"></i> Endgültig löschen</button>
+                            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteUserModal"><i class="fa-solid fa-trash"></i> Endgültig löschen</button>
                         <?php endif; ?>
                     </h1>
                     <?php
@@ -111,7 +111,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                                     <div class="row">
                                         <div class="col mb-3">
                                             <label for="username" class="form-label fw-bold">Benutzername <span class="text-main-color">*</span></label>
-                                            <input type="text" class="form-control" id="username" name="username" placeholder="" value="<?= $row['username'] ?>" required>
+                                            <input type="text" class="form-control" id="username" name="username" value="<?= $row['username'] ?>" required>
                                         </div>
                                     </div>
                                 </div>
@@ -121,7 +121,7 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
                                     <!-- <div class="row">
                                         <div class="col mb-3">
                                             <label for="aktenid" class="form-label fw-bold">Mitarbeiterakten-ID</label>
-                                            <input type="number" class="form-control" id="aktenid" name="aktenid" placeholder="" value="<?= $row['aktenid'] ?? NULL ?>">
+                                            <input type="number" class="form-control" id="aktenid" name="aktenid" value="<?= $row['aktenid'] ?? NULL ?>">
                                         </div>
                                     </div> -->
                                     <div class="row">
@@ -250,11 +250,11 @@ if (isset($_POST['new']) && $_POST['new'] == 1) {
         <?php endif; ?>
 
         <!-- Endgültig löschen Modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exampleModalLabel">Bestätigung erforderlich</h1>
+                        <h1 class="modal-title fs-5" id="deleteUserModalLabel">Benutzer endgültig löschen</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">

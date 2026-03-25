@@ -37,13 +37,50 @@
   width: 95%;
 }
 
+:root {
+  --comment-bg: #dee0e3;
+  --comment-text: var(--black);
+  --comment-note-bg: #acadb0;
+  --comment-note-stripe: #acadb0;
+  --comment-positive-bg: #b7d0b3;
+  --comment-positive-stripe: #7fb257;
+  --comment-negative-bg: #e2a2a7;
+  --comment-negative-stripe: #ce646d;
+  --comment-rank-bg: #b4ddf9;
+  --comment-rank-stripe: #55b3f1;
+  --comment-modify-bg: #fed69a;
+  --comment-modify-stripe: #fdad35;
+  --comment-document-bg: #feafea;
+  --comment-document-stripe: #fd49d0;
+  --comment-created-bg: #a4f4f3;
+  --comment-created-stripe: #14a3a1;
+}
+
+body:has(.intra-sidebar) {
+  --comment-bg: rgba(255, 255, 255, 0.06);
+  --comment-text: var(--text-normal, #bbbac1);
+  --comment-note-bg: rgba(172, 173, 176, 0.1);
+  --comment-note-stripe: #7a7b7e;
+  --comment-positive-bg: rgba(127, 178, 87, 0.1);
+  --comment-positive-stripe: #7fb257;
+  --comment-negative-bg: rgba(206, 100, 109, 0.1);
+  --comment-negative-stripe: #ce646d;
+  --comment-rank-bg: rgba(85, 179, 241, 0.1);
+  --comment-rank-stripe: #55b3f1;
+  --comment-modify-bg: rgba(253, 173, 53, 0.1);
+  --comment-modify-stripe: #fdad35;
+  --comment-document-bg: rgba(253, 73, 208, 0.1);
+  --comment-document-stripe: #fd49d0;
+  --comment-created-bg: rgba(20, 163, 161, 0.1);
+  --comment-created-stripe: #14a3a1;
+}
+
 .comment {
-  background-color: #dee0e3;
-  color: var(--black);
-  border-radius: 5px;
+  background-color: var(--comment-bg);
+  color: var(--comment-text);
+  border-radius: 0;
   padding: 10px;
   margin-bottom: 10px;
-  border-radius: 0;
   position: relative;
   overflow: hidden;
 }
@@ -78,57 +115,60 @@
   font-family: "Font Awesome 7 Free";
 }
 
+.comment.note {
+  background-color: var(--comment-note-bg);
+}
 .comment.note::after {
   content: "\f249";
-  background-color: #acadb0;
+  background-color: var(--comment-note-stripe);
 }
 
 .comment.positive {
-  background-color: #b7d0b3;
+  background-color: var(--comment-positive-bg);
 }
 .comment.positive::after {
   content: "\f560";
-  background-color: #7fb257;
+  background-color: var(--comment-positive-stripe);
 }
 
 .comment.negative {
-  background-color: #e2a2a7;
+  background-color: var(--comment-negative-bg);
 }
 .comment.negative::after {
   content: "\f00d";
-  background-color: #ce646d;
+  background-color: var(--comment-negative-stripe);
 }
 
 .comment.rank {
-  background-color: #b4ddf9;
+  background-color: var(--comment-rank-bg);
 }
 .comment.rank::after {
   content: "\f0e7";
-  background-color: #55b3f1;
+  background-color: var(--comment-rank-stripe);
 }
 
 .comment.modify {
-  background-color: #fed69a;
+  background-color: var(--comment-modify-bg);
 }
 .comment.modify::after {
   content: "\f6e3";
-  background-color: #fdad35;
+  background-color: var(--comment-modify-stripe);
 }
 
 .comment.document {
-  background-color: #feafea;
+  background-color: var(--comment-document-bg);
 }
 .comment.document::after {
   content: "\f02d";
-  background-color: #fd49d0;
+  background-color: var(--comment-document-stripe);
 }
 
 .comment.created {
-  background-color: #a4f4f3;
+  background-color: var(--comment-created-bg);
 }
 .comment.created::after {
   content: "\f055";
-  background-color: #14a3a1;
+  background-color: var(--comment-created-stripe);
 }
 
 #fd-container .abteilung-container > span:not(:last-child) {

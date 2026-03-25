@@ -15,45 +15,64 @@ while ($row = $statsStmt->fetch(PDO::FETCH_ASSOC)) {
     $statsData[$row['stat_type']] = (int)$row['stat_count'];
 }
 ?>
-<div class="row">
-    <div class="col">
-        <div class="card my-2 intra__stats-card intra__stats-users">
-            <div class="card-body">
-                <h5 class="card-title"><i class="fa-solid fa-user-tie"></i> Registrierte Benutzer</h5>
-                <p class="card-text">
-                    <?= htmlspecialchars((string)($statsData['users'] ?? 0)) ?>
-                </p>
-            </div>
-        </div>
+<div class="intra__stats-strip">
+    <div class="intra__stat-item">
+        <span class="intra__stat-value" data-count-to="<?= (int)($statsData['users'] ?? 0) ?>">0</span>
+        <span class="intra__stat-label">Benutzer</span>
     </div>
-    <div class="col">
-        <div class="card my-2 intra__stats-card intra__stats-workers">
-            <div class="card-body">
-                <h5 class="card-title"><i class="fa-solid fa-users"></i> Angelegte Mitarbeiter</h5>
-                <p class="card-text">
-                    <?= htmlspecialchars((string)($statsData['mitarbeiter'] ?? 0)) ?>
-                </p>
-            </div>
-        </div>
+    <div class="intra__stat-item">
+        <span class="intra__stat-value" data-count-to="<?= (int)($statsData['mitarbeiter'] ?? 0) ?>">0</span>
+        <span class="intra__stat-label">Mitarbeiter</span>
     </div>
-    <div class="col">
-        <div class="card my-2 intra__stats-card intra__stats-enotf">
-            <div class="card-body">
-                <h5 class="card-title"><i class="fa-solid fa-house-medical-flag"></i> eNOTF-Protokolle</h5>
-                <p class="card-text">
-                    <?= htmlspecialchars((string)($statsData['enotf'] ?? 0)) ?>
-                </p>
-            </div>
-        </div>
+    <div class="intra__stat-item">
+        <span class="intra__stat-value" data-count-to="<?= (int)($statsData['enotf'] ?? 0) ?>">0</span>
+        <span class="intra__stat-label">eNOTF-Protokolle</span>
     </div>
-    <div class="col">
-        <div class="card my-2 intra__stats-card intra__stats-documents">
-            <div class="card-body">
-                <h5 class="card-title"><i class="fa-solid fa-folder-open"></i> Erstellte Dokumente</h5>
-                <p class="card-text">
-                    <?= htmlspecialchars((string)($statsData['dokumente'] ?? 0)) ?>
-                </p>
-            </div>
-        </div>
+    <div class="intra__stat-item">
+        <span class="intra__stat-value" data-count-to="<?= (int)($statsData['dokumente'] ?? 0) ?>">0</span>
+        <span class="intra__stat-label">Dokumente</span>
     </div>
 </div>
+<script>
+// Stats count-up: command center power-on effect
+(function() {
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var counters = document.querySelectorAll('[data-count-to]');
+    if (!counters.length) return;
+
+    // Reduced motion: show final values immediately
+    if (prefersReducedMotion) {
+        counters.forEach(function(el) { el.textContent = el.getAttribute('data-count-to'); });
+        return;
+    }
+
+    var duration = 600; // ms total
+    var stagger = 80;   // ms between each counter start
+
+    counters.forEach(function(el, i) {
+        var target = parseInt(el.getAttribute('data-count-to'), 10) || 0;
+        if (target === 0) return;
+
+        var startTime = null;
+        var delay = i * stagger;
+
+        function easeOutExpo(t) {
+            return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
+        }
+
+        function step(timestamp) {
+            if (!startTime) startTime = timestamp;
+            var elapsed = timestamp - startTime - delay;
+            if (elapsed < 0) { requestAnimationFrame(step); return; }
+
+            var progress = Math.min(elapsed / duration, 1);
+            var value = Math.round(easeOutExpo(progress) * target);
+            el.textContent = value;
+
+            if (progress < 1) requestAnimationFrame(step);
+        }
+
+        requestAnimationFrame(step);
+    });
+})();
+</script>

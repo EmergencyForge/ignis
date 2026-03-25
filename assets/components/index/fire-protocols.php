@@ -31,7 +31,13 @@
         $fireRows = $stmtFire->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($fireRows)) {
-            echo "<tr><td colspan='6' class='text-center'>Es sind keine fireTab-Protokolle hinterlegt.</td></tr>";
+            echo "<tr><td colspan='6'>
+                <div class='empty-state'>
+                    <div class='empty-state-icon'><i class='fa-solid fa-fire'></i></div>
+                    <h6>Noch keine fireTab-Protokolle</h6>
+                    <p>Deine abgeschlossenen Einsatzprotokolle aus dem fireTab erscheinen hier.</p>
+                </div>
+            </td></tr>";
         } else {
             foreach ($fireRows as $row) {
                 $datetime = new DateTime($row['started_at']);
