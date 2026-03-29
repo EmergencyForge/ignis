@@ -421,7 +421,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                             <div style="font-size:var(--fs-xs);color:var(--text-dimmed);margin-top:0.2rem;">
                                                 Letzter Sync: <?= date('d.m.Y H:i', strtotime($link['last_sync_at'])) ?>
                                                 <?php if ($link['last_sync_error']): ?>
-                                                    &middot; <span style="color:var(--bs-danger);"><?= htmlspecialchars(mb_substr($link['last_sync_error'], 0, 80)) ?></span>
+                                                    &middot; <span style="color:var(--bs-danger);"><?= htmlspecialchars($link['last_sync_error']) ?></span>
                                                 <?php endif; ?>
                                             </div>
                                         <?php endif; ?>
