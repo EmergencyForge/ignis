@@ -27,9 +27,9 @@ if (!isset($_SESSION['csrf_token'])) {
 $configManager = new ConfigManager($pdo);
 $pairingService = new FederationPairingService($pdo);
 
-$federationEnabled = defined('FEDERATION_ENABLED') && FEDERATION_ENABLED;
-$instanceId = defined('FEDERATION_INSTANCE_ID') ? FEDERATION_INSTANCE_ID : '';
-$instanceName = defined('FEDERATION_INSTANCE_NAME') ? FEDERATION_INSTANCE_NAME : '';
+$federationEnabled = \App\Federation\FederationMiddleware::isEnabled();
+$instanceId = constant('FEDERATION_INSTANCE_ID') ?: '';
+$instanceName = constant('FEDERATION_INSTANCE_NAME') ?: '';
 
 $links = [];
 $generatedToken = null;
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Toggle federation
     if ($action === 'toggle_federation') {
-        $newState = $federationEnabled ? 'false' : 'true';
+        $newState = \App\Federation\FederationMiddleware::isEnabled() ? 'false' : 'true';
         $configManager->update('FEDERATION_ENABLED', $newState, $_SESSION['userid']);
 
         if ($newState === 'true') {
@@ -104,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $endpoint = rtrim($remoteInfo['url'], '/') . '/api/federation/pair.php';
                 $payload = json_encode([
                     'instance_id' => $pairingService->ensureInstanceId(),
-                    'instance_name' => $instanceName ?: (defined('SYSTEM_NAME') ? SYSTEM_NAME : 'intraRP'),
-                    'instance_url' => defined('SYSTEM_URL') ? SYSTEM_URL : '',
+                    'instance_name' => $instanceName ?: (constant('SYSTEM_NAME') ?: 'intraRP'),
+                    'instance_url' => constant('SYSTEM_URL') ?: '',
                     'api_key_for_you' => $ourKeyForThem,
                     'your_token_key' => $remoteInfo['api_key'],
                 ], JSON_UNESCAPED_UNICODE);

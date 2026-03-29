@@ -70,7 +70,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                                 // Append federated eNOTF protocols (read-only)
-                                if (defined('FEDERATION_ENABLED') && FEDERATION_ENABLED) {
+                                if (\App\Federation\FederationMiddleware::isEnabled()) {
                                     try {
                                         $fedStmt = $pdo->query("
                                             SELECT fce.cached_data, fl.instance_name

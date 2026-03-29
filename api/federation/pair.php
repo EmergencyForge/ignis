@@ -34,9 +34,7 @@ header('Content-Type: application/json');
 ApiMiddleware::requireMethod('POST');
 
 // Federation must be enabled
-if (!defined('FEDERATION_ENABLED') || !FEDERATION_ENABLED) {
-    ApiResponse::error('Federation ist nicht aktiviert', 404);
-}
+\App\Federation\FederationMiddleware::requireEnabled();
 
 $input = ApiMiddleware::getJsonInput();
 ApiMiddleware::requireFields($input, ['instance_id', 'instance_name', 'instance_url', 'api_key_for_you', 'your_token_key']);
@@ -67,7 +65,7 @@ try {
     );
 
     $instanceId = $service->ensureInstanceId();
-    $instanceName = defined('FEDERATION_INSTANCE_NAME') ? FEDERATION_INSTANCE_NAME : (defined('SYSTEM_NAME') ? SYSTEM_NAME : 'intraRP');
+    $instanceName = constant('FEDERATION_INSTANCE_NAME') ?: (constant('SYSTEM_NAME') ?: 'intraRP');
 
     ApiResponse::success([
         'instance_id' => $instanceId,

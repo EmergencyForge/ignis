@@ -12,12 +12,21 @@ use PDO;
 class FederationMiddleware
 {
     /**
+     * Check if federation is enabled.
+     * Uses constant() to prevent PHPStan from narrowing the fallback value.
+     */
+    public static function isEnabled(): bool
+    {
+        return defined('FEDERATION_ENABLED') && constant('FEDERATION_ENABLED') === true;
+    }
+
+    /**
      * Validate federation is enabled. Sends 404 if not.
      */
     public static function requireEnabled(): void
     {
-        if (!defined('FEDERATION_ENABLED') || !FEDERATION_ENABLED) {
-            ApiResponse::error('Federation ist nicht aktiviert', 404);
+        if (!self::isEnabled()) {
+            ApiResponse::error('Instanzvernetzung ist nicht aktiviert', 404);
         }
     }
 

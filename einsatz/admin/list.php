@@ -38,7 +38,7 @@ try {
     unset($inc);
 
     // Append federated fire incidents (read-only)
-    if (defined('FEDERATION_ENABLED') && FEDERATION_ENABLED && !$showArchived) {
+    if (\App\Federation\FederationMiddleware::isEnabled() && !$showArchived) {
         try {
             $fedStmt = $pdo->query("
                 SELECT fcf.cached_data, fl.instance_name

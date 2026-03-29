@@ -58,7 +58,7 @@ class FederatedPersonnel
         ];
 
         // Remote personnel (only if federation is enabled)
-        if (defined('FEDERATION_ENABLED') && FEDERATION_ENABLED) {
+        if (FederationMiddleware::isEnabled()) {
             try {
                 $stmt = $pdo->query("
                     SELECT
@@ -133,7 +133,7 @@ class FederatedPersonnel
         }
 
         // Remote
-        if (defined('FEDERATION_ENABLED') && FEDERATION_ENABLED) {
+        if (FederationMiddleware::isEnabled()) {
             try {
                 $stmt = $pdo->query("
                     SELECT fcp.fullname, fl.instance_name AS source_name
@@ -173,7 +173,7 @@ class FederatedPersonnel
         }
 
         // Remote
-        if (defined('FEDERATION_ENABLED') && FEDERATION_ENABLED) {
+        if (FederationMiddleware::isEnabled()) {
             try {
                 $stmt = $pdo->query("
                     SELECT fcp.remote_id, fcp.source_instance_id, fcp.fullname, fl.instance_name AS source_name

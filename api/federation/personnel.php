@@ -52,7 +52,7 @@ try {
     $personnel = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
     ApiResponse::success([
-        'instance_id' => defined('FEDERATION_INSTANCE_ID') ? FEDERATION_INSTANCE_ID : '',
+        'instance_id' => constant('FEDERATION_INSTANCE_ID') ?: '',
         'synced_at' => date('c'),
         'data' => $personnel,
         'pagination' => [
