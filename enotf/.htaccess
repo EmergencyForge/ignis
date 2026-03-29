@@ -8,10 +8,7 @@
 
 # Clean URLs fuer dynamisches Protokollsystem
 # /enotf/protokoll/{enr}/{section} -> section.php?enr=...&section=...
-# Nur matchen wenn KEIN Punkt im Pfad (keine .php Dateien abfangen)
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^protokoll/([^/.]+)/([^/.]+)/?$ protokoll/section.php?enr=$1&section=$2 [QSA,L]
+    RewriteRule ^protokoll/([^/]+)/([^/]+)/?$ protokoll/section.php?enr=$1&section=$2 [QSA,L]
 </IfModule>
