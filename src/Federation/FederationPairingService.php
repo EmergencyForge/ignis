@@ -22,7 +22,7 @@ class FederationPairingService
      */
     public function ensureInstanceId(): string
     {
-        $currentId = defined('FEDERATION_INSTANCE_ID') ? constant('FEDERATION_INSTANCE_ID') : '';
+        $currentId = FederationMiddleware::config('FEDERATION_INSTANCE_ID');
 
         if (!empty($currentId)) {
             return $currentId;
@@ -50,7 +50,7 @@ class FederationPairingService
     public function generateConnectionToken(): array
     {
         $instanceId = $this->ensureInstanceId();
-        $instanceName = defined('FEDERATION_INSTANCE_NAME') ? constant('FEDERATION_INSTANCE_NAME') : '';
+        $instanceName = FederationMiddleware::config('FEDERATION_INSTANCE_NAME');
         $instanceUrl = defined('SYSTEM_URL') ? SYSTEM_URL : '';
 
         $apiKey = self::generateApiKey();
