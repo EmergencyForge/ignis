@@ -35,12 +35,12 @@ class FederatedPersonnel
                 m.fullname,
                 m.dienstnr,
                 d.name AS dienstgrad_name,
-                d.badge AS dienstgrad_badge,
+                d.abkuerzung AS dienstgrad_badge,
                 rd.name AS quali_rd,
                 rd.abkuerzung AS quali_rd_short
             FROM intra_mitarbeiter m
             LEFT JOIN intra_mitarbeiter_dienstgrade d ON m.dienstgrad = d.id
-            LEFT JOIN intra_mitarbeiter_rdquali rd ON m.qualird = rd.id
+            LEFT JOIN intra_mitarbeiter_rdquali rd ON m.rdquali = rd.id
             ORDER BY m.fullname ASC
         ");
         $local = $stmt->fetchAll(PDO::FETCH_ASSOC);

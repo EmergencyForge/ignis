@@ -17,8 +17,6 @@ require_once __DIR__ . '/../../../vendor/autoload.php';
 require __DIR__ . '/../../../assets/config/database.php';
 require_once __DIR__ . '/../../../assets/functions/enotf/user_auth_middleware.php';
 require_once __DIR__ . '/../../../assets/functions/enotf/pin_middleware.php';
-require_once __DIR__ . '/../../../assets/functions/enotf/modular_redirect.php';
-enotf_modular_redirect('erstbefund');
 
 use App\Auth\Permissions;
 
