@@ -110,24 +110,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'your_token_key' => $remoteInfo['api_key'],
                 ], JSON_UNESCAPED_UNICODE);
 
-                $context = stream_context_create([
-                    'http' => [
-                        'method' => 'POST',
-                        'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
-                        'content' => $payload,
-                        'timeout' => 15,
-                        'ignore_errors' => true,
+                $ch = curl_init();
+                curl_setopt_array($ch, [
+                    CURLOPT_URL => $endpoint,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $payload,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT => 15,
+                    CURLOPT_CONNECTTIMEOUT => 10,
+                    CURLOPT_HTTPHEADER => [
+                        'Content-Type: application/json',
+                        'Accept: application/json',
                     ],
-                    'ssl' => [
-                        'verify_peer' => true,
-                        'verify_peer_name' => true,
-                    ],
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => 0,
                 ]);
 
-                $response = @file_get_contents($endpoint, false, $context);
+                $response = curl_exec($ch);
+                $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+                $curlError = curl_error($ch);
+                curl_close($ch);
 
                 if ($response === false) {
-                    throw new \RuntimeException('Verbindung zur Remote-Instanz fehlgeschlagen.');
+                    throw new \RuntimeException('Verbindung zur Remote-Instanz fehlgeschlagen: ' . $curlError);
                 }
 
                 $data = json_decode($response, true);

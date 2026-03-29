@@ -152,8 +152,8 @@ class FederationSyncService
                 'X-Federation-Key: ' . $apiKey,
                 'Accept: application/json',
             ],
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
         ]);
 
         $response = curl_exec($ch);
