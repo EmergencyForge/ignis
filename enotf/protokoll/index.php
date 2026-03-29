@@ -20,6 +20,13 @@ require_once __DIR__ . '/../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
 
+// ──── Feature Flag: Modulares Protokollsystem ────
+if (defined('ENOTF_MODULAR_FORMS') && ENOTF_MODULAR_FORMS === true && isset($_GET['enr'])) {
+    // Redirect zur ersten dynamischen Sektion
+    header("Location: " . BASE_PATH . "enotf/protokoll/" . urlencode($_GET['enr']) . "/rettdaten");
+    exit();
+}
+
 $daten = array();
 
 if (isset($_GET['enr'])) {
