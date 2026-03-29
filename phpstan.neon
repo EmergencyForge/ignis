@@ -464,6 +464,17 @@ parameters:
                 - src/
             reportUnmatched: false
 
+        # Federation: FEDERATION_ENABLED Konstante wird zur Laufzeit aus der DB geladen
+        -
+            identifier: identical.alwaysFalse
+            path: src/Federation/FederationMiddleware.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.alwaysFalse
+            path: src/Federation/FederationMiddleware.php
+            reportUnmatched: false
+
         -
             identifier: function.alreadyNarrowedType
             paths:

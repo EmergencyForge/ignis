@@ -129,14 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Fetch leaders (Mitarbeiter)
-$leaders = [];
-try {
-    $stmt = $pdo->query("SELECT id, fullname FROM intra_mitarbeiter ORDER BY fullname ASC");
-    $leaders = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    // ignore for now
-}
+// Fetch leaders (Mitarbeiter — lokal + Federation)
+$leaders = \App\Federation\FederatedPersonnel::getLeaderOptions($pdo);
 ?>
 <!DOCTYPE html>
 <html lang="de" data-bs-theme="light">
@@ -203,7 +197,7 @@ try {
                             <select name="leader_id" class="form-select" required data-custom-dropdown="true" data-search-threshold="5">
                                 <option value="">Bitte wählen...</option>
                                 <?php foreach ($leaders as $l): ?>
-                                    <option value="<?= (int)$l['id'] ?>"><?= htmlspecialchars($l['fullname']) ?></option>
+                                    <option value="<?= htmlspecialchars(is_int($l['id']) ? $l['id'] : $l['id']) ?>"><?= htmlspecialchars($l['fullname']) ?><?= $l['source_name'] ? ' [' . htmlspecialchars($l['source_name']) . ']' : '' ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
