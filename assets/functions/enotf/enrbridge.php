@@ -115,20 +115,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $currentDate = date('Y-m-d');
     $currentTime = date('H:i');
 
-    // protocol_type_id: Aus POST oder aus prot_by ableiten
-    $protocol_type_id = isset($_POST['protocol_type_id']) ? (int)$_POST['protocol_type_id'] : ($prot_by === 1 ? 2 : 1);
-
-    $columns = ['enr', 'prot_by', 'protocol_type_id', $fzgField, 'edatum', 'ezeit', 'createdby'];
-    $placeholders = [':enr', ':prot_by', ':protocol_type_id', ':fahrzeug', ':edatum', ':ezeit', ':createdby'];
+    $columns = ['enr', 'prot_by', $fzgField, 'edatum', 'ezeit', 'createdby'];
+    $placeholders = [':enr', ':prot_by', ':fahrzeug', ':edatum', ':ezeit', ':createdby'];
     $params = [
         ':enr' => $enr,
         ':prot_by' => $prot_by,
-        ':protocol_type_id' => $protocol_type_id,
         ':fahrzeug' => $fahrzeugId,
         ':edatum' => $currentDate,
         ':ezeit' => $currentTime,
         ':createdby' => 2
     ];
+
+    // protocol_type_id nur setzen wenn Spalte existiert (Modularisierung aktiv)
+    if (defined('ENOTF_MODULAR_FORMS') && ENOTF_MODULAR_FORMS === true) {
+        $protocol_type_id = isset($_POST['protocol_type_id']) ? (int)$_POST['protocol_type_id'] : ($prot_by === 1 ? 2 : 1);
+        $columns[] = 'protocol_type_id';
+        $placeholders[] = ':protocol_type_id';
+        $params[':protocol_type_id'] = $protocol_type_id;
+    }
 
     // persoField1 (fzg_*_perso) = Fahrer, persoField2 (fzg_*_perso_2) = Beifahrer, persoField3 (fzg_*_perso_3) = Praktikant
     if ($fahrer !== null) {

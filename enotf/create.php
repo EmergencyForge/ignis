@@ -18,14 +18,16 @@ require __DIR__ . '/../assets/config/database.php';
 require_once __DIR__ . '/../assets/functions/enotf/user_auth_middleware.php';
 require_once __DIR__ . '/../assets/functions/enotf/pin_middleware.php';
 
-use App\Enotf\ProtocolTypeService;
-
 $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
 $useModular = defined('ENOTF_MODULAR_FORMS') && ENOTF_MODULAR_FORMS === true;
 $dynamicTypes = [];
 if ($useModular) {
-    $typeService = new ProtocolTypeService($pdo);
-    $dynamicTypes = $typeService->getAllTypes(true);
+    try {
+        $typeService = new App\Enotf\ProtocolTypeService($pdo);
+        $dynamicTypes = $typeService->getAllTypes(true);
+    } catch (\Exception $e) {
+        $useModular = false;
+    }
 }
 
 date_default_timezone_set('Europe/Berlin');
