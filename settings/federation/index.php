@@ -129,16 +129,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $response = curl_exec($ch);
                 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
                 $curlError = curl_error($ch);
+                $curlErrno = curl_errno($ch);
+                $effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
                 curl_close($ch);
 
-                if ($response === false) {
-                    throw new \RuntimeException('Verbindung zur Remote-Instanz fehlgeschlagen: ' . $curlError);
+                if ($response === false || $curlErrno !== 0) {
+                    throw new \RuntimeException('Verbindung fehlgeschlagen (URL: ' . $effectiveUrl . '): ' . $curlError . ' (Code: ' . $curlErrno . ')');
+                }
+
+                if ($httpCode >= 400) {
+                    $errData = json_decode($response, true);
+                    $errMsg = $errData['error'] ?? "HTTP {$httpCode}";
+                    throw new \RuntimeException('Remote-Fehler: ' . $errMsg . ' (HTTP ' . $httpCode . ')');
                 }
 
                 $data = json_decode($response, true);
 
-                if (!is_array($data) || !($data['success'] ?? false)) {
-                    throw new \RuntimeException($data['error'] ?? 'Pairing fehlgeschlagen.');
+                if (!is_array($data)) {
+                    throw new \RuntimeException('Ungültige Antwort (kein JSON): ' . mb_substr($response, 0, 300));
+                }
+
+                if (!($data['success'] ?? false)) {
+                    throw new \RuntimeException($data['error'] ?? 'Unbekannter Fehler. Response: ' . mb_substr($response, 0, 300));
                 }
 
                 // Store the link on our side
