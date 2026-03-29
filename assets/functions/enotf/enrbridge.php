@@ -115,11 +115,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $currentDate = date('Y-m-d');
     $currentTime = date('H:i');
 
-    $columns = ['enr', 'prot_by', $fzgField, 'edatum', 'ezeit', 'createdby'];
-    $placeholders = [':enr', ':prot_by', ':fahrzeug', ':edatum', ':ezeit', ':createdby'];
+    // protocol_type_id: Aus POST oder aus prot_by ableiten
+    $protocol_type_id = isset($_POST['protocol_type_id']) ? (int)$_POST['protocol_type_id'] : ($prot_by === 1 ? 2 : 1);
+
+    $columns = ['enr', 'prot_by', 'protocol_type_id', $fzgField, 'edatum', 'ezeit', 'createdby'];
+    $placeholders = [':enr', ':prot_by', ':protocol_type_id', ':fahrzeug', ':edatum', ':ezeit', ':createdby'];
     $params = [
         ':enr' => $enr,
         ':prot_by' => $prot_by,
+        ':protocol_type_id' => $protocol_type_id,
         ':fahrzeug' => $fahrzeugId,
         ':edatum' => $currentDate,
         ':ezeit' => $currentTime,

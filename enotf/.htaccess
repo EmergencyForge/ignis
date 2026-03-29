@@ -5,3 +5,10 @@
     Header always unset X-Frame-Options env=FIVEM
     Header set Content-Security-Policy "frame-ancestors 'self' https://*" env=!FIVEM
 </IfModule>
+
+# Clean URLs fuer dynamisches Protokollsystem
+# /enotf/protokoll/{enr}/{section} -> section.php?enr=...&section=...
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^protokoll/([^/]+)/([^/]+)/?$ protokoll/section.php?enr=$1&section=$2 [QSA,L]
+</IfModule>

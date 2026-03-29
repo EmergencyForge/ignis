@@ -481,6 +481,19 @@ $migrationFiles = [
     ['file' => 'create_intra_federation_links_25032026.php', 'type' => 'create'],
     ['file' => 'create_intra_federation_cache_25032026.php', 'type' => 'create', 'tables' => ['intra_federation_cache_personnel', 'intra_federation_cache_enotf', 'intra_federation_cache_fire', 'intra_federation_sync_log']],
     ['file' => 'insert_config_25032026_federation.php', 'type' => 'insert'],
+
+    // 29.03.2026 - eNOTF Modularisierung (dynamische Protokolltypen, Sektionen, Felder)
+    ['file' => 'create_intra_edivi_protocol_types_29032026.php', 'type' => 'create'],
+    ['file' => 'create_intra_edivi_sections_29032026.php', 'type' => 'create'],
+    ['file' => 'create_intra_edivi_type_sections_29032026.php', 'type' => 'create'],
+    ['file' => 'create_intra_edivi_field_definitions_29032026.php', 'type' => 'create'],
+    ['file' => 'create_intra_edivi_type_fields_29032026.php', 'type' => 'create'],
+    ['file' => 'create_intra_edivi_validation_rules_29032026.php', 'type' => 'create'],
+    ['file' => 'create_intra_edivi_custom_values_29032026.php', 'type' => 'create'],
+    ['file' => 'create_intra_edivi_presets_29032026.php', 'type' => 'create'],
+    ['file' => 'alter_intra_edivi_29032026_protocol_type_id.php', 'type' => 'alter'],
+    ['file' => 'insert_intra_edivi_seed_modular_29032026.php', 'type' => 'insert'],
+    ['file' => 'insert_config_29032026_enotf_modular.php', 'type' => 'insert'],
 ];
 
 $executed = 0;

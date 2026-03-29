@@ -18,7 +18,15 @@ require __DIR__ . '/../assets/config/database.php';
 require_once __DIR__ . '/../assets/functions/enotf/user_auth_middleware.php';
 require_once __DIR__ . '/../assets/functions/enotf/pin_middleware.php';
 
+use App\Enotf\ProtocolTypeService;
+
 $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
+$useModular = defined('ENOTF_MODULAR_FORMS') && ENOTF_MODULAR_FORMS === true;
+$dynamicTypes = [];
+if ($useModular) {
+    $typeService = new ProtocolTypeService($pdo);
+    $dynamicTypes = $typeService->getAllTypes(true);
+}
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
@@ -47,6 +55,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         <input type="hidden" name="new" value="1" />
         <input type="hidden" name="action" value="openOrCreate" />
         <input type="hidden" name="prot_by" id="prot_by" value="" />
+        <input type="hidden" name="protocol_type_id" id="protocol_type_id" value="" />
         <input type="hidden" name="force_create" id="force_create" value="0" />
         <div class="container-fluid" id="edivi__container">
             <div class="row h-100">
@@ -57,16 +66,30 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <input type="text" class="form-control mb-3" name="enr" id="enr" placeholder="Einsatznummer" required />
                         </div>
                     </div>
-                    <div class="row my-5 mx-5">
-                        <div class="col">
-                            <button class="edivi__nidabutton w-100 d-flex align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="rdprot" name="rdprot" onclick="setProtBy(0)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NF</span> Notfallprotokoll</button>
+                    <?php if ($useModular && !empty($dynamicTypes)): ?>
+                        <?php foreach ($dynamicTypes as $dtype): ?>
+                            <div class="row my-5 mx-5">
+                                <div class="col">
+                                    <button class="edivi__nidabutton w-100 d-flex align-items-center" style="border-top:3px solid <?= htmlspecialchars($dtype['color']) ?>;padding:16px 20px;" onclick="setProtType(<?= $dtype['id'] ?>, <?= $dtype['slug'] === 'na' ? 1 : 0 ?>)">
+                                        <span style="color:<?= htmlspecialchars($dtype['color']) ?>;font-weight:bold;font-size:1.3rem;margin-right:12px;"><?= htmlspecialchars($dtype['short_name']) ?></span>
+                                        <?php if ($dtype['icon']): ?><i class="<?= htmlspecialchars($dtype['icon']) ?> me-2"></i><?php endif; ?>
+                                        <?= htmlspecialchars($dtype['name']) ?>
+                                    </button>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="row my-5 mx-5">
+                            <div class="col">
+                                <button class="edivi__nidabutton w-100 d-flex align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="rdprot" name="rdprot" onclick="setProtBy(0)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NF</span> Notfallprotokoll</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="row my-5 mx-5">
-                        <div class="col">
-                            <button class="edivi__nidabutton w-100 d-flex align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="naprot" name="naprot" onclick="setProtBy(1)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NA</span> Notarztprotokoll</button>
+                        <div class="row my-5 mx-5">
+                            <div class="col">
+                                <button class="edivi__nidabutton w-100 d-flex align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="naprot" name="naprot" onclick="setProtBy(1)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NA</span> Notarztprotokoll</button>
+                            </div>
                         </div>
-                    </div>
+                    <?php endif; ?>
                     <div class="row my-5 mx-5">
                         <div class="col text-center">
                             <a href="overview.php" class="edivi__nidabutton-secondary w-100" style="display:inline-block">zurück</a>
@@ -100,6 +123,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <script>
         function setProtBy(value) {
             document.getElementById('prot_by').value = value;
+            // Für Abwärtskompatibilität: protocol_type_id aus prot_by ableiten
+            document.getElementById('protocol_type_id').value = (value === 1) ? 2 : 1;
+        }
+
+        function setProtType(typeId, protBy) {
+            document.getElementById('protocol_type_id').value = typeId;
+            document.getElementById('prot_by').value = protBy;
         }
 
         function checkForConflict(enr, protBy) {
