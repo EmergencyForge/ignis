@@ -66,5 +66,5 @@ try {
         ],
     ]);
 } catch (\PDOException $e) {
-    ApiResponse::error('Datenbankfehler', 500);
+    ApiResponse::error('Datenbankfehler: ' . $e->getMessage(), 500);
 }
