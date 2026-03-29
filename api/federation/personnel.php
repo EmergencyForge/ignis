@@ -36,9 +36,11 @@ try {
             m.fullname,
             m.dienstnr,
             d.name AS dienstgrad_name,
+            d.badge AS dienstgrad_badge,
             rd.name AS quali_rd,
+            rd.abkuerzung AS quali_rd_short,
             fw.name AS quali_fw,
-            fd.name AS quali_fd
+            fd.sgname AS quali_fd
         FROM intra_mitarbeiter m
         LEFT JOIN intra_mitarbeiter_dienstgrade d ON m.dienstgrad = d.id
         LEFT JOIN intra_mitarbeiter_rdquali rd ON m.rdquali = rd.id
