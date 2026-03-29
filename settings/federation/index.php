@@ -126,6 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     CURLOPT_SSL_VERIFYHOST => 0,
                     CURLOPT_FOLLOWLOCATION => true,
                     CURLOPT_MAXREDIRS => 3,
+                    CURLOPT_POSTREDIR => CURL_REDIR_POST_ALL,
                 ]);
 
                 $response = curl_exec($ch);
