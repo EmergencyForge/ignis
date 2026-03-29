@@ -29,20 +29,16 @@ try {
     $total = (int) $pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter")->fetchColumn();
 
     // Fetch personnel with rank and qualifications
+    // Use only base columns that exist on all intraRP versions
     $stmt = $pdo->prepare("
         SELECT
             m.id,
             m.fullname,
             m.dienstnr,
-            m.gebdatum,
-            m.geschlecht,
             d.name AS dienstgrad_name,
-            d.abkuerzung AS dienstgrad_badge,
             rd.name AS quali_rd,
-            rd.abkuerzung AS quali_rd_short,
             fw.name AS quali_fw,
-            fd.name AS quali_fd,
-            m.fachdienste
+            fd.name AS quali_fd
         FROM intra_mitarbeiter m
         LEFT JOIN intra_mitarbeiter_dienstgrade d ON m.dienstgrad = d.id
         LEFT JOIN intra_mitarbeiter_rdquali rd ON m.rdquali = rd.id
