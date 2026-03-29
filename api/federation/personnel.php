@@ -40,12 +40,11 @@ try {
             rd.name AS quali_rd,
             rd.abkuerzung AS quali_rd_short,
             fw.name AS quali_fw,
-            fd.sgname AS quali_fd
+            m.fachdienste AS quali_fd_json
         FROM intra_mitarbeiter m
         LEFT JOIN intra_mitarbeiter_dienstgrade d ON m.dienstgrad = d.id
-        LEFT JOIN intra_mitarbeiter_rdquali rd ON m.rdquali = rd.id
-        LEFT JOIN intra_mitarbeiter_fwquali fw ON m.fwquali = fw.id
-        LEFT JOIN intra_mitarbeiter_fdquali fd ON m.fdquali = fd.id
+        LEFT JOIN intra_mitarbeiter_rdquali rd ON m.qualird = rd.id
+        LEFT JOIN intra_mitarbeiter_fwquali fw ON m.qualifw2 = fw.id
         ORDER BY m.fullname ASC
         LIMIT ? OFFSET ?
     ");
