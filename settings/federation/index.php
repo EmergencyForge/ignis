@@ -156,15 +156,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     throw new \RuntimeException($data['error'] ?? 'Unbekannter Fehler. Response: ' . mb_substr($response, 0, 300));
                 }
 
-                // Store the link on our side
+                // Store the link on our side:
+                // - outgoing = the key THEY gave us (api_key_for_you), so we can call THEM
+                // - incoming = the key WE generated (ourKeyForThem), so they can call US
                 $pairingService->createLink(
                     [
                         'instance_id' => $remoteInfo['instance_id'],
                         'instance_name' => $data['instance_name'] ?? $remoteInfo['instance_name'],
                         'url' => $remoteInfo['url'],
                     ],
-                    $remoteInfo['api_key'],         // outgoing: key from their token
-                    $data['api_key_for_you']         // incoming: key they generated for us
+                    $data['api_key_for_you'],        // outgoing: key they gave us to call them
+                    $ourKeyForThem                    // incoming: key they must send to call us
                 );
 
                 Flash::set('success', 'Verbindung mit "' . htmlspecialchars($data['instance_name'] ?? $remoteInfo['instance_name']) . '" hergestellt.');
@@ -503,12 +505,12 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         </button>
                                     </form>
                                     <?php endif; ?>
-                                    <form method="post" class="d-inline"
-                                          onsubmit="return confirm('Verbindung und alle gecachten Daten dieser Instanz wirklich löschen?');">
+                                    <form method="post" class="d-inline" id="delete-link-<?= $link['id'] ?>">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="action" value="delete_link">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                onclick="showConfirm('Verbindung und alle gecachten Daten dieser Instanz wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Verbindung löschen'}).then(r => { if(r) this.closest('form').submit(); });">
                                             <i class="fa-solid fa-trash"></i> Verbindung löschen
                                         </button>
                                     </form>

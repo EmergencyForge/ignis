@@ -50,28 +50,21 @@ $service = new FederationPairingService($pdo);
 // We'll use it as api_key_outgoing (the key we send to them).
 
 try {
-    // Generate a new key for them to call us
-    $apiKeyIncoming = FederationPairingService::generateApiKey();
+    // Generate a new key that the initiator must use when calling US
+    $keyForThem = FederationPairingService::generateApiKey();
 
-    // Create the link
+    // Create the link:
+    // - outgoing = the key THEY gave us, so we can call THEM
+    // - incoming = the key WE generate, so they can call US
     $linkId = $service->createLink(
         [
             'instance_id' => $input['instance_id'],
             'instance_name' => $input['instance_name'],
             'url' => $input['instance_url'],
         ],
-        $input['your_token_key'],    // api_key_outgoing: what we send to call them
-        $apiKeyIncoming              // api_key_incoming: what they send to call us
+        $input['api_key_for_you'],   // api_key_outgoing: key they gave us to call them
+        $keyForThem                   // api_key_incoming: key they must send to call us
     );
-
-    // Also store their key for us (api_key_for_you from their side = our api_key_outgoing)
-    // Update: the outgoing key should be the one from our token that they confirmed
-    $stmt = $pdo->prepare("
-        UPDATE intra_federation_links
-        SET api_key_outgoing = ?
-        WHERE id = ?
-    ");
-    $stmt->execute([$input['your_token_key'], $linkId]);
 
     $instanceId = $service->ensureInstanceId();
     $instanceName = defined('FEDERATION_INSTANCE_NAME') ? FEDERATION_INSTANCE_NAME : (defined('SYSTEM_NAME') ? SYSTEM_NAME : 'intraRP');
@@ -79,7 +72,7 @@ try {
     ApiResponse::success([
         'instance_id' => $instanceId,
         'instance_name' => $instanceName,
-        'api_key_for_you' => $apiKeyIncoming,
+        'api_key_for_you' => $keyForThem,
     ]);
 } catch (\RuntimeException $e) {
     ApiResponse::error($e->getMessage(), 409);
