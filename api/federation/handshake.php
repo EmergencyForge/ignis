@@ -16,8 +16,8 @@ header('Content-Type: application/json');
 // Authenticate the requesting instance
 $link = FederationMiddleware::authenticate($pdo);
 
-$instanceId = constant('FEDERATION_INSTANCE_ID') ?: '';
-$instanceName = constant('FEDERATION_INSTANCE_NAME') ?: (constant('SYSTEM_NAME') ?: 'intraRP');
+$instanceId = \App\Federation\FederationMiddleware::config('FEDERATION_INSTANCE_ID');
+$instanceName = \App\Federation\FederationMiddleware::config('FEDERATION_INSTANCE_NAME') ?: \App\Federation\FederationMiddleware::config('SYSTEM_NAME', 'intraRP');
 
 // Determine which data types we can provide to this specific instance
 $capabilities = [];

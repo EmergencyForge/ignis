@@ -13,11 +13,22 @@ class FederationMiddleware
 {
     /**
      * Check if federation is enabled.
-     * Uses constant() to prevent PHPStan from narrowing the fallback value.
+     * Runtime-configured via ConfigManager — variable indirection
+     * prevents PHPStan from narrowing the config.php fallback value.
      */
     public static function isEnabled(): bool
     {
-        return defined('FEDERATION_ENABLED') && constant('FEDERATION_ENABLED') === true;
+        $key = 'FEDERATION_ENABLED';
+        return defined($key) && constant($key) === true;
+    }
+
+    /**
+     * Get a federation config constant value.
+     * @return mixed
+     */
+    public static function config(string $key, mixed $default = '')
+    {
+        return defined($key) ? constant($key) : $default;
     }
 
     /**

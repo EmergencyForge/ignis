@@ -28,8 +28,8 @@ $configManager = new ConfigManager($pdo);
 $pairingService = new FederationPairingService($pdo);
 
 $federationEnabled = \App\Federation\FederationMiddleware::isEnabled();
-$instanceId = constant('FEDERATION_INSTANCE_ID') ?: '';
-$instanceName = constant('FEDERATION_INSTANCE_NAME') ?: '';
+$instanceId = \App\Federation\FederationMiddleware::config('FEDERATION_INSTANCE_ID');
+$instanceName = \App\Federation\FederationMiddleware::config('FEDERATION_INSTANCE_NAME');
 
 $links = [];
 $generatedToken = null;
@@ -47,7 +47,7 @@ if ($federationEnabled) {
 
 // Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
         Flash::set('error', 'Ungültiger CSRF-Token.');
         header("Location: " . $_SERVER['REQUEST_URI']);
         exit();
@@ -104,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $endpoint = rtrim($remoteInfo['url'], '/') . '/api/federation/pair.php';
                 $payload = json_encode([
                     'instance_id' => $pairingService->ensureInstanceId(),
-                    'instance_name' => $instanceName ?: (constant('SYSTEM_NAME') ?: 'intraRP'),
-                    'instance_url' => constant('SYSTEM_URL') ?: '',
+                    'instance_name' => $instanceName ?: (\App\Federation\FederationMiddleware::config('SYSTEM_NAME', 'intraRP')),
+                    'instance_url' => \App\Federation\FederationMiddleware::config('SYSTEM_URL'),
                     'api_key_for_you' => $ourKeyForThem,
                     'your_token_key' => $remoteInfo['api_key'],
                 ], JSON_UNESCAPED_UNICODE);

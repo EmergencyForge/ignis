@@ -65,7 +65,7 @@ try {
     );
 
     $instanceId = $service->ensureInstanceId();
-    $instanceName = constant('FEDERATION_INSTANCE_NAME') ?: (constant('SYSTEM_NAME') ?: 'intraRP');
+    $instanceName = \App\Federation\FederationMiddleware::config('FEDERATION_INSTANCE_NAME') ?: \App\Federation\FederationMiddleware::config('SYSTEM_NAME', 'intraRP');
 
     ApiResponse::success([
         'instance_id' => $instanceId,
