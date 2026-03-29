@@ -19,6 +19,7 @@ class FederationMiddleware
     public static function isEnabled(): bool
     {
         $key = 'FEDERATION_ENABLED';
+        /** @phpstan-ignore identical.alwaysFalse */
         return defined($key) && constant($key) === true;
     }
 
