@@ -59,6 +59,10 @@ try {
     $stmt = $pdo->prepare("SELECT i.*, m.fullname AS leader_name FROM intra_fire_incidents i LEFT JOIN intra_mitarbeiter m ON i.leader_id = m.id WHERE i.id = ?");
     $stmt->execute([$id]);
     $incident = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Fallback: resolve federation leader name if local JOIN returned null
+    if ($incident && empty($incident['leader_name']) && !empty($incident['leader_id'])) {
+        $incident['leader_name'] = \App\Federation\FederatedPersonnel::resolveName($pdo, $incident['leader_id']);
+    }
     if (!$incident) {
         Flash::error('Einsatz nicht gefunden');
         header('Location: ' . BASE_PATH . 'index.php');

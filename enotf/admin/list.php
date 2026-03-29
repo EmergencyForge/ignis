@@ -68,6 +68,35 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                 $stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE hidden <> 1");
                                 $stmt->execute();
                                 $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                // Append federated eNOTF protocols (read-only)
+                                if (\App\Federation\FederationMiddleware::isEnabled()) {
+                                    try {
+                                        $fedStmt = $pdo->query("
+                                            SELECT fce.cached_data, fl.instance_name
+                                            FROM intra_federation_cache_enotf fce
+                                            JOIN intra_federation_links fl ON fl.instance_id = fce.source_instance_id AND fl.is_active = 1
+                                            ORDER BY fce.protocol_date DESC
+                                        ");
+                                        foreach ($fedStmt->fetchAll(PDO::FETCH_ASSOC) as $fedRow) {
+                                            $p = json_decode($fedRow['cached_data'], true);
+                                            if (!$p) continue;
+                                            $p['_federation_source'] = $fedRow['instance_name'];
+                                            $p['_federation_readonly'] = true;
+                                            // Ensure expected keys exist
+                                            $p['protokoll_status'] = $p['protokoll_status'] ?? 2;
+                                            $p['freigegeben'] = $p['freigegeben'] ?? 1;
+                                            $p['hidden_user'] = $p['hidden_user'] ?? 0;
+                                            $p['bearbeiter'] = $p['bearbeiter'] ?? '';
+                                            $p['freigeber_name'] = $p['freigeber_name'] ?? '';
+                                            $p['id'] = 'fed_' . ($p['id'] ?? 0);
+                                            $result[] = $p;
+                                        }
+                                    } catch (\PDOException $e) {
+                                        // Silently skip
+                                    }
+                                }
+
                                 foreach ($result as $row) {
                                     $datetime = new DateTime($row['sendezeit']);
                                     $date = $datetime->format('d.m.Y | H:i');
@@ -119,16 +148,26 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
 
                                     $patname = $row['patname'] ?? "Unbekannt";
 
-                                    $actions = (Permissions::check(['admin', 'edivi.edit']))
-                                        ? "<button title='QM-Aktionen öffnen' onclick='openQMActions({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-soft-primary'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-outline-secondary'><i class='fa-solid fa-clock-rotate-left'></i></button> <a title='Protokoll löschen' href='" . BASE_PATH . "enotf/admin/delete.php?id={$row['id']}' class='btn btn-sm btn-outline-danger btn-icon'><i class='fa-solid fa-trash'></i></a>"
-                                        : "";
-                                    echo "<tr>";
-                                    echo "<td >" . $row['enr'] . "</td>";
+                                    $isFederated = !empty($row['_federation_readonly']);
+                                    $fedBadge = $isFederated ? " <span class='badge' style='background:rgba(255,255,255,0.1);font-size:0.6rem;'>" . htmlspecialchars($row['_federation_source'] ?? '') . "</span>" : "";
+
+                                    $actions = '';
+                                    if ($isFederated) {
+                                        $actions = "<span style='font-size:var(--fs-xs);color:var(--text-dimmed);'>read-only</span>";
+                                    } elseif (Permissions::check(['admin', 'edivi.edit'])) {
+                                        $actions = "<button title='QM-Aktionen öffnen' onclick='openQMActions({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-soft-primary'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-outline-secondary'><i class='fa-solid fa-clock-rotate-left'></i></button> <a title='Protokoll löschen' href='" . BASE_PATH . "enotf/admin/delete.php?id={$row['id']}' class='btn btn-sm btn-outline-danger btn-icon'><i class='fa-solid fa-trash'></i></a>";
+                                    }
+                                    echo "<tr" . ($isFederated ? " style='opacity:0.85;'" : "") . ">";
+                                    echo "<td>" . htmlspecialchars($row['enr'] ?? '') . $fedBadge . "</td>";
                                     echo "<td>" . $patname . "</td>";
-                                    echo "<td><span style='display:none'>" . $row['sendezeit'] . "</span>" . $date . "</td>";
-                                    echo "<td>" . $row['pfname'] . " " . $freigabe_status . $hu_status . "</td>";
+                                    echo "<td><span style='display:none'>" . ($row['sendezeit'] ?? '') . "</span>" . $date . "</td>";
+                                    echo "<td>" . htmlspecialchars($row['pfname'] ?? '') . " " . $freigabe_status . $hu_status . "</td>";
                                     echo "<td>" . $status . "</td>";
-                                    echo "<td><a title='Protokoll ansehen' href='" . BASE_PATH . "enotf/protokoll/index.php?enr={$row['enr']}' class='btn btn-sm btn-soft-primary' target='_blank'><i class='fa-solid fa-eye'></i></a> {$actions}</td>";
+                                    if ($isFederated) {
+                                        echo "<td>{$actions}</td>";
+                                    } else {
+                                        echo "<td><a title='Protokoll ansehen' href='" . BASE_PATH . "enotf/protokoll/index.php?enr={$row['enr']}' class='btn btn-sm btn-soft-primary' target='_blank'><i class='fa-solid fa-eye'></i></a> {$actions}</td>";
+                                    }
                                     echo "</tr>";
                                 }
                                 ?>

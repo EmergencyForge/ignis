@@ -42,10 +42,12 @@ $startTime = $dtStart ? $dtStart->format('H:i') : '';
                 <select class="form-select" name="edit_leader_id" data-custom-dropdown="true" data-search-threshold="5" <?= $incident['finalized'] ? 'disabled' : '' ?> required>
                     <option value="">– auswählen –</option>
                     <?php
-                    $leaders = $pdo->query("SELECT id, fullname FROM intra_mitarbeiter ORDER BY fullname ASC")->fetchAll(PDO::FETCH_ASSOC);
+                    $leaders = \App\Federation\FederatedPersonnel::getLeaderOptions($pdo);
                     foreach ($leaders as $l):
+                        $val = is_int($l['id']) ? $l['id'] : $l['id'];
+                        $isSelected = ($incident['leader_id'] == $val);
                     ?>
-                        <option value="<?= (int)$l['id'] ?>" <?= (int)$incident['leader_id'] === (int)$l['id'] ? 'selected' : '' ?>><?= htmlspecialchars($l['fullname']) ?></option>
+                        <option value="<?= htmlspecialchars($val) ?>" <?= $isSelected ? 'selected' : '' ?>><?= htmlspecialchars($l['fullname']) ?><?= $l['source_name'] ? ' [' . htmlspecialchars($l['source_name']) . ']' : '' ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
