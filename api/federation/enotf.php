@@ -70,7 +70,7 @@ try {
     }
 
     ApiResponse::success([
-        'instance_id' => defined('FEDERATION_INSTANCE_ID') ? FEDERATION_INSTANCE_ID : '',
+        'instance_id' => constant('FEDERATION_INSTANCE_ID') ?: '',
         'synced_at' => date('c'),
         'sync_cursor' => $syncCursor,
         'data' => $protocols,
