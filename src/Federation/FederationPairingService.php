@@ -248,23 +248,26 @@ class FederationPairingService
     {
         $endpoint = rtrim($url, '/') . '/api/federation/handshake.php';
 
-        $context = stream_context_create([
-            'http' => [
-                'method' => 'GET',
-                'header' => "X-Federation-Key: {$apiKey}\r\nAccept: application/json\r\n",
-                'timeout' => 10,
-                'ignore_errors' => true,
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $endpoint,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_HTTPHEADER => [
+                'X-Federation-Key: ' . $apiKey,
+                'Accept: application/json',
             ],
-            'ssl' => [
-                'verify_peer' => true,
-                'verify_peer_name' => true,
-            ],
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
         ]);
 
-        $response = @file_get_contents($endpoint, false, $context);
+        $response = curl_exec($ch);
+        $curlError = curl_error($ch);
+        curl_close($ch);
 
         if ($response === false) {
-            throw new \RuntimeException('Verbindung zur Remote-Instanz fehlgeschlagen');
+            throw new \RuntimeException('Verbindung zur Remote-Instanz fehlgeschlagen: ' . $curlError);
         }
 
         $data = json_decode($response, true);
