@@ -42,15 +42,9 @@ class AutoMigrator
             if ($cached === $fileCount) return;
         }
 
-        // Check if this is a fresh install (no tables yet)
         $isFreshInstall = $this->isFreshInstall();
 
-        // Show waiting page for web requests during fresh install
-        if ($isFreshInstall && php_sapi_name() !== 'cli') {
-            $this->showInitPage();
-        }
-
-        // Run database-init.php
+        // Run migrations (all output captured silently)
         $this->runMigrations();
 
         // Update cache
@@ -60,9 +54,9 @@ class AutoMigrator
         }
         file_put_contents($this->cacheFile, (string)$fileCount);
 
-        // Reload page after fresh install
-        if ($isFreshInstall && php_sapi_name() !== 'cli') {
-            header('Location: ' . ($_SERVER['REQUEST_URI'] ?? '/'));
+        // On fresh install via web: show success page and redirect
+        if ($isFreshInstall && php_sapi_name() !== 'cli' && !headers_sent()) {
+            $this->showCompletePage();
             exit;
         }
     }
@@ -77,37 +71,6 @@ class AutoMigrator
         }
     }
 
-    private function showInitPage(): void
-    {
-        // Flush a loading page to the browser before running migrations
-        if (headers_sent()) return;
-
-        http_response_code(200);
-        header('Content-Type: text/html; charset=utf-8');
-
-        echo '<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">';
-        echo '<meta name="viewport" content="width=device-width,initial-scale=1">';
-        echo '<title>intraRP — Initialisierung</title>';
-        echo '<style>
-            body { background: #1a1820; color: #bbbac1; font-family: system-ui, sans-serif;
-                   display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-            .init-box { text-align: center; max-width: 400px; }
-            .spinner { width: 40px; height: 40px; border: 3px solid #3d3a44; border-top-color: #d10000;
-                       border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 20px; }
-            @keyframes spin { to { transform: rotate(360deg); } }
-            h2 { color: #fff; font-size: 1.2rem; margin-bottom: 8px; }
-            p { font-size: 0.85rem; opacity: 0.6; }
-        </style></head><body><div class="init-box">';
-        echo '<div class="spinner"></div>';
-        echo '<h2>Datenbank wird initialisiert...</h2>';
-        echo '<p>Die Tabellen werden erstellt. Dies dauert nur wenige Sekunden.</p>';
-        echo '</div></body></html>';
-
-        // Flush to browser
-        if (function_exists('ob_flush')) { @ob_flush(); }
-        flush();
-    }
-
     private function runMigrations(): void
     {
         if (!file_exists($this->initScript)) {
@@ -116,17 +79,57 @@ class AutoMigrator
         }
 
         try {
+            // Capture ALL output — database-init.php and migration files echo progress
             ob_start();
-            $pdo = $this->pdo; // Make available to database-init.php
+            $pdo = $this->pdo;
             require $this->initScript;
             $output = ob_get_clean();
 
             if (!empty($output)) {
-                \App\Logging\Logger::info("Auto-migration output: " . substr($output, 0, 2000));
+                \App\Logging\Logger::info("Auto-migration completed (" . strlen($output) . " bytes output)");
             }
         } catch (\Exception $e) {
-            if (ob_get_level() > 0) ob_end_clean();
+            // Clean up any nested output buffers
+            while (ob_get_level() > 0) ob_end_clean();
             \App\Logging\Logger::error("Auto-migration failed: " . $e->getMessage());
         }
+    }
+
+    private function showCompletePage(): void
+    {
+        // Clean any leftover output buffers
+        while (ob_get_level() > 0) ob_end_clean();
+
+        http_response_code(200);
+        header('Content-Type: text/html; charset=utf-8');
+
+        $redirect = $_SERVER['REQUEST_URI'] ?? '/';
+
+        echo <<<HTML
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta http-equiv="refresh" content="2;url={$redirect}">
+    <title>intraRP — Initialisierung abgeschlossen</title>
+    <style>
+        body { background: #1a1820; color: #bbbac1; font-family: system-ui, sans-serif;
+               display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .init-box { text-align: center; max-width: 420px; }
+        .check { font-size: 3rem; color: #28a745; margin-bottom: 16px; }
+        h2 { color: #fff; font-size: 1.2rem; margin-bottom: 8px; }
+        p { font-size: 0.85rem; opacity: 0.6; }
+    </style>
+</head>
+<body>
+    <div class="init-box">
+        <div class="check">&#10003;</div>
+        <h2>Datenbank erfolgreich initialisiert</h2>
+        <p>Du wirst in wenigen Sekunden weitergeleitet...</p>
+    </div>
+</body>
+</html>
+HTML;
     }
 }
