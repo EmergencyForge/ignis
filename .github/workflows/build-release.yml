@@ -54,7 +54,6 @@ jobs:
           VERSION="${GITHUB_REF#refs/tags/}"
           ARCHIVE_NAME="intraRP-${VERSION}.zip"
 
-          # Create ZIP with all files including vendor, excluding dev/build files
           zip -r "$ARCHIVE_NAME" . \
             -x ".git/*" \
             -x ".github/*" \
@@ -79,8 +78,11 @@ jobs:
             -x "vendor/sebastian/*" \
             -x "vendor/theseer/*"
 
+          ARCHIVE_SIZE=$(du -h "$ARCHIVE_NAME" | cut -f1)
           echo "archive_name=$ARCHIVE_NAME" >> $GITHUB_ENV
-          echo "Built $ARCHIVE_NAME ($(du -h $ARCHIVE_NAME | cut -f1))"
+          echo "archive_size=$ARCHIVE_SIZE" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_ENV
+          echo "Built $ARCHIVE_NAME ($ARCHIVE_SIZE)"
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -88,3 +90,47 @@ jobs:
           files: ${{ env.archive_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Discord notification (success)
+        if: success()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+        run: |
+          RELEASE_URL="${{ github.event.release.html_url }}"
+          RELEASE_NAME="${{ github.event.release.name }}"
+          RELEASE_BODY=$(echo "${{ github.event.release.body }}" | head -c 500)
+
+          curl -s -H "Content-Type: application/json" \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"Release ${{ env.version }} wurde veröffentlicht\",
+                \"description\": \"**${RELEASE_NAME}**\n\n${RELEASE_BODY}\",
+                \"color\": 3066993,
+                \"fields\": [
+                  {\"name\": \"Version\", \"value\": \"\`${{ env.version }}\`\", \"inline\": true},
+                  {\"name\": \"ZIP-Größe\", \"value\": \"\`${{ env.archive_size }}\`\", \"inline\": true},
+                  {\"name\": \"Build\", \"value\": \"#${{ github.run_number }}\", \"inline\": true}
+                ],
+                \"url\": \"${RELEASE_URL}\",
+                \"footer\": {\"text\": \"intraRP Release Build\"},
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+              }]
+            }" \
+            "$DISCORD_WEBHOOK"
+
+      - name: Discord notification (failure)
+        if: failure()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+        run: |
+          curl -s -H "Content-Type: application/json" \
+            -d "{
+              \"embeds\": [{
+                \"title\": \"Release Build fehlgeschlagen\",
+                \"description\": \"Der Build für **${{ env.version || github.ref }}** ist fehlgeschlagen.\n\n[Build-Log ansehen](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
+                \"color\": 15158332,
+                \"footer\": {\"text\": \"intraRP Release Build\"},
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+              }]
+            }" \
+            "$DISCORD_WEBHOOK"
