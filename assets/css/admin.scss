@@ -1569,7 +1569,8 @@ td.dt-empty {
 .dienstnr-status {
   position: absolute;
   right: 12px;
-  top: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   justify-content: center;

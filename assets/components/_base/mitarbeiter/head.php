@@ -25,6 +25,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <script src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
 <script src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <!-- App scripts: defer to unblock rendering -->
+<script defer src="<?= BASE_PATH ?>assets/js/toasts.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />

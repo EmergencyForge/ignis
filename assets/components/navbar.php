@@ -773,9 +773,6 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
                     <span class="sidebar-section-title">Mitarbeiter</span>
                     <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="sidebar-sublink">Übersicht</a>
-                    <?php if (Permissions::check(['admin', 'personnel.edit'])): ?>
-                        <a href="<?= BASE_PATH ?>mitarbeiter/create.php" class="sidebar-sublink">Erstellen</a>
-                    <?php endif; ?>
                     <?php if (Permissions::check(['admin', 'application.view'])): ?>
                         <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="sidebar-sublink">Anträge bearbeiten</a>
                     <?php endif; ?>
