@@ -713,6 +713,8 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
             `;
         }
 
+        var waitingPollTimer = null;
+
         function showWaitingState() {
             document.getElementById('importModalBody').innerHTML = `
                 <div class="text-center py-4">
@@ -722,13 +724,34 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                     </div>
                     <h5 class="mb-3">Warte auf EMD-Daten...</h5>
                     <p class="text-muted mb-4">
-                        Die Anforderung wurde gesendet. Die Fahrzeugdaten werden beim nächsten Sync der Leitstelle übermittelt.
+                        Die Anforderung wurde gesendet. Die Fahrzeugdaten werden beim nächsten Sync übermittelt.<br>
+                        <small>Dies kann 5–10 Sekunden dauern. Die Ansicht aktualisiert sich automatisch.</small>
                     </p>
                     <button class="btn btn-ghost btn-sm" onclick="openVehicleImport()">
                         <i class="fa-solid fa-rotate me-1"></i>Erneut prüfen
                     </button>
                 </div>
             `;
+
+            // Auto-poll every 3 seconds while waiting
+            if (waitingPollTimer) clearInterval(waitingPollTimer);
+            waitingPollTimer = setInterval(function() {
+                fetch(IMPORT_API + '?action=status')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success && data.import_queue_count > 0) {
+                            clearInterval(waitingPollTimer);
+                            waitingPollTimer = null;
+                            loadImportQueue();
+                        }
+                    })
+                    .catch(() => {});
+            }, 3000);
+
+            // Stop polling when modal closes
+            document.getElementById('vehicleImportModal').addEventListener('hidden.bs.modal', function() {
+                if (waitingPollTimer) { clearInterval(waitingPollTimer); waitingPollTimer = null; }
+            }, { once: true });
         }
 
         window.requestVehicleImport = function() {
@@ -764,7 +787,12 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
 
             let html = `<div class="d-flex align-items-center justify-content-between mb-3">
                 <span class="text-muted">${vehicles.length} Fahrzeuge empfangen</span>
-                <span class="text-muted" id="importProgress"></span>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted" id="importProgress"></span>
+                    <button class="btn btn-ghost btn-sm" onclick="ignoreAllRemaining()" title="Alle verbleibenden Fahrzeuge ignorieren">
+                        <i class="fa-solid fa-forward-fast me-1"></i>Alle ignorieren
+                    </button>
+                </div>
             </div>`;
 
             // Neue Fahrzeuge
@@ -1011,6 +1039,50 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                 if (badge) badge.classList.add('d-none');
             }
         }
+
+        window.ignoreAllRemaining = function() {
+            showConfirm('Alle verbleibenden Fahrzeuge ignorieren?', {
+                danger: false,
+                confirmText: 'Alle ignorieren',
+                title: 'Restliche ignorieren'
+            }).then(function(ok) {
+                if (!ok) return;
+                var rows = document.querySelectorAll('.import-row');
+                if (rows.length === 0) return;
+
+                var ids = [];
+                rows.forEach(function(row) {
+                    var id = row.id.replace('import-row-', '');
+                    if (id) ids.push(parseInt(id));
+                });
+
+                // Disable all buttons
+                rows.forEach(function(row) {
+                    row.querySelectorAll('button').forEach(function(b) { b.disabled = true; });
+                    row.style.opacity = '0.5';
+                });
+
+                // Send ignore for all remaining in parallel
+                var promises = ids.map(function(queueId) {
+                    var fd = new FormData();
+                    fd.append('action', 'ignore');
+                    fd.append('queue_id', queueId);
+                    return fetch(IMPORT_API, { method: 'POST', body: fd }).then(function(r) { return r.json(); });
+                });
+
+                Promise.all(promises).then(function() {
+                    showToast(ids.length + ' Fahrzeuge ignoriert', 'info');
+                    rows.forEach(function(row) { row.remove(); });
+                    updateProgress();
+                }).catch(function() {
+                    showToast('Fehler beim Ignorieren', 'error');
+                    rows.forEach(function(row) {
+                        row.style.opacity = '1';
+                        row.querySelectorAll('button').forEach(function(b) { b.disabled = false; });
+                    });
+                });
+            });
+        };
 
         function escHtml(str) {
             const d = document.createElement('div');
