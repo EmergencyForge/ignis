@@ -105,7 +105,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                     <div class="modal-body">
                         <?php if (!$editdg) { ?>
                             <div class="alert alert-danger" role="alert">
-                                <h4 class="fw-bold">Achtung!</h4> Es sind keine Profildaten hinterlegt. Dokumente können fehlerhaft sein.<br>Bitte erstelle erst ein <a href="<?= BASE_PATH ?>mitarbeiter/create.php">eigenes Mitarbeiterprofil</a> (mit deiner Discord-ID).
+                                <h4 class="fw-bold">Achtung!</h4> Es sind keine Profildaten hinterlegt. Dokumente können fehlerhaft sein.<br>Bitte erstelle erst ein <a href="<?= BASE_PATH ?>mitarbeiter/list.php">eigenes Mitarbeiterprofil</a> (mit deiner Discord-ID).
                             </div>
                         <?php } ?>
 

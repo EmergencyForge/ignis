@@ -100,7 +100,7 @@ $stepNum = 1;
         </a>
 
         <?php $stepNum++; $done = $doneMitarbeiter; ?>
-        <a href="<?= BASE_PATH ?>mitarbeiter/create.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Ersten Mitarbeiter erstellen</strong>
