@@ -176,6 +176,10 @@ body:has(.intra-sidebar) {
 .comment-item--note .comment-item__indicator { background: var(--comment-note-stripe, #6c757d); }
 .comment-item--positive .comment-item__indicator { background: var(--comment-positive-stripe, #28a745); }
 .comment-item--negative .comment-item__indicator { background: var(--comment-negative-stripe, #dc3545); }
+.comment-item--rank .comment-item__indicator { background: var(--comment-rank-stripe, #ffc107); }
+.comment-item--modify .comment-item__indicator { background: var(--comment-modify-stripe, #6f42c1); }
+.comment-item--document .comment-item__indicator { background: var(--comment-document-stripe, #17a2b8); }
+.comment-item--created .comment-item__indicator { background: var(--comment-created-stripe, #20c997); }
 
 .comment-item__body {
   flex: 1;
@@ -197,6 +201,14 @@ body:has(.intra-sidebar) {
   gap: 10px;
 
   i { margin-right: 3px; }
+}
+
+.comment-item__type-icon {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  opacity: 0.3;
+  font-size: 0.8rem;
 }
 
 .comment-item__delete {

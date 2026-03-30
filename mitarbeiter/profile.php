@@ -695,7 +695,7 @@ if (isset($_POST['new'])) {
         if (bannerBtn) bannerBtn.addEventListener('click', function() { handleInviteClick(this); });
     })();
     </script>
-    <?php if (isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])): ?>
+    <?php if ($canEdit): ?>
     <script>
     (function() {
         // Profile picture upload
