@@ -76,19 +76,8 @@ class AutoMigrator
     {
         if (!file_exists($this->initScript)) return;
 
-        // Suppress ALL output from database-init.php and its migrations.
-        // Some migration files use echo/print directly, so we need to capture
-        // everything and discard it.
         $prevLevel = ob_get_level();
         ob_start();
-
-        // Register shutdown function to clean buffers even if exit() is called
-        $prevLevelRef = $prevLevel;
-        register_shutdown_function(function () use ($prevLevelRef) {
-            while (ob_get_level() > $prevLevelRef) {
-                ob_end_clean();
-            }
-        });
 
         try {
             $pdo = $this->pdo;
@@ -98,7 +87,7 @@ class AutoMigrator
             \App\Logging\Logger::error("Auto-migration failed: " . $e->getMessage());
         }
 
-        // Clean ALL output buffers added during migration
+        // Clean output buffers added during migration
         while (ob_get_level() > $prevLevel) {
             ob_end_clean();
         }
