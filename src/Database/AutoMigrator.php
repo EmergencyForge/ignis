@@ -4,11 +4,6 @@ namespace App\Database;
 
 use PDO;
 
-/**
- * Lightweight auto-migration check.
- * Delegates to setup/database-init.php which has the correct migration
- * order hardcoded. Uses a file-count cache to avoid running on every request.
- */
 class AutoMigrator
 {
     private PDO $pdo;
@@ -24,104 +19,107 @@ class AutoMigrator
         $this->migrationsPath = $this->appRoot . '/assets/database';
         $this->initScript = $this->appRoot . '/setup/database-init.php';
 
-        // Use multiple fallback paths for the cache file
+        // Cache file with fallback
         $logDir = $this->appRoot . '/storage/logs';
-        if (!is_dir($logDir)) {
-            @mkdir($logDir, 0755, true);
-        }
+        if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
         $this->cacheFile = is_writable($logDir)
             ? $logDir . '/.migration_count'
-            : sys_get_temp_dir() . '/intrarp_migration_count_' . md5($this->appRoot);
+            : sys_get_temp_dir() . '/intrarp_migration_count';
     }
 
     public function runIfNeeded(): void
     {
-        $migrationFiles = glob($this->migrationsPath . '/*.php');
-        if ($migrationFiles === false) return;
+        $files = glob($this->migrationsPath . '/*.php');
+        if (!$files) return;
 
-        $fileCount = count($migrationFiles);
+        $fileCount = count($files);
 
-        // Fast path: cache matches → nothing to do
-        if (file_exists($this->cacheFile)) {
-            $cached = (int)@file_get_contents($this->cacheFile);
-            if ($cached === $fileCount) return;
+        // Fast path: nothing changed
+        if (file_exists($this->cacheFile) && (int)@file_get_contents($this->cacheFile) === $fileCount) {
+            return;
         }
 
-        $isFreshInstall = $this->isFreshInstall();
+        // Fresh install? Show waiting page, run migrations, redirect.
+        if ($this->isFreshInstall() && php_sapi_name() !== 'cli') {
+            $this->freshInstall();
+            return;
+        }
 
-        // Run migrations silently
-        $this->runMigrations();
-
-        // Write cache
+        // Existing install with new migrations: run silently
+        $this->executeMigrations();
         @file_put_contents($this->cacheFile, (string)$fileCount);
-
-        // Fresh install via web: show success + redirect
-        if ($isFreshInstall && php_sapi_name() !== 'cli' && !headers_sent()) {
-            $this->showCompletePage();
-            exit;
-        }
     }
 
     private function isFreshInstall(): bool
     {
         try {
-            $stmt = $this->pdo->query("SHOW TABLES LIKE 'intra_users'");
-            return $stmt->rowCount() === 0;
+            return $this->pdo->query("SHOW TABLES LIKE 'intra_users'")->rowCount() === 0;
         } catch (\Exception $e) {
             return true;
         }
     }
 
-    private function runMigrations(): void
+    private function freshInstall(): void
+    {
+        // Send the waiting page to the browser
+        http_response_code(200);
+        header('Content-Type: text/html; charset=utf-8');
+        echo <<<'HTML'
+<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>intraRP — Initialisierung</title>
+<style>
+body{background:#1a1820;color:#bbbac1;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+.box{text-align:center;max-width:420px}
+.spinner{width:40px;height:40px;border:3px solid #3d3a44;border-top-color:#d10000;border-radius:50%;animation:s .8s linear infinite;margin:0 auto 20px}
+@keyframes s{to{transform:rotate(360deg)}}
+h2{color:#fff;font-size:1.2rem;margin-bottom:8px}
+p{font-size:.85rem;opacity:.6}
+</style></head><body><div class="box">
+<div class="spinner"></div>
+<h2>Datenbank wird initialisiert...</h2>
+<p>Die Tabellen werden erstellt. Dies dauert nur wenige Sekunden.</p>
+</div></body></html>
+HTML;
+
+        // Flush to browser so user sees the page immediately
+        if (connection_status() === CONNECTION_NORMAL) {
+            flush();
+            if (function_exists('fastcgi_finish_request')) {
+                // FPM: finish the response, continue PHP execution in background
+                fastcgi_finish_request();
+            }
+        }
+
+        // Now run migrations (browser already shows the waiting page)
+        $this->executeMigrations();
+
+        $files = glob($this->migrationsPath . '/*.php');
+        @file_put_contents($this->cacheFile, (string)count($files ?: []));
+
+        // If fastcgi_finish_request wasn't available, redirect via JS
+        // (the HTML above already rendered, so we can't send headers)
+        if (!function_exists('fastcgi_finish_request')) {
+            echo '<script>setTimeout(function(){location.reload()},500)</script>';
+        }
+
+        exit;
+    }
+
+    private function executeMigrations(): void
     {
         if (!file_exists($this->initScript)) return;
-
-        $prevLevel = ob_get_level();
-        ob_start();
 
         try {
             $pdo = $this->pdo;
             $projectRoot = $this->appRoot;
+            // database-init.php echoes progress — discard it
+            ob_start();
             require $this->initScript;
+            ob_end_clean();
         } catch (\Exception $e) {
+            if (ob_get_level() > 0) ob_end_clean();
             \App\Logging\Logger::error("Auto-migration failed: " . $e->getMessage());
         }
-
-        // Clean output buffers added during migration
-        while (ob_get_level() > $prevLevel) {
-            ob_end_clean();
-        }
-    }
-
-    private function showCompletePage(): void
-    {
-        while (ob_get_level() > 0) ob_end_clean();
-
-        http_response_code(200);
-        header('Content-Type: text/html; charset=utf-8');
-        $redirect = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/');
-
-        echo <<<HTML
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta http-equiv="refresh" content="2;url={$redirect}">
-    <title>intraRP — Initialisierung abgeschlossen</title>
-    <style>
-        body{background:#1a1820;color:#bbbac1;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
-        .box{text-align:center;max-width:420px}
-        .ok{font-size:3rem;color:#28a745;margin-bottom:16px}
-        h2{color:#fff;font-size:1.2rem;margin-bottom:8px}
-        p{font-size:.85rem;opacity:.6}
-    </style>
-</head>
-<body><div class="box">
-    <div class="ok">&#10003;</div>
-    <h2>Datenbank erfolgreich initialisiert</h2>
-    <p>Du wirst in wenigen Sekunden weitergeleitet...</p>
-</div></body></html>
-HTML;
     }
 }
