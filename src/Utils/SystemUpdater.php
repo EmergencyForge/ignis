@@ -91,6 +91,19 @@ class SystemUpdater
             $isNewer = $this->compareVersions($latestVersion, $currentVersion);
             $isLatestPreRelease = $latestRelease['prerelease'] ?? false;
 
+            // Prefer release asset ZIP (includes vendor/) over zipball (raw source)
+            $downloadUrl = $latestRelease['zipball_url'] ?? null;
+            $hasReleaseAsset = false;
+            if (!empty($latestRelease['assets'])) {
+                foreach ($latestRelease['assets'] as $asset) {
+                    if (str_ends_with($asset['name'] ?? '', '.zip')) {
+                        $downloadUrl = $asset['browser_download_url'];
+                        $hasReleaseAsset = true;
+                        break;
+                    }
+                }
+            }
+
             return [
                 'available' => $isNewer,
                 'current_version' => $currentVersion,
@@ -98,9 +111,10 @@ class SystemUpdater
                 'release_name' => $latestRelease['name'] ?? $latestVersion,
                 'release_notes' => $latestRelease['body'] ?? 'Keine Release-Notizen verfügbar.',
                 'published_at' => $latestRelease['published_at'] ?? null,
-                'download_url' => $latestRelease['zipball_url'] ?? null,
+                'download_url' => $downloadUrl,
                 'html_url' => $latestRelease['html_url'] ?? null,
-                'is_prerelease' => $isLatestPreRelease
+                'is_prerelease' => $isLatestPreRelease,
+                'has_release_asset' => $hasReleaseAsset
             ];
         } catch (Exception $e) {
             return [
@@ -205,10 +219,13 @@ class SystemUpdater
     public function downloadAndApplyUpdate(string $downloadUrl, string $newVersion, bool $isPreRelease = false): array
     {
         try {
-            // Security: Validate download URL is from GitHub
-            if (!preg_match('#^https://api\.github\.com/repos/' . preg_quote($this->githubRepo, '#') . '/zipball/#', $downloadUrl)) {
+            // Security: Validate download URL is from GitHub (zipball or release asset)
+            $isValidZipball = preg_match('#^https://api\.github\.com/repos/' . preg_quote($this->githubRepo, '#') . '/zipball/#', $downloadUrl);
+            $isValidAsset = preg_match('#^https://github\.com/' . preg_quote($this->githubRepo, '#') . '/releases/download/#', $downloadUrl);
+            if (!$isValidZipball && !$isValidAsset) {
                 throw new Exception('Ungültige Download-URL. Updates können nur von GitHub heruntergeladen werden.');
             }
+            $isReleaseAsset = (bool)$isValidAsset;
 
             // Security: Validate version format
             // Allow up to 5 version segments (e.g., v0.5.4.3.1) plus optional pre-release suffix
@@ -375,21 +392,21 @@ class SystemUpdater
             clearstatcache();
             usleep(100000); // 100ms wait
 
-            // GitHub zipballs extract to a subdirectory like "EmergencyForge-intraRP-abc123/"
+            // Determine source directory:
+            // - GitHub zipballs extract to a subdirectory like "EmergencyForge-intraRP-abc123/"
+            // - Release asset ZIPs extract files directly (no wrapper directory)
             $extractedDirs = glob($extractDir . '/*', GLOB_ONLYDIR);
-            if (empty($extractedDirs)) {
-                // Debug: List all extracted files/folders
+            if (!empty($extractedDirs) && file_exists($extractedDirs[0] . '/composer.json')) {
+                // Zipball style: subdirectory wrapper
+                $sourceDir = $extractedDirs[0];
+            } elseif (file_exists($extractDir . '/composer.json')) {
+                // Release asset style: files directly in extract dir
+                $sourceDir = $extractDir;
+            } else {
                 $allItems = glob($extractDir . '/*');
                 $itemsList = $allItems ? implode(', ', array_map('basename', $allItems)) : 'keine';
-
-                // Additional check with scandir
-                $scannedItems = @scandir($extractDir);
-                $scannedFiltered = $scannedItems ? array_diff($scannedItems, ['.', '..']) : [];
-                $scannedList = !empty($scannedFiltered) ? implode(', ', $scannedFiltered) : 'keine';
-
-                throw new Exception('Keine extrahierten Verzeichnisse gefunden. ZIP sollte ' . $numFiles . ' Dateien enthalten. Glob-Items: ' . $itemsList . '. Scandir-Items: ' . $scannedList . '. Extract-Dir: ' . $extractDir);
+                throw new Exception('Konnte Update-Dateien nicht finden. Extrahierte Inhalte: ' . $itemsList);
             }
-            $sourceDir = $extractedDirs[0];
 
             // Step 3: Create backup
             $backupDir = $appRoot . '/system/updates/backup_' . date('Y-m-d_H-i-s');
@@ -434,10 +451,11 @@ class SystemUpdater
             }
 
             // Step 4: Apply update (copy files)
-            // Exclude vendor, storage, and system/updates directories
-            $excludeDirs = ['vendor', 'storage', 'system/updates'];
+            // Release assets include vendor/ — zipballs don't
+            $excludeDirs = $isReleaseAsset
+                ? ['storage', 'system/updates']              // Release asset: vendor/ included
+                : ['vendor', 'storage', 'system/updates'];   // Zipball: vendor/ excluded (needs composer)
             $excludeFiles = ['.env', '.git', '.gitignore'];
-            // For these directories, only copy new files (don't overwrite existing customizations)
             $preserveDirs = ['assets/img'];
 
             try {
@@ -457,22 +475,24 @@ class SystemUpdater
                 throw new Exception('Konnte version.json nicht aktualisieren. Update möglicherweise unvollständig.');
             }
 
-            // Step 6: Mark that composer needs to run
-            // Don't run composer immediately to avoid dependency issues with the current page load
-            $composerStatus = [
-                'pending' => true,
-                'created_at' => date('Y-m-d H:i:s'),
-                'version' => $newVersion
-            ];
+            // Step 6: Mark composer as pending (only for zipball updates without vendor/)
+            $composerPending = false;
+            if (!$isReleaseAsset) {
+                $composerStatus = [
+                    'pending' => true,
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'version' => $newVersion
+                ];
 
-            $dir = dirname($this->composerPendingFile);
-            if (!is_dir($dir)) {
-                mkdir($dir, 0755, true);
-            }
+                $dir = dirname($this->composerPendingFile);
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0755, true);
+                }
 
-            if (!file_put_contents($this->composerPendingFile, json_encode($composerStatus, JSON_PRETTY_PRINT))) {
-                // Non-critical: composer will need manual installation
-                \App\Logging\Logger::warning('Warning: Could not write composer pending file: ' . $this->composerPendingFile);
+                if (!file_put_contents($this->composerPendingFile, json_encode($composerStatus, JSON_PRETTY_PRINT))) {
+                    \App\Logging\Logger::warning('Warning: Could not write composer pending file: ' . $this->composerPendingFile);
+                }
+                $composerPending = true;
             }
 
             // Step 7: Clear cache
@@ -486,10 +506,12 @@ class SystemUpdater
 
             return [
                 'success' => true,
-                'message' => 'Update erfolgreich installiert! Composer-Abhängigkeiten werden jetzt aktualisiert...',
+                'message' => $composerPending
+                    ? 'Update erfolgreich installiert! Composer-Abhängigkeiten werden jetzt aktualisiert...'
+                    : 'Update erfolgreich auf ' . $newVersion . ' installiert!',
                 'version' => $newVersion,
                 'backup_dir' => $backupDir,
-                'composer_pending' => true
+                'composer_pending' => $composerPending
             ];
         } catch (Exception $e) {
             // Clean up temp files if they exist
