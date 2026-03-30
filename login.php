@@ -63,13 +63,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
 </head>
 
 <body data-bs-theme="dark" id="alogin" class="container-full position-relative">
-    <div id="video-background">
-        <iframe
-            src="https://www.youtube.com/embed/9z1qetAaiBA?autoplay=1&mute=1&loop=1&playlist=9z1qetAaiBA&controls=0&showinfo=0&modestbranding=1&rel=0&iv_load_policy=3&disablekb=1&fs=0"
-            frameborder="0"
-            allow="autoplay; encrypted-media"
-            allowfullscreen>
-        </iframe>
+    <div id="login-background">
+        <div class="bg-grid"></div>
+        <div class="bg-blip bg-blip--1"></div>
+        <div class="bg-blip bg-blip--2"></div>
+        <div class="bg-glow bg-glow--1"></div>
+        <div class="bg-glow bg-glow--2"></div>
     </div>
 
     <div class="container d-flex justify-content-center align-items-center flex-column h-100">
@@ -117,8 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                 </div>
             </div>
         </div>
-        <p class="mt-3 small text-center">Hintergrundvideo: <a href="https://www.youtube.com/watch?v=9z1qetAaiBA" target="_blank" rel="nofollow">Rosenbauer Group: "Alles für diesen Moment. - Rosenbauer" (YouTube)</a><br>
-            &copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
+        <p class="mt-3 small text-center">&copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
         <?php
         $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? LEGAL_IMPRESSUM_URL : '';
         $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? LEGAL_DATENSCHUTZ_URL : '';
