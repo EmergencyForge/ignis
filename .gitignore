@@ -4,6 +4,7 @@ vendor
 php_errors.log
 storage/logs/
 storage/documents/**.pdf
+storage/profile-pictures/
 support_errors.log
 *.backup
 .vscode

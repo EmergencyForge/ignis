@@ -106,7 +106,7 @@ class NotificationManager
      * @param int $limit Maximum number of notifications to retrieve
      * @return array Array of notifications
      */
-    public function getUnread(int $userId, int $limit = 50, ?string $type = null): array
+    public function getUnread(int $userId, int $limit = 50, ?string $type = null, int $offset = 0): array
     {
         try {
             $sql = "SELECT * FROM intra_notifications WHERE user_id = ? AND is_read = 0";
@@ -115,8 +115,9 @@ class NotificationManager
                 $sql .= " AND type = ?";
                 $params[] = $type;
             }
-            $sql .= " ORDER BY created_at DESC LIMIT ?";
+            $sql .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
             $params[] = $limit;
+            $params[] = $offset;
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($params);

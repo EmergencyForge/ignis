@@ -42,6 +42,7 @@ $qualifw2 = (int)($data['qualifw2'] ?? 0);
 $geschlecht = (int)($data['geschlecht'] ?? 0);
 $zusatzqual = trim($data['zusatzqual'] ?? '');
 $pfp = trim($data['pfp'] ?? '');
+/** @phpstan-ignore ternary.alwaysTrue (CHAR_ID is runtime-configured) */
 $charakterid = CHAR_ID ? trim($data['charakterid'] ?? '') : '';
 
 // Validate required fields
@@ -135,6 +136,7 @@ try {
         (int)$current['geschlecht'] !== $geschlecht ||
         ($current['zusatz'] ?? '') !== $zusatzqual ||
         ($current['pfp'] ?? '') !== $pfp ||
+        /** @phpstan-ignore booleanAnd.leftAlwaysTrue (CHAR_ID is runtime-configured) */
         (CHAR_ID && ($current['charakterid'] ?? '') !== $charakterid)
     );
 
@@ -147,6 +149,7 @@ try {
             'telefonnr' => $telefonnr, 'dienstnr' => $dienstnr, 'geschlecht' => $geschlecht,
             'zusatzqual' => $zusatzqual, 'pfp' => $pfp, 'id' => $id
         ];
+        /** @phpstan-ignore if.alwaysTrue (CHAR_ID is runtime-configured) */
         if (CHAR_ID) {
             $setClauses[] = 'charakterid = :charakterid';
             $params['charakterid'] = $charakterid;
