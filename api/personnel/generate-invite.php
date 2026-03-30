@@ -40,7 +40,6 @@ try {
         'created_by' => $_SESSION['userid']
     ]);
 
-    /** @phpstan-ignore booleanNot.alwaysTrue, identical.alwaysFalse (SYSTEM_URL is runtime-configured) */
     $baseUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME')
         ? rtrim(SYSTEM_URL, '/')
         : ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']);
