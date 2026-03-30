@@ -49,6 +49,9 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                                 <i class="fa-solid fa-triangle-exclamation"></i> Defekt-Meldungen
                             </a>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
+                                <button type="button" class="btn btn-ghost" onclick="openTzTemplateManager()">
+                                    <i class="fa-solid fa-shapes"></i> TZ-Vorlagen
+                                </button>
                                 <button type="button" class="btn btn-soft-primary" onclick="openVehicleImport()">
                                     <i class="fa-solid fa-satellite-dish"></i> EMD-Import
                                     <span class="badge text-bg-danger ms-1 d-none" id="importBadge">0</span>
@@ -341,6 +344,27 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
     <!-- MODAL 2 END -->
 
 
+    <!-- TZ Template Manager Modal -->
+    <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
+    <div class="modal fade" id="tzTemplateModal" tabindex="-1" aria-labelledby="tzTemplateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tzTemplateModalLabel">
+                        <i class="fa-solid fa-shapes me-2"></i>TZ-Vorlagen verwalten
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <div class="modal-body" id="tzTemplateModalBody">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- EMD Vehicle Import Modal -->
     <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
     <div class="modal fade" id="vehicleImportModal" tabindex="-1" aria-labelledby="vehicleImportModalLabel" aria-hidden="true">
@@ -492,6 +516,145 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                 });
             });
         });
+    </script>
+    <script>
+        const TZ_TPL_API = '<?= BASE_PATH ?>api/vehicles/tz-templates.php';
+
+        window.openTzTemplateManager = function() {
+            const modal = new bootstrap.Modal(document.getElementById('tzTemplateModal'));
+            const body = document.getElementById('tzTemplateModalBody');
+            body.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-border" role="status"></div></div>';
+            modal.show();
+            loadTzTemplateList();
+        };
+
+        function loadTzTemplateList() {
+            const body = document.getElementById('tzTemplateModalBody');
+            fetch(TZ_TPL_API + '?action=list')
+                .then(r => r.json())
+                .then(data => {
+                    if (!data.success) throw new Error(data.message);
+                    const templates = data.templates;
+
+                    if (templates.length === 0) {
+                        body.innerHTML = `
+                            <div class="text-center py-4">
+                                <div style="font-size:3rem;color:var(--text-dimmed);margin-bottom:1rem;">
+                                    <i class="fa-solid fa-shapes"></i>
+                                </div>
+                                <h5 class="mb-2">Keine Vorlagen vorhanden</h5>
+                                <p class="text-muted">Erstelle eine Vorlage beim Bearbeiten eines Fahrzeugs über das <i class="fa-solid fa-floppy-disk"></i> Icon neben dem TZ-Formular.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let html = `
+                        <p class="text-muted mb-3" style="font-size:var(--fs-sm);">
+                            Vorlagen definieren das taktische Zeichen für einen Fahrzeugtyp. Der <strong>Name (tz_name)</strong> bleibt immer individuell pro Fahrzeug.
+                        </p>
+                        <div class="tz-template-list">
+                    `;
+
+                    templates.forEach(t => {
+                        const fields = [
+                            t.grundzeichen, t.organisation, t.fachaufgabe, t.einheit, t.symbol
+                        ].filter(Boolean);
+                        const fieldSummary = fields.length > 0
+                            ? fields.map(f => `<span class="badge text-bg-dark" style="font-size:0.65rem;">${escHtml(f)}</span>`).join(' ')
+                            : '<span class="text-muted">Keine Felder</span>';
+
+                        html += `
+                            <div class="intra__tile p-3 mb-2 d-flex align-items-center justify-content-between gap-3" id="tz-tpl-${t.id}">
+                                <div class="flex-grow-1" style="min-width:0;">
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <strong>${escHtml(t.name)}</strong>
+                                        ${t.typ ? `<span class="text-muted" style="font-size:var(--fs-sm);">Typ: ${escHtml(t.typ)}</span>` : ''}
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-1">${fieldSummary}</div>
+                                </div>
+                                <div class="d-flex gap-1 flex-shrink-0">
+                                    <button class="btn btn-soft-primary btn-sm" onclick="applyTzTemplateToType(${t.id}, '${escAttr(t.name)}')" title="Auf alle Fahrzeuge eines Typs anwenden">
+                                        <i class="fa-solid fa-layer-group me-1"></i>Anwenden
+                                    </button>
+                                    <button class="btn btn-ghost-danger btn-sm" onclick="deleteTzTemplate(${t.id})" title="Vorlage löschen">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += '</div>';
+                    body.innerHTML = html;
+                })
+                .catch(err => {
+                    body.innerHTML = `<div class="alert alert-danger">${escHtml(err.message)}</div>`;
+                });
+        }
+
+        window.applyTzTemplateToType = function(templateId, templateName) {
+            if (typeof showPrompt === 'function') {
+                showPrompt('Auf welchen Fahrzeugtyp soll die Vorlage angewendet werden?', {
+                    defaultValue: templateName,
+                    title: 'Vorlage anwenden',
+                    placeholder: 'z.B. RTW, HLF20, NEF'
+                }).then(vehType => { if (vehType) doApplyTemplate(templateId, vehType); });
+            } else {
+                const vehType = prompt('Auf welchen Fahrzeugtyp anwenden? (z.B. RTW, HLF20)', templateName);
+                if (vehType) doApplyTemplate(templateId, vehType);
+            }
+        };
+
+        function doApplyTemplate(templateId, vehType) {
+            showConfirm(`TZ-Vorlage auf ALLE Fahrzeuge vom Typ "${vehType}" anwenden? Der tz_name bleibt individuell.`, {
+                confirmText: 'Anwenden',
+                title: 'Vorlage anwenden'
+            }).then(result => {
+                if (!result) return;
+                const fd = new FormData();
+                fd.append('action', 'apply_to_type');
+                fd.append('template_id', templateId);
+                fd.append('veh_type', vehType);
+                fetch(TZ_TPL_API, { method: 'POST', body: fd })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast(data.message, 'success');
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    })
+                    .catch(err => showToast(err.message, 'error'));
+            });
+        }
+
+        window.deleteTzTemplate = function(id) {
+            showConfirm('Diese Vorlage wirklich löschen?', { danger: true, confirmText: 'Löschen', title: 'TZ-Vorlage löschen' })
+                .then(result => {
+                    if (!result) return;
+                    const fd = new FormData();
+                    fd.append('action', 'delete');
+                    fd.append('id', id);
+                    fetch(TZ_TPL_API, { method: 'POST', body: fd })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.success) {
+                                const row = document.getElementById('tz-tpl-' + id);
+                                if (row) {
+                                    row.style.opacity = '0';
+                                    row.style.transform = 'translateX(-20px)';
+                                    row.style.transition = 'all 0.3s ease';
+                                    setTimeout(() => row.remove(), 300);
+                                }
+                                showToast(data.message, 'success');
+                            } else {
+                                showToast(data.message, 'error');
+                            }
+                        })
+                        .catch(err => showToast(err.message, 'error'));
+                });
+        };
     </script>
     <script>
         const IMPORT_API = '<?= BASE_PATH ?>api/vehicles/import-handler.php';
