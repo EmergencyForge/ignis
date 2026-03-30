@@ -24,6 +24,19 @@ jobs:
       - name: Install production dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
+      - name: Generate version.json
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S')
+          cat > system/updates/version.json << EOF
+          {
+            "version": "$VERSION",
+            "updated_at": "$TIMESTAMP",
+            "build_number": "$GITHUB_RUN_NUMBER",
+            "commit_hash": "$GITHUB_SHA"
+          }
+          EOF
+
       - name: Create .env.example if missing
         run: |
           if [ ! -f .env.example ]; then
