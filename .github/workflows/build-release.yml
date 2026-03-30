@@ -1,0 +1,77 @@
+name: Build Release ZIP
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+
+      - name: Install production dependencies
+        run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+      - name: Create .env.example if missing
+        run: |
+          if [ ! -f .env.example ]; then
+            cat > .env.example << 'EOF'
+          DB_HOST=localhost
+          DB_USER=root
+          DB_PASS=
+          DB_NAME=intrarp
+          APP_ENV=production
+          EOF
+          fi
+
+      - name: Build release ZIP
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+          ARCHIVE_NAME="intraRP-${VERSION}.zip"
+
+          # Create ZIP with all files including vendor, excluding dev/build files
+          zip -r "$ARCHIVE_NAME" . \
+            -x ".git/*" \
+            -x ".github/*" \
+            -x ".gitignore" \
+            -x ".env" \
+            -x ".vscode/*" \
+            -x ".idea/*" \
+            -x ".qodo/*" \
+            -x ".claude/*" \
+            -x ".phpunit.cache/*" \
+            -x "tests/*" \
+            -x "phpstan.neon" \
+            -x "CLAUDE.md" \
+            -x ".impeccable.md" \
+            -x "*.backup" \
+            -x "intrap" \
+            -x "*preview*.html" \
+            -x "vendor/phpstan/*" \
+            -x "vendor/phpunit/*" \
+            -x "vendor/myclabs/*" \
+            -x "vendor/phar-io/*" \
+            -x "vendor/sebastian/*" \
+            -x "vendor/theseer/*"
+
+          echo "archive_name=$ARCHIVE_NAME" >> $GITHUB_ENV
+          echo "Built $ARCHIVE_NAME ($(du -h $ARCHIVE_NAME | cut -f1))"
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.archive_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
