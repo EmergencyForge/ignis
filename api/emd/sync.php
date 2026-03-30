@@ -532,6 +532,73 @@ try {
     // Letzten Sync-Zeitpunkt speichern (für Verbindungs-Status in der Topbar)
     @file_put_contents(__DIR__ . '/../../storage/last_emd_sync.txt', date('Y-m-d H:i:s'));
 
+    // Vehicle Registry: Fahrzeugdaten von EMD empfangen und in Import-Queue speichern
+    if (isset($receivedData['vehicle_registry']) && is_array($receivedData['vehicle_registry'])) {
+        $vehicles = $receivedData['vehicle_registry'];
+        logSync('Vehicle Registry empfangen: ' . count($vehicles) . ' Fahrzeuge', 'INFO');
+
+        // Alte pending-Einträge entfernen (neuer Import ersetzt alten)
+        $pdo->exec("DELETE FROM intra_fahrzeuge_import_queue WHERE status = 'pending'");
+
+        $insertStmt = $pdo->prepare("
+            INSERT INTO intra_fahrzeuge_import_queue
+                (emd_vehicle_id, name, identifier, veh_type, rd_type, department, valuelong, job, image, funkkanal, raw_data)
+            VALUES
+                (:emd_id, :name, :identifier, :veh_type, :rd_type, :department, :valuelong, :job, :image, :funkkanal, :raw_data)
+        ");
+
+        $imported = 0;
+        foreach ($vehicles as $v) {
+            $vName = $v['value'] ?? '';
+            if (empty($vName)) continue;
+
+            // rd_type aus Fahrzeugtyp ableiten
+            $rdType = 0;
+            $vType = strtoupper($v['type'] ?? '');
+            if (in_array($vType, ['NEF', 'NAW', 'ITW', 'RTH', 'ITH'])) {
+                $rdType = 1; // RD mit NA (arztbesetzt)
+            } elseif (in_array($vType, ['RTW', 'KTW', 'NTW', 'N-KTW', 'NKTW', 'S-RTW'])) {
+                $rdType = 2; // RD ohne NA
+            }
+
+            // Identifier aus value generieren (lowercase, Leerzeichen → Unterstrich)
+            $identifier = strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '_', $vName));
+
+            $insertStmt->execute([
+                ':emd_id' => $v['id'] ?? null,
+                ':name' => $vName,
+                ':identifier' => $identifier,
+                ':veh_type' => $v['type'] ?? '',
+                ':rd_type' => $rdType,
+                ':department' => $v['department'] ?? null,
+                ':valuelong' => $v['valuelong'] ?? null,
+                ':job' => $v['job'] ?? null,
+                ':image' => $image ?: null,
+                ':funkkanal' => $v['funkkanal'] ?? null,
+                ':raw_data' => json_encode($v)
+            ]);
+            $imported++;
+        }
+
+        // Flag-Datei löschen
+        $flagFile = __DIR__ . '/../../storage/emd_vehicle_import_request.flag';
+        if (file_exists($flagFile)) {
+            @unlink($flagFile);
+        }
+
+        logSync("Vehicle Registry: $imported Fahrzeuge in Import-Queue gespeichert", 'INFO');
+
+        // Wenn NUR vehicle_registry gesendet wurde (kein dispatch), direkt antworten
+        if (!isset($receivedData['type']) && !isset($receivedData['dispatch_data']) && !isset($receivedData['data'])) {
+            echo json_encode([
+                'success' => true,
+                'message' => "Vehicle Registry empfangen: $imported Fahrzeuge zur Prüfung bereit",
+                'vehicle_registry_received' => $imported
+            ]);
+            exit;
+        }
+    }
+
     // Routing basierend auf type
     if (isset($receivedData['type'])) {
         switch ($receivedData['type']) {
@@ -1416,6 +1483,13 @@ try {
     if ($isV2) {
         $response['status_poll'] = ['status_changes' => $statusChanges];
         $response['status_ack'] = ['successful_ids' => $v2StatusResult['successful_ids']];
+    }
+
+    // Prüfe ob Fahrzeug-Import angefordert wurde (File-Flag)
+    $flagFile = __DIR__ . '/../../storage/emd_vehicle_import_request.flag';
+    if (file_exists($flagFile)) {
+        $response['request_vehicle_registry'] = true;
+        logSync('request_vehicle_registry Flag in Response gesetzt', 'INFO');
     }
 
     echo json_encode($response);
