@@ -146,21 +146,9 @@ class SystemUpdater
     private function fetchLatestReleaseFromList(bool $includePreRelease = false): ?array
     {
         $url = "{$this->githubApiUrl}/releases?per_page=20";
+        $response = $this->httpGet($url);
 
-        $context = stream_context_create([
-            'http' => [
-                'method' => 'GET',
-                'header' => [
-                    'User-Agent: intraRP-Updater',
-                    'Accept: application/vnd.github+json'
-                ],
-                'timeout' => 10
-            ]
-        ]);
-
-        $response = @file_get_contents($url, false, $context);
-
-        if ($response === false) {
+        if ($response === null) {
             return null;
         }
 
@@ -200,6 +188,100 @@ class SystemUpdater
      * Compare two version strings
      * Returns true if $version1 is newer than $version2
      */
+    /**
+     * HTTP GET with cURL fallback for hosts where allow_url_fopen is disabled
+     */
+    private function httpGet(string $url, int $timeout = 10): ?string
+    {
+        // Try file_get_contents first
+        if (ini_get('allow_url_fopen')) {
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'GET',
+                    'header' => [
+                        'User-Agent: intraRP-Updater',
+                        'Accept: application/vnd.github+json'
+                    ],
+                    'timeout' => $timeout
+                ]
+            ]);
+            $response = @file_get_contents($url, false, $context);
+            if ($response !== false) return $response;
+        }
+
+        // Fallback: cURL
+        if (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_TIMEOUT => $timeout,
+                CURLOPT_USERAGENT => 'intraRP-Updater',
+                CURLOPT_HTTPHEADER => ['Accept: application/vnd.github+json'],
+                CURLOPT_SSL_VERIFYPEER => true,
+            ]);
+            $response = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($response !== false && $httpCode >= 200 && $httpCode < 300) {
+                return $response;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Download a large file (ZIP) with cURL fallback
+     */
+    private function httpDownload(string $url): ?string
+    {
+        if (ini_get('allow_url_fopen')) {
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'GET',
+                    'header' => [
+                        'User-Agent: intraRP-Updater',
+                        'Accept: application/zip, application/octet-stream'
+                    ],
+                    'timeout' => 300,
+                    'follow_location' => 1,
+                    'max_redirects' => 5
+                ],
+                'ssl' => [
+                    'verify_peer' => true,
+                    'verify_peer_name' => true,
+                    'allow_self_signed' => false
+                ]
+            ]);
+            $content = @file_get_contents($url, false, $context);
+            if ($content !== false) return $content;
+        }
+
+        if (function_exists('curl_init')) {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_MAXREDIRS => 5,
+                CURLOPT_TIMEOUT => 300,
+                CURLOPT_USERAGENT => 'intraRP-Updater',
+                CURLOPT_HTTPHEADER => ['Accept: application/zip, application/octet-stream'],
+                CURLOPT_SSL_VERIFYPEER => true,
+            ]);
+            $content = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            if ($content !== false && $httpCode >= 200 && $httpCode < 300) {
+                return $content;
+            }
+        }
+
+        return null;
+    }
+
     private function compareVersions(string $version1, string $version2): bool
     {
         // Remove 'v' prefix if present
@@ -284,28 +366,9 @@ class SystemUpdater
             $extractDir = $tempDir . '/extracted';
 
             // Step 1: Download update
-            // Note: GitHub's zipball_url redirects, so we need to follow location
-            $context = stream_context_create([
-                'http' => [
-                    'method' => 'GET',
-                    'header' => [
-                        'User-Agent: intraRP-Updater',
-                        'Accept: application/zip, application/octet-stream'
-                    ],
-                    'timeout' => 300,
-                    'follow_location' => 1,
-                    'max_redirects' => 5
-                ],
-                'ssl' => [
-                    'verify_peer' => true,
-                    'verify_peer_name' => true,
-                    'allow_self_signed' => false
-                ]
-            ]);
+            $updateContent = $this->httpDownload($downloadUrl);
 
-            $updateContent = @file_get_contents($downloadUrl, false, $context);
-
-            if ($updateContent === false) {
+            if ($updateContent === null) {
                 throw new Exception('Fehler beim Herunterladen des Updates von: ' . $downloadUrl . '. Bitte Internetverbindung prüfen.');
             }
 
