@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
         // Input validation
-        if (!filter_var($downloadUrl, FILTER_VALIDATE_URL) || !str_starts_with($downloadUrl, 'https://api.github.com/')) {
+        if (!filter_var($downloadUrl, FILTER_VALIDATE_URL) || (!str_starts_with($downloadUrl, 'https://api.github.com/') && !str_starts_with($downloadUrl, 'https://github.com/'))) {
             $errorMsg = 'Ungültige Download-URL. Updates können nur von GitHub heruntergeladen werden.';
             if ($isAjax) {
                 header('Content-Type: application/json');
