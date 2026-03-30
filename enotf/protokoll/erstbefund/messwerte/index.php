@@ -19,6 +19,7 @@ require_once __DIR__ . '/../../../../assets/functions/enotf/user_auth_middleware
 require_once __DIR__ . '/../../../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 use App\Helpers\BloodSugarHelper;
 
 $daten = array();
@@ -45,7 +46,7 @@ if ($daten['freigegeben'] == 1) {
 }
 
 if ($ist_freigegeben) {
-    header("Location: " . BASE_PATH . "enotf/protokoll/erstbefund/index.php?enr=" . $_GET['enr']);
+    header("Location: " . EnotfUrl::protokoll($_GET['enr'], 'erstbefund'));
     exit();
 }
 
@@ -63,7 +64,7 @@ if (!empty($daten['bz'])) {
     }
 }
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/protokoll/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . rtrim(EnotfUrl::protokoll($enr), '/');
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
@@ -148,7 +149,7 @@ $currentDateTime = date('Y-m-d\TH:i');
                             </div>
 
                             <div class="row edivi__vitalparam-mainbuttons">
-                                <div class="col"><a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/index.php?enr=<?= $enr ?>">Abbrechen</a></div>
+                                <div class="col"><a href="<?= EnotfUrl::protokoll($enr, 'erstbefund') ?>">Abbrechen</a></div>
                                 <div class="col" style="border-left:2px solid #191919;">
                                     <button type="button" id="saveVitalsBtn">Speichern</button>
                                 </div>

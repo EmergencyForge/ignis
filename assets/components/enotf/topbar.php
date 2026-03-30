@@ -10,6 +10,7 @@
  */
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 
 // Session-Crew-Daten bei jedem Seitenaufruf aus DB aktualisieren
 if (isset($pdo)) {
@@ -27,7 +28,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
             <?php if (isset($topbar_left_html)): ?>
                 <?= $topbar_left_html ?>
             <?php else: ?>
-                <a href="<?= BASE_PATH ?>enotf/overview.php" id="home" class="edivi__iconlink">
+                <a href="<?= EnotfUrl::page('overview') ?>" id="home" class="edivi__iconlink">
                     <svg width="38px" height="38px" viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#ffffff">
                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                         <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
@@ -49,13 +50,13 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                 <?php
                 if ($daten['freigegeben'] != 1) :
                     if (ENOTF_PREREG) : ?>
-                        <a href="<?= BASE_PATH ?>enotf/schnittstelle/voranmeldung.php?enr=<?= $enr ?>" id="prereg" class="edivi__iconlink">
+                        <a href="<?= EnotfUrl::schnittstelle('voranmeldung', ['enr' => $enr]) ?>" id="prereg" class="edivi__iconlink">
                             <i class="fa-solid fa-house-medical"></i><br>
                             <small>Anmeldung</small>
                         </a>
                     <?php endif; ?>
 
-                    <a href="<?= BASE_PATH ?>enotf/protokoll/protokollart.php?enr=<?= $enr ?>" id="modify" class="edivi__iconlink">
+                    <a href="<?= EnotfUrl::protokoll($enr, 'protokollart') ?>" id="modify" class="edivi__iconlink">
                         <i class="fa-solid fa-sync"></i><br>
                         <small>Art ändern</small>
                     </a>
@@ -66,13 +67,13 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                     </button>
                 <?php endif; ?>
 
-                <a href="<?= BASE_PATH ?>enotf/print/index.php?enr=<?= $enr ?>" id="print" class="edivi__iconlink">
+                <a href="<?= EnotfUrl::print($enr) ?>" id="print" class="edivi__iconlink">
                     <i class="fa-solid fa-file-waveform"></i><br>
                     <small>Protokoll</small>
                 </a>
 
                 <?php if (ENOTF_PREREG) : ?>
-                    <a href="<?= BASE_PATH ?>enotf/hospital-availability.php" id="hospital-availability" class="edivi__iconlink">
+                    <a href="<?= EnotfUrl::page('hospital-availability') ?>" id="hospital-availability" class="edivi__iconlink">
                         <i class="fa-solid fa-hospital"></i><br>
                         <small>Verfügbarkeit</small>
                     </a>
@@ -91,7 +92,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
             <?php endif; ?>
         </div>
         <div class="col text-end d-flex justify-content-end align-items-center">
-            <a href="<?= BASE_PATH ?>enotf/login.php?prefill=1" class="d-flex flex-column align-items-center text-decoration-none text-reset align-self-stretch justify-content-between" id="topbar-crew-display" style="font-size: 0.85rem; line-height: 1.2; padding: 5px 15px;">
+            <a href="<?= EnotfUrl::page('login') ?>?prefill=1" class="d-flex flex-column align-items-center text-decoration-none text-reset align-self-stretch justify-content-between" id="topbar-crew-display" style="font-size: 0.85rem; line-height: 1.2; padding: 5px 15px;">
                 <div class="d-flex align-items-start">
                     <div class="d-flex flex-column align-items-end justify-content-start">
                         <span data-crew-name="fahrername"><?= htmlspecialchars($_SESSION['fahrername'] ?? '') ?></span>

@@ -20,6 +20,7 @@ require_once __DIR__ . '/../../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
 
+use App\Helpers\EnotfUrl;
 $daten = array();
 
 if (isset($_GET['enr'])) {
@@ -56,7 +57,7 @@ if (!empty($daten['psych'])) {
     }
 }
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/protokoll/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . rtrim(EnotfUrl::protokoll($enr), '/');
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
@@ -88,28 +89,28 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <div class="row" style="margin-left: 0">
                         <?php if (!$ist_freigegeben) : ?>
                             <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/atemwege/index.php?enr=<?= $daten['enr'] ?>" data-requires="awfrei_1,zyanose_1">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'atemwege') ?>" data-requires="awfrei_1,zyanose_1">
                                     <span>Atemwege</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/atmung/index.php?enr=<?= $daten['enr'] ?>" data-requires="b_symptome,b_auskult">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'atmung') ?>" data-requires="b_symptome,b_auskult">
                                     <span>Atmung</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/kreislauf/index.php?enr=<?= $daten['enr'] ?>" data-requires="c_kreislauf,c_puls_rad,c_puls_reg">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'kreislauf') ?>" data-requires="c_kreislauf,c_puls_rad,c_puls_reg">
                                     <span>Kreislauf</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/neurologie/index.php?enr=<?= $daten['enr'] ?>" data-requires="d_bewusstsein,d_ex_1,d_pupillenw_1,d_pupillenw_2,d_lichtreakt_1,d_lichtreakt_2,d_gcs_1,d_gcs_2,d_gcs_3">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'neurologie') ?>" data-requires="d_bewusstsein,d_ex_1,d_pupillenw_1,d_pupillenw_2,d_lichtreakt_1,d_lichtreakt_2,d_gcs_1,d_gcs_2,d_gcs_3">
                                     <span>Neurologie</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/erweitern/index.php?enr=<?= $daten['enr'] ?>">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'erweitern') ?>">
                                     <span>Erweitern</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/ekg/index.php?enr=<?= $daten['enr'] ?>" data-requires="c_ekg">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'ekg') ?>" data-requires="c_ekg">
                                     <span>EKG-Befund</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/psychisch/index.php?enr=<?= $daten['enr'] ?>" data-requires="psych">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'psychisch') ?>" data-requires="psych">
                                     <span>psych. Zustand</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/messwerte/index.php?enr=<?= $daten['enr'] ?>" data-requires="spo2,atemfreq,rrsys,herzfreq,bz">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'messwerte') ?>" data-requires="spo2,atemfreq,rrsys,herzfreq,bz">
                                     <span>Messwerte</span>
                                 </a>
                             </div>
@@ -269,7 +270,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <div class="col edivi__overview-container">
                             <div class="row">
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/atemwege/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'atemwege') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1 edivi__group-check">Atemwege</h5>
                                         <div class="col">
                                             <div class="row my-2">
@@ -288,7 +289,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/atmung/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'atmung') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1 edivi__group-check">Atmung</h5>
                                         <div class="col">
                                             <div class="row my-2">
@@ -309,7 +310,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/kreislauf/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'kreislauf') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1 edivi__group-check">Kreislauf</h5>
                                         <div class="col">
                                             <div class="row">
@@ -368,7 +369,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/neurologie/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'neurologie') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1 edivi__group-check">Neurologie</h5>
                                         <div class="col">
                                             <div class="row">
@@ -450,7 +451,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             </div>
                             <div class="row">
                                 <div class="col-8">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/erweitern/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'erweitern') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1 edivi__group-check">Verletzungen</h5>
                                         <div class="col">
                                             <div class="row">
@@ -509,7 +510,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/erweitern/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'erweitern') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1">Schmerzen</h5>
                                         <div class="col">
                                             <div class="row my-2">
@@ -530,7 +531,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             </div>
                             <div class="row">
                                 <div class="col-4">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/psychisch/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'psychisch') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1 edivi__group-check">Psyche</h5>
                                         <div class="col">
                                             <div class="row my-2">
@@ -543,7 +544,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/erstbefund/messwerte/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'messwerte') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1">Vitalparameter</h5>
                                         <div class="col">
                                             <div class="row">

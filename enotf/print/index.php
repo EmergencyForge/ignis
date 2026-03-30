@@ -18,6 +18,7 @@ require __DIR__ . '/../../assets/config/database.php';
 require_once __DIR__ . '/../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 use App\Helpers\Redirects;
 use App\Helpers\BloodSugarHelper;
 
@@ -51,7 +52,7 @@ $enr = $daten['enr'];
 $bzHelper = new BloodSugarHelper($pdo);
 $bzUnit = $bzHelper->getCurrentUnit();
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/protokoll/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . rtrim(EnotfUrl::protokoll($enr), '/');
 $defaultUrl = $prot_url;
 
 date_default_timezone_set('Europe/Berlin');

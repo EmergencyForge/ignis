@@ -13,6 +13,7 @@ use App\Helpers\Flash;
 use App\Helpers\UserHelper;
 use App\Utils\AuditLogger;
 use App\Notifications\NotificationManager;
+use App\Helpers\EnotfUrl;
 
 $userHelper = new UserHelper($pdo);
 
@@ -121,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'protokoll',
                         "Ihr Protokoll #{$row['enr']} wurde geprüft",
                         "Status: {$status_klar}. Prüfer: {$bearbeiter}",
-                        BASE_PATH . "enotf/protokoll/index.php?enr={$row['enr']}"
+                        EnotfUrl::protokoll($row['enr'])
                     );
                 } else {
                     error_log("QM Notification: User not found for discord tag: " . $mitarbeiter['discordtag']);

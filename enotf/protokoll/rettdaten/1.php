@@ -19,6 +19,7 @@ require_once __DIR__ . '/../../../assets/functions/enotf/user_auth_middleware.ph
 require_once __DIR__ . '/../../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 use App\Helpers\Redirects;
 
 $daten = array();
@@ -41,7 +42,7 @@ if (isset($_GET['enr'])) {
 
 if ($daten['freigegeben'] == 1) {
     $ist_freigegeben = true;
-    header("Location: " . BASE_PATH . "enotf/prot/index.php?enr=" . $daten['enr']);
+    header("Location: " . EnotfUrl::protokoll($daten['enr']));
     exit();
 } else {
     $ist_freigegeben = false;
@@ -51,8 +52,8 @@ $daten['last_edit'] = !empty($daten['last_edit']) ? (new DateTime($daten['last_e
 
 $enr = $daten['enr'];
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
-$defaultUrl = BASE_PATH . "enotf/prot/index.php?enr=" . $daten['enr'];
+$prot_url = "https://" . SYSTEM_URL . rtrim(EnotfUrl::protokoll($enr), '/');
+$defaultUrl = EnotfUrl::protokoll($daten['enr']);
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
