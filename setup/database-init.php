@@ -481,6 +481,9 @@ $migrationFiles = [
     ['file' => 'create_intra_federation_links_25032026.php', 'type' => 'create'],
     ['file' => 'create_intra_federation_cache_25032026.php', 'type' => 'create', 'tables' => ['intra_federation_cache_personnel', 'intra_federation_cache_enotf', 'intra_federation_cache_fire', 'intra_federation_sync_log']],
     ['file' => 'insert_config_25032026_federation.php', 'type' => 'insert'],
+
+    // 30.03.2026 - EMD Fahrzeug-Import Queue
+    ['file' => 'create_intra_fahrzeuge_import_queue_30032026.php', 'type' => 'create'],
 ];
 
 $executed = 0;
