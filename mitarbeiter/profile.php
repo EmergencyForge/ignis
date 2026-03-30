@@ -797,6 +797,23 @@ if (isset($_POST['new'])) {
 
                 cell.textContent = '';
                 cell.appendChild(input);
+
+                // Special handling for dienstnr: add status indicator and init check
+                if (field === 'dienstnr') {
+                    input.id = 'dienstnr';
+                    var statusDiv = document.createElement('div');
+                    statusDiv.id = 'dienstnr-status';
+                    statusDiv.className = 'dienstnr-status';
+                    cell.classList.add('dienstnr-container');
+                    cell.appendChild(statusDiv);
+                    var feedbackDiv = document.createElement('div');
+                    feedbackDiv.id = 'dienstnr-feedback';
+                    feedbackDiv.className = 'text-danger small';
+                    feedbackDiv.style.display = 'none';
+                    cell.appendChild(feedbackDiv);
+                    initDienstnrCheck({ basePath: basePath, excludeId: profileId });
+                }
+
                 input.focus();
                 if (input.select) input.select();
 
@@ -806,6 +823,12 @@ if (isset($_POST['new'])) {
 
                     if (newValue === oldValue) {
                         cancel();
+                        return;
+                    }
+
+                    // Dienstnr availability check before save
+                    if (field === 'dienstnr' && typeof isDienstnrAvailable === 'function' && !isDienstnrAvailable()) {
+                        showToast('Dienstnummer nicht verfügbar', 'danger');
                         return;
                     }
 
@@ -870,7 +893,7 @@ if (isset($_POST['new'])) {
                 }
 
                 function cancel() {
-                    cell.classList.remove('inline-editing');
+                    cell.classList.remove('inline-editing', 'dienstnr-container');
                     if (type === 'select') {
                         var opts = JSON.parse(cell.dataset.options);
                         cell.textContent = opts[currentData[field]] || originalText;
