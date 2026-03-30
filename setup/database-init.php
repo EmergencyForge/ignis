@@ -1,7 +1,13 @@
 <?php
+// When called from AutoMigrator, use return instead of exit
+// to avoid killing the web request
+if (!isset($__autoMigrator)) {
+    $__autoMigrator = false;
+}
+
 if (getenv('GITHUB_ACTIONS') === 'true' || getenv('CI') === 'true') {
     echo "⚠️  Skipping database setup in CI (GitHub Actions).\n";
-    exit(0);
+    if ($__autoMigrator) return; else exit(0);
 }
 
 if (!function_exists('findProjectRoot')):
@@ -53,13 +59,13 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
         $projectRoot = findProjectRoot();
     } catch (Exception $e) {
         echo "❌ " . $e->getMessage() . "\n";
-        exit(1);
+        if ($__autoMigrator) return; else exit(1);
     }
 
     $autoloadPath = $projectRoot . '/vendor/autoload.php';
     if (!file_exists($autoloadPath)) {
         echo "❌ Autoloader nicht gefunden: $autoloadPath\n";
-        exit(1);
+        if ($__autoMigrator) return; else exit(1);
     }
 
     require_once $autoloadPath;
@@ -72,14 +78,14 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
     } catch (Exception $e) {
         echo "❌ Konnte .env nicht laden: " . $e->getMessage() . "\n";
         echo "Suchpfad war: $projectRoot/.env\n";
-        exit(1);
+        if ($__autoMigrator) return; else exit(1);
     }
 
     $requiredVars = ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'];
     foreach ($requiredVars as $var) {
         if (!isset($_ENV[$var]) || empty($_ENV[$var])) {
             echo "❌ Umgebungsvariable $var nicht gesetzt\n";
-            exit(1);
+            if ($__autoMigrator) return; else exit(1);
         }
     }
 
@@ -120,7 +126,7 @@ if (!isset($pdo) || !($pdo instanceof PDO)) {
         }
     } catch (PDOException $e) {
         echo "❌ Datenbankverbindung fehlgeschlagen: " . $e->getMessage() . "\n";
-        exit(1);
+        if ($__autoMigrator) return; else exit(1);
     }
 } // end if (!isset($pdo))
 
@@ -233,7 +239,7 @@ ensureMigrationsTable($pdo);
 $migrationPath = $projectRoot . '/assets/database';
 if (!is_dir($migrationPath)) {
     echo "❌ Migration-Verzeichnis nicht gefunden: $migrationPath\n";
-    exit(1);
+    if ($__autoMigrator) return; else exit(1);
 }
 
 echo "✓ Migration-Verzeichnis: $migrationPath\n\n";
@@ -622,7 +628,7 @@ foreach ($migrationFiles as $migration) {
             echo "   2. MySQL/MariaDB Version und Kompatibilität\n";
             echo "   3. Verfügbarer Speicherplatz\n";
             echo "   4. MySQL-Fehlerlog für detaillierte Fehlermeldungen\n\n";
-            exit(1);
+            if ($__autoMigrator) return; else exit(1);
         }
 
         echo "⚠️  Überspringe diese Migration und fahre fort...\n\n";
@@ -657,9 +663,12 @@ if (!empty($missingTables)) {
         echo "   - $table\n";
     }
     echo "\nBitte führen Sie 'composer db:migrate' erneut aus oder überprüfen Sie die Datenbankberechtigungen.\n";
-    exit(1);
+    if ($__autoMigrator) return; else exit(1);
 }
 
 echo "\n✅ Alle kritischen Tabellen wurden erfolgreich erstellt.\n\n";
 
-exit(0);
+// Only exit when running standalone (CLI), not when included from AutoMigrator
+if (!isset($__autoMigrator)) {
+    if ($__autoMigrator) return; else exit(0);
+}
