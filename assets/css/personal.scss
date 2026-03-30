@@ -74,6 +74,7 @@ body:has(.intra-sidebar) {
   --comment-created-stripe: #14a3a1;
 }
 
+// Legacy comment styles (kept for log entries)
 .comment {
   background-color: var(--comment-bg);
   color: var(--comment-text);
@@ -119,64 +120,99 @@ body:has(.intra-sidebar) {
 
 .comment.note {
   background-color: var(--comment-note-bg);
-
-  &::after {
-    content: "\f249";
-    background-color: var(--comment-note-stripe);
-  }
+  &::after { content: "\f249"; background-color: var(--comment-note-stripe); }
 }
-
 .comment.positive {
   background-color: var(--comment-positive-bg);
-
-  &::after {
-    content: "\f560";
-    background-color: var(--comment-positive-stripe);
-  }
+  &::after { content: "\f560"; background-color: var(--comment-positive-stripe); }
 }
-
 .comment.negative {
   background-color: var(--comment-negative-bg);
-
-  &::after {
-    content: "\f00d";
-    background-color: var(--comment-negative-stripe);
-  }
+  &::after { content: "\f00d"; background-color: var(--comment-negative-stripe); }
 }
-
 .comment.rank {
   background-color: var(--comment-rank-bg);
-
-  &::after {
-    content: "\f0e7";
-    background-color: var(--comment-rank-stripe);
-  }
+  &::after { content: "\f0e7"; background-color: var(--comment-rank-stripe); }
 }
-
 .comment.modify {
   background-color: var(--comment-modify-bg);
-
-  &::after {
-    content: "\f6e3";
-    background-color: var(--comment-modify-stripe);
-  }
+  &::after { content: "\f6e3"; background-color: var(--comment-modify-stripe); }
 }
-
 .comment.document {
   background-color: var(--comment-document-bg);
+  &::after { content: "\f02d"; background-color: var(--comment-document-stripe); }
+}
+.comment.created {
+  background-color: var(--comment-created-bg);
+  &::after { content: "\f055"; background-color: var(--comment-created-stripe); }
+}
 
-  &::after {
-    content: "\f02d";
-    background-color: var(--comment-document-stripe);
+// New comment items (used in comments/main.php)
+.comment-item {
+  display: flex;
+  align-items: stretch;
+  background: var(--comment-bg, rgba(255, 255, 255, 0.03));
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.15s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+
+    .comment-item__delete {
+      opacity: 1;
+    }
   }
 }
 
-.comment.created {
-  background-color: var(--comment-created-bg);
+.comment-item__indicator {
+  width: 3px;
+  flex-shrink: 0;
+  background: var(--text-dimmed, #555);
+}
 
-  &::after {
-    content: "\f055";
-    background-color: var(--comment-created-stripe);
+.comment-item--note .comment-item__indicator { background: var(--comment-note-stripe, #6c757d); }
+.comment-item--positive .comment-item__indicator { background: var(--comment-positive-stripe, #28a745); }
+.comment-item--negative .comment-item__indicator { background: var(--comment-negative-stripe, #dc3545); }
+
+.comment-item__body {
+  flex: 1;
+  padding: 8px 12px;
+  min-width: 0;
+}
+
+.comment-item__content {
+  font-size: var(--font-size-sm, 0.82rem);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.comment-item__meta {
+  font-size: var(--font-size-xs, 0.72rem);
+  opacity: 0.5;
+  margin-top: 4px;
+  display: flex;
+  gap: 10px;
+
+  i { margin-right: 3px; }
+}
+
+.comment-item__delete {
+  opacity: 0;
+  transition: opacity 0.15s;
+  background: none;
+  border: none;
+  color: var(--text-dimmed, #818189);
+  padding: 0 12px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    color: #dc3545;
   }
 }
 

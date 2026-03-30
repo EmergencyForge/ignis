@@ -460,183 +460,122 @@ if (isset($_POST['new'])) {
                             <form id="profil" method="post">
                                 <div class="row">
                                     <div class="col">
-                                        <?php if (!isset($_GET['edit'])) { ?>
-                                            <div class="btn btn-soft-primary btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalNewComment" title="Notiz anlegen"><i class="fa-solid fa-sticky-note"></i></div>
-                                        <?php } ?>
-                                        <?php if (!isset($_GET['edit']) && Permissions::check(['admin', 'personnel.documents.manage'])) { ?>
+                                        <div class="btn btn-soft-primary btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalNewComment" title="Notiz anlegen"><i class="fa-solid fa-sticky-note"></i></div>
+                                        <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
                                             <div class="btn btn-soft-primary btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalDokuCreate" title="Dokument erstellen"><i class="fa-solid fa-print"></i></div>
-                                        <?php } ?>
-                                        <?php if (!isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])) { ?>
-                                            <a href="?id=<?= $_GET['id'] . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') ?>&edit" class="btn btn-soft-primary btn-sm btn-icon" id="personal-edit" title="Profil bearbeiten"><i class="fa-solid fa-edit"></i></a>
+                                        <?php endif; ?>
+                                        <?php if (Permissions::check(['admin', 'personnel.edit'])): ?>
                                             <div class="btn btn-soft-primary btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalFDQuali" title="Fachdienste bearbeiten"><i class="fa-solid fa-graduation-cap"></i></div>
-                                        <?php } elseif (isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])) { ?>
-                                            <a href="#" class="btn btn-soft-success btn-sm btn-icon" id="personal-save"><i class="fa-solid fa-save"></i></a>
-                                            <a href="<?php echo removeEditParamFromURL(); ?>" class="btn btn-ghost btn-sm btn-icon"><i class="fa-solid fa-arrow-left"></i></a>
-                                            <?php if (Permissions::check(['admin', 'personnel.delete'])) { ?>
+                                            <?php if (Permissions::check(['admin', 'personnel.delete'])): ?>
                                                 <div class="btn btn-outline-danger btn-sm btn-icon" id="personal-delete" data-bs-toggle="modal" data-bs-target="#modalPersoDelete"><i class="fa-solid fa-trash"></i></div>
-                                        <?php }
-                                        } ?>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="col text-end" style="color:var(--tag-color)">Akten-ID: <?= $row['id'] ?></div>
                                 </div>
                                 <?php
-                                // Function to remove the 'edit' parameter from the URL
+                                // Legacy: kept for backwards compatibility with bookmarks
                                 function removeEditParamFromURL(): string
                                 {
                                     $currentURL = $_SERVER['REQUEST_URI'];
                                     $parsedURL = parse_url($currentURL);
-                                    parse_str($parsedURL['query'], $queryParams);
+                                    parse_str($parsedURL['query'] ?? '', $queryParams);
                                     unset($queryParams['edit']);
                                     $newQuery = http_build_query($queryParams);
                                     $modifiedURL = $parsedURL['path'] . '?' . $newQuery;
                                     return $modifiedURL;
                                 }
                                 ?>
+                                <?php
+                                $canEdit = Permissions::check(['admin', 'personnel.edit']);
+                                $profileImage = !empty($row['pfp']) ? $row['pfp'] : BASE_PATH . 'assets/img/empty_user.png';
+                                $geschlechtText = match((int)$row['geschlecht']) { 0 => 'Herr', 1 => 'Frau', default => 'Divers' };
+                                $profileName = $geschlechtText . ' ' . $row['fullname'];
+                                ?>
                                 <div class="w-100 text-center">
-                                    <?php if (!isset($_GET['edit']) || !Permissions::check(['admin', 'personnel.edit'])) { ?>
-                                        <?php
-                                        // Profilbild anzeigen
-                                        $profileImage = !empty($row['pfp']) ? $row['pfp'] : BASE_PATH . 'assets/img/empty_user.png';
-                                        ?>
+                                    <?php if ($canEdit): ?>
+                                        <div class="mb-3 position-relative d-inline-block">
+                                            <img src="<?= $profileImage ?>" alt="Profilbild" id="pfp-preview" class="border" style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;" title="Klicken zum Ändern">
+                                            <label for="pfp-upload" class="position-absolute bottom-0 end-0 btn btn-sm btn-soft-primary btn-icon" style="width: 28px; height: 28px; font-size: 0.7rem; cursor: pointer;" title="Bild hochladen">
+                                                <i class="fa-solid fa-camera"></i>
+                                            </label>
+                                            <input type="file" id="pfp-upload" accept="image/png,image/jpeg,image/webp" class="d-none">
+                                        </div>
+                                    <?php else: ?>
                                         <img src="<?= $profileImage ?>" alt="Profilbild" class="border" style="width: 120px; height: 120px; object-fit: cover;">
+                                    <?php endif; ?>
 
-                                        <p class="mt-3">
-                                            <?php if ($row['geschlecht'] == 0) {
-                                                $geschlechtText = "Herr";
-                                            } elseif ($row['geschlecht'] == 1) {
-                                                $geschlechtText = "Frau";
-                                            } else {
-                                                $geschlechtText = "Divers";
-                                            }
-                                            $profileName = $geschlechtText . " " . $row['fullname'];
-                                            ?>
-                                        <h4 class="mt-0"><?= $profileName ?></h4>
-                                        <?php
-                                        if ($dginfo['badge']) {
-                                        ?>
-                                            <img src="<?= $dginfo['badge'] ?>" height='16px' width='auto' alt='Dienstgrad' />
-                                        <?php } ?>
-                                        <?= $dienstgradText ?><br>
-                                        <?php if (!$rdginfo['none']) { ?>
-                                            <span style="text-transform:none; color:var(--black)" class="badge text-bg-warning"><?= $rdqualtext ?></span>
-                                        <?php }
-                                        if (!$fwginfo['none']) { ?>
-                                            <span style="text-transform:none" class="badge text-bg-danger"><?= $bfqualtext ?></span>
-                                        <?php } ?>
-                                        </p>
-                                    <?php } else {
-                                        // Bearbeitungsmodus: Profilbild-Input
-                                        $currentPfp = !empty($row['pfp']) ? $row['pfp'] : '';
-                                    ?>
-                                        <div class="mb-3">
-                                            <label for="pfp" class="form-label">Profilbild-URL</label>
-                                            <input type="text" class="form-control" name="pfp" id="pfp"
-                                                value="<?= htmlspecialchars($currentPfp) ?>"
-                                                placeholder="/assets/img/empty_user.png">
-                                            <small class="form-text text-muted">Gib eine URL oder einen relativen Pfad an. Leer = Standardbild</small>
-                                        </div>
-                                    <?php
-                                        include __DIR__ . '/../assets/components/profiles/dienstgradselector_bf.php';
-                                        include __DIR__ . '/../assets/components/profiles/dienstgradselector_rd.php';
-                                        include __DIR__ . '/../assets/components/profiles/qualiselector.php';
-                                    } ?>
+                                    <p class="mt-3">
+                                    <h4 class="mt-0" id="display-profilename"><?= $profileName ?></h4>
+                                    <?php if ($dginfo['badge']): ?>
+                                        <img src="<?= $dginfo['badge'] ?>" height='16px' width='auto' alt='Dienstgrad' id="display-dgbadge" />
+                                    <?php endif; ?>
+                                    <span id="display-dgtext"><?= $dienstgradText ?></span><br>
+                                    <?php if (!$rdginfo['none']): ?>
+                                        <span style="text-transform:none; color:var(--black)" class="badge text-bg-warning" id="display-rdquali"><?= $rdqualtext ?></span>
+                                    <?php endif; ?>
+                                    <?php if (!$fwginfo['none']): ?>
+                                        <span style="text-transform:none" class="badge text-bg-danger" id="display-fwquali"><?= $bfqualtext ?></span>
+                                    <?php endif; ?>
+                                    </p>
+
+                                    <?php if ($canEdit): ?>
+                                        <button type="button" class="btn btn-sm btn-soft-primary mt-2" data-bs-toggle="modal" data-bs-target="#modalQualiEdit">
+                                            <i class="fa-solid fa-sliders me-1"></i>Rang &amp; Qualifikationen
+                                        </button>
+                                    <?php endif; ?>
+
                                     <hr class="my-3">
-                                    <?php if (!isset($_GET['edit']) || !Permissions::check(['admin', 'personnel.edit'])) { ?>
-                                        <table class="mx-auto w-100">
-                                            <tbody class="text-start">
+                                    <table class="mx-auto w-100">
+                                        <tbody class="text-start">
+                                            <?php if ($canEdit): ?>
+                                            <tr>
+                                                <td class="fw-bold">Vor- und Zuname</td>
+                                                <td class="inline-edit-cell" data-field="fullname" data-type="text"><?= htmlspecialchars($row['fullname']) ?></td>
+                                            </tr>
+                                            <?php endif; ?>
+                                            <tr>
+                                                <td class="fw-bold">Geburtsdatum</td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="gebdatum" data-type="date" data-raw="' . $row['gebdatum'] . '"' : '' ?>><?= $geburtstag ?></td>
+                                            </tr>
+                                            <?php if ($canEdit): ?>
+                                            <tr>
+                                                <td class="fw-bold">Geschlecht</td>
+                                                <td class="inline-edit-cell" data-field="geschlecht" data-type="select" data-options='{"0":"Männlich","1":"Weiblich","2":"Divers"}' data-raw="<?= $row['geschlecht'] ?>"><?= $geschlechtText ?></td>
+                                            </tr>
+                                            <?php endif; ?>
+                                            <?php if (CHAR_ID) : ?>
                                                 <tr>
-                                                    <td class="fw-bold">Geburtsdatum</td>
-                                                    <td><?= $geburtstag ?></td>
+                                                    <td class="fw-bold">Charakter-ID</td>
+                                                    <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="charakterid" data-type="text"' : '' ?>><?= htmlspecialchars($row['charakterid']) ?></td>
                                                 </tr>
-                                                <?php if (CHAR_ID) : ?>
-                                                    <tr>
-                                                        <td class="fw-bold">Charakter-ID</td>
-                                                        <td><?= $row['charakterid'] ?></td>
-                                                    </tr>
-                                                <?php endif; ?>
-                                                <tr>
-                                                    <td class="fw-bold">Discord-ID</td>
-                                                    <td><?= $row['discordtag'] ?? 'N. hinterlegt' ?></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Telefonnummer</td>
-                                                    <td><?= $row['telefonnr'] ?></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Dienstnummer</td>
-                                                    <td><?= $row['dienstnr'] ?></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Position</td>
-                                                    <td><?= $row['zusatz'] ?? 'Keine' ?></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Einstellungsdatum</td>
-                                                    <td><?= $einstellungsdatum ?></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        <hr class="my-3">
-                                        <div id="fd-container">
-                                            <?php include __DIR__ . "/../assets/components/profiles/anzeige_fachdienste.php" ?>
-                                        </div>
-                                    <?php } elseif (isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])) { ?>
-                                        <input type="hidden" name="id" id="id" value="<?= $_GET['id'] ?>" />
-                                        <input type="hidden" name="new" value="1" />
-                                        <table class="mx-auto w-100">
-                                            <tbody class="text-start">
-                                                <tr>
-                                                    <td class="fw-bold">Vor- und Zuname</td>
-                                                    <td class="col-8"><input class="form-control" type="text" name="fullname" id="fullname" value="<?= $row['fullname'] ?>"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Geburtsdatum</td>
-                                                    <td><input class="form-control" type="date" name="gebdatum" id="gebdatum" value="<?= $row['gebdatum'] ?>"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Geschlecht</td>
-                                                    <td>
-                                                        <select name="geschlecht" id="geschlecht" class="form-select">
-                                                            <option value="0" <?php if ($row['geschlecht'] == 0) echo 'selected' ?>>Männlich</option>
-                                                            <option value="1" <?php if ($row['geschlecht'] == 1) echo 'selected' ?>>Weiblich</option>
-                                                            <option value="2" <?php if ($row['geschlecht'] == 2) echo 'selected' ?>>Divers</option>
-                                                        </select>
-                                                    </td>
-                                                </tr>
-                                                <?php if (CHAR_ID) : ?>
-                                                    <tr>
-                                                        <td class="fw-bold">Charakter-ID</td>
-                                                        <td><input class="form-control" type="text" name="charakterid" id="charakterid" value="<?= $row['charakterid'] ?>"></td>
-                                                    </tr>
-                                                <?php endif; ?>
-                                                <tr>
-                                                    <td class="fw-bold">Discord-ID</td>
-                                                    <td><input class="form-control" type="text" inputmode="numeric" name="discordtag" id="discordtag" value="<?= $row['discordtag'] ?>" pattern="[0-9]{17,18}" maxlength="18" required>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Telefonnummer</td>
-                                                    <td><input class="form-control" type="text" name="telefonnr" id="telefonnr" value="<?= $row['telefonnr'] ?>"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Dienstnummer</td>
-                                                    <td class="dienstnr-container">
-                                                        <input class="form-control" type="text" name="dienstnr" id="dienstnr" value="<?= $row['dienstnr'] ?>" pattern="^(?=.*[0-9])[A-Za-z0-9\-]+$" title="Muss mindestens eine Zahl enthalten. Buchstaben, Zahlen und Bindestriche erlaubt (z.B. RD-001, BF01)">
-                                                        <div id="dienstnr-status" class="dienstnr-status"></div>
-                                                        <div id="dienstnr-feedback" class="text-danger small" style="display: none;"></div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Position</td>
-                                                    <td><input class="form-control" type="text" name="zusatzqual" id="zusatzqual" maxlength="255" value="<?= $row['zusatz'] ?>"></td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold">Einstellungsdatum</td>
-                                                    <td><input class="form-control" type="date" name="einstdatum" id="einstdatum" value="<?= $row['einstdatum'] ?>" readonly disabled></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    <?php } ?>
+                                            <?php endif; ?>
+                                            <tr>
+                                                <td class="fw-bold">Discord-ID</td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="discordtag" data-type="text"' : '' ?>><?= htmlspecialchars($row['discordtag'] ?? 'N. hinterlegt') ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Telefonnummer</td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="telefonnr" data-type="text"' : '' ?>><?= htmlspecialchars($row['telefonnr']) ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Dienstnummer</td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="dienstnr" data-type="text"' : '' ?>><?= htmlspecialchars($row['dienstnr']) ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Position</td>
+                                                <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="zusatzqual" data-type="text"' : '' ?>><?= htmlspecialchars($row['zusatz'] ?? 'Keine') ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Einstellungsdatum</td>
+                                                <td><?= $einstellungsdatum ?></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <hr class="my-3">
+                                    <div id="fd-container">
+                                        <?php include __DIR__ . "/../assets/components/profiles/anzeige_fachdienste.php" ?>
+                                    </div>
                                 </div>
                             </form>
                         </div>
@@ -673,8 +612,37 @@ if (isset($_POST['new'])) {
     </div>
     <?php include __DIR__ . '/../assets/components/profiles/modals.php' ?>
 
+    <?php if ($canEdit): ?>
+    <!-- Modal: Rang & Qualifikationen -->
+    <div class="modal fade" id="modalQualiEdit" tabindex="-1" aria-labelledby="modalQualiEditLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalQualiEditLabel"><i class="fa-solid fa-sliders me-2"></i>Rang &amp; Qualifikationen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="qualiEditForm">
+                        <?php
+                        include __DIR__ . '/../assets/components/profiles/dienstgradselector_bf.php';
+                        include __DIR__ . '/../assets/components/profiles/dienstgradselector_rd.php';
+                        include __DIR__ . '/../assets/components/profiles/qualiselector.php';
+                        ?>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-ghost btn-sm" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-success btn-sm" id="qualiSaveBtn">
+                        <i class="fa-solid fa-check me-1"></i>Speichern
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <?php include __DIR__ . "/../assets/components/footer.php"; ?>
-    <?php if (isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])): ?>
+    <?php if ($canEdit): ?>
     <script src="<?= BASE_PATH ?>assets/js/dienstnr-check.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -730,77 +698,293 @@ if (isset($_POST['new'])) {
     <?php if (isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])): ?>
     <script>
     (function() {
-        var saveBtn = document.getElementById('personal-save');
-        if (!saveBtn) return;
+        // Profile picture upload
+        var pfpUpload = document.getElementById('pfp-upload');
+        var pfpPreview = document.getElementById('pfp-preview');
+        var pfpHidden = document.getElementById('pfp');
 
-        saveBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            var form = document.getElementById('profil');
+        if (pfpUpload && pfpPreview) {
+            pfpPreview.addEventListener('click', function() { pfpUpload.click(); });
 
-            // Client-side validation
-            if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                return;
-            }
+            pfpUpload.addEventListener('change', function() {
+                var file = this.files[0];
+                if (!file) return;
 
-            // Check dienstnr availability if the shared module is loaded
-            if (typeof isDienstnrAvailable === 'function') {
-                var dienstnrInput = document.getElementById('dienstnr');
-                if (dienstnrInput && dienstnrInput.value.trim() && !isDienstnrAvailable()) {
-                    if (typeof showToast === 'function') showToast('Bitte eine verfügbare Dienstnummer wählen', 'danger');
+                if (file.size > 2 * 1024 * 1024) {
+                    showToast('Datei zu groß (max. 2 MB)', 'danger');
+                    this.value = '';
                     return;
                 }
-            }
 
-            saveBtn.classList.add('btn-loading');
+                var formData = new FormData();
+                formData.append('pfp', file);
+                formData.append('id', <?= (int)$_GET['id'] ?>);
 
-            var payload = {
-                id: <?= (int)$_GET['id'] ?>,
-                fullname: form.fullname.value,
-                gebdatum: form.gebdatum.value,
-                dienstgrad: form.dienstgrad.value,
-                discordtag: form.discordtag.value,
-                telefonnr: form.telefonnr.value,
-                dienstnr: form.dienstnr.value,
-                qualird: form.qualird.value,
-                qualifw2: form.qualifw2.value,
-                geschlecht: form.geschlecht.value,
-                zusatzqual: form.zusatzqual.value,
-                pfp: form.pfp ? form.pfp.value : ''
-            };
+                pfpPreview.style.opacity = '0.5';
 
-            <?php if (CHAR_ID): ?>
-            payload.charakterid = form.charakterid ? form.charakterid.value : '';
-            <?php endif; ?>
+                fetch('<?= BASE_PATH ?>api/personnel/upload-pfp.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    pfpPreview.style.opacity = '1';
+                    if (data.success) {
+                        pfpPreview.src = data.url + '?t=' + Date.now();
+                        pfpHidden.value = data.url;
+                        showToast('Profilbild aktualisiert', 'success');
+                    } else {
+                        showToast(data.message || 'Upload fehlgeschlagen', 'danger');
+                    }
+                })
+                .catch(function() {
+                    pfpPreview.style.opacity = '1';
+                    showToast('Upload fehlgeschlagen', 'danger');
+                });
+            });
+        }
 
-            fetch('<?= BASE_PATH ?>api/personnel/update-profile.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
-            .then(function(res) {
-                saveBtn.classList.remove('btn-loading');
-                if (res.ok && res.data.success) {
-                    if (typeof showToast === 'function') showToast(res.data.message, 'success');
-                    // Redirect to view mode after short delay
-                    setTimeout(function() {
-                        var url = new URL(window.location.href);
-                        url.searchParams.delete('edit');
-                        window.location.href = url.toString();
-                    }, 400);
+        // Inline editing for table cells
+        var profileId = <?= (int)$_GET['id'] ?>;
+        var basePath = '<?= BASE_PATH ?>';
+        var currentData = <?= json_encode([
+            'fullname' => $row['fullname'],
+            'gebdatum' => $row['gebdatum'],
+            'geschlecht' => (string)$row['geschlecht'],
+            'charakterid' => $row['charakterid'] ?? '',
+            'discordtag' => $row['discordtag'] ?? '',
+            'telefonnr' => $row['telefonnr'] ?? '',
+            'dienstnr' => $row['dienstnr'] ?? '',
+            'zusatzqual' => $row['zusatz'] ?? '',
+        ]) ?>;
+
+        document.querySelectorAll('.inline-edit-cell').forEach(function(cell) {
+            cell.addEventListener('click', function() {
+                if (cell.classList.contains('inline-editing')) return;
+
+                var field = cell.dataset.field;
+                var type = cell.dataset.type;
+                var raw = cell.dataset.raw || cell.textContent.trim();
+                var originalText = cell.textContent.trim();
+
+                cell.classList.add('inline-editing');
+
+                var input;
+                if (type === 'select') {
+                    input = document.createElement('select');
+                    input.className = 'form-select';
+                    var opts = JSON.parse(cell.dataset.options);
+                    for (var k in opts) {
+                        var opt = document.createElement('option');
+                        opt.value = k;
+                        opt.textContent = opts[k];
+                        if (k === String(currentData[field] || raw)) opt.selected = true;
+                        input.appendChild(opt);
+                    }
+                } else if (type === 'date') {
+                    input = document.createElement('input');
+                    input.type = 'date';
+                    input.className = 'form-control';
+                    input.value = currentData[field] || raw;
                 } else {
-                    if (typeof showToast === 'function') showToast(res.data.message || 'Fehler beim Speichern', 'danger');
+                    input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'form-control';
+                    input.value = currentData[field] !== undefined ? currentData[field] : originalText;
+                    if (originalText === 'Keine' || originalText === 'N. hinterlegt') input.value = currentData[field] || '';
                 }
-            })
-            .catch(function(err) {
-                saveBtn.classList.remove('btn-loading');
-                if (typeof showToast === 'function') showToast('Verbindungsfehler', 'danger');
+
+                cell.textContent = '';
+                cell.appendChild(input);
+                input.focus();
+                if (input.select) input.select();
+
+                function save() {
+                    var newValue = input.value.trim();
+                    var oldValue = currentData[field] || '';
+
+                    if (newValue === oldValue) {
+                        cancel();
+                        return;
+                    }
+
+                    cell.classList.add('inline-saving');
+
+                    // Build full payload from current data
+                    var form = document.getElementById('profil');
+                    var payload = {
+                        id: profileId,
+                        fullname: currentData.fullname,
+                        gebdatum: currentData.gebdatum,
+                        dienstgrad: form.dienstgrad ? form.dienstgrad.value : '',
+                        discordtag: currentData.discordtag,
+                        telefonnr: currentData.telefonnr,
+                        dienstnr: currentData.dienstnr,
+                        qualird: form.qualird ? form.qualird.value : '',
+                        qualifw2: form.qualifw2 ? form.qualifw2.value : '',
+                        geschlecht: currentData.geschlecht,
+                        zusatzqual: currentData.zusatzqual,
+                        pfp: ''
+                    };
+                    payload[field] = newValue;
+
+                    fetch(basePath + 'api/personnel/update-profile.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+                    .then(function(res) {
+                        cell.classList.remove('inline-saving', 'inline-editing');
+                        if (res.ok && res.data.success) {
+                            currentData[field] = newValue;
+                            // Update display
+                            var d = res.data.display;
+                            if (type === 'select') {
+                                var opts = JSON.parse(cell.dataset.options);
+                                cell.textContent = opts[newValue] || newValue;
+                            } else if (type === 'date') {
+                                cell.textContent = d[field === 'gebdatum' ? 'gebdatum' : field] || newValue;
+                            } else {
+                                cell.textContent = newValue || (field === 'zusatzqual' ? 'Keine' : 'N. hinterlegt');
+                            }
+                            // Update header displays
+                            if (d) {
+                                var pn = document.getElementById('display-profilename');
+                                if (pn) pn.textContent = d.profileName;
+                                var dgt = document.getElementById('display-dgtext');
+                                if (dgt) dgt.textContent = d.dgText;
+                            }
+                            showToast('Gespeichert', 'success');
+                        } else {
+                            cancel();
+                            showToast(res.data.message || 'Fehler', 'danger');
+                        }
+                    })
+                    .catch(function() {
+                        cell.classList.remove('inline-saving', 'inline-editing');
+                        cancel();
+                        showToast('Verbindungsfehler', 'danger');
+                    });
+                }
+
+                function cancel() {
+                    cell.classList.remove('inline-editing');
+                    if (type === 'select') {
+                        var opts = JSON.parse(cell.dataset.options);
+                        cell.textContent = opts[currentData[field]] || originalText;
+                    } else {
+                        cell.textContent = originalText;
+                    }
+                }
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') { e.preventDefault(); save(); }
+                    if (e.key === 'Escape') { cancel(); }
+                });
+                input.addEventListener('blur', function() {
+                    setTimeout(save, 100);
+                });
             });
         });
+
+        // Quali Modal save
+        var qualiSaveBtn = document.getElementById('qualiSaveBtn');
+        if (qualiSaveBtn) {
+            qualiSaveBtn.addEventListener('click', function() {
+                var qualiForm = document.getElementById('qualiEditForm');
+                var payload = {
+                    id: profileId,
+                    fullname: currentData.fullname,
+                    gebdatum: currentData.gebdatum,
+                    dienstgrad: qualiForm.dienstgrad.value,
+                    discordtag: currentData.discordtag,
+                    telefonnr: currentData.telefonnr,
+                    dienstnr: currentData.dienstnr,
+                    qualird: qualiForm.qualird.value,
+                    qualifw2: qualiForm.qualifw2.value,
+                    geschlecht: currentData.geschlecht,
+                    zusatzqual: currentData.zusatzqual,
+                    pfp: ''
+                };
+
+                qualiSaveBtn.disabled = true;
+                qualiSaveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Speichern...';
+
+                fetch(basePath + 'api/personnel/update-profile.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    qualiSaveBtn.disabled = false;
+                    qualiSaveBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Speichern';
+                    if (data.success && data.display) {
+                        var dgt = document.getElementById('display-dgtext');
+                        if (dgt) dgt.textContent = data.display.dgText;
+                        var dgb = document.getElementById('display-dgbadge');
+                        if (dgb && data.display.dgBadge) dgb.src = data.display.dgBadge;
+                        var pn = document.getElementById('display-profilename');
+                        if (pn) pn.textContent = data.display.profileName;
+                        bootstrap.Modal.getInstance(document.getElementById('modalQualiEdit')).hide();
+                        showToast('Rang & Qualifikationen gespeichert', 'success');
+                        // Reload to update badges
+                        setTimeout(function() { location.reload(); }, 600);
+                    } else {
+                        showToast(data.message || 'Fehler', 'danger');
+                    }
+                })
+                .catch(function() {
+                    qualiSaveBtn.disabled = false;
+                    qualiSaveBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Speichern';
+                    showToast('Verbindungsfehler', 'danger');
+                });
+            });
+        }
     })();
     </script>
     <?php endif; ?>
+    <script>
+    // AJAX pagination for comments and system logs
+    (function() {
+        var basePath = <?= json_encode(BASE_PATH) ?>;
+        var profileId = <?= (int)$_GET['id'] ?>;
+
+        function ajaxPaginate(containerSel, endpoint) {
+            var container = document.querySelector(containerSel);
+            if (!container) return;
+
+            container.addEventListener('click', function(e) {
+                var link = e.target.closest('.pagination .page-link');
+                if (!link || link.closest('.disabled') || link.closest('.active')) return;
+
+                e.preventDefault();
+                var href = link.getAttribute('href');
+                if (!href || href === '#') return;
+
+                // Extract page param from href
+                var params = new URLSearchParams(href.split('?')[1] || '');
+                var url = basePath + endpoint + '?id=' + profileId;
+                params.forEach(function(v, k) { if (k !== 'id') url += '&' + k + '=' + v; });
+
+                container.style.opacity = '0.5';
+                fetch(url)
+                    .then(function(r) { return r.text(); })
+                    .then(function(html) {
+                        container.innerHTML = html;
+                        container.style.opacity = '1';
+                    })
+                    .catch(function() {
+                        container.style.opacity = '1';
+                    });
+            });
+        }
+
+        ajaxPaginate('.comment-container', 'api/personnel/profile-comments.php');
+        ajaxPaginate('.log-container', 'api/personnel/profile-logs.php');
+    })();
+    </script>
 </body>
 
 </html>

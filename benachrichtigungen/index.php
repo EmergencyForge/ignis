@@ -50,10 +50,16 @@ if ($typeFilter && !in_array($typeFilter, $validTypes)) {
     $typeFilter = null;
 }
 
+$pageSize = 20;
+$offset = max(0, (int)($_GET['offset'] ?? 0));
 if ($filter === 'unread') {
-    $notifications = $notificationManager->getUnread($userId, 100, $typeFilter);
+    $notifications = $notificationManager->getUnread($userId, $pageSize + 1, $typeFilter, $offset);
 } else {
-    $notifications = $notificationManager->getAll($userId, 100, 0, $typeFilter);
+    $notifications = $notificationManager->getAll($userId, $pageSize + 1, $offset, $typeFilter);
+}
+$hasMore = count($notifications) > $pageSize;
+if ($hasMore) {
+    array_pop($notifications);
 }
 
 $unreadCount = $notificationManager->getUnreadCount($userId);
@@ -127,6 +133,7 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
 
                     <?php
                     // Build query string helper preserving other params
+                    /** @param array<string, string|null> $overrides */
                     function notifFilterUrl(array $overrides): string {
                         $params = $_GET;
                         foreach ($overrides as $k => $v) {
@@ -327,6 +334,13 @@ $unreadCount = $notificationManager->getUnreadCount($userId);
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
+                    <?php if ($hasMore): ?>
+                        <div class="text-center my-3">
+                            <a href="<?= notifFilterUrl(['offset' => $offset + $pageSize]) ?>" class="btn btn-sm btn-outline-secondary">
+                                <i class="fa-solid fa-chevron-down me-1"></i>Mehr laden
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
