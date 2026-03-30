@@ -595,11 +595,8 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
 
         window.applyTzTemplateToType = function(templateId, templateName) {
             if (typeof showPrompt === 'function') {
-                showPrompt('Auf welchen Fahrzeugtyp soll die Vorlage angewendet werden?', {
-                    defaultValue: templateName,
-                    title: 'Vorlage anwenden',
-                    placeholder: 'z.B. RTW, HLF20, NEF'
-                }).then(vehType => { if (vehType) doApplyTemplate(templateId, vehType); });
+                showPrompt('Auf welchen Fahrzeugtyp soll die Vorlage angewendet werden?', templateName, { title: 'Vorlage anwenden' })
+                    .then(vehType => { if (vehType) doApplyTemplate(templateId, vehType); });
             } else {
                 const vehType = prompt('Auf welchen Fahrzeugtyp anwenden? (z.B. RTW, HLF20)', templateName);
                 if (vehType) doApplyTemplate(templateId, vehType);

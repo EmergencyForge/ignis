@@ -306,7 +306,7 @@ if (!isset($showPreview)) {
         const defaultName = typField || 'Neue Vorlage';
 
         if (typeof showPrompt === 'function') {
-            showPrompt('Name der Vorlage:', { defaultValue: defaultName, title: 'TZ-Vorlage speichern' })
+            showPrompt('Name der Vorlage:', defaultName, { title: 'TZ-Vorlage speichern' })
                 .then(name => { if (name) doSaveTemplate(name); });
         } else {
             const name = prompt('Name der Vorlage:', defaultName);
