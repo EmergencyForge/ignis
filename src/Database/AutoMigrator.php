@@ -113,16 +113,18 @@ HTML;
         try {
             $pdo = $this->pdo;
             $projectRoot = $this->appRoot;
+            $__autoMigrator = true;
 
-            // Discard ALL output from database-init.php.
-            // Use a callback-based buffer that swallows everything,
-            // so even if the script flushes internally, nothing reaches the browser.
-            ob_start(function () { return ''; });
+            $prevLevel = ob_get_level();
+            ob_start();
             require $this->initScript;
-            ob_end_clean();
         } catch (\Exception $e) {
-            if (ob_get_level() > 0) ob_end_clean();
             \App\Logging\Logger::error("Auto-migration failed: " . $e->getMessage());
+        } finally {
+            // Clean exactly the buffers we and the script added
+            while (ob_get_level() > $prevLevel) {
+                ob_end_clean();
+            }
         }
     }
 }
