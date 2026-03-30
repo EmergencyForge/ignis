@@ -7,17 +7,18 @@
 # im Projekt übernehmen dort alles automatisch.
 #
 # Anleitung:
-#   1. Kopiere den Inhalt in deinen server{}-Block
-#      (oder inkludiere diese Datei via include)
-#   2. Passe server_name, root, ssl_certificate etc. an
-#   3. Teste mit: sudo nginx -t
-#   4. Lade neu mit: sudo systemctl reload nginx
+#   1. Die map{}-Blöcke MÜSSEN im http{}-Block stehen
+#      (nicht innerhalb von server{}!)
+#   2. Den server{}-Block in deine Site-Config kopieren
+#   3. Alle Stellen mit "<-- anpassen" an deine Umgebung anpassen
+#   4. Testen:  sudo nginx -t
+#   5. Laden:   sudo systemctl reload nginx
 #
 # ============================================================
 
 # --------------------------------------------------------
-# MAP-Direktiven (MÜSSEN ausserhalb von server{} stehen,
-# z.B. im http{}-Block oder in einer separaten Datei)
+# MAP-Direktiven (MÜSSEN im http{}-Block stehen,
+# NICHT innerhalb von server{})
 # --------------------------------------------------------
 
 # FiveM (CitizenFX) User-Agent erkennen und CSP/X-Frame-Options
@@ -32,6 +33,10 @@ map $http_user_agent $frame_options {
     default "SAMEORIGIN";
     ~*CitizenFX "";
 }
+
+# ============================================================
+# Server-Block
+# ============================================================
 
 server {
     listen 443 ssl http2;
@@ -48,7 +53,6 @@ server {
     # Security Headers
     # ====================================================
 
-    # CSP + X-Frame-Options dynamisch (FiveM-kompatibel)
     add_header Content-Security-Policy $csp_header always;
     add_header X-Frame-Options $frame_options always;
 
@@ -56,65 +60,90 @@ server {
     # Allgemeine Einstellungen
     # ====================================================
 
-    # Kein Directory Listing
     autoindex off;
-
-    # Upload-Limit (für Profilbilder etc.)
     client_max_body_size 10M;
 
     # ====================================================
     # eNOTF Clean-URL Rewrites
     # ====================================================
+    # Diese Rewrites werden VOR den location-Blöcken verarbeitet.
+    # Die Reihenfolge ist wichtig: spezifischere Regeln zuerst.
 
-    # Top-Level-Seiten (Extension entfernen)
-    location ~ ^/enotf/(login|overview|create|lockscreen|loggedout|fahrzeuginfo|hospital-availability)$ {
-        try_files $uri $uri/ /enotf/$1.php?$query_string;
-    }
+    # Protokoll: /enotf/p/{enr}/{section}/{subsection}/{page} (4 Segmente)
+    rewrite ^/enotf/p/([\w._-]+)/([\w-]+)/([\w-]+)/([\w_-]+)/?$
+            /enotf/protokoll/$2/$3/$4.php?enr=$1 last;
 
-    # Protokoll: /enotf/p/{enr}
-    location ~ ^/enotf/p/([\w._-]+)/?$ {
-        rewrite ^/enotf/p/([\w._-]+)/?$ /enotf/protokoll/index.php?enr=$1 last;
-    }
-
-    # Protokoll: /enotf/p/{enr}/{section}
-    location ~ ^/enotf/p/([\w._-]+)/([\w-]+)/?$ {
-        rewrite ^/enotf/p/([\w._-]+)/([\w-]+)/?$ /enotf/protokoll/$2/index.php?enr=$1 last;
-    }
-
-    # Protokoll: /enotf/p/{enr}/{section}/{page} – Unterverzeichnisse
-    location ~ ^/enotf/p/([\w._-]+)/(erstbefund|massnahmen)/([\w-]+)/?$ {
-        rewrite ^/enotf/p/([\w._-]+)/(erstbefund|massnahmen)/([\w-]+)/?$ /enotf/protokoll/$2/$3/index.php?enr=$1 last;
-    }
+    # Protokoll: /enotf/p/{enr}/{section}/{page} – Unterverzeichnisse (erstbefund, massnahmen)
+    rewrite ^/enotf/p/([\w._-]+)/(erstbefund|massnahmen)/([\w-]+)/?$
+            /enotf/protokoll/$2/$3/index.php?enr=$1 last;
 
     # Protokoll: /enotf/p/{enr}/{section}/{page} – PHP-Dateien
-    location ~ ^/enotf/p/([\w._-]+)/(diagnose|anamnese|rettdaten|verlauf|abschluss)/([\w_-]+)/?$ {
-        rewrite ^/enotf/p/([\w._-]+)/(diagnose|anamnese|rettdaten|verlauf|abschluss)/([\w_-]+)/?$ /enotf/protokoll/$2/$3.php?enr=$1 last;
-    }
+    rewrite ^/enotf/p/([\w._-]+)/(diagnose|anamnese|rettdaten|verlauf|abschluss)/([\w_-]+)/?$
+            /enotf/protokoll/$2/$3.php?enr=$1 last;
 
-    # Protokoll: /enotf/p/{enr}/{section}/{subsection}/{page} (tiefe Seiten)
-    location ~ ^/enotf/p/([\w._-]+)/([\w-]+)/([\w-]+)/([\w_-]+)/?$ {
-        rewrite ^/enotf/p/([\w._-]+)/([\w-]+)/([\w-]+)/([\w_-]+)/?$ /enotf/protokoll/$2/$3/$4.php?enr=$1 last;
-    }
+    # Protokoll: /enotf/p/{enr}/{section}
+    rewrite ^/enotf/p/([\w._-]+)/([\w-]+)/?$
+            /enotf/protokoll/$2/index.php?enr=$1 last;
+
+    # Protokoll: /enotf/p/{enr}
+    rewrite ^/enotf/p/([\w._-]+)/?$
+            /enotf/protokoll/index.php?enr=$1 last;
 
     # Print: /enotf/print/{enr}
-    location ~ ^/enotf/print/([\w._-]+)/?$ {
-        rewrite ^/enotf/print/([\w._-]+)/?$ /enotf/print/index.php?enr=$1 last;
-    }
+    rewrite ^/enotf/print/([\w._-]+)/?$
+            /enotf/print/index.php?enr=$1 last;
 
     # Admin: /enotf/admin → list.php
-    location = /enotf/admin {
-        rewrite ^ /enotf/admin/list.php last;
+    rewrite ^/enotf/admin/?$ /enotf/admin/list.php last;
+
+    # ====================================================
+    # Zugriffsbeschränkungen (VOR den allgemeinen Locations)
+    # ====================================================
+
+    # Sensible Dateien komplett blockieren
+    location ~ /\.(env|git|htaccess|htpasswd) {
+        return 403;
     }
-    location = /enotf/admin/ {
-        rewrite ^ /enotf/admin/list.php last;
+
+    # /tests/ – komplett blockieren
+    location /tests/ {
+        return 403;
+    }
+
+    # /vendor/, /src/, /storage/logs/, /assets/config/ – kein direkter Zugriff
+    location ~ ^/(vendor|src|storage/logs|assets/config)/ {
+        return 403;
+    }
+
+    # /storage/documents/ – nur PDFs erlauben
+    location /storage/documents/ {
+        # Alles blockieren ...
+        return 403;
+    }
+    location ~ ^/storage/documents/.+\.pdf$ {
+        # ... ausser PDFs
+    }
+
+    # /storage/profile-pictures/ – nur Bilder erlauben
+    location /storage/profile-pictures/ {
+        return 403;
+    }
+    location ~ ^/storage/profile-pictures/.+\.(png|jpe?g|webp)$ {
+        # Bilder erlauben
     }
 
     # ====================================================
-    # Extension-less PHP URLs (wie Apache MultiViews)
+    # Extension-less PHP URLs (Apache MultiViews-Ersatz)
     # ====================================================
+    # Wenn /pfad nicht existiert, prüfe ob /pfad.php existiert
+    # und leite an PHP-FPM weiter.
 
     location / {
-        try_files $uri $uri/ $uri.php?$query_string;
+        try_files $uri $uri/ @extensionless;
+    }
+
+    location @extensionless {
+        rewrite ^(.+)$ $1.php last;
     }
 
     # ====================================================
@@ -122,6 +151,9 @@ server {
     # ====================================================
 
     location ~ \.php$ {
+        # Nur existierende PHP-Dateien ausführen (keine 404 an PHP weiterleiten)
+        try_files $uri =404;
+
         # Backend-Header entfernen (damit sie nicht mit Nginx-Headern kollidieren)
         fastcgi_hide_header Content-Security-Policy;
         fastcgi_hide_header X-Frame-Options;
@@ -135,56 +167,6 @@ server {
     }
 
     # ====================================================
-    # Zugriffsbeschränkungen
-    # ====================================================
-
-    # /tests/ – komplett blockieren
-    location /tests/ {
-        deny all;
-        return 403;
-    }
-
-    # /storage/documents/ – nur PDFs erlauben
-    location /storage/documents/ {
-        location ~ \.pdf$ {
-            # PDFs erlauben
-        }
-        location ~ (?<!\.pdf)$ {
-            deny all;
-            return 403;
-        }
-    }
-
-    # /storage/profile-pictures/ – nur Bilder erlauben
-    location /storage/profile-pictures/ {
-        location ~ \.(png|jpg|jpeg|webp)$ {
-            # Bilder erlauben
-        }
-        location ~ (?<!\.(png|jpg|jpeg|webp))$ {
-            deny all;
-            return 403;
-        }
-    }
-
-    # Sensible Dateien blockieren
-    location ~ /\.(env|git|htaccess|htpasswd) {
-        deny all;
-        return 403;
-    }
-
-    location ~ /(vendor|assets/config|src|storage/logs)/ {
-        # PHP-Dateien in diesen Ordnern dürfen nur intern aufgerufen werden
-        location ~ \.php$ {
-            # Erlaubt (wird via include/require aufgerufen)
-        }
-        # Keine direkten Downloads von Config-Dateien etc.
-        location ~ \.(json|neon|yml|yaml|xml|lock|md)$ {
-            deny all;
-            return 403;
-        }
-    }
-
-    # ====================================================
     # Statische Dateien – Caching
     # ====================================================
 
@@ -192,7 +174,7 @@ server {
         expires 7d;
         add_header Cache-Control "public, immutable";
 
-        # CSP-Header auch für statische Dateien setzen (FiveM)
+        # Header müssen in jedem Block wiederholt werden (Nginx-Verhalten)
         add_header Content-Security-Policy $csp_header always;
         add_header X-Frame-Options $frame_options always;
     }
@@ -222,25 +204,22 @@ server {
 #   User-Agent "CitizenFX". CSP-Header blockieren das
 #   nui:// Protokoll, X-Frame-Options verhindert das Einbetten.
 #
-# Lösung:
-#   1. Die map-Direktiven oben MÜSSEN im http{}-Block stehen
-#      (nicht innerhalb von server{})
-#   2. add_header verwendet die Map-Variablen $csp_header
-#      und $frame_options
-#   3. fastcgi_hide_header entfernt Backend-Header, damit
-#      sie nicht mit den Nginx-Headern kollidieren
+# Lösung (bereits in dieser Config eingebaut):
+#   1. Die map-Direktiven erkennen "CitizenFX" im User-Agent
+#   2. Für FiveM-Requests werden CSP + X-Frame-Options geleert
+#   3. fastcgi_hide_header verhindert doppelte Header
 #
-# Prüfen:
-#   - sudo nginx -t
-#   - sudo systemctl reload nginx
-#   - FiveM: F8-Konsole öffnen → nach Fehlermeldungen suchen
-#   - Browser: F12 → Network → Response Headers prüfen
-#     → Content-Security-Policy sollte vorhanden sein
-#   - FiveM-Request: Content-Security-Policy sollte LEER sein
+# Diagnose:
+#   - sudo nginx -t               → Syntax prüfen
+#   - sudo systemctl reload nginx  → Config neu laden
+#   - FiveM: F8-Konsole            → nach Fehlern suchen
+#   - Browser: F12 → Network Tab   → Response Headers prüfen
+#     → CSP sollte vorhanden sein (normaler Browser)
+#     → CSP sollte LEER sein (FiveM-Request)
 #
 # Debug:
-#   Config.Debug = true in config.lua setzen, F8-Konsole
-#   öffnen, Ticket mit Logs eröffnen.
+#   config.lua: Config.Debug = true
+#   F8-Konsole öffnen, Ticket mit Logs eröffnen.
 #
 # WICHTIG: Sessions funktionieren nur mit SSL!
 # ============================================================

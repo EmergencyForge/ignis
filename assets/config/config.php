@@ -37,6 +37,15 @@ if (isset($_SESSION['userid'])) {
 // Load configuration from database
 require_once __DIR__ . '/database.php';
 
+// Auto-run pending database migrations (lightweight file-count check)
+try {
+    $autoMigrator = new \App\Database\AutoMigrator($pdo);
+    $autoMigrator->runIfNeeded();
+} catch (Exception $e) {
+    // Non-critical: log and continue (first install may not have all tables yet)
+    \App\Logging\Logger::warning("Auto-migration check failed: " . $e->getMessage());
+}
+
 try {
     $configManager = new ConfigManager($pdo);
     $configManager->loadAndDefineConfig();
