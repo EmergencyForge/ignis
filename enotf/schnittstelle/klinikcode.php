@@ -16,6 +16,8 @@ require_once __DIR__ . '/../../assets/config/config.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../assets/config/database.php';
 
+use App\Helpers\EnotfUrl;
+
 $error = '';
 $success = false;
 
@@ -48,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
                 $_SESSION['klinik_access_time'] = time();
 
                 // Weiterleitung zur Druckansicht
-                header("Location: " . BASE_PATH . "enotf/print/index.php?enr=" . $result['enr']);
+                header("Location: " . EnotfUrl::print($result['enr']));
                 exit();
             }
         } catch (PDOException $e) {

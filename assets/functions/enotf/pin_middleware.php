@@ -1,6 +1,7 @@
 <?php
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 
 // Session wird durch config.php gestartet (SessionManager)
 if (session_status() === PHP_SESSION_NONE) {
@@ -47,7 +48,7 @@ if (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) {
             $_SESSION['pin_verified'] = false;
             unset($_SESSION['pin_last_activity']);
 
-            header("Location: " . BASE_PATH . "enotf/lockscreen.php");
+            header("Location: " . EnotfUrl::page('lockscreen'));
             exit();
         }
 

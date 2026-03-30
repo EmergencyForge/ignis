@@ -20,6 +20,7 @@ require_once __DIR__ . '/../../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
 
+use App\Helpers\EnotfUrl;
 $daten = array();
 
 if (isset($_GET['enr'])) {
@@ -211,15 +212,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     <div class="row" style="margin-left: 0">
                         <?php if (!$ist_freigegeben) : ?>
                             <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/1.php?enr=<?= $daten['enr'] ?>" data-requires="ebesonderheiten">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '1') ?>" data-requires="ebesonderheiten">
                                     <span>Einsatzverlauf Besonderheiten</span>
                                 </a>
                                 <?php if ($daten['prot_by'] != 1) : ?>
-                                    <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/2.php?enr=<?= $daten['enr'] ?>" data-requires="na_nachf">
+                                    <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '2') ?>" data-requires="na_nachf">
                                         <span>Nachforderung NA</span>
                                     </a>
                                 <?php endif; ?>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/3.php?enr=<?= $daten['enr'] ?>">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '3') ?>">
                                     <span>Übergabe</span>
                                 </a>
                                 <a href="#" onclick="sendPatientToDispatch(event)" id="btn-send-patient">
@@ -394,7 +395,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/abschluss/3.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '3') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1">Übergabe</h5>
                                         <div class="col">
                                             <?php
@@ -415,7 +416,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/abschluss/1.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '1') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1 edivi__group-check">Einsatzverlauf</h5>
                                         <div class="col">
                                             <div class="row my-2">
@@ -431,7 +432,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </div>
                     </div>
                     <?php if (!$ist_freigegeben) : ?>
-                        <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/freigabe.php?enr=<?= $daten['enr'] ?>" id="abschluss__btn">Abschließen</a>
+                        <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', 'freigabe') ?>" id="abschluss__btn">Abschließen</a>
                     <?php endif; ?>
                 </div>
             </div>

@@ -20,6 +20,7 @@ require_once __DIR__ . '/../../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
 
+use App\Helpers\EnotfUrl;
 $daten = array();
 
 if (isset($_GET['enr'])) {
@@ -79,13 +80,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/1.php?enr=<?= $daten['enr'] ?>" data-requires="ebesonderheiten">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '1') ?>" data-requires="ebesonderheiten">
                                 <span>Einsatzverlauf Besonderheiten</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/2.php?enr=<?= $daten['enr'] ?>" data-requires="na_nachf" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '2') ?>" data-requires="na_nachf" class="active">
                                 <span>Nachforderung NA</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/abschluss/3.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '3') ?>">
                                 <span>Übergabe</span>
                             </a>
                             <a href="#" onclick="sendPatientToDispatch(event)" id="btn-send-patient">

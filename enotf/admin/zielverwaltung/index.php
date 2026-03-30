@@ -9,6 +9,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 }
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 use App\Helpers\Flash;
 
 if (!Permissions::check(['admin', 'edivi.view'])) {
@@ -110,7 +111,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
         <div class="modal fade" id="editFahrzeugModal" tabindex="-1" aria-labelledby="editFahrzeugModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>enotf/admin/zielverwaltung/update.php" method="POST">
+                    <form action="<?= EnotfUrl::adminZielverwaltung('update') ?>" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editFahrzeugModalLabel">Ziel bearbeiten</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -154,7 +155,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                         </div>
                     </form>
 
-                    <form id="delete-fahrzeug-form" action="<?= BASE_PATH ?>enotf/admin/zielverwaltung/delete.php" method="POST" style="display:none;">
+                    <form id="delete-fahrzeug-form" action="<?= EnotfUrl::adminZielverwaltung('delete') ?>" method="POST" style="display:none;">
                         <input type="hidden" name="id" id="fahrzeug-delete-id">
                     </form>
 
@@ -168,7 +169,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
         <div class="modal fade" id="createFahrzeugModal" tabindex="-1" aria-labelledby="createFahrzeugModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>enotf/admin/zielverwaltung/create.php" method="POST">
+                    <form action="<?= EnotfUrl::adminZielverwaltung('create') ?>" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createFahrzeugModalLabel">Neues Ziel anlegen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>

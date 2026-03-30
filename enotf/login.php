@@ -18,6 +18,8 @@ require __DIR__ . '/../assets/config/database.php';
 require_once __DIR__ . '/../assets/functions/enotf/user_auth_middleware.php';
 require_once __DIR__ . '/../assets/functions/enotf/pin_middleware.php';
 
+use App\Helpers\EnotfUrl;
+
 $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
 
 date_default_timezone_set('Europe/Berlin');
@@ -44,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Charakter-Sperre: Name muss dem eigenen entsprechen
         if ($charLocked && $joinName !== $charName) {
-            header("Location: " . BASE_PATH . "enotf/login.php?error=char_mismatch");
+            header("Location: " . EnotfUrl::page('login', ['error' => 'char_mismatch']));
             exit();
         }
 
@@ -105,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Eigener Name muss in mindestens einer Position stehen
             $hasOwnName = in_array($charName, $submittedNames, true);
             if (!$hasOwnName) {
-                header("Location: " . BASE_PATH . "enotf/login.php?error=char_mismatch");
+                header("Location: " . EnotfUrl::page('login', ['error' => 'char_mismatch']));
                 exit();
             }
         }

@@ -19,6 +19,7 @@ require_once __DIR__ . '/../../assets/functions/enotf/user_auth_middleware.php';
 require_once __DIR__ . '/../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 
 $daten = array();
 
@@ -38,7 +39,7 @@ if (isset($_GET['enr'])) {
     if (isset($_SESSION['klinik_access_enr'])) {
         if ($_SESSION['klinik_access_enr'] !== $_GET['enr']) {
             // Zugriff auf anderes Protokoll als freigegeben - nicht erlaubt
-            header("Location: " . BASE_PATH . "enotf/schnittstelle/klinikcode.php");
+            header("Location: " . EnotfUrl::schnittstelle('klinikcode'));
             exit();
         }
 
@@ -46,7 +47,7 @@ if (isset($_GET['enr'])) {
         if ($daten['freigegeben'] != 1) {
             unset($_SESSION['klinik_access_enr']);
             unset($_SESSION['klinik_access_time']);
-            header("Location: " . BASE_PATH . "enotf/schnittstelle/klinikcode.php");
+            header("Location: " . EnotfUrl::schnittstelle('klinikcode'));
             exit();
         }
     }
@@ -65,7 +66,7 @@ $daten['last_edit'] = !empty($daten['last_edit']) ? (new DateTime($daten['last_e
 
 $enr = $daten['enr'];
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/protokoll/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . rtrim(EnotfUrl::protokoll($enr), '/');
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');

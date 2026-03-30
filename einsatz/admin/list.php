@@ -87,6 +87,9 @@ try {
                         <a href="<?= BASE_PATH ?>einsatz/admin/list.php?show_archived=1" class="btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
                     </div>
                     <a href="<?= BASE_PATH ?>einsatz/create.php" class="btn btn-success"><i class="fa-solid fa-plus"></i> Neu</a>
+                    <button onclick="showBulkDeleteModal()" class="btn btn-outline-danger btn-sm">
+                        <i class="fa-solid fa-trash-can"></i> Protokolle löschen
+                    </button>
                 </div>
             </div>
         </div>
@@ -180,6 +183,31 @@ try {
         </div>
     </div>
 
+    <!-- Bulk Delete Modal -->
+    <div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="bulkDeleteModalLabel">Einsatzprotokolle löschen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="bulkDeleteContent">
+                    <div class="d-flex justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Laden...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" id="bulkDeleteFooter" style="display: none;">
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-ghost-danger" onclick="executeBulkDelete()">
+                        <i class="fa-solid fa-trash"></i> Jetzt löschen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
     <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>
@@ -210,6 +238,277 @@ try {
                 }
             });
         });
+
+        // Bulk Delete Functions
+        window.showBulkDeleteModal = function() {
+            const modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
+
+            // Reset content and hide footer
+            document.getElementById('bulkDeleteContent').innerHTML = `
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Laden...</span>
+                    </div>
+                </div>
+            `;
+            document.getElementById('bulkDeleteFooter').style.display = 'none';
+
+            modal.show();
+
+            // Load available fields via AJAX
+            fetch('<?= BASE_PATH ?>api/fire/bulk-delete-empty.php')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.fields) {
+                        let fieldsHtml = '';
+                        for (const [key, label] of Object.entries(data.fields)) {
+                            const checked = key === 'location' ? 'checked' : '';
+                            fieldsHtml += `
+                                <div class="form-check">
+                                    <input class="form-check-input bulk-field-checkbox" type="checkbox" value="${key}" id="field_${key}" ${checked}>
+                                    <label class="form-check-label" for="field_${key}">
+                                        ${label}
+                                    </label>
+                                </div>
+                            `;
+                        }
+
+                        document.getElementById('bulkDeleteContent').innerHTML = `
+                            <div class="alert alert-info">
+                                <i class="fa-solid fa-circle-info"></i>
+                                <strong>Felder auswählen</strong>
+                                <p class="mb-0 mt-2">Wählen Sie die Felder aus, die leer sein müssen, damit ein Protokoll gelöscht wird. Alle ausgewählten Bedingungen müssen zutreffen.</p>
+                            </div>
+                            <form id="bulkDeleteFieldsForm">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Zeitraum:</label>
+                                        <select class="form-select" id="timePeriod">
+                                            <option value="7">Letzte 7 Tage</option>
+                                            <option value="30" selected>Letzte 30 Tage</option>
+                                            <option value="90">Letzte 90 Tage</option>
+                                            <option value="180">Letzte 180 Tage</option>
+                                            <option value="all">Insgesamt (alle Protokolle)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Status:</label>
+                                        <select class="form-select" id="statusFilter">
+                                            <option value="all" selected>Alle</option>
+                                            <option value="unfinalized">Nur unfertige</option>
+                                            <option value="finalized">Nur abgeschlossene</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
+                                    ${fieldsHtml}
+                                </div>
+                                <button type="button" class="btn btn-soft-primary" onclick="previewBulkDelete()">
+                                    <i class="fa-solid fa-search"></i> Vorschau anzeigen
+                                </button>
+                            </form>
+                        `;
+                    } else {
+                        document.getElementById('bulkDeleteContent').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fa-solid fa-exclamation-circle"></i>
+                                Fehler: ${data.message || 'Unbekannter Fehler'}
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('bulkDeleteContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fa-solid fa-exclamation-circle"></i>
+                            Fehler: ${error.message}
+                        </div>
+                    `;
+                });
+        };
+
+        window.previewBulkDelete = function() {
+            const checkboxes = document.querySelectorAll('.bulk-field-checkbox:checked');
+            const selectedFields = Array.from(checkboxes).map(cb => cb.value);
+            const timePeriod = document.getElementById('timePeriod').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            if (selectedFields.length === 0) {
+                showToast('Bitte wählen Sie mindestens ein Feld aus.', 'warning');
+                return;
+            }
+
+            document.getElementById('bulkDeleteContent').innerHTML = `
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Lade Vorschau...</span>
+                    </div>
+                </div>
+            `;
+
+            const formData = new FormData();
+            selectedFields.forEach(field => formData.append('fields[]', field));
+            formData.append('preview', '1');
+            formData.append('timePeriod', timePeriod);
+            formData.append('statusFilter', statusFilter);
+
+            fetch('<?= BASE_PATH ?>api/fire/bulk-delete-empty.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.count === 0) {
+                            document.getElementById('bulkDeleteContent').innerHTML = `
+                                <div class="alert alert-info">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                    <strong>Keine passenden Protokolle gefunden</strong>
+                                    <p class="mb-0 mt-2">Es wurden keine Protokolle gefunden, die alle ausgewählten Kriterien erfüllen.</p>
+                                </div>
+                                <button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()">
+                                    <i class="fa-solid fa-arrow-left"></i> Zurück
+                                </button>
+                            `;
+                        } else {
+                            let protocolsList = data.protocols.map(p => {
+                                const date = new Date(p.created_at);
+                                const dateStr = date.toLocaleDateString('de-DE') + ' ' + date.toLocaleTimeString('de-DE', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                });
+                                const statusBadge = p.finalized == 1
+                                    ? '<span class="badge text-bg-success">Abgeschlossen</span>'
+                                    : '<span class="badge text-bg-secondary">Unfertig</span>';
+                                return `
+                                    <tr>
+                                        <td>${p.incident_number || '<em>-</em>'}</td>
+                                        <td>${p.location || '<em>-</em>'}</td>
+                                        <td>${p.keyword || '<em>-</em>'}</td>
+                                        <td>${p.leader_name || '<em>-</em>'}</td>
+                                        <td>${dateStr}</td>
+                                        <td>${statusBadge}</td>
+                                    </tr>
+                                `;
+                            }).join('');
+
+                            document.getElementById('bulkDeleteContent').innerHTML = `
+                                <div class="alert alert-warning">
+                                    <i class="fa-solid fa-exclamation-triangle"></i>
+                                    <strong>Achtung!</strong>
+                                    <p class="mb-0 mt-2">Es wurden <strong>${data.count} Protokoll(e)</strong> gefunden, die archiviert werden.</p>
+                                    <p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p>
+                                </div>
+                                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                                    <table class="table table-sm table-striped">
+                                        <thead class="sticky-top bg-dark">
+                                            <tr>
+                                                <th>Einsatznummer</th>
+                                                <th>Ort</th>
+                                                <th>Stichwort</th>
+                                                <th>Leiter</th>
+                                                <th>Angelegt am</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${protocolsList}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            `;
+                            document.getElementById('bulkDeleteFooter').style.display = 'flex';
+
+                            // Store selected fields and filters for deletion
+                            window.bulkDeleteSelectedFields = selectedFields;
+                            window.bulkDeleteTimePeriod = timePeriod;
+                            window.bulkDeleteStatusFilter = statusFilter;
+                        }
+                    } else {
+                        document.getElementById('bulkDeleteContent').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fa-solid fa-exclamation-circle"></i>
+                                Fehler: ${data.message || 'Unbekannter Fehler'}
+                            </div>
+                            <button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()">
+                                <i class="fa-solid fa-arrow-left"></i> Zurück
+                            </button>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('bulkDeleteContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fa-solid fa-exclamation-circle"></i>
+                            Fehler: ${error.message}
+                        </div>
+                        <button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()">
+                            <i class="fa-solid fa-arrow-left"></i> Zurück
+                        </button>
+                    `;
+                });
+        };
+
+        window.executeBulkDelete = function() {
+            const deleteButton = event.target.closest('button');
+            const originalText = deleteButton.innerHTML;
+
+            if (!window.bulkDeleteSelectedFields || window.bulkDeleteSelectedFields.length === 0) {
+                showToast('Keine Felder ausgewählt', 'warning');
+                return;
+            }
+
+            deleteButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Lösche...';
+            deleteButton.disabled = true;
+
+            const formData = new FormData();
+            window.bulkDeleteSelectedFields.forEach(field => formData.append('fields[]', field));
+            formData.append('timePeriod', window.bulkDeleteTimePeriod || '30');
+            formData.append('statusFilter', window.bulkDeleteStatusFilter || 'all');
+
+            fetch('<?= BASE_PATH ?>api/fire/bulk-delete-empty.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('bulkDeleteContent').innerHTML = `
+                            <div class="alert alert-success">
+                                <i class="fa-solid fa-check-circle"></i>
+                                <strong>Erfolgreich!</strong>
+                                <p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich archiviert.</p>
+                            </div>
+                        `;
+                        document.getElementById('bulkDeleteFooter').style.display = 'none';
+
+                        // Reload the page after 2 seconds
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    } else {
+                        document.getElementById('bulkDeleteContent').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fa-solid fa-exclamation-circle"></i>
+                                Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}
+                            </div>
+                        `;
+                        deleteButton.innerHTML = originalText;
+                        deleteButton.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('bulkDeleteContent').innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fa-solid fa-exclamation-circle"></i>
+                            Fehler beim Löschen: ${error.message}
+                        </div>
+                    `;
+                    deleteButton.innerHTML = originalText;
+                    deleteButton.disabled = false;
+                });
+        };
     </script>
     <?php include __DIR__ . '/../../assets/components/footer.php'; ?>
 </body>

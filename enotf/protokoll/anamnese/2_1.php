@@ -20,6 +20,7 @@ require_once __DIR__ . '/../../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
 
+use App\Helpers\EnotfUrl;
 $daten = array();
 
 if (isset($_GET['enr'])) {
@@ -48,7 +49,7 @@ $daten['last_edit'] = !empty($daten['last_edit']) ? (new DateTime($daten['last_e
 
 $enr = $daten['enr'];
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/protokoll/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . rtrim(EnotfUrl::protokoll($enr), '/');
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
@@ -79,21 +80,21 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/1.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '1') ?>">
                                 <span>Anamnese</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2.php?enr=<?= $daten['enr'] ?>" data-requires="naca_initial" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '2') ?>" data-requires="naca_initial" class="active">
                                 <span>Symptome</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/3.php?enr=<?= $daten['enr'] ?>" data-requires="elokation">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '3') ?>" data-requires="elokation">
                                 <span>Einsatzort</span>
                             </a>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_1.php?enr=<?= $daten['enr'] ?>" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '2_1') ?>" class="active">
                                 <span>Symptombeginn</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/anamnese/2_2.php?enr=<?= $daten['enr'] ?>" data-requires="naca_initial">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '2_2') ?>" data-requires="naca_initial">
                                 <span>NACA</span>
                             </a>
                         </div>

@@ -20,6 +20,7 @@ require_once __DIR__ . '/../../../assets/functions/enotf/pin_middleware.php';
 
 use App\Auth\Permissions;
 
+use App\Helpers\EnotfUrl;
 $daten = array();
 
 if (isset($_GET['enr'])) {
@@ -48,7 +49,7 @@ $daten['last_edit'] = !empty($daten['last_edit']) ? (new DateTime($daten['last_e
 
 $enr = $daten['enr'];
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/protokoll/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . rtrim(EnotfUrl::protokoll($enr), '/');
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
@@ -79,76 +80,76 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1.php?enr=<?= $daten['enr'] ?>" data-requires="diagnose_haupt" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1') ?>" data-requires="diagnose_haupt" class="active">
                                 <span>Diagnose (führend)</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/2.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '2') ?>">
                                 <span>Diagnose (weitere)</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/3.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '3') ?>">
                                 <span>Diagnose Text</span>
                             </a>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_1.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_1') ?>">
                                 <span>ZNS</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_2.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_2') ?>">
                                 <span>Herz-Kreislauf</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_3.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_3') ?>">
                                 <span>Atemwege</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_4.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_4') ?>">
                                 <span>Abdomen</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_5.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_5') ?>">
                                 <span>Psychiatrie</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_6.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_6') ?>">
                                 <span>Stoffwechsel</span>
                             </a>
 
 
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_9.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_9') ?>">
                                 <span>Sonstige</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10.php?enr=<?= $daten['enr'] ?>" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10') ?>" class="active">
                                 <span>Trauma</span>
                             </a>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_1.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_1') ?>">
                                 <span>Schädel-Hirn</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_2.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_2') ?>">
                                 <span>Gesicht</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_3.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_3') ?>">
                                 <span>HWS</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_4.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_4') ?>">
                                 <span>Thorax</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_5.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_5') ?>">
                                 <span>Abdomen</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_6.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_6') ?>">
                                 <span>BWS / LWS</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_7.php?enr=<?= $daten['enr'] ?>" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_7') ?>" class="active">
                                 <span>Becken</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_8.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_8') ?>">
                                 <span>obere Extremitäten</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_9.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_9') ?>">
                                 <span>untere Extremitäten</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_10.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_10') ?>">
                                 <span>Weichteile</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/diagnose/1_10_11.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_10_11') ?>">
                                 <span>spezielle</span>
                             </a>
                         </div>

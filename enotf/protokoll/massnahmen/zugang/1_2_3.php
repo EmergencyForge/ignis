@@ -21,6 +21,7 @@ require_once __DIR__ . '/../../../../assets/functions/enotf/zugang_helpers.php';
 
 use App\Auth\Permissions;
 
+use App\Helpers\EnotfUrl;
 $daten = array();
 
 if (isset($_GET['enr'])) {
@@ -49,7 +50,7 @@ $daten['last_edit'] = !empty($daten['last_edit']) ? (new DateTime($daten['last_e
 
 $enr = $daten['enr'];
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/protokoll/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . rtrim(EnotfUrl::protokoll($enr), '/');
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
@@ -82,24 +83,24 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/atemwege/index.php?enr=<?= $daten['enr'] ?>" data-requires="awsicherung_neu">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atemwege') ?>" data-requires="awsicherung_neu">
                                 <span>Atemwege</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/atmung/index.php?enr=<?= $daten['enr'] ?>" data-requires="b_beatmung">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atmung') ?>" data-requires="b_beatmung">
                                 <span>Atmung</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/index.php?enr=<?= $daten['enr'] ?>" data-requires="c_zugang" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang') ?>" data-requires="c_zugang" class="active">
                                 <span>Zugang</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/medikamente/index.php?enr=<?= $daten['enr'] ?>" data-requires="medis">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'medikamente') ?>" data-requires="medis">
                                 <span>Medikamente</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/weitere/index.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'weitere') ?>">
                                 <span>Weitere</span>
                             </a>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/1.php?enr=<?= $daten['enr'] ?>" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1') ?>" class="active">
                                 <span>Zugang</span>
                             </a>
                             <input type="checkbox" class="btn-check" id="c_zugang-0" name="c_zugang" value="0"
@@ -108,27 +109,27 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
                             <label for="c_zugang-0">Kein Zugang</label>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/1_1.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1_1') ?>">
                                 <span>PVK</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/1_2.php?enr=<?= $daten['enr'] ?>" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1_2') ?>" class="active">
                                 <span>intraossär</span>
                             </a>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/1_2_1.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1_2_1') ?>">
                                 <span>Tibia proximal</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/1_2_3.php?enr=<?= $daten['enr'] ?>" class="active">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1_2_3') ?>" class="active">
                                 <span>Tibia distal</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/1_2_2.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1_2_2') ?>">
                                 <span>Humerus proximal</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/1_2_4.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1_2_4') ?>">
                                 <span>Sternum</span>
                             </a>
-                            <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/1_2_5.php?enr=<?= $daten['enr'] ?>">
+                            <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1_2_5') ?>">
                                 <span>anderer Ort</span>
                             </a>
                         </div>

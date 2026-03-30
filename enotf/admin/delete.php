@@ -9,13 +9,14 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 }
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 use App\Helpers\Flash;
 use App\Utils\AuditLogger;
 use App\Notifications\NotificationManager;
 
 if (!Permissions::check(['admin', 'edivi.edit'])) {
     Flash::set('error', 'no-permissions');
-    header("Location: " . BASE_PATH . "enotf/admin/list.php");
+    header("Location: " . EnotfUrl::admin('list'));
 }
 
 $userid = $_SESSION['userid'];
@@ -48,7 +49,7 @@ if ($protocol && !empty($protocol['pfname'])) {
                 'protokoll',
                 "Ihr Protokoll #{$protocol['enr']} wurde ausgeblendet",
                 "Das Protokoll wurde vom QM-Team ausgeblendet.",
-                BASE_PATH . "enotf/overview.php"
+                EnotfUrl::page('overview')
             );
         }
     } catch (Exception $e) {
@@ -56,5 +57,5 @@ if ($protocol && !empty($protocol['pfname'])) {
     }
 }
 
-header("Location: " . BASE_PATH . "enotf/admin/list.php");
+header("Location: " . EnotfUrl::admin('list'));
 exit;
