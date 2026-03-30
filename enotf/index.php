@@ -13,11 +13,14 @@ if (strpos($userAgent, 'CitizenFX') !== false) {
     // KEIN neuer CSP wird gesetzt!
 }
 require_once __DIR__ . '/../assets/config/config.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use App\Helpers\EnotfUrl;
 
 if (isset($_SESSION['fahrername']) && isset($_SESSION['protfzg'])) {
-    header("Location: " . BASE_PATH . "enotf/overview.php");
+    header("Location: " . EnotfUrl::page('overview'));
     exit();
 } else {
-    header("Location: " . BASE_PATH . "enotf/loggedout.php");
+    header("Location: " . EnotfUrl::page('loggedout'));
     exit();
 }

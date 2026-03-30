@@ -4,6 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
     require_once __DIR__ . '/../../config/config.php';
 }
 
+use App\Helpers\EnotfUrl;
+
 if (defined('ENOTF_REQUIRE_USER_AUTH') && ENOTF_REQUIRE_USER_AUTH === true) {
 
     $user_authenticated = isset($_SESSION['userid']) && !empty($_SESSION['userid']);
@@ -31,7 +33,7 @@ if (defined('ENOTF_REQUIRE_USER_AUTH') && ENOTF_REQUIRE_USER_AUTH === true) {
         ) {
             // After authentication, user should go to eNOTF login to enter crew info
             // Using BASE_PATH constant to ensure safe redirect within application
-            $_SESSION['redirect_url'] = BASE_PATH . 'enotf/login.php';
+            $_SESSION['redirect_url'] = EnotfUrl::page('login');
         }
 
         header("Location: " . BASE_PATH . "login.php?redirect=enotf");

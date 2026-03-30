@@ -1,6 +1,7 @@
 <?php
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 ?>
 
 <!-- QM Modals - Include this component where topbar.php is used -->

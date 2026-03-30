@@ -11,6 +11,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 }
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 use App\Helpers\Flash;
 
 if (!Permissions::check(['admin', 'edivi.view'])) {
@@ -155,7 +156,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                     if ($isFederated) {
                                         $actions = "<span style='font-size:var(--fs-xs);color:var(--text-dimmed);'>read-only</span>";
                                     } elseif (Permissions::check(['admin', 'edivi.edit'])) {
-                                        $actions = "<button title='QM-Aktionen öffnen' onclick='openQMActions({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-soft-primary'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-outline-secondary'><i class='fa-solid fa-clock-rotate-left'></i></button> <a title='Protokoll löschen' href='" . BASE_PATH . "enotf/admin/delete.php?id={$row['id']}' class='btn btn-sm btn-outline-danger btn-icon'><i class='fa-solid fa-trash'></i></a>";
+                                        $actions = "<button title='QM-Aktionen öffnen' onclick='openQMActions({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-soft-primary'><i class='fa-solid fa-exclamation'></i></button> <button title='QM-Log öffnen' onclick='openQMLog({$row['id']}, \"{$row['enr']}\", \"" . htmlspecialchars($row['patname'] ?? 'Unbekannt') . "\")' class='btn btn-sm btn-outline-secondary'><i class='fa-solid fa-clock-rotate-left'></i></button> <a title='Protokoll löschen' href='" . EnotfUrl::admin('delete', ['id' => $row['id']]) . "' class='btn btn-sm btn-outline-danger btn-icon'><i class='fa-solid fa-trash'></i></a>";
                                     }
                                     echo "<tr" . ($isFederated ? " style='opacity:0.85;'" : "") . ">";
                                     echo "<td>" . htmlspecialchars($row['enr'] ?? '') . $fedBadge . "</td>";
@@ -166,7 +167,7 @@ if (!Permissions::check(['admin', 'edivi.view'])) {
                                     if ($isFederated) {
                                         echo "<td>{$actions}</td>";
                                     } else {
-                                        echo "<td><a title='Protokoll ansehen' href='" . BASE_PATH . "enotf/protokoll/index.php?enr={$row['enr']}' class='btn btn-sm btn-soft-primary' target='_blank'><i class='fa-solid fa-eye'></i></a> {$actions}</td>";
+                                        echo "<td><a title='Protokoll ansehen' href='" . EnotfUrl::protokoll($row['enr']) . "' class='btn btn-sm btn-soft-primary' target='_blank'><i class='fa-solid fa-eye'></i></a> {$actions}</td>";
                                     }
                                     echo "</tr>";
                                 }

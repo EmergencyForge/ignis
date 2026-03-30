@@ -17,6 +17,7 @@ require __DIR__ . '/../assets/config/database.php';
 
 use App\Auth\Permissions;
 use App\Helpers\Redirects;
+use App\Helpers\EnotfUrl;
 
 // Hospital availability is publicly accessible (no login required)
 // If a user is logged in, check their permissions
@@ -109,7 +110,7 @@ $status_config = [
 ];
 
 // Default redirect URL for back button
-$defaultUrl = BASE_PATH . "enotf/overview.php";
+$defaultUrl = EnotfUrl::page('overview');
 ?>
 
 <!DOCTYPE html>

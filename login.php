@@ -2,12 +2,14 @@
 require_once __DIR__ . '/assets/config/config.php';
 require_once __DIR__ . '/assets/config/database.php';
 
+use App\Helpers\EnotfUrl;
+
 // Session wird bereits durch config.php gestartet (SessionManager)
 
 if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
     // Check if there's an eNOTF redirect pending
     if (isset($_GET['redirect']) && $_GET['redirect'] === 'enotf') {
-        header('Location: ' . BASE_PATH . 'enotf/login.php');
+        header('Location: ' . EnotfUrl::page('login'));
         exit;
     }
     header('Location: ' . BASE_PATH . 'index.php');
@@ -17,7 +19,7 @@ if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
 // Preserve redirect parameter in session for OAuth flow
 if (isset($_GET['redirect']) && $_GET['redirect'] === 'enotf') {
     if (!isset($_SESSION['redirect_url']) || empty($_SESSION['redirect_url'])) {
-        $_SESSION['redirect_url'] = BASE_PATH . 'enotf/login.php';
+        $_SESSION['redirect_url'] = EnotfUrl::page('login');
     }
 }
 
