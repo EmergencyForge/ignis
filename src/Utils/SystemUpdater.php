@@ -863,15 +863,20 @@ class SystemUpdater
      */
     private function findComposerExecutable(): ?string
     {
-        // Try absolute paths first using is_executable for security
+        // Try absolute paths first, but only if open_basedir allows access
         $absolutePaths = [
             '/usr/local/bin/composer',
             '/usr/bin/composer'
         ];
 
         foreach ($absolutePaths as $path) {
-            if (file_exists($path) && is_executable($path)) {
-                return $path;
+            try {
+                if (@file_exists($path) && @is_executable($path)) {
+                    return $path;
+                }
+            } catch (\Exception $e) {
+                // open_basedir restriction — skip this path
+                continue;
             }
         }
 
@@ -897,10 +902,10 @@ class SystemUpdater
                     $execPath = trim($output[0]);
 
                     // Use realpath to resolve any symlinks and path traversal
-                    $realPath = realpath($execPath);
+                    $realPath = @realpath($execPath);
 
                     // Verify it's a real file, executable, and in safe directories
-                    if ($realPath && file_exists($realPath) && is_executable($realPath)) {
+                    if ($realPath && @file_exists($realPath) && @is_executable($realPath)) {
                         if ($isWindows) {
                             // Windows: Check for common composer installation paths
                             $safePaths = ['C:\\ProgramData\\ComposerSetup\\', 'C:\\composer\\', 'C:\\tools\\'];
