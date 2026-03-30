@@ -674,7 +674,15 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                 .catch(() => {});
         })();
 
+        var importDidChange = false;
+
+        // Reload page when modal closes if vehicles were imported/changed
+        document.getElementById('vehicleImportModal').addEventListener('hidden.bs.modal', function() {
+            if (importDidChange) location.reload();
+        });
+
         window.openVehicleImport = function() {
+            importDidChange = false;
             const modal = new bootstrap.Modal(document.getElementById('vehicleImportModal'));
             const body = document.getElementById('importModalBody');
             body.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-border" role="status"></div></div>';
@@ -1004,6 +1012,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                         }, 200);
                         setTimeout(() => { row.remove(); updateProgress(); }, 500);
 
+                        if (action !== 'ignore') importDidChange = true;
                         const actionLabel = {import: 'importiert', overwrite: 'überschrieben', merge: 'zusammengeführt', ignore: 'ignoriert'};
                         showToast(data.message || `Fahrzeug ${actionLabel[action] || 'verarbeitet'}`, action === 'ignore' ? 'info' : 'success');
                     } else {
