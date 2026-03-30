@@ -112,6 +112,7 @@ class SystemUpdater
                 'release_notes' => $latestRelease['body'] ?? 'Keine Release-Notizen verfügbar.',
                 'published_at' => $latestRelease['published_at'] ?? null,
                 'download_url' => $downloadUrl,
+                'download_url_fallback' => $latestRelease['zipball_url'] ?? null,
                 'html_url' => $latestRelease['html_url'] ?? null,
                 'is_prerelease' => $isLatestPreRelease,
                 'has_release_asset' => $hasReleaseAsset
@@ -223,7 +224,10 @@ class SystemUpdater
             $isValidZipball = preg_match('#^https://api\.github\.com/repos/' . preg_quote($this->githubRepo, '#') . '/zipball/#', $downloadUrl);
             $isValidAsset = preg_match('#^https://github\.com/' . preg_quote($this->githubRepo, '#') . '/releases/download/#', $downloadUrl);
             if (!$isValidZipball && !$isValidAsset) {
-                throw new Exception('Ungültige Download-URL. Updates können nur von GitHub heruntergeladen werden.');
+                // Backwards compatibility: old updater versions only accept zipball URLs.
+                // If this is a release asset URL that fails validation on an old install,
+                // the calling code should retry with download_url_fallback (zipball_url).
+                throw new Exception('Ungültige Download-URL. Updates können nur von GitHub heruntergeladen werden. URL: ' . substr($downloadUrl, 0, 100));
             }
             $isReleaseAsset = (bool)$isValidAsset;
 
