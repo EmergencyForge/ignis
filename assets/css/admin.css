@@ -1550,15 +1550,19 @@ td.dt-empty {
 .inline-edit-cell.inline-editing {
   padding: 0;
   cursor: default;
-}
-.inline-edit-cell.inline-editing:hover::after {
-  content: none;
+  outline: none;
 }
 .inline-edit-cell.inline-editing .form-control, .inline-edit-cell.inline-editing .form-select {
-  font-size: inherit;
-  padding: 2px 6px;
+  font-size: var(--font-size-sm, 0.82rem);
+  padding: 4px 8px;
   height: auto;
   min-height: unset;
+  background-color: var(--body-bg-darker, #232128);
+  color: var(--text-normal, #bbbac1);
+  border-color: var(--main-color, #d10000);
+}
+.inline-edit-cell.inline-editing .form-select {
+  padding-right: 28px;
 }
 .inline-edit-cell.inline-saving {
   opacity: 0.5;
