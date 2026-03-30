@@ -20,7 +20,17 @@ if (!isset($showPreview)) {
 
 <div class="tactical-symbol-fields">
     <hr>
-    <h6 class="mb-3">Taktisches Zeichen</h6>
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h6 class="mb-0">Taktisches Zeichen</h6>
+        <div class="d-flex gap-2">
+            <select class="form-select form-select-sm" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
+                <option value="">Vorlage laden...</option>
+            </select>
+            <button type="button" class="btn btn-ghost btn-sm" id="<?= $prefix ?>tz-save-template-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
+                <i class="fa-solid fa-floppy-disk"></i>
+            </button>
+        </div>
+    </div>
 
     <?php if ($showPreview): ?>
         <div class="mb-3">
@@ -238,3 +248,96 @@ if (!isset($showPreview)) {
         });
     </script>
 <?php endif; ?>
+
+<script>
+(function() {
+    const prefix = '<?= $prefix ?>';
+    const tzFields = ['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 'typ', 'text'];
+    const TZ_API = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '<?= BASE_PATH ?>') + 'api/vehicles/tz-templates.php';
+    const select = document.getElementById(prefix + 'tz-template-select');
+    const saveBtn = document.getElementById(prefix + 'tz-save-template-btn');
+
+    // Vorlagen laden
+    function loadTemplates() {
+        fetch(TZ_API + '?action=list')
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) return;
+                // Optionen nach der ersten (Placeholder) entfernen
+                while (select.options.length > 1) select.remove(1);
+                data.templates.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t.id;
+                    opt.textContent = t.name;
+                    // Template-Daten als JSON im data-Attribut speichern
+                    opt.dataset.tz = JSON.stringify(t);
+                    select.appendChild(opt);
+                });
+            })
+            .catch(() => {});
+    }
+
+    // Vorlage anwenden wenn ausgewählt
+    select.addEventListener('change', function() {
+        if (!this.value) return;
+        const opt = this.options[this.selectedIndex];
+        const t = JSON.parse(opt.dataset.tz || '{}');
+        tzFields.forEach(field => {
+            const el = document.getElementById(prefix + field);
+            if (el && t[field] !== undefined) el.value = t[field] || '';
+        });
+        // tz_name wird NICHT überschrieben (bleibt individuell)
+        // Vorschau triggern
+        document.getElementById(prefix + 'preview-btn')?.click();
+        // Dropdown zurücksetzen
+        this.value = '';
+    });
+
+    // Als Vorlage speichern
+    saveBtn.addEventListener('click', function() {
+        const grundzeichen = document.getElementById(prefix + 'grundzeichen')?.value;
+        if (!grundzeichen) {
+            if (typeof showToast === 'function') showToast('Grundzeichen muss gesetzt sein um eine Vorlage zu speichern.', 'warning');
+            return;
+        }
+
+        // Vorlagename abfragen
+        const typField = document.getElementById(prefix + 'typ')?.value || '';
+        const defaultName = typField || 'Neue Vorlage';
+
+        if (typeof showPrompt === 'function') {
+            showPrompt('Name der Vorlage:', { defaultValue: defaultName, title: 'TZ-Vorlage speichern' })
+                .then(name => { if (name) doSaveTemplate(name); });
+        } else {
+            const name = prompt('Name der Vorlage:', defaultName);
+            if (name) doSaveTemplate(name);
+        }
+    });
+
+    function doSaveTemplate(name) {
+        const fd = new FormData();
+        fd.append('action', 'save');
+        fd.append('name', name);
+        tzFields.forEach(field => {
+            fd.append(field, document.getElementById(prefix + field)?.value || '');
+        });
+
+        fetch(TZ_API, { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    if (typeof showToast === 'function') showToast(data.message, 'success');
+                    loadTemplates();
+                } else {
+                    if (typeof showToast === 'function') showToast(data.message, 'error');
+                }
+            })
+            .catch(err => {
+                if (typeof showToast === 'function') showToast(err.message, 'error');
+            });
+    }
+
+    // Initial laden (leicht verzögert damit DOM bereit ist)
+    setTimeout(loadTemplates, 200);
+})();
+</script>
