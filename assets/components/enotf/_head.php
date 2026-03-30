@@ -21,6 +21,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <script src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
 <script src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <!-- App scripts: defer to unblock rendering -->
+<script defer src="<?= BASE_PATH ?>assets/js/toasts.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>

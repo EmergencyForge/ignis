@@ -100,34 +100,28 @@ if (isset($_POST['new'])) {
         $zusatzqual = $_POST['zusatzqual'];
         $pfp = trim($_POST['pfp'] ?? '');
 
-        if (CHAR_ID) {
-            $charakterid = $_POST['charakterid'];
-            $stmt = $pdo->prepare("SELECT dienstgrad, fullname, gebdatum, charakterid, discordtag, telefonnr, dienstnr, qualird, qualifw2, geschlecht, zusatz, pfp FROM intra_mitarbeiter WHERE id = :id");
-        } else {
-            $stmt = $pdo->prepare("SELECT dienstgrad, fullname, gebdatum, discordtag, telefonnr, dienstnr, qualird, qualifw2, geschlecht, zusatz, pfp FROM intra_mitarbeiter WHERE id = :id");
-        }
+        $charakterid = CHAR_ID ? ($_POST['charakterid'] ?? '') : '';
 
+        $stmt = $pdo->prepare("SELECT * FROM intra_mitarbeiter WHERE id = :id");
         $stmt->execute(['id' => $id]);
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($data) {
-            $currentDienstgrad = $data['dienstgrad'];
-            $currentFullname = $data['fullname'];
-            $currentGebdatum = $data['gebdatum'];
-            if (CHAR_ID) {
-                $currentCharakterid = $data['charakterid'];
-            }
-            $currentDiscordtag = $data['discordtag'];
-            $currentTelefonnr = $data['telefonnr'];
-            $currentDienstnr = $data['dienstnr'];
-            $currentQualird = $data['qualird'];
-            $currentQualifw = $data['qualifw2'];
-            $currentGeschlecht = $data['geschlecht'];
-            $currentZusatzqual = $data['zusatz'];
-            $currentPfp = $data['pfp'];
-        } else {
+        if (!$data) {
             die("Kein Datensatz gefunden.");
         }
+
+        $currentDienstgrad = $data['dienstgrad'];
+        $currentFullname = $data['fullname'];
+        $currentGebdatum = $data['gebdatum'];
+        $currentCharakterid = $data['charakterid'] ?? '';
+        $currentDiscordtag = $data['discordtag'];
+        $currentTelefonnr = $data['telefonnr'];
+        $currentDienstnr = $data['dienstnr'];
+        $currentQualird = $data['qualird'];
+        $currentQualifw = $data['qualifw2'];
+        $currentGeschlecht = $data['geschlecht'];
+        $currentZusatzqual = $data['zusatz'];
+        $currentPfp = $data['pfp'];
 
         $rdMapping = array(
             0 => "Keine",
@@ -205,84 +199,39 @@ if (isset($_POST['new'])) {
             $logManager->logQualificationChange($id, 'FW', $cfginfo['name'], $nfginfo['name'], $edituser);
         }
 
-        if (CHAR_ID) {
-            $dataChanged = (
-                $currentFullname != $fullname ||
-                $currentGebdatum != $gebdatum ||
-                $currentCharakterid != $charakterid ||
-                $currentDiscordtag != $discordtag ||
-                $currentTelefonnr != $telefonnr ||
-                $currentDienstnr != $dienstnr ||
-                $currentGeschlecht != $geschlecht ||
-                $currentZusatzqual != $zusatzqual ||
-                $currentPfp != $pfp
-            );
-        } else {
-            $dataChanged = (
-                $currentFullname != $fullname ||
-                $currentGebdatum != $gebdatum ||
-                $currentDiscordtag != $discordtag ||
-                $currentTelefonnr != $telefonnr ||
-                $currentDienstnr != $dienstnr ||
-                $currentGeschlecht != $geschlecht ||
-                $currentZusatzqual != $zusatzqual ||
-                $currentPfp != $pfp
-            );
-        }
+        $dataChanged = (
+            $currentFullname != $fullname ||
+            $currentGebdatum != $gebdatum ||
+            $currentDiscordtag != $discordtag ||
+            $currentTelefonnr != $telefonnr ||
+            $currentDienstnr != $dienstnr ||
+            $currentGeschlecht != $geschlecht ||
+            $currentZusatzqual != $zusatzqual ||
+            $currentPfp != $pfp ||
+            (CHAR_ID && $currentCharakterid != $charakterid)
+        );
 
         if ($dataChanged) {
-            // Standardwert für pfp setzen, wenn leer
             if (empty($pfp)) {
                 $pfp = '/assets/img/empty_user.png';
             }
 
+            $setClauses = ['fullname = :fullname', 'gebdatum = :gebdatum', 'discordtag = :discordtag',
+                'telefonnr = :telefonnr', 'dienstnr = :dienstnr', 'geschlecht = :geschlecht',
+                'zusatz = :zusatzqual', 'pfp = :pfp'];
+            $params = [
+                'fullname' => $fullname, 'gebdatum' => $gebdatum, 'discordtag' => $discordtag,
+                'telefonnr' => $telefonnr, 'dienstnr' => $dienstnr, 'geschlecht' => $geschlecht,
+                'zusatzqual' => $zusatzqual, 'pfp' => $pfp, 'id' => $id
+            ];
             if (CHAR_ID) {
-                $stmt = $pdo->prepare("UPDATE intra_mitarbeiter 
-                           SET fullname = :fullname, 
-                               gebdatum = :gebdatum, 
-                               charakterid = :charakterid, 
-                               discordtag = :discordtag, 
-                               telefonnr = :telefonnr, 
-                               dienstnr = :dienstnr, 
-                               geschlecht = :geschlecht,
-                               zusatz = :zusatzqual,
-                               pfp = :pfp 
-                           WHERE id = :id");
-                $stmt->execute([
-                    'fullname' => $fullname,
-                    'gebdatum' => $gebdatum,
-                    'charakterid' => $charakterid,
-                    'discordtag' => $discordtag,
-                    'telefonnr' => $telefonnr,
-                    'dienstnr' => $dienstnr,
-                    'geschlecht' => $geschlecht,
-                    'zusatzqual' => $zusatzqual,
-                    'pfp' => $pfp,
-                    'id' => $id
-                ]);
-            } else {
-                $stmt = $pdo->prepare("UPDATE intra_mitarbeiter 
-                           SET fullname = :fullname, 
-                               gebdatum = :gebdatum, 
-                               discordtag = :discordtag, 
-                               telefonnr = :telefonnr, 
-                               dienstnr = :dienstnr, 
-                               geschlecht = :geschlecht,
-                               zusatz = :zusatzqual,
-                               pfp = :pfp 
-                           WHERE id = :id");
-                $stmt->execute([
-                    'fullname' => $fullname,
-                    'gebdatum' => $gebdatum,
-                    'discordtag' => $discordtag,
-                    'telefonnr' => $telefonnr,
-                    'dienstnr' => $dienstnr,
-                    'geschlecht' => $geschlecht,
-                    'zusatzqual' => $zusatzqual,
-                    'pfp' => $pfp,
-                    'id' => $id
-                ]);
+                $setClauses[] = 'charakterid = :charakterid';
+                $params['charakterid'] = $charakterid;
             }
+
+            $setStr = implode(', ', $setClauses);
+            $stmt = $pdo->prepare("UPDATE intra_mitarbeiter SET {$setStr} WHERE id = :id");
+            $stmt->execute($params);
 
             // Use PersonalLogManager for profile modification
             $logManager->logProfileModification($id, $edituser);
@@ -440,26 +389,71 @@ if (isset($_POST['new'])) {
                     <h1 class="mb-3">Mitarbeiterprofil</h1>
                     <?php
                     require __DIR__ . '/../assets/config/database.php';
-                    if (isset($row['discordtag'])) {
-                        $stmt = $pdo->prepare("SELECT u.id, u.username, COALESCE(m.fullname, u.fullname) as fullname, u.aktenid FROM intra_users u LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag WHERE u.discord_id = :discordtag");
+                    $accountStatus = 'none'; // none, pending, active
+                    $panelakte = null;
+                    $pendingInvite = null;
+
+                    if (isset($row['discordtag']) && !empty($row['discordtag'])) {
+                        // Check for linked user account
+                        $stmt = $pdo->prepare("SELECT u.id, u.username, COALESCE(m.fullname, u.fullname) as fullname, u.aktenid, u.is_active FROM intra_users u LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag WHERE u.discord_id = :discordtag");
                         $stmt->execute([':discordtag' => $row['discordtag']]);
-                        $num = $stmt->rowCount();
                         $panelakte = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                        if ($num != 0) {
-                    ?>
-                            <div class="alert alert-info" role="alert">
-                                <h5 class="fw-bold">Achtung!</h5>
-                                Dieses Mitarbeiterprofil gehört einem Funktionsträger - dieser besitzt ein registriertes Benutzerkonto im Intranet.<br>
-                                <?php if (Permissions::check(['admin', 'users.view'])) { ?>
-                                    <strong>Name u. Benutzername:</strong> <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= $panelakte['id'] ?>" class="text-decoration-none"><?= $panelakte['fullname'] ?> (<?= $panelakte['username'] ?>)</a>
-                                <?php } else { ?>
-                                    <strong>Name u. Benutzername:</strong> <?= $panelakte['fullname'] ?> (<?= $panelakte['username'] ?>)
-                                <?php } ?>
-                            </div>
-                    <?php
+                        if ($panelakte) {
+                            $accountStatus = $panelakte['is_active'] ? 'active' : 'inactive';
+                        } else {
+                            // Check for pending registration code (labeled with employee name)
+                            $pendingStmt = $pdo->prepare("SELECT id, code, label, expires_at FROM intra_registration_codes WHERE is_used = 0 AND label LIKE :label AND (expires_at IS NULL OR expires_at > NOW()) ORDER BY created_at DESC LIMIT 1");
+                            $pendingStmt->execute([':label' => '%' . $row['fullname'] . '%']);
+                            $pendingInvite = $pendingStmt->fetch(PDO::FETCH_ASSOC);
+                            $accountStatus = $pendingInvite ? 'pending' : 'none';
                         }
                     }
+                    ?>
+                    <div class="d-flex align-items-center gap-2 mb-3 px-3 py-2 rounded-2" style="background: var(--card-bg); border: 1px solid var(--border-color);">
+                        <span class="fw-semibold" style="font-size: var(--font-size-sm);">Konto-Status:</span>
+                        <?php if ($accountStatus === 'active'): ?>
+                            <span class="badge text-bg-success"><i class="fa-solid fa-circle-check me-1"></i>Konto aktiv</span>
+                            <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
+                                <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= $panelakte['id'] ?>" class="text-decoration-none" style="font-size: var(--font-size-sm);">
+                                    <?= htmlspecialchars($panelakte['fullname']) ?> (<?= htmlspecialchars($panelakte['username']) ?>)
+                                </a>
+                            <?php elseif ($panelakte): ?>
+                                <span style="font-size: var(--font-size-sm);"><?= htmlspecialchars($panelakte['fullname']) ?> (<?= htmlspecialchars($panelakte['username']) ?>)</span>
+                            <?php endif; ?>
+                        <?php elseif ($accountStatus === 'inactive'): ?>
+                            <span class="badge text-bg-secondary"><i class="fa-solid fa-circle-minus me-1"></i>Konto deaktiviert</span>
+                            <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
+                                <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= $panelakte['id'] ?>" class="text-decoration-none" style="font-size: var(--font-size-sm);">
+                                    <?= htmlspecialchars($panelakte['username']) ?>
+                                </a>
+                            <?php endif; ?>
+                        <?php elseif ($accountStatus === 'pending'): ?>
+                            <span class="badge text-bg-warning"><i class="fa-solid fa-clock me-1"></i>Einladung ausstehend</span>
+                            <?php if ($pendingInvite && $pendingInvite['expires_at']): ?>
+                                <span style="font-size: var(--font-size-xs); opacity: 0.7;">Läuft ab: <?= (new DateTime($pendingInvite['expires_at']))->format('d.m.Y H:i') ?></span>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <span class="badge text-bg-dark" style="opacity: 0.6;"><i class="fa-solid fa-circle-xmark me-1"></i>Kein Konto</span>
+                            <?php if (Permissions::check(['admin', 'users.create'])): ?>
+                                <button type="button" class="btn btn-soft-primary btn-sm" id="generateInviteBtn" style="font-size: var(--font-size-xs);" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
+                                    <i class="fa-solid fa-paper-plane me-1"></i>Einladen
+                                </button>
+                                <span id="inviteResult" style="font-size: var(--font-size-xs);"></span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                    <?php if (isset($_GET['new_created']) && $accountStatus === 'none' && Permissions::check(['admin', 'users.create'])): ?>
+                        <div class="alert alert-success alert-dismissible fade show mb-3" role="alert" id="newCreatedBanner">
+                            <i class="fa-solid fa-circle-check me-2"></i>
+                            <strong>Mitarbeiter erfolgreich erstellt.</strong> Soll direkt ein Einladungslink für das Intranet generiert werden?
+                            <button type="button" class="btn btn-sm btn-success ms-2" id="bannerInviteBtn" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
+                                <i class="fa-solid fa-paper-plane me-1"></i>Einladungslink erstellen
+                            </button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
+                        </div>
+                    <?php endif; ?>
+                    <?php
                     include __DIR__ . '/../assets/components/profiles/checks.php' ?>
                     <div class="row">
                         <div class="col-5 p-3 shadow-sm border ma-basedata">
@@ -617,7 +611,8 @@ if (isset($_POST['new'])) {
                                                 <?php endif; ?>
                                                 <tr>
                                                     <td class="fw-bold">Discord-ID</td>
-                                                    <td><input class="form-control" type="number" name="discordtag" id="discordtag" value="<?= $row['discordtag'] ?>" minlength="17" maxlength="18" required></td>
+                                                    <td><input class="form-control" type="text" inputmode="numeric" name="discordtag" id="discordtag" value="<?= $row['discordtag'] ?>" pattern="[0-9]{17,18}" maxlength="18" required>
+                                                    <small class="form-text text-muted">17-18 stellige Discord-ID</small></td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Telefonnummer</td>
@@ -625,7 +620,11 @@ if (isset($_POST['new'])) {
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Dienstnummer</td>
-                                                    <td><input class="form-control" type="text" name="dienstnr" id="dienstnr" value="<?= $row['dienstnr'] ?>" pattern="^(?=.*[0-9])[A-Za-z0-9\-]+$" title="Muss mindestens eine Zahl enthalten. Buchstaben, Zahlen und Bindestriche erlaubt (z.B. RD-001, BF01)"></td>
+                                                    <td class="dienstnr-container">
+                                                        <input class="form-control" type="text" name="dienstnr" id="dienstnr" value="<?= $row['dienstnr'] ?>" pattern="^(?=.*[0-9])[A-Za-z0-9\-]+$" title="Muss mindestens eine Zahl enthalten. Buchstaben, Zahlen und Bindestriche erlaubt (z.B. RD-001, BF01)">
+                                                        <div id="dienstnr-status" class="dienstnr-status"></div>
+                                                        <div id="dienstnr-feedback" class="text-danger small" style="display: none;"></div>
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Position</td>
@@ -675,6 +674,59 @@ if (isset($_POST['new'])) {
     <?php include __DIR__ . '/../assets/components/profiles/modals.php' ?>
 
     <?php include __DIR__ . "/../assets/components/footer.php"; ?>
+    <?php if (isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])): ?>
+    <script src="<?= BASE_PATH ?>assets/js/dienstnr-check.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initDienstnrCheck({ basePath: '<?= BASE_PATH ?>', excludeId: <?= (int)$_GET['id'] ?> });
+    });
+    </script>
+    <?php endif; ?>
+    <script>
+    (function() {
+        function handleInviteClick(btn) {
+            var fullname = btn.dataset.fullname;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Wird erstellt...';
+
+            fetch('<?= BASE_PATH ?>api/personnel/generate-invite.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ label: fullname })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    btn.outerHTML = '<span style="font-size: var(--font-size-sm);"><i class="fa-solid fa-check text-success me-1"></i>' +
+                        '<code class="user-select-all">' + data.inviteUrl + '</code></span>';
+                    var resultEl = document.getElementById('inviteResult');
+                    if (resultEl) resultEl.innerHTML = '';
+                    var banner = document.getElementById('newCreatedBanner');
+                    if (banner) {
+                        banner.className = 'alert alert-success mb-3';
+                        banner.innerHTML = '<i class="fa-solid fa-check me-2"></i><strong>Einladungslink erstellt!</strong> ' +
+                            '<code class="user-select-all">' + data.inviteUrl + '</code>';
+                    }
+                } else {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i>Einladen';
+                    if (typeof showToast === 'function') showToast(data.message || 'Fehler beim Erstellen', 'danger');
+                }
+            })
+            .catch(function() {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i>Einladen';
+                if (typeof showToast === 'function') showToast('Fehler beim Erstellen des Einladungslinks', 'danger');
+            });
+        }
+
+        var inviteBtn = document.getElementById('generateInviteBtn');
+        if (inviteBtn) inviteBtn.addEventListener('click', function() { handleInviteClick(this); });
+
+        var bannerBtn = document.getElementById('bannerInviteBtn');
+        if (bannerBtn) bannerBtn.addEventListener('click', function() { handleInviteClick(this); });
+    })();
+    </script>
 </body>
 
 </html>

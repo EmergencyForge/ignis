@@ -106,16 +106,20 @@ class NotificationManager
      * @param int $limit Maximum number of notifications to retrieve
      * @return array Array of notifications
      */
-    public function getUnread(int $userId, int $limit = 50): array
+    public function getUnread(int $userId, int $limit = 50, ?string $type = null): array
     {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT * FROM intra_notifications
-                WHERE user_id = ? AND is_read = 0
-                ORDER BY created_at DESC
-                LIMIT ?
-            ");
-            $stmt->execute([$userId, $limit]);
+            $sql = "SELECT * FROM intra_notifications WHERE user_id = ? AND is_read = 0";
+            $params = [$userId];
+            if ($type) {
+                $sql .= " AND type = ?";
+                $params[] = $type;
+            }
+            $sql .= " ORDER BY created_at DESC LIMIT ?";
+            $params[] = $limit;
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to get unread notifications: " . $e->getMessage());
@@ -153,16 +157,21 @@ class NotificationManager
      * @param int $offset Offset for pagination
      * @return array Array of notifications
      */
-    public function getAll(int $userId, int $limit = 50, int $offset = 0): array
+    public function getAll(int $userId, int $limit = 50, int $offset = 0, ?string $type = null): array
     {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT * FROM intra_notifications
-                WHERE user_id = ?
-                ORDER BY created_at DESC
-                LIMIT ? OFFSET ?
-            ");
-            $stmt->execute([$userId, $limit, $offset]);
+            $sql = "SELECT * FROM intra_notifications WHERE user_id = ?";
+            $params = [$userId];
+            if ($type) {
+                $sql .= " AND type = ?";
+                $params[] = $type;
+            }
+            $sql .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+            $params[] = $limit;
+            $params[] = $offset;
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to get notifications: " . $e->getMessage());
@@ -231,6 +240,43 @@ class NotificationManager
         } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to delete notification: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Get new notifications since a given timestamp
+     * Used for polling/real-time updates
+     *
+     * @param int $userId User ID
+     * @param string $since ISO 8601 timestamp
+     * @return array Array with unreadCount and new notifications
+     */
+    public function getNewSince(int $userId, string $since): array
+    {
+        try {
+            $countStmt = $this->pdo->prepare("
+                SELECT COUNT(*) as count FROM intra_notifications
+                WHERE user_id = ? AND is_read = 0
+            ");
+            $countStmt->execute([$userId]);
+            $unreadCount = (int)($countStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0);
+
+            $newStmt = $this->pdo->prepare("
+                SELECT id, type, title, message, link, created_at FROM intra_notifications
+                WHERE user_id = ? AND created_at > ? AND is_read = 0
+                ORDER BY created_at DESC
+                LIMIT 5
+            ");
+            $newStmt->execute([$userId, $since]);
+            $newNotifications = $newStmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return [
+                'unreadCount' => $unreadCount,
+                'new' => $newNotifications
+            ];
+        } catch (\PDOException $e) {
+            \App\Logging\Logger::error("Failed to poll notifications: " . $e->getMessage());
+            return ['unreadCount' => 0, 'new' => []];
         }
     }
 

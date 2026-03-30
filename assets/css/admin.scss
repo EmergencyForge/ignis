@@ -1529,6 +1529,23 @@ td.dt-empty {
   .toast-progress { background: #4a6fa5; }
 }
 
+.toast-retry {
+  background: none;
+  border: 1px solid var(--text-dimmed);
+  color: var(--text-dimmed);
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s, border-color 0.15s;
+
+  &:hover {
+    color: #fff;
+    border-color: #fff;
+  }
+}
+
 @keyframes toast-slide-in {
   from { transform: translateX(40px) scale(0.95); opacity: 0; }
   to { transform: translateX(0) scale(1); opacity: 1; }
@@ -1542,6 +1559,55 @@ td.dt-empty {
 @keyframes toast-countdown {
   from { width: 100%; }
   to { width: 0; }
+}
+
+// Dienstnummer availability check
+.dienstnr-container {
+  position: relative;
+}
+
+.dienstnr-status {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+
+  &.available {
+    color: #28a745;
+    font-size: 20px;
+  }
+
+  &.unavailable {
+    color: #dc3545;
+    font-size: 20px;
+  }
+
+  &.loading .spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: dienstnr-spin 1s linear infinite;
+  }
+}
+
+@keyframes dienstnr-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.form-control.valid {
+  border-color: #28a745;
+}
+
+.form-control.invalid {
+  border-color: #dc3545;
 }
 
 // ========================================

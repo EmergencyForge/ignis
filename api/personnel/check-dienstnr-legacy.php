@@ -24,9 +24,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $query = "SELECT COUNT(*) as count FROM intra_mitarbeiter WHERE dienstnr = :dienstnr";
-        $stmt = $pdo->prepare($query);
-        $stmt->execute(['dienstnr' => $dienstnr]);
+        $excludeId = isset($_POST['exclude_id']) ? (int)$_POST['exclude_id'] : 0;
+
+        if ($excludeId > 0) {
+            $query = "SELECT COUNT(*) as count FROM intra_mitarbeiter WHERE dienstnr = :dienstnr AND id != :exclude_id";
+            $stmt = $pdo->prepare($query);
+            $stmt->execute(['dienstnr' => $dienstnr, 'exclude_id' => $excludeId]);
+        } else {
+            $query = "SELECT COUNT(*) as count FROM intra_mitarbeiter WHERE dienstnr = :dienstnr";
+            $stmt = $pdo->prepare($query);
+            $stmt->execute(['dienstnr' => $dienstnr]);
+        }
         $count = $stmt->fetchColumn();
 
         if ($count > 0) {
