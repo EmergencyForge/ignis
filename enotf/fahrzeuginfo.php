@@ -18,6 +18,8 @@ require __DIR__ . '/../assets/config/database.php';
 require_once __DIR__ . '/../assets/functions/enotf/user_auth_middleware.php';
 require_once __DIR__ . '/../assets/functions/enotf/pin_middleware.php';
 
+use App\Helpers\EnotfUrl;
+
 $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
 
 date_default_timezone_set('Europe/Berlin');
@@ -25,7 +27,7 @@ $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
 if (!isset($_SESSION['fahrername']) || !isset($_SESSION['protfzg'])) {
-    header("Location: " . BASE_PATH . "enotf/loggedout.php");
+    header("Location: " . EnotfUrl::page('loggedout'));
     exit();
 }
 
@@ -70,7 +72,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 <body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <?php
     $topbar_left_html = '
-        <a href="' . BASE_PATH . 'enotf/overview.php" class="edivi__iconlink">
+        <a href="' . EnotfUrl::page('overview') . '" class="edivi__iconlink">
             <i class="fa-solid fa-chevron-left"></i><br>
             <small>Zurück</small>
         </a>';

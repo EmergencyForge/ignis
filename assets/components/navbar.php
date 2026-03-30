@@ -1,6 +1,7 @@
 <?php
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 use App\Notifications\NotificationManager;
 
 $unreadCount = 0;
@@ -791,7 +792,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             <span class="sidebar-section-title" data-section="enotf">eNOTF</span>
             <a href="<?= BASE_PATH ?>enotf/" target="_blank" class="sidebar-sublink">eNOTF öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
             <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
-                <a href="<?= BASE_PATH ?>enotf/admin/list.php" class="sidebar-sublink">Prüfliste</a>
+                <a href="<?= EnotfUrl::admin('list') ?>" class="sidebar-sublink">Prüfliste</a>
             <?php endif; ?>
 
             <?php if (Permissions::check(['admin', 'manv.manage'])): ?>

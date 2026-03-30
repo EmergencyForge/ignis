@@ -3,6 +3,8 @@ date_default_timezone_set('Europe/Berlin');
 require_once __DIR__ . '/../../../assets/config/config.php';
 require __DIR__ . '/../../../assets/config/database.php';
 
+use App\Helpers\EnotfUrl;
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $action = $_POST["action"];
     $enr = $_POST["enr"];
@@ -27,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($existing && !empty($existing[$fzgField])) {
         // Wenn force_create nicht gesetzt ist, zum existierenden Protokoll weiterleiten
         if ($force_create !== 1) {
-            header("Location: " . BASE_PATH . "enotf/protokoll/index.php?enr=" . urlencode($enr));
+            header("Location: " . EnotfUrl::protokoll($enr));
             exit();
         }
 
@@ -90,7 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $update = $pdo->prepare($sql);
         $update->execute($params);
 
-        header("Location: " . BASE_PATH . "enotf/protokoll/index.php?enr=" . urlencode($enr));
+        header("Location: " . EnotfUrl::protokoll($enr));
         exit();
     }
 
@@ -151,6 +153,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $insert = $pdo->prepare($sql);
     $insert->execute($params);
 
-    header("Location: " . BASE_PATH . "enotf/protokoll/index.php?enr=" . urlencode($enr));
+    header("Location: " . EnotfUrl::protokoll($enr));
     exit();
 }

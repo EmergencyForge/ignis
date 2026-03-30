@@ -21,6 +21,7 @@ require_once __DIR__ . '/../../../assets/functions/enotf/zugang_helpers.php';
 
 use App\Auth\Permissions;
 
+use App\Helpers\EnotfUrl;
 $daten = array();
 
 if (isset($_GET['enr'])) {
@@ -49,7 +50,7 @@ $daten['last_edit'] = !empty($daten['last_edit']) ? (new DateTime($daten['last_e
 
 $enr = $daten['enr'];
 
-$prot_url = "https://" . SYSTEM_URL . "/enotf/protokoll/index.php?enr=" . $enr;
+$prot_url = "https://" . SYSTEM_URL . rtrim(EnotfUrl::protokoll($enr), '/');
 
 date_default_timezone_set('Europe/Berlin');
 $currentTime = date('H:i');
@@ -351,19 +352,19 @@ if (!empty($daten['rettungstechnik'])) {
                     <div class="row" style="margin-left: 0">
                         <?php if (!$ist_freigegeben) : ?>
                             <div class="col-2 d-flex flex-column edivi__interactbutton-more">
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/atemwege/index.php?enr=<?= $daten['enr'] ?>" data-requires="awsicherung_neu">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atemwege') ?>" data-requires="awsicherung_neu">
                                     <span>Atemwege</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/atmung/index.php?enr=<?= $daten['enr'] ?>" data-requires="b_beatmung">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atmung') ?>" data-requires="b_beatmung">
                                     <span>Atmung</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/index.php?enr=<?= $daten['enr'] ?>" data-requires="c_zugang">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang') ?>" data-requires="c_zugang">
                                     <span>Zugang</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/medikamente/index.php?enr=<?= $daten['enr'] ?>" data-requires="medis">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'medikamente') ?>" data-requires="medis">
                                     <span>Medikamente</span>
                                 </a>
-                                <a href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/weitere/index.php?enr=<?= $daten['enr'] ?>">
+                                <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'weitere') ?>">
                                     <span>Weitere</span>
                                 </a>
                             </div>
@@ -435,7 +436,7 @@ if (!empty($daten['rettungstechnik'])) {
                         <div class="col edivi__overview-container">
                             <div class="row">
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/atemwege/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atemwege') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1 edivi__group-check">Atemwege</h5>
                                         <div class="col">
                                             <div class="row my-2">
@@ -448,7 +449,7 @@ if (!empty($daten['rettungstechnik'])) {
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/atmung/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atmung') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1">Atmung</h5>
                                         <div class="col">
                                             <div class="row">
@@ -475,7 +476,7 @@ if (!empty($daten['rettungstechnik'])) {
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/zugang/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1">Zugänge <i id="icon-zugang_display" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
                                         <input type="hidden" name="zugang_display" class="edivi__input-check" value="<?= $daten['c_zugang'] !== null ? $daten['c_zugang'] : '' ?>">
                                         <div class="col">
@@ -503,7 +504,7 @@ if (!empty($daten['rettungstechnik'])) {
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/medikamente/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'medikamente') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1 edivi__group-check">Medikamente <i id="icon-medikamente" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
                                         <div class="col">
                                             <div class="row">
@@ -522,7 +523,7 @@ if (!empty($daten['rettungstechnik'])) {
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= BASE_PATH ?>enotf/protokoll/massnahmen/weitere/index.php?enr=<?= $daten['enr'] ?>" style="cursor:pointer">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'weitere') ?>" style="cursor:pointer">
                                         <h5 class="text-light px-2 py-1">Weitere</h5>
                                         <div class="col">
                                             <div class="row">

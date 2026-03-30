@@ -16,15 +16,16 @@ require_once __DIR__ . '/../assets/config/config.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Auth\Permissions;
+use App\Helpers\EnotfUrl;
 
 if (!defined('ENOTF_USE_PIN') || ENOTF_USE_PIN !== true) {
-    header("Location: " . BASE_PATH . "enotf/overview.php");
+    header("Location: " . EnotfUrl::page('overview'));
     exit();
 }
 
 // Benutzer mit admin oder edivi.view Berechtigung sind vom Lockscreen ausgenommen
 if (Permissions::check(['admin', 'edivi.view'])) {
-    $redirect = $_SESSION['pin_return_url'] ?? (BASE_PATH . 'enotf/overview.php');
+    $redirect = $_SESSION['pin_return_url'] ?? EnotfUrl::page('overview');
     unset($_SESSION['pin_return_url']);
     header("Location: " . $redirect);
     exit();
@@ -40,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
         $_SESSION['pin_verified'] = true;
         $_SESSION['pin_last_activity'] = time();
 
-        $redirect = $_SESSION['pin_return_url'] ?? (BASE_PATH . 'enotf/overview.php');
+        $redirect = $_SESSION['pin_return_url'] ?? EnotfUrl::page('overview');
         unset($_SESSION['pin_return_url']);
         header("Location: " . $redirect);
         exit();

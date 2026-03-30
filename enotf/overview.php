@@ -18,6 +18,7 @@ require_once __DIR__ . '/../assets/functions/enotf/user_auth_middleware.php';
 require_once __DIR__ . '/../assets/functions/enotf/pin_middleware.php';
 
 use App\Integrations\DiscordWebhook;
+use App\Helpers\EnotfUrl;
 
 $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
 
@@ -26,7 +27,7 @@ $currentTime = date('H:i');
 $currentDate = date('d.m.Y');
 
 if (!isset($_SESSION['fahrername']) || !isset($_SESSION['protfzg'])) {
-    header("Location: " . BASE_PATH . "enotf/loggedout.php");
+    header("Location: " . EnotfUrl::page('loggedout'));
     exit();
 }
 
@@ -83,7 +84,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 <i class="fa-solid fa-arrow-right-from-bracket"></i><br>
                 <small>Abmelden</small>
             </a>
-            <a href="' . BASE_PATH . 'enotf/fahrzeuginfo.php" class="edivi__iconlink">
+            <a href="' . EnotfUrl::page('fahrzeuginfo') . '" class="edivi__iconlink">
                 <i class="fa-solid fa-truck-medical"></i><br>
                 <small>Fahrzeuginfo</small>
             </a>';
@@ -181,7 +182,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 <i class="fa-solid fa-trash"></i>
                                             </div>
                                             <div class="edivi__einsatz-container edivi__einsatz-swipeable">
-                                                <a href="protokoll/index.php?enr=<?= $row['enr'] ?>" class="edivi__einsatz-link" draggable="false">
+                                                <a href="<?= EnotfUrl::protokoll($row['enr']) ?>" class="edivi__einsatz-link" draggable="false">
                                                     <div class="row edivi__einsatz edivi__einsatz-set">
                                                         <div class="col-2 edivi__einsatz-type"><?php if ($row['createdby'] == 1): ?><i class="fa-solid fa-bell" style="color:#fff;font-size:1.4rem;margin-right:10px;"></i><?php endif; ?><span><?= htmlspecialchars($label) ?></span></div>
                                                         <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><?= $row['edatum'] ?><br><?= $row['ezeit'] ?> Uhr</div>
