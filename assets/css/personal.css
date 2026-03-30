@@ -206,6 +206,22 @@ body:has(.intra-sidebar) {
   background: var(--comment-negative-stripe, #dc3545);
 }
 
+.comment-item--rank .comment-item__indicator {
+  background: var(--comment-rank-stripe, #ffc107);
+}
+
+.comment-item--modify .comment-item__indicator {
+  background: var(--comment-modify-stripe, #6f42c1);
+}
+
+.comment-item--document .comment-item__indicator {
+  background: var(--comment-document-stripe, #17a2b8);
+}
+
+.comment-item--created .comment-item__indicator {
+  background: var(--comment-created-stripe, #20c997);
+}
+
 .comment-item__body {
   flex: 1;
   padding: 8px 12px;
@@ -227,6 +243,14 @@ body:has(.intra-sidebar) {
 }
 .comment-item__meta i {
   margin-right: 3px;
+}
+
+.comment-item__type-icon {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  opacity: 0.3;
+  font-size: 0.8rem;
 }
 
 .comment-item__delete {
