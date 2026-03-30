@@ -435,7 +435,7 @@ if (isset($_POST['new'])) {
                             <?php endif; ?>
                         <?php else: ?>
                             <span class="badge text-bg-dark" style="opacity: 0.6;"><i class="fa-solid fa-circle-xmark me-1"></i>Kein Konto</span>
-                            <?php if (Permissions::check(['admin', 'users.create'])): ?>
+                            <?php if (Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code'): ?>
                                 <button type="button" class="btn btn-soft-primary btn-sm" id="generateInviteBtn" style="font-size: var(--font-size-xs);" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
                                     <i class="fa-solid fa-paper-plane me-1"></i>Einladen
                                 </button>
@@ -443,7 +443,7 @@ if (isset($_POST['new'])) {
                             <?php endif; ?>
                         <?php endif; ?>
                     </div>
-                    <?php if (isset($_GET['new_created']) && $accountStatus === 'none' && Permissions::check(['admin', 'users.create'])): ?>
+                    <?php if (isset($_GET['new_created']) && $accountStatus === 'none' && Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code'): ?>
                         <div class="alert alert-success alert-dismissible fade show mb-3" role="alert" id="newCreatedBanner">
                             <i class="fa-solid fa-circle-check me-2"></i>
                             <strong>Mitarbeiter erfolgreich erstellt.</strong> Soll direkt ein Einladungslink für das Intranet generiert werden?

@@ -1510,6 +1510,10 @@ td.dt-empty {
   height: 24px;
   pointer-events: none;
 }
+.inline-edit-cell .dienstnr-status {
+  top: 4px;
+  transform: none;
+}
 .dienstnr-status.available {
   color: #28a745;
   font-size: 20px;
