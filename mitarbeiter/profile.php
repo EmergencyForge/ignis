@@ -541,7 +541,8 @@ if (isset($_POST['new'])) {
                                             <?php if ($canEdit): ?>
                                             <tr>
                                                 <td class="fw-bold">Geschlecht</td>
-                                                <td class="inline-edit-cell" data-field="geschlecht" data-type="select" data-options='{"0":"Männlich","1":"Weiblich","2":"Divers"}' data-raw="<?= $row['geschlecht'] ?>"><?= $geschlechtText ?></td>
+                                                <?php $geschlechtLabel = match((int)$row['geschlecht']) { 0 => 'Männlich', 1 => 'Weiblich', default => 'Divers' }; ?>
+                                                <td class="inline-edit-cell" data-field="geschlecht" data-type="select" data-options='{"0":"Männlich","1":"Weiblich","2":"Divers"}' data-raw="<?= $row['geschlecht'] ?>"><?= $geschlechtLabel ?></td>
                                             </tr>
                                             <?php endif; ?>
                                             <?php if (CHAR_ID) : ?>
