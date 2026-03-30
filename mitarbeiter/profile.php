@@ -470,7 +470,7 @@ if (isset($_POST['new'])) {
                                             <a href="?id=<?= $_GET['id'] . (isset($_GET['page']) ? '&page=' . $_GET['page'] : '') ?>&edit" class="btn btn-soft-primary btn-sm btn-icon" id="personal-edit" title="Profil bearbeiten"><i class="fa-solid fa-edit"></i></a>
                                             <div class="btn btn-soft-primary btn-sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalFDQuali" title="Fachdienste bearbeiten"><i class="fa-solid fa-graduation-cap"></i></div>
                                         <?php } elseif (isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])) { ?>
-                                            <a href="#" class="btn btn-soft-success btn-sm btn-icon" id="personal-save" onclick="document.getElementById('profil').submit()"><i class="fa-solid fa-save"></i></a>
+                                            <a href="#" class="btn btn-soft-success btn-sm btn-icon" id="personal-save"><i class="fa-solid fa-save"></i></a>
                                             <a href="<?php echo removeEditParamFromURL(); ?>" class="btn btn-ghost btn-sm btn-icon"><i class="fa-solid fa-arrow-left"></i></a>
                                             <?php if (Permissions::check(['admin', 'personnel.delete'])) { ?>
                                                 <div class="btn btn-outline-danger btn-sm btn-icon" id="personal-delete" data-bs-toggle="modal" data-bs-target="#modalPersoDelete"><i class="fa-solid fa-trash"></i></div>
@@ -612,7 +612,7 @@ if (isset($_POST['new'])) {
                                                 <tr>
                                                     <td class="fw-bold">Discord-ID</td>
                                                     <td><input class="form-control" type="text" inputmode="numeric" name="discordtag" id="discordtag" value="<?= $row['discordtag'] ?>" pattern="[0-9]{17,18}" maxlength="18" required>
-                                                    <small class="form-text text-muted">17-18 stellige Discord-ID</small></td>
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold">Telefonnummer</td>
@@ -727,6 +727,80 @@ if (isset($_POST['new'])) {
         if (bannerBtn) bannerBtn.addEventListener('click', function() { handleInviteClick(this); });
     })();
     </script>
+    <?php if (isset($_GET['edit']) && Permissions::check(['admin', 'personnel.edit'])): ?>
+    <script>
+    (function() {
+        var saveBtn = document.getElementById('personal-save');
+        if (!saveBtn) return;
+
+        saveBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var form = document.getElementById('profil');
+
+            // Client-side validation
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            // Check dienstnr availability if the shared module is loaded
+            if (typeof isDienstnrAvailable === 'function') {
+                var dienstnrInput = document.getElementById('dienstnr');
+                if (dienstnrInput && dienstnrInput.value.trim() && !isDienstnrAvailable()) {
+                    if (typeof showToast === 'function') showToast('Bitte eine verfügbare Dienstnummer wählen', 'danger');
+                    return;
+                }
+            }
+
+            saveBtn.classList.add('btn-loading');
+
+            var payload = {
+                id: <?= (int)$_GET['id'] ?>,
+                fullname: form.fullname.value,
+                gebdatum: form.gebdatum.value,
+                dienstgrad: form.dienstgrad.value,
+                discordtag: form.discordtag.value,
+                telefonnr: form.telefonnr.value,
+                dienstnr: form.dienstnr.value,
+                qualird: form.qualird.value,
+                qualifw2: form.qualifw2.value,
+                geschlecht: form.geschlecht.value,
+                zusatzqual: form.zusatzqual.value,
+                pfp: form.pfp ? form.pfp.value : ''
+            };
+
+            <?php if (CHAR_ID): ?>
+            payload.charakterid = form.charakterid ? form.charakterid.value : '';
+            <?php endif; ?>
+
+            fetch('<?= BASE_PATH ?>api/personnel/update-profile.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+            .then(function(res) {
+                saveBtn.classList.remove('btn-loading');
+                if (res.ok && res.data.success) {
+                    if (typeof showToast === 'function') showToast(res.data.message, 'success');
+                    // Redirect to view mode after short delay
+                    setTimeout(function() {
+                        var url = new URL(window.location.href);
+                        url.searchParams.delete('edit');
+                        window.location.href = url.toString();
+                    }, 400);
+                } else {
+                    if (typeof showToast === 'function') showToast(res.data.message || 'Fehler beim Speichern', 'danger');
+                }
+            })
+            .catch(function(err) {
+                saveBtn.classList.remove('btn-loading');
+                if (typeof showToast === 'function') showToast('Verbindungsfehler', 'danger');
+            });
+        });
+    })();
+    </script>
+    <?php endif; ?>
 </body>
 
 </html>

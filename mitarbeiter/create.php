@@ -228,8 +228,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         value="<?= $fromBewerbung ? htmlspecialchars($bewerbungData['discordid']) : '' ?>"
                                                         pattern="[0-9]{17,18}" maxlength="18" placeholder="Discord-ID" required>
                                                     <label for="discordtag">Discord-ID</label>
-                                                    <small class="form-text text-muted">17-18 stellige Discord-ID</small>
-                                                    <div class="invalid-feedback">Bitte gib eine gültige Discord-ID an (17-18 Ziffern).</div>
+<div class="invalid-feedback">Bitte gib eine gültige Discord-ID an (17-18 Ziffern).</div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">

@@ -57,6 +57,11 @@ $fwginfo = $stmtf->fetchAll(PDO::FETCH_UNIQUE);
                     <div class="page-header mb-4">
                         <h1>Mitarbeiterübersicht</h1>
                         <div class="header-actions">
+                            <?php if (Permissions::check(['admin', 'personnel.edit']) && !isset($_GET['archiv'])): ?>
+                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalCreateMitarbeiter">
+                                    <i class="fa-solid fa-plus me-1"></i>Neuer Mitarbeiter
+                                </button>
+                            <?php endif; ?>
                             <?php if (isset($_GET['archiv'])) { ?>
                                 <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="btn btn-outline-success">Aktive Mitarbeiter</a>
                             <?php } else { ?>
@@ -217,6 +222,111 @@ $fwginfo = $stmtf->fetchAll(PDO::FETCH_UNIQUE);
     </div>
 
 
+    <?php if (Permissions::check(['admin', 'personnel.edit'])): ?>
+    <!-- Modal: Neuer Mitarbeiter -->
+    <div class="modal fade" id="modalCreateMitarbeiter" tabindex="-1" aria-labelledby="modalCreateMitarbeiterLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCreateMitarbeiterLabel"><i class="fa-solid fa-user-plus me-2"></i>Neuer Mitarbeiter</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <form id="createMitarbeiterForm" novalidate>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input class="form-control" type="text" name="fullname" id="cm_fullname" placeholder="Vor- und Zuname" required>
+                                    <label for="cm_fullname">Vor- und Zuname</label>
+                                    <div class="invalid-feedback">Pflichtfeld</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input class="form-control" type="date" name="gebdatum" id="cm_gebdatum" min="1900-01-01" placeholder="Geburtsdatum" required>
+                                    <label for="cm_gebdatum">Geburtsdatum</label>
+                                    <div class="invalid-feedback">Pflichtfeld</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select class="form-select" name="dienstgrad" id="cm_dienstgrad" required>
+                                        <option value="" selected hidden>Bitte wählen</option>
+                                        <?php foreach ($dginfo as $dgId => $dg): ?>
+                                            <?php if (!$dg['archive']): ?>
+                                                <option value="<?= $dgId ?>"><?= htmlspecialchars($dg['name']) ?></option>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <label for="cm_dienstgrad">Dienstgrad</label>
+                                    <div class="invalid-feedback">Pflichtfeld</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <select name="geschlecht" id="cm_geschlecht" class="form-select" required>
+                                        <option value="" selected hidden>Bitte wählen</option>
+                                        <option value="0">Männlich</option>
+                                        <option value="1">Weiblich</option>
+                                        <option value="2">Divers</option>
+                                    </select>
+                                    <label for="cm_geschlecht">Geschlecht</label>
+                                    <div class="invalid-feedback">Pflichtfeld</div>
+                                </div>
+                            </div>
+                            <?php if (CHAR_ID) : ?>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <input class="form-control" type="text" name="charakterid" id="cm_charakterid" placeholder="ABC12345" pattern="[a-zA-Z]{3}[0-9]{5}" required>
+                                        <label for="cm_charakterid">Charakter-ID</label>
+                                        <div class="invalid-feedback">Format: ABC12345</div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input class="form-control" type="text" inputmode="numeric" name="discordtag" id="cm_discordtag" pattern="[0-9]{17,18}" maxlength="18" placeholder="Discord-ID" required>
+                                    <label for="cm_discordtag">Discord-ID</label>
+                                    <div class="invalid-feedback">17-18 Ziffern</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input class="form-control" type="text" name="telefonnr" id="cm_telefonnr" placeholder="Telefonnummer" value="0176 00 00 00 0">
+                                    <label for="cm_telefonnr">Telefonnummer</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 dienstnr-container">
+                                <div class="form-floating">
+                                    <input class="form-control" type="text" name="dienstnr" id="dienstnr"
+                                        pattern="^(?=.*[0-9])[A-Za-z0-9\-]+$" title="z.B. RD-001, BF01" placeholder="Dienstnummer" required>
+                                    <label for="dienstnr">Dienstnummer</label>
+                                    <div id="dienstnr-status" class="dienstnr-status"></div>
+                                    <div class="invalid-feedback">Mindestens eine Zahl (z.B. RD-001)</div>
+                                    <div id="dienstnr-feedback" class="text-danger small" style="display: none;"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input class="form-control" type="date" name="einstdatum" id="cm_einstdatum" min="2022-01-01" placeholder="Einstellungsdatum" required>
+                                    <label for="cm_einstdatum">Einstellungsdatum</label>
+                                    <div class="invalid-feedback">Pflichtfeld</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost btn-sm" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="btn btn-success btn-sm" id="cm_submit">
+                            <i class="fa-solid fa-plus me-1"></i>Mitarbeiter erstellen
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
     <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>
@@ -311,6 +421,86 @@ $fwginfo = $stmtf->fetchAll(PDO::FETCH_UNIQUE);
             });
         });
     </script>
+    <?php if (Permissions::check(['admin', 'personnel.edit'])): ?>
+    <script src="<?= BASE_PATH ?>assets/js/dienstnr-check.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Init dienstnr check for the modal (uses id="cm_dienstnr" but shared JS expects id="dienstnr")
+        // We need to re-map: the shared JS looks for #dienstnr, but our modal uses #cm_dienstnr
+        // So we init it when the modal opens
+        var modalEl = document.getElementById('modalCreateMitarbeiter');
+        if (!modalEl) return;
+
+        initDienstnrCheck({ basePath: '<?= BASE_PATH ?>' });
+
+        // Form submission
+        var form = document.getElementById('createMitarbeiterForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            var submitBtn = document.getElementById('cm_submit');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Wird erstellt...';
+
+            var formData = new FormData(form);
+
+            fetch('<?= BASE_PATH ?>mitarbeiter/create.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showToast(data.message, 'success');
+                    setTimeout(function() {
+                        window.location.href = data.redirect;
+                    }, 500);
+                } else {
+                    showToast(data.message || 'Fehler beim Erstellen', 'danger');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-plus me-1"></i>Mitarbeiter erstellen';
+                }
+            })
+            .catch(function() {
+                showToast('Verbindungsfehler', 'danger');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-plus me-1"></i>Mitarbeiter erstellen';
+            });
+        });
+
+        // Reset form when modal is closed
+        modalEl.addEventListener('hide.bs.modal', function() {
+            // Move focus away before modal hides to prevent aria-hidden conflict
+            if (modalEl.contains(document.activeElement)) {
+                document.activeElement.blur();
+            }
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', function() {
+            form.reset();
+            form.classList.remove('was-validated');
+            // Reset dienstnr check state
+            var dnInput = document.getElementById('dienstnr');
+            var dnStatus = document.getElementById('dienstnr-status');
+            var dnFeedback = document.getElementById('dienstnr-feedback');
+            if (dnInput) { dnInput.classList.remove('valid', 'invalid'); }
+            if (dnStatus) { dnStatus.innerHTML = ''; dnStatus.className = 'dienstnr-status'; }
+            if (dnFeedback) { dnFeedback.style.display = 'none'; }
+            // Reset submit button
+            var submitBtn = document.getElementById('cm_submit');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-plus me-1"></i>Mitarbeiter erstellen';
+            }
+        });
+    });
+    </script>
+    <?php endif; ?>
     <?php include __DIR__ . "/../assets/components/footer.php"; ?>
 </body>
 
