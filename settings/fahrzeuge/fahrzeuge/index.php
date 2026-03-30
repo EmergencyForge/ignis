@@ -735,27 +735,21 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
             const row = document.getElementById('import-row-' + queueId);
             if (!row) return;
 
-            // Bei import/overwrite/merge: Erst Edit-Felder zeigen falls noch nicht sichtbar
-            if ((action === 'import' || action === 'overwrite' || action === 'merge') && !row.dataset.confirmed) {
-                const editArea = document.getElementById('import-edit-' + queueId);
-                if (editArea.classList.contains('d-none')) {
-                    editArea.classList.remove('d-none');
-                    row.dataset.confirmed = '';
-                    // Button-Text anpassen zu "Bestätigen"
-                    const btn = row.querySelector(`button[onclick*="'${action}'"]`);
-                    if (btn) {
-                        row.dataset.confirmed = 'pending';
-                        btn.onclick = function() { executeImportAction(queueId, action, existingId); };
-                        const label = action === 'import' ? 'Bestätigen' : action === 'overwrite' ? 'Überschreiben' : 'Zusammenführen';
-                        btn.innerHTML = `<i class="fa-solid fa-check me-1"></i>${label}`;
-                    }
-                    return;
-                }
-            }
-
+            // Ignorieren braucht keine Edit-Felder
             if (action === 'ignore') {
                 executeImportAction(queueId, action);
+                return;
             }
+
+            // Edit-Felder aufklappen wenn noch nicht sichtbar → nur öffnen, nicht ausführen
+            const editArea = document.getElementById('import-edit-' + queueId);
+            if (editArea.classList.contains('d-none')) {
+                editArea.classList.remove('d-none');
+                return;
+            }
+
+            // Edit-Felder sind bereits sichtbar → Aktion ausführen
+            executeImportAction(queueId, action, existingId);
         };
 
         function executeImportAction(queueId, action, existingId) {
