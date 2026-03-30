@@ -338,6 +338,11 @@ parameters:
 
         # Setup-Skripte - komplexe Migration-Logik
         -
+            identifier: isset.variable
+            path: setup/database-init.php
+            reportUnmatched: false
+
+        -
             identifier: nullCoalesce.offset
             paths:
                 - setup/database-init.php
