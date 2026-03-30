@@ -906,9 +906,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         -->
         <a href="<?= BASE_PATH ?>benachrichtigungen/index.php" class="sidebar-link">
             <i class="fa-solid fa-bell"></i><span>Benachrichtigungen</span>
-            <?php if ($unreadCount > 0): ?>
-                <span class="sidebar-notification-badge"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
-            <?php endif; ?>
+            <span class="sidebar-notification-badge notification-poll-badge" style="<?= $unreadCount > 0 ? '' : 'display:none;' ?>"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
         </a>
         <a href="<?= BASE_PATH ?>logout.php" class="sidebar-link">
             <i class="fa-solid fa-right-from-bracket"></i><span>Abmelden</span>
@@ -932,12 +930,10 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         <button class="sidebar-toggle-btn global-search-mobile-btn" style="margin-right:0;font-size:1rem;" aria-label="Suchen">
             <i class="fa-solid fa-magnifying-glass"></i>
         </button>
-        <?php if ($unreadCount > 0): ?>
-            <a href="<?= BASE_PATH ?>benachrichtigungen/index.php" class="sidebar-link" style="padding:0.4rem;margin:0;">
-                <i class="fa-solid fa-bell" style="margin-right:0;width:auto;"></i>
-                <span class="sidebar-notification-badge"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
-            </a>
-        <?php endif; ?>
+        <a href="<?= BASE_PATH ?>benachrichtigungen/index.php" class="sidebar-link notification-poll-mobile" style="padding:0.4rem;margin:0;<?= $unreadCount > 0 ? '' : 'display:none;' ?>">
+            <i class="fa-solid fa-bell" style="margin-right:0;width:auto;"></i>
+            <span class="sidebar-notification-badge notification-poll-badge"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
+        </a>
     </div>
 </div>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -1399,5 +1395,47 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     s.setProperty('--main-color-dimmed', dc);
     s.setProperty('--main-color-rgb', rgb);
     s.setProperty('--fw-red', mc);
+})();
+</script>
+<script>
+(function() {
+    var POLL_INTERVAL = 30000;
+    var basePath = <?= json_encode(BASE_PATH) ?>;
+    var lastPoll = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    var pollTimer = null;
+
+    function updateBadges(count) {
+        var badges = document.querySelectorAll('.notification-poll-badge');
+        var mobileLink = document.querySelector('.notification-poll-mobile');
+        var text = count > 9 ? '9+' : String(count);
+        badges.forEach(function(b) {
+            b.textContent = text;
+            b.style.display = count > 0 ? '' : 'none';
+        });
+        if (mobileLink) {
+            mobileLink.style.display = count > 0 ? '' : 'none';
+        }
+    }
+
+    function poll() {
+        if (document.visibilityState === 'hidden') return;
+        fetch(basePath + 'api/notifications/poll.php?since=' + encodeURIComponent(lastPoll))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.success) return;
+                updateBadges(data.unreadCount);
+                if (data.new && data.new.length > 0 && typeof window.showToast === 'function') {
+                    var latest = data.new[0];
+                    window.showToast(latest.title, 'info');
+                }
+                lastPoll = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            })
+            .catch(function() {});
+    }
+
+    pollTimer = setInterval(poll, POLL_INTERVAL);
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') poll();
+    });
 })();
 </script>

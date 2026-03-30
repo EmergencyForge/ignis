@@ -1,4 +1,4 @@
-<div id="toast-container"></div>
+<!-- Toast container managed by global toasts.js -->
 <script>
     $(document).ready(function() {
         const enr = <?= json_encode($enr) ?>;
@@ -229,89 +229,7 @@
         updateNavFillStates(window.__dynamicDaten);
         validateLinks();
 
-        function showToast(message, type = 'success') {
-            var timeouts = { success: 1500, error: 8000, warning: 5000, info: 4000 };
-            var timeout = timeouts[type] || 4000;
-
-            var $container = $('#toast-container');
-            while ($container.children().length >= 5) {
-                var $oldest = $container.children().first();
-                $oldest.remove();
-            }
-
-            var $toast = $('<div class="enotf-toast enotf-toast--' + type + '">' +
-                '<span class="enotf-toast__dot"></span>' +
-                '<span class="enotf-toast__text"></span>' +
-                '<span class="enotf-toast__close"><i class="fa-solid fa-xmark"></i></span>' +
-            '</div>');
-
-            $toast.find('.enotf-toast__text').text(message);
-
-            $toast.find('.enotf-toast__close').on('click', function() {
-                dismissToast($toast);
-            });
-
-            $container.append($toast);
-
-            if (timeout > 0) {
-                var timerId = setTimeout(function() { dismissToast($toast); }, timeout);
-                $toast.data('timer', timerId);
-
-                $toast.on('mouseenter', function() {
-                    clearTimeout($toast.data('timer'));
-                });
-                $toast.on('mouseleave', function() {
-                    $toast.data('timer', setTimeout(function() { dismissToast($toast); }, timeout));
-                });
-            }
-        }
-
-        function dismissToast($toast) {
-            if ($toast.hasClass('enotf-toast--leaving')) return;
-            $toast.addClass('enotf-toast--leaving');
-            setTimeout(function() { $toast.remove(); }, 200);
-        }
-
-        window.showToast = showToast;
-
-        // Toast-Queue fuer Batching (Quick-Fill etc.)
-        var ToastQueue = {
-            pending: [],
-            timer: null,
-            batchDelay: 500,
-
-            add: function(message, type) {
-                type = type || 'success';
-                this.pending.push({ message: message, type: type });
-                if (this.timer) clearTimeout(this.timer);
-                this.timer = setTimeout(function() { ToastQueue.flush(); }, this.batchDelay);
-            },
-
-            flush: function() {
-                var grouped = {};
-                this.pending.forEach(function(item) {
-                    if (!grouped[item.type]) grouped[item.type] = [];
-                    grouped[item.type].push(item.message);
-                });
-
-                Object.keys(grouped).forEach(function(type) {
-                    var messages = grouped[type];
-                    if (messages.length === 1) {
-                        showToast(messages[0], type);
-                    } else {
-                        var summary = type === 'success'
-                            ? messages.length + ' Felder gespeichert'
-                            : messages.length + ' Fehler aufgetreten';
-                        showToast(summary, type);
-                    }
-                });
-
-                this.pending = [];
-                this.timer = null;
-            }
-        };
-
-        window.ToastQueue = ToastQueue;
+        // showToast and ToastQueue are provided globally by assets/js/toasts.js
 
         const exclusiveValues = [1, 98, 99];
 

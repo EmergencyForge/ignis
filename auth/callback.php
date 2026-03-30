@@ -246,11 +246,23 @@ try {
 
     $redirectUrl = $_SESSION['redirect_url'] ?? BASE_PATH . 'index.php';
     unset($_SESSION['redirect_url']);
-    
+
     // Sicherheit: Session-ID nach Login regenerieren (verhindert Session-Fixation)
     SessionManager::regenerate();
     $_SESSION['permissions_loaded'] = time(); // TTL für Permissions setzen
-    
+
+    // Cleanup: gelesene Benachrichtigungen älter als 30 Tage löschen (max. 1x pro Tag)
+    try {
+        $lastCleanup = $_SESSION['notification_cleanup'] ?? 0;
+        if (time() - $lastCleanup > 86400) {
+            $notificationManager = new NotificationManager($pdo);
+            $notificationManager->deleteOldRead(30);
+            $_SESSION['notification_cleanup'] = time();
+        }
+    } catch (Exception $e) {
+        error_log("Notification cleanup error: " . $e->getMessage());
+    }
+
     header("Location: $redirectUrl");
     exit;
 } catch (Exception $e) {
