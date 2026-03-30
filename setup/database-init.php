@@ -4,6 +4,8 @@ if (getenv('GITHUB_ACTIONS') === 'true' || getenv('CI') === 'true') {
     exit(0);
 }
 
+if (!function_exists('findProjectRoot')):
+
 function findProjectRoot(): string
 {
     $currentDir = __DIR__;
@@ -43,84 +45,90 @@ function findProjectRoot(): string
     throw new Exception("Konnte Project-Root nicht finden. Getestete Pfade: " . implode(', ', $candidates));
 }
 
-try {
-    $projectRoot = findProjectRoot();
-} catch (Exception $e) {
-    echo "❌ " . $e->getMessage() . "\n";
-    exit(1);
-}
+endif; // function_exists('findProjectRoot')
 
-$autoloadPath = $projectRoot . '/vendor/autoload.php';
-if (!file_exists($autoloadPath)) {
-    echo "❌ Autoloader nicht gefunden: $autoloadPath\n";
-    exit(1);
-}
-
-require_once $autoloadPath;
-echo "✓ Autoloader geladen von: $autoloadPath\n";
-
-try {
-    $dotenv = Dotenv\Dotenv::createImmutable($projectRoot, null, false);
-    $dotenv->load();
-    echo "✓ .env geladen von: $projectRoot/.env\n";
-} catch (Exception $e) {
-    echo "❌ Konnte .env nicht laden: " . $e->getMessage() . "\n";
-    echo "Suchpfad war: $projectRoot/.env\n";
-    exit(1);
-}
-
-$requiredVars = ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'];
-foreach ($requiredVars as $var) {
-    if (!isset($_ENV[$var]) || empty($_ENV[$var])) {
-        echo "❌ Umgebungsvariable $var nicht gesetzt\n";
+// If $pdo is already set (called from AutoMigrator), skip bootstrap
+if (!isset($pdo) || !($pdo instanceof PDO)) {
+    try {
+        $projectRoot = findProjectRoot();
+    } catch (Exception $e) {
+        echo "❌ " . $e->getMessage() . "\n";
         exit(1);
     }
-}
 
-$db_host = $_ENV['DB_HOST'];
-$db_user = $_ENV['DB_USER'];
-$db_pass = $_ENV['DB_PASS'];
-$db_name = $_ENV['DB_NAME'];
-
-$dsn = "mysql:host=" . $db_host . ";dbname=" . $db_name . ";charset=utf8";
-$options = [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_EMULATE_PREPARES => false,
-];
-
-try {
-    $pdo = new PDO($dsn, $db_user, $db_pass, $options);
-    echo "✓ Datenbankverbindung erfolgreich\n";
-
-    // Check SQL mode for debugging environment-specific issues
-    try {
-        $stmt = $pdo->query("SELECT @@sql_mode");
-        $sqlMode = $stmt->fetchColumn();
-        echo "ℹ️  SQL Mode: " . ($sqlMode ?: '(empty)') . "\n";
-
-        // Check for problematic modes
-        $modes = array_map('trim', explode(',', $sqlMode));
-        $recommendedModes = ['STRICT_TRANS_TABLES', 'NO_ZERO_IN_DATE', 'NO_ZERO_DATE', 'ERROR_FOR_DIVISION_BY_ZERO', 'NO_ENGINE_SUBSTITUTION'];
-        $problematicModes = ['TRADITIONAL', 'STRICT_ALL_TABLES'];
-
-        foreach ($problematicModes as $mode) {
-            if (in_array($mode, $modes)) {
-                echo "⚠️  SQL Mode '$mode' ist aktiv (kann zu strengeren Validierungen führen)\n";
-            }
-        }
-
-        // Check MySQL/MariaDB version
-        $stmt = $pdo->query("SELECT VERSION()");
-        $version = $stmt->fetchColumn();
-        echo "ℹ️  Datenbankversion: $version\n";
-    } catch (PDOException $e) {
-        // Non-critical, continue anyway
-        echo "⚠️  Konnte SQL Mode nicht abfragen: " . $e->getMessage() . "\n";
+    $autoloadPath = $projectRoot . '/vendor/autoload.php';
+    if (!file_exists($autoloadPath)) {
+        echo "❌ Autoloader nicht gefunden: $autoloadPath\n";
+        exit(1);
     }
-} catch (PDOException $e) {
-    echo "❌ Datenbankverbindung fehlgeschlagen: " . $e->getMessage() . "\n";
-    exit(1);
+
+    require_once $autoloadPath;
+    echo "✓ Autoloader geladen von: $autoloadPath\n";
+
+    try {
+        $dotenv = Dotenv\Dotenv::createImmutable($projectRoot, null, false);
+        $dotenv->load();
+        echo "✓ .env geladen von: $projectRoot/.env\n";
+    } catch (Exception $e) {
+        echo "❌ Konnte .env nicht laden: " . $e->getMessage() . "\n";
+        echo "Suchpfad war: $projectRoot/.env\n";
+        exit(1);
+    }
+
+    $requiredVars = ['DB_HOST', 'DB_USER', 'DB_PASS', 'DB_NAME'];
+    foreach ($requiredVars as $var) {
+        if (!isset($_ENV[$var]) || empty($_ENV[$var])) {
+            echo "❌ Umgebungsvariable $var nicht gesetzt\n";
+            exit(1);
+        }
+    }
+
+    $db_host = $_ENV['DB_HOST'];
+    $db_user = $_ENV['DB_USER'];
+    $db_pass = $_ENV['DB_PASS'];
+    $db_name = $_ENV['DB_NAME'];
+
+    $dsn = "mysql:host=" . $db_host . ";dbname=" . $db_name . ";charset=utf8";
+    $options = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ];
+
+    try {
+        $pdo = new PDO($dsn, $db_user, $db_pass, $options);
+        echo "✓ Datenbankverbindung erfolgreich\n";
+
+        try {
+            $stmt = $pdo->query("SELECT @@sql_mode");
+            $sqlMode = $stmt->fetchColumn();
+            echo "ℹ️  SQL Mode: " . ($sqlMode ?: '(empty)') . "\n";
+
+            $modes = array_map('trim', explode(',', $sqlMode));
+            $problematicModes = ['TRADITIONAL', 'STRICT_ALL_TABLES'];
+
+            foreach ($problematicModes as $mode) {
+                if (in_array($mode, $modes)) {
+                    echo "⚠️  SQL Mode '$mode' ist aktiv (kann zu strengeren Validierungen führen)\n";
+                }
+            }
+
+            $stmt = $pdo->query("SELECT VERSION()");
+            $version = $stmt->fetchColumn();
+            echo "ℹ️  Datenbankversion: $version\n";
+        } catch (PDOException $e) {
+            echo "⚠️  Konnte SQL Mode nicht abfragen: " . $e->getMessage() . "\n";
+        }
+    } catch (PDOException $e) {
+        echo "❌ Datenbankverbindung fehlgeschlagen: " . $e->getMessage() . "\n";
+        exit(1);
+    }
+} // end if (!isset($pdo))
+
+if (!isset($projectRoot)) {
+    $projectRoot = dirname(__DIR__);
 }
+
+if (!function_exists('ensureMigrationsTable')):
 
 function ensureMigrationsTable(PDO $pdo): void
 {
@@ -217,6 +225,8 @@ function throwTableCreationError(PDO $pdo, string $missingTableInfo): never
         throw new Exception("$missingTableInfo. Could not list tables: " . $e->getMessage());
     }
 }
+
+endif; // function_exists guard
 
 ensureMigrationsTable($pdo);
 
