@@ -98,42 +98,50 @@ jobs:
         if: success()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
         run: |
-          RELEASE_URL="${{ github.event.release.html_url }}"
-          RELEASE_NAME="${{ github.event.release.name }}"
-          RELEASE_BODY=$(echo "${{ github.event.release.body }}" | head -c 500)
-
-          curl -s -H "Content-Type: application/json" \
-            -d "{
-              \"embeds\": [{
-                \"title\": \"Release ${{ env.version }} wurde veröffentlicht\",
-                \"description\": \"**${RELEASE_NAME}**\n\n${RELEASE_BODY}\",
-                \"color\": 3066993,
-                \"fields\": [
-                  {\"name\": \"Version\", \"value\": \"\`${{ env.version }}\`\", \"inline\": true},
-                  {\"name\": \"ZIP-Größe\", \"value\": \"\`${{ env.archive_size }}\`\", \"inline\": true},
-                  {\"name\": \"Build\", \"value\": \"#${{ github.run_number }}\", \"inline\": true}
-                ],
-                \"url\": \"${RELEASE_URL}\",
-                \"footer\": {\"text\": \"intraRP Release Build\"},
-                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
-              }]
-            }" \
-            "$DISCORD_WEBHOOK"
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          jq -n \
+            --arg title "Release ${{ env.version }} wurde veröffentlicht" \
+            --arg name "$RELEASE_NAME" \
+            --arg body "$(echo "$RELEASE_BODY" | head -c 500)" \
+            --arg url "$RELEASE_URL" \
+            --arg version "${{ env.version }}" \
+            --arg size "${{ env.archive_size }}" \
+            --arg build "#${{ github.run_number }}" \
+            --arg ts "$TIMESTAMP" \
+            '{embeds: [{
+              title: $title,
+              description: ("**" + $name + "**\n\n" + $body),
+              color: 3066993,
+              url: $url,
+              fields: [
+                {name: "Version", value: ("`" + $version + "`"), inline: true},
+                {name: "ZIP-Größe", value: ("`" + $size + "`"), inline: true},
+                {name: "Build", value: $build, inline: true}
+              ],
+              footer: {text: "intraRP Release Build"},
+              timestamp: $ts
+            }]}' | curl -s -H "Content-Type: application/json" -d @- "$DISCORD_WEBHOOK"
 
       - name: Discord notification (failure)
         if: failure()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
         run: |
-          curl -s -H "Content-Type: application/json" \
-            -d "{
-              \"embeds\": [{
-                \"title\": \"Release Build fehlgeschlagen\",
-                \"description\": \"Der Build für **${{ env.version || github.ref }}** ist fehlgeschlagen.\n\n[Build-Log ansehen](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})\",
-                \"color\": 15158332,
-                \"footer\": {\"text\": \"intraRP Release Build\"},
-                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
-              }]
-            }" \
-            "$DISCORD_WEBHOOK"
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          jq -n \
+            --arg version "${{ env.version }}" \
+            --arg ref "${{ github.ref }}" \
+            --arg url "$RUN_URL" \
+            --arg ts "$TIMESTAMP" \
+            '{embeds: [{
+              title: "Release Build fehlgeschlagen",
+              description: ("Der Build für **" + (if $version != "" then $version else $ref end) + "** ist fehlgeschlagen.\n\n[Build-Log ansehen](" + $url + ")"),
+              color: 15158332,
+              footer: {text: "intraRP Release Build"},
+              timestamp: $ts
+            }]}' | curl -s -H "Content-Type: application/json" -d @- "$DISCORD_WEBHOOK"
