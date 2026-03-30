@@ -64,44 +64,33 @@ class AutoMigrator
         // Send the waiting page to the browser
         http_response_code(200);
         header('Content-Type: text/html; charset=utf-8');
-        echo <<<'HTML'
-<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>intraRP — Initialisierung</title>
-<style>
-body{background:#1a1820;color:#bbbac1;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
-.box{text-align:center;max-width:420px}
-.spinner{width:40px;height:40px;border:3px solid #3d3a44;border-top-color:#d10000;border-radius:50%;animation:s .8s linear infinite;margin:0 auto 20px}
-@keyframes s{to{transform:rotate(360deg)}}
-h2{color:#fff;font-size:1.2rem;margin-bottom:8px}
-p{font-size:.85rem;opacity:.6}
-</style></head><body><div class="box">
-<div class="spinner"></div>
-<h2>Datenbank wird initialisiert...</h2>
-<p>Die Tabellen werden erstellt. Dies dauert nur wenige Sekunden.</p>
-</div></body></html>
-HTML;
-
-        // Flush to browser so user sees the page immediately
-        if (connection_status() === CONNECTION_NORMAL) {
-            flush();
-            if (function_exists('fastcgi_finish_request')) {
-                // FPM: finish the response, continue PHP execution in background
-                fastcgi_finish_request();
-            }
-        }
-
-        // Now run migrations (browser already shows the waiting page)
+        // Run migrations first (silently), then show result page
         $this->executeMigrations();
 
         $files = glob($this->migrationsPath . '/*.php');
         @file_put_contents($this->cacheFile, (string)count($files ?: []));
 
-        // If fastcgi_finish_request wasn't available, redirect via JS
-        // (the HTML above already rendered, so we can't send headers)
-        if (!function_exists('fastcgi_finish_request')) {
-            echo '<script>setTimeout(function(){location.reload()},500)</script>';
-        }
+        // Show success page with auto-redirect
+        http_response_code(200);
+        header('Content-Type: text/html; charset=utf-8');
+        $url = htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/');
+        echo <<<HTML
+<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="refresh" content="1;url={$url}">
+<title>intraRP — Initialisierung</title>
+<style>
+body{background:#1a1820;color:#bbbac1;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+.box{text-align:center;max-width:420px}
+.ok{font-size:3rem;color:#28a745;margin-bottom:16px}
+h2{color:#fff;font-size:1.2rem;margin-bottom:8px}
+p{font-size:.85rem;opacity:.6}
+</style></head><body><div class="box">
+<div class="ok">&#10003;</div>
+<h2>Datenbank erfolgreich initialisiert</h2>
+<p>Du wirst automatisch weitergeleitet...</p>
+</div></body></html>
+HTML;
 
         exit;
     }
