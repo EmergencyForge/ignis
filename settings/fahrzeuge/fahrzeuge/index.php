@@ -495,6 +495,8 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
     </script>
     <script>
         const IMPORT_API = '<?= BASE_PATH ?>api/vehicles/import-handler.php';
+        const rdTypeLabels = {0: 'Andere', 1: 'RD - Mit NA', 2: 'RD - Ohne NA', 3: 'Feuerwehr'};
+        const rdTypeBadges = {0: 'dark', 1: 'warning', 2: 'success', 3: 'danger'};
 
         // Beim Laden: Prüfe ob Imports pending sind
         (function checkImportStatus() {
@@ -512,28 +514,16 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                 .catch(() => {});
         })();
 
-        const rdTypeLabels = {0: 'Andere', 1: 'RD - Mit NA', 2: 'RD - Ohne NA', 3: 'Feuerwehr'};
-        const rdTypeBadges = {0: 'dark', 1: 'warning', 2: 'success', 3: 'danger'};
-
         window.openVehicleImport = function() {
             const modal = new bootstrap.Modal(document.getElementById('vehicleImportModal'));
             const body = document.getElementById('importModalBody');
-
-            body.innerHTML = `
-                <div class="d-flex justify-content-center">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Laden...</span>
-                    </div>
-                </div>
-            `;
+            body.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-border" role="status"></div></div>';
             modal.show();
 
-            // Erst Status prüfen, dann entweder Queue anzeigen oder Request-Option
             fetch(IMPORT_API + '?action=status')
                 .then(r => r.json())
                 .then(data => {
                     if (!data.success) throw new Error(data.message);
-
                     if (data.import_queue_count > 0) {
                         loadImportQueue();
                     } else if (data.request_pending) {
@@ -542,9 +532,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                         showRequestState();
                     }
                 })
-                .catch(err => {
-                    body.innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
-                });
+                .catch(err => { body.innerHTML = `<div class="alert alert-danger">${escHtml(err.message)}</div>`; });
         };
 
         function showRequestState() {
@@ -556,7 +544,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                     <h5 class="mb-3">Fahrzeugdaten von EMD anfordern</h5>
                     <p class="text-muted mb-4">
                         Beim nächsten EMD-Sync werden die Fahrzeugdaten der Leitstelle angefordert.<br>
-                        Sobald die Daten eingetroffen sind, können Sie hier jedes Fahrzeug einzeln importieren.
+                        Sobald die Daten eingetroffen sind, können Sie hier jedes Fahrzeug prüfen und importieren.
                     </p>
                     <button class="btn btn-soft-primary btn-lg" onclick="requestVehicleImport()">
                         <i class="fa-solid fa-tower-broadcast me-2"></i>Jetzt anfordern
@@ -585,255 +573,273 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
 
         window.requestVehicleImport = function() {
             const body = document.getElementById('importModalBody');
-            body.innerHTML = `
-                <div class="d-flex justify-content-center py-4">
-                    <div class="spinner-border" role="status"></div>
-                </div>
-            `;
-
+            body.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-border" role="status"></div></div>';
             const fd = new FormData();
             fd.append('action', 'request');
-
             fetch(IMPORT_API, { method: 'POST', body: fd })
                 .then(r => r.json())
                 .then(data => {
-                    if (data.success) {
-                        showWaitingState();
-                        showToast(data.message, 'success');
-                    } else {
-                        body.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
-                    }
+                    if (data.success) { showWaitingState(); showToast(data.message, 'success'); }
+                    else { body.innerHTML = `<div class="alert alert-danger">${escHtml(data.message)}</div>`; }
                 })
-                .catch(err => {
-                    body.innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
-                });
+                .catch(err => { body.innerHTML = `<div class="alert alert-danger">${escHtml(err.message)}</div>`; });
         };
 
-        // Fahrzeuge aus Queue laden und nacheinander anzeigen
         function loadImportQueue() {
             fetch(IMPORT_API + '?action=list')
                 .then(r => r.json())
                 .then(data => {
                     if (!data.success) throw new Error(data.message);
-
-                    if (data.count === 0) {
-                        showRequestState();
-                        return;
-                    }
-
-                    window._importQueue = data.vehicles;
-                    window._importIndex = 0;
-
-                    const body = document.getElementById('importModalBody');
-                    body.innerHTML = `
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="text-muted" id="importCounter"></span>
-                            <button class="btn btn-ghost btn-sm" onclick="skipAllRemaining()">
-                                Alle ablehnen
-                            </button>
-                        </div>
-                        <div id="importCardContainer" style="min-height:260px;position:relative;"></div>
-                        <div id="importDoneContainer" class="d-none text-center py-4">
-                            <div style="font-size:3rem;color:var(--green);margin-bottom:1rem;">
-                                <i class="fa-solid fa-check-circle"></i>
-                            </div>
-                            <h5>Import abgeschlossen</h5>
-                            <p class="text-muted" id="importSummaryText"></p>
-                            <button class="btn btn-soft-primary" onclick="location.reload()">Seite neu laden</button>
-                        </div>
-                    `;
-
-                    window._importStats = { accepted: 0, rejected: 0 };
-                    showNextVehicle();
+                    if (data.count === 0) { showRequestState(); return; }
+                    renderVehicleList(data.vehicles);
                 })
                 .catch(err => {
-                    document.getElementById('importModalBody').innerHTML =
-                        `<div class="alert alert-danger">${err.message}</div>`;
+                    document.getElementById('importModalBody').innerHTML = `<div class="alert alert-danger">${escHtml(err.message)}</div>`;
                 });
         }
 
-        function showNextVehicle() {
-            const queue = window._importQueue;
-            const idx = window._importIndex;
+        function renderVehicleList(vehicles) {
+            const newVehicles = vehicles.filter(v => !v.existing);
+            const existingVehicles = vehicles.filter(v => v.existing);
 
-            if (idx >= queue.length) {
-                showImportDone();
-                return;
+            let html = `<div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="text-muted">${vehicles.length} Fahrzeuge empfangen</span>
+                <span class="text-muted" id="importProgress"></span>
+            </div>`;
+
+            // Neue Fahrzeuge
+            if (newVehicles.length > 0) {
+                html += `<h6 class="mb-2" style="color:var(--green);"><i class="fa-solid fa-plus me-1"></i>Neue Fahrzeuge (${newVehicles.length})</h6>`;
+                html += '<div class="import-vehicle-list mb-4">';
+                newVehicles.forEach((v, i) => {
+                    html += renderVehicleRow(v, i * 40, false);
+                });
+                html += '</div>';
             }
 
-            const counter = document.getElementById('importCounter');
-            counter.textContent = `Fahrzeug ${idx + 1} von ${queue.length}`;
+            // Existierende Fahrzeuge
+            if (existingVehicles.length > 0) {
+                html += `<h6 class="mb-2" style="color:var(--warning-text);"><i class="fa-solid fa-exclamation-triangle me-1"></i>Bereits vorhanden (${existingVehicles.length})</h6>`;
+                html += '<div class="import-vehicle-list">';
+                existingVehicles.forEach((v, i) => {
+                    html += renderVehicleRow(v, (newVehicles.length + i) * 40, true);
+                });
+                html += '</div>';
+            }
 
-            const v = queue[idx];
-            const exists = (parseInt(v.already_exists) || 0) > 0;
-            const existsWarning = exists
-                ? `<div class="alert alert-warning py-2 px-3 mb-3" style="font-size:var(--fs-sm);">
-                       <i class="fa-solid fa-exclamation-triangle me-1"></i>
-                       Ein Fahrzeug mit diesem Namen oder Identifier existiert bereits.
-                   </div>`
-                : '';
+            document.getElementById('importModalBody').innerHTML = html;
 
-            const card = document.createElement('div');
-            card.className = 'import-vehicle-card';
-            card.style.cssText = 'opacity:0;transform:translateY(20px) scale(0.97);transition:all 0.35s cubic-bezier(0.34,1.56,0.64,1);';
-            card.innerHTML = `
-                ${existsWarning}
-                <div class="intra__tile p-3 mb-3">
-                    <div class="d-flex align-items-start justify-content-between mb-3">
-                        <div>
-                            <h5 class="mb-1">${escHtml(v.name)}</h5>
-                            <span class="text-muted" style="font-size:var(--fs-sm);">${escHtml(v.valuelong || '')}</span>
-                        </div>
-                        <span class="badge text-bg-${rdTypeBadges[v.rd_type] || 'dark'}">${rdTypeLabels[v.rd_type] || 'Andere'}</span>
+            // Stagger-Animation
+            document.querySelectorAll('.import-row').forEach(row => {
+                const delay = parseInt(row.dataset.delay) || 0;
+                setTimeout(() => {
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateY(0)';
+                }, delay);
+            });
+
+            updateProgress();
+        }
+
+        function renderVehicleRow(v, delay, hasExisting) {
+            const e = v.existing;
+            const rdBadge = `<span class="badge text-bg-${rdTypeBadges[v.rd_type] || 'dark'}" style="font-size:var(--fs-xs);">${rdTypeLabels[v.rd_type] || 'Andere'}</span>`;
+            const deptInfo = v.department ? `<span style="font-size:var(--fs-xs);color:var(--text-dimmed);"><i class="fa-solid fa-building me-1"></i>${escHtml(v.department)}</span>` : '';
+
+            let existingInfo = '';
+            if (hasExisting && e) {
+                existingInfo = `
+                    <div class="mt-2 p-2 rounded" style="background:rgba(255,255,255,0.03);font-size:var(--fs-xs);border:1px solid rgba(255,255,255,0.06);">
+                        <span class="text-muted">Bestehendes Fahrzeug:</span>
+                        <strong>${escHtml(e.name)}</strong> (${escHtml(e.veh_type || '-')})
+                        — ${escHtml(e.identifier || '-')}
+                        <span class="badge text-bg-${rdTypeBadges[e.rd_type] || 'dark'}" style="font-size:0.6rem;">${rdTypeLabels[e.rd_type] || '?'}</span>
                     </div>
-                    <div class="row g-2 mb-3" style="font-size:var(--fs-sm);">
-                        <div class="col-6">
-                            <label class="form-label mb-0 text-muted">Typ</label>
-                            <input type="text" class="form-control form-control-sm" id="imp-veh_type" value="${escAttr(v.veh_type || '')}">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label mb-0 text-muted">Identifier</label>
-                            <input type="text" class="form-control form-control-sm" id="imp-identifier" value="${escAttr(v.identifier || '')}">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label mb-0 text-muted">RD-Typ</label>
-                            <select class="form-select form-select-sm" id="imp-rd_type">
-                                <option value="0" ${v.rd_type==0?'selected':''}>Andere</option>
-                                <option value="1" ${v.rd_type==1?'selected':''}>RD - Mit NA</option>
-                                <option value="2" ${v.rd_type==2?'selected':''}>RD - Ohne NA</option>
-                                <option value="3" ${v.rd_type==3?'selected':''}>Feuerwehr</option>
-                            </select>
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label mb-0 text-muted">Erlaubte Jobs</label>
-                            <input type="text" class="form-control form-control-sm" id="imp-allowed_jobs" value="${escAttr(v.job || '')}">
-                        </div>
-                    </div>
-                    <div class="row g-2 mb-3" style="font-size:var(--fs-xs);color:var(--text-dimmed);">
-                        <div class="col-4"><i class="fa-solid fa-building me-1"></i>${escHtml(v.department || '-')}</div>
-                        <div class="col-4"><i class="fa-solid fa-walkie-talkie me-1"></i>Kanal: ${escHtml(v.funkkanal || '-')}</div>
-                        <div class="col-4"><i class="fa-solid fa-image me-1"></i>${escHtml(v.image || '-')}</div>
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-ghost-danger flex-fill" onclick="processImportItem(${v.id}, 'reject')" id="imp-reject-btn">
-                            <i class="fa-solid fa-xmark me-1"></i>Ablehnen
+                `;
+            }
+
+            let actions = '';
+            if (hasExisting && e) {
+                actions = `
+                    <div class="d-flex gap-1 flex-shrink-0">
+                        <button class="btn btn-ghost btn-sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
+                            <i class="fa-solid fa-forward"></i>
                         </button>
-                        <button class="btn btn-success flex-fill" onclick="processImportItem(${v.id}, 'accept')" id="imp-accept-btn" ${exists ? 'disabled title="Existiert bereits"' : ''}>
-                            <i class="fa-solid fa-check me-1"></i>Importieren
+                        <button class="btn btn-soft-warning btn-sm" onclick="importAction(${v.id}, 'merge', ${e.id})" title="Zusammenführen (nur leere Felder füllen)">
+                            <i class="fa-solid fa-code-merge"></i>
                         </button>
+                        <button class="btn btn-soft-danger btn-sm" onclick="importAction(${v.id}, 'overwrite', ${e.id})" title="Überschreiben">
+                            <i class="fa-solid fa-rotate"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                actions = `
+                    <div class="d-flex gap-1 flex-shrink-0">
+                        <button class="btn btn-ghost btn-sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
+                            <i class="fa-solid fa-forward"></i>
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="importAction(${v.id}, 'import')" title="Importieren">
+                            <i class="fa-solid fa-check"></i> Import
+                        </button>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="import-row intra__tile p-3 mb-2" id="import-row-${v.id}" data-delay="${delay}"
+                     style="opacity:0;transform:translateY(10px);transition:all 0.3s ease ${delay}ms;">
+                    <div class="d-flex align-items-start justify-content-between gap-3">
+                        <div class="flex-grow-1" style="min-width:0;">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <strong style="font-size:var(--fs-md);">${escHtml(v.name)}</strong>
+                                ${rdBadge}
+                            </div>
+                            <div class="d-flex flex-wrap gap-3 mb-1" style="font-size:var(--fs-sm);color:var(--text-dimmed);">
+                                <span>${escHtml(v.valuelong || '-')}</span>
+                                <span>Typ: <strong>${escHtml(v.veh_type || '-')}</strong></span>
+                                <span>ID: ${escHtml(v.identifier || '-')}</span>
+                                ${v.funkkanal ? `<span>Kanal: ${escHtml(v.funkkanal)}</span>` : ''}
+                            </div>
+                            ${deptInfo}
+                            ${existingInfo}
+                        </div>
+                        ${actions}
+                    </div>
+                    <div class="import-row-edit d-none mt-2 pt-2" id="import-edit-${v.id}" style="border-top:1px solid rgba(255,255,255,0.06);">
+                        <div class="row g-2" style="font-size:var(--fs-sm);">
+                            <div class="col-4">
+                                <label class="form-label mb-0 text-muted">Typ</label>
+                                <input type="text" class="form-control form-control-sm" id="imp-veh_type-${v.id}" value="${escAttr(v.veh_type || '')}">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label mb-0 text-muted">RD-Typ</label>
+                                <select class="form-select form-select-sm" id="imp-rd_type-${v.id}">
+                                    <option value="0" ${v.rd_type==0?'selected':''}>Andere</option>
+                                    <option value="1" ${v.rd_type==1?'selected':''}>RD - Mit NA</option>
+                                    <option value="2" ${v.rd_type==2?'selected':''}>RD - Ohne NA</option>
+                                    <option value="3" ${v.rd_type==3?'selected':''}>Feuerwehr</option>
+                                </select>
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label mb-0 text-muted">Erlaubte Jobs</label>
+                                <input type="text" class="form-control form-control-sm" id="imp-allowed_jobs-${v.id}" value="${escAttr(v.job || '')}">
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
-
-            const container = document.getElementById('importCardContainer');
-            container.innerHTML = '';
-            container.appendChild(card);
-
-            // Trigger animation
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0) scale(1)';
-                });
-            });
         }
 
-        window.processImportItem = function(queueId, action) {
-            const acceptBtn = document.getElementById('imp-accept-btn');
-            const rejectBtn = document.getElementById('imp-reject-btn');
-            if (acceptBtn) acceptBtn.disabled = true;
-            if (rejectBtn) rejectBtn.disabled = true;
+        window.importAction = function(queueId, action, existingId) {
+            const row = document.getElementById('import-row-' + queueId);
+            if (!row) return;
+
+            // Bei import/overwrite/merge: Erst Edit-Felder zeigen falls noch nicht sichtbar
+            if ((action === 'import' || action === 'overwrite' || action === 'merge') && !row.dataset.confirmed) {
+                const editArea = document.getElementById('import-edit-' + queueId);
+                if (editArea.classList.contains('d-none')) {
+                    editArea.classList.remove('d-none');
+                    row.dataset.confirmed = '';
+                    // Button-Text anpassen zu "Bestätigen"
+                    const btn = row.querySelector(`button[onclick*="'${action}'"]`);
+                    if (btn) {
+                        row.dataset.confirmed = 'pending';
+                        btn.onclick = function() { executeImportAction(queueId, action, existingId); };
+                        const label = action === 'import' ? 'Bestätigen' : action === 'overwrite' ? 'Überschreiben' : 'Zusammenführen';
+                        btn.innerHTML = `<i class="fa-solid fa-check me-1"></i>${label}`;
+                    }
+                    return;
+                }
+            }
+
+            if (action === 'ignore') {
+                executeImportAction(queueId, action);
+            }
+        };
+
+        function executeImportAction(queueId, action, existingId) {
+            const row = document.getElementById('import-row-' + queueId);
+            if (!row) return;
+
+            // Buttons deaktivieren
+            row.querySelectorAll('button').forEach(b => b.disabled = true);
 
             const fd = new FormData();
             fd.append('action', action);
             fd.append('queue_id', queueId);
 
-            if (action === 'accept') {
-                fd.append('veh_type', document.getElementById('imp-veh_type')?.value || '');
-                fd.append('identifier', document.getElementById('imp-identifier')?.value || '');
-                fd.append('rd_type', document.getElementById('imp-rd_type')?.value || '0');
-                fd.append('allowed_jobs', document.getElementById('imp-allowed_jobs')?.value || '');
-                fd.append('name', window._importQueue[window._importIndex]?.name || '');
+            if (existingId) {
+                fd.append('existing_id', existingId);
             }
+
+            // Editierte Werte mitsenden
+            const vehType = document.getElementById('imp-veh_type-' + queueId);
+            const rdType = document.getElementById('imp-rd_type-' + queueId);
+            const allowedJobs = document.getElementById('imp-allowed_jobs-' + queueId);
+            if (vehType) fd.append('veh_type', vehType.value);
+            if (rdType) fd.append('rd_type', rdType.value);
+            if (allowedJobs) fd.append('allowed_jobs', allowedJobs.value);
 
             fetch(IMPORT_API, { method: 'POST', body: fd })
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        window._importStats[action === 'accept' ? 'accepted' : 'rejected']++;
-
-                        // Slide-out Animation
-                        const card = document.querySelector('.import-vehicle-card');
-                        if (card) {
-                            const dir = action === 'accept' ? '-20px' : '20px';
-                            card.style.opacity = '0';
-                            card.style.transform = `translateX(${dir}) scale(0.95)`;
-                        }
-
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(-20px) scale(0.97)';
+                        row.style.maxHeight = row.offsetHeight + 'px';
+                        row.style.overflow = 'hidden';
                         setTimeout(() => {
-                            window._importIndex++;
-                            showNextVehicle();
-                        }, 300);
+                            row.style.maxHeight = '0';
+                            row.style.padding = '0';
+                            row.style.marginBottom = '0';
+                            row.style.borderWidth = '0';
+                        }, 200);
+                        setTimeout(() => { row.remove(); updateProgress(); }, 500);
+
+                        const actionLabel = {import: 'importiert', overwrite: 'überschrieben', merge: 'zusammengeführt', ignore: 'ignoriert'};
+                        showToast(data.message || `Fahrzeug ${actionLabel[action] || 'verarbeitet'}`, action === 'ignore' ? 'info' : 'success');
                     } else {
                         showToast(data.message, 'error');
-                        if (acceptBtn) acceptBtn.disabled = false;
-                        if (rejectBtn) rejectBtn.disabled = false;
+                        row.querySelectorAll('button').forEach(b => b.disabled = false);
                     }
                 })
                 .catch(err => {
                     showToast(err.message, 'error');
-                    if (acceptBtn) acceptBtn.disabled = false;
-                    if (rejectBtn) rejectBtn.disabled = false;
+                    row.querySelectorAll('button').forEach(b => b.disabled = false);
                 });
-        };
+        }
 
-        window.skipAllRemaining = function() {
-            showConfirm('Alle verbleibenden Fahrzeuge ablehnen?', {
-                danger: true,
-                confirmText: 'Alle ablehnen',
-                title: 'Bulk-Ablehnung'
-            }).then(result => {
-                if (!result) return;
-
-                const queue = window._importQueue;
-                const promises = [];
-                for (let i = window._importIndex; i < queue.length; i++) {
-                    const fd = new FormData();
-                    fd.append('action', 'reject');
-                    fd.append('queue_id', queue[i].id);
-                    promises.push(
-                        fetch(IMPORT_API, { method: 'POST', body: fd }).then(r => r.json())
-                    );
-                    window._importStats.rejected++;
-                }
-
-                Promise.all(promises).then(() => {
-                    window._importIndex = queue.length;
-                    showImportDone();
-                });
-            });
-        };
-
-        function showImportDone() {
-            document.getElementById('importCardContainer')?.classList.add('d-none');
-            document.getElementById('importCounter')?.closest('.d-flex')?.classList.add('d-none');
-            const done = document.getElementById('importDoneContainer');
-            done.classList.remove('d-none');
-            document.getElementById('importSummaryText').textContent =
-                `${window._importStats.accepted} importiert, ${window._importStats.rejected} abgelehnt`;
-
-            // Badge aktualisieren
-            const badge = document.getElementById('importBadge');
-            if (badge) badge.classList.add('d-none');
+        function updateProgress() {
+            const remaining = document.querySelectorAll('.import-row').length;
+            const el = document.getElementById('importProgress');
+            if (el) {
+                el.textContent = remaining > 0 ? `${remaining} verbleibend` : '';
+            }
+            if (remaining === 0) {
+                const body = document.getElementById('importModalBody');
+                body.innerHTML = `
+                    <div class="text-center py-4">
+                        <div style="font-size:3rem;color:var(--green);margin-bottom:1rem;">
+                            <i class="fa-solid fa-check-circle"></i>
+                        </div>
+                        <h5>Import abgeschlossen</h5>
+                        <p class="text-muted">Alle Fahrzeuge wurden verarbeitet.</p>
+                        <button class="btn btn-soft-primary" onclick="location.reload()">Seite neu laden</button>
+                    </div>
+                `;
+                const badge = document.getElementById('importBadge');
+                if (badge) badge.classList.add('d-none');
+            }
         }
 
         function escHtml(str) {
             const d = document.createElement('div');
-            d.textContent = str;
+            d.textContent = str ?? '';
             return d.innerHTML;
         }
         function escAttr(str) {
-            return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;');
+            return String(str ?? '').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;');
         }
     </script>
     <?php include __DIR__ . "/../../../assets/components/footer.php"; ?>
