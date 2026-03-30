@@ -1,12 +1,6 @@
 phpinfo.php
 .env
-# Dev-Dependencies nicht mitshippen (werden via GitHub Action aktualisiert)
-vendor/phpstan/
-vendor/phpunit/
-vendor/myclabs/
-vendor/phar-io/
-vendor/sebastian/
-vendor/theseer/
+vendor
 php_errors.log
 storage/logs/
 storage/documents/**.pdf
