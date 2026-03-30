@@ -665,10 +665,10 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                         <button class="btn btn-ghost btn-sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
-                        <button class="btn btn-soft-warning btn-sm" onclick="importAction(${v.id}, 'merge', ${e.id})" title="Zusammenführen (nur leere Felder füllen)">
+                        <button class="btn btn-soft-warning btn-sm" data-import-action="merge" onclick="importAction(${v.id}, 'merge', ${e.id})" title="Zusammenführen (nur leere Felder füllen)">
                             <i class="fa-solid fa-code-merge"></i>
                         </button>
-                        <button class="btn btn-soft-danger btn-sm" onclick="importAction(${v.id}, 'overwrite', ${e.id})" title="Überschreiben">
+                        <button class="btn btn-soft-danger btn-sm" data-import-action="overwrite" onclick="importAction(${v.id}, 'overwrite', ${e.id})" title="Überschreiben">
                             <i class="fa-solid fa-rotate"></i>
                         </button>
                     </div>
@@ -679,7 +679,7 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
                         <button class="btn btn-ghost btn-sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
-                        <button class="btn btn-success btn-sm" onclick="importAction(${v.id}, 'import')" title="Importieren">
+                        <button class="btn btn-success btn-sm" data-import-action="import" onclick="importAction(${v.id}, 'import')" title="Importieren">
                             <i class="fa-solid fa-check"></i> Import
                         </button>
                     </div>
@@ -735,21 +735,46 @@ if (!Permissions::check(['admin', 'vehicles.view'])) {
             const row = document.getElementById('import-row-' + queueId);
             if (!row) return;
 
-            // Ignorieren braucht keine Edit-Felder
+            // Ignorieren sofort ausführen
             if (action === 'ignore') {
                 executeImportAction(queueId, action);
                 return;
             }
 
-            // Edit-Felder aufklappen wenn noch nicht sichtbar → nur öffnen, nicht ausführen
+            // Edit-Felder aufklappen
             const editArea = document.getElementById('import-edit-' + queueId);
             if (editArea.classList.contains('d-none')) {
                 editArea.classList.remove('d-none');
+            }
+
+            const activeAction = row.dataset.activeAction;
+
+            // Gleicher Button wie vorher → ausführen
+            if (activeAction === action) {
+                executeImportAction(queueId, action, existingId);
                 return;
             }
 
-            // Edit-Felder sind bereits sichtbar → Aktion ausführen
-            executeImportAction(queueId, action, existingId);
+            // Anderer oder erster Button → als aktiv markieren
+            row.dataset.activeAction = action;
+
+            // Alle Buttons in dieser Row zurücksetzen
+            const labels = {import: 'Import', overwrite: 'Überschreiben', merge: 'Zusammenführen'};
+            const icons = {import: 'check', overwrite: 'rotate', merge: 'code-merge'};
+            const styles = {import: 'btn-success', overwrite: 'btn-soft-danger', merge: 'btn-soft-warning'};
+
+            row.querySelectorAll('[data-import-action]').forEach(btn => {
+                const a = btn.dataset.importAction;
+                btn.className = `btn ${styles[a]} btn-sm`;
+                btn.innerHTML = `<i class="fa-solid fa-${icons[a]}"></i>`;
+            });
+
+            // Aktiven Button hervorheben
+            const activeBtn = row.querySelector(`[data-import-action="${action}"]`);
+            if (activeBtn) {
+                activeBtn.className = `btn ${styles[action]} btn-sm`;
+                activeBtn.innerHTML = `<i class="fa-solid fa-check me-1"></i>${labels[action]}`;
+            }
         };
 
         function executeImportAction(queueId, action, existingId) {
