@@ -113,8 +113,11 @@ HTML;
         try {
             $pdo = $this->pdo;
             $projectRoot = $this->appRoot;
-            // database-init.php echoes progress — discard it
-            ob_start();
+
+            // Discard ALL output from database-init.php.
+            // Use a callback-based buffer that swallows everything,
+            // so even if the script flushes internally, nothing reaches the browser.
+            ob_start(function () { return ''; });
             require $this->initScript;
             ob_end_clean();
         } catch (\Exception $e) {
