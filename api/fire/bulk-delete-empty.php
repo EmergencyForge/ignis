@@ -158,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             {$statusCondition}
         ";
         $deleteStmt = $pdo->prepare($deleteQuery);
-        $userId = $_SESSION['userid'] ?? null;
+        $userId = $_SESSION['userid'];
         $deleteStmt->execute(['userId' => $userId, 'userId2' => $userId]);
 
         $affectedRows = $deleteStmt->rowCount();
