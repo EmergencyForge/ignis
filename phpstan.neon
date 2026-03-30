@@ -281,12 +281,59 @@ parameters:
             path: login.php
             reportUnmatched: false
 
-        # Mitarbeiter Konfigurations-Konstanten
+        # Mitarbeiter Konfigurations-Konstanten (CHAR_ID, REGISTRATION_MODE)
         -
             identifier: if.alwaysTrue
             paths:
                 - mitarbeiter/create.php
                 - mitarbeiter/profile.php
+                - mitarbeiter/list.php
+                - api/personnel/update-profile.php
+            reportUnmatched: false
+
+        -
+            identifier: ternary.alwaysTrue
+            paths:
+                - mitarbeiter/create.php
+                - mitarbeiter/profile.php
+                - api/personnel/update-profile.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.leftAlwaysTrue
+            paths:
+                - mitarbeiter/create.php
+                - mitarbeiter/profile.php
+                - api/personnel/update-profile.php
+            reportUnmatched: false
+
+        -
+            identifier: identical.alwaysFalse
+            paths:
+                - mitarbeiter/profile.php
+            reportUnmatched: false
+
+        -
+            identifier: booleanAnd.alwaysFalse
+            paths:
+                - mitarbeiter/profile.php
+                - api/personnel/generate-invite.php
+            reportUnmatched: false
+
+        -
+            identifier: notIdentical.alwaysTrue
+            path: api/personnel/generate-invite.php
+            reportUnmatched: false
+
+        -
+            identifier: notIdentical.alwaysFalse
+            path: api/personnel/generate-invite.php
+            reportUnmatched: false
+
+        # notifFilterUrl accepts mixed array values (string + int for offset)
+        -
+            identifier: argument.type
+            path: benachrichtigungen/index.php
             reportUnmatched: false
 
         # Setup-Skripte - komplexe Migration-Logik

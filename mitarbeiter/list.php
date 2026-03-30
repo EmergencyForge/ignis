@@ -274,7 +274,7 @@ $fwginfo = $stmtf->fetchAll(PDO::FETCH_UNIQUE);
                                     <div class="invalid-feedback">Pflichtfeld</div>
                                 </div>
                             </div>
-                            <?php /** @phpstan-ignore if.alwaysTrue (CHAR_ID is runtime-configured) */ if (CHAR_ID) : ?>
+                            <?php if (CHAR_ID) : ?>
                                 <div class="col-md-6">
                                     <div class="form-floating">
                                         <input class="form-control" type="text" name="charakterid" id="cm_charakterid" placeholder="ABC12345" pattern="[a-zA-Z]{3}[0-9]{5}" required>

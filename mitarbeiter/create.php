@@ -76,10 +76,8 @@ try {
         exit;
     }
 
-    /** @phpstan-ignore ternary.alwaysTrue (CHAR_ID is runtime-configured) */
     $charakterid = CHAR_ID ? ($_POST['charakterid'] ?? '') : '';
 
-    /** @phpstan-ignore booleanAnd.leftAlwaysTrue (CHAR_ID is runtime-configured) */
     if (empty($fullname) || empty($gebdatum) || empty($dienstgrad) || (CHAR_ID && empty($charakterid))) {
         $response['message'] = "Bitte alle erforderlichen Felder ausfüllen.";
         echo json_encode($response);

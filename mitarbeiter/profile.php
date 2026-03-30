@@ -100,6 +100,7 @@ if (isset($_POST['new'])) {
         $zusatzqual = $_POST['zusatzqual'];
         $pfp = trim($_POST['pfp'] ?? '');
 
+
         $charakterid = CHAR_ID ? ($_POST['charakterid'] ?? '') : '';
 
         $stmt = $pdo->prepare("SELECT * FROM intra_mitarbeiter WHERE id = :id");
@@ -208,6 +209,7 @@ if (isset($_POST['new'])) {
             $currentGeschlecht != $geschlecht ||
             $currentZusatzqual != $zusatzqual ||
             $currentPfp != $pfp ||
+
             (CHAR_ID && $currentCharakterid != $charakterid)
         );
 
