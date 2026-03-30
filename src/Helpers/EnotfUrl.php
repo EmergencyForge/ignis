@@ -21,10 +21,9 @@ class EnotfUrl
 
     public static function useCleanUrls(): bool
     {
-        if (self::$cleanUrls === null) {
-            self::$cleanUrls = ($_ENV['APP_ENV'] ?? 'production') !== 'development';
-        }
-        return self::$cleanUrls;
+        // Clean URLs disabled — too many relative paths in protocol pages break.
+        // Legacy query-parameter URLs work everywhere (Apache, Nginx, relative fetches).
+        return false;
     }
 
     private static function basePath(): string
