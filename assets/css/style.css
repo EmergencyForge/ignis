@@ -258,88 +258,40 @@ body#alogin {
   -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 75%);
 }
 
-#login-background .bg-blip {
+#login-background .bg-floats {
   position: absolute;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(var(--accent-rgb, 209, 0, 0), 0.06) 30%, rgba(var(--accent-rgb, 209, 0, 0), 0.06) 70%, transparent 100%);
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
-#login-background .bg-blip::before {
-  content: "";
+#login-background .bg-float-icon {
+  --drift-x: 0px;
+  --drift-y: 0px;
+  --rotate: 0deg;
+  --peak-opacity: 0.08;
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(var(--accent-rgb, 209, 0, 0), 0.7);
-  box-shadow:
-    0 0 6px 2px rgba(var(--accent-rgb, 209, 0, 0), 0.5),
-    0 0 20px 6px rgba(var(--accent-rgb, 209, 0, 0), 0.2);
+  color: #fff;
+  opacity: 0;
 }
 
-#login-background .bg-blip::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 1px;
-  width: 80px;
-  border-radius: 1px;
-}
-
-#login-background .bg-blip--1 {
-  top: 192px;
-}
-
-#login-background .bg-blip--1::before {
-  animation: blipMove1 14s linear infinite;
-}
-
-#login-background .bg-blip--1::after {
-  background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb, 209, 0, 0), 0.25));
-  animation: blipTrail1 14s linear infinite;
-}
-
-#login-background .bg-blip--2 {
-  top: 384px;
-}
-
-#login-background .bg-blip--2::before {
-  width: 4px;
-  height: 4px;
-  opacity: 0.6;
-  animation: blipMove2 18s linear infinite;
-  animation-delay: -7s;
-}
-
-#login-background .bg-blip--2::after {
-  width: 60px;
-  background: linear-gradient(270deg, transparent, rgba(var(--accent-rgb, 209, 0, 0), 0.15));
-  animation: blipTrail2 18s linear infinite;
-  animation-delay: -7s;
-}
-
-@keyframes blipMove1 {
-  0% { left: -6px; }
-  100% { left: 100%; }
-}
-
-@keyframes blipTrail1 {
-  0% { left: -86px; }
-  100% { left: calc(100% - 80px); }
-}
-
-@keyframes blipMove2 {
-  0% { left: calc(100% + 4px); }
-  100% { left: -4px; }
-}
-
-@keyframes blipTrail2 {
-  0% { left: calc(100% + 4px); }
-  100% { left: -4px; }
+@keyframes floatInPlace {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0.5);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(calc(var(--drift-x) * 0.2), calc(var(--drift-y) * 0.2)) rotate(calc(var(--rotate) * 0.2)) scale(1);
+    opacity: var(--peak-opacity);
+  }
+  80% {
+    transform: translate(calc(var(--drift-x) * 0.8), calc(var(--drift-y) * 0.8)) rotate(calc(var(--rotate) * 0.8)) scale(1);
+    opacity: var(--peak-opacity);
+  }
+  100% {
+    transform: translate(var(--drift-x), var(--drift-y)) rotate(var(--rotate)) scale(0.5);
+    opacity: 0;
+  }
 }
 
 #login-background .bg-glow {
