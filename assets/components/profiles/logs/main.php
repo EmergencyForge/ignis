@@ -35,7 +35,7 @@ if (empty($logs)): ?>
         <div class="comment-item comment-item--<?= $logType ?>">
             <div class="comment-item__indicator"></div>
             <div class="comment-item__body">
-                <div class="comment-item__content"><?= htmlspecialchars($log['content']) ?></div>
+                <div class="comment-item__content"><?= $log['content'] ?></div>
                 <div class="comment-item__meta">
                     <span><i class="fa-solid fa-user"></i> <?= htmlspecialchars($log['paneluser']) ?></span>
                     <span><i class="fa-solid fa-clock"></i> <?= $logtime ?></span>
