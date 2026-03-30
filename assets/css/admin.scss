@@ -1578,6 +1578,12 @@ td.dt-empty {
   height: 24px;
   pointer-events: none;
 
+  // Inside inline-edit cells, align to the input not the cell
+  .inline-edit-cell & {
+    top: 4px;
+    transform: none;
+  }
+
   &.available {
     color: #28a745;
     font-size: 20px;
