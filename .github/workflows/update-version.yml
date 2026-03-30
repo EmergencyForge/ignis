@@ -6,6 +6,9 @@ on:
     tags:
       - "v*" # Triggert bei Tags wie v1.0.0, v1.2.3, etc.
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   update-version:
     runs-on: ubuntu-latest
