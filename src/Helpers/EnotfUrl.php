@@ -17,8 +17,6 @@ namespace App\Helpers;
  */
 class EnotfUrl
 {
-    private static ?bool $cleanUrls = null;
-
     public static function useCleanUrls(): bool
     {
         // Clean URLs disabled — too many relative paths in protocol pages break.
