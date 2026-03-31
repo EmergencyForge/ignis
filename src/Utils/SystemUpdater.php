@@ -282,6 +282,67 @@ class SystemUpdater
         return null;
     }
 
+    /**
+     * Check if PHP limits are sufficient for downloading and extracting updates
+     * @return array List of warning messages (empty if all OK)
+     */
+    private function checkPhpLimits(): array
+    {
+        $warnings = [];
+        $requirements = [
+            'memory_limit'        => ['min' => 256, 'recommended' => 512, 'unit' => 'M'],
+            'max_execution_time'  => ['min' => 120, 'recommended' => 300, 'unit' => 's'],
+            'upload_max_filesize' => ['min' => 128, 'recommended' => 256, 'unit' => 'M'],
+            'post_max_size'       => ['min' => 128, 'recommended' => 256, 'unit' => 'M'],
+        ];
+
+        foreach ($requirements as $key => $req) {
+            $raw = ini_get($key);
+            if ($raw === false || $raw === '') continue;
+
+            $value = $this->parsePhpSize($raw);
+
+            // max_execution_time: 0 = unlimited (OK), values in seconds
+            if ($key === 'max_execution_time') {
+                if ($value !== 0 && $value < $req['min']) {
+                    $warnings[] = "{$key} = {$raw} (mindestens {$req['min']}s, empfohlen: {$req['recommended']}s)";
+                }
+                continue;
+            }
+
+            // Memory/upload sizes in MB
+            $valueMB = $value / (1024 * 1024);
+            // -1 = unlimited (OK)
+            if ($value === -1) continue;
+
+            if ($valueMB < $req['min']) {
+                $warnings[] = "{$key} = {$raw} (mindestens {$req['min']}M, empfohlen: {$req['recommended']}M)";
+            }
+        }
+
+        return $warnings;
+    }
+
+    /**
+     * Parse PHP ini size values (e.g. "128M", "1G", "512K") to bytes
+     */
+    private function parsePhpSize(string $size): int
+    {
+        $size = trim($size);
+        if ($size === '-1') return -1;
+        if ($size === '0') return 0;
+
+        $value = (int)$size;
+        $unit = strtoupper(substr($size, -1));
+
+        return match ($unit) {
+            'G' => $value * 1024 * 1024 * 1024,
+            'M' => $value * 1024 * 1024,
+            'K' => $value * 1024,
+            default => $value,
+        };
+    }
+
     private function compareVersions(string $version1, string $version2): bool
     {
         // Remove 'v' prefix if present
@@ -327,6 +388,12 @@ class SystemUpdater
             // Check write permissions
             if (!is_writable($appRoot)) {
                 throw new Exception('Keine Schreibberechtigung für das Anwendungsverzeichnis. Bitte Dateiberechtigungen prüfen.');
+            }
+
+            // Check PHP configuration for large file handling
+            $phpWarnings = $this->checkPhpLimits();
+            if (!empty($phpWarnings)) {
+                throw new Exception("PHP-Konfiguration unzureichend für Update:\n" . implode("\n", $phpWarnings));
             }
 
             // Check disk space before starting update
