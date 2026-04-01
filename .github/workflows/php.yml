@@ -155,7 +155,7 @@ jobs:
 
       - name: PHPStan-Ergebnis im PR posten
         if: always() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
