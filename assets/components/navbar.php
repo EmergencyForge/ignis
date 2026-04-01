@@ -64,6 +64,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         padding: 1rem 1.25rem 0.5rem;
         flex-shrink: 0;
     }
+
     .sidebar-logo img {
         height: 38px;
         width: auto;
@@ -79,6 +80,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         background: #2c2c34;
         border-radius: 10px;
     }
+
     .sidebar-avatar {
         width: 34px;
         height: 34px;
@@ -94,10 +96,12 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         margin-right: 0.6rem;
         letter-spacing: 0.5px;
     }
+
     .sidebar-user-info {
         overflow: hidden;
         min-width: 0;
     }
+
     .sidebar-username {
         color: #fff;
         font-weight: 500;
@@ -108,12 +112,14 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
     .sidebar-role {
         color: var(--sidebar-role-text);
         font-size: 0.75rem;
         display: flex;
         align-items: center;
     }
+
     .sidebar-role-dot {
         display: inline-block;
         width: 8px;
@@ -129,7 +135,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         height: 32px;
         border-radius: 8px;
         border: none;
-        background: rgba(255,255,255,0.08);
+        background: rgba(255, 255, 255, 0.08);
         color: var(--sidebar-icon-color);
         display: flex;
         align-items: center;
@@ -140,6 +146,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         font-size: 0.85rem;
         transition: all 0.15s;
     }
+
     .sidebar-search-btn:hover {
         background: var(--sidebar-hover-bg);
         color: #fff;
@@ -149,7 +156,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     .global-search-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.6);
+        background: rgba(0, 0, 0, 0.6);
         z-index: 1080;
         display: none;
         align-items: flex-start;
@@ -157,35 +164,48 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         padding-top: 12vh;
         backdrop-filter: blur(4px);
     }
+
     .global-search-overlay.show {
         display: flex;
     }
+
     .global-search-modal {
         width: 100%;
         max-width: 560px;
         background: var(--sidebar-bg);
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 14px;
-        box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
         overflow: hidden;
         animation: gsm-in 0.15s ease;
     }
+
     @keyframes gsm-in {
-        from { opacity: 0; transform: scale(0.96) translateY(-10px); }
-        to { opacity: 1; transform: scale(1) translateY(0); }
+        from {
+            opacity: 0;
+            transform: scale(0.96) translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
     }
+
     .gsm-input-wrap {
         display: flex;
         align-items: center;
         padding: 0.75rem 1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         gap: 0.6rem;
     }
+
     .gsm-input-wrap i {
         color: var(--sidebar-icon-color);
         font-size: 0.95rem;
         flex-shrink: 0;
     }
+
     .gsm-input-wrap input {
         flex: 1;
         background: transparent;
@@ -194,18 +214,21 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         font-size: 0.95rem;
         outline: none;
     }
+
     .gsm-input-wrap input::placeholder {
         color: var(--sidebar-icon-color);
     }
+
     .gsm-input-wrap .gsm-shortcut {
         color: var(--sidebar-icon-color);
         font-size: 0.65rem;
-        border: 1px solid rgba(255,255,255,0.15);
+        border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 4px;
         padding: 0.1rem 0.35rem;
         flex-shrink: 0;
         font-family: inherit;
     }
+
     .gsm-results {
         max-height: 420px;
         overflow-y: auto;
@@ -213,9 +236,11 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         scrollbar-width: thin;
         scrollbar-color: var(--darkgray) transparent;
     }
+
     .gsm-results:empty {
         display: none;
     }
+
     .gsr-group-title {
         display: flex;
         align-items: center;
@@ -227,14 +252,17 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         color: var(--text-dimmed);
         font-weight: 600;
     }
+
     .gsr-group-title:not(:first-child) {
-        border-top: 1px solid rgba(255,255,255,0.06);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
         margin-top: 0.25rem;
         padding-top: 0.55rem;
     }
+
     .gsr-group-title i {
         font-size: 0.7rem;
     }
+
     .gsr-item {
         display: block;
         padding: 0.45rem 1rem;
@@ -244,12 +272,14 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         border-radius: 8px;
         margin: 1px 0.4rem;
     }
+
     .gsr-item:hover,
     .gsr-item.gsr-active {
         background: var(--sidebar-hover-bg);
         color: #fff;
         text-decoration: none;
     }
+
     .gsr-item-title {
         font-size: 0.85rem;
         font-weight: 500;
@@ -258,6 +288,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
     .gsr-item-sub {
         font-size: 0.75rem;
         color: var(--sidebar-icon-color);
@@ -265,6 +296,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
     .gsr-empty,
     .gsr-loading {
         padding: 1.25rem 1rem;
@@ -272,8 +304,9 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         color: var(--sidebar-icon-color);
         font-size: 0.85rem;
     }
+
     .gsm-footer {
-        border-top: 1px solid rgba(255,255,255,0.06);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
         padding: 0.45rem 1rem;
         display: flex;
         align-items: center;
@@ -281,9 +314,10 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         font-size: 0.7rem;
         color: var(--sidebar-icon-color);
     }
+
     .gsm-footer kbd {
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 3px;
         padding: 0.05rem 0.3rem;
         font-size: 0.65rem;
@@ -299,7 +333,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         height: 32px;
         border-radius: 8px;
         border: none;
-        background: rgba(255,255,255,0.08);
+        background: rgba(255, 255, 255, 0.08);
         color: var(--sidebar-icon-color);
         display: flex;
         align-items: center;
@@ -310,6 +344,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         transition: all 0.15s;
         position: relative;
     }
+
     .sidebar-theme-btn:hover {
         background: var(--sidebar-hover-bg);
         color: #fff;
@@ -322,21 +357,31 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         right: 0;
         width: 220px;
         background: var(--sidebar-bg);
-        border: 1px solid rgba(255,255,255,0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
-        box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
         padding: 0.75rem;
         display: none;
         z-index: 1060;
         animation: tp-in 0.15s ease;
     }
+
     .theme-picker-popover.show {
         display: block;
     }
+
     @keyframes tp-in {
-        from { opacity: 0; transform: translateY(6px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(6px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
+
     .tp-title {
         font-size: 0.7rem;
         text-transform: uppercase;
@@ -345,12 +390,14 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         font-weight: 600;
         margin-bottom: 0.5rem;
     }
+
     .tp-presets {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 6px;
         margin-bottom: 0.6rem;
     }
+
     .tp-swatch {
         width: 100%;
         aspect-ratio: 1;
@@ -363,50 +410,59 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         align-items: center;
         justify-content: center;
     }
+
     .tp-swatch:hover {
         transform: scale(1.1);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
+
     .tp-swatch.active {
         border-color: #fff;
     }
+
     .tp-swatch.active::after {
         content: '\f00c';
-        font-family: 'Font Awesome 6 Free';
+        font-family: 'Font Awesome 7 Free';
         font-weight: 900;
         font-size: 0.6rem;
         color: #fff;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     }
+
     .tp-custom-row {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        border-top: 1px solid rgba(255,255,255,0.06);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
         padding-top: 0.6rem;
     }
+
     .tp-custom-label {
         font-size: 0.75rem;
         color: var(--sidebar-icon-color);
         flex: 1;
     }
+
     .tp-custom-input {
         width: 32px;
         height: 32px;
-        border: 2px solid rgba(255,255,255,0.15);
+        border: 2px solid rgba(255, 255, 255, 0.15);
         border-radius: 8px;
         cursor: pointer;
         padding: 0;
         background: none;
         flex-shrink: 0;
     }
+
     .tp-custom-input::-webkit-color-swatch-wrapper {
         padding: 2px;
     }
+
     .tp-custom-input::-webkit-color-swatch {
         border: none;
         border-radius: 4px;
     }
+
     .tp-custom-input::-moz-color-swatch {
         border: none;
         border-radius: 4px;
@@ -421,12 +477,15 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         scrollbar-width: thin;
         scrollbar-color: var(--darkgray) transparent;
     }
+
     .sidebar-nav::-webkit-scrollbar {
         width: 4px;
     }
+
     .sidebar-nav::-webkit-scrollbar-track {
         background: transparent;
     }
+
     .sidebar-nav::-webkit-scrollbar-thumb {
         background: var(--darkgray);
         border-radius: 2px;
@@ -439,17 +498,19 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         color: var(--sidebar-link-color);
         text-decoration: none;
         transition: background 0.2s var(--ease-out-expo),
-                    color 0.15s ease;
+            color 0.15s ease;
         margin: 0.2rem 0.5rem;
         border-radius: 8px;
         font-size: 0.9rem;
         position: relative;
     }
+
     .sidebar-link:hover {
         background: var(--sidebar-hover-bg);
         color: #fff;
         text-decoration: none;
     }
+
     .sidebar-link.active {
         background: var(--sidebar-hover-bg);
         color: #fff;
@@ -457,6 +518,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         /* Accent bar on active link */
         box-shadow: inset 3px 0 0 var(--main-color);
     }
+
     .sidebar-link i:first-child {
         width: 22px;
         color: var(--sidebar-icon-color);
@@ -466,10 +528,12 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         flex-shrink: 0;
         transition: color 0.15s ease, transform 0.2s var(--spring-gentle);
     }
+
     .sidebar-link:hover i:first-child {
         color: #fff;
         transform: scale(1.1);
     }
+
     .sidebar-link.active i:first-child {
         color: var(--main-color);
     }
@@ -481,6 +545,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         transition: transform 0.35s var(--spring-gentle);
         color: var(--sidebar-icon-color);
     }
+
     .sidebar-toggle.open .sidebar-chevron {
         transform: rotate(180deg);
     }
@@ -491,21 +556,45 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         overflow: hidden;
         transition: max-height 0.4s var(--ease-out-expo);
     }
+
     .sidebar-submenu.open {
         max-height: 600px;
     }
 
     /* Stagger sublinks on open */
-    .sidebar-submenu.open > .sidebar-submenu-inner > :nth-child(1) { animation-delay: 0.02s; }
-    .sidebar-submenu.open > .sidebar-submenu-inner > :nth-child(2) { animation-delay: 0.04s; }
-    .sidebar-submenu.open > .sidebar-submenu-inner > :nth-child(3) { animation-delay: 0.06s; }
-    .sidebar-submenu.open > .sidebar-submenu-inner > :nth-child(4) { animation-delay: 0.08s; }
-    .sidebar-submenu.open > .sidebar-submenu-inner > :nth-child(5) { animation-delay: 0.10s; }
-    .sidebar-submenu.open > .sidebar-submenu-inner > :nth-child(6) { animation-delay: 0.12s; }
-    .sidebar-submenu.open > .sidebar-submenu-inner > :nth-child(7) { animation-delay: 0.14s; }
-    .sidebar-submenu.open > .sidebar-submenu-inner > :nth-child(n+8) { animation-delay: 0.16s; }
+    .sidebar-submenu.open>.sidebar-submenu-inner> :nth-child(1) {
+        animation-delay: 0.02s;
+    }
 
-    .sidebar-submenu.open > .sidebar-submenu-inner > * {
+    .sidebar-submenu.open>.sidebar-submenu-inner> :nth-child(2) {
+        animation-delay: 0.04s;
+    }
+
+    .sidebar-submenu.open>.sidebar-submenu-inner> :nth-child(3) {
+        animation-delay: 0.06s;
+    }
+
+    .sidebar-submenu.open>.sidebar-submenu-inner> :nth-child(4) {
+        animation-delay: 0.08s;
+    }
+
+    .sidebar-submenu.open>.sidebar-submenu-inner> :nth-child(5) {
+        animation-delay: 0.10s;
+    }
+
+    .sidebar-submenu.open>.sidebar-submenu-inner> :nth-child(6) {
+        animation-delay: 0.12s;
+    }
+
+    .sidebar-submenu.open>.sidebar-submenu-inner> :nth-child(7) {
+        animation-delay: 0.14s;
+    }
+
+    .sidebar-submenu.open>.sidebar-submenu-inner> :nth-child(n+8) {
+        animation-delay: 0.16s;
+    }
+
+    .sidebar-submenu.open>.sidebar-submenu-inner>* {
         animation: sublink-enter 0.3s var(--ease-out-expo) both;
     }
 
@@ -514,6 +603,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             opacity: 0;
             transform: translateX(-6px);
         }
+
         to {
             opacity: 1;
             transform: translateX(0);
@@ -531,6 +621,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         font-weight: 500;
         margin-top: 0.15rem;
     }
+
     .sidebar-section-title:first-child {
         padding-top: 0.3rem;
         margin-top: 0;
@@ -545,11 +636,23 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         margin-right: 0.4rem;
         flex-shrink: 0;
     }
+
     .sidebar-section-title[data-section="enotf"]::before,
-    .sidebar-section-title[data-section="enotf-settings"]::before { background: var(--main-color); }
-    .sidebar-section-title[data-section="firetab"]::before { background: var(--btn-success-bg, #3a7d44); }
-    .sidebar-section-title[data-section="manv"]::before { background: var(--btn-warning-bg, #c49a2a); }
-    .sidebar-section-title[data-section="system"]::before { background: var(--link-color, #7ba3d4); }
+    .sidebar-section-title[data-section="enotf-settings"]::before {
+        background: var(--main-color);
+    }
+
+    .sidebar-section-title[data-section="firetab"]::before {
+        background: var(--btn-success-bg, #3a7d44);
+    }
+
+    .sidebar-section-title[data-section="manv"]::before {
+        background: var(--btn-warning-bg, #c49a2a);
+    }
+
+    .sidebar-section-title[data-section="system"]::before {
+        background: var(--link-color, #7ba3d4);
+    }
 
     .sidebar-sublink {
         display: flex;
@@ -559,22 +662,25 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         text-decoration: none;
         font-size: 0.82rem;
         transition: color 0.15s ease,
-                    background 0.2s var(--ease-out-expo),
-                    padding-left 0.2s var(--ease-out-expo);
+            background 0.2s var(--ease-out-expo),
+            padding-left 0.2s var(--ease-out-expo);
         margin: 1px 0.5rem;
         border-radius: 8px;
         position: relative;
     }
+
     .sidebar-sublink:hover {
         color: #fff;
         background: var(--sidebar-hover-bg);
         padding-left: 1.9rem;
         text-decoration: none;
     }
+
     .sidebar-sublink.active-sub {
         color: #fff;
         background: var(--sidebar-hover-bg);
     }
+
     .sidebar-sublink.active-sub::before {
         content: '';
         position: absolute;
@@ -587,6 +693,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         background: var(--main-color);
         transition: transform 0.3s var(--spring);
     }
+
     .sidebar-sublink.active-sub:hover::before {
         transform: translateY(-50%) scale(1.5);
     }
@@ -627,6 +734,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         padding: 0 1rem;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
+
     .sidebar-mobile-topbar img {
         height: 32px;
         width: auto;
@@ -643,6 +751,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         border-radius: 8px;
         transition: background 0.15s;
     }
+
     .sidebar-toggle-btn:hover {
         background: var(--sidebar-hover-bg);
     }
@@ -653,6 +762,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         align-items: center;
         gap: 0.5rem;
     }
+
     .sidebar-mobile-right .sidebar-notification-badge {
         font-size: 0.6rem;
         padding: 0.1rem 0.35rem;
@@ -668,6 +778,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         pointer-events: none;
         transition: opacity 0.4s var(--ease-out-expo);
     }
+
     .sidebar-overlay.active {
         opacity: 1;
         pointer-events: auto;
@@ -681,9 +792,11 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             transform: translateX(-100%);
             z-index: 1045;
         }
+
         .intra-sidebar.open {
             transform: translateX(0);
         }
+
         .sidebar-mobile-topbar {
             display: flex;
         }
@@ -693,6 +806,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         .sidebar-mobile-topbar {
             display: none !important;
         }
+
         .sidebar-overlay {
             display: none !important;
         }
@@ -700,6 +814,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 
     /* Reduced motion: disable all sidebar animations */
     @media (prefers-reduced-motion: reduce) {
+
         .intra-sidebar,
         .sidebar-submenu,
         .sidebar-chevron,
@@ -711,7 +826,8 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             transition-duration: 0.01ms !important;
             animation-duration: 0.01ms !important;
         }
-        .sidebar-submenu.open > .sidebar-submenu-inner > * {
+
+        .sidebar-submenu.open>.sidebar-submenu-inner>* {
             animation: none !important;
             opacity: 1;
         }
@@ -757,27 +873,29 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <i class="fa-solid fa-users"></i><span>Personal</span>
                 <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
             </a>
-            <div class="sidebar-submenu" data-submenu="personal"><div class="sidebar-submenu-inner">
-                <?php if (Permissions::check(['admin', 'users.view'])): ?>
-                    <span class="sidebar-section-title">Benutzer</span>
-                    <a href="<?= BASE_PATH ?>benutzer/list.php" class="sidebar-sublink">Übersicht</a>
-                    <?php if (Permissions::check(['admin', 'users.create'])): ?>
-                        <a href="<?= BASE_PATH ?>benutzer/registration-codes.php" class="sidebar-sublink">Registrierungscodes</a>
+            <div class="sidebar-submenu" data-submenu="personal">
+                <div class="sidebar-submenu-inner">
+                    <?php if (Permissions::check(['admin', 'users.view'])): ?>
+                        <span class="sidebar-section-title">Benutzer</span>
+                        <a href="<?= BASE_PATH ?>benutzer/list.php" class="sidebar-sublink">Übersicht</a>
+                        <?php if (Permissions::check(['admin', 'users.create'])): ?>
+                            <a href="<?= BASE_PATH ?>benutzer/registration-codes.php" class="sidebar-sublink">Registrierungscodes</a>
+                        <?php endif; ?>
+                        <a href="<?= BASE_PATH ?>benutzer/rollen/index.php" class="sidebar-sublink">Rollenverwaltung</a>
+                        <?php if (Permissions::check(['admin', 'audit.view'])): ?>
+                            <a href="<?= BASE_PATH ?>benutzer/auditlog.php" class="sidebar-sublink">Audit-Log</a>
+                        <?php endif; ?>
                     <?php endif; ?>
-                    <a href="<?= BASE_PATH ?>benutzer/rollen/index.php" class="sidebar-sublink">Rollenverwaltung</a>
-                    <?php if (Permissions::check(['admin', 'audit.view'])): ?>
-                        <a href="<?= BASE_PATH ?>benutzer/auditlog.php" class="sidebar-sublink">Audit-Log</a>
-                    <?php endif; ?>
-                <?php endif; ?>
 
-                <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
-                    <span class="sidebar-section-title">Mitarbeiter</span>
-                    <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="sidebar-sublink">Übersicht</a>
-                    <?php if (Permissions::check(['admin', 'application.view'])): ?>
-                        <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="sidebar-sublink">Anträge bearbeiten</a>
+                    <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
+                        <span class="sidebar-section-title">Mitarbeiter</span>
+                        <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="sidebar-sublink">Übersicht</a>
+                        <?php if (Permissions::check(['admin', 'application.view'])): ?>
+                            <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="sidebar-sublink">Anträge bearbeiten</a>
+                        <?php endif; ?>
                     <?php endif; ?>
-                <?php endif; ?>
-            </div></div>
+                </div>
+            </div>
         <?php endif; ?>
 
         <!-- Protokolle -->
@@ -785,24 +903,26 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             <i class="fa-solid fa-file-medical"></i><span>Protokolle</span>
             <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
         </a>
-        <div class="sidebar-submenu" data-submenu="protokolle"><div class="sidebar-submenu-inner">
-            <span class="sidebar-section-title" data-section="enotf">eNOTF</span>
-            <a href="<?= BASE_PATH ?>enotf/" target="_blank" class="sidebar-sublink">eNOTF öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
-            <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
-                <a href="<?= EnotfUrl::admin('list') ?>" class="sidebar-sublink">Prüfliste</a>
-            <?php endif; ?>
+        <div class="sidebar-submenu" data-submenu="protokolle">
+            <div class="sidebar-submenu-inner">
+                <span class="sidebar-section-title" data-section="enotf">eNOTF</span>
+                <a href="<?= BASE_PATH ?>enotf/" target="_blank" class="sidebar-sublink">eNOTF öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
+                <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
+                    <a href="<?= EnotfUrl::admin('list') ?>" class="sidebar-sublink">Prüfliste</a>
+                <?php endif; ?>
 
-            <?php if (Permissions::check(['admin', 'manv.manage'])): ?>
-                <span class="sidebar-section-title" data-section="manv">MANV-Board</span>
-                <a href="<?= BASE_PATH ?>manv/index.php" class="sidebar-sublink">MANV-Board</a>
-            <?php endif; ?>
+                <?php if (Permissions::check(['admin', 'manv.manage'])): ?>
+                    <span class="sidebar-section-title" data-section="manv">MANV-Board</span>
+                    <a href="<?= BASE_PATH ?>manv/index.php" class="sidebar-sublink">MANV-Board</a>
+                <?php endif; ?>
 
-            <span class="sidebar-section-title" data-section="firetab">FW Einsatzprotokolle</span>
-            <a href="<?= BASE_PATH ?>einsatz/create.php" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
-            <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
-                <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="sidebar-sublink">Qualitätsmanagement</a>
-            <?php endif; ?>
-        </div></div>
+                <span class="sidebar-section-title" data-section="firetab">FW Einsatzprotokolle</span>
+                <a href="<?= BASE_PATH ?>einsatz/create.php" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
+                <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
+                    <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="sidebar-sublink">Qualitätsmanagement</a>
+                <?php endif; ?>
+            </div>
+        </div>
 
         <!-- Wissensdatenbank -->
         <a href="<?= BASE_PATH ?>wissensdb/index.php" class="sidebar-link" data-page="wissensdb">
@@ -815,13 +935,15 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <i class="fa-solid fa-truck"></i><span>Fahrzeuge</span>
                 <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
             </a>
-            <div class="sidebar-submenu" data-submenu="fahrzeuge"><div class="sidebar-submenu-inner">
-                <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php" class="sidebar-sublink">Übersicht</a>
-                <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index.php" class="sidebar-sublink">Defekt-Meldungen</a>
-                <?php if (Permissions::check(['admin', 'vehicles.manage'])): ?>
-                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/beladelisten/index.php" class="sidebar-sublink">Beladelisten</a>
-                <?php endif; ?>
-            </div></div>
+            <div class="sidebar-submenu" data-submenu="fahrzeuge">
+                <div class="sidebar-submenu-inner">
+                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php" class="sidebar-sublink">Übersicht</a>
+                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index.php" class="sidebar-sublink">Defekt-Meldungen</a>
+                    <?php if (Permissions::check(['admin', 'vehicles.manage'])): ?>
+                        <a href="<?= BASE_PATH ?>settings/fahrzeuge/beladelisten/index.php" class="sidebar-sublink">Beladelisten</a>
+                    <?php endif; ?>
+                </div>
+            </div>
         <?php endif; ?>
 
         <!-- Einstellungen -->
@@ -830,42 +952,44 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <i class="fa-solid fa-sliders"></i><span>Einstellungen</span>
                 <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
             </a>
-            <div class="sidebar-submenu" data-submenu="settings"><div class="sidebar-submenu-inner">
-                <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
-                    <span class="sidebar-section-title">Personal</span>
-                    <a href="<?= BASE_PATH ?>settings/personal/dienstgrade/index.php" class="sidebar-sublink">Dienstgrade</a>
-                    <a href="<?= BASE_PATH ?>settings/personal/qualifw/index.php" class="sidebar-sublink">FW Qualifikationen</a>
-                    <a href="<?= BASE_PATH ?>settings/personal/qualird/index.php" class="sidebar-sublink">RD Qualifikationen</a>
-                    <a href="<?= BASE_PATH ?>settings/personal/qualifd/index.php" class="sidebar-sublink">Fachdienste</a>
+            <div class="sidebar-submenu" data-submenu="settings">
+                <div class="sidebar-submenu-inner">
+                    <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
+                        <span class="sidebar-section-title">Personal</span>
+                        <a href="<?= BASE_PATH ?>settings/personal/dienstgrade/index.php" class="sidebar-sublink">Dienstgrade</a>
+                        <a href="<?= BASE_PATH ?>settings/personal/qualifw/index.php" class="sidebar-sublink">FW Qualifikationen</a>
+                        <a href="<?= BASE_PATH ?>settings/personal/qualird/index.php" class="sidebar-sublink">RD Qualifikationen</a>
+                        <a href="<?= BASE_PATH ?>settings/personal/qualifd/index.php" class="sidebar-sublink">Fachdienste</a>
+                        <?php if (Permissions::check(['admin'])): ?>
+                            <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="sidebar-sublink">Dokumente</a>
+                            <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="sidebar-sublink">Antragstypen</a>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+                    <?php if (Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>
+                        <span class="sidebar-section-title" data-section="enotf-settings">eNOTF</span>
+                        <?php if (Permissions::check(['admin', 'pois.view'])): ?>
+                            <a href="<?= BASE_PATH ?>settings/pois/index.php" class="sidebar-sublink">POIs</a>
+                        <?php endif; ?>
+                        <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
+                            <a href="<?= BASE_PATH ?>settings/medikamente/index.php" class="sidebar-sublink">Medikamente</a>
+                            <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="sidebar-sublink">Schnellzugriff</a>
+                        <?php endif; ?>
+                    <?php endif; ?>
+
+                    <span class="sidebar-section-title" data-section="system">System</span>
+                    <?php if (Permissions::check(['admin', 'dashboard.manage'])): ?>
+                        <a href="<?= BASE_PATH ?>settings/dashboard/index.php" class="sidebar-sublink">Dashboard</a>
+                    <?php endif; ?>
                     <?php if (Permissions::check(['admin'])): ?>
-                        <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="sidebar-sublink">Dokumente</a>
-                        <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="sidebar-sublink">Antragstypen</a>
+                        <a href="<?= BASE_PATH ?>settings/system/config.php" class="sidebar-sublink">Konfiguration</a>
+                        <a href="<?= BASE_PATH ?>settings/system/index.php" class="sidebar-sublink">Updater</a>
+                        <a href="<?= BASE_PATH ?>settings/system/telemetry.php" class="sidebar-sublink">Telemetrie</a>
+                        <a href="<?= BASE_PATH ?>settings/system/performance.php" class="sidebar-sublink">Performance</a>
+                        <a href="<?= BASE_PATH ?>settings/federation/index.php" class="sidebar-sublink">Instanzvernetzung</a>
                     <?php endif; ?>
-                <?php endif; ?>
-
-                <?php if (Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>
-                    <span class="sidebar-section-title" data-section="enotf-settings">eNOTF</span>
-                    <?php if (Permissions::check(['admin', 'pois.view'])): ?>
-                        <a href="<?= BASE_PATH ?>settings/pois/index.php" class="sidebar-sublink">POIs</a>
-                    <?php endif; ?>
-                    <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
-                        <a href="<?= BASE_PATH ?>settings/medikamente/index.php" class="sidebar-sublink">Medikamente</a>
-                        <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="sidebar-sublink">Schnellzugriff</a>
-                    <?php endif; ?>
-                <?php endif; ?>
-
-                <span class="sidebar-section-title" data-section="system">System</span>
-                <?php if (Permissions::check(['admin', 'dashboard.manage'])): ?>
-                    <a href="<?= BASE_PATH ?>settings/dashboard/index.php" class="sidebar-sublink">Dashboard</a>
-                <?php endif; ?>
-                <?php if (Permissions::check(['admin'])): ?>
-                    <a href="<?= BASE_PATH ?>settings/system/config.php" class="sidebar-sublink">Konfiguration</a>
-                    <a href="<?= BASE_PATH ?>settings/system/index.php" class="sidebar-sublink">Updater</a>
-                    <a href="<?= BASE_PATH ?>settings/system/telemetry.php" class="sidebar-sublink">Telemetrie</a>
-                    <a href="<?= BASE_PATH ?>settings/system/performance.php" class="sidebar-sublink">Performance</a>
-                    <a href="<?= BASE_PATH ?>settings/federation/index.php" class="sidebar-sublink">Instanzvernetzung</a>
-                <?php endif; ?>
-            </div></div>
+                </div>
+            </div>
         <?php endif; ?>
     </nav>
 
@@ -1042,8 +1166,11 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 
         // Save on scroll (debounced) + on page unload
         var scrollTimer;
+
         function saveScroll() {
-            try { localStorage.setItem(SCROLL_KEY, $sidebarNav.scrollTop()); } catch (e) {}
+            try {
+                localStorage.setItem(SCROLL_KEY, $sidebarNav.scrollTop());
+            } catch (e) {}
         }
         $sidebarNav.on("scroll", function() {
             clearTimeout(scrollTimer);
@@ -1072,7 +1199,10 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 setTimeout(function() {
                     var lastItem = $submenu.find(".sidebar-sublink:last, .sidebar-section-title:last").last()[0];
                     if (lastItem) {
-                        lastItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        lastItem.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest'
+                        });
                     }
                 }, 350);
             }
@@ -1142,7 +1272,9 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             $searchResults.html('<div class="gsr-loading"><i class="fa-solid fa-spinner fa-spin"></i> Suche...</div>');
 
             searchTimer = setTimeout(function() {
-                searchXhr = $.getJSON("<?= BASE_PATH ?>api/system/global-search.php", { q: q })
+                searchXhr = $.getJSON("<?= BASE_PATH ?>api/system/global-search.php", {
+                        q: q
+                    })
                     .done(function(data) {
                         renderSearchResults(data.results || [], q);
                     })
@@ -1202,12 +1334,16 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 e.preventDefault();
                 activeIndex = Math.min(activeIndex + 1, $items.length - 1);
                 $items.removeClass("gsr-active").eq(activeIndex).addClass("gsr-active");
-                $items.eq(activeIndex)[0].scrollIntoView({ block: 'nearest' });
+                $items.eq(activeIndex)[0].scrollIntoView({
+                    block: 'nearest'
+                });
             } else if (e.key === "ArrowUp") {
                 e.preventDefault();
                 activeIndex = Math.max(activeIndex - 1, 0);
                 $items.removeClass("gsr-active").eq(activeIndex).addClass("gsr-active");
-                $items.eq(activeIndex)[0].scrollIntoView({ block: 'nearest' });
+                $items.eq(activeIndex)[0].scrollIntoView({
+                    block: 'nearest'
+                });
             } else if (e.key === "Enter" && activeIndex >= 0) {
                 e.preventDefault();
                 window.location.href = $items.eq(activeIndex).attr("href");
@@ -1241,32 +1377,58 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 
         // Preset-Farben Mapping
         var accentPresets = {
-            red:    { main: '#d10000', dimmed: '#660000' },
-            blue:   { main: '#2563eb', dimmed: '#1e40af' },
-            green:  { main: '#16a34a', dimmed: '#15803d' },
-            purple: { main: '#7c3aed', dimmed: '#6d28d9' },
-            orange: { main: '#ea580c', dimmed: '#c2410c' },
-            teal:   { main: '#0d9488', dimmed: '#0f766e' },
-            pink:   { main: '#db2777', dimmed: '#be185d' },
-            amber:  { main: '#d97706', dimmed: '#b45309' }
+            red: {
+                main: '#d10000',
+                dimmed: '#660000'
+            },
+            blue: {
+                main: '#2563eb',
+                dimmed: '#1e40af'
+            },
+            green: {
+                main: '#16a34a',
+                dimmed: '#15803d'
+            },
+            purple: {
+                main: '#7c3aed',
+                dimmed: '#6d28d9'
+            },
+            orange: {
+                main: '#ea580c',
+                dimmed: '#c2410c'
+            },
+            teal: {
+                main: '#0d9488',
+                dimmed: '#0f766e'
+            },
+            pink: {
+                main: '#db2777',
+                dimmed: '#be185d'
+            },
+            amber: {
+                main: '#d97706',
+                dimmed: '#b45309'
+            }
         };
 
         // Hilfsfunktion: Dimmed-Farbe aus Hex berechnen
         function dimColor(hex) {
-            var r = parseInt(hex.slice(1,3), 16);
-            var g = parseInt(hex.slice(3,5), 16);
-            var b = parseInt(hex.slice(5,7), 16);
+            var r = parseInt(hex.slice(1, 3), 16);
+            var g = parseInt(hex.slice(3, 5), 16);
+            var b = parseInt(hex.slice(5, 7), 16);
             r = Math.max(0, Math.round(r * 0.65));
             g = Math.max(0, Math.round(g * 0.65));
             b = Math.max(0, Math.round(b * 0.65));
-            return '#' + [r, g, b].map(function(c) { return c.toString(16).padStart(2, '0'); }).join('');
+            return '#' + [r, g, b].map(function(c) {
+                return c.toString(16).padStart(2, '0');
+            }).join('');
         }
 
         // Hilfsfunktion: Hex zu RGB
         function hexToRgb(hex) {
-            var r = parseInt(hex.slice(1,3), 16);
-            var g = parseInt(hex.slice(3,5), 16);
-            var b = parseInt(hex.slice(5,7), 16);
+            var r = parseInt(hex.slice(1, 3), 16);
+            var g = parseInt(hex.slice(3, 5), 16);
+            var b = parseInt(hex.slice(5, 7), 16);
             return r + ', ' + g + ', ' + b;
         }
 
@@ -1310,7 +1472,9 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 url: "<?= BASE_PATH ?>api/system/theme.php",
                 method: "POST",
                 contentType: "application/json",
-                data: JSON.stringify({ accent: accent })
+                data: JSON.stringify({
+                    accent: accent
+                })
             });
         }
 
@@ -1340,7 +1504,9 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             var accent = $(this).data("accent");
             applyAccent(accent);
             saveAccent(accent);
-            setTimeout(function() { $themePopover.removeClass("show"); }, 200);
+            setTimeout(function() {
+                $themePopover.removeClass("show");
+            }, 200);
         });
 
         // Custom-Color-Picker
@@ -1364,87 +1530,117 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 
 <!-- Theme: Frühzeitiges Anwenden (vor DOM-Render, kein Flackern) -->
 <script>
-(function() {
-    var accent = localStorage.getItem('intra_theme_accent');
-    if (!accent) return;
-    var presets = {
-        red:    { m: '#d10000', d: '#660000' },
-        blue:   { m: '#2563eb', d: '#1e40af' },
-        green:  { m: '#16a34a', d: '#15803d' },
-        purple: { m: '#7c3aed', d: '#6d28d9' },
-        orange: { m: '#ea580c', d: '#c2410c' },
-        teal:   { m: '#0d9488', d: '#0f766e' },
-        pink:   { m: '#db2777', d: '#be185d' },
-        amber:  { m: '#d97706', d: '#b45309' }
-    };
-    var mc, dc;
-    if (presets[accent]) {
-        mc = presets[accent].m;
-        dc = presets[accent].d;
-    } else if (/^#[0-9a-fA-F]{6}$/.test(accent)) {
-        mc = accent;
-        var r = parseInt(accent.slice(1,3),16), g = parseInt(accent.slice(3,5),16), b = parseInt(accent.slice(5,7),16);
-        dc = '#' + [r,g,b].map(function(c){ return Math.max(0,Math.round(c*0.65)).toString(16).padStart(2,'0'); }).join('');
-    } else return;
-    var rgb = parseInt(mc.slice(1,3),16)+', '+parseInt(mc.slice(3,5),16)+', '+parseInt(mc.slice(5,7),16);
-    var s = document.documentElement.style;
-    s.setProperty('--main-color', mc);
-    s.setProperty('--main-color-dimmed', dc);
-    s.setProperty('--main-color-rgb', rgb);
-    s.setProperty('--fw-red', mc);
-})();
+    (function() {
+        var accent = localStorage.getItem('intra_theme_accent');
+        if (!accent) return;
+        var presets = {
+            red: {
+                m: '#d10000',
+                d: '#660000'
+            },
+            blue: {
+                m: '#2563eb',
+                d: '#1e40af'
+            },
+            green: {
+                m: '#16a34a',
+                d: '#15803d'
+            },
+            purple: {
+                m: '#7c3aed',
+                d: '#6d28d9'
+            },
+            orange: {
+                m: '#ea580c',
+                d: '#c2410c'
+            },
+            teal: {
+                m: '#0d9488',
+                d: '#0f766e'
+            },
+            pink: {
+                m: '#db2777',
+                d: '#be185d'
+            },
+            amber: {
+                m: '#d97706',
+                d: '#b45309'
+            }
+        };
+        var mc, dc;
+        if (presets[accent]) {
+            mc = presets[accent].m;
+            dc = presets[accent].d;
+        } else if (/^#[0-9a-fA-F]{6}$/.test(accent)) {
+            mc = accent;
+            var r = parseInt(accent.slice(1, 3), 16),
+                g = parseInt(accent.slice(3, 5), 16),
+                b = parseInt(accent.slice(5, 7), 16);
+            dc = '#' + [r, g, b].map(function(c) {
+                return Math.max(0, Math.round(c * 0.65)).toString(16).padStart(2, '0');
+            }).join('');
+        } else return;
+        var rgb = parseInt(mc.slice(1, 3), 16) + ', ' + parseInt(mc.slice(3, 5), 16) + ', ' + parseInt(mc.slice(5, 7), 16);
+        var s = document.documentElement.style;
+        s.setProperty('--main-color', mc);
+        s.setProperty('--main-color-dimmed', dc);
+        s.setProperty('--main-color-rgb', rgb);
+        s.setProperty('--fw-red', mc);
+    })();
 </script>
 <script>
-(function() {
-    var POLL_INTERVAL = 30000;
-    var basePath = <?= json_encode(BASE_PATH) ?>;
-    var lastPoll = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    var pollTimer = null;
-    var lastKnownCount = <?= $unreadCount ?>;
-    var toastedIds = {};
+    (function() {
+        var POLL_INTERVAL = 30000;
+        var basePath = <?= json_encode(BASE_PATH) ?>;
+        var lastPoll = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        var pollTimer = null;
+        var lastKnownCount = <?= $unreadCount ?>;
+        var toastedIds = {};
 
-    function updateBadges(count) {
-        var badges = document.querySelectorAll('.notification-poll-badge');
-        var mobileLink = document.querySelector('.notification-poll-mobile');
-        var text = count > 9 ? '9+' : String(count);
-        badges.forEach(function(b) {
-            b.textContent = text;
-            b.style.display = count > 0 ? '' : 'none';
-        });
-        if (mobileLink) {
-            mobileLink.style.display = count > 0 ? '' : 'none';
+        function updateBadges(count) {
+            var badges = document.querySelectorAll('.notification-poll-badge');
+            var mobileLink = document.querySelector('.notification-poll-mobile');
+            var text = count > 9 ? '9+' : String(count);
+            badges.forEach(function(b) {
+                b.textContent = text;
+                b.style.display = count > 0 ? '' : 'none';
+            });
+            if (mobileLink) {
+                mobileLink.style.display = count > 0 ? '' : 'none';
+            }
         }
-    }
 
-    function poll() {
-        if (document.visibilityState === 'hidden') return;
-        fetch(basePath + 'api/notifications/poll.php?since=' + encodeURIComponent(lastPoll))
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (!data.success) return;
-                updateBadges(data.unreadCount);
-                // Only toast truly new notifications (count increased + not yet toasted)
-                if (data.unreadCount > lastKnownCount && data.new && data.new.length > 0) {
-                    for (var i = 0; i < data.new.length; i++) {
-                        var n = data.new[i];
-                        if (!toastedIds[n.id]) {
-                            toastedIds[n.id] = true;
-                            if (typeof window.showToast === 'function') {
-                                window.showToast(n.title, 'info');
+        function poll() {
+            if (document.visibilityState === 'hidden') return;
+            fetch(basePath + 'api/notifications/poll.php?since=' + encodeURIComponent(lastPoll))
+                .then(function(r) {
+                    return r.json();
+                })
+                .then(function(data) {
+                    if (!data.success) return;
+                    updateBadges(data.unreadCount);
+                    // Only toast truly new notifications (count increased + not yet toasted)
+                    if (data.unreadCount > lastKnownCount && data.new && data.new.length > 0) {
+                        for (var i = 0; i < data.new.length; i++) {
+                            var n = data.new[i];
+                            if (!toastedIds[n.id]) {
+                                toastedIds[n.id] = true;
+                                if (typeof window.showToast === 'function') {
+                                    window.showToast(n.title, 'info');
+                                }
+                                break; // Only show one toast per poll
                             }
-                            break; // Only show one toast per poll
                         }
                     }
-                }
-                lastKnownCount = data.unreadCount;
-                lastPoll = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            })
-            .catch(function() {});
-    }
+                    lastKnownCount = data.unreadCount;
+                    lastPoll = new Date().toISOString().slice(0, 19).replace('T', ' ');
+                })
+                .catch(function() {});
+        }
 
-    pollTimer = setInterval(poll, POLL_INTERVAL);
-    document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'visible') poll();
-    });
-})();
+        pollTimer = setInterval(poll, POLL_INTERVAL);
+        document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') poll();
+        });
+    })();
 </script>
