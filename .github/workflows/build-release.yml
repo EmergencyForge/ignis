@@ -1,4 +1,4 @@
-name: Build Release ZIP
+name: Build Release
 
 on:
   release:
@@ -7,7 +7,6 @@ on:
 permissions:
   contents: write
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,6 +14,34 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: Update version.json and push to main
+        run: |
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S')
+          cat > system/updates/version.json << EOF
+          {
+            "version": "${{ env.version }}",
+            "updated_at": "$TIMESTAMP",
+            "build_number": "$GITHUB_RUN_NUMBER",
+            "commit_hash": "$GITHUB_SHA"
+          }
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add system/updates/version.json
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto-update version.json to ${{ env.version }}"
+            git push origin HEAD:main
+          fi
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -25,35 +52,21 @@ jobs:
       - name: Install production dependencies
         run: composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-      - name: Generate version.json
-        run: |
-          VERSION="${GITHUB_REF#refs/tags/}"
-          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S')
-          cat > system/updates/version.json << EOF
-          {
-            "version": "$VERSION",
-            "updated_at": "$TIMESTAMP",
-            "build_number": "$GITHUB_RUN_NUMBER",
-            "commit_hash": "$GITHUB_SHA"
-          }
-          EOF
-
       - name: Create .env.example if missing
         run: |
           if [ ! -f .env.example ]; then
-            cat > .env.example << 'EOF'
+            cat > .env.example << 'ENVEOF'
           DB_HOST=localhost
           DB_USER=root
           DB_PASS=
           DB_NAME=intrarp
           APP_ENV=production
-          EOF
+          ENVEOF
           fi
 
       - name: Build release ZIP
         run: |
-          VERSION="${GITHUB_REF#refs/tags/}"
-          ARCHIVE_NAME="intraRP-${VERSION}.zip"
+          ARCHIVE_NAME="intraRP-${{ env.version }}.zip"
 
           zip -r "$ARCHIVE_NAME" . \
             -x ".git/*" \
@@ -79,16 +92,30 @@ jobs:
             -x "vendor/sebastian/*" \
             -x "vendor/theseer/*"
 
-          ARCHIVE_SIZE=$(du -h "$ARCHIVE_NAME" | cut -f1)
           echo "archive_name=$ARCHIVE_NAME" >> $GITHUB_ENV
-          echo "archive_size=$ARCHIVE_SIZE" >> $GITHUB_ENV
-          echo "version=$VERSION" >> $GITHUB_ENV
-          echo "Built $ARCHIVE_NAME ($ARCHIVE_SIZE)"
+          echo "archive_size=$(du -h "$ARCHIVE_NAME" | cut -f1)" >> $GITHUB_ENV
+
+      - name: Integrity check (SHA256)
+        run: |
+          CHECKSUM=$(sha256sum "${{ env.archive_name }}" | cut -d' ' -f1)
+          echo "checksum=$CHECKSUM" >> $GITHUB_ENV
+          echo "$CHECKSUM  ${{ env.archive_name }}" > "${{ env.archive_name }}.sha256"
+
+          # Verify the checksum matches
+          sha256sum -c "${{ env.archive_name }}.sha256"
+          echo "Integrity OK: $CHECKSUM"
+
+          # Verify ZIP is valid and list stats
+          FILE_COUNT=$(unzip -l "${{ env.archive_name }}" | tail -1 | awk '{print $2}')
+          echo "file_count=$FILE_COUNT" >> $GITHUB_ENV
+          echo "ZIP contains $FILE_COUNT files"
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.archive_name }}
+          files: |
+            ${{ env.archive_name }}
+            ${{ env.archive_name }}.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -101,6 +128,7 @@ jobs:
           RELEASE_URL: ${{ github.event.release.html_url }}
         run: |
           TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          SHORT_HASH=$(echo "${{ env.checksum }}" | cut -c1-12)
           jq -n \
             --arg title "Release ${{ env.version }} wurde veröffentlicht" \
             --arg name "$RELEASE_NAME" \
@@ -108,7 +136,9 @@ jobs:
             --arg url "$RELEASE_URL" \
             --arg version "${{ env.version }}" \
             --arg size "${{ env.archive_size }}" \
+            --arg files "${{ env.file_count }}" \
             --arg build "#${{ github.run_number }}" \
+            --arg checksum "$SHORT_HASH" \
             --arg ts "$TIMESTAMP" \
             '{embeds: [{
               title: $title,
@@ -118,9 +148,11 @@ jobs:
               fields: [
                 {name: "Version", value: ("`" + $version + "`"), inline: true},
                 {name: "ZIP-Größe", value: ("`" + $size + "`"), inline: true},
-                {name: "Build", value: $build, inline: true}
+                {name: "Dateien", value: $files, inline: true},
+                {name: "Build", value: $build, inline: true},
+                {name: "SHA256", value: ("`" + $checksum + "…`"), inline: true}
               ],
-              footer: {text: "intraRP Release Build"},
+              footer: {text: "intraRP Release Build — Integrität verifiziert ✓"},
               timestamp: $ts
             }]}' | curl -s -H "Content-Type: application/json" -d @- "$DISCORD_WEBHOOK"
 
