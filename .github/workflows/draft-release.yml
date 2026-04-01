@@ -1,0 +1,106 @@
+name: Draft Release with Changelog
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Get previous tag
+        id: prev
+        run: |
+          CURRENT="${GITHUB_REF#refs/tags/}"
+          PREVIOUS=$(git tag --sort=-v:refname | grep -E '^v[0-9]' | grep -v "^${CURRENT}$" | head -1)
+          if [ -z "$PREVIOUS" ]; then
+            # First release — use first commit
+            PREVIOUS=$(git rev-list --max-parents=0 HEAD | head -1)
+          fi
+          echo "tag=$PREVIOUS" >> $GITHUB_OUTPUT
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+          echo "Previous: $PREVIOUS → Current: $CURRENT"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREV="${{ steps.prev.outputs.tag }}"
+          CURRENT="${{ steps.prev.outputs.current }}"
+
+          # Collect commits grouped by type
+          FEATURES=""
+          FIXES=""
+          IMPROVEMENTS=""
+          OTHER=""
+
+          while IFS= read -r line; do
+            MSG=$(echo "$line" | sed 's/^ *//')
+            [ -z "$MSG" ] && continue
+
+            # Skip merge commits and auto-generated commits
+            echo "$MSG" | grep -qiE '^(merge|auto-update|chore:)' && continue
+
+            # Categorize by commit message prefix
+            if echo "$MSG" | grep -qiE '^(add|feat|new|create|implement)'; then
+              FEATURES="${FEATURES}\n- ${MSG}"
+            elif echo "$MSG" | grep -qiE '^fix'; then
+              FIXES="${FIXES}\n- ${MSG}"
+            elif echo "$MSG" | grep -qiE '^(improve|update|refactor|optimize|move|convert|replace)'; then
+              IMPROVEMENTS="${IMPROVEMENTS}\n- ${MSG}"
+            else
+              OTHER="${OTHER}\n- ${MSG}"
+            fi
+          done <<< "$(git log "${PREV}..${CURRENT}" --pretty=format:'%s' --no-merges)"
+
+          # Build changelog body
+          BODY=""
+
+          if [ -n "$FEATURES" ]; then
+            BODY="${BODY}### Neue Features\n${FEATURES}\n\n"
+          fi
+
+          if [ -n "$IMPROVEMENTS" ]; then
+            BODY="${BODY}### Verbesserungen\n${IMPROVEMENTS}\n\n"
+          fi
+
+          if [ -n "$FIXES" ]; then
+            BODY="${BODY}### Fehlerbehebungen\n${FIXES}\n\n"
+          fi
+
+          if [ -n "$OTHER" ]; then
+            BODY="${BODY}### Sonstiges\n${OTHER}\n\n"
+          fi
+
+          COMMIT_COUNT=$(git rev-list --count "${PREV}..${CURRENT}" --no-merges)
+          BODY="${BODY}---\n*${COMMIT_COUNT} Commits seit ${PREV}*"
+
+          # Write to file to avoid escaping issues
+          echo -e "$BODY" > changelog.md
+          cat changelog.md
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.prev.outputs.current }}"
+
+          # Check if release already exists for this tag
+          if gh release view "$VERSION" &>/dev/null; then
+            echo "Release $VERSION already exists — skipping draft creation"
+            exit 0
+          fi
+
+          gh release create "$VERSION" \
+            --title "$VERSION" \
+            --notes-file changelog.md \
+            --draft
