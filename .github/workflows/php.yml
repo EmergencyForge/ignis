@@ -11,7 +11,6 @@ permissions:
   contents: read
   pull-requests: write
 
-
 jobs:
 
   # ─────────────────────────────────────────────
@@ -111,7 +110,19 @@ jobs:
         run: composer install --prefer-dist --no-progress
 
       - name: Check for known vulnerabilities
-        run: composer audit
+        id: audit
+        run: |
+          set +e
+          composer audit 2>&1 | tee audit-output.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Save audit result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-result
+          path: audit-output.txt
+          retention-days: 1
 
   # ─────────────────────────────────────────────
   # 4. PHPStan – Statische Analyse
@@ -153,80 +164,172 @@ jobs:
           vendor/bin/phpstan analyse --no-progress --error-format=json > phpstan-result.json 2>/dev/null
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
 
-      - name: PHPStan-Ergebnis im PR posten
-        if: always() && github.event_name == 'pull_request'
+      - name: Save PHPStan result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpstan-result
+          path: phpstan-result.json
+          retention-days: 1
+
+  # ─────────────────────────────────────────────
+  # 5. PR Report – Zusammenfassung aller Checks
+  # ─────────────────────────────────────────────
+  pr-report:
+    runs-on: ubuntu-latest
+    needs: [build, security-audit, phpstan]
+    if: always() && github.event_name == 'pull_request'
+
+    steps:
+      - name: Generate bot token
+        id: bot
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+
+      - name: Collect PR stats
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Generate PR report
+        id: report
         uses: actions/github-script@v8
         with:
+          github-token: ${{ steps.bot.outputs.token }}
           script: |
             const fs = require('fs');
-            const exitCode = '${{ steps.phpstan.outputs.exit_code }}';
 
-            let json;
+            // ── Collect results ──
+            const buildResult = '${{ needs.build.result }}';
+            const auditResult = '${{ needs.security-audit.result }}';
+            const phpstanResult = '${{ needs.phpstan.result }}';
+
+            const statusIcon = (r) => r === 'success' ? '✅' : r === 'skipped' ? '⏭️' : '❌';
+            const statusText = (r) => r === 'success' ? 'Bestanden' : r === 'skipped' ? 'Übersprungen' : 'Fehlgeschlagen';
+
+            // ── PR diff stats ──
+            let diffStats = '';
             try {
-              json = JSON.parse(fs.readFileSync('phpstan-result.json', 'utf8'));
-            } catch {
-              json = null;
-            }
+              const { data: pr } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              });
+              diffStats = `**${pr.changed_files}** Dateien geändert · \`+${pr.additions}\` \`-${pr.deletions}\``;
+            } catch { diffStats = ''; }
 
-            // ── Kommentar bauen ──
-            let body = '<!-- phpstan-report -->\n';
-
-            if (exitCode === '0') {
-              body += '## ✅ Keine Fehler\n\n';
-              body += 'Keine Probleme gefunden. 🎉\n';
-
-            } else if (json?.files && Object.keys(json.files).length > 0) {
-              const files = json.files;
+            // ── PHPStan details ──
+            let phpstanSection = '';
+            try {
+              const json = JSON.parse(fs.readFileSync('phpstan-result.json', 'utf8'));
               const totalErrors = json.totals?.file_errors || 0;
-              const fileCount = Object.keys(files).length;
 
-              body += `## ⚠️ ${totalErrors} Fehler in ${fileCount} Dateien\n\n`;
+              if (totalErrors === 0) {
+                phpstanSection = '> Keine Fehler gefunden.';
+              } else {
+                const files = json.files || {};
+                const fileCount = Object.keys(files).length;
+                const workspacePrefix = process.env.GITHUB_WORKSPACE ? process.env.GITHUB_WORKSPACE + '/' : '';
+                const shortPath = (p) => workspacePrefix ? p.replace(workspacePrefix, '') : p;
 
-              // Runner-Workspace-Pfad entfernen, Projektpfade beibehalten
-              const workspacePrefix = process.env.GITHUB_WORKSPACE ? process.env.GITHUB_WORKSPACE + '/' : '';
-              const shortPath = (p) => workspacePrefix ? p.replace(workspacePrefix, '') : p;
+                phpstanSection = `> **${totalErrors} Fehler** in ${fileCount} Dateien\n\n`;
+                phpstanSection += '| Datei | Zeile | Beschreibung |\n';
+                phpstanSection += '|-------|------:|--------------|\n';
 
-              // ── Zusammenfassung (immer sichtbar) ──
-              body += '| Datei | Fehler |\n';
-              body += '|-------|-------:|\n';
-              for (const [filePath, data] of Object.entries(files)) {
-                body += `| \`${shortPath(filePath)}\` | ${data.messages.length} |\n`;
-              }
-
-              // ── Details pro Datei (aufklappbar) ──
-              body += '\n---\n\n';
-              for (const [filePath, data] of Object.entries(files)) {
-                const short = shortPath(filePath);
-                body += `<details>\n<summary><strong>${short}</strong> (${data.messages.length} Fehler)</summary>\n\n`;
-                body += '| Zeile | Beschreibung |\n';
-                body += '|------:|--------------|\n';
-                for (const msg of data.messages) {
-                  const desc = msg.message.replace(/\|/g, '\\|');
-                  body += `| ${msg.line} | ${desc} |\n`;
+                let shown = 0;
+                for (const [filePath, data] of Object.entries(files)) {
+                  for (const msg of data.messages) {
+                    if (shown >= 15) break;
+                    const desc = msg.message.replace(/\|/g, '\\|').substring(0, 120);
+                    phpstanSection += `| \`${shortPath(filePath).split('/').pop()}\` | ${msg.line} | ${desc} |\n`;
+                    shown++;
+                  }
+                  if (shown >= 15) break;
                 }
-                body += '\n</details>\n\n';
-              }
 
-            } else {
-              body += '## ❌ Unbekannter Fehler\n\n';
-              body += 'Ergebnis konnte nicht verarbeitet werden. Siehe [Workflow-Log](' +
-                `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}).\n`;
+                if (totalErrors > 15) {
+                  phpstanSection += `\n*… und ${totalErrors - 15} weitere Fehler*`;
+                }
+              }
+            } catch {
+              phpstanSection = phpstanResult === 'success'
+                ? '> Keine Fehler gefunden.'
+                : '> Ergebnis konnte nicht geladen werden.';
             }
 
-            // ── Alten Kommentar ersetzen ──
+            // ── Security audit details ──
+            let auditSection = '';
+            try {
+              const auditText = fs.readFileSync('audit-output.txt', 'utf8').trim();
+              if (auditResult === 'success') {
+                auditSection = '> Keine bekannten Schwachstellen.';
+              } else {
+                auditSection = '```\n' + auditText.substring(0, 500) + '\n```';
+              }
+            } catch {
+              auditSection = auditResult === 'success'
+                ? '> Keine bekannten Schwachstellen.'
+                : '> Ergebnis konnte nicht geladen werden.';
+            }
+
+            // ── Build comment ──
+            const allPassed = buildResult === 'success' && auditResult === 'success' && phpstanResult === 'success';
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+
+            let body = '<!-- ci-report -->\n';
+            body += allPassed
+              ? '## ✅ Alle Checks bestanden\n\n'
+              : '## ⚠️ CI-Report\n\n';
+
+            if (diffStats) body += diffStats + '\n\n';
+
+            body += '### Übersicht\n\n';
+            body += '| Check | Status |\n';
+            body += '|-------|--------|\n';
+            body += `| Build (PHP 8.1 – 8.4) | ${statusIcon(buildResult)} ${statusText(buildResult)} |\n`;
+            body += `| Security Audit | ${statusIcon(auditResult)} ${statusText(auditResult)} |\n`;
+            body += `| PHPStan (Level 6) | ${statusIcon(phpstanResult)} ${statusText(phpstanResult)} |\n`;
+
+            body += '\n---\n\n';
+
+            // PHPStan details
+            body += '<details>\n';
+            body += `<summary><strong>PHPStan – Statische Analyse</strong> ${statusIcon(phpstanResult)}</summary>\n\n`;
+            body += phpstanSection + '\n\n';
+            body += '</details>\n\n';
+
+            // Security details
+            body += '<details>\n';
+            body += `<summary><strong>Security Audit</strong> ${statusIcon(auditResult)}</summary>\n\n`;
+            body += auditSection + '\n\n';
+            body += '</details>\n\n';
+
+            body += `---\n*[Workflow-Log ansehen](${runUrl})*`;
+
+            // ── Replace old comment ──
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
 
-            const old = comments.find(c => c.body?.includes('<!-- phpstan-report -->'));
-            if (old) {
-              await github.rest.issues.deleteComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: old.id,
-              });
+            // Delete both old formats
+            for (const marker of ['<!-- phpstan-report -->', '<!-- ci-report -->']) {
+              const old = comments.find(c => c.body?.includes(marker));
+              if (old) {
+                await github.rest.issues.deleteComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: old.id,
+                });
+              }
             }
 
             await github.rest.issues.createComment({
@@ -236,6 +339,8 @@ jobs:
               body,
             });
 
-      - name: PHPStan Exit Code
+      - name: Fail if checks failed
         if: always()
-        run: exit ${{ steps.phpstan.outputs.exit_code }}
+        run: |
+          if [ "${{ needs.phpstan.result }}" = "failure" ]; then exit 1; fi
+          if [ "${{ needs.build.result }}" = "failure" ]; then exit 1; fi
