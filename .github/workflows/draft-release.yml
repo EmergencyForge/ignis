@@ -13,10 +13,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Generate bot token
+        id: bot
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          token: ${{ steps.bot.outputs.token }}
 
       - name: Get previous tag
         id: prev
@@ -90,7 +98,7 @@ jobs:
 
       - name: Create draft release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.bot.outputs.token }}
         run: |
           VERSION="${{ steps.prev.outputs.current }}"
 

@@ -12,11 +12,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Generate bot token
+        id: bot
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           ref: main
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.bot.outputs.token }}
 
       - name: Extract version
         run: |
@@ -35,8 +42,8 @@ jobs:
           }
           EOF
 
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "ef sparky[bot]"
+          git config user.email "${{ secrets.BOT_APP_ID }}+ef-sparky[bot]@users.noreply.github.com"
           git add system/updates/version.json
           if ! git diff --staged --quiet; then
             git commit -m "Auto-update version.json to ${{ env.version }}"
@@ -101,14 +108,11 @@ jobs:
           echo "checksum=$CHECKSUM" >> $GITHUB_ENV
           echo "$CHECKSUM  ${{ env.archive_name }}" > "${{ env.archive_name }}.sha256"
 
-          # Verify the checksum matches
           sha256sum -c "${{ env.archive_name }}.sha256"
           echo "Integrity OK: $CHECKSUM"
 
-          # Verify ZIP is valid and list stats
           FILE_COUNT=$(unzip -l "${{ env.archive_name }}" | tail -1 | awk '{print $2}')
           echo "file_count=$FILE_COUNT" >> $GITHUB_ENV
-          echo "ZIP contains $FILE_COUNT files"
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
@@ -117,7 +121,7 @@ jobs:
             ${{ env.archive_name }}
             ${{ env.archive_name }}.sha256
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
 
       - name: Discord notification (success)
         if: success()
