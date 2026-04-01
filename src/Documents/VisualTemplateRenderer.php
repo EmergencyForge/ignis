@@ -444,6 +444,10 @@ HTML;
 
             // Führenden Slash und BASE_PATH entfernen
             $src = ltrim($src, '/');
+            $basePath = defined('BASE_PATH') ? trim(BASE_PATH, '/') : '';
+            if ($basePath !== '' && str_starts_with($src, $basePath . '/')) {
+                $src = substr($src, strlen($basePath) + 1);
+            }
 
             // Bekannte System-Bilder erkennen
             if (strpos($src, 'assets/img/schrift_fw_schwarz') !== false) {

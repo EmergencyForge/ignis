@@ -45,12 +45,17 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/template-editor.min.css" />
     <style>
         /* Inline fallback falls SCSS noch nicht kompiliert */
-        body { overflow: hidden; }
-        .editor-wrapper {
-            display: flex;
-            height: calc(100vh - 38px); /* Toolbar only */
+        body {
             overflow: hidden;
         }
+
+        .editor-wrapper {
+            display: flex;
+            height: calc(100vh - 38px);
+            /* Toolbar only */
+            overflow: hidden;
+        }
+
         .editor-sidebar {
             width: 260px;
             min-width: 260px;
@@ -60,18 +65,36 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             transition: width 0.2s, min-width 0.2s, padding 0.2s;
             position: relative;
         }
+
         .editor-sidebar.collapsed {
-            width: 0; min-width: 0; padding: 0; overflow: hidden;
+            width: 0;
+            min-width: 0;
+            padding: 0;
+            overflow: hidden;
             border-right: none;
         }
+
         .sidebar-toggle {
-            position: absolute; top: 8px; z-index: 10;
-            width: 24px; height: 24px; border-radius: 50%;
-            background: var(--bs-body-bg); border: 1px solid var(--bs-border-color);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 0.65rem; color: var(--bs-secondary-color);
+            position: absolute;
+            top: 8px;
+            z-index: 10;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bs-body-bg);
+            border: 1px solid var(--bs-border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.65rem;
+            color: var(--bs-secondary-color);
         }
-        .sidebar-toggle:hover { background: var(--bs-tertiary-bg); }
+
+        .sidebar-toggle:hover {
+            background: var(--bs-tertiary-bg);
+        }
+
         .editor-canvas-area {
             flex: 1;
             overflow: auto;
@@ -81,6 +104,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             padding: 30px 20px 20px 30px;
             background: #1a1a2e;
         }
+
         .editor-properties {
             width: 280px;
             min-width: 280px;
@@ -90,17 +114,24 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             transition: width 0.2s, min-width 0.2s, padding 0.2s;
             position: relative;
         }
+
         .editor-properties.collapsed {
-            width: 0; min-width: 0; padding: 0; overflow: hidden;
+            width: 0;
+            min-width: 0;
+            padding: 0;
+            overflow: hidden;
             border-left: none;
         }
+
         .canvas-container-wrapper {
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             background: #fff;
         }
+
         .editor-canvas-area.drag-over .canvas-container-wrapper {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6), 0 4px 20px rgba(0,0,0,0.4);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6), 0 4px 20px rgba(0, 0, 0, 0.4);
         }
+
         .editor-toolbar {
             display: flex;
             align-items: center;
@@ -112,17 +143,40 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             overflow-x: auto;
             min-height: 38px;
         }
-        .editor-toolbar .btn { font-size: 0.8rem; padding: 0.2rem 0.5rem; }
+
+        .editor-toolbar .btn {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+        }
+
         .editor-toolbar .separator {
             width: 1px;
             height: 22px;
             background: var(--bs-border-color);
             margin: 0 0.15rem;
         }
-        .editor-toolbar .form-check { margin: 0; display: flex; align-items: center; gap: 0.25rem; }
-        .editor-toolbar .form-check-label { line-height: 1; }
-        .editor-toolbar .form-select { height: auto; padding-top: 0.2rem; padding-bottom: 0.2rem; }
-        .sidebar-section { padding: 0.75rem; }
+
+        .editor-toolbar .form-check {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .editor-toolbar .form-check-label {
+            line-height: 1;
+        }
+
+        .editor-toolbar .form-select {
+            height: auto;
+            padding-top: 0.2rem;
+            padding-bottom: 0.2rem;
+        }
+
+        .sidebar-section {
+            padding: 0.75rem;
+        }
+
         .sidebar-section-title {
             font-size: 0.75rem;
             font-weight: 600;
@@ -131,6 +185,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             color: var(--bs-secondary-color);
             margin-bottom: 0.5rem;
         }
+
         .element-item {
             padding: 0.4rem 0.6rem;
             border-radius: 0.25rem;
@@ -141,14 +196,35 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             align-items: center;
             gap: 0.5rem;
         }
-        .element-item:hover { background: var(--bs-tertiary-bg); }
-        .element-item.field-placed { opacity: 0.5; }
-        .element-item.field-placed::after {
-            content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
-            font-size: 0.6rem; color: var(--bs-success); margin-left: auto;
+
+        .element-item:hover {
+            background: var(--bs-tertiary-bg);
         }
-        .element-item i { width: 16px; text-align: center; opacity: 0.6; }
-        .prop-group { padding: 0.75rem; border-bottom: 1px solid var(--bs-border-color); }
+
+        .element-item.field-placed {
+            opacity: 0.5;
+        }
+
+        .element-item.field-placed::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 7 Free';
+            font-weight: 900;
+            font-size: 0.6rem;
+            color: var(--bs-success);
+            margin-left: auto;
+        }
+
+        .element-item i {
+            width: 16px;
+            text-align: center;
+            opacity: 0.6;
+        }
+
+        .prop-group {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--bs-border-color);
+        }
+
         .prop-group-title {
             font-size: 0.75rem;
             font-weight: 600;
@@ -157,23 +233,28 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             color: var(--bs-secondary-color);
             margin-bottom: 0.5rem;
         }
+
         .prop-row {
             display: flex;
             align-items: center;
             gap: 0.5rem;
             margin-bottom: 0.4rem;
         }
+
         .prop-row label {
             font-size: 0.8rem;
             width: 30px;
             flex-shrink: 0;
             color: var(--bs-secondary-color);
         }
-        .prop-row input, .prop-row select {
+
+        .prop-row input,
+        .prop-row select {
             font-size: 0.8rem;
             padding: 0.2rem 0.4rem;
             height: auto;
         }
+
         .layer-item {
             padding: 0.35rem 0.6rem;
             font-size: 0.8rem;
@@ -183,12 +264,40 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             gap: 0.5rem;
             border-radius: 0.25rem;
         }
-        .layer-item:hover { background: var(--bs-tertiary-bg); }
-        .layer-item.active { background: var(--bs-primary-bg-subtle); color: var(--bs-primary-text-emphasis); }
-        .layer-item i { width: 14px; text-align: center; opacity: 0.5; font-size: 0.75rem; }
-        .zoom-controls { display: flex; align-items: center; gap: 0.25rem; }
-        .zoom-controls .btn { padding: 0.2rem 0.5rem; font-size: 0.8rem; }
-        .zoom-controls span { font-size: 0.8rem; min-width: 45px; text-align: center; }
+
+        .layer-item:hover {
+            background: var(--bs-tertiary-bg);
+        }
+
+        .layer-item.active {
+            background: var(--bs-primary-bg-subtle);
+            color: var(--bs-primary-text-emphasis);
+        }
+
+        .layer-item i {
+            width: 14px;
+            text-align: center;
+            opacity: 0.5;
+            font-size: 0.75rem;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .zoom-controls .btn {
+            padding: 0.2rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .zoom-controls span {
+            font-size: 0.8rem;
+            min-width: 45px;
+            text-align: center;
+        }
+
         #no-selection-msg {
             padding: 2rem 1rem;
             text-align: center;
@@ -202,7 +311,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <!-- Einzeilige Toolbar -->
     <div class="editor-toolbar">
         <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="btn btn-sm btn-outline-secondary" id="btn-back"
-           onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();if(confirm('Ungespeicherte Änderungen verwerfen?'))window.location=this.href;}">
+            onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();if(confirm('Ungespeicherte Änderungen verwerfen?'))window.location=this.href;}">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
         <span class="text-truncate" style="font-size:0.8rem;max-width:200px;opacity:0.7;" title="<?= htmlspecialchars($template['name']) ?>">
@@ -250,12 +359,16 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 <li><a class="dropdown-item" href="#" data-align="left"><i class="fa-solid fa-align-left me-2"></i>Links</a></li>
                 <li><a class="dropdown-item" href="#" data-align="center-h"><i class="fa-solid fa-arrows-left-right me-2"></i>Mitte</a></li>
                 <li><a class="dropdown-item" href="#" data-align="right"><i class="fa-solid fa-align-right me-2"></i>Rechts</a></li>
-                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
                 <li class="dropdown-header" style="font-size:0.7rem;">Vertikal</li>
                 <li><a class="dropdown-item" href="#" data-align="top"><i class="fa-solid fa-arrow-up me-2"></i>Oben</a></li>
                 <li><a class="dropdown-item" href="#" data-align="center-v"><i class="fa-solid fa-arrows-up-down me-2"></i>Mitte</a></li>
                 <li><a class="dropdown-item" href="#" data-align="bottom"><i class="fa-solid fa-arrow-down me-2"></i>Unten</a></li>
-                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
                 <li><a class="dropdown-item" href="#" data-align="page-center"><i class="fa-solid fa-crosshairs me-2"></i>Seitenmitte</a></li>
             </ul>
         </div>
