@@ -1400,6 +1400,8 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     var basePath = <?= json_encode(BASE_PATH) ?>;
     var lastPoll = new Date().toISOString().slice(0, 19).replace('T', ' ');
     var pollTimer = null;
+    var lastKnownCount = <?= $unreadCount ?>;
+    var toastedIds = {};
 
     function updateBadges(count) {
         var badges = document.querySelectorAll('.notification-poll-badge');
@@ -1421,10 +1423,20 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             .then(function(data) {
                 if (!data.success) return;
                 updateBadges(data.unreadCount);
-                if (data.new && data.new.length > 0 && typeof window.showToast === 'function') {
-                    var latest = data.new[0];
-                    window.showToast(latest.title, 'info');
+                // Only toast truly new notifications (count increased + not yet toasted)
+                if (data.unreadCount > lastKnownCount && data.new && data.new.length > 0) {
+                    for (var i = 0; i < data.new.length; i++) {
+                        var n = data.new[i];
+                        if (!toastedIds[n.id]) {
+                            toastedIds[n.id] = true;
+                            if (typeof window.showToast === 'function') {
+                                window.showToast(n.title, 'info');
+                            }
+                            break; // Only show one toast per poll
+                        }
+                    }
                 }
+                lastKnownCount = data.unreadCount;
                 lastPoll = new Date().toISOString().slice(0, 19).replace('T', ' ');
             })
             .catch(function() {});
