@@ -43,8 +43,9 @@ class VisualTemplateRenderer
 
         // Dokumentdaten vorbereiten
         $fieldValues = $this->prepareFieldValues($doc);
+        $isDraft = !empty($doc['template_id']) && $this->isTemplateDraft((int) $doc['template_id']);
 
-        return $this->renderCanvasToHtml($canvasData, $fieldValues);
+        return $this->renderCanvasToHtml($canvasData, $fieldValues, $isDraft);
     }
 
     /**
@@ -75,14 +76,15 @@ class VisualTemplateRenderer
 
         // Beispieldaten für Vorschau
         $fieldValues = array_merge($this->getPreviewDefaults(), $sampleData);
+        $isDraft = $this->isTemplateDraft($templateId);
 
-        return $this->renderCanvasToHtml($canvasData, $fieldValues);
+        return $this->renderCanvasToHtml($canvasData, $fieldValues, $isDraft);
     }
 
     /**
      * Konvertiert Canvas-JSON zu HTML
      */
-    private function renderCanvasToHtml(array $canvasData, array $fieldValues): string
+    private function renderCanvasToHtml(array $canvasData, array $fieldValues, bool $isDraft = false): string
     {
         $objects = $canvasData['objects'] ?? [];
         $bgColor = $canvasData['background'] ?? '#ffffff';
@@ -130,11 +132,26 @@ class VisualTemplateRenderer
             {$bgImageCss}
             overflow: hidden;
         }
+        .draft-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80pt;
+            font-weight: bold;
+            color: rgba(200, 0, 0, 0.12);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 9999;
+        }
     </style>
 </head>
 <body>
     <div class="page">
         {$elementsHtml}
+        {$this->renderDraftWatermark($isDraft)}
     </div>
 </body>
 </html>
@@ -633,6 +650,26 @@ HTML;
             'RP_ZIP' => defined('RP_ZIP') ? RP_ZIP : '12345',
             'SERVER_NAME' => defined('SERVER_NAME') ? SERVER_NAME : 'Server',
         ];
+    }
+
+    private function renderDraftWatermark(bool $isDraft): string
+    {
+        if (!$isDraft) return '';
+        return '<div class="draft-watermark">ENTWURF</div>';
+    }
+
+    /**
+     * Prueft ob ein Template als Entwurf markiert ist (ueber config-JSON).
+     */
+    private function isTemplateDraft(int $templateId): bool
+    {
+        $stmt = $this->pdo->prepare("SELECT config FROM intra_dokument_templates WHERE id = :id");
+        $stmt->execute(['id' => $templateId]);
+        $config = $stmt->fetchColumn();
+        if (!$config) return false;
+
+        $configData = json_decode($config, true);
+        return !empty($configData['is_draft']);
     }
 
     private function renderEmptyPreview(): string
