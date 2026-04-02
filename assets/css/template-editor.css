@@ -165,6 +165,13 @@
   image-rendering: crisp-edges;
 }
 
+.lib-chevron {
+  transition: transform 0.2s ease;
+}
+.lib-chevron.open {
+  transform: rotate(90deg);
+}
+
 .sidebar-tabs {
   padding: 0.4rem 0.5rem 0;
   border-bottom: 1px solid var(--bs-border-color);
@@ -210,6 +217,21 @@
   border-radius: 2px;
   font-weight: 500;
   flex-shrink: 0;
+}
+.layer-item .layer-vis-btn {
+  opacity: 0.3;
+  cursor: pointer;
+  font-size: 0.6rem;
+  flex-shrink: 0;
+  padding: 2px;
+  transition: opacity 0.15s;
+}
+.layer-item .layer-vis-btn:hover {
+  opacity: 0.8;
+}
+.layer-item .layer-vis-btn.hidden {
+  opacity: 0.7;
+  color: var(--bs-secondary-color);
 }
 .layer-item .layer-lock-btn {
   opacity: 0.3;

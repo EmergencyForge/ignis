@@ -27,11 +27,18 @@
 
         show(obj) {
             this.currentObj = obj;
+            // Bei Multi-Selection: die enthaltenen Objekte merken
+            this._multiObjects = (obj.type === 'activeSelection' || obj.type === 'activeselection')
+                ? obj.getObjects() : null;
+
             if (this.noSelectionMsg) this.noSelectionMsg.style.display = 'none';
             if (!this.selectionProps) return;
             this.selectionProps.style.display = 'block';
 
-            const isText = (obj.type === 'textbox' || obj.type === 'text');
+            // Fuer Multi-Select: pruefen ob alle Elemente Text sind
+            const isText = this._multiObjects
+                ? this._multiObjects.every(o => o.type === 'textbox' || o.type === 'text')
+                : (obj.type === 'textbox' || obj.type === 'text');
             const needsRebuild = !this._built || (isText !== this._lastIsText);
 
             if (needsRebuild) {
@@ -100,6 +107,21 @@
                 html += '<div class="prop-tab-content" data-prop-tab-content="text" style="display:none;">';
                 html += '<div class="prop-group">';
                 html += '<div class="prop-group-title">Schrift</div>';
+
+                // Stil-Presets
+                html += '<div class="d-flex flex-wrap gap-1 mb-2">';
+                const presets = [
+                    { label: '\u00dc', title: '\u00dcberschrift', font: 'DejaVu Sans', size: 18, weight: 'bold', color: '#000000' },
+                    { label: 'U', title: 'Untertitel', font: 'DejaVu Sans', size: 14, weight: 'bold', color: '#333333' },
+                    { label: 'T', title: 'Fliesstext', font: 'DejaVu Sans', size: 11, weight: 'normal', color: '#000000' },
+                    { label: 'K', title: 'Klein', font: 'DejaVu Sans', size: 8, weight: 'normal', color: '#666666' },
+                    { label: '!', title: 'Hervorhebung', font: 'DejaVu Sans', size: 11, weight: 'bold', color: '#d10000' },
+                ];
+                presets.forEach((p, i) => {
+                    const style = p.weight === 'bold' ? 'font-weight:bold;' : '';
+                    html += '<button class="btn btn-sm btn-outline-light text-preset-btn" data-preset-idx="' + i + '" title="' + p.title + '" style="font-size:0.72rem;padding:0.15rem 0.4rem;' + style + '">' + p.label + '</button>';
+                });
+                html += '</div>';
 
                 // Font Family
                 html += '<div class="prop-row"><label>Font</label>';
@@ -211,7 +233,12 @@
             const update = (prop, val) => {
                 const obj = getObj();
                 if (!obj) return;
-                obj.set(prop, val);
+                // Bei Multi-Selection: auf alle Objekte anwenden
+                if (self._multiObjects) {
+                    self._multiObjects.forEach(o => o.set(prop, val));
+                } else {
+                    obj.set(prop, val);
+                }
                 getCanvas()?.renderAll();
                 const editor = getEditor();
                 if (editor) editor.isDirty = true;
@@ -234,6 +261,41 @@
                     tab.classList.add('active');
                     const content = this.selectionProps.querySelector('[data-prop-tab-content="' + target + '"]');
                     if (content) content.style.display = 'block';
+                });
+            });
+
+            // --- Text-Stil-Presets ---
+            const TEXT_PRESETS = [
+                { font: 'DejaVu Sans', size: 18, weight: 'bold', style: 'normal', underline: false, color: '#000000', align: 'left', lineHeight: 1.16 },
+                { font: 'DejaVu Sans', size: 14, weight: 'bold', style: 'normal', underline: false, color: '#333333', align: 'left', lineHeight: 1.16 },
+                { font: 'DejaVu Sans', size: 11, weight: 'normal', style: 'normal', underline: false, color: '#000000', align: 'left', lineHeight: 1.16 },
+                { font: 'DejaVu Sans', size: 8, weight: 'normal', style: 'normal', underline: false, color: '#666666', align: 'left', lineHeight: 1.2 },
+                { font: 'DejaVu Sans', size: 11, weight: 'bold', style: 'normal', underline: false, color: '#d10000', align: 'left', lineHeight: 1.16 },
+            ];
+
+            this.selectionProps.querySelectorAll('.text-preset-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const obj = getObj();
+                    if (!obj) return;
+                    const p = TEXT_PRESETS[parseInt(btn.dataset.presetIdx)];
+                    if (!p) return;
+                    const ptToPx = window.EditorUtils.PT_TO_PX;
+                    obj.set({
+                        fontFamily: p.font,
+                        fontSize: Math.round(p.size * ptToPx),
+                        fontWeight: p.weight,
+                        fontStyle: p.style,
+                        underline: p.underline,
+                        fill: p.color,
+                        textAlign: p.align,
+                        lineHeight: p.lineHeight,
+                    });
+                    getCanvas()?.renderAll();
+                    getEditor()?.saveState();
+                    const editor = getEditor();
+                    if (editor) editor.isDirty = true;
+                    // Panel aktualisieren
+                    self._updateValues(obj);
                 });
             });
 
@@ -359,11 +421,24 @@
 
         // --- Value Updates (skips focused inputs) ---
 
+        /** Gibt den gemeinsamen Wert einer Property ueber alle Multi-Objekte zurueck, oder fallback */
+        _commonVal(prop, fallback) {
+            if (!this._multiObjects || this._multiObjects.length === 0) {
+                return this.currentObj ? this.currentObj[prop] : fallback;
+            }
+            const first = this._multiObjects[0][prop];
+            const allSame = this._multiObjects.every(o => o[prop] === first);
+            return allSame ? first : fallback;
+        }
+
         _updateValues(obj) {
             const custom = obj.custom || {};
 
             // Element info
-            this._setText('prop-type-label', this._getTypeLabel(custom));
+            const typeLabel = this._multiObjects
+                ? this._multiObjects.length + ' Elemente ausgewählt'
+                : this._getTypeLabel(custom);
+            this._setText('prop-type-label', typeLabel);
             const fieldCode = document.getElementById('prop-field-code');
             const fieldCodeText = document.getElementById('prop-field-code-text');
             if (fieldCode && fieldCodeText) {
@@ -382,26 +457,30 @@
             this._setInput('prop-height', this.pxToMm((obj.height || 0) * (obj.scaleY || 1)));
             this._setInput('prop-angle', Math.round(obj.angle || 0));
 
-            // Text properties
-            if (obj.type === 'textbox' || obj.type === 'text') {
-                this._setSelect('prop-fontFamily', obj.fontFamily || 'DejaVu Sans');
-                // fontSize in Fabric.js ist px; Anzeige in pt
-                this._setInput('prop-fontSize', Math.round((obj.fontSize || 14) / window.EditorUtils.PT_TO_PX * 10) / 10);
-                this._setInput('prop-lineHeight', (obj.lineHeight || 1.16).toFixed(2));
+            // Text properties (mit Multi-Select-Support)
+            const isTextType = this._multiObjects
+                ? this._multiObjects.some(o => o.type === 'textbox' || o.type === 'text')
+                : (obj.type === 'textbox' || obj.type === 'text');
 
-                // Style buttons
-                this._toggleActive('prop-bold', obj.fontWeight === 'bold');
-                this._toggleActive('prop-italic', obj.fontStyle === 'italic');
-                this._toggleActive('prop-underline', !!obj.underline);
+            if (isTextType) {
+                const cv = (p, fb) => this._multiObjects ? this._commonVal(p, fb) : obj[p];
+                this._setSelect('prop-fontFamily', cv('fontFamily', 'DejaVu Sans') || 'DejaVu Sans');
+                const fs = cv('fontSize', 14) || 14;
+                this._setInput('prop-fontSize', fs === '--' ? '' : Math.round(fs / window.EditorUtils.PT_TO_PX * 10) / 10);
+                this._setInput('prop-lineHeight', cv('lineHeight', 1.16)?.toFixed ? cv('lineHeight', 1.16).toFixed(2) : '');
 
-                // Text align buttons
+                this._toggleActive('prop-bold', cv('fontWeight', '') === 'bold');
+                this._toggleActive('prop-italic', cv('fontStyle', '') === 'italic');
+                this._toggleActive('prop-underline', !!cv('underline', false));
+
+                const align = cv('textAlign', '');
                 this.selectionProps?.querySelectorAll('[data-textalign]').forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.textalign === obj.textAlign);
+                    btn.classList.toggle('active', btn.dataset.textalign === align);
                 });
             }
 
             // Colors
-            this._setColor('prop-fill', obj.fill);
+            this._setColor('prop-fill', this._multiObjects ? this._commonVal('fill', '#000000') : obj.fill);
             this._setColor('prop-bgColor', obj.backgroundColor || '#ffffff');
             const bgTransparent = document.getElementById('prop-bgTransparent');
             if (bgTransparent) bgTransparent.checked = !obj.backgroundColor || obj.backgroundColor === '';

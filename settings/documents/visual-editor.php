@@ -69,7 +69,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <!-- Einzeilige Toolbar -->
     <div class="editor-toolbar">
         <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="btn btn-sm btn-outline-secondary" id="btn-back"
-            onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();if(confirm('Ungespeicherte Änderungen verwerfen?'))window.location=this.href;}">
+            onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();var href=this.href;showConfirm('Ungespeicherte Änderungen verwerfen?',{title:'Seite verlassen',danger:true,confirmText:'Verwerfen'}).then(function(ok){if(ok)window.location=href;});}">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
         <span class="text-truncate" style="font-size:0.8rem;max-width:200px;opacity:0.7;" title="<?= htmlspecialchars($template['name']) ?>">
@@ -104,6 +104,9 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
         <div class="separator"></div>
 
+        <button class="btn btn-sm btn-outline-light" id="btn-style-painter" title="Format übertragen (Klick: einmalig, Doppelklick: mehrfach)">
+            <i class="fa-solid fa-paintbrush"></i>
+        </button>
         <button class="btn btn-sm btn-outline-light" id="btn-duplicate" title="Duplizieren (Ctrl+D)">
             <i class="fa-solid fa-copy"></i>
         </button>
@@ -215,6 +218,31 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <option value="16">16</option><option value="18">18</option><option value="20">20</option>
             <option value="24">24</option><option value="28">28</option><option value="36">36</option>
         </select>
+        <span class="tft-sep"></span>
+        <!-- Variable einfuegen Dropdown -->
+        <div class="dropdown" style="display:inline-flex;">
+            <button class="tft-btn dropdown-toggle" data-bs-toggle="dropdown" title="Variable einf&uuml;gen" style="width:auto;padding:0 6px;">
+                <i class="fa-solid fa-code" style="font-size:0.7rem;"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark" id="tft-var-dropdown" style="font-size:0.78rem;max-height:250px;overflow-y:auto;">
+                <li class="dropdown-header" style="font-size:0.68rem;">Dokument-Daten</li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="erhalter">Empf&auml;nger-Name</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="anrede_text">Anrede</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="geehrte">Geehrte/r</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="zum">Zum/Zur</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="ausstellungsdatum">Ausstellungsdatum</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="document_id">Dokumenten-ID</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="issuer.fullname">Aussteller-Name</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="issuer.dienstgrad_text">Aussteller-Dienstgrad</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="dienstgrad_text">Dienstgrad (aufgel&ouml;st)</a></li>
+                <li class="dropdown-header" style="font-size:0.68rem;">System</li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="SYSTEM_NAME">Organisationsname</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="SERVER_CITY">Stadt</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="RP_ORGTYPE">Organisationstyp</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="RP_STREET">Stra&szlig;e</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="RP_ZIP">PLZ</a></li>
+            </ul>
+        </div>
     </div>
 
     <!-- Canvas Loading Overlay -->
@@ -424,6 +452,39 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             csrfToken: <?= json_encode(CsrfProtection::getToken()) ?>,
         };
     </script>
+
+    <!-- Shortcut-Hilfe Modal -->
+    <div class="modal fade" id="shortcutHelpModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title"><i class="fa-solid fa-keyboard me-2"></i>Tastenkürzel</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0" style="font-size:0.82rem;">
+                    <table class="table table-sm table-striped mb-0">
+                        <tbody>
+                            <tr><td class="ps-3"><kbd>Ctrl+S</kbd></td><td>Speichern</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+Z</kbd></td><td>Rückgängig</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+Y</kbd></td><td>Wiederholen</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+C</kbd> / <kbd>X</kbd> / <kbd>V</kbd></td><td>Kopieren / Ausschneiden / Einfügen</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+D</kbd></td><td>Duplizieren</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+A</kbd></td><td>Alles auswählen</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+G</kbd></td><td>Gruppieren</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+Shift+G</kbd></td><td>Gruppe auflösen</td></tr>
+                            <tr><td class="ps-3"><kbd>Entf</kbd> / <kbd>Backspace</kbd></td><td>Löschen</td></tr>
+                            <tr><td class="ps-3"><kbd>Escape</kbd></td><td>Auswahl aufheben</td></tr>
+                            <tr><td class="ps-3"><kbd>Pfeiltasten</kbd></td><td>Verschieben (1px)</td></tr>
+                            <tr><td class="ps-3"><kbd>Shift</kbd> + Pfeiltasten</td><td>Verschieben (10px)</td></tr>
+                            <tr><td class="ps-3"><kbd>Shift</kbd> + Rotation</td><td>15°-Einrastung</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl</kbd> + Mausrad</td><td>Zoom</td></tr>
+                            <tr><td class="ps-3"><kbd>?</kbd></td><td>Diese Hilfe anzeigen</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- SortableJS (Layer-Reorder) -->
     <script src="<?= BASE_PATH ?>assets/_ext/sortablejs/Sortable.min.js"></script>
