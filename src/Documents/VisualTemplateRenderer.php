@@ -196,7 +196,7 @@ HTML;
             'width' => "{$width}mm",
             'font-family' => $this->sanitizeFontFamily($obj['fontFamily'] ?? 'DejaVu Sans'),
             'font-size' => ($obj['fontSize'] ?? 14) . 'px',
-            'color' => $obj['fill'] ?? '#000000',
+            'color' => $this->sanitizeCssColor($obj['fill'] ?? '#000000'),
             'line-height' => $obj['lineHeight'] ?? 1.16,
             'text-align' => $obj['textAlign'] ?? 'left',
             'word-wrap' => 'break-word',
@@ -213,10 +213,10 @@ HTML;
             $css['text-decoration'] = 'underline';
         }
         if (!empty($obj['backgroundColor'])) {
-            $css['background-color'] = $obj['backgroundColor'];
+            $css['background-color'] = $this->sanitizeCssColor($obj['backgroundColor']);
         }
         if (!empty($obj['stroke']) && ($obj['strokeWidth'] ?? 0) > 0) {
-            $css['border'] = ($obj['strokeWidth'] ?? 1) . 'px solid ' . $obj['stroke'];
+            $css['border'] = ((int) ($obj['strokeWidth'] ?? 1)) . 'px solid ' . $this->sanitizeCssColor($obj['stroke']);
         }
         if (isset($obj['opacity']) && $obj['opacity'] < 1) {
             $css['opacity'] = $obj['opacity'];
@@ -228,8 +228,10 @@ HTML;
 
         $style = $this->cssArrayToString($css);
 
-        // HTML-Entities escapen, aber <br> erhalten
-        $htmlText = nl2br(htmlspecialchars($text));
+        // Platzhalter-Werte sind bereits in replacePlaceholders() escaped.
+        // Template-Text kommt aus dem Canvas-Editor (Admin-authored) und ist vertrauenswuerdig.
+        // Nur nl2br fuer Zeilenumbrueche, kein weiteres htmlspecialchars (vermeidet Double-Escaping).
+        $htmlText = nl2br($text);
 
         return "<div style=\"{$style}\">{$htmlText}</div>\n";
     }
@@ -302,11 +304,11 @@ HTML;
 
         $fill = $obj['fill'] ?? 'transparent';
         if ($fill && $fill !== 'transparent') {
-            $css['background-color'] = $fill;
+            $css['background-color'] = $this->sanitizeCssColor($fill);
         }
 
         if (!empty($obj['stroke']) && ($obj['strokeWidth'] ?? 0) > 0) {
-            $css['border'] = ($obj['strokeWidth'] ?? 1) . 'px solid ' . $obj['stroke'];
+            $css['border'] = ((int) ($obj['strokeWidth'] ?? 1)) . 'px solid ' . $this->sanitizeCssColor($obj['stroke']);
         }
 
         if (isset($obj['opacity']) && $obj['opacity'] < 1) {
@@ -332,8 +334,8 @@ HTML;
         $y2 = $obj['y2'] ?? 0;
 
         $lineWidth = $this->pxToMm(abs($x2 - $x1) * ($obj['scaleX'] ?? 1));
-        $strokeWidth = $obj['strokeWidth'] ?? 1;
-        $stroke = $obj['stroke'] ?? '#000000';
+        $strokeWidth = (int) ($obj['strokeWidth'] ?? 1);
+        $stroke = $this->sanitizeCssColor($obj['stroke'] ?? '#000000');
 
         $css = [
             'position' => 'absolute',
@@ -387,7 +389,8 @@ HTML;
             $key = $matches[1];
             // Direkt suchen
             if (isset($fieldValues[$key])) {
-                return $fieldValues[$key];
+                $val = $fieldValues[$key];
+                return is_string($val) ? htmlspecialchars($val, ENT_QUOTES, 'UTF-8') : $matches[0];
             }
             // Dot-Notation auflösen (z.B. issuer.fullname)
             $parts = explode('.', $key);
@@ -399,7 +402,7 @@ HTML;
                     return $matches[0]; // Platzhalter beibehalten wenn nicht gefunden
                 }
             }
-            return is_string($val) ? $val : $matches[0];
+            return is_string($val) ? htmlspecialchars($val, ENT_QUOTES, 'UTF-8') : $matches[0];
         }, $text);
     }
 
@@ -461,13 +464,15 @@ HTML;
 
             // Storage-Assets
             if (strpos($src, 'storage/template-assets/') !== false) {
-                $path = $projectRoot . '/' . $src;
-                if (file_exists($path)) return $this->getImageAsBase64($path);
+                $path = realpath($projectRoot . '/' . $src);
+                if ($path && str_starts_with($path, realpath($projectRoot . '/storage/')) && file_exists($path)) {
+                    return $this->getImageAsBase64($path);
+                }
             }
 
-            // Allgemeiner Fallback: relativer Pfad
-            $localPath = $projectRoot . '/' . $src;
-            if (file_exists($localPath)) {
+            // Allgemeiner Fallback: relativer Pfad (mit Path-Traversal-Schutz)
+            $localPath = realpath($projectRoot . '/' . $src);
+            if ($localPath && str_starts_with($localPath, $projectRoot) && file_exists($localPath)) {
                 return $this->getImageAsBase64($localPath);
             }
         }
@@ -667,5 +672,35 @@ HTML;
             $parts[] = "{$prop}: {$val}";
         }
         return implode('; ', $parts);
+    }
+
+    /**
+     * Sanitisiert einen CSS-Wert (Farben, Zahlen) gegen Injection.
+     * Entfernt alles, was aus dem CSS-Kontext ausbrechen koennte.
+     */
+    private function sanitizeCssColor(string $value): string
+    {
+        // Erlaube: hex (#fff, #ffffff), rgb/rgba(), benannte Farben, transparent
+        $value = trim($value);
+        if ($value === '' || $value === 'transparent') {
+            return $value;
+        }
+        // Hex-Farben
+        if (preg_match('/^#[0-9a-fA-F]{3,8}$/', $value)) {
+            return $value;
+        }
+        // rgb/rgba
+        if (preg_match('/^rgba?\(\s*[\d.,\s%]+\)$/i', $value)) {
+            return $value;
+        }
+        // Benannte CSS-Farben (Whitelist der gaengigsten)
+        $namedColors = ['black', 'white', 'red', 'green', 'blue', 'yellow', 'orange',
+            'purple', 'gray', 'grey', 'pink', 'brown', 'navy', 'teal', 'maroon',
+            'silver', 'olive', 'aqua', 'lime', 'fuchsia'];
+        if (in_array(strtolower($value), $namedColors)) {
+            return strtolower($value);
+        }
+        // Fallback: ungueltiger Wert
+        return '#000000';
     }
 }

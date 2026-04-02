@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../src/Documents/TemplateLayoutManager.php';
 
 use App\Documents\TemplateLayoutManager;
 use App\Auth\Permissions;
+use App\Security\CsrfProtection;
 
 header('Content-Type: application/json');
 
@@ -15,6 +16,8 @@ if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
 
 try {
     $input = json_decode(file_get_contents('php://input'), true);
+
+    CsrfProtection::requireValid($input);
 
     if (empty($input['template_id']) || empty($input['canvas_json'])) {
         throw new \Exception('template_id und canvas_json sind erforderlich');
@@ -35,6 +38,7 @@ try {
         'success' => true,
         'layout_id' => $layoutId,
         'version' => $layout['version'] ?? 1,
+        'csrf_token' => CsrfProtection::getResponseToken(),
     ]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
