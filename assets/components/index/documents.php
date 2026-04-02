@@ -53,20 +53,7 @@
             $stmt->execute(['profileid' => $profileid]);
             $dokuresult = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            $arten = [
-                0 => "Ernennungsurkunde",
-                1 => "Beförderungsurkunde",
-                2 => "Entlassungsurkunde",
-                3 => "Ausbildungsvertrag",
-                5 => "Ausbildungszertifikat",
-                6 => "Lehrgangszertifikat",
-                7 => "Lehrgangszertifikat (Fachdienste)",
-                10 => "Schriftliche Abmahnung",
-                11 => "Vorläufige Dienstenthebung",
-                12 => "Dienstentfernung",
-                13 => "Außerordentliche Kündigung",
-                99 => "Eigenes Dokument"
-            ];
+            // Typ-Labels zentral aus DocumentTemplateManager
 
             if (empty($dokuresult)) {
                 echo "<tr><td colspan='5'>
@@ -80,11 +67,9 @@
                 foreach ($dokuresult as $doks) {
                     $austdatum = date("d.m.Y", strtotime($doks['ausstellungsdatum']));
 
-                    if ($doks['type'] == 99 && !empty($doks['template_name'])) {
-                        $docart = $doks['template_name'];
-                    } else {
-                        $docart = isset($arten[$doks['type']]) ? $arten[$doks['type']] : 'Unbekannt';
-                    }
+                    $docart = \App\Documents\DocumentTemplateManager::getDocumentTypeLabel(
+                        (int) $doks['type'], $doks['template_name'] ?? null
+                    );
 
                     $pdfPath = BASE_PATH . "storage/documents/" . $doks['docid'] . ".pdf";
 

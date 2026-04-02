@@ -14,6 +14,26 @@ class DocumentTemplateManager
     }
 
     /**
+     * Zentrale Typ-Map fuer Legacy-Dokumenttypen (0-13).
+     * Typ 99 = Template-basiertes Dokument (Name kommt aus template_name).
+     */
+    public static function getDocumentTypeLabel(int $type, ?string $templateName = null): string
+    {
+        if ($type === 99 && !empty($templateName)) {
+            return $templateName;
+        }
+
+        $types = [
+            0 => 'Ernennungsurkunde', 1 => 'Beförderungsurkunde', 2 => 'Entlassungsurkunde',
+            3 => 'Ausbildungsvertrag', 5 => 'Ausbildungszertifikat', 6 => 'Lehrgangszertifikat',
+            7 => 'Lehrgangszertifikat (Fachdienste)', 10 => 'Schriftliche Abmahnung',
+            11 => 'Vorläufige Dienstenthebung', 12 => 'Dienstentfernung',
+            13 => 'Außerordentliche Kündigung', 99 => 'Eigenes Dokument',
+        ];
+        return $types[$type] ?? 'Unbekannt';
+    }
+
+    /**
      * Erstellt ein neues Dokumenten-Template
      */
     public function createTemplate(array $data): int

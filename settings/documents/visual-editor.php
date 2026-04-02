@@ -45,266 +45,23 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/template-editor.min.css" />
     <style>
-        /* Inline fallback falls SCSS noch nicht kompiliert */
-        body {
-            overflow: hidden;
-        }
-
-        .editor-wrapper {
-            display: flex;
-            height: calc(100vh - 38px);
-            /* Toolbar only */
-            overflow: hidden;
-        }
-
-        .editor-sidebar {
-            width: 260px;
-            min-width: 260px;
-            overflow-y: auto;
-            border-right: 1px solid var(--bs-border-color);
-            background: var(--bs-body-bg);
-            transition: width 0.2s, min-width 0.2s, padding 0.2s;
-            position: relative;
-        }
-
-        .editor-sidebar.collapsed {
-            width: 0;
-            min-width: 0;
-            padding: 0;
-            overflow: hidden;
-            border-right: none;
-        }
-
-        .sidebar-toggle {
-            position: absolute;
-            top: 8px;
-            z-index: 10;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--bs-body-bg);
-            border: 1px solid var(--bs-border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.65rem;
-            color: var(--bs-secondary-color);
-        }
-
-        .sidebar-toggle:hover {
-            background: var(--bs-tertiary-bg);
-        }
-
-        .editor-canvas-area {
-            flex: 1;
-            overflow: auto;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 30px 20px 20px 30px;
-            background: #1a1a2e;
-        }
-
-        .editor-properties {
-            width: 280px;
-            min-width: 280px;
-            overflow-y: auto;
-            border-left: 1px solid var(--bs-border-color);
-            background: var(--bs-body-bg);
-            transition: width 0.2s, min-width 0.2s, padding 0.2s;
-            position: relative;
-        }
-
-        .editor-properties.collapsed {
-            width: 0;
-            min-width: 0;
-            padding: 0;
-            overflow: hidden;
-            border-left: none;
-        }
-
-        .canvas-container-wrapper {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            background: #fff;
-        }
-
-        .editor-canvas-area.drag-over .canvas-container-wrapper {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6), 0 4px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .editor-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.3rem 0.75rem;
-            border-bottom: 1px solid var(--bs-border-color);
-            background: var(--bs-body-bg);
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            min-height: 38px;
-        }
-
-        .editor-toolbar .btn {
-            font-size: 0.8rem;
-            padding: 0.2rem 0.5rem;
-        }
-
-        .editor-toolbar .separator {
-            width: 1px;
-            height: 22px;
-            background: var(--bs-border-color);
-            margin: 0 0.15rem;
-        }
-
-        .editor-toolbar .form-check {
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .editor-toolbar .form-check-label {
-            line-height: 1;
-        }
-
-        .editor-toolbar .form-select {
-            height: auto;
-            padding-top: 0.2rem;
-            padding-bottom: 0.2rem;
-        }
-
-        .sidebar-section {
-            padding: 0.75rem;
-        }
-
-        .sidebar-section-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--bs-secondary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .element-item {
-            padding: 0.4rem 0.6rem;
-            border-radius: 0.25rem;
-            cursor: grab;
-            font-size: 0.85rem;
-            transition: background 0.15s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .element-item:hover {
-            background: var(--bs-tertiary-bg);
-        }
-
-        .element-item.field-placed {
-            opacity: 0.5;
-        }
-
-        .element-item.field-placed::after {
-            content: '\f00c';
-            font-family: 'Font Awesome 7 Free';
-            font-weight: 900;
-            font-size: 0.6rem;
-            color: var(--bs-success);
-            margin-left: auto;
-        }
-
-        .element-item i {
-            width: 16px;
-            text-align: center;
-            opacity: 0.6;
-        }
-
-        .prop-group {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--bs-border-color);
-        }
-
-        .prop-group-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--bs-secondary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .prop-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.4rem;
-        }
-
-        .prop-row label {
-            font-size: 0.8rem;
-            width: 30px;
-            flex-shrink: 0;
-            color: var(--bs-secondary-color);
-        }
-
-        .prop-row input,
-        .prop-row select {
-            font-size: 0.8rem;
-            padding: 0.2rem 0.4rem;
-            height: auto;
-        }
-
-        .layer-item {
-            padding: 0.35rem 0.6rem;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border-radius: 0.25rem;
-        }
-
-        .layer-item:hover {
-            background: var(--bs-tertiary-bg);
-        }
-
-        .layer-item.active {
-            background: var(--bs-primary-bg-subtle);
-            color: var(--bs-primary-text-emphasis);
-        }
-
-        .layer-item i {
-            width: 14px;
-            text-align: center;
-            opacity: 0.5;
-            font-size: 0.75rem;
-        }
-
-        .zoom-controls {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .zoom-controls .btn {
-            padding: 0.2rem 0.5rem;
-            font-size: 0.8rem;
-        }
-
-        .zoom-controls span {
-            font-size: 0.8rem;
-            min-width: 45px;
-            text-align: center;
-        }
-
-        #no-selection-msg {
-            padding: 2rem 1rem;
-            text-align: center;
-            color: var(--bs-secondary-color);
-            font-size: 0.85rem;
-        }
+        /* Nur Styles die spezifisch fuer visual-editor.php sind und nicht in template-editor.css */
+        body { overflow: hidden; }
+        .editor-wrapper { height: calc(100vh - 38px); }
+        .editor-sidebar.collapsed { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; }
+        .editor-properties.collapsed { width: 0; min-width: 0; padding: 0; overflow: hidden; border-left: none; }
+        .editor-sidebar, .editor-properties { transition: width 0.2s, min-width 0.2s, padding 0.2s; position: relative; }
+        .sidebar-toggle { position: absolute; top: 8px; z-index: 10; width: 24px; height: 24px; border-radius: 50%; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.65rem; color: var(--bs-secondary-color); }
+        .sidebar-toggle:hover { background: var(--bs-tertiary-bg); }
+        .editor-canvas-area.drag-over .canvas-container-wrapper { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6), 0 4px 20px rgba(0, 0, 0, 0.4); }
+        .editor-toolbar { flex-wrap: nowrap; overflow-x: auto; min-height: 38px; gap: 0.35rem; padding: 0.3rem 0.75rem; }
+        .editor-toolbar .btn { font-size: 0.8rem; padding: 0.2rem 0.5rem; }
+        .editor-toolbar .separator { width: 1px; height: 22px; background: var(--bs-border-color); margin: 0 0.15rem; }
+        .editor-toolbar .form-check { margin: 0; display: flex; align-items: center; gap: 0.25rem; }
+        .editor-toolbar .form-check-label { line-height: 1; }
+        .editor-toolbar .form-select { height: auto; padding-top: 0.2rem; padding-bottom: 0.2rem; }
+        .element-item.field-placed { opacity: 0.5; }
+        .element-item.field-placed::after { content: '\f00c'; font-family: 'Font Awesome 7 Free'; font-weight: 900; font-size: 0.6rem; color: var(--bs-success); margin-left: auto; }
     </style>
 </head>
 
@@ -338,8 +95,11 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         <button class="btn btn-sm btn-outline-light" id="btn-add-image" title="Bild hinzufügen">
             <i class="fa-solid fa-image"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-set-background" title="Hintergrundbild">
+        <button class="btn btn-sm btn-outline-light" id="btn-set-background" title="Hintergrundbild setzen">
             <i class="fa-solid fa-panorama"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-light" id="btn-remove-background" title="Hintergrundbild entfernen" style="display:none;">
+            <i class="fa-solid fa-panorama" style="position:relative;"></i><i class="fa-solid fa-xmark" style="font-size:0.5rem;margin-left:-4px;color:var(--bs-danger);"></i>
         </button>
 
         <div class="separator"></div>

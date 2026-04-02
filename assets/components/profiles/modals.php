@@ -2,7 +2,146 @@
 
 use App\Auth\Permissions;
 use App\Documents\DocumentTemplateManager;
+use App\Security\CsrfProtection;
 ?>
+
+<!-- Dokument-Viewer Modal (Akte-Stil) -->
+<div class="modal fade" id="documentViewerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <!-- Akte-Header: Metadaten als kompakte Zeile -->
+            <div class="modal-header flex-column align-items-stretch p-0 border-0">
+                <!-- Titel-Zeile -->
+                <div class="d-flex align-items-center justify-content-between px-3 py-2" style="border-bottom:1px solid var(--bs-border-color);">
+                    <div class="d-flex align-items-center gap-2 min-w-0">
+                        <span class="badge text-bg-secondary" id="docViewer-badge">Dokument</span>
+                        <h6 class="mb-0 text-truncate" id="docViewer-title" style="font-size:0.88rem;"></h6>
+                    </div>
+                    <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                        <a href="#" id="docViewer-detailLink" class="btn btn-sm btn-ghost" title="Detailseite"><i class="fa-solid fa-up-right-from-square"></i></a>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                </div>
+                <!-- Meta-Chips -->
+                <div class="px-3 py-2 d-flex flex-wrap gap-2 align-items-center" id="docViewer-chips" style="font-size:0.78rem;background:var(--bs-tertiary-bg);border-bottom:1px solid var(--bs-border-color);">
+                    <div class="text-center py-2 w-100"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                </div>
+            </div>
+
+            <!-- PDF / HTML Vorschau -->
+            <div class="modal-body p-0" style="height:65vh;">
+                <iframe id="docViewer-iframe" style="width:100%;height:100%;border:none;" src="about:blank"></iframe>
+            </div>
+
+            <!-- Aktions-Leiste -->
+            <div class="modal-footer justify-content-between py-2 px-3" id="docViewer-actions">
+                <div id="docViewer-status"></div>
+                <div class="d-flex gap-1" id="docViewer-buttons"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function openDocumentViewer(docid) {
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('documentViewerModal'));
+    const chipsEl = document.getElementById('docViewer-chips');
+    const iframe = document.getElementById('docViewer-iframe');
+    const titleEl = document.getElementById('docViewer-title');
+    const badgeEl = document.getElementById('docViewer-badge');
+    const detailLink = document.getElementById('docViewer-detailLink');
+    const statusEl = document.getElementById('docViewer-status');
+    const buttonsEl = document.getElementById('docViewer-buttons');
+
+    // Reset
+    chipsEl.innerHTML = '<div class="text-center py-2 w-100"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+    iframe.src = 'about:blank';
+    statusEl.innerHTML = '';
+    buttonsEl.innerHTML = '';
+    modal.show();
+
+    fetch('<?= BASE_PATH ?>api/documents/get-document.php?docid=' + encodeURIComponent(docid))
+        .then(r => r.json())
+        .then(data => {
+            if (!data.success) {
+                chipsEl.innerHTML = '<span class="text-danger">Fehler: ' + (data.error || 'Unbekannt') + '</span>';
+                return;
+            }
+            const doc = data.document;
+            const esc = (s) => s ? String(s).replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
+
+            // Header
+            titleEl.textContent = doc.type_label;
+            badgeEl.textContent = doc.category_name || 'Dokument';
+            badgeEl.className = 'badge ' + (doc.category_color || 'text-bg-secondary');
+            detailLink.href = '<?= BASE_PATH ?>mitarbeiter/dokument-view.php?docid=' + doc.docid;
+
+            // Meta-Chips (kompakte Zeile)
+            const chip = (icon, text) => '<span class="d-inline-flex align-items-center gap-1"><i class="fa-solid ' + icon + '" style="opacity:0.5;font-size:0.7rem;"></i>' + esc(text) + '</span>';
+            const sep = '<span style="opacity:0.2;">|</span>';
+
+            let chips = chip('fa-hashtag', doc.docid) + sep;
+            chips += chip('fa-user', doc.erhalter || doc.empfaenger_fullname || '-') + sep;
+            chips += chip('fa-pen-nib', doc.ersteller_name) + sep;
+            chips += chip('fa-calendar', doc.ausstellungsdatum_formatted);
+            chipsEl.innerHTML = chips;
+
+            // PDF laden
+            if (doc.pdf_exists) {
+                iframe.src = doc.pdf_url;
+            } else {
+                iframe.srcdoc = '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-family:sans-serif;color:#666;"><div class="text-center"><p style="font-size:1.2rem;">PDF nicht verfügbar</p></div></div>';
+            }
+
+            // Status (links im Footer)
+            statusEl.innerHTML = doc.is_archived
+                ? '<span class="badge text-bg-secondary"><i class="fa-solid fa-box-archive me-1"></i>Archiviert</span>'
+                : '<span class="badge text-bg-success" style="opacity:0.8;"><i class="fa-solid fa-circle-check me-1"></i>Aktiv</span>';
+
+            // Aktions-Buttons (rechts im Footer, als Icon-Buttons)
+            let btns = '';
+            if (doc.pdf_exists) {
+                btns += '<a href="' + esc(doc.pdf_url) + '" download class="btn btn-sm btn-outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>';
+                btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="btn btn-sm btn-outline-light" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>';
+            }
+            btns += '<a href="<?= BASE_PATH ?>mitarbeiter/dokument-view.php?docid=' + doc.docid + '" class="btn btn-sm btn-outline-light" title="Detailseite"><i class="fa-solid fa-file-lines"></i></a>';
+
+            <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
+            const archIcon = doc.is_archived ? 'fa-box-open' : 'fa-box-archive';
+            const archTitle = doc.is_archived ? 'Wiederherstellen' : 'Archivieren';
+            btns += '<button class="btn btn-sm btn-outline-secondary" title="' + archTitle + '" onclick="toggleArchiveFromViewer(\'' + doc.docid + '\', ' + !doc.is_archived + ')"><i class="fa-solid ' + archIcon + '"></i></button>';
+            <?php endif; ?>
+
+            buttonsEl.innerHTML = btns;
+        })
+        .catch(err => {
+            chipsEl.innerHTML = '<span class="text-danger">Fehler: ' + err.message + '</span>';
+        });
+}
+
+<?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
+async function toggleArchiveFromViewer(docid, archive) {
+    const action = archive ? 'archivieren' : 'wiederherstellen';
+    const confirmed = await showConfirm('Dokument wirklich ' + action + '?', { title: 'Dokument ' + action, confirmText: archive ? 'Archivieren' : 'Wiederherstellen' });
+    if (!confirmed) return;
+
+    fetch('<?= BASE_PATH ?>api/documents/archive.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            docid: docid,
+            archived: archive,
+            csrf_token: '<?= CsrfProtection::getToken() ?>'
+        })
+    }).then(r => r.json()).then(result => {
+        if (result.success) {
+            bootstrap.Modal.getInstance(document.getElementById('documentViewerModal'))?.hide();
+            location.reload();
+        }
+    });
+}
+<?php endif; ?>
+</script>
 
 <!-- MODAL -->
 <div class="modal fade" id="modalFDQuali" tabindex="-1" aria-labelledby="modalFDQualiLabel" aria-hidden="true">
@@ -138,6 +277,9 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="btn btn-outline-info" id="btn-preview-doc" title="PDF-Vorschau mit den aktuell eingegebenen Daten">
+                            <i class="fa-solid fa-eye me-1"></i>Vorschau
+                        </button>
                         <button type="submit" class="btn btn-success" id="fdq-save">Erstellen</button>
                     </div>
                 </form>
@@ -399,6 +541,75 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 }
             }
             editorInstances = {};
+        });
+
+        // Vorschau-Button: sammelt Formulardaten und rendert PDF-Preview
+        document.getElementById('btn-preview-doc')?.addEventListener('click', async function() {
+            const form = document.getElementById('newDocForm');
+            if (!form) return;
+
+            const templateId = form.querySelector('[name="template_id"]')?.value;
+            if (!templateId) {
+                showAlert('Bitte wähle zuerst ein Template aus.', { type: 'warning' });
+                return;
+            }
+
+            // CKEditor-Daten sammeln
+            const sampleData = {};
+            for (let id in editorInstances) {
+                const fieldName = id.replace('field_', '');
+                sampleData[fieldName] = editorInstances[id].getData();
+            }
+
+            // Reguläre Formularfelder sammeln
+            const formData = new FormData(form);
+            const excludeFields = ['profileid', 'template_id', 'ausstellerid'];
+            for (let [key, value] of formData.entries()) {
+                if (!excludeFields.includes(key) && !sampleData[key]) {
+                    sampleData[key] = value || '';
+                }
+            }
+
+            // Erhalter-Name und Anrede für die Vorschau
+            sampleData['erhalter'] = formData.get('erhalter') || 'Max Mustermann';
+            sampleData['anrede_text'] = formData.get('anrede') === '1' ? 'Frau' : 'Herr';
+            sampleData['geehrte'] = formData.get('anrede') === '1' ? 'geehrte' : 'geehrter';
+
+            this.disabled = true;
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Vorschau...';
+
+            try {
+                const response = await fetch(BASE_PATH + 'api/documents/layout-preview.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        template_id: parseInt(templateId),
+                        sample_data: sampleData,
+                        format: 'pdf',
+                        csrf_token: '<?= CsrfProtection::getToken() ?>'
+                    })
+                });
+
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                // Vorschau in neuem Fenster öffnen
+                const previewWin = window.open('', '_blank', 'width=800,height=1000');
+                if (previewWin) {
+                    previewWin.document.write('<html><head><title>Dokumentvorschau</title></head><body style="margin:0;"><iframe src="' + url + '" style="width:100%;height:100%;border:none;"></iframe></body></html>');
+                } else {
+                    // Fallback: Download
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.target = '_blank';
+                    a.click();
+                }
+            } catch (err) {
+                showAlert('Vorschau fehlgeschlagen: ' + err.message, { type: 'error' });
+            } finally {
+                this.disabled = false;
+                this.innerHTML = '<i class="fa-solid fa-eye me-1"></i>Vorschau';
+            }
         });
     </script>
 <?php } ?>

@@ -74,8 +74,8 @@ class VisualTemplateRenderer
             return $this->renderEmptyPreview();
         }
 
-        // Beispieldaten für Vorschau
-        $fieldValues = array_merge($this->getPreviewDefaults(), $sampleData);
+        // Feldwerte aufloesen (DB-IDs → Texte, Datum formatieren, etc.)
+        $fieldValues = $this->preparePreviewFieldValues($templateId, $sampleData);
         $isDraft = $this->isTemplateDraft($templateId);
 
         return $this->renderCanvasToHtml($canvasData, $fieldValues, $isDraft);
@@ -624,6 +624,98 @@ HTML;
         ]);
 
         return $values;
+    }
+
+    /**
+     * Bereitet Vorschau-Feldwerte auf: loest DB-IDs, Select-Werte und
+     * geschlechtsspezifische Felder genau wie prepareFieldValues() auf.
+     */
+    private function preparePreviewFieldValues(int $templateId, array $sampleData): array
+    {
+        $defaults = $this->getPreviewDefaults();
+        $anrede = (int) ($sampleData['anrede'] ?? 0);
+
+        // Template-Felder laden fuer Wert-Aufloesung
+        $templateFields = [];
+        $templateConfig = [];
+        $stmt = $this->pdo->prepare("
+            SELECT tf.*, t.config
+            FROM intra_dokument_template_fields tf
+            JOIN intra_dokument_templates t ON tf.template_id = t.id
+            WHERE tf.template_id = ?
+            ORDER BY tf.sort_order
+        ");
+        $stmt->execute([$templateId]);
+        $templateFields = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        if (!empty($templateFields[0]['config'])) {
+            $templateConfig = json_decode($templateFields[0]['config'] ?? '{}', true) ?: [];
+        }
+
+        // Felder aufloesen: DB-IDs → Texte, geschlechtsspezifische Werte
+        $processedData = [];
+        foreach ($templateFields as $field) {
+            $fieldName = $field['field_name'];
+            $fieldValue = $sampleData[$fieldName] ?? null;
+
+            if ($fieldValue === null || $fieldValue === '') {
+                continue;
+            }
+
+            if ($field['gender_specific']) {
+                $options = $this->getFieldOptions($field['field_type'], $field['field_options'] ?? null);
+                $processedData[$fieldName] = $this->resolveGenderSpecificValue($options, $fieldValue, $anrede);
+            } elseif (in_array($field['field_type'], ['select', 'db_dg', 'db_rdq'])) {
+                $options = $this->getFieldOptions($field['field_type'], $field['field_options'] ?? null);
+                $resolved = $this->resolveGenderSpecificValue($options, $fieldValue, $anrede);
+                $processedData[$fieldName] = $resolved ?: $fieldValue;
+            } else {
+                $processedData[$fieldName] = $fieldValue;
+            }
+        }
+
+        // Legacy-Dienstgrad/Quali aufloesen
+        $dienstgradText = '';
+        if (!empty($sampleData['erhalter_rang'])) {
+            $options = $this->getFieldOptions('db_dg', null);
+            $dienstgradText = $this->resolveGenderSpecificValue($options, $sampleData['erhalter_rang'], $anrede);
+        }
+
+        $dienstgrad = '';
+        if (!empty($sampleData['erhalter_rang_rd'])) {
+            $options = $this->getFieldOptions('db_rdq', null);
+            $dienstgrad = $this->resolveGenderSpecificValue($options, $sampleData['erhalter_rang_rd'], $anrede);
+        }
+
+        $qualifikation = '';
+        if (isset($sampleData['erhalter_quali']) && $sampleData['erhalter_quali'] !== '') {
+            $qualiConfig = $templateConfig['fields']['erhalter_quali'] ?? null;
+            if ($qualiConfig && isset($qualiConfig['options'])) {
+                $qualifikation = $this->resolveGenderSpecificValue(
+                    $qualiConfig['options'],
+                    $sampleData['erhalter_quali'],
+                    $anrede
+                );
+            }
+        }
+
+        // Ausstellungsdatum formatieren
+        $ausstellungsdatum = date('d.m.Y');
+        if (!empty($sampleData['ausstellungsdatum'])) {
+            $ts = strtotime($sampleData['ausstellungsdatum']);
+            if ($ts) $ausstellungsdatum = date('d.m.Y', $ts);
+        }
+
+        return array_merge($defaults, $sampleData, $processedData, [
+            'anrede_text' => match ($anrede) { 0 => 'Herr', 1 => 'Frau', default => '' },
+            'geehrte' => match ($anrede) { 0 => 'geehrter', 1 => 'geehrte', default => 'geehrte/-r' },
+            'zum' => match ($anrede) { 0 => 'zum', 1 => 'zur', default => 'zum/zur' },
+            'seine_ihre' => match ($anrede) { 0 => 'seine', 1 => 'ihre', default => 'seine/ihre' },
+            'ihm_ihr' => match ($anrede) { 0 => 'ihm', 1 => 'ihr', default => 'ihm/ihr' },
+            'dienstgrad_text' => $dienstgradText,
+            'dienstgrad' => $dienstgrad,
+            'qualifikation' => $qualifikation,
+            'ausstellungsdatum' => $ausstellungsdatum,
+        ]);
     }
 
     /**
