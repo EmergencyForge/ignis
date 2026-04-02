@@ -181,6 +181,21 @@ jobs:
     if: always() && github.event_name == 'pull_request'
 
     steps:
+      - name: Debug secrets availability
+        run: |
+          if [ -z "${{ secrets.BOT_APP_ID }}" ]; then
+            echo "::warning::BOT_APP_ID is EMPTY or not set"
+          else
+            echo "BOT_APP_ID is set (length: ${#APP_ID})"
+          fi
+          if [ -z "${{ secrets.BOT_PRIVATE_KEY }}" ]; then
+            echo "::warning::BOT_PRIVATE_KEY is EMPTY or not set"
+          else
+            echo "BOT_PRIVATE_KEY is set"
+          fi
+        env:
+          APP_ID: ${{ secrets.BOT_APP_ID }}
+
       - name: Generate bot token
         id: bot
         continue-on-error: true
