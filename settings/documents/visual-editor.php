@@ -431,20 +431,59 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         </div>
     </div>
 
+    <!-- Floating Text-Toolbar (erscheint beim Bearbeiten von Text) -->
+    <div id="text-floating-toolbar" class="text-floating-toolbar" style="display:none;">
+        <button class="tft-btn" data-tft-action="bold" title="Fett (Ctrl+B)"><i class="fa-solid fa-bold"></i></button>
+        <button class="tft-btn" data-tft-action="italic" title="Kursiv (Ctrl+I)"><i class="fa-solid fa-italic"></i></button>
+        <button class="tft-btn" data-tft-action="underline" title="Unterstrichen (Ctrl+U)"><i class="fa-solid fa-underline"></i></button>
+        <span class="tft-sep"></span>
+        <button class="tft-btn" data-tft-action="align-left" title="Links"><i class="fa-solid fa-align-left"></i></button>
+        <button class="tft-btn" data-tft-action="align-center" title="Zentriert"><i class="fa-solid fa-align-center"></i></button>
+        <button class="tft-btn" data-tft-action="align-right" title="Rechts"><i class="fa-solid fa-align-right"></i></button>
+        <span class="tft-sep"></span>
+        <select class="tft-select" data-tft-action="fontSize" title="Schriftgr&ouml;&szlig;e">
+            <option value="8">8</option><option value="9">9</option><option value="10">10</option>
+            <option value="11">11</option><option value="12" selected>12</option><option value="14">14</option>
+            <option value="16">16</option><option value="18">18</option><option value="20">20</option>
+            <option value="24">24</option><option value="28">28</option><option value="36">36</option>
+        </select>
+    </div>
+
+    <!-- Canvas Loading Overlay -->
+    <div id="canvas-loading" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#fff;">
+            <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+            <p class="mt-2" style="font-size:0.85rem;" id="canvas-loading-text">Layout wird geladen...</p>
+        </div>
+    </div>
+
     <!-- Main editor layout -->
     <div class="editor-wrapper">
-        <!-- Left sidebar: Element library + Layers -->
+        <!-- Left sidebar: Element library + Layers (Tab-basiert) -->
         <div class="editor-sidebar" id="sidebar-left">
-            <div class="sidebar-section" id="element-library">
-                <!-- Wird von element-library.js befüllt -->
+            <!-- Sidebar-Tabs -->
+            <ul class="nav nav-pills nav-fill sidebar-tabs" id="sidebar-left-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-sidebar-tab="elements" href="#"><i class="fa-solid fa-puzzle-piece"></i> Elemente</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-sidebar-tab="layers" href="#"><i class="fa-solid fa-layer-group"></i> Ebenen <span class="badge bg-secondary ms-1" id="layer-count" style="font-size:0.6rem;">0</span></a>
+                </li>
+            </ul>
+
+            <!-- Tab: Elemente -->
+            <div class="sidebar-tab-content" data-sidebar-tab-content="elements">
+                <div class="sidebar-section" id="element-library">
+                    <!-- Wird von element-library.js befüllt -->
+                </div>
             </div>
 
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">
-                    <i class="fa-solid fa-layer-group"></i> Ebenen
-                </div>
-                <div id="layer-list">
-                    <!-- Wird von editor-core.js befüllt -->
+            <!-- Tab: Ebenen -->
+            <div class="sidebar-tab-content" data-sidebar-tab-content="layers" style="display:none;">
+                <div class="sidebar-section">
+                    <div id="layer-list">
+                        <!-- Wird von editor-core.js befüllt -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -553,8 +592,21 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         </div>
     </div>
 
-    <!-- Sidebar Toggle-Logik -->
+    <!-- Sidebar Tab- & Toggle-Logik -->
     <script>
+        // Sidebar-Tabs (Elemente / Ebenen)
+        document.querySelectorAll('[data-sidebar-tab]').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = tab.dataset.sidebarTab;
+                document.querySelectorAll('[data-sidebar-tab]').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('[data-sidebar-tab-content]').forEach(c => c.style.display = 'none');
+                tab.classList.add('active');
+                const content = document.querySelector('[data-sidebar-tab-content="' + target + '"]');
+                if (content) content.style.display = 'block';
+            });
+        });
+
         function toggleSidebar(sidebarId, toggleId) {
             const sidebar = document.getElementById(sidebarId);
             const toggle = document.getElementById(toggleId);

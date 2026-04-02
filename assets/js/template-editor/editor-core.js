@@ -277,6 +277,19 @@
                 this._snapLines = [];
             });
 
+            // --- Floating Text-Toolbar ---
+            this.canvas.on('text:editing:entered', (e) => {
+                this._showTextToolbar(e.target);
+            });
+            this.canvas.on('text:editing:exited', () => {
+                this._hideTextToolbar();
+            });
+            // Toolbar-Position bei Bewegung aktualisieren
+            this.canvas.on('object:moving', (e) => {
+                if (e.target.isEditing) this._positionTextToolbar(e.target);
+            });
+            this._initTextToolbarButtons();
+
             // Rotations-Snapping: Shift gehalten = 15-Grad-Schritte
             this.canvas.on('object:rotating', (e) => {
                 if (!e.e || !e.e.shiftKey) return;
@@ -906,6 +919,53 @@
             this.updateLayerList();
         }
 
+        // --- Element Locking ---
+
+        toggleLock(obj) {
+            if (!obj) return;
+            const custom = obj.custom || {};
+            const newLocked = !custom.locked;
+
+            // Custom-Metadaten aktualisieren
+            obj.custom = { ...custom, locked: newLocked };
+
+            // Fabric.js-Properties setzen
+            obj.set({
+                selectable: !newLocked,
+                evented: !newLocked,
+                hasControls: !newLocked,
+                hasBorders: !newLocked,
+                lockMovementX: newLocked,
+                lockMovementY: newLocked,
+            });
+
+            // Falls das gesperrte Objekt gerade selektiert ist, Selektion aufheben
+            if (newLocked && this.canvas.getActiveObject() === obj) {
+                this.canvas.discardActiveObject();
+            }
+
+            this.canvas.renderAll();
+            this.updateLayerList();
+            this.saveState();
+            this.isDirty = true;
+        }
+
+        /** Stellt Lock-Status nach dem Laden eines Layouts wieder her */
+        _restoreLockStates() {
+            this.canvas.getObjects().forEach(obj => {
+                if (obj.custom?.locked) {
+                    obj.set({
+                        selectable: false,
+                        evented: false,
+                        hasControls: false,
+                        hasBorders: false,
+                        lockMovementX: true,
+                        lockMovementY: true,
+                    });
+                }
+            });
+        }
+
         // --- Undo / Redo ---
 
         saveState() {
@@ -926,6 +986,7 @@
             const prev = this.undoStack[this.undoStack.length - 1];
             // v6: loadFromJSON returns Promise
             this.canvas.loadFromJSON(JSON.parse(prev)).then(() => {
+                this._restoreLockStates();
                 this.canvas.renderAll();
                 this.updateLayerList();
                 this.isDirty = true;
@@ -937,6 +998,7 @@
             const state = this.redoStack.pop();
             this.undoStack.push(state);
             this.canvas.loadFromJSON(JSON.parse(state)).then(() => {
+                this._restoreLockStates();
                 this.canvas.renderAll();
                 this.updateLayerList();
                 this.isDirty = true;
@@ -954,27 +1016,33 @@
             const activeObjects = this.canvas.getActiveObjects();
 
             let html = '';
+            let visibleCount = 0;
             for (let i = objects.length - 1; i >= 0; i--) {
                 const obj = objects[i];
-                // Hilfslinien und Snap-Linien nicht in der Layer-Liste anzeigen
-                if (obj._isGuide || obj._isSnapLine) continue;
+                if (obj._isGuide || obj._isSnapLine || obj._isGrid) continue;
+                visibleCount++;
                 const custom = obj.custom || {};
                 const isActive = obj === active || activeObjects.includes(obj);
+                const isLocked = !!(custom.locked);
                 let icon = 'fa-solid fa-question';
                 let label = 'Element';
+                let typeBadge = '';
 
                 switch (custom.elementType) {
                     case 'static_text':
                         icon = 'fa-solid fa-font';
-                        label = (obj.text || '').substring(0, 25) || 'Text';
+                        label = (obj.text || '').substring(0, 20) || 'Text';
                         break;
                     case 'field_placeholder':
                         icon = 'fa-solid fa-i-cursor';
+                        // Zeige den Feldlabel statt nur "Feld"
                         label = custom.fieldLabel || custom.fieldName || 'Feld';
+                        typeBadge = '<span class="layer-type-badge bg-primary bg-opacity-25 text-primary-emphasis">Feld</span>';
                         break;
                     case 'system_var':
                         icon = 'fa-solid fa-gear';
                         label = custom.varName || 'System';
+                        typeBadge = '<span class="layer-type-badge bg-info bg-opacity-25 text-info-emphasis">Sys</span>';
                         break;
                     case 'image':
                     case 'system_image':
@@ -996,32 +1064,54 @@
                     default:
                         if (obj.text !== undefined) {
                             icon = 'fa-solid fa-font';
-                            label = (obj.text || '').substring(0, 25) || 'Text';
+                            label = (obj.text || '').substring(0, 20) || 'Text';
                         } else if (obj.getSrc) {
                             icon = 'fa-solid fa-image';
                             label = 'Bild';
                         }
                 }
 
-                html += '<div class="layer-item' + (isActive ? ' active' : '') + '" data-index="' + i + '">'
+                const lockIcon = isLocked ? 'fa-lock' : 'fa-lock-open';
+                const lockClass = isLocked ? ' locked' : '';
+
+                html += '<div class="layer-item' + (isActive ? ' active' : '') + (isLocked ? ' opacity-50' : '') + '" data-index="' + i + '">'
                     + '<i class="' + icon + '"></i>'
-                    + '<span class="text-truncate">' + this.escapeHtml(label) + '</span>'
+                    + '<span class="text-truncate layer-label">' + this.escapeHtml(label) + '</span>'
+                    + typeBadge
+                    + '<i class="fa-solid ' + lockIcon + ' layer-lock-btn' + lockClass + '" data-lock-index="' + i + '" title="' + (isLocked ? 'Entsperren' : 'Sperren') + '"></i>'
                     + '</div>';
             }
 
             container.innerHTML = html || '<div class="text-muted" style="font-size:0.8rem;padding:0.5rem;">Keine Elemente</div>';
 
+            // Layer-Count Badge aktualisieren
+            const countBadge = document.getElementById('layer-count');
+            if (countBadge) countBadge.textContent = visibleCount;
+
             // Feld-Status in der Sidebar aktualisieren
             if (window.ElementLibrary) window.ElementLibrary.updateFieldStatus();
 
             container.querySelectorAll('.layer-item').forEach(item => {
-                item.addEventListener('click', () => {
+                item.addEventListener('click', (e) => {
+                    // Ignoriere Klick auf Lock-Button
+                    if (e.target.closest('.layer-lock-btn')) return;
                     const idx = parseInt(item.dataset.index);
                     const obj = objects[idx];
-                    if (obj) {
+                    if (obj && !(obj.custom?.locked)) {
                         this.canvas.setActiveObject(obj);
                         this.canvas.renderAll();
                     }
+                });
+            });
+
+            // Lock/Unlock Buttons
+            container.querySelectorAll('.layer-lock-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = parseInt(btn.dataset.lockIndex);
+                    const obj = objects[idx];
+                    if (!obj) return;
+                    this.toggleLock(obj);
                 });
             });
 
@@ -1117,7 +1207,7 @@
             } catch (err) {
                 console.error('Save error:', err);
                 if (window.showToast) {
-                    window.showToast('Fehler beim Speichern: ' + err.message, 'danger');
+                    window.showToast('Fehler beim Speichern: ' + err.message + ' — <a href="#" onclick="window.TemplateEditor.save();return false;" style="color:inherit;text-decoration:underline;">Erneut versuchen</a>', 'danger');
                 }
             } finally {
                 btn.innerHTML = origHtml;
@@ -1127,6 +1217,9 @@
         }
 
         async loadLayout() {
+            const overlay = document.getElementById('canvas-loading');
+            if (overlay) overlay.style.display = 'flex';
+
             try {
                 const response = await fetch(CONFIG.basePath + 'api/documents/layout-get.php?template_id=' + CONFIG.templateId);
                 const result = await response.json();
@@ -1134,15 +1227,20 @@
                 if (result.success && result.layout && result.layout.canvas_json) {
                     const json = JSON.parse(result.layout.canvas_json);
                     await this.canvas.loadFromJSON(json);
+                    this._restoreLockStates();
                     this.canvas.renderAll();
                     this.updateLayerList();
                     this.undoStack = [JSON.stringify(json)];
                 } else {
-                    // Kein Layout vorhanden → Standard-Vorlage laden
                     this.loadDefaultTemplate();
                 }
             } catch (err) {
                 console.error('Load error:', err);
+                if (window.showToast) {
+                    window.showToast('Layout konnte nicht geladen werden: ' + err.message, 'danger');
+                }
+            } finally {
+                if (overlay) overlay.style.display = 'none';
             }
         }
 
@@ -1262,6 +1360,125 @@
 
         // --- Kontextmenü ---
 
+        // --- Floating Text Toolbar ---
+
+        _showTextToolbar(obj) {
+            const toolbar = document.getElementById('text-floating-toolbar');
+            if (!toolbar) return;
+            toolbar.style.display = 'flex';
+            this._positionTextToolbar(obj);
+            this._updateTextToolbarState(obj);
+        }
+
+        _hideTextToolbar() {
+            const toolbar = document.getElementById('text-floating-toolbar');
+            if (toolbar) toolbar.style.display = 'none';
+        }
+
+        _positionTextToolbar(obj) {
+            const toolbar = document.getElementById('text-floating-toolbar');
+            if (!toolbar || !obj) return;
+
+            const canvasEl = this.canvas.upperCanvasEl;
+            const canvasRect = canvasEl.getBoundingClientRect();
+
+            // Position ueber dem Objekt
+            const objLeft = obj.left * this.zoom;
+            const objTop = obj.top * this.zoom;
+            const objWidth = (obj.width || 0) * (obj.scaleX || 1) * this.zoom;
+
+            let x = canvasRect.left + objLeft + objWidth / 2 - toolbar.offsetWidth / 2;
+            let y = canvasRect.top + objTop - toolbar.offsetHeight - 8;
+
+            // Clamp: nicht ueber den oberen Bildschirmrand
+            if (y < 5) y = canvasRect.top + objTop + ((obj.height || 0) * (obj.scaleY || 1) * this.zoom) + 8;
+            // Clamp: nicht ueber den linken/rechten Rand
+            x = Math.max(5, Math.min(x, window.innerWidth - toolbar.offsetWidth - 5));
+
+            toolbar.style.left = x + 'px';
+            toolbar.style.top = y + 'px';
+        }
+
+        _updateTextToolbarState(obj) {
+            if (!obj) return;
+            const toolbar = document.getElementById('text-floating-toolbar');
+            if (!toolbar) return;
+
+            // Bold/Italic/Underline active state
+            toolbar.querySelector('[data-tft-action="bold"]')?.classList.toggle('active', obj.fontWeight === 'bold');
+            toolbar.querySelector('[data-tft-action="italic"]')?.classList.toggle('active', obj.fontStyle === 'italic');
+            toolbar.querySelector('[data-tft-action="underline"]')?.classList.toggle('active', !!obj.underline);
+
+            // Alignment active state
+            ['left', 'center', 'right'].forEach(a => {
+                toolbar.querySelector('[data-tft-action="align-' + a + '"]')?.classList.toggle('active', obj.textAlign === a);
+            });
+
+            // Font size (pt)
+            const sizeSelect = toolbar.querySelector('[data-tft-action="fontSize"]');
+            if (sizeSelect) {
+                const ptSize = Math.round((obj.fontSize || 14) / 1.333);
+                sizeSelect.value = ptSize;
+            }
+        }
+
+        _initTextToolbarButtons() {
+            const toolbar = document.getElementById('text-floating-toolbar');
+            if (!toolbar) return;
+
+            toolbar.querySelectorAll('.tft-btn').forEach(btn => {
+                btn.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); // Verhindert Fokus-Verlust aus der Textbox
+                    e.stopPropagation();
+                    const obj = this.canvas.getActiveObject();
+                    if (!obj || !obj.isEditing) return;
+
+                    const action = btn.dataset.tftAction;
+                    switch (action) {
+                        case 'bold':
+                            obj.set('fontWeight', obj.fontWeight === 'bold' ? 'normal' : 'bold');
+                            btn.classList.toggle('active');
+                            break;
+                        case 'italic':
+                            obj.set('fontStyle', obj.fontStyle === 'italic' ? 'normal' : 'italic');
+                            btn.classList.toggle('active');
+                            break;
+                        case 'underline':
+                            obj.set('underline', !obj.underline);
+                            btn.classList.toggle('active');
+                            break;
+                        case 'align-left':
+                        case 'align-center':
+                        case 'align-right':
+                            const align = action.replace('align-', '');
+                            obj.set('textAlign', align);
+                            toolbar.querySelectorAll('[data-tft-action^="align-"]').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                            break;
+                    }
+                    this.canvas.renderAll();
+                    this.isDirty = true;
+                    this.saveState();
+                });
+            });
+
+            // Font size dropdown
+            const sizeSelect = toolbar.querySelector('[data-tft-action="fontSize"]');
+            if (sizeSelect) {
+                sizeSelect.addEventListener('change', (e) => {
+                    const obj = this.canvas.getActiveObject();
+                    if (!obj) return;
+                    // pt → px
+                    obj.set('fontSize', Math.round(parseFloat(e.target.value) * 1.333 * 10) / 10);
+                    this.canvas.renderAll();
+                    this.isDirty = true;
+                    this.saveState();
+                });
+                // Prevent focus loss
+                sizeSelect.addEventListener('mousedown', (e) => e.stopPropagation());
+            }
+        }
+
         showContextMenu(x, y, hasTarget) {
             this.hideContextMenu();
             const menu = document.createElement('div');
@@ -1289,6 +1506,10 @@
                 html += item('fa-align-center', 'Horizontal zentrieren', 'center-h');
                 html += item('fa-arrows-up-down', 'Vertikal zentrieren', 'center-v');
                 html += item('fa-crosshairs', 'Seitenmitte', 'page-center');
+                html += '<li><hr class="dropdown-divider"></li>';
+                const activeObj = this.canvas.getActiveObject();
+                const isLocked = activeObj?.custom?.locked;
+                html += item(isLocked ? 'fa-lock-open' : 'fa-lock', isLocked ? 'Entsperren' : 'Sperren', 'toggle-lock');
             } else {
                 html += item('fa-paste', 'Einf\u00fcgen' + shortcut('Ctrl+V'), 'paste', !this._clipboard);
                 html += item('fa-font', 'Text einf\u00fcgen', 'paste-text');
@@ -1335,6 +1556,11 @@
                                 this.saveState();
                                 this.isDirty = true;
                             });
+                            break;
+                        }
+                        case 'toggle-lock': {
+                            const obj = this.canvas.getActiveObject();
+                            if (obj) this.toggleLock(obj);
                             break;
                         }
                         case 'duplicate': this.duplicateSelected(); break;
