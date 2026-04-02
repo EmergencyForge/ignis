@@ -193,6 +193,28 @@
             });
         });
 
+        // Entwurfs-Modus Toggle
+        document.getElementById('chk-draft')?.addEventListener('change', async (e) => {
+            try {
+                const response = await fetch(CONFIG.basePath + 'api/documents/layout-save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(window.EditorCsrf.addToBody({
+                        template_id: CONFIG.templateId,
+                        canvas_json: JSON.stringify(getEditor()?.getCanvas().toObject(['custom'])),
+                        set_draft: e.target.checked,
+                    })),
+                });
+                const result = await response.json();
+                window.EditorCsrf.handleResponse(result);
+                if (window.showToast) {
+                    window.showToast(e.target.checked ? 'Entwurfs-Modus aktiviert' : 'Entwurfs-Modus deaktiviert', 'info');
+                }
+            } catch (err) {
+                console.error('Draft toggle error:', err);
+            }
+        });
+
         // Speichern
         document.getElementById('btn-save')?.addEventListener('click', () => {
             getEditor()?.save();

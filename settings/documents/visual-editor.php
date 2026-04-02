@@ -318,6 +318,14 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         <span class="text-truncate" style="font-size:0.8rem;max-width:200px;opacity:0.7;" title="<?= htmlspecialchars($template['name']) ?>">
             <strong id="editor-template-name"><?= htmlspecialchars($template['name']) ?></strong>
         </span>
+        <?php
+            $templateConfig = json_decode($template['config'] ?? '{}', true) ?: [];
+            $isDraft = !empty($templateConfig['is_draft']);
+        ?>
+        <label class="form-check form-check-inline mb-0 ms-2" style="font-size:0.72rem;" title="Entwurfs-Wasserzeichen auf PDFs anzeigen">
+            <input class="form-check-input" type="checkbox" id="chk-draft" style="width:0.85em;height:0.85em;"<?= $isDraft ? ' checked' : '' ?>>
+            <span class="form-check-label text-warning">Entwurf</span>
+        </label>
 
         <div class="separator"></div>
 

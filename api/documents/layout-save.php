@@ -34,6 +34,17 @@ try {
 
     $layout = $manager->getLayoutById($layoutId);
 
+    // Draft-Flag aktualisieren (falls mitgesendet)
+    if (isset($input['set_draft'])) {
+        $templateId = (int) $input['template_id'];
+        $stmtCfg = $pdo->prepare("SELECT config FROM intra_dokument_templates WHERE id = ?");
+        $stmtCfg->execute([$templateId]);
+        $config = json_decode($stmtCfg->fetchColumn() ?: '{}', true) ?: [];
+        $config['is_draft'] = (bool) $input['set_draft'];
+        $stmtUpd = $pdo->prepare("UPDATE intra_dokument_templates SET config = :config WHERE id = :id");
+        $stmtUpd->execute(['config' => json_encode($config), 'id' => $templateId]);
+    }
+
     echo json_encode([
         'success' => true,
         'layout_id' => $layoutId,

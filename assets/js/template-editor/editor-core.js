@@ -381,6 +381,12 @@
                         this.saveState();
                         this.isDirty = true;
                     });
+                } else if (e.ctrlKey && e.shiftKey && e.key === 'G') {
+                    e.preventDefault();
+                    this.ungroupSelected();
+                } else if (e.ctrlKey && e.key === 'g') {
+                    e.preventDefault();
+                    this.groupSelected();
                 } else if (e.ctrlKey && e.key === 's') {
                     e.preventDefault();
                     this.save();
@@ -643,6 +649,38 @@
                 this.saveState();
                 this.isDirty = true;
             });
+        }
+
+        // --- Gruppierung ---
+
+        groupSelected() {
+            const active = this.canvas.getActiveObject();
+            if (!active || active.type !== 'activeSelection') return;
+
+            const objects = active.getObjects();
+            if (objects.length < 2) return;
+
+            // Fabric.js v7: ActiveSelection → Group
+            const group = active.toGroup();
+            group.custom = { elementType: 'block' };
+
+            this.canvas.setActiveObject(group);
+            this.canvas.renderAll();
+            this.saveState();
+            this.isDirty = true;
+            this.updateLayerList();
+        }
+
+        ungroupSelected() {
+            const active = this.canvas.getActiveObject();
+            if (!active || active.type !== 'group') return;
+
+            // Fabric.js v7: Group → ActiveSelection
+            const selection = active.toActiveSelection();
+            this.canvas.renderAll();
+            this.saveState();
+            this.isDirty = true;
+            this.updateLayerList();
         }
 
         // --- Alignment (mit realistischen Seitenrändern) ---
@@ -1508,6 +1546,12 @@
                 html += item('fa-crosshairs', 'Seitenmitte', 'page-center');
                 html += '<li><hr class="dropdown-divider"></li>';
                 const activeObj = this.canvas.getActiveObject();
+                // Gruppieren / Auflösen
+                if (activeObj?.type === 'activeSelection' || activeObj?.type === 'activeselection') {
+                    html += item('fa-object-group', 'Gruppieren' + shortcut('Ctrl+G'), 'group');
+                } else if (activeObj?.type === 'group') {
+                    html += item('fa-object-ungroup', 'Gruppe aufl\u00f6sen' + shortcut('Ctrl+Shift+G'), 'ungroup');
+                }
                 const isLocked = activeObj?.custom?.locked;
                 html += item(isLocked ? 'fa-lock-open' : 'fa-lock', isLocked ? 'Entsperren' : 'Sperren', 'toggle-lock');
             } else {
@@ -1563,6 +1607,8 @@
                             if (obj) this.toggleLock(obj);
                             break;
                         }
+                        case 'group': this.groupSelected(); break;
+                        case 'ungroup': this.ungroupSelected(); break;
                         case 'duplicate': this.duplicateSelected(); break;
                         case 'delete': this.deleteSelected(); break;
                         case 'bring-front': this.bringForward(); break;
