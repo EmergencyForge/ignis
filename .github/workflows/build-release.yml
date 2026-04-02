@@ -14,6 +14,7 @@ jobs:
     steps:
       - name: Generate bot token
         id: bot
+        continue-on-error: true
         uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.BOT_APP_ID }}
@@ -23,7 +24,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: main
-          token: ${{ steps.bot.outputs.token }}
+          token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
 
       - name: Extract version
         run: |
@@ -121,7 +122,7 @@ jobs:
             ${{ env.archive_name }}
             ${{ env.archive_name }}.sha256
         env:
-          GITHUB_TOKEN: ${{ steps.bot.outputs.token }}
+          GITHUB_TOKEN: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
 
       - name: Discord notification (success)
         if: success()

@@ -183,6 +183,7 @@ jobs:
     steps:
       - name: Generate bot token
         id: bot
+        continue-on-error: true
         uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.BOT_APP_ID }}
@@ -202,7 +203,7 @@ jobs:
         id: report
         uses: actions/github-script@v8
         with:
-          github-token: ${{ steps.bot.outputs.token }}
+          github-token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
 
