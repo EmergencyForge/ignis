@@ -12,6 +12,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Documents\DocumentTemplateManager;
+use App\Security\CsrfProtection;
 
 if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
     Flash::set('error', 'no-permissions');
@@ -589,8 +590,12 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             canvasWidth: 794,
             canvasHeight: 1123,
             mmToPx: 3.7795,
+            csrfToken: <?= json_encode(CsrfProtection::getToken()) ?>,
         };
     </script>
+
+    <!-- SortableJS (Layer-Reorder) -->
+    <script src="<?= BASE_PATH ?>assets/_ext/sortablejs/Sortable.min.js"></script>
 
     <!-- Fabric.js -->
     <script src="<?= BASE_PATH ?>assets/_ext/fabricjs/fabric.min.js"></script>

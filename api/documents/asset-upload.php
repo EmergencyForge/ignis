@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../src/Documents/TemplateAssetManager.php';
 
 use App\Documents\TemplateAssetManager;
 use App\Auth\Permissions;
+use App\Security\CsrfProtection;
 
 header('Content-Type: application/json');
 
@@ -14,6 +15,9 @@ if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
 }
 
 try {
+    // CSRF-Token kommt bei FormData über POST-Feld
+    CsrfProtection::requireValid(null);
+
     if (empty($_FILES['file'])) {
         throw new \Exception('Keine Datei hochgeladen');
     }
@@ -27,6 +31,7 @@ try {
     echo json_encode([
         'success' => true,
         'asset' => $result,
+        'csrf_token' => CsrfProtection::getResponseToken(),
     ]);
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);

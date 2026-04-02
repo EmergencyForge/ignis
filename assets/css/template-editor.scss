@@ -164,7 +164,7 @@
 .layer-item {
   padding: 0.35rem 0.6rem;
   font-size: 0.8rem;
-  cursor: pointer;
+  cursor: grab;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -186,6 +186,21 @@
     opacity: 0.5;
     font-size: 0.75rem;
   }
+}
+
+// SortableJS Drag-States fuer Layer-Reorder
+.layer-item-ghost {
+  opacity: 0.4;
+  background: var(--bs-primary-bg-subtle);
+}
+
+.layer-item-chosen {
+  background: var(--bs-primary-bg-subtle);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.layer-item-drag {
+  opacity: 0.9;
 }
 
 // Zoom controls

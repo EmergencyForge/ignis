@@ -135,9 +135,10 @@
                         const res = await fetch(CONFIG.basePath + 'api/documents/layout-versions.php', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ template_id: CONFIG.templateId, layout_id: parseInt(btn.dataset.restore) }),
+                            body: JSON.stringify(window.EditorCsrf.addToBody({ template_id: CONFIG.templateId, layout_id: parseInt(btn.dataset.restore) })),
                         });
                         const result = await res.json();
+                        window.EditorCsrf.handleResponse(result);
                         if (result.success) {
                             bootstrap.Modal.getInstance(document.getElementById('versionsModal'))?.hide();
                             getEditor()?.loadLayout();
@@ -205,11 +206,11 @@
                 const response = await fetch(CONFIG.basePath + 'api/documents/layout-preview.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
+                    body: JSON.stringify(window.EditorCsrf.addToBody({
                         template_id: CONFIG.templateId,
                         canvas_json: JSON.stringify(json),
                         format: 'pdf',
-                    }),
+                    })),
                 });
 
                 const blob = await response.blob();

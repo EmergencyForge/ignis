@@ -25,6 +25,7 @@
             this.redoStack = [];
             this.isSaving = false;
             this._isDirty = false;
+            this._clipboard = null;
             this.marginPreset = 'schmal';
             this.init();
         }
@@ -287,6 +288,48 @@
                 } else if (e.ctrlKey && e.key === 'd') {
                     e.preventDefault();
                     this.duplicateSelected();
+                } else if (e.ctrlKey && e.key === 'c') {
+                    const active = this.canvas.getActiveObject();
+                    if (!active) return;
+                    e.preventDefault();
+                    active.clone(['custom']).then((cloned) => {
+                        this._clipboard = cloned;
+                    });
+                } else if (e.ctrlKey && e.key === 'x') {
+                    const active = this.canvas.getActiveObject();
+                    if (!active) return;
+                    e.preventDefault();
+                    active.clone(['custom']).then((cloned) => {
+                        this._clipboard = cloned;
+                        this.deleteSelected();
+                    });
+                } else if (e.ctrlKey && e.key === 'v') {
+                    if (!this._clipboard) return;
+                    e.preventDefault();
+                    this._clipboard.clone(['custom']).then((cloned) => {
+                        cloned.set({
+                            left: (cloned.left || 0) + 20,
+                            top: (cloned.top || 0) + 20,
+                        });
+                        if (cloned.type === 'activeSelection' || cloned.type === 'activeselection') {
+                            cloned.canvas = this.canvas;
+                            cloned.forEachObject((obj) => {
+                                this.canvas.add(obj);
+                            });
+                            cloned.setCoords();
+                        } else {
+                            this.canvas.add(cloned);
+                        }
+                        // Update clipboard position for consecutive pastes
+                        this._clipboard.set({
+                            left: (this._clipboard.left || 0) + 20,
+                            top: (this._clipboard.top || 0) + 20,
+                        });
+                        this.canvas.setActiveObject(cloned);
+                        this.canvas.renderAll();
+                        this.saveState();
+                        this.isDirty = true;
+                    });
                 } else if (e.ctrlKey && e.key === 's') {
                     e.preventDefault();
                     this.save();
@@ -821,6 +864,59 @@
                     }
                 });
             });
+
+            // SortableJS fuer Drag-Reorder der Ebenen
+            this._initLayerSortable(container, objects);
+        }
+
+        /** Initialisiert SortableJS auf dem Layer-Container */
+        _initLayerSortable(container, objects) {
+            if (this._layerSortable) {
+                this._layerSortable.destroy();
+                this._layerSortable = null;
+            }
+
+            if (typeof Sortable === 'undefined') return;
+
+            const filteredObjects = objects.filter(o => !o._isGuide && !o._isSnapLine);
+
+            this._layerSortable = new Sortable(container, {
+                animation: 150,
+                ghostClass: 'layer-item-ghost',
+                chosenClass: 'layer-item-chosen',
+                dragClass: 'layer-item-drag',
+                handle: '.layer-item',
+                onEnd: (evt) => {
+                    const oldVisualIdx = evt.oldIndex;
+                    const newVisualIdx = evt.newIndex;
+                    if (oldVisualIdx === newVisualIdx) return;
+
+                    // Layer-Liste ist top-to-bottom = hoechster Z-Index zuerst
+                    // filteredObjects ist reversed (hoechstes zuerst)
+                    const reversed = [...filteredObjects].reverse();
+                    const movedObj = reversed[oldVisualIdx];
+                    if (!movedObj) return;
+
+                    // Berechne den neuen Fabric.js-Index
+                    // Visual index 0 = hoechster Z = letzter in canvas.getObjects()
+                    const allObjects = this.canvas.getObjects();
+                    const targetVisualObj = reversed[newVisualIdx];
+                    const targetFabricIdx = targetVisualObj ? allObjects.indexOf(targetVisualObj) : 0;
+
+                    // Fabric.js v7: moveObjectTo
+                    if (this.canvas.moveObjectTo) {
+                        this.canvas.moveObjectTo(movedObj, targetFabricIdx);
+                    } else {
+                        // Fallback: remove + insertAt
+                        this.canvas.remove(movedObj);
+                        this.canvas.insertAt(targetFabricIdx, movedObj);
+                    }
+
+                    this.canvas.renderAll();
+                    this.saveState();
+                    this.isDirty = true;
+                },
+            });
         }
 
         // --- Save / Load ---
@@ -841,13 +937,14 @@
                 const response = await fetch(CONFIG.basePath + 'api/documents/layout-save.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
+                    body: JSON.stringify(window.EditorCsrf.addToBody({
                         template_id: CONFIG.templateId,
                         canvas_json: JSON.stringify(json),
-                    }),
+                    })),
                 });
 
                 const result = await response.json();
+                window.EditorCsrf.handleResponse(result);
 
                 if (result.success) {
                     this.isDirty = false;

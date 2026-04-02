@@ -52,4 +52,38 @@
     }
 
     window.EditorEvents = new EditorEventBus();
+
+    /**
+     * CSRF-Token-Management für alle AJAX-Requests.
+     * Token wird nach erfolgreichen POST-Requests rotiert.
+     */
+    window.EditorCsrf = {
+        getToken() {
+            return CONFIG.csrfToken;
+        },
+
+        /** Aktualisiert den Token (z.B. nach Server-Rotation) */
+        updateToken(newToken) {
+            if (newToken) CONFIG.csrfToken = newToken;
+        },
+
+        /** Fügt den Token einem JSON-Body-Objekt hinzu */
+        addToBody(bodyObj) {
+            bodyObj.csrf_token = this.getToken();
+            return bodyObj;
+        },
+
+        /** Fügt den Token einem FormData-Objekt hinzu */
+        addToFormData(formData) {
+            formData.append('csrf_token', this.getToken());
+            return formData;
+        },
+
+        /** Aktualisiert den Token aus einer Server-Response */
+        handleResponse(result) {
+            if (result && result.csrf_token) {
+                this.updateToken(result.csrf_token);
+            }
+        },
+    };
 })();
