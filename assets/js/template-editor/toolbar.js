@@ -170,6 +170,11 @@
             if (editor) editor.snapToGrid = e.target.checked;
         });
 
+        // Raster-Overlay
+        document.getElementById('chk-grid-overlay')?.addEventListener('change', (e) => {
+            getEditor()?.drawGrid(e.target.checked);
+        });
+
         // Hilfslinien
         document.getElementById('chk-guides')?.addEventListener('change', (e) => {
             getEditor()?.drawGuides(e.target.checked);

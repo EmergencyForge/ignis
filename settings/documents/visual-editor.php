@@ -371,6 +371,12 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                     <hr class="dropdown-divider">
                 </li>
                 <li><a class="dropdown-item" href="#" data-align="page-center"><i class="fa-solid fa-crosshairs me-2"></i>Seitenmitte</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li class="dropdown-header" style="font-size:0.7rem;">Verteilen (3+ Elemente)</li>
+                <li><a class="dropdown-item" href="#" data-align="distribute-h"><i class="fa-solid fa-arrows-left-right me-2"></i>Horizontal verteilen</a></li>
+                <li><a class="dropdown-item" href="#" data-align="distribute-v"><i class="fa-solid fa-arrows-up-down me-2"></i>Vertikal verteilen</a></li>
             </ul>
         </div>
 
@@ -401,6 +407,10 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <span class="form-check-label">Snap</span>
         </label>
         <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;">
+            <input class="form-check-input" type="checkbox" id="chk-grid-overlay" style="width:0.85em;height:0.85em;">
+            <span class="form-check-label">Raster</span>
+        </label>
+        <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;">
             <input class="form-check-input" type="checkbox" id="chk-guides" style="width:0.85em;height:0.85em;">
             <span class="form-check-label">Guides</span>
         </label>
@@ -410,7 +420,8 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <option value="mittel">Mittel (1,91cm)</option>
         </select>
 
-        <div class="ms-auto d-flex gap-1">
+        <div class="ms-auto d-flex gap-1 align-items-center">
+            <span id="autosave-indicator" class="text-muted" style="font-size:0.68rem;white-space:nowrap;"></span>
             <button class="btn btn-sm btn-outline-info" id="btn-preview" title="Vorschau">
                 <i class="fa-solid fa-eye"></i>
             </button>

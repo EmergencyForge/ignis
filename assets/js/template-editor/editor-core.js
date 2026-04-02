@@ -34,12 +34,27 @@
         set isDirty(val) {
             this._isDirty = val;
             this.updateDirtyIndicator();
-            // Auto-Save: 60s nach letzter Änderung
+            const indicator = document.getElementById('autosave-indicator');
+            // Auto-Save: 60s nach letzter Aenderung
             if (val) {
                 clearTimeout(this._autoSaveTimer);
+                clearInterval(this._autoSaveCountdown);
+                let remaining = 60;
+                if (indicator) indicator.textContent = 'Auto-Save in ' + remaining + 's';
+                this._autoSaveCountdown = setInterval(() => {
+                    remaining--;
+                    if (indicator) indicator.textContent = remaining > 0 ? 'Auto-Save in ' + remaining + 's' : 'Speichere...';
+                    if (remaining <= 0) clearInterval(this._autoSaveCountdown);
+                }, 1000);
                 this._autoSaveTimer = setTimeout(() => {
+                    clearInterval(this._autoSaveCountdown);
+                    if (indicator) indicator.textContent = 'Speichere...';
                     if (this._isDirty && !this.isSaving) this.save();
                 }, 60000);
+            } else {
+                clearTimeout(this._autoSaveTimer);
+                clearInterval(this._autoSaveCountdown);
+                if (indicator) indicator.textContent = '';
             }
         }
 
@@ -171,7 +186,11 @@
                 this.saveState();
                 this.isDirty = true;
                 this.updateLayerList();
-                this.onSelectionChanged();
+                // Inkrementelles Update des Properties-Panels (kein voller Rebuild)
+                const obj = this.canvas.getActiveObject();
+                if (obj) {
+                    window.PropertiesPanel?.update(obj);
+                }
             });
 
             // Kontextmenü
@@ -257,6 +276,25 @@
                 this._snapLines.forEach(l => this.canvas.remove(l));
                 this._snapLines = [];
             });
+
+            // Rotations-Snapping: Shift gehalten = 15-Grad-Schritte
+            this.canvas.on('object:rotating', (e) => {
+                if (!e.e || !e.e.shiftKey) return;
+                const obj = e.target;
+                const step = 15;
+                obj.angle = Math.round(obj.angle / step) * step;
+            });
+
+            // Ctrl+Scroll-Zoom
+            const canvasArea = document.getElementById('canvas-area');
+            if (canvasArea) {
+                canvasArea.addEventListener('wheel', (e) => {
+                    if (!e.ctrlKey) return;
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.05 : 0.05;
+                    this.setZoom(this.zoom + delta);
+                }, { passive: false });
+            }
         }
 
         bindKeyboard() {
@@ -273,7 +311,7 @@
                     this.canvas.renderAll();
                 } else if (e.ctrlKey && e.key === 'a') {
                     e.preventDefault();
-                    const objs = this.canvas.getObjects().filter(o => !o._isGuide);
+                    const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine && !o._isGrid);
                     if (objs.length > 0) {
                         const sel = new fabric.ActiveSelection(objs, { canvas: this.canvas });
                         this.canvas.setActiveObject(sel);
@@ -639,45 +677,127 @@
         }
 
         alignObject(alignment) {
-            const obj = this.canvas.getActiveObject();
-            if (!obj) return;
+            const active = this.canvas.getActiveObject();
+            if (!active) return;
 
+            // Distribute: benoetigt 3+ Objekte in einer ActiveSelection
+            if (alignment === 'distribute-h' || alignment === 'distribute-v') {
+                this.distributeObjects(alignment === 'distribute-h' ? 'horizontal' : 'vertical');
+                return;
+            }
+
+            // Multi-Select: Ausrichtung relativ zur Selektion
+            if (active.type === 'activeSelection' || active.type === 'activeselection') {
+                this._alignMultiple(active, alignment);
+                return;
+            }
+
+            // Einzel-Objekt: Ausrichtung relativ zur Druckflaeche
             const p = this.printArea;
-            const objW = (obj.width || 0) * (obj.scaleX || 1);
-            const objH = (obj.height || 0) * (obj.scaleY || 1);
+            const objW = (active.width || 0) * (active.scaleX || 1);
+            const objH = (active.height || 0) * (active.scaleY || 1);
 
             switch (alignment) {
-                case 'left':
-                    obj.set('left', p.left);
-                    break;
-                case 'center-h':
-                    obj.set('left', p.centerX - objW / 2);
-                    break;
-                case 'right':
-                    obj.set('left', p.right - objW);
-                    break;
-                case 'top':
-                    obj.set('top', p.top);
-                    break;
-                case 'center-v':
-                    obj.set('top', p.centerY - objH / 2);
-                    break;
-                case 'bottom':
-                    obj.set('top', p.bottom - objH);
-                    break;
+                case 'left':       active.set('left', p.left); break;
+                case 'center-h':   active.set('left', p.centerX - objW / 2); break;
+                case 'right':      active.set('left', p.right - objW); break;
+                case 'top':        active.set('top', p.top); break;
+                case 'center-v':   active.set('top', p.centerY - objH / 2); break;
+                case 'bottom':     active.set('top', p.bottom - objH); break;
                 case 'page-center':
-                    obj.set({
-                        left: p.centerX - objW / 2,
-                        top: p.centerY - objH / 2,
-                    });
+                    active.set({ left: p.centerX - objW / 2, top: p.centerY - objH / 2 });
                     break;
             }
 
-            obj.setCoords();
+            active.setCoords();
             this.canvas.renderAll();
             this.saveState();
             this.isDirty = true;
-            window.EditorEvents?.emit('selection:changed', obj);
+            window.EditorEvents?.emit('selection:changed', active);
+        }
+
+        /** Richtet mehrere selektierte Objekte relativ zueinander aus */
+        _alignMultiple(selection, alignment) {
+            const objects = selection.getObjects();
+            if (objects.length < 2) return;
+
+            // Berechne Bounding-Box der Selektion
+            const bounds = {
+                left:   Math.min(...objects.map(o => o.left)),
+                top:    Math.min(...objects.map(o => o.top)),
+                right:  Math.max(...objects.map(o => o.left + (o.width || 0) * (o.scaleX || 1))),
+                bottom: Math.max(...objects.map(o => o.top + (o.height || 0) * (o.scaleY || 1))),
+            };
+            bounds.centerX = (bounds.left + bounds.right) / 2;
+            bounds.centerY = (bounds.top + bounds.bottom) / 2;
+
+            objects.forEach(obj => {
+                const w = (obj.width || 0) * (obj.scaleX || 1);
+                const h = (obj.height || 0) * (obj.scaleY || 1);
+                switch (alignment) {
+                    case 'left':       obj.set('left', bounds.left); break;
+                    case 'center-h':   obj.set('left', bounds.centerX - w / 2); break;
+                    case 'right':      obj.set('left', bounds.right - w); break;
+                    case 'top':        obj.set('top', bounds.top); break;
+                    case 'center-v':   obj.set('top', bounds.centerY - h / 2); break;
+                    case 'bottom':     obj.set('top', bounds.bottom - h); break;
+                    case 'page-center': {
+                        const p = this.printArea;
+                        obj.set({ left: p.centerX - w / 2, top: p.centerY - h / 2 });
+                        break;
+                    }
+                }
+                obj.setCoords();
+            });
+
+            selection.setCoords();
+            this.canvas.renderAll();
+            this.saveState();
+            this.isDirty = true;
+        }
+
+        /** Verteilt 3+ Objekte gleichmaessig horizontal oder vertikal */
+        distributeObjects(direction) {
+            const active = this.canvas.getActiveObject();
+            if (!active || (active.type !== 'activeSelection' && active.type !== 'activeselection')) return;
+
+            const objects = active.getObjects();
+            if (objects.length < 3) return;
+
+            if (direction === 'horizontal') {
+                const sorted = [...objects].sort((a, b) => a.left - b.left);
+                const first = sorted[0].left;
+                const lastObj = sorted[sorted.length - 1];
+                const last = lastObj.left + (lastObj.width || 0) * (lastObj.scaleX || 1);
+                const totalWidth = sorted.reduce((sum, o) => sum + (o.width || 0) * (o.scaleX || 1), 0);
+                const gap = (last - first - totalWidth) / (sorted.length - 1);
+
+                let x = first;
+                sorted.forEach(obj => {
+                    obj.set('left', x);
+                    obj.setCoords();
+                    x += (obj.width || 0) * (obj.scaleX || 1) + gap;
+                });
+            } else {
+                const sorted = [...objects].sort((a, b) => a.top - b.top);
+                const first = sorted[0].top;
+                const lastObj = sorted[sorted.length - 1];
+                const last = lastObj.top + (lastObj.height || 0) * (lastObj.scaleY || 1);
+                const totalHeight = sorted.reduce((sum, o) => sum + (o.height || 0) * (o.scaleY || 1), 0);
+                const gap = (last - first - totalHeight) / (sorted.length - 1);
+
+                let y = first;
+                sorted.forEach(obj => {
+                    obj.set('top', y);
+                    obj.setCoords();
+                    y += (obj.height || 0) * (obj.scaleY || 1) + gap;
+                });
+            }
+
+            active.setCoords();
+            this.canvas.renderAll();
+            this.saveState();
+            this.isDirty = true;
         }
 
         // --- Hilfslinien (Seitenränder + Raster) ---
@@ -721,6 +841,46 @@
             guides.forEach(g => this.canvas.add(g));
             // Hilfslinien nach hinten schieben
             guides.forEach(g => {
+                const fn = this.canvas.sendToBack || this.canvas.sendObjectToBack;
+                if (fn) fn.call(this.canvas, g);
+            });
+
+            this.canvas.renderAll();
+        }
+
+        drawGrid(show) {
+            // Entferne bestehende Grid-Linien
+            this.canvas.getObjects().forEach(obj => {
+                if (obj._isGrid) this.canvas.remove(obj);
+            });
+
+            if (!show) {
+                this.canvas.renderAll();
+                return;
+            }
+
+            const gridMm = 10;
+            const gridPx = gridMm * PX_PER_MM;
+            const lineProps = {
+                stroke: 'rgba(255, 255, 255, 0.06)',
+                strokeWidth: 0.5,
+                selectable: false,
+                evented: false,
+                excludeFromExport: true,
+                _isGrid: true,
+            };
+
+            // Vertikale Linien
+            for (let x = gridPx; x < CONFIG.canvasWidth; x += gridPx) {
+                this.canvas.add(new fabric.Line([x, 0, x, CONFIG.canvasHeight], lineProps));
+            }
+            // Horizontale Linien
+            for (let y = gridPx; y < CONFIG.canvasHeight; y += gridPx) {
+                this.canvas.add(new fabric.Line([0, y, CONFIG.canvasWidth, y], lineProps));
+            }
+
+            // Grid-Linien ganz nach hinten
+            this.canvas.getObjects().filter(o => o._isGrid).forEach(g => {
                 const fn = this.canvas.sendToBack || this.canvas.sendObjectToBack;
                 if (fn) fn.call(this.canvas, g);
             });
@@ -1112,10 +1272,16 @@
             const item = (icon, label, action, disabled = false) =>
                 `<a class="dropdown-item${disabled ? ' disabled' : ''}" href="#" data-ctx="${action}"><i class="fa-solid ${icon} me-2" style="width:16px;"></i>${label}</a>`;
 
+            const shortcut = (key) => `<span style="float:right;opacity:0.5;font-size:0.75em;margin-left:1rem;">${key}</span>`;
+
             let html = '';
             if (hasTarget) {
-                html += item('fa-copy', 'Duplizieren', 'duplicate');
-                html += item('fa-trash', 'Löschen', 'delete');
+                html += item('fa-copy', 'Kopieren' + shortcut('Ctrl+C'), 'copy');
+                html += item('fa-scissors', 'Ausschneiden' + shortcut('Ctrl+X'), 'cut');
+                html += item('fa-paste', 'Einf\u00fcgen' + shortcut('Ctrl+V'), 'paste', !this._clipboard);
+                html += '<li><hr class="dropdown-divider"></li>';
+                html += item('fa-clone', 'Duplizieren' + shortcut('Ctrl+D'), 'duplicate');
+                html += item('fa-trash', 'L\u00f6schen' + shortcut('Entf'), 'delete');
                 html += '<li><hr class="dropdown-divider"></li>';
                 html += item('fa-layer-group', 'Nach vorne', 'bring-front');
                 html += item('fa-layer-group', 'Nach hinten', 'send-back');
@@ -1124,8 +1290,10 @@
                 html += item('fa-arrows-up-down', 'Vertikal zentrieren', 'center-v');
                 html += item('fa-crosshairs', 'Seitenmitte', 'page-center');
             } else {
-                html += item('fa-paste', 'Text einfügen', 'paste-text');
-                html += item('fa-arrows-to-dot', 'Alle auswählen', 'select-all');
+                html += item('fa-paste', 'Einf\u00fcgen' + shortcut('Ctrl+V'), 'paste', !this._clipboard);
+                html += item('fa-font', 'Text einf\u00fcgen', 'paste-text');
+                html += '<li><hr class="dropdown-divider"></li>';
+                html += item('fa-arrows-to-dot', 'Alle ausw\u00e4hlen' + shortcut('Ctrl+A'), 'select-all');
             }
 
             menu.innerHTML = html;
@@ -1141,6 +1309,34 @@
                     e.preventDefault();
                     this.hideContextMenu();
                     switch (btn.dataset.ctx) {
+                        case 'copy': {
+                            const active = this.canvas.getActiveObject();
+                            if (active) active.clone(['custom']).then(c => { this._clipboard = c; });
+                            break;
+                        }
+                        case 'cut': {
+                            const active = this.canvas.getActiveObject();
+                            if (active) active.clone(['custom']).then(c => { this._clipboard = c; this.deleteSelected(); });
+                            break;
+                        }
+                        case 'paste': {
+                            if (!this._clipboard) break;
+                            this._clipboard.clone(['custom']).then(cloned => {
+                                cloned.set({ left: (cloned.left || 0) + 20, top: (cloned.top || 0) + 20 });
+                                if (cloned.type === 'activeSelection' || cloned.type === 'activeselection') {
+                                    cloned.canvas = this.canvas;
+                                    cloned.forEachObject(o => this.canvas.add(o));
+                                } else {
+                                    this.canvas.add(cloned);
+                                }
+                                this._clipboard.set({ left: (this._clipboard.left || 0) + 20, top: (this._clipboard.top || 0) + 20 });
+                                this.canvas.setActiveObject(cloned);
+                                this.canvas.renderAll();
+                                this.saveState();
+                                this.isDirty = true;
+                            });
+                            break;
+                        }
                         case 'duplicate': this.duplicateSelected(); break;
                         case 'delete': this.deleteSelected(); break;
                         case 'bring-front': this.bringForward(); break;
@@ -1149,13 +1345,14 @@
                         case 'center-v': this.alignObject('center-v'); break;
                         case 'page-center': this.alignObject('page-center'); break;
                         case 'paste-text': this.addText('Neuer Text'); break;
-                        case 'select-all':
-                            const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine);
+                        case 'select-all': {
+                            const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine && !o._isGrid);
                             if (objs.length) {
                                 this.canvas.setActiveObject(new fabric.ActiveSelection(objs, { canvas: this.canvas }));
                                 this.canvas.renderAll();
                             }
                             break;
+                        }
                     }
                 });
             });
