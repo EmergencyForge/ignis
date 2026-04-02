@@ -86,7 +86,8 @@
                 gallery.querySelectorAll('.btn-delete-asset').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         e.stopPropagation();
-                        if (confirm('Bild wirklich löschen?')) {
+                        const ok = await showConfirm('Bild wirklich löschen?', { title: 'Bild löschen', danger: true, confirmText: 'Löschen' });
+                        if (ok) {
                             await this.deleteAsset(parseInt(btn.dataset.id));
                             this.loadGallery();
                         }

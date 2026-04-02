@@ -82,6 +82,36 @@
             }
         });
 
+        // Style-Pinsel (Klick: einmalig, Doppelklick: sticky)
+        const painterBtn = document.getElementById('btn-style-painter');
+        if (painterBtn) {
+            let clickTimer = null;
+            painterBtn.addEventListener('click', () => {
+                const editor = getEditor();
+                if (!editor) return;
+                if (editor._stylePainterActive) {
+                    editor.deactivateStylePainter();
+                    return;
+                }
+                // Warte auf möglichen Doppelklick
+                if (clickTimer) return;
+                clickTimer = setTimeout(() => {
+                    clickTimer = null;
+                    editor._stylePainterSticky = false;
+                    editor.activateStylePainter();
+                }, 250);
+            });
+            painterBtn.addEventListener('dblclick', () => {
+                const editor = getEditor();
+                if (!editor) return;
+                clearTimeout(clickTimer);
+                clickTimer = null;
+                editor._stylePainterSticky = true;
+                editor.activateStylePainter();
+                if (window.showToast) window.showToast('Format-Pinsel: Mehrfach-Modus (Klick zum Beenden)', 'info');
+            });
+        }
+
         // Duplizieren
         document.getElementById('btn-duplicate')?.addEventListener('click', () => {
             getEditor()?.duplicateSelected();
@@ -155,7 +185,8 @@
                 // Restore-Buttons
                 list.querySelectorAll('[data-restore]').forEach(btn => {
                     btn.addEventListener('click', async () => {
-                        if (!confirm('Version wiederherstellen? Aktuelle Änderungen gehen verloren.')) return;
+                        const ok = await showConfirm('Version wiederherstellen? Aktuelle Änderungen gehen verloren.', { title: 'Version laden', danger: true, confirmText: 'Wiederherstellen' });
+                        if (!ok) return;
                         btn.disabled = true;
                         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                         const res = await fetch(CONFIG.basePath + 'api/documents/layout-versions.php', {

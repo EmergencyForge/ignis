@@ -321,7 +321,11 @@
                 const inInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT';
                 if (inInput && e.key !== 'Escape') return;
 
-                if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (e.key === '?' && !inInput) {
+                    e.preventDefault();
+                    const helpModal = document.getElementById('shortcutHelpModal');
+                    if (helpModal) bootstrap.Modal.getOrCreateInstance(helpModal).show();
+                } else if (e.key === 'Delete' || e.key === 'Backspace') {
                     e.preventDefault();
                     this.deleteSelected();
                 } else if (e.key === 'Escape') {
@@ -659,6 +663,115 @@
                 this.saveState();
                 this.isDirty = true;
             });
+        }
+
+        // --- Style Painter (Format uebertragen) ---
+
+        _stylePainterProps = ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'underline', 'fill', 'textAlign', 'lineHeight', 'opacity'];
+        _stylePainterData = null;
+        _stylePainterActive = false;
+        _stylePainterSticky = false; // true = bleibt aktiv fuer mehrere Elemente
+
+        activateStylePainter() {
+            const active = this.canvas.getActiveObject();
+            if (!active) {
+                if (window.showToast) window.showToast('Zuerst ein Element ausw\u00e4hlen', 'warning');
+                return;
+            }
+
+            // Stil kopieren
+            this._stylePainterData = {};
+            this._stylePainterProps.forEach(p => {
+                if (active[p] !== undefined) this._stylePainterData[p] = active[p];
+            });
+
+            this._stylePainterActive = true;
+            this.canvas.defaultCursor = 'crosshair';
+            this.canvas.hoverCursor = 'crosshair';
+
+            const btn = document.getElementById('btn-style-painter');
+            if (btn) btn.classList.add('active', 'btn-warning');
+
+            // Einmal-Klick auf naechstes Element
+            this._stylePainterHandler = (e) => {
+                if (!e.target || e.target._isGuide || e.target._isSnapLine || e.target._isGrid) return;
+                this._applyPainterStyle(e.target);
+                if (!this._stylePainterSticky) {
+                    this.deactivateStylePainter();
+                }
+            };
+            this.canvas.on('mouse:down', this._stylePainterHandler);
+        }
+
+        _applyPainterStyle(obj) {
+            if (!this._stylePainterData || !obj) return;
+            const data = this._stylePainterData;
+            const props = {};
+            this._stylePainterProps.forEach(p => {
+                if (data[p] !== undefined && obj[p] !== undefined) props[p] = data[p];
+            });
+            obj.set(props);
+            this.canvas.renderAll();
+            this.saveState();
+            this.isDirty = true;
+        }
+
+        deactivateStylePainter() {
+            this._stylePainterActive = false;
+            this._stylePainterSticky = false;
+            this._stylePainterData = null;
+            this.canvas.defaultCursor = 'default';
+            this.canvas.hoverCursor = 'move';
+            if (this._stylePainterHandler) {
+                this.canvas.off('mouse:down', this._stylePainterHandler);
+                this._stylePainterHandler = null;
+            }
+            const btn = document.getElementById('btn-style-painter');
+            if (btn) btn.classList.remove('active', 'btn-warning');
+        }
+
+        // --- Alle unplatzierten Felder einfuegen ---
+
+        addAllUnplacedFields() {
+            const fields = CONFIG.fields || [];
+            if (fields.length === 0) return;
+
+            // Bereits platzierte Felder ermitteln
+            const placed = new Set();
+            this.canvas.getObjects().forEach(obj => {
+                if (obj.custom?.fieldName) placed.add(obj.custom.fieldName);
+            });
+
+            const unplaced = fields.filter(f => !placed.has(f.field_name));
+            if (unplaced.length === 0) {
+                if (window.showToast) window.showToast('Alle Felder sind bereits platziert', 'info');
+                return;
+            }
+
+            // Startposition: unterhalb des letzten Elements oder bei 100mm
+            const objects = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine && !o._isGrid);
+            let startY = 100 * PX_PER_MM; // Default 100mm
+            if (objects.length > 0) {
+                const maxBottom = Math.max(...objects.map(o => (o.top || 0) + ((o.height || 0) * (o.scaleY || 1))));
+                startY = maxBottom + 10 * PX_PER_MM; // 10mm Abstand
+            }
+
+            const leftMargin = this.margins.left;
+            let y = startY;
+
+            unplaced.forEach(f => {
+                this.addFieldPlaceholder(f.field_name, f.field_label, {
+                    left: leftMargin,
+                    top: y,
+                    width: 250,
+                    fontSize: Math.round(11 * window.EditorUtils.PT_TO_PX),
+                });
+                y += 12 * PX_PER_MM; // 12mm pro Feld
+            });
+
+            this.saveState();
+            this.isDirty = true;
+            if (window.showToast) window.showToast(unplaced.length + ' Felder eingefügt', 'success');
         }
 
         // --- Gruppierung ---
@@ -1002,6 +1115,30 @@
             }
         }
 
+        toggleVisibility(obj) {
+            if (!obj) return;
+            const newVisible = !obj.visible || obj.visible === undefined ? false : true;
+            // Umkehren: wenn sichtbar → unsichtbar, wenn unsichtbar → sichtbar
+            obj.visible = obj.visible === false ? true : false;
+
+            if (!obj.visible && this.canvas.getActiveObject() === obj) {
+                this.canvas.discardActiveObject();
+            }
+
+            this.canvas.renderAll();
+            this.updateLayerList();
+            this.isDirty = true;
+        }
+
+        /** Macht alle versteckten Elemente vor dem Speichern wieder sichtbar */
+        _restoreVisibility() {
+            this.canvas.getObjects().forEach(obj => {
+                if (obj.visible === false && !obj._isGuide && !obj._isSnapLine && !obj._isGrid) {
+                    obj.visible = true;
+                }
+            });
+        }
+
         /** Stellt Lock-Status nach dem Laden eines Layouts wieder her */
         _restoreLockStates() {
             this.canvas.getObjects().forEach(obj => {
@@ -1125,11 +1262,16 @@
 
                 const lockIcon = isLocked ? 'fa-lock' : 'fa-lock-open';
                 const lockClass = isLocked ? ' locked' : '';
+                const isHidden = obj.visible === false;
+                const eyeIcon = isHidden ? 'fa-eye-slash' : 'fa-eye';
+                const eyeClass = isHidden ? ' hidden' : '';
+                const dimClass = (isLocked || isHidden) ? ' opacity-50' : '';
 
-                html += '<div class="layer-item' + (isActive ? ' active' : '') + (isLocked ? ' opacity-50' : '') + '" data-index="' + i + '">'
+                html += '<div class="layer-item' + (isActive ? ' active' : '') + dimClass + '" data-index="' + i + '">'
                     + '<i class="' + icon + '"></i>'
                     + '<span class="text-truncate layer-label">' + this.escapeHtml(label) + '</span>'
                     + typeBadge
+                    + '<i class="fa-solid ' + eyeIcon + ' layer-vis-btn' + eyeClass + '" data-vis-index="' + i + '" title="' + (isHidden ? 'Einblenden' : 'Ausblenden') + '"></i>'
                     + '<i class="fa-solid ' + lockIcon + ' layer-lock-btn' + lockClass + '" data-lock-index="' + i + '" title="' + (isLocked ? 'Entsperren' : 'Sperren') + '"></i>'
                     + '</div>';
             }
@@ -1145,14 +1287,24 @@
 
             container.querySelectorAll('.layer-item').forEach(item => {
                 item.addEventListener('click', (e) => {
-                    // Ignoriere Klick auf Lock-Button
-                    if (e.target.closest('.layer-lock-btn')) return;
+                    if (e.target.closest('.layer-lock-btn') || e.target.closest('.layer-vis-btn')) return;
                     const idx = parseInt(item.dataset.index);
                     const obj = objects[idx];
                     if (obj && !(obj.custom?.locked)) {
                         this.canvas.setActiveObject(obj);
                         this.canvas.renderAll();
                     }
+                });
+            });
+
+            // Visibility Buttons
+            container.querySelectorAll('.layer-vis-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = parseInt(btn.dataset.visIndex);
+                    const obj = objects[idx];
+                    if (!obj) return;
+                    this.toggleVisibility(obj);
                 });
             });
 
@@ -1226,6 +1378,9 @@
         async save() {
             if (this.isSaving) return;
             this.isSaving = true;
+
+            // Versteckte Elemente temporaer sichtbar machen fuer den Export
+            this._restoreVisibility();
 
             const btn = document.getElementById('btn-save');
             const origHtml = btn.innerHTML;
@@ -1528,6 +1683,63 @@
                 });
                 // Prevent focus loss
                 sizeSelect.addEventListener('mousedown', (e) => e.stopPropagation());
+            }
+
+            // Variable-Insert Dropdown
+            document.querySelectorAll('.tft-var-insert').forEach(item => {
+                item.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const varName = item.dataset.var;
+                    const obj = this.canvas.getActiveObject();
+                    if (!obj || !obj.isEditing) return;
+
+                    // Text an Cursor-Position einfuegen
+                    const insertText = '{{ ' + varName + ' }}';
+                    const selStart = obj.selectionStart || 0;
+                    const before = obj.text.substring(0, selStart);
+                    const after = obj.text.substring(obj.selectionEnd || selStart);
+                    obj.text = before + insertText + after;
+                    obj.selectionStart = obj.selectionEnd = selStart + insertText.length;
+                    obj.dirty = true;
+                    this.canvas.renderAll();
+                    this.isDirty = true;
+
+                    // Auch Template-spezifische Felder zum Dropdown hinzufuegen (einmalig)
+                });
+            });
+
+            // Template-Felder zum Variable-Dropdown hinzufuegen
+            const varDropdown = document.getElementById('tft-var-dropdown');
+            if (varDropdown && CONFIG.fields?.length > 0) {
+                const header = document.createElement('li');
+                header.innerHTML = '<span class="dropdown-header" style="font-size:0.68rem;">Template-Felder</span>';
+                varDropdown.appendChild(header);
+                CONFIG.fields.forEach(f => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.className = 'dropdown-item tft-var-insert';
+                    a.href = '#';
+                    a.dataset.var = f.field_name;
+                    a.textContent = f.field_label;
+                    a.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const obj = this.canvas.getActiveObject();
+                        if (!obj || !obj.isEditing) return;
+                        const insertText = '{{ ' + f.field_name + ' }}';
+                        const selStart = obj.selectionStart || 0;
+                        const before = obj.text.substring(0, selStart);
+                        const after = obj.text.substring(obj.selectionEnd || selStart);
+                        obj.text = before + insertText + after;
+                        obj.selectionStart = obj.selectionEnd = selStart + insertText.length;
+                        obj.dirty = true;
+                        this.canvas.renderAll();
+                        this.isDirty = true;
+                    });
+                    li.appendChild(a);
+                    varDropdown.appendChild(li);
+                });
             }
         }
 
