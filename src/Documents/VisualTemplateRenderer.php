@@ -195,7 +195,7 @@ HTML;
             'top' => "{$top}mm",
             'width' => "{$width}mm",
             'font-family' => $this->sanitizeFontFamily($obj['fontFamily'] ?? 'DejaVu Sans'),
-            'font-size' => ($obj['fontSize'] ?? 14) . 'px',
+            'font-size' => round(($obj['fontSize'] ?? 14) / 1.333, 1) . 'pt',
             'color' => $this->sanitizeCssColor($obj['fill'] ?? '#000000'),
             'line-height' => $obj['lineHeight'] ?? 1.16,
             'text-align' => $obj['textAlign'] ?? 'left',
