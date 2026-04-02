@@ -109,7 +109,7 @@
                 });
                 html += '</select></div>';
 
-                // Font Size (angezeigt in pt, intern gespeichert in px: 1pt = 1.333px bei 96dpi)
+                // Font Size (angezeigt in pt, intern gespeichert in px)
                 html += this._propRow('Gr.', 'prop-fontSize', 'number', 14, 'pt', '0.5');
 
                 // Style buttons
@@ -264,8 +264,8 @@
 
             // --- Text properties ---
             this._bindSelect('prop-fontFamily', (v) => updateAndSave('fontFamily', v));
-            // fontSize: Anzeige in pt, Speicherung in px (pt * 1.333 = px)
-            this._bindNumeric('prop-fontSize', (v) => updateAndSave('fontSize', Math.round(v * 1.333 * 10) / 10));
+            // fontSize: Anzeige in pt, Speicherung in px (pt * window.EditorUtils.PT_TO_PX = px)
+            this._bindNumeric('prop-fontSize', (v) => updateAndSave('fontSize', Math.round(v * window.EditorUtils.PT_TO_PX * 10) / 10));
             this._bindNumeric('prop-lineHeight', (v) => updateAndSave('lineHeight', parseFloat(v)));
 
             // Bold / Italic / Underline
@@ -335,10 +335,7 @@
                     const color = swatch.dataset.color;
                     const obj = getObj();
                     if (!obj) return;
-                    // Textfarbe bei Textboxen, Fuellfarbe bei allem anderen
-                    const isText = (obj.type === 'textbox' || obj.type === 'text');
-                    const prop = isText ? 'fill' : 'fill';
-                    updateAndSave(prop, color);
+                    updateAndSave('fill', color);
                     // Input aktualisieren
                     const fillEl = document.getElementById('prop-fill');
                     if (fillEl) fillEl.value = self._toHex(color);
@@ -388,8 +385,8 @@
             // Text properties
             if (obj.type === 'textbox' || obj.type === 'text') {
                 this._setSelect('prop-fontFamily', obj.fontFamily || 'DejaVu Sans');
-                // fontSize in Fabric.js ist px; Anzeige in pt (1pt = 1.333px bei 96dpi)
-                this._setInput('prop-fontSize', Math.round((obj.fontSize || 14) / 1.333 * 10) / 10);
+                // fontSize in Fabric.js ist px; Anzeige in pt
+                this._setInput('prop-fontSize', Math.round((obj.fontSize || 14) / window.EditorUtils.PT_TO_PX * 10) / 10);
                 this._setInput('prop-lineHeight', (obj.lineHeight || 1.16).toFixed(2));
 
                 // Style buttons

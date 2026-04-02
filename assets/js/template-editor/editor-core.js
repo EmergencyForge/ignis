@@ -114,7 +114,7 @@
             hCanvas.width = w;
             hCanvas.height = 20;
             const hCtx = hCanvas.getContext('2d');
-            hCtx.fillStyle = '#1e1e2e';
+            hCtx.fillStyle = '#1e1c24';
             hCtx.fillRect(0, 0, w, 20);
             hCtx.strokeStyle = '#555';
             hCtx.fillStyle = '#888';
@@ -141,7 +141,7 @@
             vCanvas.width = 20;
             vCanvas.height = h;
             const vCtx = vCanvas.getContext('2d');
-            vCtx.fillStyle = '#1e1e2e';
+            vCtx.fillStyle = '#1e1c24';
             vCtx.fillRect(0, 0, 20, h);
             vCtx.strokeStyle = '#555';
             vCtx.fillStyle = '#888';
@@ -284,6 +284,11 @@
             this.canvas.on('text:editing:exited', () => {
                 this._hideTextToolbar();
             });
+            // Floating Toolbar synchron halten wenn Properties-Panel Werte aendert
+            this.canvas.on('object:modified', () => {
+                const obj = this.canvas.getActiveObject();
+                if (obj && obj.isEditing) this._updateTextToolbarState(obj);
+            });
             // Toolbar-Position bei Bewegung aktualisieren
             this.canvas.on('object:moving', (e) => {
                 if (e.target.isEditing) this._positionTextToolbar(e.target);
@@ -324,7 +329,7 @@
                     this.canvas.renderAll();
                 } else if (e.ctrlKey && e.key === 'a') {
                     e.preventDefault();
-                    const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine && !o._isGrid);
+                    const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine && !o._isGrid && !o.custom?.locked);
                     if (objs.length > 0) {
                         const sel = new fabric.ActiveSelection(objs, { canvas: this.canvas });
                         this.canvas.setActiveObject(sel);
@@ -567,6 +572,9 @@
                 this.canvas.renderAll();
                 this.saveState();
                 this.isDirty = true;
+                // Remove-Button anzeigen
+                const rmBtn = document.getElementById('btn-remove-background');
+                if (rmBtn) rmBtn.style.display = '';
             }).catch((err) => {
                 console.warn('Hintergrundbild konnte nicht geladen werden:', err);
             });
@@ -577,6 +585,8 @@
             this.canvas.renderAll();
             this.saveState();
             this.isDirty = true;
+            const rmBtn = document.getElementById('btn-remove-background');
+            if (rmBtn) rmBtn.style.display = 'none';
         }
 
         addBlock(objects) {
@@ -677,6 +687,7 @@
 
             // Fabric.js v7: Group → ActiveSelection
             const selection = active.toActiveSelection();
+            this.canvas.setActiveObject(selection);
             this.canvas.renderAll();
             this.saveState();
             this.isDirty = true;
@@ -986,6 +997,9 @@
             this.updateLayerList();
             this.saveState();
             this.isDirty = true;
+            if (window.showToast) {
+                window.showToast(newLocked ? 'Element gesperrt' : 'Element entsperrt', 'info');
+            }
         }
 
         /** Stellt Lock-Status nach dem Laden eines Layouts wieder her */
@@ -1455,7 +1469,7 @@
             // Font size (pt)
             const sizeSelect = toolbar.querySelector('[data-tft-action="fontSize"]');
             if (sizeSelect) {
-                const ptSize = Math.round((obj.fontSize || 14) / 1.333);
+                const ptSize = Math.round((obj.fontSize || 14) / window.EditorUtils.PT_TO_PX);
                 sizeSelect.value = ptSize;
             }
         }
@@ -1507,7 +1521,7 @@
                     const obj = this.canvas.getActiveObject();
                     if (!obj) return;
                     // pt → px
-                    obj.set('fontSize', Math.round(parseFloat(e.target.value) * 1.333 * 10) / 10);
+                    obj.set('fontSize', Math.round(parseFloat(e.target.value) * window.EditorUtils.PT_TO_PX * 10) / 10);
                     this.canvas.renderAll();
                     this.isDirty = true;
                     this.saveState();
@@ -1618,7 +1632,7 @@
                         case 'page-center': this.alignObject('page-center'); break;
                         case 'paste-text': this.addText('Neuer Text'); break;
                         case 'select-all': {
-                            const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine && !o._isGrid);
+                            const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine && !o._isGrid && !o.custom?.locked);
                             if (objs.length) {
                                 this.canvas.setActiveObject(new fabric.ActiveSelection(objs, { canvas: this.canvas }));
                                 this.canvas.renderAll();

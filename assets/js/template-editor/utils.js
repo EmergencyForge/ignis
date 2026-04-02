@@ -8,8 +8,12 @@
     const CONFIG = window.TEMPLATE_EDITOR_CONFIG;
     const PX_PER_MM = CONFIG.mmToPx;
 
+    /** Konvertierungsfaktor pt → px (bei 96dpi: 1pt = 1.333px) */
+    const PT_TO_PX = 96 / 72; // = 1.3333...
+
     window.EditorUtils = {
         PX_PER_MM,
+        PT_TO_PX,
 
         pxToMm(px) {
             return Math.round((px / PX_PER_MM) * 10) / 10;

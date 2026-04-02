@@ -65,10 +65,20 @@
             }
         });
 
-        // Hintergrundbild
+        // Hintergrundbild setzen
         document.getElementById('btn-set-background')?.addEventListener('click', () => {
             if (window.AssetManager) {
                 window.AssetManager.open('background');
+            }
+        });
+
+        // Hintergrundbild entfernen
+        document.getElementById('btn-remove-background')?.addEventListener('click', () => {
+            const editor = getEditor();
+            if (editor && editor.removeBackgroundImage) {
+                editor.removeBackgroundImage();
+                document.getElementById('btn-remove-background').style.display = 'none';
+                if (window.showToast) window.showToast('Hintergrundbild entfernt', 'info');
             }
         });
 
@@ -112,15 +122,31 @@
                     list.innerHTML = '<div class="text-muted text-center p-3">Keine Versionen vorhanden</div>';
                     return;
                 }
+                const timeAgo = (dateStr) => {
+                    const diff = Date.now() - new Date(dateStr).getTime();
+                    const mins = Math.floor(diff / 60000);
+                    if (mins < 1) return 'Gerade eben';
+                    if (mins < 60) return 'vor ' + mins + ' Min.';
+                    const hrs = Math.floor(mins / 60);
+                    if (hrs < 24) return 'vor ' + hrs + ' Std.';
+                    const days = Math.floor(hrs / 24);
+                    if (days < 7) return 'vor ' + days + ' Tag' + (days > 1 ? 'en' : '');
+                    return new Date(dateStr).toLocaleString('de-DE');
+                };
+
                 let html = '<div class="list-group list-group-flush">';
                 data.versions.forEach(v => {
-                    const active = v.is_active ? ' <span class="badge bg-success">Aktiv</span>' : '';
+                    const active = v.is_active ? ' <span class="badge bg-success ms-1">Aktiv</span>' : '';
                     const date = new Date(v.created_at).toLocaleString('de-DE');
+                    const ago = timeAgo(v.created_at);
                     html += '<div class="list-group-item d-flex justify-content-between align-items-center">';
-                    html += '<div><strong>Version ' + v.version + '</strong>' + active + '<br><small class="text-muted">' + date + '</small></div>';
+                    html += '<div><strong>Version ' + v.version + '</strong>' + active;
+                    html += '<br><small class="text-muted" title="' + date + '">' + ago + '</small></div>';
+                    html += '<div class="d-flex gap-1">';
                     if (!v.is_active) {
-                        html += '<button class="btn btn-sm btn-outline-primary" data-restore="' + v.id + '">Wiederherstellen</button>';
+                        html += '<button class="btn btn-sm btn-outline-primary" data-restore="' + v.id + '"><i class="fa-solid fa-rotate-left me-1"></i>Laden</button>';
                     }
+                    html += '</div>';
                     html += '</div>';
                 });
                 html += '</div>';

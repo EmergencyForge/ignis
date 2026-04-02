@@ -501,6 +501,9 @@ $migrationFiles = [
     // 30.03.2026 - EMD Fahrzeug-Import Queue + TZ-Vorlagen
     ['file' => 'create_intra_fahrzeuge_import_queue_30032026.php', 'type' => 'create'],
     ['file' => 'create_intra_fahrzeuge_tz_templates_30032026.php', 'type' => 'create'],
+
+    // 02.04.2026 - Dokument-Archivierung
+    ['file' => 'alter_intra_mitarbeiter_dokumente_02042026.php', 'type' => 'alter'],
 ];
 
 $executed = 0;
