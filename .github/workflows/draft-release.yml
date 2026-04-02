@@ -15,6 +15,7 @@ jobs:
     steps:
       - name: Generate bot token
         id: bot
+        continue-on-error: true
         uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.BOT_APP_ID }}
@@ -24,7 +25,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ steps.bot.outputs.token }}
+          token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
 
       - name: Get previous tag
         id: prev
@@ -98,7 +99,7 @@ jobs:
 
       - name: Create draft release
         env:
-          GH_TOKEN: ${{ steps.bot.outputs.token }}
+          GH_TOKEN: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ steps.prev.outputs.current }}"
 
