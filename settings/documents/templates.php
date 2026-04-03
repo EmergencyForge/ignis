@@ -668,8 +668,11 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                             <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
                                 <i class="fa-solid fa-paintbrush"></i>
                             </a>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id}, event)">
-                                Löschen
+                            <button class="btn btn-sm btn-outline-secondary" onclick="duplicateTemplate(${template.id}, event)" title="Duplizieren">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id}, event)" title="Löschen">
+                                <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
                     </div>
@@ -722,6 +725,28 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                 }
             } catch (error) {
                 showAlert('Fehler beim Löschen: ' + error.message, {type: 'error', title: 'Fehler'});
+            }
+        }
+
+        async function duplicateTemplate(id, event) {
+            event.stopPropagation();
+
+            try {
+                const response = await fetch(BASE_PATH + 'api/documents/duplicate.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ template_id: id, csrf_token: '<?= \App\Security\CsrfProtection::getToken() ?>' }),
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    showToast('Template dupliziert', 'success');
+                    loadTemplates();
+                } else {
+                    showAlert('Fehler: ' + result.error, { type: 'error', title: 'Fehler' });
+                }
+            } catch (error) {
+                showAlert('Fehler: ' + error.message, { type: 'error', title: 'Fehler' });
             }
         }
 

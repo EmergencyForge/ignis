@@ -65,12 +65,52 @@
             }
         });
 
-        // Hintergrundbild
+        // Hintergrundbild setzen
         document.getElementById('btn-set-background')?.addEventListener('click', () => {
             if (window.AssetManager) {
                 window.AssetManager.open('background');
             }
         });
+
+        // Hintergrundbild entfernen
+        document.getElementById('btn-remove-background')?.addEventListener('click', () => {
+            const editor = getEditor();
+            if (editor && editor.removeBackgroundImage) {
+                editor.removeBackgroundImage();
+                document.getElementById('btn-remove-background').style.display = 'none';
+                if (window.showToast) window.showToast('Hintergrundbild entfernt', 'info');
+            }
+        });
+
+        // Style-Pinsel (Klick: einmalig, Doppelklick: sticky)
+        const painterBtn = document.getElementById('btn-style-painter');
+        if (painterBtn) {
+            let clickTimer = null;
+            painterBtn.addEventListener('click', () => {
+                const editor = getEditor();
+                if (!editor) return;
+                if (editor._stylePainterActive) {
+                    editor.deactivateStylePainter();
+                    return;
+                }
+                // Warte auf möglichen Doppelklick
+                if (clickTimer) return;
+                clickTimer = setTimeout(() => {
+                    clickTimer = null;
+                    editor._stylePainterSticky = false;
+                    editor.activateStylePainter();
+                }, 250);
+            });
+            painterBtn.addEventListener('dblclick', () => {
+                const editor = getEditor();
+                if (!editor) return;
+                clearTimeout(clickTimer);
+                clickTimer = null;
+                editor._stylePainterSticky = true;
+                editor.activateStylePainter();
+                if (window.showToast) window.showToast('Format-Pinsel: Mehrfach-Modus (Klick zum Beenden)', 'info');
+            });
+        }
 
         // Duplizieren
         document.getElementById('btn-duplicate')?.addEventListener('click', () => {
@@ -112,15 +152,31 @@
                     list.innerHTML = '<div class="text-muted text-center p-3">Keine Versionen vorhanden</div>';
                     return;
                 }
+                const timeAgo = (dateStr) => {
+                    const diff = Date.now() - new Date(dateStr).getTime();
+                    const mins = Math.floor(diff / 60000);
+                    if (mins < 1) return 'Gerade eben';
+                    if (mins < 60) return 'vor ' + mins + ' Min.';
+                    const hrs = Math.floor(mins / 60);
+                    if (hrs < 24) return 'vor ' + hrs + ' Std.';
+                    const days = Math.floor(hrs / 24);
+                    if (days < 7) return 'vor ' + days + ' Tag' + (days > 1 ? 'en' : '');
+                    return new Date(dateStr).toLocaleString('de-DE');
+                };
+
                 let html = '<div class="list-group list-group-flush">';
                 data.versions.forEach(v => {
-                    const active = v.is_active ? ' <span class="badge bg-success">Aktiv</span>' : '';
+                    const active = v.is_active ? ' <span class="badge bg-success ms-1">Aktiv</span>' : '';
                     const date = new Date(v.created_at).toLocaleString('de-DE');
+                    const ago = timeAgo(v.created_at);
                     html += '<div class="list-group-item d-flex justify-content-between align-items-center">';
-                    html += '<div><strong>Version ' + v.version + '</strong>' + active + '<br><small class="text-muted">' + date + '</small></div>';
+                    html += '<div><strong>Version ' + v.version + '</strong>' + active;
+                    html += '<br><small class="text-muted" title="' + date + '">' + ago + '</small></div>';
+                    html += '<div class="d-flex gap-1">';
                     if (!v.is_active) {
-                        html += '<button class="btn btn-sm btn-outline-primary" data-restore="' + v.id + '">Wiederherstellen</button>';
+                        html += '<button class="btn btn-sm btn-outline-primary" data-restore="' + v.id + '"><i class="fa-solid fa-rotate-left me-1"></i>Laden</button>';
                     }
+                    html += '</div>';
                     html += '</div>';
                 });
                 html += '</div>';
@@ -129,15 +185,17 @@
                 // Restore-Buttons
                 list.querySelectorAll('[data-restore]').forEach(btn => {
                     btn.addEventListener('click', async () => {
-                        if (!confirm('Version wiederherstellen? Aktuelle Änderungen gehen verloren.')) return;
+                        const ok = await showConfirm('Version wiederherstellen? Aktuelle Änderungen gehen verloren.', { title: 'Version laden', danger: true, confirmText: 'Wiederherstellen' });
+                        if (!ok) return;
                         btn.disabled = true;
                         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                         const res = await fetch(CONFIG.basePath + 'api/documents/layout-versions.php', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ template_id: CONFIG.templateId, layout_id: parseInt(btn.dataset.restore) }),
+                            body: JSON.stringify(window.EditorCsrf.addToBody({ template_id: CONFIG.templateId, layout_id: parseInt(btn.dataset.restore) })),
                         });
                         const result = await res.json();
+                        window.EditorCsrf.handleResponse(result);
                         if (result.success) {
                             bootstrap.Modal.getInstance(document.getElementById('versionsModal'))?.hide();
                             getEditor()?.loadLayout();
@@ -169,6 +227,11 @@
             if (editor) editor.snapToGrid = e.target.checked;
         });
 
+        // Raster-Overlay
+        document.getElementById('chk-grid-overlay')?.addEventListener('change', (e) => {
+            getEditor()?.drawGrid(e.target.checked);
+        });
+
         // Hilfslinien
         document.getElementById('chk-guides')?.addEventListener('change', (e) => {
             getEditor()?.drawGuides(e.target.checked);
@@ -185,6 +248,28 @@
                 e.preventDefault();
                 getEditor()?.alignObject(item.dataset.align);
             });
+        });
+
+        // Entwurfs-Modus Toggle
+        document.getElementById('chk-draft')?.addEventListener('change', async (e) => {
+            try {
+                const response = await fetch(CONFIG.basePath + 'api/documents/layout-save.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(window.EditorCsrf.addToBody({
+                        template_id: CONFIG.templateId,
+                        canvas_json: JSON.stringify(getEditor()?.getCanvas().toObject(['custom'])),
+                        set_draft: e.target.checked,
+                    })),
+                });
+                const result = await response.json();
+                window.EditorCsrf.handleResponse(result);
+                if (window.showToast) {
+                    window.showToast(e.target.checked ? 'Entwurfs-Modus aktiviert' : 'Entwurfs-Modus deaktiviert', 'info');
+                }
+            } catch (err) {
+                console.error('Draft toggle error:', err);
+            }
         });
 
         // Speichern
@@ -205,11 +290,11 @@
                 const response = await fetch(CONFIG.basePath + 'api/documents/layout-preview.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
+                    body: JSON.stringify(window.EditorCsrf.addToBody({
                         template_id: CONFIG.templateId,
                         canvas_json: JSON.stringify(json),
                         format: 'pdf',
-                    }),
+                    })),
                 });
 
                 const blob = await response.blob();

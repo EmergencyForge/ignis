@@ -13,11 +13,79 @@ class TemplateLayoutManager
         $this->pdo = $pdo;
     }
 
+    /** Maximale Groesse des Canvas-JSON in Bytes (5 MB) */
+    private const MAX_CANVAS_JSON_SIZE = 5 * 1024 * 1024;
+
+    /** Erlaubte Fabric.js-Objekttypen */
+    private const ALLOWED_OBJECT_TYPES = [
+        'textbox', 'text', 'i-text',
+        'image', 'fabricimage',
+        'rect', 'circle', 'ellipse', 'polygon', 'polyline', 'path',
+        'line',
+        'group', 'activeselection',
+    ];
+
+    /**
+     * Validiert Canvas-JSON-Struktur und -Groesse.
+     *
+     * @throws \InvalidArgumentException bei ungueltigem JSON
+     */
+    public function validateCanvasJson(string $json): void
+    {
+        if (strlen($json) > self::MAX_CANVAS_JSON_SIZE) {
+            throw new \InvalidArgumentException(
+                'Canvas-JSON ueberschreitet das Limit von ' . (self::MAX_CANVAS_JSON_SIZE / 1024 / 1024) . ' MB'
+            );
+        }
+
+        $data = json_decode($json, true);
+        if (!is_array($data)) {
+            // Evtl. doppelt encodiert
+            if (is_string($data)) {
+                $data = json_decode($data, true);
+            }
+            if (!is_array($data)) {
+                throw new \InvalidArgumentException('Ungueltiges Canvas-JSON-Format');
+            }
+        }
+
+        $objects = $data['objects'] ?? [];
+        if (!is_array($objects)) {
+            throw new \InvalidArgumentException('Canvas-JSON muss ein objects-Array enthalten');
+        }
+
+        if (count($objects) > 500) {
+            throw new \InvalidArgumentException('Zu viele Objekte im Canvas (max. 500)');
+        }
+
+        foreach ($objects as $idx => $obj) {
+            if (!isset($obj['type'])) {
+                throw new \InvalidArgumentException("Objekt #{$idx} hat keinen Typ");
+            }
+            $type = strtolower($obj['type']);
+            if (!in_array($type, self::ALLOWED_OBJECT_TYPES)) {
+                throw new \InvalidArgumentException("Unbekannter Objekttyp: {$type}");
+            }
+            // Numerische Bounds pruefen (verhindet absurde Werte)
+            foreach (['left', 'top'] as $prop) {
+                if (isset($obj[$prop]) && abs((float) $obj[$prop]) > 50000) {
+                    throw new \InvalidArgumentException("Objekt #{$idx}: {$prop}-Wert ausserhalb des erlaubten Bereichs");
+                }
+            }
+            foreach (['width', 'height'] as $prop) {
+                if (isset($obj[$prop]) && ((float) $obj[$prop] < 0 || (float) $obj[$prop] > 50000)) {
+                    throw new \InvalidArgumentException("Objekt #{$idx}: {$prop}-Wert ungueltig");
+                }
+            }
+        }
+    }
+
     /**
      * Speichert oder aktualisiert ein Canvas-Layout für ein Template
      */
     public function saveLayout(int $templateId, string $canvasJson, ?float $pageWidthMm = null, ?float $pageHeightMm = null): int
     {
+        $this->validateCanvasJson($canvasJson);
         // Prüfe ob bereits ein aktives Layout existiert
         $existing = $this->getLayout($templateId);
 

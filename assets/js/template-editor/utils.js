@@ -8,8 +8,12 @@
     const CONFIG = window.TEMPLATE_EDITOR_CONFIG;
     const PX_PER_MM = CONFIG.mmToPx;
 
+    /** Konvertierungsfaktor pt → px (bei 96dpi: 1pt = 1.333px) */
+    const PT_TO_PX = 96 / 72; // = 1.3333...
+
     window.EditorUtils = {
         PX_PER_MM,
+        PT_TO_PX,
 
         pxToMm(px) {
             return Math.round((px / PX_PER_MM) * 10) / 10;
@@ -52,4 +56,38 @@
     }
 
     window.EditorEvents = new EditorEventBus();
+
+    /**
+     * CSRF-Token-Management für alle AJAX-Requests.
+     * Token wird nach erfolgreichen POST-Requests rotiert.
+     */
+    window.EditorCsrf = {
+        getToken() {
+            return CONFIG.csrfToken;
+        },
+
+        /** Aktualisiert den Token (z.B. nach Server-Rotation) */
+        updateToken(newToken) {
+            if (newToken) CONFIG.csrfToken = newToken;
+        },
+
+        /** Fügt den Token einem JSON-Body-Objekt hinzu */
+        addToBody(bodyObj) {
+            bodyObj.csrf_token = this.getToken();
+            return bodyObj;
+        },
+
+        /** Fügt den Token einem FormData-Objekt hinzu */
+        addToFormData(formData) {
+            formData.append('csrf_token', this.getToken());
+            return formData;
+        },
+
+        /** Aktualisiert den Token aus einer Server-Response */
+        handleResponse(result) {
+            if (result && result.csrf_token) {
+                this.updateToken(result.csrf_token);
+            }
+        },
+    };
 })();

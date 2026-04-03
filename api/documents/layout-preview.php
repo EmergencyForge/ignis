@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../assets/config/database.php';
 
 use App\Documents\VisualTemplateRenderer;
 use App\Auth\Permissions;
+use App\Security\CsrfProtection;
 
 if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
     header('Content-Type: text/html; charset=UTF-8');
@@ -13,6 +14,8 @@ if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
 
 try {
     $input = json_decode(file_get_contents('php://input'), true);
+
+    CsrfProtection::requireValid($input);
 
     if (empty($input['template_id'])) {
         throw new \Exception('template_id ist erforderlich');

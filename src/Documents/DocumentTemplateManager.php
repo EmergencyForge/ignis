@@ -14,6 +14,26 @@ class DocumentTemplateManager
     }
 
     /**
+     * Zentrale Typ-Map fuer Legacy-Dokumenttypen (0-13).
+     * Typ 99 = Template-basiertes Dokument (Name kommt aus template_name).
+     */
+    public static function getDocumentTypeLabel(int $type, ?string $templateName = null): string
+    {
+        if ($type === 99 && !empty($templateName)) {
+            return $templateName;
+        }
+
+        $types = [
+            0 => 'Ernennungsurkunde', 1 => 'Beförderungsurkunde', 2 => 'Entlassungsurkunde',
+            3 => 'Ausbildungsvertrag', 5 => 'Ausbildungszertifikat', 6 => 'Lehrgangszertifikat',
+            7 => 'Lehrgangszertifikat (Fachdienste)', 10 => 'Schriftliche Abmahnung',
+            11 => 'Vorläufige Dienstenthebung', 12 => 'Dienstentfernung',
+            13 => 'Außerordentliche Kündigung', 99 => 'Eigenes Dokument',
+        ];
+        return $types[$type] ?? 'Unbekannt';
+    }
+
+    /**
      * Erstellt ein neues Dokumenten-Template
      */
     public function createTemplate(array $data): int
@@ -435,10 +455,73 @@ class DocumentTemplateManager
     public function deleteTemplate(int $templateId): bool
     {
         $stmt = $this->pdo->prepare("
-            DELETE FROM intra_dokument_templates 
+            DELETE FROM intra_dokument_templates
             WHERE id = :id AND is_system = 0
         ");
 
         return $stmt->execute(['id' => $templateId]);
+    }
+
+    /**
+     * Dupliziert ein Template mit allen Feldern und dem aktiven Layout.
+     *
+     * @return int ID des neuen Templates
+     */
+    public function duplicateTemplate(int $sourceTemplateId): int
+    {
+        $source = $this->getTemplate($sourceTemplateId);
+        if (!$source) {
+            throw new \Exception('Quell-Template nicht gefunden');
+        }
+
+        // 1. Template-Metadaten kopieren
+        $newId = $this->createTemplate([
+            'name' => 'Kopie von ' . $source['name'],
+            'category' => $source['category'] ?? 'sonstiges',
+            'category_id' => $source['category_id'] ?? null,
+            'description' => $source['description'] ?? null,
+            'template_file' => $source['template_file'] ?? null,
+            'editor_type' => $source['editor_type'] ?? 'visual',
+        ]);
+
+        // 2. Felder kopieren
+        $fields = $source['fields'] ?? [];
+        foreach ($fields as $field) {
+            $this->addField($newId, [
+                'field_name' => $field['field_name'],
+                'field_label' => $field['field_label'],
+                'field_type' => $field['field_type'],
+                'field_options' => $field['field_options'],
+                'is_required' => $field['is_required'],
+                'gender_specific' => $field['gender_specific'],
+                'sort_order' => $field['sort_order'],
+                'validation_rules' => $field['validation_rules'],
+            ]);
+        }
+
+        // 3. Aktives Layout kopieren (falls vorhanden)
+        $layoutManager = new TemplateLayoutManager($this->pdo);
+        $sourceLayout = $layoutManager->getLayout($sourceTemplateId);
+        if ($sourceLayout) {
+            $layoutManager->saveLayout(
+                $newId,
+                $sourceLayout['canvas_json'],
+                $sourceLayout['page_width_mm'] ?? null,
+                $sourceLayout['page_height_mm'] ?? null
+            );
+        }
+
+        // 4. Config kopieren (falls vorhanden)
+        if (!empty($source['config'])) {
+            $stmt = $this->pdo->prepare("
+                UPDATE intra_dokument_templates SET config = :config WHERE id = :id
+            ");
+            $stmt->execute([
+                'config' => is_string($source['config']) ? $source['config'] : json_encode($source['config']),
+                'id' => $newId,
+            ]);
+        }
+
+        return $newId;
     }
 }

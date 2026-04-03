@@ -759,6 +759,9 @@ if (isset($_POST['new'])) {
             'telefonnr' => $row['telefonnr'] ?? '',
             'dienstnr' => $row['dienstnr'] ?? '',
             'zusatzqual' => $row['zusatz'] ?? '',
+            'dienstgrad' => (string)($row['dienstgrad'] ?? ''),
+            'qualird' => (string)($row['qualird'] ?? ''),
+            'qualifw2' => (string)($row['qualifw2'] ?? ''),
         ]) ?>;
 
         document.querySelectorAll('.inline-edit-cell').forEach(function(cell) {
@@ -836,18 +839,17 @@ if (isset($_POST['new'])) {
 
                     cell.classList.add('inline-saving');
 
-                    // Build full payload from current data
-                    var form = document.getElementById('profil');
+                    // Build full payload from current data (nicht aus Formular, da Felder dort fehlen koennen)
                     var payload = {
                         id: profileId,
                         fullname: currentData.fullname,
                         gebdatum: currentData.gebdatum,
-                        dienstgrad: form.dienstgrad ? form.dienstgrad.value : '',
+                        dienstgrad: currentData.dienstgrad,
                         discordtag: currentData.discordtag,
                         telefonnr: currentData.telefonnr,
                         dienstnr: currentData.dienstnr,
-                        qualird: form.qualird ? form.qualird.value : '',
-                        qualifw2: form.qualifw2 ? form.qualifw2.value : '',
+                        qualird: currentData.qualird,
+                        qualifw2: currentData.qualifw2,
                         geschlecht: currentData.geschlecht,
                         zusatzqual: currentData.zusatzqual,
                         pfp: ''
