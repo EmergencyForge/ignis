@@ -263,7 +263,10 @@ HTML;
         $angle = $obj['angle'] ?? 0;
 
         $src = $this->resolveImageSrc($obj);
-        if (!$src) return "<!-- image not found -->\n";
+        if (!$src) {
+            $debugSrc = $obj['src'] ?? $obj['custom']['imageType'] ?? 'unknown';
+            return "<!-- image not found: " . htmlspecialchars($debugSrc) . " -->\n";
+        }
 
         // Fabric.js speichert die natürlichen Bildmaße in width/height
         // und die Skalierung in scaleX/scaleY.
@@ -424,59 +427,45 @@ HTML;
     }
 
     /**
-     * Löst die Bild-Quelle auf (Base64 für dompdf)
+     * Löst die Bild-Quelle auf (Base64 für dompdf).
+     * Behandelt: Asset-IDs, System-Bilder, URLs mit BASE_PATH, relative Pfade.
      */
     private function resolveImageSrc(array $obj): ?string
     {
         $custom = $obj['custom'] ?? [];
         $projectRoot = realpath(__DIR__ . '/../../');
 
-        // 1. Template-Asset aus DB
+        // 1. Template-Asset aus DB (hoechste Prioritaet)
         if (!empty($custom['assetId'])) {
             $base64 = $this->assetManager->getAsBase64((int) $custom['assetId']);
             if ($base64) return $base64;
         }
 
-        // 2. System-Bilder (logo, wappen)
+        // 2. System-Bilder ueber custom.imageType
         if (!empty($custom['imageType'])) {
-            $files = [
-                'logo' => 'assets/img/schrift_fw_schwarz.png',
-                'wappen' => 'assets/img/wappen_small.png',
-            ];
-            if (isset($files[$custom['imageType']])) {
-                $path = $projectRoot . '/' . $files[$custom['imageType']];
-                if (file_exists($path)) {
-                    return $this->getImageAsBase64($path);
-                }
-            }
+            $resolved = $this->resolveSystemImage($custom['imageType'], $projectRoot);
+            if ($resolved) return $resolved;
         }
 
-        // 3. src-Feld auflösen (kann volle URL oder relativer Pfad sein)
+        // 3. src-Feld auflösen
         if (!empty($obj['src'])) {
-            $src = $obj['src'];
-
-            // Volle URL → extrahiere den Pfad nach dem Host
-            // z.B. "http://localhost:3000/assets/img/logo.png" → "assets/img/logo.png"
-            if (preg_match('#^https?://#', $src)) {
-                $parsed = parse_url($src);
-                $src = $parsed['path'] ?? '';
+            // Bereits Base64? Direkt zurueckgeben.
+            if (str_starts_with($obj['src'], 'data:')) {
+                return $obj['src'];
             }
 
-            // Führenden Slash und BASE_PATH entfernen
-            $src = ltrim($src, '/');
-            $basePath = defined('BASE_PATH') ? trim(BASE_PATH, '/') : '';
-            if ($basePath !== '' && str_starts_with($src, $basePath . '/')) {
-                $src = substr($src, strlen($basePath) + 1);
-            }
+            $src = $this->normalizeSrcPath($obj['src']);
 
-            // Bekannte System-Bilder erkennen
-            if (strpos($src, 'assets/img/schrift_fw_schwarz') !== false) {
-                $path = $projectRoot . '/assets/img/schrift_fw_schwarz.png';
-                if (file_exists($path)) return $this->getImageAsBase64($path);
-            }
-            if (strpos($src, 'assets/img/wappen_small') !== false) {
-                $path = $projectRoot . '/assets/img/wappen_small.png';
-                if (file_exists($path)) return $this->getImageAsBase64($path);
+            // System-Bilder anhand des Dateinamens erkennen (egal welcher Pfad davor)
+            $systemImages = [
+                'schrift_fw_schwarz' => 'assets/img/schrift_fw_schwarz.png',
+                'wappen_small' => 'assets/img/wappen_small.png',
+            ];
+            foreach ($systemImages as $needle => $file) {
+                if (strpos($src, $needle) !== false) {
+                    $path = $projectRoot . '/' . $file;
+                    if (file_exists($path)) return $this->getImageAsBase64($path);
+                }
             }
 
             // Storage-Assets
@@ -495,6 +484,53 @@ HTML;
         }
 
         return null;
+    }
+
+    /**
+     * Laedt ein System-Bild (Logo/Wappen) als Base64.
+     */
+    private function resolveSystemImage(string $imageType, string $projectRoot): ?string
+    {
+        $files = [
+            'logo' => 'assets/img/schrift_fw_schwarz.png',
+            'wappen' => 'assets/img/wappen_small.png',
+        ];
+        if (!isset($files[$imageType])) return null;
+
+        $path = $projectRoot . '/' . $files[$imageType];
+        return file_exists($path) ? $this->getImageAsBase64($path) : null;
+    }
+
+    /**
+     * Normalisiert einen src-Pfad: entfernt Host, BASE_PATH, fuehrende Slashes.
+     * Wandelt z.B. "http://localhost:3000/intraRP/assets/img/logo.png" in "assets/img/logo.png" um.
+     */
+    private function normalizeSrcPath(string $src): string
+    {
+        // Volle URL → extrahiere den Pfad
+        if (preg_match('#^https?://#', $src)) {
+            $parsed = parse_url($src);
+            $src = $parsed['path'] ?? '';
+        }
+
+        // file:// Protokoll entfernen
+        if (str_starts_with($src, 'file://')) {
+            $src = substr($src, 7);
+        }
+
+        $src = ltrim($src, '/');
+
+        // BASE_PATH entfernen (kann z.B. "intraRP/" sein)
+        $basePath = defined('BASE_PATH') ? trim(BASE_PATH, '/') : '';
+        if ($basePath !== '' && str_starts_with($src, $basePath . '/')) {
+            $src = substr($src, strlen($basePath) + 1);
+        }
+
+        // Haeufige Pfad-Varianten normalisieren
+        // z.B. "public/assets/img/..." → "assets/img/..."
+        $src = preg_replace('#^public/#', '', $src);
+
+        return $src;
     }
 
     /**

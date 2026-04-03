@@ -136,7 +136,7 @@ try {
                     'dokument',
                     "Neues Dokument erstellt",
                     "Ein neues Dokument ({$template['name']} #{$documentId}) wurde für Sie erstellt.",
-                    BASE_PATH . "storage/documents/{$documentId}.pdf"
+                    BASE_PATH . "mitarbeiter/dokument-view.php?docid={$documentId}"
                 );
             }
         }
