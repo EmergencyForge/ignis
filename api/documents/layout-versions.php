@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../src/Documents/TemplateLayoutManager.php';
 
 use App\Documents\TemplateLayoutManager;
 use App\Auth\Permissions;
+use App\Security\CsrfProtection;
 
 header('Content-Type: application/json');
 
@@ -34,6 +35,9 @@ try {
 
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $input = json_decode(file_get_contents('php://input'), true);
+
+        CsrfProtection::requireValid($input);
+
         $templateId = (int)($input['template_id'] ?? 0);
         $layoutId = (int)($input['layout_id'] ?? 0);
 
@@ -42,7 +46,10 @@ try {
         }
 
         $success = $layoutManager->restoreVersion($templateId, $layoutId);
-        echo json_encode(['success' => $success]);
+        echo json_encode([
+            'success' => $success,
+            'csrf_token' => CsrfProtection::getResponseToken(),
+        ]);
     }
 } catch (\Exception $e) {
     http_response_code(400);

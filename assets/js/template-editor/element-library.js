@@ -18,36 +18,88 @@
         render() {
             let html = '';
 
-            // System-Variablen
-            html += this.renderSection('System-Variablen', 'fa-solid fa-gear', this.getSystemVarItems());
+            // Suchfeld
+            html += '<div class="px-2 pb-2">';
+            html += '<input type="text" class="form-control form-control-sm" id="element-search" placeholder="Elemente suchen..." style="font-size:0.78rem;">';
+            html += '</div>';
 
-            // Template-Felder
-            html += this.renderSection('Template-Felder', 'fa-solid fa-i-cursor', this.getFieldItems());
-
-            // Dokument-Daten
-            html += this.renderSection('Dokument-Daten', 'fa-solid fa-file-lines', this.getDocumentDataItems());
-
-            // Vorgefertigte Blöcke
-            html += this.renderSection('Bausteine', 'fa-solid fa-puzzle-piece', this.getBlockItems());
-
-            // Formen
-            html += this.renderSection('Formen', 'fa-solid fa-shapes', this.getShapeItems());
+            // Sektionen (Template-Felder und Bausteine default offen, Rest zu)
+            html += this.renderSection('Template-Felder', 'fa-solid fa-i-cursor', this.getFieldItems(), true);
+            html += this.renderSection('Bausteine', 'fa-solid fa-puzzle-piece', this.getBlockItems(), true);
+            html += this.renderSection('Dokument-Daten', 'fa-solid fa-file-lines', this.getDocumentDataItems(), false);
+            html += this.renderSection('System-Variablen', 'fa-solid fa-gear', this.getSystemVarItems(), false);
+            html += this.renderSection('Formen', 'fa-solid fa-shapes', this.getShapeItems(), false);
 
             this.container.innerHTML = html;
             this.bindEvents();
+            this.bindChevrons();
+            this.bindSearch();
         }
 
-        renderSection(title, icon, items) {
+        renderSection(title, icon, items, defaultOpen = false) {
             const id = title.replace(/[^a-z]/gi, '').toLowerCase();
-            let html = '<div class="mb-2">';
+            const showClass = defaultOpen ? ' show' : '';
+            let html = '<div class="lib-section mb-1" data-default-open="' + (defaultOpen ? '1' : '0') + '">';
             html += '<div class="sidebar-section-title" role="button" data-bs-toggle="collapse" data-bs-target="#lib-' + id + '">';
             html += '<i class="' + icon + '"></i> ' + title;
-            html += ' <i class="fa-solid fa-chevron-down float-end" style="font-size:0.65rem;margin-top:3px;"></i>';
+            html += ' <i class="fa-solid fa-chevron-right lib-chevron float-end" style="font-size:0.6rem;margin-top:4px;"></i>';
             html += '</div>';
-            html += '<div class="collapse show" id="lib-' + id + '">';
+            html += '<div class="collapse' + showClass + '" id="lib-' + id + '">';
             html += items;
             html += '</div></div>';
             return html;
+        }
+
+        /** Bindet Chevron-Rotation an Bootstrap-Collapse-Events */
+        bindChevrons() {
+            this.container.querySelectorAll('.collapse').forEach(collapseEl => {
+                const chevron = collapseEl.previousElementSibling?.querySelector('.lib-chevron');
+                if (!chevron) return;
+                // Initial-Zustand setzen
+                if (collapseEl.classList.contains('show')) chevron.classList.add('open');
+
+                collapseEl.addEventListener('show.bs.collapse', () => chevron.classList.add('open'));
+                collapseEl.addEventListener('hide.bs.collapse', () => chevron.classList.remove('open'));
+            });
+        }
+
+        /** Live-Suche: filtert Element-Items nach Name/Label */
+        bindSearch() {
+            const input = document.getElementById('element-search');
+            if (!input) return;
+
+            input.addEventListener('input', () => {
+                const q = input.value.trim().toLowerCase();
+                const sections = this.container.querySelectorAll('.lib-section');
+
+                sections.forEach(section => {
+                    const items = section.querySelectorAll('.element-item');
+                    let visibleCount = 0;
+
+                    items.forEach(item => {
+                        const text = (item.textContent || '').toLowerCase();
+                        const match = !q || text.includes(q);
+                        item.style.display = match ? '' : 'none';
+                        if (match) visibleCount++;
+                    });
+
+                    section.style.display = visibleCount > 0 || !q ? '' : 'none';
+
+                    const collapseEl = section.querySelector('.collapse');
+                    if (!collapseEl) return;
+                    const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
+
+                    if (q) {
+                        // Suche aktiv: aufklappen
+                        bsCollapse.show();
+                    } else {
+                        // Suche leer: Default-Zustand wiederherstellen
+                        const shouldBeOpen = section.dataset.defaultOpen === '1';
+                        if (shouldBeOpen) bsCollapse.show();
+                        else bsCollapse.hide();
+                    }
+                });
+            });
         }
 
         getSystemVarItems() {
@@ -106,6 +158,12 @@
                 html += '<span>' + this.escapeHtml(f.field_label) + '</span>';
                 html += '</div>';
             });
+
+            // "Alle Felder einfuegen"-Button
+            html += '<div style="padding:0.3rem 0.6rem;margin-top:0.25rem;">';
+            html += '<button class="btn btn-sm btn-outline-secondary w-100" id="btn-add-all-fields" style="font-size:0.72rem;">';
+            html += '<i class="fa-solid fa-layer-group me-1"></i>Alle Felder einf\u00fcgen';
+            html += '</button></div>';
 
             return html;
         }
@@ -174,6 +232,13 @@
                 item.addEventListener('dragend', () => {
                     item.style.opacity = '1';
                 });
+            });
+
+            // Alle Felder einfuegen
+            document.getElementById('btn-add-all-fields')?.addEventListener('click', () => {
+                const editor = window.TemplateEditor;
+                if (!editor) return;
+                editor.addAllUnplacedFields();
             });
 
             // Canvas Drop-Target

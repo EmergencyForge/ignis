@@ -289,14 +289,30 @@ function searchEnotf(PDO $pdo, string $searchParam): array
  */
 function searchDocuments(PDO $pdo, string $searchParam): array
 {
-    $sql = "SELECT d.id, d.docid, d.erhalter, d.ausstellungsdatum, d.profileid, t.name AS template_name
-            FROM intra_mitarbeiter_dokumente d
-            LEFT JOIN intra_dokument_templates t ON d.template_id = t.id
-            WHERE d.erhalter LIKE :s1 OR d.docid LIKE :s2 OR t.name LIKE :s3
-            ORDER BY d.timestamp DESC
-            LIMIT 5";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute(['s1' => $searchParam, 's2' => $searchParam, 's3' => $searchParam]);
+    // Query mit is_archived Filter (Fallback ohne Spalte)
+    try {
+        $sql = "SELECT d.id, d.docid, d.erhalter, d.ausstellungsdatum, d.profileid,
+                       d.aussteller_name, t.name AS template_name
+                FROM intra_mitarbeiter_dokumente d
+                LEFT JOIN intra_dokument_templates t ON d.template_id = t.id
+                WHERE (d.erhalter LIKE :s1 OR d.docid LIKE :s2 OR t.name LIKE :s3 OR d.aussteller_name LIKE :s4)
+                  AND IFNULL(d.is_archived, 0) = 0
+                ORDER BY d.timestamp DESC
+                LIMIT 8";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['s1' => $searchParam, 's2' => $searchParam, 's3' => $searchParam, 's4' => $searchParam]);
+    } catch (\PDOException $e) {
+        // Fallback: is_archived Spalte existiert noch nicht
+        $sql = "SELECT d.id, d.docid, d.erhalter, d.ausstellungsdatum, d.profileid,
+                       d.aussteller_name, t.name AS template_name
+                FROM intra_mitarbeiter_dokumente d
+                LEFT JOIN intra_dokument_templates t ON d.template_id = t.id
+                WHERE (d.erhalter LIKE :s1 OR d.docid LIKE :s2 OR t.name LIKE :s3 OR d.aussteller_name LIKE :s4)
+                ORDER BY d.timestamp DESC
+                LIMIT 8";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['s1' => $searchParam, 's2' => $searchParam, 's3' => $searchParam, 's4' => $searchParam]);
+    }
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $items = [];
@@ -307,13 +323,10 @@ function searchDocuments(PDO $pdo, string $searchParam): array
             $subtitle .= $subtitle ? ' — ' : '';
             $subtitle .= date('d.m.Y', strtotime($row['ausstellungsdatum']));
         }
-        $url = $row['profileid']
-            ? 'mitarbeiter/profile.php?id=' . $row['profileid']
-            : 'mitarbeiter/list.php';
         $items[] = [
             'title' => $title,
             'subtitle' => $subtitle,
-            'url' => $url
+            'url' => 'mitarbeiter/dokument-view.php?docid=' . $row['docid']
         ];
     }
     return $items;

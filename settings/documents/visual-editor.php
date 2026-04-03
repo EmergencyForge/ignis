@@ -12,6 +12,7 @@ if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Documents\DocumentTemplateManager;
+use App\Security\CsrfProtection;
 
 if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
     Flash::set('error', 'no-permissions');
@@ -44,266 +45,23 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/template-editor.min.css" />
     <style>
-        /* Inline fallback falls SCSS noch nicht kompiliert */
-        body {
-            overflow: hidden;
-        }
-
-        .editor-wrapper {
-            display: flex;
-            height: calc(100vh - 38px);
-            /* Toolbar only */
-            overflow: hidden;
-        }
-
-        .editor-sidebar {
-            width: 260px;
-            min-width: 260px;
-            overflow-y: auto;
-            border-right: 1px solid var(--bs-border-color);
-            background: var(--bs-body-bg);
-            transition: width 0.2s, min-width 0.2s, padding 0.2s;
-            position: relative;
-        }
-
-        .editor-sidebar.collapsed {
-            width: 0;
-            min-width: 0;
-            padding: 0;
-            overflow: hidden;
-            border-right: none;
-        }
-
-        .sidebar-toggle {
-            position: absolute;
-            top: 8px;
-            z-index: 10;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: var(--bs-body-bg);
-            border: 1px solid var(--bs-border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 0.65rem;
-            color: var(--bs-secondary-color);
-        }
-
-        .sidebar-toggle:hover {
-            background: var(--bs-tertiary-bg);
-        }
-
-        .editor-canvas-area {
-            flex: 1;
-            overflow: auto;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 30px 20px 20px 30px;
-            background: #1a1a2e;
-        }
-
-        .editor-properties {
-            width: 280px;
-            min-width: 280px;
-            overflow-y: auto;
-            border-left: 1px solid var(--bs-border-color);
-            background: var(--bs-body-bg);
-            transition: width 0.2s, min-width 0.2s, padding 0.2s;
-            position: relative;
-        }
-
-        .editor-properties.collapsed {
-            width: 0;
-            min-width: 0;
-            padding: 0;
-            overflow: hidden;
-            border-left: none;
-        }
-
-        .canvas-container-wrapper {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            background: #fff;
-        }
-
-        .editor-canvas-area.drag-over .canvas-container-wrapper {
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6), 0 4px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .editor-toolbar {
-            display: flex;
-            align-items: center;
-            gap: 0.35rem;
-            padding: 0.3rem 0.75rem;
-            border-bottom: 1px solid var(--bs-border-color);
-            background: var(--bs-body-bg);
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            min-height: 38px;
-        }
-
-        .editor-toolbar .btn {
-            font-size: 0.8rem;
-            padding: 0.2rem 0.5rem;
-        }
-
-        .editor-toolbar .separator {
-            width: 1px;
-            height: 22px;
-            background: var(--bs-border-color);
-            margin: 0 0.15rem;
-        }
-
-        .editor-toolbar .form-check {
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .editor-toolbar .form-check-label {
-            line-height: 1;
-        }
-
-        .editor-toolbar .form-select {
-            height: auto;
-            padding-top: 0.2rem;
-            padding-bottom: 0.2rem;
-        }
-
-        .sidebar-section {
-            padding: 0.75rem;
-        }
-
-        .sidebar-section-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--bs-secondary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .element-item {
-            padding: 0.4rem 0.6rem;
-            border-radius: 0.25rem;
-            cursor: grab;
-            font-size: 0.85rem;
-            transition: background 0.15s;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .element-item:hover {
-            background: var(--bs-tertiary-bg);
-        }
-
-        .element-item.field-placed {
-            opacity: 0.5;
-        }
-
-        .element-item.field-placed::after {
-            content: '\f00c';
-            font-family: 'Font Awesome 7 Free';
-            font-weight: 900;
-            font-size: 0.6rem;
-            color: var(--bs-success);
-            margin-left: auto;
-        }
-
-        .element-item i {
-            width: 16px;
-            text-align: center;
-            opacity: 0.6;
-        }
-
-        .prop-group {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--bs-border-color);
-        }
-
-        .prop-group-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--bs-secondary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .prop-row {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.4rem;
-        }
-
-        .prop-row label {
-            font-size: 0.8rem;
-            width: 30px;
-            flex-shrink: 0;
-            color: var(--bs-secondary-color);
-        }
-
-        .prop-row input,
-        .prop-row select {
-            font-size: 0.8rem;
-            padding: 0.2rem 0.4rem;
-            height: auto;
-        }
-
-        .layer-item {
-            padding: 0.35rem 0.6rem;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border-radius: 0.25rem;
-        }
-
-        .layer-item:hover {
-            background: var(--bs-tertiary-bg);
-        }
-
-        .layer-item.active {
-            background: var(--bs-primary-bg-subtle);
-            color: var(--bs-primary-text-emphasis);
-        }
-
-        .layer-item i {
-            width: 14px;
-            text-align: center;
-            opacity: 0.5;
-            font-size: 0.75rem;
-        }
-
-        .zoom-controls {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .zoom-controls .btn {
-            padding: 0.2rem 0.5rem;
-            font-size: 0.8rem;
-        }
-
-        .zoom-controls span {
-            font-size: 0.8rem;
-            min-width: 45px;
-            text-align: center;
-        }
-
-        #no-selection-msg {
-            padding: 2rem 1rem;
-            text-align: center;
-            color: var(--bs-secondary-color);
-            font-size: 0.85rem;
-        }
+        /* Nur Styles die spezifisch fuer visual-editor.php sind und nicht in template-editor.css */
+        body { overflow: hidden; }
+        .editor-wrapper { height: calc(100vh - 38px); }
+        .editor-sidebar.collapsed { width: 0; min-width: 0; padding: 0; overflow: hidden; border-right: none; }
+        .editor-properties.collapsed { width: 0; min-width: 0; padding: 0; overflow: hidden; border-left: none; }
+        .editor-sidebar, .editor-properties { transition: width 0.2s, min-width 0.2s, padding 0.2s; position: relative; }
+        .sidebar-toggle { position: absolute; top: 8px; z-index: 10; width: 24px; height: 24px; border-radius: 50%; background: var(--bs-body-bg); border: 1px solid var(--bs-border-color); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.65rem; color: var(--bs-secondary-color); }
+        .sidebar-toggle:hover { background: var(--bs-tertiary-bg); }
+        .editor-canvas-area.drag-over .canvas-container-wrapper { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.6), 0 4px 20px rgba(0, 0, 0, 0.4); }
+        .editor-toolbar { flex-wrap: nowrap; overflow-x: auto; min-height: 38px; gap: 0.35rem; padding: 0.3rem 0.75rem; }
+        .editor-toolbar .btn { font-size: 0.8rem; padding: 0.2rem 0.5rem; }
+        .editor-toolbar .separator { width: 1px; height: 22px; background: var(--bs-border-color); margin: 0 0.15rem; }
+        .editor-toolbar .form-check { margin: 0; display: flex; align-items: center; gap: 0.25rem; }
+        .editor-toolbar .form-check-label { line-height: 1; }
+        .editor-toolbar .form-select { height: auto; padding-top: 0.2rem; padding-bottom: 0.2rem; }
+        .element-item.field-placed { opacity: 0.5; }
+        .element-item.field-placed::after { content: '\f00c'; font-family: 'Font Awesome 7 Free'; font-weight: 900; font-size: 0.6rem; color: var(--bs-success); margin-left: auto; }
     </style>
 </head>
 
@@ -311,12 +69,20 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <!-- Einzeilige Toolbar -->
     <div class="editor-toolbar">
         <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="btn btn-sm btn-outline-secondary" id="btn-back"
-            onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();if(confirm('Ungespeicherte Änderungen verwerfen?'))window.location=this.href;}">
+            onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();var href=this.href;showConfirm('Ungespeicherte Änderungen verwerfen?',{title:'Seite verlassen',danger:true,confirmText:'Verwerfen'}).then(function(ok){if(ok)window.location=href;});}">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
         <span class="text-truncate" style="font-size:0.8rem;max-width:200px;opacity:0.7;" title="<?= htmlspecialchars($template['name']) ?>">
             <strong id="editor-template-name"><?= htmlspecialchars($template['name']) ?></strong>
         </span>
+        <?php
+            $templateConfig = json_decode($template['config'] ?? '{}', true) ?: [];
+            $isDraft = !empty($templateConfig['is_draft']);
+        ?>
+        <label class="form-check form-check-inline mb-0 ms-2" style="font-size:0.72rem;" title="Entwurfs-Wasserzeichen auf PDFs anzeigen">
+            <input class="form-check-input" type="checkbox" id="chk-draft" style="width:0.85em;height:0.85em;"<?= $isDraft ? ' checked' : '' ?>>
+            <span class="form-check-label text-warning">Entwurf</span>
+        </label>
 
         <div class="separator"></div>
 
@@ -329,12 +95,18 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         <button class="btn btn-sm btn-outline-light" id="btn-add-image" title="Bild hinzufügen">
             <i class="fa-solid fa-image"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-set-background" title="Hintergrundbild">
+        <button class="btn btn-sm btn-outline-light" id="btn-set-background" title="Hintergrundbild setzen">
             <i class="fa-solid fa-panorama"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-light" id="btn-remove-background" title="Hintergrundbild entfernen" style="display:none;">
+            <i class="fa-solid fa-panorama" style="position:relative;"></i><i class="fa-solid fa-xmark" style="font-size:0.5rem;margin-left:-4px;color:var(--bs-danger);"></i>
         </button>
 
         <div class="separator"></div>
 
+        <button class="btn btn-sm btn-outline-light" id="btn-style-painter" title="Format übertragen (Klick: einmalig, Doppelklick: mehrfach)">
+            <i class="fa-solid fa-paintbrush"></i>
+        </button>
         <button class="btn btn-sm btn-outline-light" id="btn-duplicate" title="Duplizieren (Ctrl+D)">
             <i class="fa-solid fa-copy"></i>
         </button>
@@ -370,6 +142,12 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                     <hr class="dropdown-divider">
                 </li>
                 <li><a class="dropdown-item" href="#" data-align="page-center"><i class="fa-solid fa-crosshairs me-2"></i>Seitenmitte</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li class="dropdown-header" style="font-size:0.7rem;">Verteilen (3+ Elemente)</li>
+                <li><a class="dropdown-item" href="#" data-align="distribute-h"><i class="fa-solid fa-arrows-left-right me-2"></i>Horizontal verteilen</a></li>
+                <li><a class="dropdown-item" href="#" data-align="distribute-v"><i class="fa-solid fa-arrows-up-down me-2"></i>Vertikal verteilen</a></li>
             </ul>
         </div>
 
@@ -400,6 +178,10 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <span class="form-check-label">Snap</span>
         </label>
         <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;">
+            <input class="form-check-input" type="checkbox" id="chk-grid-overlay" style="width:0.85em;height:0.85em;">
+            <span class="form-check-label">Raster</span>
+        </label>
+        <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;">
             <input class="form-check-input" type="checkbox" id="chk-guides" style="width:0.85em;height:0.85em;">
             <span class="form-check-label">Guides</span>
         </label>
@@ -409,7 +191,8 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <option value="mittel">Mittel (1,91cm)</option>
         </select>
 
-        <div class="ms-auto d-flex gap-1">
+        <div class="ms-auto d-flex gap-1 align-items-center">
+            <span id="autosave-indicator" class="text-muted" style="font-size:0.68rem;white-space:nowrap;"></span>
             <button class="btn btn-sm btn-outline-info" id="btn-preview" title="Vorschau">
                 <i class="fa-solid fa-eye"></i>
             </button>
@@ -419,20 +202,84 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         </div>
     </div>
 
+    <!-- Floating Text-Toolbar (erscheint beim Bearbeiten von Text) -->
+    <div id="text-floating-toolbar" class="text-floating-toolbar" style="display:none;">
+        <button class="tft-btn" data-tft-action="bold" title="Fett (Ctrl+B)"><i class="fa-solid fa-bold"></i></button>
+        <button class="tft-btn" data-tft-action="italic" title="Kursiv (Ctrl+I)"><i class="fa-solid fa-italic"></i></button>
+        <button class="tft-btn" data-tft-action="underline" title="Unterstrichen (Ctrl+U)"><i class="fa-solid fa-underline"></i></button>
+        <span class="tft-sep"></span>
+        <button class="tft-btn" data-tft-action="align-left" title="Links"><i class="fa-solid fa-align-left"></i></button>
+        <button class="tft-btn" data-tft-action="align-center" title="Zentriert"><i class="fa-solid fa-align-center"></i></button>
+        <button class="tft-btn" data-tft-action="align-right" title="Rechts"><i class="fa-solid fa-align-right"></i></button>
+        <span class="tft-sep"></span>
+        <select class="tft-select" data-tft-action="fontSize" title="Schriftgr&ouml;&szlig;e">
+            <option value="8">8</option><option value="9">9</option><option value="10">10</option>
+            <option value="11">11</option><option value="12" selected>12</option><option value="14">14</option>
+            <option value="16">16</option><option value="18">18</option><option value="20">20</option>
+            <option value="24">24</option><option value="28">28</option><option value="36">36</option>
+        </select>
+        <span class="tft-sep"></span>
+        <!-- Variable einfuegen Dropdown -->
+        <div class="dropdown" style="display:inline-flex;">
+            <button class="tft-btn dropdown-toggle" data-bs-toggle="dropdown" title="Variable einf&uuml;gen" style="width:auto;padding:0 6px;">
+                <i class="fa-solid fa-code" style="font-size:0.7rem;"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark" id="tft-var-dropdown" style="font-size:0.78rem;max-height:250px;overflow-y:auto;">
+                <li class="dropdown-header" style="font-size:0.68rem;">Dokument-Daten</li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="erhalter">Empf&auml;nger-Name</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="anrede_text">Anrede</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="geehrte">Geehrte/r</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="zum">Zum/Zur</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="ausstellungsdatum">Ausstellungsdatum</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="document_id">Dokumenten-ID</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="issuer.fullname">Aussteller-Name</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="issuer.dienstgrad_text">Aussteller-Dienstgrad</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="dienstgrad_text">Dienstgrad (aufgel&ouml;st)</a></li>
+                <li class="dropdown-header" style="font-size:0.68rem;">System</li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="SYSTEM_NAME">Organisationsname</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="SERVER_CITY">Stadt</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="RP_ORGTYPE">Organisationstyp</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="RP_STREET">Stra&szlig;e</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="RP_ZIP">PLZ</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Canvas Loading Overlay -->
+    <div id="canvas-loading" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#fff;">
+            <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+            <p class="mt-2" style="font-size:0.85rem;" id="canvas-loading-text">Layout wird geladen...</p>
+        </div>
+    </div>
+
     <!-- Main editor layout -->
     <div class="editor-wrapper">
-        <!-- Left sidebar: Element library + Layers -->
+        <!-- Left sidebar: Element library + Layers (Tab-basiert) -->
         <div class="editor-sidebar" id="sidebar-left">
-            <div class="sidebar-section" id="element-library">
-                <!-- Wird von element-library.js befüllt -->
+            <!-- Sidebar-Tabs -->
+            <ul class="nav nav-pills nav-fill sidebar-tabs" id="sidebar-left-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-sidebar-tab="elements" href="#"><i class="fa-solid fa-puzzle-piece"></i> Elemente</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-sidebar-tab="layers" href="#"><i class="fa-solid fa-layer-group"></i> Ebenen <span class="badge bg-secondary ms-1" id="layer-count" style="font-size:0.6rem;">0</span></a>
+                </li>
+            </ul>
+
+            <!-- Tab: Elemente -->
+            <div class="sidebar-tab-content" data-sidebar-tab-content="elements">
+                <div class="sidebar-section" id="element-library">
+                    <!-- Wird von element-library.js befüllt -->
+                </div>
             </div>
 
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">
-                    <i class="fa-solid fa-layer-group"></i> Ebenen
-                </div>
-                <div id="layer-list">
-                    <!-- Wird von editor-core.js befüllt -->
+            <!-- Tab: Ebenen -->
+            <div class="sidebar-tab-content" data-sidebar-tab-content="layers" style="display:none;">
+                <div class="sidebar-section">
+                    <div id="layer-list">
+                        <!-- Wird von editor-core.js befüllt -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -541,8 +388,21 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         </div>
     </div>
 
-    <!-- Sidebar Toggle-Logik -->
+    <!-- Sidebar Tab- & Toggle-Logik -->
     <script>
+        // Sidebar-Tabs (Elemente / Ebenen)
+        document.querySelectorAll('[data-sidebar-tab]').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = tab.dataset.sidebarTab;
+                document.querySelectorAll('[data-sidebar-tab]').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('[data-sidebar-tab-content]').forEach(c => c.style.display = 'none');
+                tab.classList.add('active');
+                const content = document.querySelector('[data-sidebar-tab-content="' + target + '"]');
+                if (content) content.style.display = 'block';
+            });
+        });
+
         function toggleSidebar(sidebarId, toggleId) {
             const sidebar = document.getElementById(sidebarId);
             const toggle = document.getElementById(toggleId);
@@ -589,8 +449,45 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             canvasWidth: 794,
             canvasHeight: 1123,
             mmToPx: 3.7795,
+            csrfToken: <?= json_encode(CsrfProtection::getToken()) ?>,
         };
     </script>
+
+    <!-- Shortcut-Hilfe Modal -->
+    <div class="modal fade" id="shortcutHelpModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title"><i class="fa-solid fa-keyboard me-2"></i>Tastenkürzel</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0" style="font-size:0.82rem;">
+                    <table class="table table-sm table-striped mb-0">
+                        <tbody>
+                            <tr><td class="ps-3"><kbd>Ctrl+S</kbd></td><td>Speichern</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+Z</kbd></td><td>Rückgängig</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+Y</kbd></td><td>Wiederholen</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+C</kbd> / <kbd>X</kbd> / <kbd>V</kbd></td><td>Kopieren / Ausschneiden / Einfügen</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+D</kbd></td><td>Duplizieren</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+A</kbd></td><td>Alles auswählen</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+G</kbd></td><td>Gruppieren</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl+Shift+G</kbd></td><td>Gruppe auflösen</td></tr>
+                            <tr><td class="ps-3"><kbd>Entf</kbd> / <kbd>Backspace</kbd></td><td>Löschen</td></tr>
+                            <tr><td class="ps-3"><kbd>Escape</kbd></td><td>Auswahl aufheben</td></tr>
+                            <tr><td class="ps-3"><kbd>Pfeiltasten</kbd></td><td>Verschieben (1px)</td></tr>
+                            <tr><td class="ps-3"><kbd>Shift</kbd> + Pfeiltasten</td><td>Verschieben (10px)</td></tr>
+                            <tr><td class="ps-3"><kbd>Shift</kbd> + Rotation</td><td>15°-Einrastung</td></tr>
+                            <tr><td class="ps-3"><kbd>Ctrl</kbd> + Mausrad</td><td>Zoom</td></tr>
+                            <tr><td class="ps-3"><kbd>?</kbd></td><td>Diese Hilfe anzeigen</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SortableJS (Layer-Reorder) -->
+    <script src="<?= BASE_PATH ?>assets/_ext/sortablejs/Sortable.min.js"></script>
 
     <!-- Fabric.js -->
     <script src="<?= BASE_PATH ?>assets/_ext/fabricjs/fabric.min.js"></script>

@@ -86,7 +86,8 @@
                 gallery.querySelectorAll('.btn-delete-asset').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         e.stopPropagation();
-                        if (confirm('Bild wirklich löschen?')) {
+                        const ok = await showConfirm('Bild wirklich löschen?', { title: 'Bild löschen', danger: true, confirmText: 'Löschen' });
+                        if (ok) {
                             await this.deleteAsset(parseInt(btn.dataset.id));
                             this.loadGallery();
                         }
@@ -118,6 +119,7 @@
             formData.append('file', file);
             formData.append('template_id', CONFIG.templateId);
             formData.append('asset_type', this.mode === 'background' ? 'background' : 'image');
+            window.EditorCsrf.addToFormData(formData);
 
             try {
                 const response = await fetch(CONFIG.basePath + 'api/documents/asset-upload.php', {
@@ -126,6 +128,7 @@
                 });
 
                 const result = await response.json();
+                window.EditorCsrf.handleResponse(result);
 
                 if (!result.success) {
                     throw new Error(result.error);
@@ -157,7 +160,7 @@
                 const response = await fetch(CONFIG.basePath + 'api/documents/asset-delete.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: assetId }),
+                    body: JSON.stringify(window.EditorCsrf.addToBody({ id: assetId })),
                 });
 
                 const result = await response.json();

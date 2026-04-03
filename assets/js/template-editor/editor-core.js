@@ -25,6 +25,7 @@
             this.redoStack = [];
             this.isSaving = false;
             this._isDirty = false;
+            this._clipboard = null;
             this.marginPreset = 'schmal';
             this.init();
         }
@@ -33,12 +34,27 @@
         set isDirty(val) {
             this._isDirty = val;
             this.updateDirtyIndicator();
-            // Auto-Save: 60s nach letzter Änderung
+            const indicator = document.getElementById('autosave-indicator');
+            // Auto-Save: 60s nach letzter Aenderung
             if (val) {
                 clearTimeout(this._autoSaveTimer);
+                clearInterval(this._autoSaveCountdown);
+                let remaining = 60;
+                if (indicator) indicator.textContent = 'Auto-Save in ' + remaining + 's';
+                this._autoSaveCountdown = setInterval(() => {
+                    remaining--;
+                    if (indicator) indicator.textContent = remaining > 0 ? 'Auto-Save in ' + remaining + 's' : 'Speichere...';
+                    if (remaining <= 0) clearInterval(this._autoSaveCountdown);
+                }, 1000);
                 this._autoSaveTimer = setTimeout(() => {
+                    clearInterval(this._autoSaveCountdown);
+                    if (indicator) indicator.textContent = 'Speichere...';
                     if (this._isDirty && !this.isSaving) this.save();
                 }, 60000);
+            } else {
+                clearTimeout(this._autoSaveTimer);
+                clearInterval(this._autoSaveCountdown);
+                if (indicator) indicator.textContent = '';
             }
         }
 
@@ -98,7 +114,7 @@
             hCanvas.width = w;
             hCanvas.height = 20;
             const hCtx = hCanvas.getContext('2d');
-            hCtx.fillStyle = '#1e1e2e';
+            hCtx.fillStyle = '#1e1c24';
             hCtx.fillRect(0, 0, w, 20);
             hCtx.strokeStyle = '#555';
             hCtx.fillStyle = '#888';
@@ -125,7 +141,7 @@
             vCanvas.width = 20;
             vCanvas.height = h;
             const vCtx = vCanvas.getContext('2d');
-            vCtx.fillStyle = '#1e1e2e';
+            vCtx.fillStyle = '#1e1c24';
             vCtx.fillRect(0, 0, 20, h);
             vCtx.strokeStyle = '#555';
             vCtx.fillStyle = '#888';
@@ -170,7 +186,11 @@
                 this.saveState();
                 this.isDirty = true;
                 this.updateLayerList();
-                this.onSelectionChanged();
+                // Inkrementelles Update des Properties-Panels (kein voller Rebuild)
+                const obj = this.canvas.getActiveObject();
+                if (obj) {
+                    window.PropertiesPanel?.update(obj);
+                }
             });
 
             // Kontextmenü
@@ -256,6 +276,43 @@
                 this._snapLines.forEach(l => this.canvas.remove(l));
                 this._snapLines = [];
             });
+
+            // --- Floating Text-Toolbar ---
+            this.canvas.on('text:editing:entered', (e) => {
+                this._showTextToolbar(e.target);
+            });
+            this.canvas.on('text:editing:exited', () => {
+                this._hideTextToolbar();
+            });
+            // Floating Toolbar synchron halten wenn Properties-Panel Werte aendert
+            this.canvas.on('object:modified', () => {
+                const obj = this.canvas.getActiveObject();
+                if (obj && obj.isEditing) this._updateTextToolbarState(obj);
+            });
+            // Toolbar-Position bei Bewegung aktualisieren
+            this.canvas.on('object:moving', (e) => {
+                if (e.target.isEditing) this._positionTextToolbar(e.target);
+            });
+            this._initTextToolbarButtons();
+
+            // Rotations-Snapping: Shift gehalten = 15-Grad-Schritte
+            this.canvas.on('object:rotating', (e) => {
+                if (!e.e || !e.e.shiftKey) return;
+                const obj = e.target;
+                const step = 15;
+                obj.angle = Math.round(obj.angle / step) * step;
+            });
+
+            // Ctrl+Scroll-Zoom
+            const canvasArea = document.getElementById('canvas-area');
+            if (canvasArea) {
+                canvasArea.addEventListener('wheel', (e) => {
+                    if (!e.ctrlKey) return;
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.05 : 0.05;
+                    this.setZoom(this.zoom + delta);
+                }, { passive: false });
+            }
         }
 
         bindKeyboard() {
@@ -264,7 +321,11 @@
                 const inInput = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT';
                 if (inInput && e.key !== 'Escape') return;
 
-                if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (e.key === '?' && !inInput) {
+                    e.preventDefault();
+                    const helpModal = document.getElementById('shortcutHelpModal');
+                    if (helpModal) bootstrap.Modal.getOrCreateInstance(helpModal).show();
+                } else if (e.key === 'Delete' || e.key === 'Backspace') {
                     e.preventDefault();
                     this.deleteSelected();
                 } else if (e.key === 'Escape') {
@@ -272,7 +333,7 @@
                     this.canvas.renderAll();
                 } else if (e.ctrlKey && e.key === 'a') {
                     e.preventDefault();
-                    const objs = this.canvas.getObjects().filter(o => !o._isGuide);
+                    const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine && !o._isGrid && !o.custom?.locked);
                     if (objs.length > 0) {
                         const sel = new fabric.ActiveSelection(objs, { canvas: this.canvas });
                         this.canvas.setActiveObject(sel);
@@ -287,6 +348,54 @@
                 } else if (e.ctrlKey && e.key === 'd') {
                     e.preventDefault();
                     this.duplicateSelected();
+                } else if (e.ctrlKey && e.key === 'c') {
+                    const active = this.canvas.getActiveObject();
+                    if (!active) return;
+                    e.preventDefault();
+                    active.clone(['custom']).then((cloned) => {
+                        this._clipboard = cloned;
+                    });
+                } else if (e.ctrlKey && e.key === 'x') {
+                    const active = this.canvas.getActiveObject();
+                    if (!active) return;
+                    e.preventDefault();
+                    active.clone(['custom']).then((cloned) => {
+                        this._clipboard = cloned;
+                        this.deleteSelected();
+                    });
+                } else if (e.ctrlKey && e.key === 'v') {
+                    if (!this._clipboard) return;
+                    e.preventDefault();
+                    this._clipboard.clone(['custom']).then((cloned) => {
+                        cloned.set({
+                            left: (cloned.left || 0) + 20,
+                            top: (cloned.top || 0) + 20,
+                        });
+                        if (cloned.type === 'activeSelection' || cloned.type === 'activeselection') {
+                            cloned.canvas = this.canvas;
+                            cloned.forEachObject((obj) => {
+                                this.canvas.add(obj);
+                            });
+                            cloned.setCoords();
+                        } else {
+                            this.canvas.add(cloned);
+                        }
+                        // Update clipboard position for consecutive pastes
+                        this._clipboard.set({
+                            left: (this._clipboard.left || 0) + 20,
+                            top: (this._clipboard.top || 0) + 20,
+                        });
+                        this.canvas.setActiveObject(cloned);
+                        this.canvas.renderAll();
+                        this.saveState();
+                        this.isDirty = true;
+                    });
+                } else if (e.ctrlKey && e.shiftKey && e.key === 'G') {
+                    e.preventDefault();
+                    this.ungroupSelected();
+                } else if (e.ctrlKey && e.key === 'g') {
+                    e.preventDefault();
+                    this.groupSelected();
                 } else if (e.ctrlKey && e.key === 's') {
                     e.preventDefault();
                     this.save();
@@ -467,6 +576,9 @@
                 this.canvas.renderAll();
                 this.saveState();
                 this.isDirty = true;
+                // Remove-Button anzeigen
+                const rmBtn = document.getElementById('btn-remove-background');
+                if (rmBtn) rmBtn.style.display = '';
             }).catch((err) => {
                 console.warn('Hintergrundbild konnte nicht geladen werden:', err);
             });
@@ -477,6 +589,8 @@
             this.canvas.renderAll();
             this.saveState();
             this.isDirty = true;
+            const rmBtn = document.getElementById('btn-remove-background');
+            if (rmBtn) rmBtn.style.display = 'none';
         }
 
         addBlock(objects) {
@@ -551,6 +665,148 @@
             });
         }
 
+        // --- Style Painter (Format uebertragen) ---
+
+        _stylePainterProps = ['fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'underline', 'fill', 'textAlign', 'lineHeight', 'opacity'];
+        _stylePainterData = null;
+        _stylePainterActive = false;
+        _stylePainterSticky = false; // true = bleibt aktiv fuer mehrere Elemente
+
+        activateStylePainter() {
+            const active = this.canvas.getActiveObject();
+            if (!active) {
+                if (window.showToast) window.showToast('Zuerst ein Element ausw\u00e4hlen', 'warning');
+                return;
+            }
+
+            // Stil kopieren
+            this._stylePainterData = {};
+            this._stylePainterProps.forEach(p => {
+                if (active[p] !== undefined) this._stylePainterData[p] = active[p];
+            });
+
+            this._stylePainterActive = true;
+            this.canvas.defaultCursor = 'crosshair';
+            this.canvas.hoverCursor = 'crosshair';
+
+            const btn = document.getElementById('btn-style-painter');
+            if (btn) btn.classList.add('active', 'btn-warning');
+
+            // Einmal-Klick auf naechstes Element
+            this._stylePainterHandler = (e) => {
+                if (!e.target || e.target._isGuide || e.target._isSnapLine || e.target._isGrid) return;
+                this._applyPainterStyle(e.target);
+                if (!this._stylePainterSticky) {
+                    this.deactivateStylePainter();
+                }
+            };
+            this.canvas.on('mouse:down', this._stylePainterHandler);
+        }
+
+        _applyPainterStyle(obj) {
+            if (!this._stylePainterData || !obj) return;
+            const data = this._stylePainterData;
+            const props = {};
+            this._stylePainterProps.forEach(p => {
+                if (data[p] !== undefined && obj[p] !== undefined) props[p] = data[p];
+            });
+            obj.set(props);
+            this.canvas.renderAll();
+            this.saveState();
+            this.isDirty = true;
+        }
+
+        deactivateStylePainter() {
+            this._stylePainterActive = false;
+            this._stylePainterSticky = false;
+            this._stylePainterData = null;
+            this.canvas.defaultCursor = 'default';
+            this.canvas.hoverCursor = 'move';
+            if (this._stylePainterHandler) {
+                this.canvas.off('mouse:down', this._stylePainterHandler);
+                this._stylePainterHandler = null;
+            }
+            const btn = document.getElementById('btn-style-painter');
+            if (btn) btn.classList.remove('active', 'btn-warning');
+        }
+
+        // --- Alle unplatzierten Felder einfuegen ---
+
+        addAllUnplacedFields() {
+            const fields = CONFIG.fields || [];
+            if (fields.length === 0) return;
+
+            // Bereits platzierte Felder ermitteln
+            const placed = new Set();
+            this.canvas.getObjects().forEach(obj => {
+                if (obj.custom?.fieldName) placed.add(obj.custom.fieldName);
+            });
+
+            const unplaced = fields.filter(f => !placed.has(f.field_name));
+            if (unplaced.length === 0) {
+                if (window.showToast) window.showToast('Alle Felder sind bereits platziert', 'info');
+                return;
+            }
+
+            // Startposition: unterhalb des letzten Elements oder bei 100mm
+            const objects = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine && !o._isGrid);
+            let startY = 100 * PX_PER_MM; // Default 100mm
+            if (objects.length > 0) {
+                const maxBottom = Math.max(...objects.map(o => (o.top || 0) + ((o.height || 0) * (o.scaleY || 1))));
+                startY = maxBottom + 10 * PX_PER_MM; // 10mm Abstand
+            }
+
+            const leftMargin = this.margins.left;
+            let y = startY;
+
+            unplaced.forEach(f => {
+                this.addFieldPlaceholder(f.field_name, f.field_label, {
+                    left: leftMargin,
+                    top: y,
+                    width: 250,
+                    fontSize: Math.round(11 * window.EditorUtils.PT_TO_PX),
+                });
+                y += 12 * PX_PER_MM; // 12mm pro Feld
+            });
+
+            this.saveState();
+            this.isDirty = true;
+            if (window.showToast) window.showToast(unplaced.length + ' Felder eingefügt', 'success');
+        }
+
+        // --- Gruppierung ---
+
+        groupSelected() {
+            const active = this.canvas.getActiveObject();
+            if (!active || active.type !== 'activeSelection') return;
+
+            const objects = active.getObjects();
+            if (objects.length < 2) return;
+
+            // Fabric.js v7: ActiveSelection → Group
+            const group = active.toGroup();
+            group.custom = { elementType: 'block' };
+
+            this.canvas.setActiveObject(group);
+            this.canvas.renderAll();
+            this.saveState();
+            this.isDirty = true;
+            this.updateLayerList();
+        }
+
+        ungroupSelected() {
+            const active = this.canvas.getActiveObject();
+            if (!active || active.type !== 'group') return;
+
+            // Fabric.js v7: Group → ActiveSelection
+            const selection = active.toActiveSelection();
+            this.canvas.setActiveObject(selection);
+            this.canvas.renderAll();
+            this.saveState();
+            this.isDirty = true;
+            this.updateLayerList();
+        }
+
         // --- Alignment (mit realistischen Seitenrändern) ---
 
         static MARGIN_PRESETS = {
@@ -596,45 +852,127 @@
         }
 
         alignObject(alignment) {
-            const obj = this.canvas.getActiveObject();
-            if (!obj) return;
+            const active = this.canvas.getActiveObject();
+            if (!active) return;
 
+            // Distribute: benoetigt 3+ Objekte in einer ActiveSelection
+            if (alignment === 'distribute-h' || alignment === 'distribute-v') {
+                this.distributeObjects(alignment === 'distribute-h' ? 'horizontal' : 'vertical');
+                return;
+            }
+
+            // Multi-Select: Ausrichtung relativ zur Selektion
+            if (active.type === 'activeSelection' || active.type === 'activeselection') {
+                this._alignMultiple(active, alignment);
+                return;
+            }
+
+            // Einzel-Objekt: Ausrichtung relativ zur Druckflaeche
             const p = this.printArea;
-            const objW = (obj.width || 0) * (obj.scaleX || 1);
-            const objH = (obj.height || 0) * (obj.scaleY || 1);
+            const objW = (active.width || 0) * (active.scaleX || 1);
+            const objH = (active.height || 0) * (active.scaleY || 1);
 
             switch (alignment) {
-                case 'left':
-                    obj.set('left', p.left);
-                    break;
-                case 'center-h':
-                    obj.set('left', p.centerX - objW / 2);
-                    break;
-                case 'right':
-                    obj.set('left', p.right - objW);
-                    break;
-                case 'top':
-                    obj.set('top', p.top);
-                    break;
-                case 'center-v':
-                    obj.set('top', p.centerY - objH / 2);
-                    break;
-                case 'bottom':
-                    obj.set('top', p.bottom - objH);
-                    break;
+                case 'left':       active.set('left', p.left); break;
+                case 'center-h':   active.set('left', p.centerX - objW / 2); break;
+                case 'right':      active.set('left', p.right - objW); break;
+                case 'top':        active.set('top', p.top); break;
+                case 'center-v':   active.set('top', p.centerY - objH / 2); break;
+                case 'bottom':     active.set('top', p.bottom - objH); break;
                 case 'page-center':
-                    obj.set({
-                        left: p.centerX - objW / 2,
-                        top: p.centerY - objH / 2,
-                    });
+                    active.set({ left: p.centerX - objW / 2, top: p.centerY - objH / 2 });
                     break;
             }
 
-            obj.setCoords();
+            active.setCoords();
             this.canvas.renderAll();
             this.saveState();
             this.isDirty = true;
-            window.EditorEvents?.emit('selection:changed', obj);
+            window.EditorEvents?.emit('selection:changed', active);
+        }
+
+        /** Richtet mehrere selektierte Objekte relativ zueinander aus */
+        _alignMultiple(selection, alignment) {
+            const objects = selection.getObjects();
+            if (objects.length < 2) return;
+
+            // Berechne Bounding-Box der Selektion
+            const bounds = {
+                left:   Math.min(...objects.map(o => o.left)),
+                top:    Math.min(...objects.map(o => o.top)),
+                right:  Math.max(...objects.map(o => o.left + (o.width || 0) * (o.scaleX || 1))),
+                bottom: Math.max(...objects.map(o => o.top + (o.height || 0) * (o.scaleY || 1))),
+            };
+            bounds.centerX = (bounds.left + bounds.right) / 2;
+            bounds.centerY = (bounds.top + bounds.bottom) / 2;
+
+            objects.forEach(obj => {
+                const w = (obj.width || 0) * (obj.scaleX || 1);
+                const h = (obj.height || 0) * (obj.scaleY || 1);
+                switch (alignment) {
+                    case 'left':       obj.set('left', bounds.left); break;
+                    case 'center-h':   obj.set('left', bounds.centerX - w / 2); break;
+                    case 'right':      obj.set('left', bounds.right - w); break;
+                    case 'top':        obj.set('top', bounds.top); break;
+                    case 'center-v':   obj.set('top', bounds.centerY - h / 2); break;
+                    case 'bottom':     obj.set('top', bounds.bottom - h); break;
+                    case 'page-center': {
+                        const p = this.printArea;
+                        obj.set({ left: p.centerX - w / 2, top: p.centerY - h / 2 });
+                        break;
+                    }
+                }
+                obj.setCoords();
+            });
+
+            selection.setCoords();
+            this.canvas.renderAll();
+            this.saveState();
+            this.isDirty = true;
+        }
+
+        /** Verteilt 3+ Objekte gleichmaessig horizontal oder vertikal */
+        distributeObjects(direction) {
+            const active = this.canvas.getActiveObject();
+            if (!active || (active.type !== 'activeSelection' && active.type !== 'activeselection')) return;
+
+            const objects = active.getObjects();
+            if (objects.length < 3) return;
+
+            if (direction === 'horizontal') {
+                const sorted = [...objects].sort((a, b) => a.left - b.left);
+                const first = sorted[0].left;
+                const lastObj = sorted[sorted.length - 1];
+                const last = lastObj.left + (lastObj.width || 0) * (lastObj.scaleX || 1);
+                const totalWidth = sorted.reduce((sum, o) => sum + (o.width || 0) * (o.scaleX || 1), 0);
+                const gap = (last - first - totalWidth) / (sorted.length - 1);
+
+                let x = first;
+                sorted.forEach(obj => {
+                    obj.set('left', x);
+                    obj.setCoords();
+                    x += (obj.width || 0) * (obj.scaleX || 1) + gap;
+                });
+            } else {
+                const sorted = [...objects].sort((a, b) => a.top - b.top);
+                const first = sorted[0].top;
+                const lastObj = sorted[sorted.length - 1];
+                const last = lastObj.top + (lastObj.height || 0) * (lastObj.scaleY || 1);
+                const totalHeight = sorted.reduce((sum, o) => sum + (o.height || 0) * (o.scaleY || 1), 0);
+                const gap = (last - first - totalHeight) / (sorted.length - 1);
+
+                let y = first;
+                sorted.forEach(obj => {
+                    obj.set('top', y);
+                    obj.setCoords();
+                    y += (obj.height || 0) * (obj.scaleY || 1) + gap;
+                });
+            }
+
+            active.setCoords();
+            this.canvas.renderAll();
+            this.saveState();
+            this.isDirty = true;
         }
 
         // --- Hilfslinien (Seitenränder + Raster) ---
@@ -685,6 +1023,46 @@
             this.canvas.renderAll();
         }
 
+        drawGrid(show) {
+            // Entferne bestehende Grid-Linien
+            this.canvas.getObjects().forEach(obj => {
+                if (obj._isGrid) this.canvas.remove(obj);
+            });
+
+            if (!show) {
+                this.canvas.renderAll();
+                return;
+            }
+
+            const gridMm = 10;
+            const gridPx = gridMm * PX_PER_MM;
+            const lineProps = {
+                stroke: 'rgba(255, 255, 255, 0.06)',
+                strokeWidth: 0.5,
+                selectable: false,
+                evented: false,
+                excludeFromExport: true,
+                _isGrid: true,
+            };
+
+            // Vertikale Linien
+            for (let x = gridPx; x < CONFIG.canvasWidth; x += gridPx) {
+                this.canvas.add(new fabric.Line([x, 0, x, CONFIG.canvasHeight], lineProps));
+            }
+            // Horizontale Linien
+            for (let y = gridPx; y < CONFIG.canvasHeight; y += gridPx) {
+                this.canvas.add(new fabric.Line([0, y, CONFIG.canvasWidth, y], lineProps));
+            }
+
+            // Grid-Linien ganz nach hinten
+            this.canvas.getObjects().filter(o => o._isGrid).forEach(g => {
+                const fn = this.canvas.sendToBack || this.canvas.sendObjectToBack;
+                if (fn) fn.call(this.canvas, g);
+            });
+
+            this.canvas.renderAll();
+        }
+
         bringForward() {
             const active = this.canvas.getActiveObject();
             if (!active) return;
@@ -701,6 +1079,80 @@
             const fn = this.canvas.sendBackwards || this.canvas.sendObjectBackwards;
             if (fn) fn.call(this.canvas, active);
             this.updateLayerList();
+        }
+
+        // --- Element Locking ---
+
+        toggleLock(obj) {
+            if (!obj) return;
+            const custom = obj.custom || {};
+            const newLocked = !custom.locked;
+
+            // Custom-Metadaten aktualisieren
+            obj.custom = { ...custom, locked: newLocked };
+
+            // Fabric.js-Properties setzen
+            obj.set({
+                selectable: !newLocked,
+                evented: !newLocked,
+                hasControls: !newLocked,
+                hasBorders: !newLocked,
+                lockMovementX: newLocked,
+                lockMovementY: newLocked,
+            });
+
+            // Falls das gesperrte Objekt gerade selektiert ist, Selektion aufheben
+            if (newLocked && this.canvas.getActiveObject() === obj) {
+                this.canvas.discardActiveObject();
+            }
+
+            this.canvas.renderAll();
+            this.updateLayerList();
+            this.saveState();
+            this.isDirty = true;
+            if (window.showToast) {
+                window.showToast(newLocked ? 'Element gesperrt' : 'Element entsperrt', 'info');
+            }
+        }
+
+        toggleVisibility(obj) {
+            if (!obj) return;
+            const newVisible = !obj.visible || obj.visible === undefined ? false : true;
+            // Umkehren: wenn sichtbar → unsichtbar, wenn unsichtbar → sichtbar
+            obj.visible = obj.visible === false ? true : false;
+
+            if (!obj.visible && this.canvas.getActiveObject() === obj) {
+                this.canvas.discardActiveObject();
+            }
+
+            this.canvas.renderAll();
+            this.updateLayerList();
+            this.isDirty = true;
+        }
+
+        /** Macht alle versteckten Elemente vor dem Speichern wieder sichtbar */
+        _restoreVisibility() {
+            this.canvas.getObjects().forEach(obj => {
+                if (obj.visible === false && !obj._isGuide && !obj._isSnapLine && !obj._isGrid) {
+                    obj.visible = true;
+                }
+            });
+        }
+
+        /** Stellt Lock-Status nach dem Laden eines Layouts wieder her */
+        _restoreLockStates() {
+            this.canvas.getObjects().forEach(obj => {
+                if (obj.custom?.locked) {
+                    obj.set({
+                        selectable: false,
+                        evented: false,
+                        hasControls: false,
+                        hasBorders: false,
+                        lockMovementX: true,
+                        lockMovementY: true,
+                    });
+                }
+            });
         }
 
         // --- Undo / Redo ---
@@ -723,6 +1175,7 @@
             const prev = this.undoStack[this.undoStack.length - 1];
             // v6: loadFromJSON returns Promise
             this.canvas.loadFromJSON(JSON.parse(prev)).then(() => {
+                this._restoreLockStates();
                 this.canvas.renderAll();
                 this.updateLayerList();
                 this.isDirty = true;
@@ -734,6 +1187,7 @@
             const state = this.redoStack.pop();
             this.undoStack.push(state);
             this.canvas.loadFromJSON(JSON.parse(state)).then(() => {
+                this._restoreLockStates();
                 this.canvas.renderAll();
                 this.updateLayerList();
                 this.isDirty = true;
@@ -751,27 +1205,33 @@
             const activeObjects = this.canvas.getActiveObjects();
 
             let html = '';
+            let visibleCount = 0;
             for (let i = objects.length - 1; i >= 0; i--) {
                 const obj = objects[i];
-                // Hilfslinien und Snap-Linien nicht in der Layer-Liste anzeigen
-                if (obj._isGuide || obj._isSnapLine) continue;
+                if (obj._isGuide || obj._isSnapLine || obj._isGrid) continue;
+                visibleCount++;
                 const custom = obj.custom || {};
                 const isActive = obj === active || activeObjects.includes(obj);
+                const isLocked = !!(custom.locked);
                 let icon = 'fa-solid fa-question';
                 let label = 'Element';
+                let typeBadge = '';
 
                 switch (custom.elementType) {
                     case 'static_text':
                         icon = 'fa-solid fa-font';
-                        label = (obj.text || '').substring(0, 25) || 'Text';
+                        label = (obj.text || '').substring(0, 20) || 'Text';
                         break;
                     case 'field_placeholder':
                         icon = 'fa-solid fa-i-cursor';
+                        // Zeige den Feldlabel statt nur "Feld"
                         label = custom.fieldLabel || custom.fieldName || 'Feld';
+                        typeBadge = '<span class="layer-type-badge bg-primary bg-opacity-25 text-primary-emphasis">Feld</span>';
                         break;
                     case 'system_var':
                         icon = 'fa-solid fa-gear';
                         label = custom.varName || 'System';
+                        typeBadge = '<span class="layer-type-badge bg-info bg-opacity-25 text-info-emphasis">Sys</span>';
                         break;
                     case 'image':
                     case 'system_image':
@@ -793,33 +1253,123 @@
                     default:
                         if (obj.text !== undefined) {
                             icon = 'fa-solid fa-font';
-                            label = (obj.text || '').substring(0, 25) || 'Text';
+                            label = (obj.text || '').substring(0, 20) || 'Text';
                         } else if (obj.getSrc) {
                             icon = 'fa-solid fa-image';
                             label = 'Bild';
                         }
                 }
 
-                html += '<div class="layer-item' + (isActive ? ' active' : '') + '" data-index="' + i + '">'
+                const lockIcon = isLocked ? 'fa-lock' : 'fa-lock-open';
+                const lockClass = isLocked ? ' locked' : '';
+                const isHidden = obj.visible === false;
+                const eyeIcon = isHidden ? 'fa-eye-slash' : 'fa-eye';
+                const eyeClass = isHidden ? ' hidden' : '';
+                const dimClass = (isLocked || isHidden) ? ' opacity-50' : '';
+
+                html += '<div class="layer-item' + (isActive ? ' active' : '') + dimClass + '" data-index="' + i + '">'
                     + '<i class="' + icon + '"></i>'
-                    + '<span class="text-truncate">' + this.escapeHtml(label) + '</span>'
+                    + '<span class="text-truncate layer-label">' + this.escapeHtml(label) + '</span>'
+                    + typeBadge
+                    + '<i class="fa-solid ' + eyeIcon + ' layer-vis-btn' + eyeClass + '" data-vis-index="' + i + '" title="' + (isHidden ? 'Einblenden' : 'Ausblenden') + '"></i>'
+                    + '<i class="fa-solid ' + lockIcon + ' layer-lock-btn' + lockClass + '" data-lock-index="' + i + '" title="' + (isLocked ? 'Entsperren' : 'Sperren') + '"></i>'
                     + '</div>';
             }
 
             container.innerHTML = html || '<div class="text-muted" style="font-size:0.8rem;padding:0.5rem;">Keine Elemente</div>';
 
+            // Layer-Count Badge aktualisieren
+            const countBadge = document.getElementById('layer-count');
+            if (countBadge) countBadge.textContent = visibleCount;
+
             // Feld-Status in der Sidebar aktualisieren
             if (window.ElementLibrary) window.ElementLibrary.updateFieldStatus();
 
             container.querySelectorAll('.layer-item').forEach(item => {
-                item.addEventListener('click', () => {
+                item.addEventListener('click', (e) => {
+                    if (e.target.closest('.layer-lock-btn') || e.target.closest('.layer-vis-btn')) return;
                     const idx = parseInt(item.dataset.index);
                     const obj = objects[idx];
-                    if (obj) {
+                    if (obj && !(obj.custom?.locked)) {
                         this.canvas.setActiveObject(obj);
                         this.canvas.renderAll();
                     }
                 });
+            });
+
+            // Visibility Buttons
+            container.querySelectorAll('.layer-vis-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = parseInt(btn.dataset.visIndex);
+                    const obj = objects[idx];
+                    if (!obj) return;
+                    this.toggleVisibility(obj);
+                });
+            });
+
+            // Lock/Unlock Buttons
+            container.querySelectorAll('.layer-lock-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const idx = parseInt(btn.dataset.lockIndex);
+                    const obj = objects[idx];
+                    if (!obj) return;
+                    this.toggleLock(obj);
+                });
+            });
+
+            // SortableJS fuer Drag-Reorder der Ebenen
+            this._initLayerSortable(container, objects);
+        }
+
+        /** Initialisiert SortableJS auf dem Layer-Container */
+        _initLayerSortable(container, objects) {
+            if (this._layerSortable) {
+                this._layerSortable.destroy();
+                this._layerSortable = null;
+            }
+
+            if (typeof Sortable === 'undefined') return;
+
+            const filteredObjects = objects.filter(o => !o._isGuide && !o._isSnapLine);
+
+            this._layerSortable = new Sortable(container, {
+                animation: 150,
+                ghostClass: 'layer-item-ghost',
+                chosenClass: 'layer-item-chosen',
+                dragClass: 'layer-item-drag',
+                handle: '.layer-item',
+                onEnd: (evt) => {
+                    const oldVisualIdx = evt.oldIndex;
+                    const newVisualIdx = evt.newIndex;
+                    if (oldVisualIdx === newVisualIdx) return;
+
+                    // Layer-Liste ist top-to-bottom = hoechster Z-Index zuerst
+                    // filteredObjects ist reversed (hoechstes zuerst)
+                    const reversed = [...filteredObjects].reverse();
+                    const movedObj = reversed[oldVisualIdx];
+                    if (!movedObj) return;
+
+                    // Berechne den neuen Fabric.js-Index
+                    // Visual index 0 = hoechster Z = letzter in canvas.getObjects()
+                    const allObjects = this.canvas.getObjects();
+                    const targetVisualObj = reversed[newVisualIdx];
+                    const targetFabricIdx = targetVisualObj ? allObjects.indexOf(targetVisualObj) : 0;
+
+                    // Fabric.js v7: moveObjectTo
+                    if (this.canvas.moveObjectTo) {
+                        this.canvas.moveObjectTo(movedObj, targetFabricIdx);
+                    } else {
+                        // Fallback: remove + insertAt
+                        this.canvas.remove(movedObj);
+                        this.canvas.insertAt(targetFabricIdx, movedObj);
+                    }
+
+                    this.canvas.renderAll();
+                    this.saveState();
+                    this.isDirty = true;
+                },
             });
         }
 
@@ -828,6 +1378,9 @@
         async save() {
             if (this.isSaving) return;
             this.isSaving = true;
+
+            // Versteckte Elemente temporaer sichtbar machen fuer den Export
+            this._restoreVisibility();
 
             const btn = document.getElementById('btn-save');
             const origHtml = btn.innerHTML;
@@ -841,13 +1394,14 @@
                 const response = await fetch(CONFIG.basePath + 'api/documents/layout-save.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
+                    body: JSON.stringify(window.EditorCsrf.addToBody({
                         template_id: CONFIG.templateId,
                         canvas_json: JSON.stringify(json),
-                    }),
+                    })),
                 });
 
                 const result = await response.json();
+                window.EditorCsrf.handleResponse(result);
 
                 if (result.success) {
                     this.isDirty = false;
@@ -860,7 +1414,7 @@
             } catch (err) {
                 console.error('Save error:', err);
                 if (window.showToast) {
-                    window.showToast('Fehler beim Speichern: ' + err.message, 'danger');
+                    window.showToast('Fehler beim Speichern: ' + err.message + ' — <a href="#" onclick="window.TemplateEditor.save();return false;" style="color:inherit;text-decoration:underline;">Erneut versuchen</a>', 'danger');
                 }
             } finally {
                 btn.innerHTML = origHtml;
@@ -870,6 +1424,9 @@
         }
 
         async loadLayout() {
+            const overlay = document.getElementById('canvas-loading');
+            if (overlay) overlay.style.display = 'flex';
+
             try {
                 const response = await fetch(CONFIG.basePath + 'api/documents/layout-get.php?template_id=' + CONFIG.templateId);
                 const result = await response.json();
@@ -877,15 +1434,20 @@
                 if (result.success && result.layout && result.layout.canvas_json) {
                     const json = JSON.parse(result.layout.canvas_json);
                     await this.canvas.loadFromJSON(json);
+                    this._restoreLockStates();
                     this.canvas.renderAll();
                     this.updateLayerList();
                     this.undoStack = [JSON.stringify(json)];
                 } else {
-                    // Kein Layout vorhanden → Standard-Vorlage laden
                     this.loadDefaultTemplate();
                 }
             } catch (err) {
                 console.error('Load error:', err);
+                if (window.showToast) {
+                    window.showToast('Layout konnte nicht geladen werden: ' + err.message, 'danger');
+                }
+            } finally {
+                if (overlay) overlay.style.display = 'none';
             }
         }
 
@@ -1005,6 +1567,182 @@
 
         // --- Kontextmenü ---
 
+        // --- Floating Text Toolbar ---
+
+        _showTextToolbar(obj) {
+            const toolbar = document.getElementById('text-floating-toolbar');
+            if (!toolbar) return;
+            toolbar.style.display = 'flex';
+            this._positionTextToolbar(obj);
+            this._updateTextToolbarState(obj);
+        }
+
+        _hideTextToolbar() {
+            const toolbar = document.getElementById('text-floating-toolbar');
+            if (toolbar) toolbar.style.display = 'none';
+        }
+
+        _positionTextToolbar(obj) {
+            const toolbar = document.getElementById('text-floating-toolbar');
+            if (!toolbar || !obj) return;
+
+            const canvasEl = this.canvas.upperCanvasEl;
+            const canvasRect = canvasEl.getBoundingClientRect();
+
+            // Position ueber dem Objekt
+            const objLeft = obj.left * this.zoom;
+            const objTop = obj.top * this.zoom;
+            const objWidth = (obj.width || 0) * (obj.scaleX || 1) * this.zoom;
+
+            let x = canvasRect.left + objLeft + objWidth / 2 - toolbar.offsetWidth / 2;
+            let y = canvasRect.top + objTop - toolbar.offsetHeight - 8;
+
+            // Clamp: nicht ueber den oberen Bildschirmrand
+            if (y < 5) y = canvasRect.top + objTop + ((obj.height || 0) * (obj.scaleY || 1) * this.zoom) + 8;
+            // Clamp: nicht ueber den linken/rechten Rand
+            x = Math.max(5, Math.min(x, window.innerWidth - toolbar.offsetWidth - 5));
+
+            toolbar.style.left = x + 'px';
+            toolbar.style.top = y + 'px';
+        }
+
+        _updateTextToolbarState(obj) {
+            if (!obj) return;
+            const toolbar = document.getElementById('text-floating-toolbar');
+            if (!toolbar) return;
+
+            // Bold/Italic/Underline active state
+            toolbar.querySelector('[data-tft-action="bold"]')?.classList.toggle('active', obj.fontWeight === 'bold');
+            toolbar.querySelector('[data-tft-action="italic"]')?.classList.toggle('active', obj.fontStyle === 'italic');
+            toolbar.querySelector('[data-tft-action="underline"]')?.classList.toggle('active', !!obj.underline);
+
+            // Alignment active state
+            ['left', 'center', 'right'].forEach(a => {
+                toolbar.querySelector('[data-tft-action="align-' + a + '"]')?.classList.toggle('active', obj.textAlign === a);
+            });
+
+            // Font size (pt)
+            const sizeSelect = toolbar.querySelector('[data-tft-action="fontSize"]');
+            if (sizeSelect) {
+                const ptSize = Math.round((obj.fontSize || 14) / window.EditorUtils.PT_TO_PX);
+                sizeSelect.value = ptSize;
+            }
+        }
+
+        _initTextToolbarButtons() {
+            const toolbar = document.getElementById('text-floating-toolbar');
+            if (!toolbar) return;
+
+            toolbar.querySelectorAll('.tft-btn').forEach(btn => {
+                btn.addEventListener('mousedown', (e) => {
+                    e.preventDefault(); // Verhindert Fokus-Verlust aus der Textbox
+                    e.stopPropagation();
+                    const obj = this.canvas.getActiveObject();
+                    if (!obj || !obj.isEditing) return;
+
+                    const action = btn.dataset.tftAction;
+                    switch (action) {
+                        case 'bold':
+                            obj.set('fontWeight', obj.fontWeight === 'bold' ? 'normal' : 'bold');
+                            btn.classList.toggle('active');
+                            break;
+                        case 'italic':
+                            obj.set('fontStyle', obj.fontStyle === 'italic' ? 'normal' : 'italic');
+                            btn.classList.toggle('active');
+                            break;
+                        case 'underline':
+                            obj.set('underline', !obj.underline);
+                            btn.classList.toggle('active');
+                            break;
+                        case 'align-left':
+                        case 'align-center':
+                        case 'align-right':
+                            const align = action.replace('align-', '');
+                            obj.set('textAlign', align);
+                            toolbar.querySelectorAll('[data-tft-action^="align-"]').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                            break;
+                    }
+                    this.canvas.renderAll();
+                    this.isDirty = true;
+                    this.saveState();
+                });
+            });
+
+            // Font size dropdown
+            const sizeSelect = toolbar.querySelector('[data-tft-action="fontSize"]');
+            if (sizeSelect) {
+                sizeSelect.addEventListener('change', (e) => {
+                    const obj = this.canvas.getActiveObject();
+                    if (!obj) return;
+                    // pt → px
+                    obj.set('fontSize', Math.round(parseFloat(e.target.value) * window.EditorUtils.PT_TO_PX * 10) / 10);
+                    this.canvas.renderAll();
+                    this.isDirty = true;
+                    this.saveState();
+                });
+                // Prevent focus loss
+                sizeSelect.addEventListener('mousedown', (e) => e.stopPropagation());
+            }
+
+            // Variable-Insert Dropdown
+            document.querySelectorAll('.tft-var-insert').forEach(item => {
+                item.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const varName = item.dataset.var;
+                    const obj = this.canvas.getActiveObject();
+                    if (!obj || !obj.isEditing) return;
+
+                    // Text an Cursor-Position einfuegen
+                    const insertText = '{{ ' + varName + ' }}';
+                    const selStart = obj.selectionStart || 0;
+                    const before = obj.text.substring(0, selStart);
+                    const after = obj.text.substring(obj.selectionEnd || selStart);
+                    obj.text = before + insertText + after;
+                    obj.selectionStart = obj.selectionEnd = selStart + insertText.length;
+                    obj.dirty = true;
+                    this.canvas.renderAll();
+                    this.isDirty = true;
+
+                    // Auch Template-spezifische Felder zum Dropdown hinzufuegen (einmalig)
+                });
+            });
+
+            // Template-Felder zum Variable-Dropdown hinzufuegen
+            const varDropdown = document.getElementById('tft-var-dropdown');
+            if (varDropdown && CONFIG.fields?.length > 0) {
+                const header = document.createElement('li');
+                header.innerHTML = '<span class="dropdown-header" style="font-size:0.68rem;">Template-Felder</span>';
+                varDropdown.appendChild(header);
+                CONFIG.fields.forEach(f => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.className = 'dropdown-item tft-var-insert';
+                    a.href = '#';
+                    a.dataset.var = f.field_name;
+                    a.textContent = f.field_label;
+                    a.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const obj = this.canvas.getActiveObject();
+                        if (!obj || !obj.isEditing) return;
+                        const insertText = '{{ ' + f.field_name + ' }}';
+                        const selStart = obj.selectionStart || 0;
+                        const before = obj.text.substring(0, selStart);
+                        const after = obj.text.substring(obj.selectionEnd || selStart);
+                        obj.text = before + insertText + after;
+                        obj.selectionStart = obj.selectionEnd = selStart + insertText.length;
+                        obj.dirty = true;
+                        this.canvas.renderAll();
+                        this.isDirty = true;
+                    });
+                    li.appendChild(a);
+                    varDropdown.appendChild(li);
+                });
+            }
+        }
+
         showContextMenu(x, y, hasTarget) {
             this.hideContextMenu();
             const menu = document.createElement('div');
@@ -1015,10 +1753,16 @@
             const item = (icon, label, action, disabled = false) =>
                 `<a class="dropdown-item${disabled ? ' disabled' : ''}" href="#" data-ctx="${action}"><i class="fa-solid ${icon} me-2" style="width:16px;"></i>${label}</a>`;
 
+            const shortcut = (key) => `<span style="float:right;opacity:0.5;font-size:0.75em;margin-left:1rem;">${key}</span>`;
+
             let html = '';
             if (hasTarget) {
-                html += item('fa-copy', 'Duplizieren', 'duplicate');
-                html += item('fa-trash', 'Löschen', 'delete');
+                html += item('fa-copy', 'Kopieren' + shortcut('Ctrl+C'), 'copy');
+                html += item('fa-scissors', 'Ausschneiden' + shortcut('Ctrl+X'), 'cut');
+                html += item('fa-paste', 'Einf\u00fcgen' + shortcut('Ctrl+V'), 'paste', !this._clipboard);
+                html += '<li><hr class="dropdown-divider"></li>';
+                html += item('fa-clone', 'Duplizieren' + shortcut('Ctrl+D'), 'duplicate');
+                html += item('fa-trash', 'L\u00f6schen' + shortcut('Entf'), 'delete');
                 html += '<li><hr class="dropdown-divider"></li>';
                 html += item('fa-layer-group', 'Nach vorne', 'bring-front');
                 html += item('fa-layer-group', 'Nach hinten', 'send-back');
@@ -1026,9 +1770,21 @@
                 html += item('fa-align-center', 'Horizontal zentrieren', 'center-h');
                 html += item('fa-arrows-up-down', 'Vertikal zentrieren', 'center-v');
                 html += item('fa-crosshairs', 'Seitenmitte', 'page-center');
+                html += '<li><hr class="dropdown-divider"></li>';
+                const activeObj = this.canvas.getActiveObject();
+                // Gruppieren / Auflösen
+                if (activeObj?.type === 'activeSelection' || activeObj?.type === 'activeselection') {
+                    html += item('fa-object-group', 'Gruppieren' + shortcut('Ctrl+G'), 'group');
+                } else if (activeObj?.type === 'group') {
+                    html += item('fa-object-ungroup', 'Gruppe aufl\u00f6sen' + shortcut('Ctrl+Shift+G'), 'ungroup');
+                }
+                const isLocked = activeObj?.custom?.locked;
+                html += item(isLocked ? 'fa-lock-open' : 'fa-lock', isLocked ? 'Entsperren' : 'Sperren', 'toggle-lock');
             } else {
-                html += item('fa-paste', 'Text einfügen', 'paste-text');
-                html += item('fa-arrows-to-dot', 'Alle auswählen', 'select-all');
+                html += item('fa-paste', 'Einf\u00fcgen' + shortcut('Ctrl+V'), 'paste', !this._clipboard);
+                html += item('fa-font', 'Text einf\u00fcgen', 'paste-text');
+                html += '<li><hr class="dropdown-divider"></li>';
+                html += item('fa-arrows-to-dot', 'Alle ausw\u00e4hlen' + shortcut('Ctrl+A'), 'select-all');
             }
 
             menu.innerHTML = html;
@@ -1044,6 +1800,41 @@
                     e.preventDefault();
                     this.hideContextMenu();
                     switch (btn.dataset.ctx) {
+                        case 'copy': {
+                            const active = this.canvas.getActiveObject();
+                            if (active) active.clone(['custom']).then(c => { this._clipboard = c; });
+                            break;
+                        }
+                        case 'cut': {
+                            const active = this.canvas.getActiveObject();
+                            if (active) active.clone(['custom']).then(c => { this._clipboard = c; this.deleteSelected(); });
+                            break;
+                        }
+                        case 'paste': {
+                            if (!this._clipboard) break;
+                            this._clipboard.clone(['custom']).then(cloned => {
+                                cloned.set({ left: (cloned.left || 0) + 20, top: (cloned.top || 0) + 20 });
+                                if (cloned.type === 'activeSelection' || cloned.type === 'activeselection') {
+                                    cloned.canvas = this.canvas;
+                                    cloned.forEachObject(o => this.canvas.add(o));
+                                } else {
+                                    this.canvas.add(cloned);
+                                }
+                                this._clipboard.set({ left: (this._clipboard.left || 0) + 20, top: (this._clipboard.top || 0) + 20 });
+                                this.canvas.setActiveObject(cloned);
+                                this.canvas.renderAll();
+                                this.saveState();
+                                this.isDirty = true;
+                            });
+                            break;
+                        }
+                        case 'toggle-lock': {
+                            const obj = this.canvas.getActiveObject();
+                            if (obj) this.toggleLock(obj);
+                            break;
+                        }
+                        case 'group': this.groupSelected(); break;
+                        case 'ungroup': this.ungroupSelected(); break;
                         case 'duplicate': this.duplicateSelected(); break;
                         case 'delete': this.deleteSelected(); break;
                         case 'bring-front': this.bringForward(); break;
@@ -1052,13 +1843,14 @@
                         case 'center-v': this.alignObject('center-v'); break;
                         case 'page-center': this.alignObject('page-center'); break;
                         case 'paste-text': this.addText('Neuer Text'); break;
-                        case 'select-all':
-                            const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine);
+                        case 'select-all': {
+                            const objs = this.canvas.getObjects().filter(o => !o._isGuide && !o._isSnapLine && !o._isGrid && !o.custom?.locked);
                             if (objs.length) {
                                 this.canvas.setActiveObject(new fabric.ActiveSelection(objs, { canvas: this.canvas }));
                                 this.canvas.renderAll();
                             }
                             break;
+                        }
                     }
                 });
             });

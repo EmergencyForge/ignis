@@ -1,38 +1,38 @@
 <?php
 require_once __DIR__ . '/../../assets/config/config.php';
 require_once __DIR__ . '/../../assets/config/database.php';
-require_once __DIR__ . '/../../src/Documents/TemplateAssetManager.php';
 
-use App\Documents\TemplateAssetManager;
+use App\Documents\DocumentTemplateManager;
 use App\Auth\Permissions;
 use App\Security\CsrfProtection;
 
 header('Content-Type: application/json');
 
 if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+    http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Keine Berechtigung']);
     exit;
 }
 
 try {
-    // CSRF-Token kommt bei FormData über POST-Feld
-    CsrfProtection::requireValid(null);
+    $input = json_decode(file_get_contents('php://input'), true);
 
-    if (empty($_FILES['file'])) {
-        throw new \Exception('Keine Datei hochgeladen');
+    CsrfProtection::requireValid($input);
+
+    $sourceId = (int) ($input['template_id'] ?? 0);
+    if (!$sourceId) {
+        throw new \Exception('template_id ist erforderlich');
     }
 
-    $templateId = isset($_POST['template_id']) ? (int) $_POST['template_id'] : null;
-    $assetType = $_POST['asset_type'] ?? 'image';
-
-    $manager = new TemplateAssetManager($pdo);
-    $result = $manager->upload($_FILES['file'], $templateId, $assetType);
+    $manager = new DocumentTemplateManager($pdo);
+    $newId = $manager->duplicateTemplate($sourceId);
 
     echo json_encode([
         'success' => true,
-        'asset' => $result,
+        'template_id' => $newId,
         'csrf_token' => CsrfProtection::getResponseToken(),
     ]);
 } catch (Exception $e) {
+    http_response_code(400);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }

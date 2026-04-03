@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../src/Documents/TemplateAssetManager.php';
 
 use App\Documents\TemplateAssetManager;
 use App\Auth\Permissions;
+use App\Security\CsrfProtection;
 
 header('Content-Type: application/json');
 
@@ -15,6 +16,9 @@ if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
 
 try {
     $input = json_decode(file_get_contents('php://input'), true);
+
+    CsrfProtection::requireValid($input);
+
     $assetId = (int) ($input['id'] ?? 0);
 
     if (!$assetId) {

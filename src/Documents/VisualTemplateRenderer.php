@@ -43,8 +43,9 @@ class VisualTemplateRenderer
 
         // Dokumentdaten vorbereiten
         $fieldValues = $this->prepareFieldValues($doc);
+        $isDraft = !empty($doc['template_id']) && $this->isTemplateDraft((int) $doc['template_id']);
 
-        return $this->renderCanvasToHtml($canvasData, $fieldValues);
+        return $this->renderCanvasToHtml($canvasData, $fieldValues, $isDraft);
     }
 
     /**
@@ -73,16 +74,17 @@ class VisualTemplateRenderer
             return $this->renderEmptyPreview();
         }
 
-        // Beispieldaten für Vorschau
-        $fieldValues = array_merge($this->getPreviewDefaults(), $sampleData);
+        // Feldwerte aufloesen (DB-IDs → Texte, Datum formatieren, etc.)
+        $fieldValues = $this->preparePreviewFieldValues($templateId, $sampleData);
+        $isDraft = $this->isTemplateDraft($templateId);
 
-        return $this->renderCanvasToHtml($canvasData, $fieldValues);
+        return $this->renderCanvasToHtml($canvasData, $fieldValues, $isDraft);
     }
 
     /**
      * Konvertiert Canvas-JSON zu HTML
      */
-    private function renderCanvasToHtml(array $canvasData, array $fieldValues): string
+    private function renderCanvasToHtml(array $canvasData, array $fieldValues, bool $isDraft = false): string
     {
         $objects = $canvasData['objects'] ?? [];
         $bgColor = $canvasData['background'] ?? '#ffffff';
@@ -130,11 +132,26 @@ class VisualTemplateRenderer
             {$bgImageCss}
             overflow: hidden;
         }
+        .draft-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 80pt;
+            font-weight: bold;
+            color: rgba(200, 0, 0, 0.12);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 9999;
+        }
     </style>
 </head>
 <body>
     <div class="page">
         {$elementsHtml}
+        {$this->renderDraftWatermark($isDraft)}
     </div>
 </body>
 </html>
@@ -195,8 +212,8 @@ HTML;
             'top' => "{$top}mm",
             'width' => "{$width}mm",
             'font-family' => $this->sanitizeFontFamily($obj['fontFamily'] ?? 'DejaVu Sans'),
-            'font-size' => ($obj['fontSize'] ?? 14) . 'px',
-            'color' => $obj['fill'] ?? '#000000',
+            'font-size' => round(($obj['fontSize'] ?? 14) / 1.333, 1) . 'pt',
+            'color' => $this->sanitizeCssColor($obj['fill'] ?? '#000000'),
             'line-height' => $obj['lineHeight'] ?? 1.16,
             'text-align' => $obj['textAlign'] ?? 'left',
             'word-wrap' => 'break-word',
@@ -213,10 +230,10 @@ HTML;
             $css['text-decoration'] = 'underline';
         }
         if (!empty($obj['backgroundColor'])) {
-            $css['background-color'] = $obj['backgroundColor'];
+            $css['background-color'] = $this->sanitizeCssColor($obj['backgroundColor']);
         }
         if (!empty($obj['stroke']) && ($obj['strokeWidth'] ?? 0) > 0) {
-            $css['border'] = ($obj['strokeWidth'] ?? 1) . 'px solid ' . $obj['stroke'];
+            $css['border'] = ((int) ($obj['strokeWidth'] ?? 1)) . 'px solid ' . $this->sanitizeCssColor($obj['stroke']);
         }
         if (isset($obj['opacity']) && $obj['opacity'] < 1) {
             $css['opacity'] = $obj['opacity'];
@@ -228,8 +245,10 @@ HTML;
 
         $style = $this->cssArrayToString($css);
 
-        // HTML-Entities escapen, aber <br> erhalten
-        $htmlText = nl2br(htmlspecialchars($text));
+        // Platzhalter-Werte sind bereits in replacePlaceholders() escaped.
+        // Template-Text kommt aus dem Canvas-Editor (Admin-authored) und ist vertrauenswuerdig.
+        // Nur nl2br fuer Zeilenumbrueche, kein weiteres htmlspecialchars (vermeidet Double-Escaping).
+        $htmlText = nl2br($text);
 
         return "<div style=\"{$style}\">{$htmlText}</div>\n";
     }
@@ -302,11 +321,11 @@ HTML;
 
         $fill = $obj['fill'] ?? 'transparent';
         if ($fill && $fill !== 'transparent') {
-            $css['background-color'] = $fill;
+            $css['background-color'] = $this->sanitizeCssColor($fill);
         }
 
         if (!empty($obj['stroke']) && ($obj['strokeWidth'] ?? 0) > 0) {
-            $css['border'] = ($obj['strokeWidth'] ?? 1) . 'px solid ' . $obj['stroke'];
+            $css['border'] = ((int) ($obj['strokeWidth'] ?? 1)) . 'px solid ' . $this->sanitizeCssColor($obj['stroke']);
         }
 
         if (isset($obj['opacity']) && $obj['opacity'] < 1) {
@@ -332,8 +351,8 @@ HTML;
         $y2 = $obj['y2'] ?? 0;
 
         $lineWidth = $this->pxToMm(abs($x2 - $x1) * ($obj['scaleX'] ?? 1));
-        $strokeWidth = $obj['strokeWidth'] ?? 1;
-        $stroke = $obj['stroke'] ?? '#000000';
+        $strokeWidth = (int) ($obj['strokeWidth'] ?? 1);
+        $stroke = $this->sanitizeCssColor($obj['stroke'] ?? '#000000');
 
         $css = [
             'position' => 'absolute',
@@ -387,7 +406,8 @@ HTML;
             $key = $matches[1];
             // Direkt suchen
             if (isset($fieldValues[$key])) {
-                return $fieldValues[$key];
+                $val = $fieldValues[$key];
+                return is_string($val) ? htmlspecialchars($val, ENT_QUOTES, 'UTF-8') : $matches[0];
             }
             // Dot-Notation auflösen (z.B. issuer.fullname)
             $parts = explode('.', $key);
@@ -399,7 +419,7 @@ HTML;
                     return $matches[0]; // Platzhalter beibehalten wenn nicht gefunden
                 }
             }
-            return is_string($val) ? $val : $matches[0];
+            return is_string($val) ? htmlspecialchars($val, ENT_QUOTES, 'UTF-8') : $matches[0];
         }, $text);
     }
 
@@ -461,13 +481,15 @@ HTML;
 
             // Storage-Assets
             if (strpos($src, 'storage/template-assets/') !== false) {
-                $path = $projectRoot . '/' . $src;
-                if (file_exists($path)) return $this->getImageAsBase64($path);
+                $path = realpath($projectRoot . '/' . $src);
+                if ($path && str_starts_with($path, realpath($projectRoot . '/storage/')) && file_exists($path)) {
+                    return $this->getImageAsBase64($path);
+                }
             }
 
-            // Allgemeiner Fallback: relativer Pfad
-            $localPath = $projectRoot . '/' . $src;
-            if (file_exists($localPath)) {
+            // Allgemeiner Fallback: relativer Pfad (mit Path-Traversal-Schutz)
+            $localPath = realpath($projectRoot . '/' . $src);
+            if ($localPath && str_starts_with($localPath, $projectRoot) && file_exists($localPath)) {
                 return $this->getImageAsBase64($localPath);
             }
         }
@@ -605,6 +627,98 @@ HTML;
     }
 
     /**
+     * Bereitet Vorschau-Feldwerte auf: loest DB-IDs, Select-Werte und
+     * geschlechtsspezifische Felder genau wie prepareFieldValues() auf.
+     */
+    private function preparePreviewFieldValues(int $templateId, array $sampleData): array
+    {
+        $defaults = $this->getPreviewDefaults();
+        $anrede = (int) ($sampleData['anrede'] ?? 0);
+
+        // Template-Felder laden fuer Wert-Aufloesung
+        $templateFields = [];
+        $templateConfig = [];
+        $stmt = $this->pdo->prepare("
+            SELECT tf.*, t.config
+            FROM intra_dokument_template_fields tf
+            JOIN intra_dokument_templates t ON tf.template_id = t.id
+            WHERE tf.template_id = ?
+            ORDER BY tf.sort_order
+        ");
+        $stmt->execute([$templateId]);
+        $templateFields = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        if (!empty($templateFields[0]['config'])) {
+            $templateConfig = json_decode($templateFields[0]['config'] ?? '{}', true) ?: [];
+        }
+
+        // Felder aufloesen: DB-IDs → Texte, geschlechtsspezifische Werte
+        $processedData = [];
+        foreach ($templateFields as $field) {
+            $fieldName = $field['field_name'];
+            $fieldValue = $sampleData[$fieldName] ?? null;
+
+            if ($fieldValue === null || $fieldValue === '') {
+                continue;
+            }
+
+            if ($field['gender_specific']) {
+                $options = $this->getFieldOptions($field['field_type'], $field['field_options'] ?? null);
+                $processedData[$fieldName] = $this->resolveGenderSpecificValue($options, $fieldValue, $anrede);
+            } elseif (in_array($field['field_type'], ['select', 'db_dg', 'db_rdq'])) {
+                $options = $this->getFieldOptions($field['field_type'], $field['field_options'] ?? null);
+                $resolved = $this->resolveGenderSpecificValue($options, $fieldValue, $anrede);
+                $processedData[$fieldName] = $resolved ?: $fieldValue;
+            } else {
+                $processedData[$fieldName] = $fieldValue;
+            }
+        }
+
+        // Legacy-Dienstgrad/Quali aufloesen
+        $dienstgradText = '';
+        if (!empty($sampleData['erhalter_rang'])) {
+            $options = $this->getFieldOptions('db_dg', null);
+            $dienstgradText = $this->resolveGenderSpecificValue($options, $sampleData['erhalter_rang'], $anrede);
+        }
+
+        $dienstgrad = '';
+        if (!empty($sampleData['erhalter_rang_rd'])) {
+            $options = $this->getFieldOptions('db_rdq', null);
+            $dienstgrad = $this->resolveGenderSpecificValue($options, $sampleData['erhalter_rang_rd'], $anrede);
+        }
+
+        $qualifikation = '';
+        if (isset($sampleData['erhalter_quali']) && $sampleData['erhalter_quali'] !== '') {
+            $qualiConfig = $templateConfig['fields']['erhalter_quali'] ?? null;
+            if ($qualiConfig && isset($qualiConfig['options'])) {
+                $qualifikation = $this->resolveGenderSpecificValue(
+                    $qualiConfig['options'],
+                    $sampleData['erhalter_quali'],
+                    $anrede
+                );
+            }
+        }
+
+        // Ausstellungsdatum formatieren
+        $ausstellungsdatum = date('d.m.Y');
+        if (!empty($sampleData['ausstellungsdatum'])) {
+            $ts = strtotime($sampleData['ausstellungsdatum']);
+            if ($ts) $ausstellungsdatum = date('d.m.Y', $ts);
+        }
+
+        return array_merge($defaults, $sampleData, $processedData, [
+            'anrede_text' => match ($anrede) { 0 => 'Herr', 1 => 'Frau', default => '' },
+            'geehrte' => match ($anrede) { 0 => 'geehrter', 1 => 'geehrte', default => 'geehrte/-r' },
+            'zum' => match ($anrede) { 0 => 'zum', 1 => 'zur', default => 'zum/zur' },
+            'seine_ihre' => match ($anrede) { 0 => 'seine', 1 => 'ihre', default => 'seine/ihre' },
+            'ihm_ihr' => match ($anrede) { 0 => 'ihm', 1 => 'ihr', default => 'ihm/ihr' },
+            'dienstgrad_text' => $dienstgradText,
+            'dienstgrad' => $dienstgrad,
+            'qualifikation' => $qualifikation,
+            'ausstellungsdatum' => $ausstellungsdatum,
+        ]);
+    }
+
+    /**
      * Standard-Vorschaudaten
      */
     private function getPreviewDefaults(): array
@@ -628,6 +742,26 @@ HTML;
             'RP_ZIP' => defined('RP_ZIP') ? RP_ZIP : '12345',
             'SERVER_NAME' => defined('SERVER_NAME') ? SERVER_NAME : 'Server',
         ];
+    }
+
+    private function renderDraftWatermark(bool $isDraft): string
+    {
+        if (!$isDraft) return '';
+        return '<div class="draft-watermark">ENTWURF</div>';
+    }
+
+    /**
+     * Prueft ob ein Template als Entwurf markiert ist (ueber config-JSON).
+     */
+    private function isTemplateDraft(int $templateId): bool
+    {
+        $stmt = $this->pdo->prepare("SELECT config FROM intra_dokument_templates WHERE id = :id");
+        $stmt->execute(['id' => $templateId]);
+        $config = $stmt->fetchColumn();
+        if (!$config) return false;
+
+        $configData = json_decode($config, true);
+        return !empty($configData['is_draft']);
     }
 
     private function renderEmptyPreview(): string
@@ -667,5 +801,35 @@ HTML;
             $parts[] = "{$prop}: {$val}";
         }
         return implode('; ', $parts);
+    }
+
+    /**
+     * Sanitisiert einen CSS-Wert (Farben, Zahlen) gegen Injection.
+     * Entfernt alles, was aus dem CSS-Kontext ausbrechen koennte.
+     */
+    private function sanitizeCssColor(string $value): string
+    {
+        // Erlaube: hex (#fff, #ffffff), rgb/rgba(), benannte Farben, transparent
+        $value = trim($value);
+        if ($value === '' || $value === 'transparent') {
+            return $value;
+        }
+        // Hex-Farben
+        if (preg_match('/^#[0-9a-fA-F]{3,8}$/', $value)) {
+            return $value;
+        }
+        // rgb/rgba
+        if (preg_match('/^rgba?\(\s*[\d.,\s%]+\)$/i', $value)) {
+            return $value;
+        }
+        // Benannte CSS-Farben (Whitelist der gaengigsten)
+        $namedColors = ['black', 'white', 'red', 'green', 'blue', 'yellow', 'orange',
+            'purple', 'gray', 'grey', 'pink', 'brown', 'navy', 'teal', 'maroon',
+            'silver', 'olive', 'aqua', 'lime', 'fuchsia'];
+        if (in_array(strtolower($value), $namedColors)) {
+            return strtolower($value);
+        }
+        // Fallback: ungueltiger Wert
+        return '#000000';
     }
 }
