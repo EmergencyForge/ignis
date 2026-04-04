@@ -50,6 +50,9 @@ $einsatzExtraNav = $einsatzExtraNav ?? '';
         <a href="<?= BASE_PATH ?>einsatz/asu.php" class="sidebar-link <?= $einsatzActivePage === 'asu' ? 'active' : '' ?>">
             <i class="fa-solid fa-mask-ventilator"></i><span>AS-Überwachung</span>
         </a>
+        <a href="<?= BASE_PATH ?>einsatz/fahrtenbuch.php" class="sidebar-link <?= $einsatzActivePage === 'fahrtenbuch' ? 'active' : '' ?>">
+            <i class="fa-solid fa-book"></i><span>Fahrtenbuch</span>
+        </a>
 
         <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
             <span class="einsatz-sidebar-section">Verwaltung</span>

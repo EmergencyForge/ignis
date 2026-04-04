@@ -37,34 +37,107 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
     ?>
     <script src="<?= BASE_PATH ?>assets/_ext/sortablejs/Sortable.min.js"></script>
     <style>
-        .field-item {
-            border: 1px solid #dee2e6;
-            border-radius: 0.375rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            position: relative;
-            transition: transform 0.2s ease, background-color 0.2s ease;
+        .template-card:hover {
+            border-color: var(--bs-primary) !important;
         }
 
-        .field-item .btn-remove {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
+        .template-card .card-footer {
+            opacity: 0.6;
+            transition: opacity 0.15s;
+        }
+
+        .template-card:hover .card-footer {
+            opacity: 1;
         }
 
         .field-list {
-            min-height: 100px;
+            min-height: 40px;
         }
 
-        .drag-handle {
+        .field-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.6rem;
+            border-radius: var(--bs-border-radius);
+            border: 1px solid transparent;
+            transition: background-color 0.1s;
+            cursor: default;
+        }
+
+        .field-item:hover {
+            background: rgba(255,255,255,0.03);
+            border-color: var(--bs-border-color);
+        }
+
+        .field-item + .field-item {
+            border-top-color: rgba(255,255,255,0.05);
+        }
+
+        .field-item .drag-handle {
             cursor: grab;
-            color: #6c757d;
-            margin-right: 0.5rem;
+            color: var(--bs-secondary-color);
+            opacity: 0.4;
+            font-size: 0.75rem;
             user-select: none;
         }
 
-        .drag-handle:active {
-            cursor: grabbing;
+        .field-item:hover .drag-handle { opacity: 0.8; }
+        .field-item .drag-handle:active { cursor: grabbing; }
+
+        .field-item .field-name {
+            font-size: 0.88rem;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+
+        .field-item .field-meta {
+            font-size: 0.72rem;
+            color: var(--bs-secondary-color);
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .field-item .field-badges {
+            display: flex;
+            gap: 0.25rem;
+            flex-shrink: 0;
+        }
+
+        .field-item .field-badges .badge {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.35rem;
+            font-weight: 500;
+        }
+
+        .field-item .field-actions {
+            display: flex;
+            gap: 0.25rem;
+            flex-shrink: 0;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+
+        .field-item:hover .field-actions,
+        .field-item.editing .field-actions { opacity: 1; }
+
+        .field-item.editing {
+            background: rgba(255,255,255,0.03);
+            border-color: var(--bs-primary);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .field-edit-panel {
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--bs-primary);
+            border-top: none;
+            border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius);
+            margin-bottom: 0.5rem;
         }
 
         .template-preview {
@@ -106,27 +179,58 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container my-5">
-            <h1 class="mb-4">Dokumenten-Templates verwalten</h1>
+            <?php Flash::render(); ?>
 
-            <?php
-            Flash::render();
-            ?>
+            <!-- Header mit Titel + Aktionen -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Dokumenten-Templates</h1>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-info btn-sm" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
+                        <i class="fa-solid fa-arrows-rotate me-1"></i> Aus Vorlagen neu generieren
+                    </button>
+                    <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>
+                        <button class="btn btn-outline-warning btn-sm" id="btn-regenerate-all" title="Alle Twig-Dateien neu generieren (Dev)">
+                            <i class="fa-solid fa-flask me-1"></i> Twig regenerieren
+                        </button>
+                    <?php endif; ?>
+                    <button class="btn btn-soft-primary btn-sm" id="btn-new-template">
+                        <i class="fa-solid fa-plus me-1"></i> Neues Template
+                    </button>
+                </div>
+            </div>
 
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Template erstellen/bearbeiten</h5>
-                        </div>
-                        <div class="card-body">
-                            <form id="templateForm">
-                                <input type="hidden" id="templateId" name="templateId">
+            <!-- Template-Liste als Karten-Grid -->
+            <div id="templateGrid" class="row g-3 mb-4">
+                <!-- Wird dynamisch befüllt -->
+            </div>
+            <div id="templateGridEmpty" class="text-center text-muted py-5" style="display:none;">
+                <i class="fa-solid fa-file-circle-plus fa-3x mb-3" style="opacity:0.2;"></i>
+                <p>Noch keine Templates vorhanden</p>
+            </div>
 
+        </div>
+    </div>
+
+    <!-- Template bearbeiten/erstellen Modal -->
+    <div class="modal fade" id="templateFormModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="formModalTitle">Neues Template erstellen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="templateForm">
+                        <input type="hidden" id="templateId" name="templateId">
+
+                        <div class="row">
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="templateName" class="form-label">Template-Name <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="templateName" name="name" required>
                                 </div>
-
+                            </div>
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label for="templateCategory" class="form-label">Kategorie <span class="text-danger">*</span></label>
                                     <select class="form-select" id="templateCategory" name="category_id" required>
@@ -139,51 +243,41 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                         <a href="<?= BASE_PATH ?>settings/documents/categories.php">Kategorien verwalten</a>
                                     </div>
                                 </div>
-
+                            </div>
+                            <div class="col-md-3">
                                 <div class="mb-3">
-                                    <label for="templateDescription" class="form-label">Beschreibung</label>
-                                    <textarea class="form-control" id="templateDescription" name="description" rows="2"></textarea>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="templateFile" class="form-label">Template-Dateiname</label>
+                                    <label for="templateFile" class="form-label">Dateiname</label>
                                     <input type="text" class="form-control" id="templateFile" name="template_file"
                                         pattern="[a-z_]+\.html\.twig"
-                                        placeholder="z.B. mein_dokument.html.twig">
-                                    <small class="text-muted">Format: kleinbuchstaben_mit_unterstrichen.html.twig (wird automatisch generiert, falls leer)</small>
+                                        placeholder="auto">
+                                    <small class="text-muted">Automatisch wenn leer</small>
                                 </div>
-
-                                <hr class="my-4">
-
-                                <h6 class="mb-3">Formularfelder</h6>
-
-                                <div id="fieldList" class="field-list"></div>
-
-                                <button type="button" class="btn btn-outline-secondary btn-sm" id="addFieldBtn">
-                                    + Feld hinzufügen
-                                </button>
-
-                                <hr class="my-4">
-
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-soft-primary">Template speichern</button>
-                                    <button type="button" class="btn btn-outline-secondary" id="previewBtn">Vorschau</button>
-                                    <button type="button" class="btn btn-outline-danger" id="resetBtn">Zurücksetzen</button>
-                                </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
+
+                        <div class="mb-3">
+                            <label for="templateDescription" class="form-label">Beschreibung</label>
+                            <textarea class="form-control" id="templateDescription" name="description" rows="1"></textarea>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Formularfelder</h6>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="addFieldBtn">
+                                <i class="fa-solid fa-plus me-1"></i> Feld hinzufügen
+                            </button>
+                        </div>
+
+                        <div id="fieldList" class="field-list"></div>
+                    </form>
                 </div>
-
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Vorhandene Templates</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="templateList" class="list-group"></div>
-                        </div>
-                    </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" id="previewBtn">Vorschau</button>
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-soft-primary" id="saveTemplateBtn">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Template speichern
+                    </button>
                 </div>
             </div>
         </div>
@@ -297,15 +391,35 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
         const fieldModal = new bootstrap.Modal(document.getElementById('fieldModal'));
         const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+        const templateFormModal = new bootstrap.Modal(document.getElementById('templateFormModal'));
 
         document.getElementById('addFieldBtn').addEventListener('click', () => {
-            editingFieldIndex = null;
-            document.getElementById('fieldForm').reset();
-            document.getElementById('fieldIndex').value = '';
-            document.getElementById('optionsList').innerHTML = '';
-            document.getElementById('genderSpecific').checked = false;
-            updateOptionsVisibility();
-            fieldModal.show();
+            // Neues leeres Feld am Ende hinzufügen und inline aufklappen
+            const newField = {
+                field_label: '',
+                field_name: '',
+                field_type: 'text',
+                is_required: false,
+                gender_specific: false,
+                field_options: null,
+                sort_order: fields.length,
+            };
+            fields.push(newField);
+            renderFields();
+
+            // Letztes Feld aufklappen
+            const fieldList = document.getElementById('fieldList');
+            const lastWrapper = fieldList.lastElementChild;
+            if (lastWrapper) {
+                const editPanel = lastWrapper.querySelector('.field-edit-panel');
+                const row = lastWrapper.querySelector('.field-item');
+                if (editPanel) {
+                    editPanel.style.display = 'block';
+                    row?.classList.add('editing');
+                    initFieldEditPanel(editPanel, newField, fields.length - 1);
+                    editPanel.querySelector('[data-edit="label"]')?.focus();
+                }
+            }
         });
 
         document.getElementById('fieldType').addEventListener('change', updateOptionsVisibility);
@@ -313,8 +427,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
         document.getElementById('addOptionBtn').addEventListener('click', () => addOption());
         document.getElementById('saveFieldBtn').addEventListener('click', saveField);
         document.getElementById('templateForm').addEventListener('submit', saveTemplate);
-        document.getElementById('previewBtn').addEventListener('click', showPreview);
-        document.getElementById('resetBtn').addEventListener('click', resetForm);
+        document.getElementById('previewBtn')?.addEventListener('click', showPreview);
 
         function updateOptionsVisibility() {
             const fieldType = document.getElementById('fieldType').value;
@@ -469,43 +582,67 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             fieldList.innerHTML = '';
 
             if (fields.length === 0) {
-                fieldList.innerHTML = '<p class="text-muted">Noch keine Felder hinzugefügt</p>';
+                fieldList.innerHTML = '<p class="text-muted" style="font-size:0.82rem;">Noch keine Felder hinzugefügt</p>';
                 return;
             }
 
             fields.forEach((field, index) => {
-                const fieldDiv = document.createElement('div');
-                fieldDiv.className = 'field-item';
-                fieldDiv.dataset.index = index;
+                const wrapper = document.createElement('div');
+                wrapper.dataset.index = index;
+
+                const typeIcons = {
+                    text: 'fa-solid fa-font', textarea: 'fa-solid fa-align-left',
+                    richtext: 'fa-solid fa-bold', date: 'fa-solid fa-calendar',
+                    number: 'fa-solid fa-hashtag', select: 'fa-solid fa-list',
+                    db_dg: 'fa-solid fa-star', db_rdq: 'fa-solid fa-user-nurse'
+                };
+                const icon = typeIcons[field.field_type] || 'fa-solid fa-i-cursor';
 
                 let badges = '';
-                if (field.is_required) {
-                    badges += '<span class="badge bg-danger ms-2">Pflichtfeld</span>';
-                }
-                if (field.gender_specific) {
-                    badges += '<span class="badge bg-info ms-2">Geschlechtsspezifisch</span>';
-                }
-                if (field.field_type === 'db_dg' || field.field_type === 'db_rdq') {
-                    badges += '<span class="badge bg-success ms-2">DB-Feld</span>';
-                }
+                if (field.is_required) badges += '<span class="badge bg-danger">Pflicht</span>';
+                if (field.gender_specific) badges += '<span class="badge bg-info">m/w</span>';
+                if (field.field_type === 'db_dg' || field.field_type === 'db_rdq') badges += '<span class="badge bg-success">DB</span>';
 
-                fieldDiv.innerHTML = `
-                    <button type="button" class="btn btn-sm btn-soft-danger btn-icon btn-remove" onclick="removeField(${index})">×</button>
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="drag-handle">☰</span>
-                        <strong>${field.field_label}</strong>
-                        ${badges}
-                    </div>
-                    <div class="text-muted small">
-                        Typ: ${getFieldTypeLabel(field.field_type)} | 
-                        Name: ${field.field_name}
-                        ${field.field_options && field.field_options.length > 0 ? ` | ${field.field_options.length} Optionen` : ''}
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="editField(${index})">
-                        Bearbeiten
-                    </button>
+                // Kompakte Zeile
+                const row = document.createElement('div');
+                row.className = 'field-item';
+                row.innerHTML = `
+                    <span class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></span>
+                    <i class="${icon}" style="font-size:0.75rem;color:var(--bs-secondary-color);width:16px;text-align:center;flex-shrink:0;"></i>
+                    <span class="field-name">${field.field_label}</span>
+                    <span class="field-meta">${field.field_name}</span>
+                    <span class="field-badges">${badges}</span>
+                    <span class="field-actions">
+                        <button type="button" class="btn btn-sm btn-ghost btn-toggle-edit" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Bearbeiten"><i class="fa-solid fa-pen"></i></button>
+                        <button type="button" class="btn btn-sm btn-ghost text-danger btn-remove-field" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Löschen"><i class="fa-solid fa-xmark"></i></button>
+                    </span>
                 `;
-                fieldList.appendChild(fieldDiv);
+                wrapper.appendChild(row);
+
+                // Inline-Editier-Bereich (eingeklappt)
+                const editPanel = document.createElement('div');
+                editPanel.className = 'field-edit-panel';
+                editPanel.style.display = 'none';
+                editPanel.innerHTML = buildFieldEditHtml(field, index);
+                wrapper.appendChild(editPanel);
+
+                // Toggle Edit
+                row.querySelector('.btn-toggle-edit').addEventListener('click', () => {
+                    const isOpen = editPanel.style.display !== 'none';
+                    // Alle anderen schließen
+                    fieldList.querySelectorAll('.field-edit-panel').forEach(p => p.style.display = 'none');
+                    fieldList.querySelectorAll('.field-item').forEach(r => r.classList.remove('editing'));
+                    if (!isOpen) {
+                        editPanel.style.display = 'block';
+                        row.classList.add('editing');
+                        initFieldEditPanel(editPanel, field, index);
+                    }
+                });
+
+                // Remove
+                row.querySelector('.btn-remove-field').addEventListener('click', () => removeField(index));
+
+                fieldList.appendChild(wrapper);
             });
 
             if (sortable) {
@@ -541,7 +678,135 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
+        function buildFieldEditHtml(field, index) {
+            const isSelect = field.field_type === 'select';
+            const isDb = field.field_type === 'db_dg' || field.field_type === 'db_rdq';
+            const showOptions = isSelect;
+            const showGender = isSelect;
+
+            return `
+                <div class="row g-2 mb-2">
+                    <div class="col-5">
+                        <label class="form-label" style="font-size:0.72rem;">Label</label>
+                        <input type="text" class="form-control form-control-sm" data-edit="label" value="${field.field_label}">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label" style="font-size:0.72rem;">Name (technisch)</label>
+                        <input type="text" class="form-control form-control-sm" data-edit="name" value="${field.field_name}" pattern="[a-z_]+">
+                    </div>
+                    <div class="col-3">
+                        <label class="form-label" style="font-size:0.72rem;">Typ</label>
+                        <select class="form-select form-select-sm" data-edit="type">
+                            <option value="text"${field.field_type === 'text' ? ' selected' : ''}>Text</option>
+                            <option value="textarea"${field.field_type === 'textarea' ? ' selected' : ''}>Mehrzeilig</option>
+                            <option value="richtext"${field.field_type === 'richtext' ? ' selected' : ''}>Rich-Text</option>
+                            <option value="date"${field.field_type === 'date' ? ' selected' : ''}>Datum</option>
+                            <option value="number"${field.field_type === 'number' ? ' selected' : ''}>Zahl</option>
+                            <option value="select"${field.field_type === 'select' ? ' selected' : ''}>Auswahl</option>
+                            <option value="db_dg"${field.field_type === 'db_dg' ? ' selected' : ''}>Dienstgrad (DB)</option>
+                            <option value="db_rdq"${field.field_type === 'db_rdq' ? ' selected' : ''}>RD-Quali (DB)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <label class="form-check mb-0" style="font-size:0.78rem;">
+                        <input class="form-check-input" type="checkbox" data-edit="required"${field.is_required ? ' checked' : ''}>
+                        <span class="form-check-label">Pflichtfeld</span>
+                    </label>
+                    <label class="form-check mb-0" style="font-size:0.78rem;${showGender ? '' : 'display:none;'}" data-edit="gender-wrap">
+                        <input class="form-check-input" type="checkbox" data-edit="gender"${field.gender_specific ? ' checked' : ''}>
+                        <span class="form-check-label">Geschlechtsspezifisch</span>
+                    </label>
+                    ${isDb ? '<span class="badge bg-info" style="font-size:0.65rem;">Daten aus DB — automatisch geschlechtsspezifisch</span>' : ''}
+                </div>
+                <div data-edit="options-area" style="${showOptions ? '' : 'display:none;'}">
+                    <div data-edit="options-list"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-1" data-edit="add-option" style="font-size:0.72rem;">+ Option</button>
+                </div>
+                <div class="d-flex gap-2 mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.06);">
+                    <button type="button" class="btn btn-sm btn-soft-primary" data-edit="save"><i class="fa-solid fa-check me-1"></i>Übernehmen</button>
+                    <button type="button" class="btn btn-sm btn-ghost" data-edit="cancel">Abbrechen</button>
+                </div>
+            `;
+        }
+
+        function initFieldEditPanel(panel, field, index) {
+            const typeSelect = panel.querySelector('[data-edit="type"]');
+            const optionsArea = panel.querySelector('[data-edit="options-area"]');
+            const genderWrap = panel.querySelector('[data-edit="gender-wrap"]');
+            const optionsList = panel.querySelector('[data-edit="options-list"]');
+
+            // Typ-Wechsel → Optionen/Gender ein-/ausblenden
+            typeSelect.addEventListener('change', () => {
+                const t = typeSelect.value;
+                optionsArea.style.display = t === 'select' ? '' : 'none';
+                if (genderWrap) genderWrap.style.display = (t === 'select') ? '' : 'none';
+            });
+
+            // Bestehende Optionen rendern
+            if (field.field_type === 'select' && field.field_options) {
+                field.field_options.forEach(opt => addInlineOption(optionsList, opt.value, opt.label));
+            }
+
+            // Option hinzufügen
+            panel.querySelector('[data-edit="add-option"]').addEventListener('click', () => {
+                addInlineOption(optionsList, '', '');
+            });
+
+            // Übernehmen
+            panel.querySelector('[data-edit="save"]').addEventListener('click', () => {
+                const label = panel.querySelector('[data-edit="label"]').value.trim();
+                const name = panel.querySelector('[data-edit="name"]').value.trim();
+                if (!label || !name) { showAlert('Label und Name sind Pflicht', {type: 'warning'}); return; }
+
+                const type = typeSelect.value;
+                let options = null;
+                if (type === 'select') {
+                    options = [];
+                    optionsList.querySelectorAll('.inline-option').forEach(row => {
+                        const v = row.querySelector('[data-opt="value"]').value;
+                        const l = row.querySelector('[data-opt="label"]').value;
+                        if (v && l) options.push({ value: v, label: l });
+                    });
+                } else if (type === 'db_dg') {
+                    options = DIENSTGRADE.map(dg => ({ value: dg.id, label: dg.name, label_m: dg.name_m, label_w: dg.name_w }));
+                } else if (type === 'db_rdq') {
+                    options = RD_QUALIS.map(rd => ({ value: rd.id, label: rd.name, label_m: rd.name_m, label_w: rd.name_w }));
+                }
+
+                fields[index] = {
+                    field_label: label,
+                    field_name: name,
+                    field_type: type,
+                    is_required: panel.querySelector('[data-edit="required"]').checked,
+                    gender_specific: (panel.querySelector('[data-edit="gender"]')?.checked) || type === 'db_dg' || type === 'db_rdq',
+                    field_options: options,
+                    sort_order: index,
+                };
+                renderFields();
+            });
+
+            // Abbrechen
+            panel.querySelector('[data-edit="cancel"]').addEventListener('click', () => {
+                panel.style.display = 'none';
+                panel.previousElementSibling?.classList.remove('editing');
+            });
+        }
+
+        function addInlineOption(container, value, label) {
+            const row = document.createElement('div');
+            row.className = 'inline-option d-flex gap-2 mb-1';
+            row.innerHTML = `
+                <input type="text" class="form-control form-control-sm" data-opt="value" value="${value}" placeholder="Wert" style="width:80px;flex:0 0 80px;">
+                <input type="text" class="form-control form-control-sm" data-opt="label" value="${label}" placeholder="Label">
+                <button type="button" class="btn btn-sm btn-ghost text-danger" style="padding:0.1rem 0.3rem;" onclick="this.closest('.inline-option').remove()"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            container.appendChild(row);
+        }
+
+        // Legacy editField — redirect to inline
         function editField(index) {
+            // Wird nicht mehr direkt aufgerufen, aber als Fallback behalten
             editingFieldIndex = index;
             const field = fields[index];
 
@@ -641,50 +906,90 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         function renderTemplateList() {
-            const list = document.getElementById('templateList');
-            list.innerHTML = '';
+            const grid = document.getElementById('templateGrid');
+            const empty = document.getElementById('templateGridEmpty');
+            grid.innerHTML = '';
 
             if (!templates || templates.length === 0) {
-                list.innerHTML = '<p class="text-muted">Keine Templates vorhanden</p>';
+                empty.style.display = 'block';
                 return;
             }
+            empty.style.display = 'none';
 
-            templates.forEach(template => {
-                const item = document.createElement('a');
-                item.href = '#';
-                item.className = 'list-group-item list-group-item-action';
-                const isVisual = template.editor_type === 'visual';
-                const editorBadge = isVisual
-                    ? '<span class="badge bg-info ms-2" style="font-size:0.65rem;">Visual</span>'
-                    : '<span class="badge bg-secondary ms-2" style="font-size:0.65rem;">Twig</span>';
-                item.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>${template.name}</strong>${editorBadge}
-                            <br>
-                            <small class="text-muted">${template.category_name || template.category || '-'}</small>
+            // Nach Kategorie gruppieren
+            const grouped = {};
+            templates.forEach(t => {
+                const cat = t.category_name || t.category || 'Sonstige';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(t);
+            });
+
+            Object.entries(grouped).forEach(([category, items]) => {
+                items.forEach(template => {
+                    const isVisual = template.editor_type === 'visual';
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6 col-lg-4 col-xl-3';
+                    col.innerHTML = `
+                        <div class="card h-100 template-card" style="cursor:pointer;transition:border-color 0.15s;" data-template-id="${template.id}">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1" style="font-size:0.88rem;">${template.name}</h6>
+                                        <span class="badge ${template.category_color || 'text-bg-secondary'}" style="font-size:0.65rem;">${category}</span>
+                                        ${isVisual ? '<span class="badge bg-info ms-1" style="font-size:0.6rem;">Visual</span>' : ''}
+                                    </div>
+                                </div>
+                                ${template.description ? '<p class="text-muted mb-0" style="font-size:0.75rem;line-height:1.3;">' + template.description + '</p>' : ''}
+                            </div>
+                            <div class="card-footer bg-transparent border-top p-2 d-flex gap-1 justify-content-end">
+                                <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
+                                    <i class="fa-solid fa-paintbrush"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-secondary btn-edit-template" data-id="${template.id}" title="Felder bearbeiten">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="duplicateTemplate(${template.id}, event)" title="Duplizieren">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id}, event)" title="Löschen">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="d-flex gap-1">
-                            <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
-                                <i class="fa-solid fa-paintbrush"></i>
-                            </a>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="duplicateTemplate(${template.id}, event)" title="Duplizieren">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id}, event)" title="Löschen">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                item.addEventListener('click', (e) => {
-                    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && !e.target.closest('a')) {
+                    `;
+
+                    // Klick auf Karte → Editor öffnen
+                    col.querySelector('.template-card').addEventListener('click', (e) => {
+                        if (e.target.closest('button, a')) return;
+                        window.location.href = BASE_PATH + 'settings/documents/visual-editor.php?id=' + template.id;
+                    });
+
+                    // Klick auf Edit-Button → Formular öffnen
+                    col.querySelector('.btn-edit-template').addEventListener('click', (e) => {
+                        e.stopPropagation();
                         loadTemplate(template.id);
-                    }
+                    });
+
+                    grid.appendChild(col);
                 });
-                list.appendChild(item);
             });
         }
+
+        function showFormModal(title) {
+            document.getElementById('formModalTitle').textContent = title || 'Template bearbeiten';
+            templateFormModal.show();
+        }
+
+        // "Neues Template" Button
+        document.getElementById('btn-new-template').addEventListener('click', () => {
+            resetForm();
+            showFormModal('Neues Template erstellen');
+        });
+
+        // Save-Button im Modal-Footer löst Form-Submit aus
+        document.getElementById('saveTemplateBtn').addEventListener('click', () => {
+            document.getElementById('templateForm').requestSubmit();
+        });
 
         async function loadTemplate(id) {
             try {
@@ -699,6 +1004,8 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
                 fields = template.fields || [];
                 renderFields();
+
+                showFormModal('Template bearbeiten: ' + template.name);
             } catch (error) {
                 showAlert('Fehler beim Laden des Templates: ' + error.message, {type: 'error', title: 'Fehler'});
             }
@@ -826,6 +1133,608 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         loadTemplates();
+
+        // =====================================================================
+        // Dev: Browser-basierte Twig → Visual Editor Konvertierung
+        // Rendert die Twig-HTML in einem hidden iframe und misst die
+        // tatsächlichen Element-Positionen per getBoundingClientRect().
+        // =====================================================================
+
+        /**
+         * Lädt Twig-HTML in einen hidden iframe und extrahiert Fabric.js-Objekte
+         * aus den gerenderten DOM-Elementen mit exakten Positionen.
+         */
+        async function convertTwigToCanvas(templateId) {
+            return new Promise((resolve, reject) => {
+                const iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;visibility:hidden;';
+                document.body.appendChild(iframe);
+
+                iframe.onload = () => {
+                    try {
+                        const doc = iframe.contentDocument || iframe.contentWindow.document;
+                        const objects = extractCanvasObjects(doc);
+                        document.body.removeChild(iframe);
+                        resolve({ version: '6.4.2', objects, background: '#ffffff' });
+                    } catch (e) {
+                        document.body.removeChild(iframe);
+                        reject(e);
+                    }
+                };
+                iframe.onerror = () => {
+                    document.body.removeChild(iframe);
+                    reject(new Error('iframe konnte nicht geladen werden'));
+                };
+
+                iframe.src = BASE_PATH + 'api/documents/twig-preview.php?id=' + templateId;
+            });
+        }
+
+        /**
+         * Extrahiert Fabric.js-Objekte aus dem gerenderten iframe-DOM.
+         * Misst echte Positionen, Schriftgrößen, Farben, etc.
+         */
+        function extractCanvasObjects(doc) {
+            const objects = [];
+            const body = doc.body;
+            if (!body) return objects;
+
+            // --- Hilfsfunktionen ---
+            function cs(el) { return doc.defaultView.getComputedStyle(el); }
+            function rect(el) { return el.getBoundingClientRect(); }
+            function rgbToHex(rgb) {
+                if (!rgb || rgb === 'transparent' || rgb === 'rgba(0, 0, 0, 0)') return '';
+                const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+                if (!m) return rgb;
+                return '#' + [m[1],m[2],m[3]].map(x => parseInt(x).toString(16).padStart(2,'0')).join('');
+            }
+            function ptToPx(pt) { return pt * 1.333; }
+
+            function makeTextbox(el, overrides) {
+                const r = rect(el);
+                const s = cs(el);
+                if (r.width < 1 || r.height < 1) return null;
+
+                const text = el.textContent.trim().replace(/\s+/g, ' ');
+                if (!text) return null;
+
+                // Font-Größe: computedStyle gibt px zurück
+                const fontSizePx = parseFloat(s.fontSize) || 14;
+
+                const obj = {
+                    type: 'textbox',
+                    left: Math.round(r.left * 10) / 10,
+                    top: Math.round(r.top * 10) / 10,
+                    width: Math.round(r.width * 10) / 10,
+                    text: text,
+                    fontSize: Math.round(fontSizePx),
+                    fontFamily: 'DejaVu Sans',
+                    fill: rgbToHex(s.color) || '#000000',
+                    textAlign: s.textAlign === 'start' ? 'left' : s.textAlign,
+                    lineHeight: parseFloat(s.lineHeight) / fontSizePx || 1.16,
+                    originX: 'left',
+                    originY: 'top',
+                    custom: { elementType: 'static_text' },
+                };
+
+                if (s.fontWeight === 'bold' || parseInt(s.fontWeight) >= 700) {
+                    obj.fontWeight = 'bold';
+                }
+                if (s.fontStyle === 'italic') {
+                    obj.fontStyle = 'italic';
+                }
+
+                // Platzhalter-Erkennung
+                const match = text.match(/^\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}$/);
+                if (match) {
+                    obj.custom = { elementType: 'field_placeholder', fieldName: match[1] };
+                } else if (text.includes('{{')) {
+                    // Text mit eingebetteten Platzhaltern
+                    const varMatch = text.match(/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/);
+                    if (varMatch) {
+                        obj.custom = { elementType: 'field_placeholder', fieldName: varMatch[1] };
+                    }
+                }
+
+                return Object.assign(obj, overrides || {});
+            }
+
+            function makeRect(r, style, overrides) {
+                const obj = {
+                    type: 'rect',
+                    left: Math.round(r.left * 10) / 10,
+                    top: Math.round(r.top * 10) / 10,
+                    width: Math.round(r.width * 10) / 10,
+                    height: Math.round(r.height * 10) / 10,
+                    fill: '',
+                    originX: 'left',
+                    originY: 'top',
+                    custom: { elementType: 'shape' },
+                };
+
+                if (style) {
+                    const bg = rgbToHex(style.backgroundColor);
+                    if (bg && bg !== '#000000') obj.fill = bg;
+                    else if (bg === '#000000' && style.color && rgbToHex(style.color) === '#ffffff') obj.fill = bg;
+
+                    const bw = parseFloat(style.borderTopWidth) || parseFloat(style.borderWidth) || 0;
+                    const bc = rgbToHex(style.borderTopColor || style.borderColor);
+                    if (bw > 0 && bc) {
+                        obj.stroke = bc;
+                        obj.strokeWidth = Math.round(bw);
+                    }
+                }
+
+                return Object.assign(obj, overrides || {});
+            }
+
+            // --- 1. Border-Frame (.border-frame) ---
+            const borderFrame = doc.querySelector('.border-frame');
+            if (borderFrame) {
+                const s = cs(borderFrame);
+                const r2 = rect(borderFrame);
+                const bw = parseFloat(s.borderTopWidth) || 4;
+                objects.push({
+                    type: 'rect',
+                    left: Math.round(r2.left * 10) / 10,
+                    top: Math.round(r2.top * 10) / 10,
+                    width: Math.round(r2.width * 10) / 10,
+                    height: Math.round(r2.height * 10) / 10,
+                    fill: '',
+                    stroke: rgbToHex(s.borderTopColor) || '#dc0814',
+                    strokeWidth: Math.round(bw),
+                    originX: 'left', originY: 'top',
+                    custom: { elementType: 'shape' },
+                });
+            }
+
+            // --- 2. Docheader-Tabelle (gezielt pro Zelle) ---
+            const docheader = doc.querySelector('table.docheader');
+            if (docheader) {
+                const rows = docheader.querySelectorAll('tr');
+
+                // Zeile 1: Version | Titel+Org (rowspan=2) | Wappen (rowspan=2)
+                if (rows[0]) {
+                    const cells = rows[0].querySelectorAll('td');
+
+                    // Zelle 1: "Version 1.0"
+                    if (cells[0]) {
+                        const cr = rect(cells[0]);
+                        objects.push(makeRect(cr, cs(cells[0])));
+                        const tb = makeTextbox(cells[0], {
+                            left: Math.round((cr.left + 2) * 10) / 10,
+                            top: Math.round((cr.top + 2) * 10) / 10,
+                            width: Math.round((cr.width - 4) * 10) / 10,
+                        });
+                        if (tb) objects.push(tb);
+                    }
+
+                    // Zelle 2: Dokumenttitel (bold) + Zeilenumbruch + Org-Name
+                    if (cells[1]) {
+                        const cr = rect(cells[1]);
+                        const s = cs(cells[1]);
+                        objects.push(makeRect(cr, s));
+
+                        // <strong>-Tag = Titel, Rest = Org-Name
+                        const strongEl = cells[1].querySelector('strong');
+                        const titleText = strongEl ? strongEl.textContent.trim() : '';
+                        // Alles nach dem <br> = Org-Name
+                        const fullText = cells[1].textContent.trim().replace(/\s+/g, ' ');
+                        const orgText = titleText ? fullText.replace(titleText, '').trim() : fullText;
+
+                        // Als eine Textbox mit Zeilenumbruch
+                        const combinedText = titleText + (orgText ? '\n' + orgText : '');
+                        // Typ bestimmen: wenn Platzhalter enthalten → system_var
+                        const hasVars = combinedText.includes('{{');
+                        objects.push({
+                            type: 'textbox',
+                            left: Math.round((cr.left + 2) * 10) / 10,
+                            top: Math.round((cr.top + 3) * 10) / 10,
+                            width: Math.round((cr.width - 4) * 10) / 10,
+                            text: combinedText,
+                            fontSize: Math.round(parseFloat(s.fontSize)),
+                            fontFamily: 'DejaVu Sans',
+                            fontWeight: 'bold',
+                            fill: rgbToHex(s.color) || '#000000',
+                            textAlign: 'center',
+                            lineHeight: 1.4,
+                            originX: 'left', originY: 'top',
+                            custom: hasVars
+                                ? { elementType: 'system_var', varName: 'RP_ORGTYPE' }
+                                : { elementType: 'static_text' },
+                        });
+                    }
+
+                    // Zelle 3: Wappen-Bild (35x42px nativ)
+                    if (cells[2]) {
+                        const cr = rect(cells[2]);
+                        objects.push(makeRect(cr, cs(cells[2])));
+
+                        // Wappen zentriert in die Zelle einpassen
+                        // Bild: 35x42px, Zelle: cr.width x cr.height
+                        const imgNatW = 35, imgNatH = 42;
+                        const cellPad = 3;
+                        const availH = cr.height - cellPad * 2;
+                        const availW = cr.width - cellPad * 2;
+                        const scale = Math.min(availW / imgNatW, availH / imgNatH);
+                        const imgW = imgNatW * scale;
+                        const imgH = imgNatH * scale;
+
+                        objects.push({
+                            type: 'image',
+                            src: BASE_PATH + 'assets/img/wappen_small.png',
+                            left: Math.round((cr.left + (cr.width - imgW) / 2) * 10) / 10,
+                            top: Math.round((cr.top + (cr.height - imgH) / 2) * 10) / 10,
+                            scaleX: Math.round(scale * 100) / 100,
+                            scaleY: Math.round(scale * 100) / 100,
+                            originX: 'left', originY: 'top',
+                            custom: { elementType: 'system_image', imageType: 'wappen' },
+                        });
+                    }
+                }
+
+                // Zeile 2: "Seite" + editierbare Seitenzahl
+                if (rows[1]) {
+                    const seiteTd = rows[1].querySelector('td');
+                    if (seiteTd) {
+                        const cr = rect(seiteTd);
+                        const s = cs(seiteTd);
+                        objects.push(makeRect(cr, s));
+                        // "Seite" Label
+                        objects.push({
+                            type: 'textbox',
+                            left: Math.round((cr.left + 2) * 10) / 10,
+                            top: Math.round((cr.top + 1) * 10) / 10,
+                            width: Math.round((cr.width - 4) * 10) / 10,
+                            text: 'Seite',
+                            fontSize: Math.round(parseFloat(s.fontSize)),
+                            fontFamily: 'DejaVu Sans',
+                            fontWeight: 'bold',
+                            fill: rgbToHex(s.color) || '#000000',
+                            textAlign: 'left',
+                            originX: 'left', originY: 'top',
+                            custom: { elementType: 'static_text' },
+                        });
+                        // Seitenzahl (editierbar — Position im Editor verschiebbar)
+                        // Innerhalb der Seite-Zelle, unter dem "Seite" Label
+                        const labelH = parseFloat(s.fontSize) * 1.3;
+                        objects.push({
+                            type: 'textbox',
+                            left: Math.round((cr.left + 12) * 10) / 10,
+                            top: Math.round((cr.top + 1 + labelH) * 10) / 10,
+                            width: Math.round((cr.width - 14) * 10) / 10,
+                            text: '{page} von {pages}',
+                            fontSize: Math.round(parseFloat(s.fontSize)),
+                            fontFamily: 'DejaVu Sans',
+                            fill: rgbToHex(s.color) || '#000000',
+                            textAlign: 'left',
+                            originX: 'left', originY: 'top',
+                            custom: {
+                                elementType: 'page_number',
+                                pageNumberFormat: '{page} von {pages}',
+                            },
+                        });
+                    }
+                }
+            }
+
+            // --- 3. H1 Titel ---
+            const h1 = doc.querySelector('h1');
+            if (h1) {
+                const tb = makeTextbox(h1);
+                if (tb) objects.push(tb);
+            }
+
+            // --- 4. Content-Absätze (.content p) ---
+            doc.querySelectorAll('.content > p').forEach(p => {
+                const tb = makeTextbox(p);
+                if (tb) {
+                    if (p.classList.contains('important')) {
+                        // Schon korrekt über computedStyle gemessen
+                    }
+                    objects.push(tb);
+                }
+            });
+
+            // --- 5. Header links/rechts (Brief-Layout) ---
+            const headerLeft = doc.querySelector('.header-left');
+            if (headerLeft) {
+                // Jede Textzeile einzeln (durch <br> getrennt)
+                const lines = headerLeft.innerHTML.split(/<br\s*\/?>/i);
+                const hr = rect(headerLeft);
+                const s = cs(headerLeft);
+                const lineH = parseFloat(s.fontSize) * (parseFloat(s.lineHeight) / parseFloat(s.fontSize) || 1.3);
+                lines.forEach((line, i) => {
+                    const text = line.replace(/<[^>]*>/g, '').trim();
+                    if (!text) return;
+                    objects.push({
+                        type: 'textbox',
+                        left: Math.round(hr.left * 10) / 10,
+                        top: Math.round((hr.top + i * lineH) * 10) / 10,
+                        width: Math.round(hr.width * 10) / 10,
+                        text: text,
+                        fontSize: Math.round(parseFloat(s.fontSize)),
+                        fontFamily: 'DejaVu Sans',
+                        fill: rgbToHex(s.color) || '#000000',
+                        lineHeight: parseFloat(s.lineHeight) / parseFloat(s.fontSize) || 1.3,
+                        textAlign: 'left',
+                        originX: 'left', originY: 'top',
+                        custom: { elementType: 'system_var', varName: text.includes('RP_') ? 'RP_ORGTYPE' : 'address' },
+                    });
+                });
+            }
+
+            // Logo-Platzhalter
+            const logoImg = doc.querySelector('.logo-placeholder img');
+            if (logoImg) {
+                const lr = rect(logoImg.parentElement);
+                objects.push({
+                    type: 'textbox',
+                    left: Math.round(lr.left * 10) / 10,
+                    top: Math.round(lr.top * 10) / 10,
+                    width: Math.round(lr.width * 10) / 10,
+                    text: '[Logo]',
+                    fontSize: 12, fontFamily: 'DejaVu Sans',
+                    fill: '#999999', textAlign: 'center',
+                    originX: 'left', originY: 'top',
+                    custom: { elementType: 'system_image', imageType: 'logo' },
+                });
+            }
+
+            // Datum-Box
+            const dateLabel = doc.querySelector('.date-label');
+            const dateValue = doc.querySelector('.date-value');
+            if (dateLabel) {
+                const tb = makeTextbox(dateLabel);
+                if (tb) objects.push(tb);
+            }
+            if (dateValue) {
+                const tb = makeTextbox(dateValue, {
+                    custom: { elementType: 'field_placeholder', fieldName: 'ausstellungsdatum', fieldLabel: 'Ausstellungsdatum' },
+                });
+                if (tb) objects.push(tb);
+            }
+
+            // --- 6. Empfänger (.recipient) ---
+            const recipient = doc.querySelector('.recipient');
+            if (recipient) {
+                const lines = recipient.innerHTML.split(/<br\s*\/?>/i);
+                const rr = rect(recipient);
+                const s = cs(recipient);
+                const lineH = parseFloat(s.fontSize) * (parseFloat(s.lineHeight) / parseFloat(s.fontSize) || 1.5);
+                const fieldNames = ['anrede_text', 'erhalter', 'RP_ZIP'];
+                lines.forEach((line, i) => {
+                    const text = line.replace(/<[^>]*>/g, '').trim();
+                    if (!text) return;
+                    const fn = fieldNames[i];
+                    objects.push({
+                        type: 'textbox',
+                        left: Math.round(rr.left * 10) / 10,
+                        top: Math.round((rr.top + i * lineH) * 10) / 10,
+                        width: Math.round(rr.width * 10) / 10,
+                        text: text,
+                        fontSize: Math.round(parseFloat(s.fontSize)),
+                        fontFamily: 'DejaVu Sans',
+                        fill: rgbToHex(s.color) || '#000000',
+                        lineHeight: parseFloat(s.lineHeight) / parseFloat(s.fontSize) || 1.5,
+                        textAlign: 'left',
+                        originX: 'left', originY: 'top',
+                        custom: fn ? { elementType: 'field_placeholder', fieldName: fn } : { elementType: 'static_text' },
+                    });
+                });
+            }
+
+            // --- 7. Titel (.title) ---
+            const titleDiv = doc.querySelector('.title');
+            if (titleDiv) {
+                const tb = makeTextbox(titleDiv);
+                if (tb) objects.push(tb);
+            }
+
+            // --- 8. Letter-Content Absätze ---
+            doc.querySelectorAll('.letter-content > p').forEach(p => {
+                const tb = makeTextbox(p);
+                if (tb) objects.push(tb);
+            });
+
+            // --- 9. Reasoning-Box ---
+            const reasoning = doc.querySelector('.reasoning');
+            if (reasoning) {
+                const rr = rect(reasoning);
+                const s = cs(reasoning);
+                objects.push(makeRect(rr, s));
+
+                const text = reasoning.textContent.trim().replace(/\s+/g, ' ') || '{{ inhalt }}';
+                objects.push({
+                    type: 'textbox',
+                    left: Math.round((rr.left + 2) * 10) / 10,
+                    top: Math.round((rr.top + 2) * 10) / 10,
+                    width: Math.round((rr.width - 4) * 10) / 10,
+                    text: text,
+                    fontSize: Math.round(parseFloat(cs(reasoning).fontSize)),
+                    fontFamily: 'DejaVu Sans',
+                    fill: '#000000', lineHeight: 1.6,
+                    textAlign: 'left',
+                    originX: 'left', originY: 'top',
+                    custom: { elementType: 'field_placeholder', fieldName: 'inhalt', fieldLabel: 'Inhalt/Begründung' },
+                });
+            }
+
+            // --- 10. Footer-Elemente ---
+            const footerSelectors = [
+                { sel: '.date-location', field: 'SERVER_CITY' },
+                { sel: '.document-reference', field: 'document_id', label: 'Dokumenten-ID' },
+            ];
+            footerSelectors.forEach(({ sel, field, label }) => {
+                const el = doc.querySelector(sel);
+                if (!el) return;
+                const tb = makeTextbox(el, {
+                    custom: { elementType: 'field_placeholder', fieldName: field, ...(label ? { fieldLabel: label } : {}) },
+                });
+                if (tb) objects.push(tb);
+            });
+
+            // Issuer-Info: <strong> + Text zeilen
+            const issuerInfo = doc.querySelector('.issuer-info');
+            if (issuerInfo) {
+                const ir = rect(issuerInfo);
+                const s = cs(issuerInfo);
+                const lineH = parseFloat(s.fontSize) * 1.4;
+                const parts = issuerInfo.innerHTML.split(/<br\s*\/?>/i);
+                const fieldNames2 = ['issuer.fullname', 'issuer.dienstgrad_text', 'issuer.zusatz'];
+                parts.forEach((part, i) => {
+                    const text = part.replace(/<[^>]*>/g, '').trim();
+                    if (!text) return;
+                    const isBold = part.includes('<strong>');
+                    objects.push({
+                        type: 'textbox',
+                        left: Math.round(ir.left * 10) / 10,
+                        top: Math.round((ir.top + i * lineH) * 10) / 10,
+                        width: Math.round(ir.width * 10) / 10,
+                        text: text,
+                        fontSize: Math.round(parseFloat(s.fontSize)),
+                        fontFamily: 'DejaVu Sans',
+                        fill: rgbToHex(s.color) || '#000000',
+                        textAlign: 'left',
+                        originX: 'left', originY: 'top',
+                        ...(isBold ? { fontWeight: 'bold' } : {}),
+                        custom: { elementType: 'field_placeholder', fieldName: fieldNames2[i] || 'issuer.fullname', fieldLabel: 'Aussteller' },
+                    });
+                });
+            }
+
+            // Electronic note
+            const eNote = doc.querySelector('.electronic-note');
+            if (eNote) {
+                const tb = makeTextbox(eNote);
+                if (tb) objects.push(tb);
+            }
+
+            // --- 11. Disclaimer-Leiste ---
+            const disclaimer = doc.querySelector('.disclaimer');
+            if (disclaimer) {
+                const dr = rect(disclaimer);
+                const s = cs(disclaimer);
+                objects.push(makeRect(dr, s, { fill: rgbToHex(s.backgroundColor) || '#dc0814' }));
+                const tb = makeTextbox(disclaimer, {
+                    fill: rgbToHex(s.color) || '#ffffff',
+                    textAlign: 'center',
+                });
+                if (tb) objects.push(tb);
+            }
+
+            // (Wappen wird oben direkt in der Docheader-Verarbeitung erstellt)
+
+            return objects;
+        }
+
+        // --- Button-Handler ---
+        document.getElementById('btn-convert-all')?.addEventListener('click', async function() {
+            if (!templates || templates.length === 0) {
+                showAlert('Keine Templates vorhanden', { type: 'warning' });
+                return;
+            }
+
+            const btn = this;
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin');
+            btn.disabled = true;
+
+            let converted = 0, skipped = 0, errors = [];
+            let csrfToken = '<?= \App\Security\CsrfProtection::getToken() ?>';
+
+            for (const t of templates) {
+                try {
+                    // 1. Browser-basierte Konvertierung: Twig-HTML → Canvas-JSON
+                    const canvasJson = await convertTwigToCanvas(t.id);
+
+                    if (!canvasJson.objects || canvasJson.objects.length === 0) {
+                        skipped++;
+                        continue;
+                    }
+
+                    // 2. Canvas-JSON speichern via layout-save Endpoint
+                    const res = await fetch(BASE_PATH + 'api/documents/layout-save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            template_id: t.id,
+                            canvas_json: JSON.stringify(canvasJson),
+                            csrf_token: csrfToken,
+                        }),
+                    });
+                    const result = await res.json();
+
+                    if (result.success) {
+                        converted++;
+                        // Token rotiert nach jedem Request — neuen Token für nächsten Request verwenden
+                        if (result.csrf_token) csrfToken = result.csrf_token;
+                    } else {
+                        errors.push(t.name + ': ' + (result.error || 'Speichern fehlgeschlagen'));
+                    }
+                } catch (e) {
+                    errors.push((t.name || t.id) + ': ' + e.message);
+                }
+            }
+
+            icon.classList.remove('fa-spin');
+            btn.disabled = false;
+
+            if (errors.length === 0) {
+                showToast(converted + ' Templates konvertiert' + (skipped ? ', ' + skipped + ' übersprungen' : ''), 'success');
+            } else {
+                showAlert(converted + ' OK, ' + errors.length + ' Fehler:\n' + errors.join('\n'), { type: 'warning', title: 'Teilweise fehlgeschlagen' });
+            }
+
+            loadTemplates();
+        });
+
+        // Dev: Alle Templates neu generieren
+        document.getElementById('btn-regenerate-all')?.addEventListener('click', async function() {
+            if (!templates || templates.length === 0) {
+                showAlert('Keine Templates vorhanden', {type: 'warning'});
+                return;
+            }
+
+            const btn = this;
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin');
+            btn.disabled = true;
+
+            let success = 0, errors = [];
+            let csrfToken2 = '<?= \App\Security\CsrfProtection::getToken() ?>';
+
+            for (const t of templates) {
+                try {
+                    const res = await fetch(BASE_PATH + 'api/documents/regenerate.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            template_id: t.id,
+                            csrf_token: csrfToken2
+                        }),
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        success++;
+                        if (result.csrf_token) csrfToken2 = result.csrf_token;
+                    } else {
+                        errors.push(t.name + ': ' + result.error);
+                    }
+                } catch (e) {
+                    errors.push(t.name + ': ' + e.message);
+                }
+            }
+
+            icon.classList.remove('fa-spin');
+            btn.disabled = false;
+
+            if (errors.length === 0) {
+                showToast(success + ' Template-Dateien neu generiert', 'success');
+            } else {
+                showAlert(success + ' OK, ' + errors.length + ' Fehler:\n' + errors.join('\n'), {type: 'warning', title: 'Teilweise fehlgeschlagen'});
+            }
+        });
     </script>
     <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 </body>
