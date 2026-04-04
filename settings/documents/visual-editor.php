@@ -185,6 +185,12 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <input class="form-check-input" type="checkbox" id="chk-guides" style="width:0.85em;height:0.85em;">
             <span class="form-check-label">Guides</span>
         </label>
+        <div class="separator"></div>
+        <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;" title="Platzhalter durch Beispieldaten ersetzen">
+            <input class="form-check-input" type="checkbox" id="chk-preview-data" style="width:0.85em;height:0.85em;">
+            <span class="form-check-label">Vorschau</span>
+        </label>
+
         <select class="form-select form-select-sm" id="sel-margins" style="width:auto;font-size:0.75rem;padding:0.25rem 2rem 0.25rem 0.5rem;">
             <option value="schmal" selected>Schmal (1,27cm)</option>
             <option value="normal">Normal (2,5cm)</option>
@@ -192,6 +198,10 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         </select>
 
         <div class="ms-auto d-flex gap-1 align-items-center">
+            <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;" title="Automatisches Speichern aktivieren/deaktivieren">
+                <input class="form-check-input" type="checkbox" id="chk-autosave" style="width:0.85em;height:0.85em;" checked>
+                <span class="form-check-label">Auto-Save</span>
+            </label>
             <span id="autosave-indicator" class="text-muted" style="font-size:0.68rem;white-space:nowrap;"></span>
             <button class="btn btn-sm btn-outline-info" id="btn-preview" title="Vorschau">
                 <i class="fa-solid fa-eye"></i>
@@ -295,7 +305,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 <i class="fa-solid fa-chevron-right"></i>
             </div>
 
-            <div id="ruler-canvas-group" style="display:inline-block;position:relative;">
+            <div id="ruler-canvas-group" style="display:inline-block;position:relative;margin:0 auto;">
                 <!-- Horizontales Lineal (oben) -->
                 <canvas id="ruler-h" style="position:absolute;top:-20px;left:0;height:20px;pointer-events:none;"></canvas>
                 <!-- Vertikales Lineal (links) -->
@@ -444,6 +454,35 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 'RP_STREET': <?= json_encode(RP_STREET) ?>,
                 'RP_ZIP': <?= json_encode(RP_ZIP) ?>,
                 'SERVER_NAME': <?= json_encode(SERVER_NAME) ?>,
+            },
+            // Beispieldaten für Vorschau-Modus
+            previewData: {
+                'erhalter': 'Max Mustermann',
+                'anrede': 'Herr',
+                'anrede_text': 'Herr',
+                'geehrte': 'geehrter',
+                'zum': 'zum',
+                'seine_ihre': 'seine',
+                'ihm_ihr': 'ihm',
+                'ausstellungsdatum': '<?= date('d.m.Y') ?>',
+                'ausstelldatum': '<?= date('d.m.Y') ?>',
+                'erhalter_gebdat_formatted': '01. Januar 2000',
+                'document_id': 'PREV-IEW0-0000',
+                'dienstgrad_text': 'Brandmeister',
+                'dienstgrad': 'Rettungssanitäter',
+                'qualifikation': 'Truppführer',
+                'suspendstring': 'bis auf unbestimmt',
+                'inhalt': 'Beispieltext für die Vorschau',
+                'issuer.fullname': 'Aussteller Name',
+                'issuer.dienstgrad_text': 'Dienstgrad',
+                'issuer.zusatz': '',
+                'SYSTEM_NAME': <?= json_encode(SYSTEM_NAME) ?>,
+                'SERVER_CITY': <?= json_encode(SERVER_CITY) ?>,
+                'RP_ORGTYPE': <?= json_encode(RP_ORGTYPE) ?>,
+                'RP_STREET': <?= json_encode(RP_STREET) ?>,
+                'RP_ZIP': <?= json_encode(RP_ZIP) ?>,
+                'SERVER_NAME': <?= json_encode(SERVER_NAME) ?>,
+                '_page_number': '1 von 1',
             },
             // A4 bei 96dpi: 210mm * 3.7795 = 793.7px, 297mm * 3.7795 = 1122.5px
             canvasWidth: 794,

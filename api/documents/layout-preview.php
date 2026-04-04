@@ -42,7 +42,7 @@ try {
             'isHtml5ParserEnabled' => true,
             'defaultPaperSize' => 'A4',
             'defaultPaperOrientation' => 'portrait',
-            'dpi' => 96,
+            'dpi' => 150,
             'fontDir' => __DIR__ . '/../../storage/fonts/',
             'fontCache' => __DIR__ . '/../../storage/fonts/',
         ]);

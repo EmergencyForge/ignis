@@ -153,11 +153,7 @@ $systemUrl = $sysUrlRaw ?: ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === '
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php if (empty($codes)): ?>
-                                    <tr>
-                                        <td colspan="7" class="text-center">Keine Einladungen vorhanden.</td>
-                                    </tr>
-                                <?php else: ?>
+                                <?php if (!empty($codes)): ?>
                                     <?php foreach ($codes as $code):
                                         $isExpired = !empty($code['expires_at']) && strtotime($code['expires_at']) < time();
                                         $inviteUrl = $systemUrl . BASE_PATH . 'invite.php?code=' . $code['code'];

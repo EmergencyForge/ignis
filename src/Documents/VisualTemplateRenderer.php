@@ -201,9 +201,15 @@ HTML;
         $width = $this->pxToMm(($obj['width'] ?? 100) * ($obj['scaleX'] ?? 1));
         $angle = $obj['angle'] ?? 0;
 
+        // Seitenzahl-Element: Platzhalter-Text für Dompdf page_script
+        $custom = $obj['custom'] ?? [];
+        $isPageNumber = ($custom['elementType'] ?? '') === 'page_number';
+
         // Text mit Platzhalter-Ersetzung
         $text = $obj['text'] ?? '';
-        $text = $this->replacePlaceholders($text, $fieldValues);
+        if (!$isPageNumber) {
+            $text = $this->replacePlaceholders($text, $fieldValues);
+        }
 
         // CSS-Properties sammeln
         $css = [
@@ -249,6 +255,12 @@ HTML;
         // Template-Text kommt aus dem Canvas-Editor (Admin-authored) und ist vertrauenswuerdig.
         // Nur nl2br fuer Zeilenumbrueche, kein weiteres htmlspecialchars (vermeidet Double-Escaping).
         $htmlText = nl2br($text);
+
+        // Seitenzahl-Element: Data-Attribute für DocumentPDFGenerator
+        if ($isPageNumber) {
+            $format = htmlspecialchars($custom['pageNumberFormat'] ?? '{page} von {pages}', ENT_QUOTES, 'UTF-8');
+            return "<div style=\"{$style}\" data-page-number=\"true\" data-pn-left=\"{$left}\" data-pn-top=\"{$top}\" data-pn-format=\"{$format}\">{$htmlText}</div>\n";
+        }
 
         return "<div style=\"{$style}\">{$htmlText}</div>\n";
     }
@@ -761,11 +773,22 @@ HTML;
     {
         return [
             'erhalter' => 'Max Mustermann',
+            'anrede' => 'Herr',
             'anrede_text' => 'Herr',
             'geehrte' => 'geehrter',
             'zum' => 'zum',
+            'seine_ihre' => 'seine',
+            'ihm_ihr' => 'ihm',
             'ausstellungsdatum' => date('d.m.Y'),
+            'ausstelldatum' => date('d.m.Y'),
+            'erhalter_gebdat_formatted' => '01. Januar 2000',
+            'formatted_date' => '01. Januar 2000',
             'document_id' => 'PREV-IEW0-0000',
+            'dienstgrad_text' => 'Brandmeister',
+            'dienstgrad' => 'Rettungssanitäter',
+            'qualifikation' => 'Truppführer',
+            'suspendstring' => 'bis auf unbestimmt',
+            'inhalt' => 'Beispieltext für die Vorschau',
             'issuer' => [
                 'fullname' => 'Aussteller Name',
                 'dienstgrad_text' => 'Dienstgrad',
@@ -827,7 +850,23 @@ HTML;
     {
         // Nur erlaubte Fonts für dompdf
         $allowed = ['DejaVu Sans', 'Arial', 'Helvetica', 'Times New Roman', 'Courier New'];
-        return in_array($font, $allowed) ? $font : 'DejaVu Sans';
+        $font = in_array($font, $allowed) ? $font : 'DejaVu Sans';
+
+        // Multi-word Font-Namen müssen in CSS gequotet werden (Dompdf-Kompatibilität)
+        $quoted = str_contains($font, ' ') ? "'{$font}'" : $font;
+
+        // Fallback-Kette: gewählter Font + generischer Typ + DejaVu Sans als letzter Fallback
+        $generic = match ($font) {
+            'Times New Roman' => 'serif',
+            'Courier New' => 'monospace',
+            default => 'sans-serif',
+        };
+
+        if ($font === 'DejaVu Sans') {
+            return "{$quoted}, Arial, {$generic}";
+        }
+
+        return "{$quoted}, 'DejaVu Sans', {$generic}";
     }
 
     private function cssArrayToString(array $css): string

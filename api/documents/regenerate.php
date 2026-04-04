@@ -1,3 +1,63 @@
+<?php
+/**
+ * Regeneriert die Twig-Template-Datei aus der Template-Definition (Felder).
+ * Überschreibt die bestehende .html.twig-Datei mit einer neu generierten Version.
+ */
+require_once __DIR__ . '/../../assets/config/config.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../assets/config/database.php';
+
+use App\Auth\Permissions;
+use App\Security\CsrfProtection;
+use App\Documents\DocumentTemplateManager;
+
+header('Content-Type: application/json');
+
+if (!Permissions::check(['admin'])) {
+    echo json_encode(['success' => false, 'error' => 'Keine Berechtigung']);
+    exit;
+}
+
+try {
+    $input = json_decode(file_get_contents('php://input'), true);
+    CsrfProtection::requireValid($input);
+
+    $templateId = (int) ($input['template_id'] ?? 0);
+    if (!$templateId) {
+        throw new \Exception('Template-ID fehlt');
+    }
+
+    $manager = new DocumentTemplateManager($pdo);
+    $template = $manager->getTemplate($templateId);
+    if (!$template) {
+        throw new \Exception('Template nicht gefunden');
+    }
+
+    $templatePath = __DIR__ . '/../../dokumente/templates/';
+    if (!is_dir($templatePath)) {
+        mkdir($templatePath, 0755, true);
+    }
+
+    $filename = $template['template_file']
+        ?? strtolower(str_replace(' ', '_', $template['name'])) . '.html.twig';
+    $filepath = $templatePath . $filename;
+
+    $twig = generateTemplateHtml($template);
+    file_put_contents($filepath, $twig);
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Template-Datei wurde neu generiert',
+        'file' => $filename,
+        'csrf_token' => CsrfProtection::getResponseToken(),
+    ]);
+} catch (\Throwable $e) {
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+}
+
+function generateTemplateHtml(array $template): string
+{
+    $html = <<<'TWIG'
 <!DOCTYPE html>
 <html lang="de">
 
@@ -10,7 +70,7 @@
         }
 
         body {
-            font-family: DejaVu Sans, Arial, sans-serif;
+            font-family: 'DejaVu Sans', Arial, sans-serif;
             margin: 0;
             padding: 20mm 25mm;
             font-size: 11pt;
@@ -151,7 +211,25 @@
     <div class="title">Dokument</div>
 
     <div class="letter-content">
-        <p><strong>testa:</strong> {{ testa }}</p>
+
+TWIG;
+
+    $fields = $template['fields'] ?? [];
+    foreach ($fields as $field) {
+        $fieldName = $field['field_name'];
+        $fieldLabel = $field['field_label'];
+
+        if (in_array($field['field_type'], ['richtext', 'textarea'])) {
+            $html .= "        <div class=\"field-section\">\n";
+            $html .= "            <strong>{$fieldLabel}:</strong>\n";
+            $html .= "            <div class=\"field-box\">{{ {$fieldName}|raw }}</div>\n";
+            $html .= "        </div>\n";
+        } else {
+            $html .= "        <p><strong>{$fieldLabel}:</strong> {{ {$fieldName} }}</p>\n";
+        }
+    }
+
+    $html .= <<<'TWIG'
     </div>
 
     <div class="date-location">
@@ -174,3 +252,7 @@
 </body>
 
 </html>
+TWIG;
+
+    return $html;
+}
