@@ -12,6 +12,12 @@
         fabric.FabricObject.ownDefaults.originY = 'top';
     }
 
+    // Mindestens 2x Pixeldichte für scharfes Rendering bei niedrigem Zoom
+    // (verhindert pixelige Darstellung auf 1x-Displays)
+    if (fabric.config) {
+        fabric.config.devicePixelRatio = Math.max(window.devicePixelRatio || 1, 2);
+    }
+
     const CONFIG = window.TEMPLATE_EDITOR_CONFIG;
     const PX_PER_MM = CONFIG.mmToPx;
 

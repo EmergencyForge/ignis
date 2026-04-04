@@ -1,9 +1,69 @@
+<?php
+/**
+ * Regeneriert die Twig-Template-Datei aus der Template-Definition (Felder).
+ * Überschreibt die bestehende .html.twig-Datei mit einer neu generierten Version.
+ */
+require_once __DIR__ . '/../../assets/config/config.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../assets/config/database.php';
+
+use App\Auth\Permissions;
+use App\Security\CsrfProtection;
+use App\Documents\DocumentTemplateManager;
+
+header('Content-Type: application/json');
+
+if (!Permissions::check(['admin'])) {
+    echo json_encode(['success' => false, 'error' => 'Keine Berechtigung']);
+    exit;
+}
+
+try {
+    $input = json_decode(file_get_contents('php://input'), true);
+    CsrfProtection::requireValid($input);
+
+    $templateId = (int) ($input['template_id'] ?? 0);
+    if (!$templateId) {
+        throw new \Exception('Template-ID fehlt');
+    }
+
+    $manager = new DocumentTemplateManager($pdo);
+    $template = $manager->getTemplate($templateId);
+    if (!$template) {
+        throw new \Exception('Template nicht gefunden');
+    }
+
+    $templatePath = __DIR__ . '/../../dokumente/templates/';
+    if (!is_dir($templatePath)) {
+        mkdir($templatePath, 0755, true);
+    }
+
+    $filename = $template['template_file']
+        ?? strtolower(str_replace(' ', '_', $template['name'])) . '.html.twig';
+    $filepath = $templatePath . $filename;
+
+    $twig = generateTemplateHtml($template);
+    file_put_contents($filepath, $twig);
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Template-Datei wurde neu generiert',
+        'file' => $filename,
+        'csrf_token' => CsrfProtection::getResponseToken(),
+    ]);
+} catch (\Throwable $e) {
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+}
+
+function generateTemplateHtml(array $template): string
+{
+    $html = <<<'TWIG'
 <!DOCTYPE html>
 <html lang="de">
 
 <head>
     <meta charset="UTF-8">
-    <title>Außerordentliche Kündigung › {{ SYSTEM_NAME }}</title>
+    <title>{{ SYSTEM_NAME }}</title>
     <style>
         @page {
             margin: 0;
@@ -76,21 +136,15 @@
             margin: 4mm 0;
         }
 
-        .reasoning {
-            border: 2px solid #000;
-            padding: 1mm;
-            margin: 6mm 0;
-            min-height: 30mm;
+        .field-section {
+            margin: 4mm 0;
         }
 
-        .reasoning p,
-        .reasoning div {
-            margin: 0;
-            padding: 0;
-        }
-
-        .reasoning p+p {
-            margin-top: 2mm;
+        .field-box {
+            border: 1px solid #ccc;
+            padding: 3mm;
+            margin: 4mm 0;
+            min-height: 20mm;
         }
 
         .date-location {
@@ -154,20 +208,28 @@
         {{ RP_ZIP }} {{ SERVER_CITY }}
     </div>
 
-    <div class="title">Außerordentliche Kündigung</div>
+    <div class="title">Dokument</div>
 
     <div class="letter-content">
-        <p>Sehr {{ geehrte }} {{ anrede_text }} {{ erhalter }},</p>
 
-        <p>mit diesem Schreiben informieren wir Sie über Ihre außerordentliche Kündigung.</p>
+TWIG;
 
-        <p>Mit sofortiger Wirkung ist das Arbeitsverhältnis beendigt. Eine Wiedereinstellung ist ausgeschlossen.</p>
+    $fields = $template['fields'] ?? [];
+    foreach ($fields as $field) {
+        $fieldName = $field['field_name'];
+        $fieldLabel = $field['field_label'];
 
-        <p>Der Grund für die Kündigung lautet:</p>
+        if (in_array($field['field_type'], ['richtext', 'textarea'])) {
+            $html .= "        <div class=\"field-section\">\n";
+            $html .= "            <strong>{$fieldLabel}:</strong>\n";
+            $html .= "            <div class=\"field-box\">{{ {$fieldName}|raw }}</div>\n";
+            $html .= "        </div>\n";
+        } else {
+            $html .= "        <p><strong>{$fieldLabel}:</strong> {{ {$fieldName} }}</p>\n";
+        }
+    }
 
-        <div class="reasoning">
-            {{ inhalt|raw }}
-        </div>
+    $html .= <<<'TWIG'
     </div>
 
     <div class="date-location">
@@ -190,3 +252,7 @@
 </body>
 
 </html>
+TWIG;
+
+    return $html;
+}

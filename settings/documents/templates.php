@@ -182,6 +182,16 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="card-body">
                             <div id="templateList" class="list-group"></div>
+                            <button class="btn btn-outline-info btn-sm w-100 mt-3" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i> Alle aus Vorlagen neu generieren
+                            </button>
+                            <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>
+                                <hr class="my-3">
+                                <p class="text-muted mb-2" style="font-size:0.72rem;"><i class="fa-solid fa-flask me-1"></i>Dev-Tools</p>
+                                <button class="btn btn-outline-warning btn-sm w-100" id="btn-regenerate-all" title="Alle Twig-Dateien aus den Template-Definitionen neu generieren">
+                                    <i class="fa-solid fa-arrows-rotate me-1"></i> Twig-Dateien neu generieren
+                                </button>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -678,7 +688,10 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 `;
                 item.addEventListener('click', (e) => {
-                    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'A' && !e.target.closest('a')) {
+                    // Nur ignorieren wenn auf einen inneren Button/Link geklickt wurde (nicht das item selbst)
+                    const clickedInnerAction = e.target.closest('button, a:not(.list-group-item)');
+                    if (!clickedInnerAction) {
+                        e.preventDefault();
                         loadTemplate(template.id);
                     }
                 });
@@ -826,6 +839,604 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         loadTemplates();
+
+        // =====================================================================
+        // Dev: Browser-basierte Twig → Visual Editor Konvertierung
+        // Rendert die Twig-HTML in einem hidden iframe und misst die
+        // tatsächlichen Element-Positionen per getBoundingClientRect().
+        // =====================================================================
+
+        /**
+         * Lädt Twig-HTML in einen hidden iframe und extrahiert Fabric.js-Objekte
+         * aus den gerenderten DOM-Elementen mit exakten Positionen.
+         */
+        async function convertTwigToCanvas(templateId) {
+            return new Promise((resolve, reject) => {
+                const iframe = document.createElement('iframe');
+                iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1123px;border:none;visibility:hidden;';
+                document.body.appendChild(iframe);
+
+                iframe.onload = () => {
+                    try {
+                        const doc = iframe.contentDocument || iframe.contentWindow.document;
+                        const objects = extractCanvasObjects(doc);
+                        document.body.removeChild(iframe);
+                        resolve({ version: '6.4.2', objects, background: '#ffffff' });
+                    } catch (e) {
+                        document.body.removeChild(iframe);
+                        reject(e);
+                    }
+                };
+                iframe.onerror = () => {
+                    document.body.removeChild(iframe);
+                    reject(new Error('iframe konnte nicht geladen werden'));
+                };
+
+                iframe.src = BASE_PATH + 'api/documents/twig-preview.php?id=' + templateId;
+            });
+        }
+
+        /**
+         * Extrahiert Fabric.js-Objekte aus dem gerenderten iframe-DOM.
+         * Misst echte Positionen, Schriftgrößen, Farben, etc.
+         */
+        function extractCanvasObjects(doc) {
+            const objects = [];
+            const body = doc.body;
+            if (!body) return objects;
+
+            // --- Hilfsfunktionen ---
+            function cs(el) { return doc.defaultView.getComputedStyle(el); }
+            function rect(el) { return el.getBoundingClientRect(); }
+            function rgbToHex(rgb) {
+                if (!rgb || rgb === 'transparent' || rgb === 'rgba(0, 0, 0, 0)') return '';
+                const m = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+                if (!m) return rgb;
+                return '#' + [m[1],m[2],m[3]].map(x => parseInt(x).toString(16).padStart(2,'0')).join('');
+            }
+            function ptToPx(pt) { return pt * 1.333; }
+
+            function makeTextbox(el, overrides) {
+                const r = rect(el);
+                const s = cs(el);
+                if (r.width < 1 || r.height < 1) return null;
+
+                const text = el.textContent.trim().replace(/\s+/g, ' ');
+                if (!text) return null;
+
+                // Font-Größe: computedStyle gibt px zurück
+                const fontSizePx = parseFloat(s.fontSize) || 14;
+
+                const obj = {
+                    type: 'textbox',
+                    left: Math.round(r.left * 10) / 10,
+                    top: Math.round(r.top * 10) / 10,
+                    width: Math.round(r.width * 10) / 10,
+                    text: text,
+                    fontSize: Math.round(fontSizePx),
+                    fontFamily: 'DejaVu Sans',
+                    fill: rgbToHex(s.color) || '#000000',
+                    textAlign: s.textAlign === 'start' ? 'left' : s.textAlign,
+                    lineHeight: parseFloat(s.lineHeight) / fontSizePx || 1.16,
+                    originX: 'left',
+                    originY: 'top',
+                    custom: { elementType: 'static_text' },
+                };
+
+                if (s.fontWeight === 'bold' || parseInt(s.fontWeight) >= 700) {
+                    obj.fontWeight = 'bold';
+                }
+                if (s.fontStyle === 'italic') {
+                    obj.fontStyle = 'italic';
+                }
+
+                // Platzhalter-Erkennung
+                const match = text.match(/^\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}$/);
+                if (match) {
+                    obj.custom = { elementType: 'field_placeholder', fieldName: match[1] };
+                } else if (text.includes('{{')) {
+                    // Text mit eingebetteten Platzhaltern
+                    const varMatch = text.match(/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/);
+                    if (varMatch) {
+                        obj.custom = { elementType: 'field_placeholder', fieldName: varMatch[1] };
+                    }
+                }
+
+                return Object.assign(obj, overrides || {});
+            }
+
+            function makeRect(r, style, overrides) {
+                const obj = {
+                    type: 'rect',
+                    left: Math.round(r.left * 10) / 10,
+                    top: Math.round(r.top * 10) / 10,
+                    width: Math.round(r.width * 10) / 10,
+                    height: Math.round(r.height * 10) / 10,
+                    fill: '',
+                    originX: 'left',
+                    originY: 'top',
+                    custom: { elementType: 'shape' },
+                };
+
+                if (style) {
+                    const bg = rgbToHex(style.backgroundColor);
+                    if (bg && bg !== '#000000') obj.fill = bg;
+                    else if (bg === '#000000' && style.color && rgbToHex(style.color) === '#ffffff') obj.fill = bg;
+
+                    const bw = parseFloat(style.borderTopWidth) || parseFloat(style.borderWidth) || 0;
+                    const bc = rgbToHex(style.borderTopColor || style.borderColor);
+                    if (bw > 0 && bc) {
+                        obj.stroke = bc;
+                        obj.strokeWidth = Math.round(bw);
+                    }
+                }
+
+                return Object.assign(obj, overrides || {});
+            }
+
+            // --- 1. Border-Frame (.border-frame) ---
+            const borderFrame = doc.querySelector('.border-frame');
+            if (borderFrame) {
+                const s = cs(borderFrame);
+                const r2 = rect(borderFrame);
+                const bw = parseFloat(s.borderTopWidth) || 4;
+                objects.push({
+                    type: 'rect',
+                    left: Math.round(r2.left * 10) / 10,
+                    top: Math.round(r2.top * 10) / 10,
+                    width: Math.round(r2.width * 10) / 10,
+                    height: Math.round(r2.height * 10) / 10,
+                    fill: '',
+                    stroke: rgbToHex(s.borderTopColor) || '#dc0814',
+                    strokeWidth: Math.round(bw),
+                    originX: 'left', originY: 'top',
+                    custom: { elementType: 'shape' },
+                });
+            }
+
+            // --- 2. Docheader-Tabelle (gezielt pro Zelle) ---
+            const docheader = doc.querySelector('table.docheader');
+            if (docheader) {
+                const rows = docheader.querySelectorAll('tr');
+
+                // Zeile 1: Version | Titel+Org (rowspan=2) | Wappen (rowspan=2)
+                if (rows[0]) {
+                    const cells = rows[0].querySelectorAll('td');
+
+                    // Zelle 1: "Version 1.0"
+                    if (cells[0]) {
+                        const cr = rect(cells[0]);
+                        objects.push(makeRect(cr, cs(cells[0])));
+                        const tb = makeTextbox(cells[0], {
+                            left: Math.round((cr.left + 2) * 10) / 10,
+                            top: Math.round((cr.top + 2) * 10) / 10,
+                            width: Math.round((cr.width - 4) * 10) / 10,
+                        });
+                        if (tb) objects.push(tb);
+                    }
+
+                    // Zelle 2: Dokumenttitel (bold) + Zeilenumbruch + Org-Name
+                    if (cells[1]) {
+                        const cr = rect(cells[1]);
+                        const s = cs(cells[1]);
+                        objects.push(makeRect(cr, s));
+
+                        // <strong>-Tag = Titel, Rest = Org-Name
+                        const strongEl = cells[1].querySelector('strong');
+                        const titleText = strongEl ? strongEl.textContent.trim() : '';
+                        // Alles nach dem <br> = Org-Name
+                        const fullText = cells[1].textContent.trim().replace(/\s+/g, ' ');
+                        const orgText = titleText ? fullText.replace(titleText, '').trim() : fullText;
+
+                        // Als eine Textbox mit Zeilenumbruch
+                        const combinedText = titleText + (orgText ? '\n' + orgText : '');
+                        objects.push({
+                            type: 'textbox',
+                            left: Math.round((cr.left + 2) * 10) / 10,
+                            top: Math.round((cr.top + 3) * 10) / 10,
+                            width: Math.round((cr.width - 4) * 10) / 10,
+                            text: combinedText,
+                            fontSize: Math.round(parseFloat(s.fontSize)),
+                            fontFamily: 'DejaVu Sans',
+                            fontWeight: 'bold',
+                            fill: rgbToHex(s.color) || '#000000',
+                            textAlign: 'center',
+                            lineHeight: 1.4,
+                            originX: 'left', originY: 'top',
+                            custom: { elementType: 'static_text' },
+                        });
+                    }
+
+                    // Zelle 3: Wappen-Bild (35x42px nativ)
+                    if (cells[2]) {
+                        const cr = rect(cells[2]);
+                        objects.push(makeRect(cr, cs(cells[2])));
+
+                        // Wappen zentriert in die Zelle einpassen
+                        // Bild: 35x42px, Zelle: cr.width x cr.height
+                        const imgNatW = 35, imgNatH = 42;
+                        const cellPad = 3;
+                        const availH = cr.height - cellPad * 2;
+                        const availW = cr.width - cellPad * 2;
+                        const scale = Math.min(availW / imgNatW, availH / imgNatH);
+                        const imgW = imgNatW * scale;
+                        const imgH = imgNatH * scale;
+
+                        objects.push({
+                            type: 'image',
+                            src: BASE_PATH + 'assets/img/wappen_small.png',
+                            left: Math.round((cr.left + (cr.width - imgW) / 2) * 10) / 10,
+                            top: Math.round((cr.top + (cr.height - imgH) / 2) * 10) / 10,
+                            scaleX: Math.round(scale * 100) / 100,
+                            scaleY: Math.round(scale * 100) / 100,
+                            originX: 'left', originY: 'top',
+                            custom: { elementType: 'system_image', imageType: 'wappen' },
+                        });
+                    }
+                }
+
+                // Zeile 2: "Seite" + editierbare Seitenzahl
+                if (rows[1]) {
+                    const seiteTd = rows[1].querySelector('td');
+                    if (seiteTd) {
+                        const cr = rect(seiteTd);
+                        const s = cs(seiteTd);
+                        objects.push(makeRect(cr, s));
+                        // "Seite" Label
+                        objects.push({
+                            type: 'textbox',
+                            left: Math.round((cr.left + 2) * 10) / 10,
+                            top: Math.round((cr.top + 1) * 10) / 10,
+                            width: Math.round((cr.width - 4) * 10) / 10,
+                            text: 'Seite',
+                            fontSize: Math.round(parseFloat(s.fontSize)),
+                            fontFamily: 'DejaVu Sans',
+                            fontWeight: 'bold',
+                            fill: rgbToHex(s.color) || '#000000',
+                            textAlign: 'left',
+                            originX: 'left', originY: 'top',
+                            custom: { elementType: 'static_text' },
+                        });
+                        // Seitenzahl (editierbar — Position im Editor verschiebbar)
+                        // Innerhalb der Seite-Zelle, unter dem "Seite" Label
+                        const labelH = parseFloat(s.fontSize) * 1.3;
+                        objects.push({
+                            type: 'textbox',
+                            left: Math.round((cr.left + 12) * 10) / 10,
+                            top: Math.round((cr.top + 1 + labelH) * 10) / 10,
+                            width: Math.round((cr.width - 14) * 10) / 10,
+                            text: '{page} von {pages}',
+                            fontSize: Math.round(parseFloat(s.fontSize)),
+                            fontFamily: 'DejaVu Sans',
+                            fill: rgbToHex(s.color) || '#000000',
+                            textAlign: 'left',
+                            originX: 'left', originY: 'top',
+                            custom: {
+                                elementType: 'page_number',
+                                pageNumberFormat: '{page} von {pages}',
+                            },
+                        });
+                    }
+                }
+            }
+
+            // --- 3. H1 Titel ---
+            const h1 = doc.querySelector('h1');
+            if (h1) {
+                const tb = makeTextbox(h1);
+                if (tb) objects.push(tb);
+            }
+
+            // --- 4. Content-Absätze (.content p) ---
+            doc.querySelectorAll('.content > p').forEach(p => {
+                const tb = makeTextbox(p);
+                if (tb) {
+                    if (p.classList.contains('important')) {
+                        // Schon korrekt über computedStyle gemessen
+                    }
+                    objects.push(tb);
+                }
+            });
+
+            // --- 5. Header links/rechts (Brief-Layout) ---
+            const headerLeft = doc.querySelector('.header-left');
+            if (headerLeft) {
+                // Jede Textzeile einzeln (durch <br> getrennt)
+                const lines = headerLeft.innerHTML.split(/<br\s*\/?>/i);
+                const hr = rect(headerLeft);
+                const s = cs(headerLeft);
+                const lineH = parseFloat(s.fontSize) * (parseFloat(s.lineHeight) / parseFloat(s.fontSize) || 1.3);
+                lines.forEach((line, i) => {
+                    const text = line.replace(/<[^>]*>/g, '').trim();
+                    if (!text) return;
+                    objects.push({
+                        type: 'textbox',
+                        left: Math.round(hr.left * 10) / 10,
+                        top: Math.round((hr.top + i * lineH) * 10) / 10,
+                        width: Math.round(hr.width * 10) / 10,
+                        text: text,
+                        fontSize: Math.round(parseFloat(s.fontSize)),
+                        fontFamily: 'DejaVu Sans',
+                        fill: rgbToHex(s.color) || '#000000',
+                        lineHeight: parseFloat(s.lineHeight) / parseFloat(s.fontSize) || 1.3,
+                        textAlign: 'left',
+                        originX: 'left', originY: 'top',
+                        custom: { elementType: 'system_var', varName: text.includes('RP_') ? 'RP_ORGTYPE' : 'address' },
+                    });
+                });
+            }
+
+            // Logo-Platzhalter
+            const logoImg = doc.querySelector('.logo-placeholder img');
+            if (logoImg) {
+                const lr = rect(logoImg.parentElement);
+                objects.push({
+                    type: 'textbox',
+                    left: Math.round(lr.left * 10) / 10,
+                    top: Math.round(lr.top * 10) / 10,
+                    width: Math.round(lr.width * 10) / 10,
+                    text: '[Logo]',
+                    fontSize: 12, fontFamily: 'DejaVu Sans',
+                    fill: '#999999', textAlign: 'center',
+                    originX: 'left', originY: 'top',
+                    custom: { elementType: 'system_image', imageType: 'logo' },
+                });
+            }
+
+            // Datum-Box
+            const dateLabel = doc.querySelector('.date-label');
+            const dateValue = doc.querySelector('.date-value');
+            if (dateLabel) {
+                const tb = makeTextbox(dateLabel);
+                if (tb) objects.push(tb);
+            }
+            if (dateValue) {
+                const tb = makeTextbox(dateValue, {
+                    custom: { elementType: 'field_placeholder', fieldName: 'ausstellungsdatum', fieldLabel: 'Ausstellungsdatum' },
+                });
+                if (tb) objects.push(tb);
+            }
+
+            // --- 6. Empfänger (.recipient) ---
+            const recipient = doc.querySelector('.recipient');
+            if (recipient) {
+                const lines = recipient.innerHTML.split(/<br\s*\/?>/i);
+                const rr = rect(recipient);
+                const s = cs(recipient);
+                const lineH = parseFloat(s.fontSize) * (parseFloat(s.lineHeight) / parseFloat(s.fontSize) || 1.5);
+                const fieldNames = ['anrede_text', 'erhalter', 'RP_ZIP'];
+                lines.forEach((line, i) => {
+                    const text = line.replace(/<[^>]*>/g, '').trim();
+                    if (!text) return;
+                    const fn = fieldNames[i];
+                    objects.push({
+                        type: 'textbox',
+                        left: Math.round(rr.left * 10) / 10,
+                        top: Math.round((rr.top + i * lineH) * 10) / 10,
+                        width: Math.round(rr.width * 10) / 10,
+                        text: text,
+                        fontSize: Math.round(parseFloat(s.fontSize)),
+                        fontFamily: 'DejaVu Sans',
+                        fill: rgbToHex(s.color) || '#000000',
+                        lineHeight: parseFloat(s.lineHeight) / parseFloat(s.fontSize) || 1.5,
+                        textAlign: 'left',
+                        originX: 'left', originY: 'top',
+                        custom: fn ? { elementType: 'field_placeholder', fieldName: fn } : { elementType: 'static_text' },
+                    });
+                });
+            }
+
+            // --- 7. Titel (.title) ---
+            const titleDiv = doc.querySelector('.title');
+            if (titleDiv) {
+                const tb = makeTextbox(titleDiv);
+                if (tb) objects.push(tb);
+            }
+
+            // --- 8. Letter-Content Absätze ---
+            doc.querySelectorAll('.letter-content > p').forEach(p => {
+                const tb = makeTextbox(p);
+                if (tb) objects.push(tb);
+            });
+
+            // --- 9. Reasoning-Box ---
+            const reasoning = doc.querySelector('.reasoning');
+            if (reasoning) {
+                const rr = rect(reasoning);
+                const s = cs(reasoning);
+                objects.push(makeRect(rr, s));
+
+                const text = reasoning.textContent.trim().replace(/\s+/g, ' ') || '{{ inhalt }}';
+                objects.push({
+                    type: 'textbox',
+                    left: Math.round((rr.left + 2) * 10) / 10,
+                    top: Math.round((rr.top + 2) * 10) / 10,
+                    width: Math.round((rr.width - 4) * 10) / 10,
+                    text: text,
+                    fontSize: Math.round(parseFloat(cs(reasoning).fontSize)),
+                    fontFamily: 'DejaVu Sans',
+                    fill: '#000000', lineHeight: 1.6,
+                    textAlign: 'left',
+                    originX: 'left', originY: 'top',
+                    custom: { elementType: 'field_placeholder', fieldName: 'inhalt', fieldLabel: 'Inhalt/Begründung' },
+                });
+            }
+
+            // --- 10. Footer-Elemente ---
+            const footerSelectors = [
+                { sel: '.date-location', field: 'SERVER_CITY' },
+                { sel: '.document-reference', field: 'document_id', label: 'Dokumenten-ID' },
+            ];
+            footerSelectors.forEach(({ sel, field, label }) => {
+                const el = doc.querySelector(sel);
+                if (!el) return;
+                const tb = makeTextbox(el, {
+                    custom: { elementType: 'field_placeholder', fieldName: field, ...(label ? { fieldLabel: label } : {}) },
+                });
+                if (tb) objects.push(tb);
+            });
+
+            // Issuer-Info: <strong> + Text zeilen
+            const issuerInfo = doc.querySelector('.issuer-info');
+            if (issuerInfo) {
+                const ir = rect(issuerInfo);
+                const s = cs(issuerInfo);
+                const lineH = parseFloat(s.fontSize) * 1.4;
+                const parts = issuerInfo.innerHTML.split(/<br\s*\/?>/i);
+                const fieldNames2 = ['issuer.fullname', 'issuer.dienstgrad_text', 'issuer.zusatz'];
+                parts.forEach((part, i) => {
+                    const text = part.replace(/<[^>]*>/g, '').trim();
+                    if (!text) return;
+                    const isBold = part.includes('<strong>');
+                    objects.push({
+                        type: 'textbox',
+                        left: Math.round(ir.left * 10) / 10,
+                        top: Math.round((ir.top + i * lineH) * 10) / 10,
+                        width: Math.round(ir.width * 10) / 10,
+                        text: text,
+                        fontSize: Math.round(parseFloat(s.fontSize)),
+                        fontFamily: 'DejaVu Sans',
+                        fill: rgbToHex(s.color) || '#000000',
+                        textAlign: 'left',
+                        originX: 'left', originY: 'top',
+                        ...(isBold ? { fontWeight: 'bold' } : {}),
+                        custom: { elementType: 'field_placeholder', fieldName: fieldNames2[i] || 'issuer.fullname', fieldLabel: 'Aussteller' },
+                    });
+                });
+            }
+
+            // Electronic note
+            const eNote = doc.querySelector('.electronic-note');
+            if (eNote) {
+                const tb = makeTextbox(eNote);
+                if (tb) objects.push(tb);
+            }
+
+            // --- 11. Disclaimer-Leiste ---
+            const disclaimer = doc.querySelector('.disclaimer');
+            if (disclaimer) {
+                const dr = rect(disclaimer);
+                const s = cs(disclaimer);
+                objects.push(makeRect(dr, s, { fill: rgbToHex(s.backgroundColor) || '#dc0814' }));
+                const tb = makeTextbox(disclaimer, {
+                    fill: rgbToHex(s.color) || '#ffffff',
+                    textAlign: 'center',
+                });
+                if (tb) objects.push(tb);
+            }
+
+            // (Wappen wird oben direkt in der Docheader-Verarbeitung erstellt)
+
+            return objects;
+        }
+
+        // --- Button-Handler ---
+        document.getElementById('btn-convert-all')?.addEventListener('click', async function() {
+            if (!templates || templates.length === 0) {
+                showAlert('Keine Templates vorhanden', { type: 'warning' });
+                return;
+            }
+
+            const btn = this;
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin');
+            btn.disabled = true;
+
+            let converted = 0, skipped = 0, errors = [];
+            let csrfToken = '<?= \App\Security\CsrfProtection::getToken() ?>';
+
+            for (const t of templates) {
+                try {
+                    // 1. Browser-basierte Konvertierung: Twig-HTML → Canvas-JSON
+                    const canvasJson = await convertTwigToCanvas(t.id);
+
+                    if (!canvasJson.objects || canvasJson.objects.length === 0) {
+                        skipped++;
+                        continue;
+                    }
+
+                    // 2. Canvas-JSON speichern via layout-save Endpoint
+                    const res = await fetch(BASE_PATH + 'api/documents/layout-save.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            template_id: t.id,
+                            canvas_json: JSON.stringify(canvasJson),
+                            csrf_token: csrfToken,
+                        }),
+                    });
+                    const result = await res.json();
+
+                    if (result.success) {
+                        converted++;
+                        // Token rotiert nach jedem Request — neuen Token für nächsten Request verwenden
+                        if (result.csrf_token) csrfToken = result.csrf_token;
+                    } else {
+                        errors.push(t.name + ': ' + (result.error || 'Speichern fehlgeschlagen'));
+                    }
+                } catch (e) {
+                    errors.push((t.name || t.id) + ': ' + e.message);
+                }
+            }
+
+            icon.classList.remove('fa-spin');
+            btn.disabled = false;
+
+            if (errors.length === 0) {
+                showToast(converted + ' Templates konvertiert' + (skipped ? ', ' + skipped + ' übersprungen' : ''), 'success');
+            } else {
+                showAlert(converted + ' OK, ' + errors.length + ' Fehler:\n' + errors.join('\n'), { type: 'warning', title: 'Teilweise fehlgeschlagen' });
+            }
+
+            loadTemplates();
+        });
+
+        // Dev: Alle Templates neu generieren
+        document.getElementById('btn-regenerate-all')?.addEventListener('click', async function() {
+            if (!templates || templates.length === 0) {
+                showAlert('Keine Templates vorhanden', {type: 'warning'});
+                return;
+            }
+
+            const btn = this;
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin');
+            btn.disabled = true;
+
+            let success = 0, errors = [];
+            let csrfToken2 = '<?= \App\Security\CsrfProtection::getToken() ?>';
+
+            for (const t of templates) {
+                try {
+                    const res = await fetch(BASE_PATH + 'api/documents/regenerate.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            template_id: t.id,
+                            csrf_token: csrfToken2
+                        }),
+                    });
+                    const result = await res.json();
+                    if (result.success) {
+                        success++;
+                        if (result.csrf_token) csrfToken2 = result.csrf_token;
+                    } else {
+                        errors.push(t.name + ': ' + result.error);
+                    }
+                } catch (e) {
+                    errors.push(t.name + ': ' + e.message);
+                }
+            }
+
+            icon.classList.remove('fa-spin');
+            btn.disabled = false;
+
+            if (errors.length === 0) {
+                showToast(success + ' Template-Dateien neu generiert', 'success');
+            } else {
+                showAlert(success + ' OK, ' + errors.length + ' Fehler:\n' + errors.join('\n'), {type: 'warning', title: 'Teilweise fehlgeschlagen'});
+            }
+        });
     </script>
     <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 </body>
