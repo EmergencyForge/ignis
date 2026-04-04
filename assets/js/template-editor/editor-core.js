@@ -263,8 +263,8 @@
 
                 obj.set({ left: newLeft, top: newTop });
 
-                // Dynamische Snap-Linien zeichnen (magenta)
-                const lineProps = { stroke: '#ff00ff', strokeWidth: 1, selectable: false, evented: false, excludeFromExport: true, _isSnapLine: true };
+                // Dynamische Snap-Linien (dezent, nur beim Bewegen sichtbar)
+                const lineProps = { stroke: 'rgba(59, 130, 246, 0.5)', strokeWidth: 1, strokeDashArray: [3, 3], selectable: false, evented: false, excludeFromExport: true, _isSnapLine: true };
                 snappedX.forEach(x => {
                     const line = new fabric.Line([x, 0, x, CONFIG.canvasHeight], lineProps);
                     this.canvas.add(line);
@@ -1042,22 +1042,31 @@
 
             const gridMm = 10;
             const gridPx = gridMm * PX_PER_MM;
-            const lineProps = {
-                stroke: 'rgba(255, 255, 255, 0.06)',
+            const subGridPx = 5 * PX_PER_MM; // 5mm Unterteilung
+
+            // Haupt-Rasterlinien (10mm) — sichtbar aber dezent
+            const mainProps = {
+                stroke: 'rgba(255, 255, 255, 0.08)',
                 strokeWidth: 0.5,
                 selectable: false,
                 evented: false,
                 excludeFromExport: true,
                 _isGrid: true,
             };
+            // Unter-Rasterlinien (5mm) — noch dezenter
+            const subProps = {
+                ...mainProps,
+                stroke: 'rgba(255, 255, 255, 0.03)',
+            };
 
-            // Vertikale Linien
-            for (let x = gridPx; x < CONFIG.canvasWidth; x += gridPx) {
-                this.canvas.add(new fabric.Line([x, 0, x, CONFIG.canvasHeight], lineProps));
+            // 5mm Unterteilungslinien
+            for (let x = subGridPx; x < CONFIG.canvasWidth; x += subGridPx) {
+                const isMain = Math.abs(x % gridPx) < 1;
+                this.canvas.add(new fabric.Line([x, 0, x, CONFIG.canvasHeight], isMain ? mainProps : subProps));
             }
-            // Horizontale Linien
-            for (let y = gridPx; y < CONFIG.canvasHeight; y += gridPx) {
-                this.canvas.add(new fabric.Line([0, y, CONFIG.canvasWidth, y], lineProps));
+            for (let y = subGridPx; y < CONFIG.canvasHeight; y += subGridPx) {
+                const isMain = Math.abs(y % gridPx) < 1;
+                this.canvas.add(new fabric.Line([0, y, CONFIG.canvasWidth, y], isMain ? mainProps : subProps));
             }
 
             // Grid-Linien ganz nach hinten

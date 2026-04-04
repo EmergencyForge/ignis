@@ -178,6 +178,7 @@
                 { name: 'issuer.fullname', label: 'Aussteller-Name', icon: 'fa-solid fa-user-tie' },
                 { name: 'issuer.dienstgrad_text', label: 'Aussteller-Dienstgrad', icon: 'fa-solid fa-star' },
                 { name: 'document_id', label: 'Dokumenten-ID', icon: 'fa-solid fa-barcode' },
+                { name: '_page_number', label: 'Seitenzahl', icon: 'fa-solid fa-file-lines', isPageNumber: true },
             ];
 
             let html = '';
@@ -290,10 +291,19 @@
                     editor.addFieldPlaceholder(data.field, data.label, posOpts);
                     break;
                 case 'add-docvar':
-                    editor.addFieldPlaceholder(data.var, data.label, {
-                        ...posOpts,
-                        custom: { elementType: 'field_placeholder', fieldName: data.var, fieldLabel: data.label },
-                    });
+                    if (data.var === '_page_number') {
+                        editor.addText('{page} von {pages}', {
+                            ...posOpts,
+                            width: 80,
+                            fontSize: 8.5,
+                            custom: { elementType: 'page_number', pageNumberFormat: '{page} von {pages}' },
+                        });
+                    } else {
+                        editor.addFieldPlaceholder(data.var, data.label, {
+                            ...posOpts,
+                            custom: { elementType: 'field_placeholder', fieldName: data.var, fieldLabel: data.label },
+                        });
+                    }
                     break;
                 case 'add-block':
                     this.addPrefabBlock(data.block);

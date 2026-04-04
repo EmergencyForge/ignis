@@ -37,6 +37,19 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
     ?>
     <script src="<?= BASE_PATH ?>assets/_ext/sortablejs/Sortable.min.js"></script>
     <style>
+        .template-card:hover {
+            border-color: var(--bs-primary) !important;
+        }
+
+        .template-card .card-footer {
+            opacity: 0.6;
+            transition: opacity 0.15s;
+        }
+
+        .template-card:hover .card-footer {
+            opacity: 1;
+        }
+
         .field-item {
             border: 1px solid #dee2e6;
             border-radius: 0.375rem;
@@ -106,27 +119,58 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container my-5">
-            <h1 class="mb-4">Dokumenten-Templates verwalten</h1>
+            <?php Flash::render(); ?>
 
-            <?php
-            Flash::render();
-            ?>
+            <!-- Header mit Titel + Aktionen -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="mb-0">Dokumenten-Templates</h1>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-info btn-sm" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
+                        <i class="fa-solid fa-arrows-rotate me-1"></i> Aus Vorlagen neu generieren
+                    </button>
+                    <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>
+                        <button class="btn btn-outline-warning btn-sm" id="btn-regenerate-all" title="Alle Twig-Dateien neu generieren (Dev)">
+                            <i class="fa-solid fa-flask me-1"></i> Twig regenerieren
+                        </button>
+                    <?php endif; ?>
+                    <button class="btn btn-soft-primary btn-sm" id="btn-new-template">
+                        <i class="fa-solid fa-plus me-1"></i> Neues Template
+                    </button>
+                </div>
+            </div>
 
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Template erstellen/bearbeiten</h5>
-                        </div>
-                        <div class="card-body">
-                            <form id="templateForm">
-                                <input type="hidden" id="templateId" name="templateId">
+            <!-- Template-Liste als Karten-Grid -->
+            <div id="templateGrid" class="row g-3 mb-4">
+                <!-- Wird dynamisch befüllt -->
+            </div>
+            <div id="templateGridEmpty" class="text-center text-muted py-5" style="display:none;">
+                <i class="fa-solid fa-file-circle-plus fa-3x mb-3" style="opacity:0.2;"></i>
+                <p>Noch keine Templates vorhanden</p>
+            </div>
 
+        </div>
+    </div>
+
+    <!-- Template bearbeiten/erstellen Modal -->
+    <div class="modal fade" id="templateFormModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="formModalTitle">Neues Template erstellen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="templateForm">
+                        <input type="hidden" id="templateId" name="templateId">
+
+                        <div class="row">
+                            <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="templateName" class="form-label">Template-Name <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="templateName" name="name" required>
                                 </div>
-
+                            </div>
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label for="templateCategory" class="form-label">Kategorie <span class="text-danger">*</span></label>
                                     <select class="form-select" id="templateCategory" name="category_id" required>
@@ -139,61 +183,41 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                         <a href="<?= BASE_PATH ?>settings/documents/categories.php">Kategorien verwalten</a>
                                     </div>
                                 </div>
-
+                            </div>
+                            <div class="col-md-3">
                                 <div class="mb-3">
-                                    <label for="templateDescription" class="form-label">Beschreibung</label>
-                                    <textarea class="form-control" id="templateDescription" name="description" rows="2"></textarea>
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="templateFile" class="form-label">Template-Dateiname</label>
+                                    <label for="templateFile" class="form-label">Dateiname</label>
                                     <input type="text" class="form-control" id="templateFile" name="template_file"
                                         pattern="[a-z_]+\.html\.twig"
-                                        placeholder="z.B. mein_dokument.html.twig">
-                                    <small class="text-muted">Format: kleinbuchstaben_mit_unterstrichen.html.twig (wird automatisch generiert, falls leer)</small>
+                                        placeholder="auto">
+                                    <small class="text-muted">Automatisch wenn leer</small>
                                 </div>
-
-                                <hr class="my-4">
-
-                                <h6 class="mb-3">Formularfelder</h6>
-
-                                <div id="fieldList" class="field-list"></div>
-
-                                <button type="button" class="btn btn-outline-secondary btn-sm" id="addFieldBtn">
-                                    + Feld hinzufügen
-                                </button>
-
-                                <hr class="my-4">
-
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-soft-primary">Template speichern</button>
-                                    <button type="button" class="btn btn-outline-secondary" id="previewBtn">Vorschau</button>
-                                    <button type="button" class="btn btn-outline-danger" id="resetBtn">Zurücksetzen</button>
-                                </div>
-                            </form>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Vorhandene Templates</h5>
+                        <div class="mb-3">
+                            <label for="templateDescription" class="form-label">Beschreibung</label>
+                            <textarea class="form-control" id="templateDescription" name="description" rows="1"></textarea>
                         </div>
-                        <div class="card-body">
-                            <div id="templateList" class="list-group"></div>
-                            <button class="btn btn-outline-info btn-sm w-100 mt-3" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
-                                <i class="fa-solid fa-arrows-rotate me-1"></i> Alle aus Vorlagen neu generieren
+
+                        <hr class="my-3">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Formularfelder</h6>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="addFieldBtn">
+                                <i class="fa-solid fa-plus me-1"></i> Feld hinzufügen
                             </button>
-                            <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>
-                                <hr class="my-3">
-                                <p class="text-muted mb-2" style="font-size:0.72rem;"><i class="fa-solid fa-flask me-1"></i>Dev-Tools</p>
-                                <button class="btn btn-outline-warning btn-sm w-100" id="btn-regenerate-all" title="Alle Twig-Dateien aus den Template-Definitionen neu generieren">
-                                    <i class="fa-solid fa-arrows-rotate me-1"></i> Twig-Dateien neu generieren
-                                </button>
-                            <?php endif; ?>
                         </div>
-                    </div>
+
+                        <div id="fieldList" class="field-list"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" id="previewBtn">Vorschau</button>
+                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="btn btn-soft-primary" id="saveTemplateBtn">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Template speichern
+                    </button>
                 </div>
             </div>
         </div>
@@ -307,6 +331,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
         const fieldModal = new bootstrap.Modal(document.getElementById('fieldModal'));
         const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+        const templateFormModal = new bootstrap.Modal(document.getElementById('templateFormModal'));
 
         document.getElementById('addFieldBtn').addEventListener('click', () => {
             editingFieldIndex = null;
@@ -323,8 +348,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
         document.getElementById('addOptionBtn').addEventListener('click', () => addOption());
         document.getElementById('saveFieldBtn').addEventListener('click', saveField);
         document.getElementById('templateForm').addEventListener('submit', saveTemplate);
-        document.getElementById('previewBtn').addEventListener('click', showPreview);
-        document.getElementById('resetBtn').addEventListener('click', resetForm);
+        document.getElementById('previewBtn')?.addEventListener('click', showPreview);
 
         function updateOptionsVisibility() {
             const fieldType = document.getElementById('fieldType').value;
@@ -651,53 +675,90 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         function renderTemplateList() {
-            const list = document.getElementById('templateList');
-            list.innerHTML = '';
+            const grid = document.getElementById('templateGrid');
+            const empty = document.getElementById('templateGridEmpty');
+            grid.innerHTML = '';
 
             if (!templates || templates.length === 0) {
-                list.innerHTML = '<p class="text-muted">Keine Templates vorhanden</p>';
+                empty.style.display = 'block';
                 return;
             }
+            empty.style.display = 'none';
 
-            templates.forEach(template => {
-                const item = document.createElement('a');
-                item.href = '#';
-                item.className = 'list-group-item list-group-item-action';
-                const isVisual = template.editor_type === 'visual';
-                const editorBadge = isVisual
-                    ? '<span class="badge bg-info ms-2" style="font-size:0.65rem;">Visual</span>'
-                    : '<span class="badge bg-secondary ms-2" style="font-size:0.65rem;">Twig</span>';
-                item.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>${template.name}</strong>${editorBadge}
-                            <br>
-                            <small class="text-muted">${template.category_name || template.category || '-'}</small>
+            // Nach Kategorie gruppieren
+            const grouped = {};
+            templates.forEach(t => {
+                const cat = t.category_name || t.category || 'Sonstige';
+                if (!grouped[cat]) grouped[cat] = [];
+                grouped[cat].push(t);
+            });
+
+            Object.entries(grouped).forEach(([category, items]) => {
+                items.forEach(template => {
+                    const isVisual = template.editor_type === 'visual';
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6 col-lg-4 col-xl-3';
+                    col.innerHTML = `
+                        <div class="card h-100 template-card" style="cursor:pointer;transition:border-color 0.15s;" data-template-id="${template.id}">
+                            <div class="card-body p-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h6 class="mb-1" style="font-size:0.88rem;">${template.name}</h6>
+                                        <span class="badge ${template.category_color || 'text-bg-secondary'}" style="font-size:0.65rem;">${category}</span>
+                                        ${isVisual ? '<span class="badge bg-info ms-1" style="font-size:0.6rem;">Visual</span>' : ''}
+                                    </div>
+                                </div>
+                                ${template.description ? '<p class="text-muted mb-0" style="font-size:0.75rem;line-height:1.3;">' + template.description + '</p>' : ''}
+                            </div>
+                            <div class="card-footer bg-transparent border-top p-2 d-flex gap-1 justify-content-end">
+                                <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
+                                    <i class="fa-solid fa-paintbrush"></i>
+                                </a>
+                                <button class="btn btn-sm btn-outline-secondary btn-edit-template" data-id="${template.id}" title="Felder bearbeiten">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="duplicateTemplate(${template.id}, event)" title="Duplizieren">
+                                    <i class="fa-solid fa-copy"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id}, event)" title="Löschen">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div class="d-flex gap-1">
-                            <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
-                                <i class="fa-solid fa-paintbrush"></i>
-                            </a>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="duplicateTemplate(${template.id}, event)" title="Duplizieren">
-                                <i class="fa-solid fa-copy"></i>
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id}, event)" title="Löschen">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-                item.addEventListener('click', (e) => {
-                    // Nur ignorieren wenn auf einen inneren Button/Link geklickt wurde (nicht das item selbst)
-                    const clickedInnerAction = e.target.closest('button, a:not(.list-group-item)');
-                    if (!clickedInnerAction) {
-                        e.preventDefault();
+                    `;
+
+                    // Klick auf Karte → Editor öffnen
+                    col.querySelector('.template-card').addEventListener('click', (e) => {
+                        if (e.target.closest('button, a')) return;
+                        window.location.href = BASE_PATH + 'settings/documents/visual-editor.php?id=' + template.id;
+                    });
+
+                    // Klick auf Edit-Button → Formular öffnen
+                    col.querySelector('.btn-edit-template').addEventListener('click', (e) => {
+                        e.stopPropagation();
                         loadTemplate(template.id);
-                    }
+                    });
+
+                    grid.appendChild(col);
                 });
-                list.appendChild(item);
             });
         }
+
+        function showFormModal(title) {
+            document.getElementById('formModalTitle').textContent = title || 'Template bearbeiten';
+            templateFormModal.show();
+        }
+
+        // "Neues Template" Button
+        document.getElementById('btn-new-template').addEventListener('click', () => {
+            resetForm();
+            showFormModal('Neues Template erstellen');
+        });
+
+        // Save-Button im Modal-Footer löst Form-Submit aus
+        document.getElementById('saveTemplateBtn').addEventListener('click', () => {
+            document.getElementById('templateForm').requestSubmit();
+        });
 
         async function loadTemplate(id) {
             try {
@@ -712,6 +773,8 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
                 fields = template.fields || [];
                 renderFields();
+
+                showFormModal('Template bearbeiten: ' + template.name);
             } catch (error) {
                 showAlert('Fehler beim Laden des Templates: ' + error.message, {type: 'error', title: 'Fehler'});
             }
