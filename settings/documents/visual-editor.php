@@ -295,7 +295,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 <i class="fa-solid fa-chevron-right"></i>
             </div>
 
-            <div id="ruler-canvas-group" style="display:inline-block;position:relative;">
+            <div id="ruler-canvas-group" style="display:inline-block;position:relative;margin:0 auto;">
                 <!-- Horizontales Lineal (oben) -->
                 <canvas id="ruler-h" style="position:absolute;top:-20px;left:0;height:20px;pointer-events:none;"></canvas>
                 <!-- Vertikales Lineal (links) -->

@@ -50,35 +50,78 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             opacity: 1;
         }
 
-        .field-item {
-            border: 1px solid #dee2e6;
-            border-radius: 0.375rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            position: relative;
-            transition: transform 0.2s ease, background-color 0.2s ease;
-        }
-
-        .field-item .btn-remove {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-        }
-
         .field-list {
-            min-height: 100px;
+            min-height: 40px;
         }
 
-        .drag-handle {
+        .field-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.6rem;
+            border-radius: var(--bs-border-radius);
+            border: 1px solid transparent;
+            transition: background-color 0.1s;
+            cursor: default;
+        }
+
+        .field-item:hover {
+            background: rgba(255,255,255,0.03);
+            border-color: var(--bs-border-color);
+        }
+
+        .field-item + .field-item {
+            border-top-color: rgba(255,255,255,0.05);
+        }
+
+        .field-item .drag-handle {
             cursor: grab;
-            color: #6c757d;
-            margin-right: 0.5rem;
+            color: var(--bs-secondary-color);
+            opacity: 0.4;
+            font-size: 0.75rem;
             user-select: none;
         }
 
-        .drag-handle:active {
-            cursor: grabbing;
+        .field-item:hover .drag-handle { opacity: 0.8; }
+        .field-item .drag-handle:active { cursor: grabbing; }
+
+        .field-item .field-name {
+            font-size: 0.88rem;
+            font-weight: 500;
+            flex-shrink: 0;
         }
+
+        .field-item .field-meta {
+            font-size: 0.72rem;
+            color: var(--bs-secondary-color);
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .field-item .field-badges {
+            display: flex;
+            gap: 0.25rem;
+            flex-shrink: 0;
+        }
+
+        .field-item .field-badges .badge {
+            font-size: 0.6rem;
+            padding: 0.15rem 0.35rem;
+            font-weight: 500;
+        }
+
+        .field-item .field-actions {
+            display: flex;
+            gap: 0.25rem;
+            flex-shrink: 0;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+
+        .field-item:hover .field-actions { opacity: 1; }
 
         .template-preview {
             border: 1px solid #dee2e6;
@@ -503,7 +546,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             fieldList.innerHTML = '';
 
             if (fields.length === 0) {
-                fieldList.innerHTML = '<p class="text-muted">Noch keine Felder hinzugefügt</p>';
+                fieldList.innerHTML = '<p class="text-muted" style="font-size:0.82rem;">Noch keine Felder hinzugefügt</p>';
                 return;
             }
 
@@ -512,32 +555,29 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                 fieldDiv.className = 'field-item';
                 fieldDiv.dataset.index = index;
 
+                const typeIcons = {
+                    text: 'fa-solid fa-font', textarea: 'fa-solid fa-align-left',
+                    richtext: 'fa-solid fa-bold', date: 'fa-solid fa-calendar',
+                    number: 'fa-solid fa-hashtag', select: 'fa-solid fa-list',
+                    db_dg: 'fa-solid fa-star', db_rdq: 'fa-solid fa-user-nurse'
+                };
+                const icon = typeIcons[field.field_type] || 'fa-solid fa-i-cursor';
+
                 let badges = '';
-                if (field.is_required) {
-                    badges += '<span class="badge bg-danger ms-2">Pflichtfeld</span>';
-                }
-                if (field.gender_specific) {
-                    badges += '<span class="badge bg-info ms-2">Geschlechtsspezifisch</span>';
-                }
-                if (field.field_type === 'db_dg' || field.field_type === 'db_rdq') {
-                    badges += '<span class="badge bg-success ms-2">DB-Feld</span>';
-                }
+                if (field.is_required) badges += '<span class="badge bg-danger">Pflicht</span>';
+                if (field.gender_specific) badges += '<span class="badge bg-info">m/w</span>';
+                if (field.field_type === 'db_dg' || field.field_type === 'db_rdq') badges += '<span class="badge bg-success">DB</span>';
 
                 fieldDiv.innerHTML = `
-                    <button type="button" class="btn btn-sm btn-soft-danger btn-icon btn-remove" onclick="removeField(${index})">×</button>
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="drag-handle">☰</span>
-                        <strong>${field.field_label}</strong>
-                        ${badges}
-                    </div>
-                    <div class="text-muted small">
-                        Typ: ${getFieldTypeLabel(field.field_type)} | 
-                        Name: ${field.field_name}
-                        ${field.field_options && field.field_options.length > 0 ? ` | ${field.field_options.length} Optionen` : ''}
-                    </div>
-                    <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="editField(${index})">
-                        Bearbeiten
-                    </button>
+                    <span class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></span>
+                    <i class="${icon}" style="font-size:0.75rem;color:var(--bs-secondary-color);width:16px;text-align:center;flex-shrink:0;"></i>
+                    <span class="field-name">${field.field_label}</span>
+                    <span class="field-meta">${field.field_name}</span>
+                    <span class="field-badges">${badges}</span>
+                    <span class="field-actions">
+                        <button type="button" class="btn btn-sm btn-ghost" style="padding:0.1rem 0.3rem;font-size:0.75rem;" onclick="editField(${index})" title="Bearbeiten"><i class="fa-solid fa-pen"></i></button>
+                        <button type="button" class="btn btn-sm btn-ghost text-danger" style="padding:0.1rem 0.3rem;font-size:0.75rem;" onclick="removeField(${index})" title="Löschen"><i class="fa-solid fa-xmark"></i></button>
+                    </span>
                 `;
                 fieldList.appendChild(fieldDiv);
             });
