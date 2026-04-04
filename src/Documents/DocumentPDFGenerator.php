@@ -59,33 +59,16 @@ class DocumentPDFGenerator
         $options->set('isRemoteEnabled', false);
         $options->set('defaultFont', 'DejaVu Sans');
         $options->set('isFontSubsettingEnabled', true);
+        $options->set('dpi', 150);
 
         $dompdf = new Dompdf($options);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->loadHtml($html);
         $dompdf->render();
 
-        $templatesWithPageNumbers = [
-            'ernennung.html.twig',
-            'befoerderung.html.twig',
-            'ausbildung.html.twig',
-            'fachlehrgang.html.twig',
-            'entlassung.html.twig'
-        ];
-
-        if (in_array($templateFile, $templatesWithPageNumbers)) {
-            $canvas = $dompdf->getCanvas();
-            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
-                $font = $fontMetrics->getFont("DejaVu Sans");
-                $size = 8.5;
-                $text = "$pageNumber von $pageCount";
-
-                $x = 86;
-                $y = 64;
-
-                $canvas->text($x, $y, $text, $font, $size, [0, 0, 0]);
-            });
-        }
+        // Seitenzahl: Position aus dem HTML extrahieren (data-page-number Elemente)
+        // oder Fallback auf hardcoded Positionen für Legacy-Templates
+        $this->applyPageNumbers($html, $dompdf, $templateFile);
 
         file_put_contents($filepath, $dompdf->output());
 
@@ -102,6 +85,52 @@ class DocumentPDFGenerator
     private function generateFilename(string $docid): string
     {
         return $docid . '.pdf';
+    }
+
+    /**
+     * Seitenzahlen auf das PDF anwenden.
+     * Erkennt data-page-number Elemente im HTML (vom Visual Editor) oder
+     * fällt auf Legacy-Positionen für bekannte Twig-Templates zurück.
+     */
+    private function applyPageNumbers(string $html, Dompdf $dompdf, string $templateFile): void
+    {
+        $mmToPt = 2.8346;
+
+        // 1. Prüfe ob das HTML data-page-number Elemente enthält (Visual Editor)
+        if (preg_match('/data-page-number="true"\s+data-pn-left="([^"]+)"\s+data-pn-top="([^"]+)"(?:\s+data-pn-format="([^"]*)")?/', $html, $m)) {
+            $leftMm = (float) $m[1];
+            $topMm = (float) $m[2];
+            $format = html_entity_decode($m[3] ?? '{page} von {pages}', ENT_QUOTES, 'UTF-8');
+
+            $x = $leftMm * $mmToPt;
+            $y = $topMm * $mmToPt;
+
+            $canvas = $dompdf->getCanvas();
+            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) use ($x, $y, $format) {
+                $font = $fontMetrics->getFont("DejaVu Sans");
+                $text = str_replace(['{page}', '{pages}'], [$pageNumber, $pageCount], $format);
+                $canvas->text($x, $y, $text, $font, 8.5, [0, 0, 0]);
+            });
+            return;
+        }
+
+        // 2. Legacy-Fallback: hardcoded Positionen für bekannte Twig-Templates
+        $templatesWithPageNumbers = [
+            'ernennung.html.twig',
+            'befoerderung.html.twig',
+            'ausbildung.html.twig',
+            'fachlehrgang.html.twig',
+            'entlassung.html.twig',
+        ];
+
+        if (in_array($templateFile, $templatesWithPageNumbers)) {
+            $canvas = $dompdf->getCanvas();
+            $canvas->page_script(function ($pageNumber, $pageCount, $canvas, $fontMetrics) {
+                $font = $fontMetrics->getFont("DejaVu Sans");
+                $text = "$pageNumber von $pageCount";
+                $canvas->text(57, 68, $text, $font, 8.5, [0, 0, 0]);
+            });
+        }
     }
 
     /**

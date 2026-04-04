@@ -168,7 +168,7 @@ function generateTwigTemplate(array $data): string
         }
 
         body {
-            font-family: DejaVu Sans, Arial, sans-serif;
+            font-family: 'DejaVu Sans', Arial, sans-serif;
             margin: 0;
             padding: 20mm 25mm;
             font-size: 11pt;
