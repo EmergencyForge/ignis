@@ -237,6 +237,37 @@
             getEditor()?.drawGuides(e.target.checked);
         });
 
+        // Vorschau-Modus: Platzhalter durch Beispieldaten ersetzen
+        document.getElementById('chk-preview-data')?.addEventListener('change', (e) => {
+            getEditor()?.togglePreviewMode(e.target.checked);
+        });
+
+        // Auto-Save Toggle
+        const autosaveChk = document.getElementById('chk-autosave');
+        if (autosaveChk) {
+            // Zustand aus localStorage wiederherstellen
+            const stored = localStorage.getItem('editor-autosave');
+            if (stored === 'false') autosaveChk.checked = false;
+
+            autosaveChk.addEventListener('change', (e) => {
+                const editor = getEditor();
+                if (!editor) return;
+                editor.autoSaveEnabled = e.target.checked;
+                localStorage.setItem('editor-autosave', e.target.checked);
+
+                const indicator = document.getElementById('autosave-indicator');
+                if (!e.target.checked) {
+                    // Laufenden Timer stoppen
+                    clearTimeout(editor._autoSaveTimer);
+                    clearInterval(editor._autoSaveCountdown);
+                    if (indicator) indicator.textContent = editor._isDirty ? 'Ungespeichert' : '';
+                } else if (editor._isDirty) {
+                    // Timer neu starten wenn dirty
+                    editor.isDirty = true; // Setter löst Timer aus
+                }
+            });
+        }
+
         // Seitenränder-Preset
         document.getElementById('sel-margins')?.addEventListener('change', (e) => {
             getEditor()?.setMarginPreset(e.target.value);

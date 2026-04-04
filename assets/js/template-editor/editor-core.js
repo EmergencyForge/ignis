@@ -33,6 +33,7 @@
             this._isDirty = false;
             this._clipboard = null;
             this.marginPreset = 'schmal';
+            this.autoSaveEnabled = localStorage.getItem('editor-autosave') !== 'false'; // default: an
             this.init();
         }
 
@@ -41,22 +42,26 @@
             this._isDirty = val;
             this.updateDirtyIndicator();
             const indicator = document.getElementById('autosave-indicator');
-            // Auto-Save: 60s nach letzter Aenderung
+            // Auto-Save: 60s nach letzter Aenderung (nur wenn aktiviert)
             if (val) {
                 clearTimeout(this._autoSaveTimer);
                 clearInterval(this._autoSaveCountdown);
-                let remaining = 60;
-                if (indicator) indicator.textContent = 'Auto-Save in ' + remaining + 's';
-                this._autoSaveCountdown = setInterval(() => {
-                    remaining--;
-                    if (indicator) indicator.textContent = remaining > 0 ? 'Auto-Save in ' + remaining + 's' : 'Speichere...';
-                    if (remaining <= 0) clearInterval(this._autoSaveCountdown);
-                }, 1000);
-                this._autoSaveTimer = setTimeout(() => {
-                    clearInterval(this._autoSaveCountdown);
-                    if (indicator) indicator.textContent = 'Speichere...';
-                    if (this._isDirty && !this.isSaving) this.save();
-                }, 60000);
+                if (this.autoSaveEnabled) {
+                    let remaining = 60;
+                    if (indicator) indicator.textContent = 'Auto-Save in ' + remaining + 's';
+                    this._autoSaveCountdown = setInterval(() => {
+                        remaining--;
+                        if (indicator) indicator.textContent = remaining > 0 ? 'Auto-Save in ' + remaining + 's' : 'Speichere...';
+                        if (remaining <= 0) clearInterval(this._autoSaveCountdown);
+                    }, 1000);
+                    this._autoSaveTimer = setTimeout(() => {
+                        clearInterval(this._autoSaveCountdown);
+                        if (indicator) indicator.textContent = 'Speichere...';
+                        if (this._isDirty && !this.isSaving) this.save();
+                    }, 60000);
+                } else {
+                    if (indicator) indicator.textContent = 'Ungespeichert';
+                }
             } else {
                 clearTimeout(this._autoSaveTimer);
                 clearInterval(this._autoSaveCountdown);
@@ -515,6 +520,31 @@
             const textbox = new fabric.Textbox('{{ ' + fieldName + ' }}', opts);
             this.canvas.add(textbox);
             this.canvas.setActiveObject(textbox);
+            this.saveState();
+            this.isDirty = true;
+            return textbox;
+        }
+
+        addPageNumber(options = {}) {
+            const center = this.getViewportCenter();
+            const defaults = {
+                left: center.left,
+                top: center.top,
+                width: 100,
+                fontSize: Math.round(8.5 * 1.333),
+                fontFamily: 'DejaVu Sans',
+                fill: '#000000',
+                custom: {
+                    elementType: 'page_number',
+                    pageNumberFormat: '{page} von {pages}',
+                },
+            };
+            const opts = Object.assign({}, defaults, options);
+            const textbox = new fabric.Textbox('{page} von {pages}', opts);
+            this.canvas.add(textbox);
+            this.canvas.setActiveObject(textbox);
+            this._applyPlaceholderHighlights();
+            this.canvas.renderAll();
             this.saveState();
             this.isDirty = true;
             return textbox;
@@ -1078,6 +1108,121 @@
             this.canvas.renderAll();
         }
 
+        // ==================================================================
+        // Vorschau-Modus: Platzhalter ↔ Beispieldaten
+        // ==================================================================
+
+        togglePreviewMode(enabled) {
+            this._previewMode = enabled;
+            const previewData = CONFIG.previewData || {};
+            const objects = this.canvas.getObjects().filter(o => o.type === 'textbox' || o.type === 'text');
+
+            objects.forEach(obj => {
+                const custom = obj.custom || {};
+                const et = custom.elementType || '';
+
+                if (et === 'page_number') {
+                    // Seitenzahl
+                    if (enabled) {
+                        if (!obj._originalText) obj._originalText = obj.text;
+                        obj.set('text', previewData['_page_number'] || '1 von 1');
+                        obj.set('backgroundColor', '');
+                    } else if (obj._originalText) {
+                        obj.set('text', obj._originalText);
+                    }
+                    return;
+                }
+
+                if (et !== 'field_placeholder' && et !== 'system_var') return;
+
+                if (enabled) {
+                    // Speichere Originaltext und ersetze Platzhalter
+                    if (!obj._originalText) obj._originalText = obj.text;
+                    let text = obj._originalText;
+
+                    // Alle {{ variable }} im Text ersetzen
+                    text = text.replace(/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g, (match, varName) => {
+                        return previewData[varName] || match;
+                    });
+
+                    obj.set('text', text);
+                    obj.set('backgroundColor', '');
+                } else {
+                    // Originaltext wiederherstellen
+                    if (obj._originalText) {
+                        obj.set('text', obj._originalText);
+                        delete obj._originalText;
+                    }
+                }
+            });
+
+            // Farbliche Markierung im Editier-Modus
+            if (!enabled) {
+                this._applyPlaceholderHighlights();
+            }
+
+            this.canvas.renderAll();
+        }
+
+        /**
+         * Markiert Platzhalter-Felder mit einem subtilen farbigen Hintergrund,
+         * damit sie visuell von statischem Text unterscheidbar sind.
+         */
+        _applyPlaceholderHighlights() {
+            this.canvas.getObjects().forEach(obj => {
+                if (obj.type !== 'textbox' && obj.type !== 'text') return;
+                const text = obj.text || '';
+                if (!text.includes('{{') && !text.includes('{page') && !text.includes('{pages')) return;
+
+                // Character-Level Styles: {{ ... }} Bereiche farblich markieren
+                const et = (obj.custom || {}).elementType || '';
+                const color = et === 'page_number' ? 'rgba(168, 85, 247, 0.15)'
+                    : et === 'system_var' ? 'rgba(34, 197, 94, 0.12)'
+                    : 'rgba(59, 130, 246, 0.12)';
+
+                // Alle {{ var }} und {page}/{pages} Matches finden
+                const patterns = [/\{\{[^}]+\}\}/g, /\{page\}/g, /\{pages\}/g];
+                const ranges = [];
+                for (const pat of patterns) {
+                    let m;
+                    while ((m = pat.exec(text)) !== null) {
+                        ranges.push([m.index, m.index + m[0].length]);
+                    }
+                }
+
+                if (ranges.length === 0) return;
+
+                // Fabric.js styles: { lineIndex: { charIndex: { props } } }
+                // Bestehende styles beibehalten, nur textBackgroundColor hinzufügen
+                const lines = text.split('\n');
+                let charOffset = 0;
+
+                for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+                    const lineLen = lines[lineIdx].length;
+                    const lineStart = charOffset;
+                    const lineEnd = charOffset + lineLen;
+
+                    for (const [rStart, rEnd] of ranges) {
+                        // Überschneidung mit dieser Zeile?
+                        const overlapStart = Math.max(rStart, lineStart);
+                        const overlapEnd = Math.min(rEnd, lineEnd);
+
+                        if (overlapStart < overlapEnd) {
+                            if (!obj.styles[lineIdx]) obj.styles[lineIdx] = {};
+                            for (let ci = overlapStart - lineStart; ci < overlapEnd - lineStart; ci++) {
+                                if (!obj.styles[lineIdx][ci]) obj.styles[lineIdx][ci] = {};
+                                obj.styles[lineIdx][ci].textBackgroundColor = color;
+                            }
+                        }
+                    }
+
+                    charOffset = lineEnd + 1; // +1 for \n
+                }
+
+                obj.dirty = true;
+            });
+        }
+
         bringForward() {
             const active = this.canvas.getActiveObject();
             if (!active) return;
@@ -1397,6 +1542,28 @@
             // Versteckte Elemente temporaer sichtbar machen fuer den Export
             this._restoreVisibility();
 
+            // Preview-Modus temporär deaktivieren für sauberen Export
+            const wasPreview = this._previewMode;
+            if (wasPreview) this.togglePreviewMode(false);
+
+            // Character-Level Highlights entfernen für sauberen JSON-Export
+            this.canvas.getObjects().forEach(obj => {
+                if (obj.type !== 'textbox' && obj.type !== 'text') return;
+                if (!obj.styles) return;
+                for (const lineIdx in obj.styles) {
+                    for (const charIdx in obj.styles[lineIdx]) {
+                        delete obj.styles[lineIdx][charIdx].textBackgroundColor;
+                        // Leere Char-Style-Objekte aufräumen
+                        if (Object.keys(obj.styles[lineIdx][charIdx]).length === 0) {
+                            delete obj.styles[lineIdx][charIdx];
+                        }
+                    }
+                    if (Object.keys(obj.styles[lineIdx]).length === 0) {
+                        delete obj.styles[lineIdx];
+                    }
+                }
+            });
+
             const btn = document.getElementById('btn-save');
             const origHtml = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Speichern...';
@@ -1435,6 +1602,11 @@
                 btn.innerHTML = origHtml;
                 btn.disabled = false;
                 this.isSaving = false;
+
+                // Highlights und Preview-Modus wiederherstellen
+                this._applyPlaceholderHighlights();
+                if (wasPreview) this.togglePreviewMode(true);
+                this.canvas.renderAll();
             }
         }
 
@@ -1450,6 +1622,7 @@
                     const json = JSON.parse(result.layout.canvas_json);
                     await this.canvas.loadFromJSON(json);
                     this._restoreLockStates();
+                    this._applyPlaceholderHighlights();
                     this.canvas.renderAll();
                     this.updateLayerList();
                     this.undoStack = [JSON.stringify(json)];
@@ -1576,6 +1749,7 @@
                 custom: { elementType: 'static_text' },
             });
 
+            this._applyPlaceholderHighlights();
             this.saveState();
             this.updateLayerList();
         }

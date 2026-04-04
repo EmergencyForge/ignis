@@ -1133,6 +1133,8 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
                         // Als eine Textbox mit Zeilenumbruch
                         const combinedText = titleText + (orgText ? '\n' + orgText : '');
+                        // Typ bestimmen: wenn Platzhalter enthalten → system_var
+                        const hasVars = combinedText.includes('{{');
                         objects.push({
                             type: 'textbox',
                             left: Math.round((cr.left + 2) * 10) / 10,
@@ -1146,7 +1148,9 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                             textAlign: 'center',
                             lineHeight: 1.4,
                             originX: 'left', originY: 'top',
-                            custom: { elementType: 'static_text' },
+                            custom: hasVars
+                                ? { elementType: 'system_var', varName: 'RP_ORGTYPE' }
+                                : { elementType: 'static_text' },
                         });
                     }
 
