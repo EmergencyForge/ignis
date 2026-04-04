@@ -121,7 +121,24 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             transition: opacity 0.1s;
         }
 
-        .field-item:hover .field-actions { opacity: 1; }
+        .field-item:hover .field-actions,
+        .field-item.editing .field-actions { opacity: 1; }
+
+        .field-item.editing {
+            background: rgba(255,255,255,0.03);
+            border-color: var(--bs-primary);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .field-edit-panel {
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--bs-primary);
+            border-top: none;
+            border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius);
+            margin-bottom: 0.5rem;
+        }
 
         .template-preview {
             border: 1px solid #dee2e6;
@@ -377,13 +394,32 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
         const templateFormModal = new bootstrap.Modal(document.getElementById('templateFormModal'));
 
         document.getElementById('addFieldBtn').addEventListener('click', () => {
-            editingFieldIndex = null;
-            document.getElementById('fieldForm').reset();
-            document.getElementById('fieldIndex').value = '';
-            document.getElementById('optionsList').innerHTML = '';
-            document.getElementById('genderSpecific').checked = false;
-            updateOptionsVisibility();
-            fieldModal.show();
+            // Neues leeres Feld am Ende hinzufügen und inline aufklappen
+            const newField = {
+                field_label: '',
+                field_name: '',
+                field_type: 'text',
+                is_required: false,
+                gender_specific: false,
+                field_options: null,
+                sort_order: fields.length,
+            };
+            fields.push(newField);
+            renderFields();
+
+            // Letztes Feld aufklappen
+            const fieldList = document.getElementById('fieldList');
+            const lastWrapper = fieldList.lastElementChild;
+            if (lastWrapper) {
+                const editPanel = lastWrapper.querySelector('.field-edit-panel');
+                const row = lastWrapper.querySelector('.field-item');
+                if (editPanel) {
+                    editPanel.style.display = 'block';
+                    row?.classList.add('editing');
+                    initFieldEditPanel(editPanel, newField, fields.length - 1);
+                    editPanel.querySelector('[data-edit="label"]')?.focus();
+                }
+            }
         });
 
         document.getElementById('fieldType').addEventListener('change', updateOptionsVisibility);
@@ -551,9 +587,8 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             }
 
             fields.forEach((field, index) => {
-                const fieldDiv = document.createElement('div');
-                fieldDiv.className = 'field-item';
-                fieldDiv.dataset.index = index;
+                const wrapper = document.createElement('div');
+                wrapper.dataset.index = index;
 
                 const typeIcons = {
                     text: 'fa-solid fa-font', textarea: 'fa-solid fa-align-left',
@@ -568,18 +603,46 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                 if (field.gender_specific) badges += '<span class="badge bg-info">m/w</span>';
                 if (field.field_type === 'db_dg' || field.field_type === 'db_rdq') badges += '<span class="badge bg-success">DB</span>';
 
-                fieldDiv.innerHTML = `
+                // Kompakte Zeile
+                const row = document.createElement('div');
+                row.className = 'field-item';
+                row.innerHTML = `
                     <span class="drag-handle"><i class="fa-solid fa-grip-vertical"></i></span>
                     <i class="${icon}" style="font-size:0.75rem;color:var(--bs-secondary-color);width:16px;text-align:center;flex-shrink:0;"></i>
                     <span class="field-name">${field.field_label}</span>
                     <span class="field-meta">${field.field_name}</span>
                     <span class="field-badges">${badges}</span>
                     <span class="field-actions">
-                        <button type="button" class="btn btn-sm btn-ghost" style="padding:0.1rem 0.3rem;font-size:0.75rem;" onclick="editField(${index})" title="Bearbeiten"><i class="fa-solid fa-pen"></i></button>
-                        <button type="button" class="btn btn-sm btn-ghost text-danger" style="padding:0.1rem 0.3rem;font-size:0.75rem;" onclick="removeField(${index})" title="Löschen"><i class="fa-solid fa-xmark"></i></button>
+                        <button type="button" class="btn btn-sm btn-ghost btn-toggle-edit" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Bearbeiten"><i class="fa-solid fa-pen"></i></button>
+                        <button type="button" class="btn btn-sm btn-ghost text-danger btn-remove-field" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Löschen"><i class="fa-solid fa-xmark"></i></button>
                     </span>
                 `;
-                fieldList.appendChild(fieldDiv);
+                wrapper.appendChild(row);
+
+                // Inline-Editier-Bereich (eingeklappt)
+                const editPanel = document.createElement('div');
+                editPanel.className = 'field-edit-panel';
+                editPanel.style.display = 'none';
+                editPanel.innerHTML = buildFieldEditHtml(field, index);
+                wrapper.appendChild(editPanel);
+
+                // Toggle Edit
+                row.querySelector('.btn-toggle-edit').addEventListener('click', () => {
+                    const isOpen = editPanel.style.display !== 'none';
+                    // Alle anderen schließen
+                    fieldList.querySelectorAll('.field-edit-panel').forEach(p => p.style.display = 'none');
+                    fieldList.querySelectorAll('.field-item').forEach(r => r.classList.remove('editing'));
+                    if (!isOpen) {
+                        editPanel.style.display = 'block';
+                        row.classList.add('editing');
+                        initFieldEditPanel(editPanel, field, index);
+                    }
+                });
+
+                // Remove
+                row.querySelector('.btn-remove-field').addEventListener('click', () => removeField(index));
+
+                fieldList.appendChild(wrapper);
             });
 
             if (sortable) {
@@ -615,7 +678,135 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             }
         }
 
+        function buildFieldEditHtml(field, index) {
+            const isSelect = field.field_type === 'select';
+            const isDb = field.field_type === 'db_dg' || field.field_type === 'db_rdq';
+            const showOptions = isSelect;
+            const showGender = isSelect;
+
+            return `
+                <div class="row g-2 mb-2">
+                    <div class="col-5">
+                        <label class="form-label" style="font-size:0.72rem;">Label</label>
+                        <input type="text" class="form-control form-control-sm" data-edit="label" value="${field.field_label}">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label" style="font-size:0.72rem;">Name (technisch)</label>
+                        <input type="text" class="form-control form-control-sm" data-edit="name" value="${field.field_name}" pattern="[a-z_]+">
+                    </div>
+                    <div class="col-3">
+                        <label class="form-label" style="font-size:0.72rem;">Typ</label>
+                        <select class="form-select form-select-sm" data-edit="type">
+                            <option value="text"${field.field_type === 'text' ? ' selected' : ''}>Text</option>
+                            <option value="textarea"${field.field_type === 'textarea' ? ' selected' : ''}>Mehrzeilig</option>
+                            <option value="richtext"${field.field_type === 'richtext' ? ' selected' : ''}>Rich-Text</option>
+                            <option value="date"${field.field_type === 'date' ? ' selected' : ''}>Datum</option>
+                            <option value="number"${field.field_type === 'number' ? ' selected' : ''}>Zahl</option>
+                            <option value="select"${field.field_type === 'select' ? ' selected' : ''}>Auswahl</option>
+                            <option value="db_dg"${field.field_type === 'db_dg' ? ' selected' : ''}>Dienstgrad (DB)</option>
+                            <option value="db_rdq"${field.field_type === 'db_rdq' ? ' selected' : ''}>RD-Quali (DB)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <label class="form-check mb-0" style="font-size:0.78rem;">
+                        <input class="form-check-input" type="checkbox" data-edit="required"${field.is_required ? ' checked' : ''}>
+                        <span class="form-check-label">Pflichtfeld</span>
+                    </label>
+                    <label class="form-check mb-0" style="font-size:0.78rem;${showGender ? '' : 'display:none;'}" data-edit="gender-wrap">
+                        <input class="form-check-input" type="checkbox" data-edit="gender"${field.gender_specific ? ' checked' : ''}>
+                        <span class="form-check-label">Geschlechtsspezifisch</span>
+                    </label>
+                    ${isDb ? '<span class="badge bg-info" style="font-size:0.65rem;">Daten aus DB — automatisch geschlechtsspezifisch</span>' : ''}
+                </div>
+                <div data-edit="options-area" style="${showOptions ? '' : 'display:none;'}">
+                    <div data-edit="options-list"></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-1" data-edit="add-option" style="font-size:0.72rem;">+ Option</button>
+                </div>
+                <div class="d-flex gap-2 mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.06);">
+                    <button type="button" class="btn btn-sm btn-soft-primary" data-edit="save"><i class="fa-solid fa-check me-1"></i>Übernehmen</button>
+                    <button type="button" class="btn btn-sm btn-ghost" data-edit="cancel">Abbrechen</button>
+                </div>
+            `;
+        }
+
+        function initFieldEditPanel(panel, field, index) {
+            const typeSelect = panel.querySelector('[data-edit="type"]');
+            const optionsArea = panel.querySelector('[data-edit="options-area"]');
+            const genderWrap = panel.querySelector('[data-edit="gender-wrap"]');
+            const optionsList = panel.querySelector('[data-edit="options-list"]');
+
+            // Typ-Wechsel → Optionen/Gender ein-/ausblenden
+            typeSelect.addEventListener('change', () => {
+                const t = typeSelect.value;
+                optionsArea.style.display = t === 'select' ? '' : 'none';
+                if (genderWrap) genderWrap.style.display = (t === 'select') ? '' : 'none';
+            });
+
+            // Bestehende Optionen rendern
+            if (field.field_type === 'select' && field.field_options) {
+                field.field_options.forEach(opt => addInlineOption(optionsList, opt.value, opt.label));
+            }
+
+            // Option hinzufügen
+            panel.querySelector('[data-edit="add-option"]').addEventListener('click', () => {
+                addInlineOption(optionsList, '', '');
+            });
+
+            // Übernehmen
+            panel.querySelector('[data-edit="save"]').addEventListener('click', () => {
+                const label = panel.querySelector('[data-edit="label"]').value.trim();
+                const name = panel.querySelector('[data-edit="name"]').value.trim();
+                if (!label || !name) { showAlert('Label und Name sind Pflicht', {type: 'warning'}); return; }
+
+                const type = typeSelect.value;
+                let options = null;
+                if (type === 'select') {
+                    options = [];
+                    optionsList.querySelectorAll('.inline-option').forEach(row => {
+                        const v = row.querySelector('[data-opt="value"]').value;
+                        const l = row.querySelector('[data-opt="label"]').value;
+                        if (v && l) options.push({ value: v, label: l });
+                    });
+                } else if (type === 'db_dg') {
+                    options = DIENSTGRADE.map(dg => ({ value: dg.id, label: dg.name, label_m: dg.name_m, label_w: dg.name_w }));
+                } else if (type === 'db_rdq') {
+                    options = RD_QUALIS.map(rd => ({ value: rd.id, label: rd.name, label_m: rd.name_m, label_w: rd.name_w }));
+                }
+
+                fields[index] = {
+                    field_label: label,
+                    field_name: name,
+                    field_type: type,
+                    is_required: panel.querySelector('[data-edit="required"]').checked,
+                    gender_specific: (panel.querySelector('[data-edit="gender"]')?.checked) || type === 'db_dg' || type === 'db_rdq',
+                    field_options: options,
+                    sort_order: index,
+                };
+                renderFields();
+            });
+
+            // Abbrechen
+            panel.querySelector('[data-edit="cancel"]').addEventListener('click', () => {
+                panel.style.display = 'none';
+                panel.previousElementSibling?.classList.remove('editing');
+            });
+        }
+
+        function addInlineOption(container, value, label) {
+            const row = document.createElement('div');
+            row.className = 'inline-option d-flex gap-2 mb-1';
+            row.innerHTML = `
+                <input type="text" class="form-control form-control-sm" data-opt="value" value="${value}" placeholder="Wert" style="width:80px;flex:0 0 80px;">
+                <input type="text" class="form-control form-control-sm" data-opt="label" value="${label}" placeholder="Label">
+                <button type="button" class="btn btn-sm btn-ghost text-danger" style="padding:0.1rem 0.3rem;" onclick="this.closest('.inline-option').remove()"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            container.appendChild(row);
+        }
+
+        // Legacy editField — redirect to inline
         function editField(index) {
+            // Wird nicht mehr direkt aufgerufen, aber als Fallback behalten
             editingFieldIndex = index;
             const field = fields[index];
 
