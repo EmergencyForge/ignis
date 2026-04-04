@@ -292,12 +292,7 @@
                     break;
                 case 'add-docvar':
                     if (data.var === '_page_number') {
-                        editor.addText('{page} von {pages}', {
-                            ...posOpts,
-                            width: 80,
-                            fontSize: 8.5,
-                            custom: { elementType: 'page_number', pageNumberFormat: '{page} von {pages}' },
-                        });
+                        editor.addPageNumber(posOpts);
                     } else {
                         editor.addFieldPlaceholder(data.var, data.label, {
                             ...posOpts,
@@ -337,13 +332,17 @@
                     break;
 
                 case 'add-docvar':
-                    editor.addFieldPlaceholder(item.dataset.var, item.dataset.label, {
-                        custom: {
-                            elementType: 'field_placeholder',
-                            fieldName: item.dataset.var,
-                            fieldLabel: item.dataset.label,
-                        }
-                    });
+                    if (item.dataset.var === '_page_number') {
+                        editor.addPageNumber();
+                    } else {
+                        editor.addFieldPlaceholder(item.dataset.var, item.dataset.label, {
+                            custom: {
+                                elementType: 'field_placeholder',
+                                fieldName: item.dataset.var,
+                                fieldLabel: item.dataset.label,
+                            }
+                        });
+                    }
                     break;
 
                 case 'add-block':
