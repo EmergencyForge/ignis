@@ -28,11 +28,9 @@
 .editor-canvas-area {
   flex: 1;
   overflow: auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
   padding: 20px;
   background: #1e1c24;
+  text-align: center;
 }
 
 .editor-properties {
