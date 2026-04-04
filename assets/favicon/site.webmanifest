@@ -1,5 +1,5 @@
 {
-  "name": "intraRP Fraktionsverwaltung",
+  "name": "intraRP by EmergencyForge",
   "short_name": "intraRP",
   "icons": [
     {
@@ -15,7 +15,7 @@
       "purpose": "maskable"
     }
   ],
-  "theme_color": "#d10000",
-  "background_color": "#d10000",
+  "theme_color": "#ff4d00",
+  "background_color": "#ff4d00",
   "display": "standalone"
 }
