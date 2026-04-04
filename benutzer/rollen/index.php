@@ -147,6 +147,10 @@ if (!Permissions::check(['admin', 'users.view'])) {
                                     'personnel.documents.manage' => 'Mitarbeiter-Dokumente verwalten',
                                     'audit.view' => 'Logs einsehen',
                                 ],
+                                'Fahrtenbuch' => [
+                                    'fahrtenbuch.view' => 'Fahrtenbuch ansehen',
+                                    'fahrtenbuch.manage' => 'Fahrtenbuch verwalten (erstellen, bearbeiten, löschen)'
+                                ],
                                 'Sonstiges' => [
                                     'admin' => '<strong> Admin (Alle Rechte)</strong>',
                                     'dashboard.manage' => 'Dashboard verwalten',

@@ -1497,6 +1497,7 @@ button#save-anamnese-btn {
 }
 
 #edivi__login input.form-control,
+#edivi__login textarea.form-control,
 #edivi__login select.form-select {
   background-color: #333333;
   border-radius: 0;
@@ -1506,12 +1507,15 @@ button#save-anamnese-btn {
 }
 
 #edivi__login input.form-control:focus,
+#edivi__login textarea.form-control:focus,
 #edivi__login select.form-select:focus {
   box-shadow: 0 0 0 1px #5783cf !important;
 }
 
 #edivi__login input.form-control[readonly],
 #edivi__login input.form-control[disabled],
+#edivi__login textarea.form-control[readonly],
+#edivi__login textarea.form-control[disabled],
 #edivi__login select.form-select[readonly],
 #edivi__login select.form-select[disabled] {
   box-shadow: none !important;
@@ -1529,7 +1533,8 @@ button#save-anamnese-btn {
   margin: 0;
 }
 
-#edivi__login input.form-control::placeholder {
+#edivi__login input.form-control::placeholder,
+#edivi__login textarea.form-control::placeholder {
   color: #a2a2a2;
 }
 

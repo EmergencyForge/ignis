@@ -939,6 +939,9 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <div class="sidebar-submenu-inner">
                     <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php" class="sidebar-sublink">Übersicht</a>
                     <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index.php" class="sidebar-sublink">Defekt-Meldungen</a>
+                    <?php if (Permissions::check(['admin', 'fahrtenbuch.view', 'fahrtenbuch.manage'])): ?>
+                        <a href="<?= BASE_PATH ?>fahrtenbuch/index.php" class="sidebar-sublink">Fahrtenbuch</a>
+                    <?php endif; ?>
                     <?php if (Permissions::check(['admin', 'vehicles.manage'])): ?>
                         <a href="<?= BASE_PATH ?>settings/fahrzeuge/beladelisten/index.php" class="sidebar-sublink">Beladelisten</a>
                     <?php endif; ?>

@@ -87,6 +87,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             <a href="' . EnotfUrl::page('fahrzeuginfo') . '" class="edivi__iconlink">
                 <i class="fa-solid fa-truck-medical"></i><br>
                 <small>Fahrzeuginfo</small>
+            </a>
+            <a href="' . EnotfUrl::page('fahrtenbuch') . '" class="edivi__iconlink">
+                <i class="fa-solid fa-book"></i><br>
+                <small>Fahrtenbuch</small>
             </a>';
         $topbar_sync = ['leitstelle', 'session'];
         $topbar_show_notices = false;
