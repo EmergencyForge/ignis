@@ -504,6 +504,9 @@ $migrationFiles = [
 
     // 02.04.2026 - Dokument-Archivierung
     ['file' => 'alter_intra_mitarbeiter_dokumente_02042026.php', 'type' => 'alter'],
+
+    // 04.04.2026
+    ['file' => 'create_intra_fahrtenbuch_04042026.php', 'type' => 'create'],
 ];
 
 $executed = 0;
