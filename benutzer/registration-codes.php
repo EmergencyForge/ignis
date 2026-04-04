@@ -33,9 +33,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     ]);
 
     // URL aus SYSTEM_URL bauen, oder Fallback aus aktuellem Request
-    $baseUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME')
-        ? rtrim(SYSTEM_URL, '/')
-        : ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']);
+    $sysUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME') ? rtrim(SYSTEM_URL, '/') : '';
+    if ($sysUrl && !preg_match('#^https?://#i', $sysUrl)) {
+        $sysUrl = 'https://' . $sysUrl;
+    }
+    $baseUrl = $sysUrl ?: ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']);
     $inviteUrl = $baseUrl . BASE_PATH . 'invite.php?code=' . $code;
     Flash::set('success', 'Einladungslink erstellt! <br><code class="user-select-all">' . htmlspecialchars($inviteUrl) . '</code>');
     header("Location: " . BASE_PATH . "benutzer/registration-codes.php");
@@ -72,9 +74,11 @@ $stmt = $pdo->query("
 $codes = $stmt->fetchAll();
 
 $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
-$systemUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME')
-    ? rtrim(SYSTEM_URL, '/')
-    : ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']);
+$sysUrlRaw = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME') ? rtrim(SYSTEM_URL, '/') : '';
+if ($sysUrlRaw && !preg_match('#^https?://#i', $sysUrlRaw)) {
+    $sysUrlRaw = 'https://' . $sysUrlRaw;
+}
+$systemUrl = $sysUrlRaw ?: ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']);
 ?>
 
 <!DOCTYPE html>

@@ -40,9 +40,11 @@ try {
         'created_by' => $_SESSION['userid']
     ]);
 
-    $baseUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME')
-        ? rtrim(SYSTEM_URL, '/')
-        : ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']);
+    $sysUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME') ? rtrim(SYSTEM_URL, '/') : '';
+    if ($sysUrl && !preg_match('#^https?://#i', $sysUrl)) {
+        $sysUrl = 'https://' . $sysUrl;
+    }
+    $baseUrl = $sysUrl ?: ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST']);
     $inviteUrl = $baseUrl . BASE_PATH . 'invite.php?code=' . $code;
 
     echo json_encode([
