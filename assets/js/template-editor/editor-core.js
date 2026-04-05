@@ -574,11 +574,17 @@
         }
 
         addImage(imageUrl, assetId, options = {}) {
-            // v6: FabricImage.fromURL returns Promise
-            // Fallback: fabric.Image is aliased to FabricImage in v6 UMD
-            const ImageClass = fabric.FabricImage || fabric.Image;
+            // URL zu absoluter URL auflösen (Unterordner-Kompatibilität)
+            if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+                imageUrl = (imageUrl.startsWith('/') ? window.location.origin : window.location.origin + CONFIG.basePath) + imageUrl;
+            }
 
-            ImageClass.fromURL(imageUrl, { crossOrigin: 'anonymous' }).then((img) => {
+            const ImageClass = fabric.FabricImage || fabric.Image;
+            // crossOrigin nur für externe URLs setzen
+            const isSameOrigin = imageUrl.startsWith(window.location.origin) || imageUrl.startsWith('data:');
+            const loadOpts = isSameOrigin ? {} : { crossOrigin: 'anonymous' };
+
+            ImageClass.fromURL(imageUrl, loadOpts).then((img) => {
                 if (img.width > 200) {
                     img.scaleToWidth(200);
                 }
@@ -601,9 +607,14 @@
         }
 
         setBackgroundImage(imageUrl, assetId) {
+            if (imageUrl && !imageUrl.startsWith('http') && !imageUrl.startsWith('data:')) {
+                imageUrl = (imageUrl.startsWith('/') ? window.location.origin : window.location.origin + CONFIG.basePath) + imageUrl;
+            }
             const ImageClass = fabric.FabricImage || fabric.Image;
+            const isSameOrigin = imageUrl.startsWith(window.location.origin) || imageUrl.startsWith('data:');
+            const loadOpts = isSameOrigin ? {} : { crossOrigin: 'anonymous' };
 
-            ImageClass.fromURL(imageUrl, { crossOrigin: 'anonymous' }).then((img) => {
+            ImageClass.fromURL(imageUrl, loadOpts).then((img) => {
                 img.scaleToWidth(CONFIG.canvasWidth);
                 img.set({
                     custom: { elementType: 'background', assetId: assetId },
@@ -1168,6 +1179,31 @@
          * Markiert Platzhalter-Felder mit einem subtilen farbigen Hintergrund,
          * damit sie visuell von statischem Text unterscheidbar sind.
          */
+        /**
+         * Löst relative Bild-URLs im Canvas-JSON zu absoluten URLs auf.
+         * Nötig wenn die App in einem Unterordner läuft (z.B. /IntraRP/).
+         */
+        _resolveImageUrls(json) {
+            if (!json || !json.objects) return;
+            const base = window.location.origin + CONFIG.basePath;
+
+            json.objects.forEach(obj => {
+                if (obj.src && !obj.src.startsWith('http') && !obj.src.startsWith('data:')) {
+                    // Relativer Pfad → absolute URL
+                    // "/IntraRP/assets/img/x.png" → "https://domain.de/IntraRP/assets/img/x.png"
+                    if (obj.src.startsWith('/')) {
+                        obj.src = window.location.origin + obj.src;
+                    } else {
+                        obj.src = base + obj.src;
+                    }
+                }
+                // Gruppen rekursiv behandeln
+                if (obj.objects) {
+                    this._resolveImageUrls(obj);
+                }
+            });
+        }
+
         _applyPlaceholderHighlights() {
             this.canvas.getObjects().forEach(obj => {
                 if (obj.type !== 'textbox' && obj.type !== 'text') return;
@@ -1620,6 +1656,8 @@
 
                 if (result.success && result.layout && result.layout.canvas_json) {
                     const json = JSON.parse(result.layout.canvas_json);
+                    // Bild-URLs zu absoluten URLs auflösen (Unterordner-Kompatibilität)
+                    this._resolveImageUrls(json);
                     await this.canvas.loadFromJSON(json);
                     this._restoreLockStates();
                     this._applyPlaceholderHighlights();
