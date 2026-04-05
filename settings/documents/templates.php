@@ -1650,12 +1650,12 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                         <button class="btn btn-outline-primary text-start px-3 py-2" data-choice="missing">
                                             <i class="fa-solid fa-plus-circle me-2"></i>
                                             <strong>Nur fehlende generieren</strong>
-                                            <br><small class="text-muted">Nur Templates ohne visuelles Layout werden neu erstellt. Bestehende Layouts bleiben unverändert.</small>
+                                            <br><small style="opacity:0.7;">Nur Templates ohne visuelles Layout werden neu erstellt. Bestehende Layouts bleiben unverändert.</small>
                                         </button>
                                         <button class="btn btn-outline-danger text-start px-3 py-2" data-choice="all">
                                             <i class="fa-solid fa-triangle-exclamation me-2"></i>
                                             <strong>Alle überschreiben</strong>
-                                            <br><small class="text-muted">Alle Layouts werden aus den Twig-Vorlagen komplett neu generiert. Manuelle Änderungen im Editor gehen verloren!</small>
+                                            <br><small style="opacity:0.7;">Alle Layouts werden aus den Twig-Vorlagen komplett neu generiert. Manuelle Änderungen im Editor gehen verloren!</small>
                                         </button>
                                     </div>
                                 </div>
