@@ -109,6 +109,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($downloadUrl && $newVersion) {
             $installResult = $updater->downloadAndApplyUpdate($downloadUrl, $newVersion, $isPreRelease);
 
+            // Fallback: Wenn Release-Asset-URL fehlschlägt, Zipball-URL versuchen
+            // (Abwärtskompatibilität für ältere SystemUpdater-Versionen die nur Zipball akzeptieren)
+            $fallbackUrl = $_POST['download_url_fallback'] ?? '';
+            if (!$installResult['success'] && $fallbackUrl && $fallbackUrl !== $downloadUrl
+                && filter_var($fallbackUrl, FILTER_VALIDATE_URL)
+                && str_starts_with($fallbackUrl, 'https://api.github.com/')) {
+                $installResult = $updater->downloadAndApplyUpdate($fallbackUrl, $newVersion, $isPreRelease);
+            }
+
             // Log the installation attempt
             $auditLogger = new AuditLogger($pdo);
             $auditLogger->log(
@@ -464,6 +473,7 @@ if ($isDevMode) {
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                                                 <input type="hidden" name="install_update" value="1">
                                                 <input type="hidden" name="download_url" value="<?= htmlspecialchars($updateInfo['download_url']) ?>">
+                                                <input type="hidden" name="download_url_fallback" value="<?= htmlspecialchars($updateInfo['download_url_fallback'] ?? '') ?>">
                                                 <input type="hidden" name="new_version" value="<?= htmlspecialchars($updateInfo['latest_version']) ?>">
                                                 <input type="hidden" name="is_prerelease" value="<?= isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] ? '1' : '0' ?>">
                                                 <button type="button" id="install-update-btn" class="btn btn-success w-100">
