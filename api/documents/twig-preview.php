@@ -11,11 +11,6 @@ require_once __DIR__ . '/../../assets/config/database.php';
 use App\Auth\Permissions;
 use App\Documents\DocumentTemplateManager;
 
-if (($_ENV['APP_ENV'] ?? 'production') !== 'development') {
-    http_response_code(403);
-    exit('Nur im Development-Modus verfügbar');
-}
-
 if (!Permissions::check(['admin'])) {
     http_response_code(403);
     exit('Keine Berechtigung');
