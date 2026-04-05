@@ -1180,6 +1180,72 @@
          * damit sie visuell von statischem Text unterscheidbar sind.
          */
         /**
+         * Extrahiert Image-Objekte aus dem JSON und entfernt sie,
+         * damit loadFromJSON nicht an fehlenden Bildern scheitert.
+         */
+        _extractAndRemoveImages(json) {
+            const images = [];
+            if (!json.objects) return images;
+            json.objects = json.objects.filter(obj => {
+                const type = (obj.type || '').toLowerCase();
+                if (type === 'image' || type === 'fabricimage') {
+                    images.push(obj);
+                    return false; // aus JSON entfernen
+                }
+                return true;
+            });
+            return images;
+        }
+
+        /**
+         * Lädt Bilder einzeln nach — fehlertolerant, ohne den ganzen Canvas zu crashen.
+         */
+        async _reloadImages(imageObjects) {
+            const ImageClass = fabric.FabricImage || fabric.Image;
+            for (const imgData of imageObjects) {
+                try {
+                    const src = imgData.src;
+                    if (!src) continue;
+
+                    const img = await ImageClass.fromURL(src, {}).catch(() => null);
+                    if (!img) {
+                        console.warn('Bild konnte nicht geladen werden, übersprungen:', src);
+                        // Platzhalter-Textbox statt Bild
+                        const placeholder = new fabric.Textbox('[Bild nicht verfügbar]', {
+                            left: imgData.left || 0,
+                            top: imgData.top || 0,
+                            width: (imgData.width || 100) * (imgData.scaleX || 1),
+                            fontSize: 10,
+                            fill: '#cc0000',
+                            fontStyle: 'italic',
+                            fontFamily: 'DejaVu Sans',
+                            originX: 'left', originY: 'top',
+                            custom: imgData.custom || {},
+                        });
+                        this.canvas.add(placeholder);
+                        continue;
+                    }
+
+                    img.set({
+                        left: imgData.left || 0,
+                        top: imgData.top || 0,
+                        scaleX: imgData.scaleX || 1,
+                        scaleY: imgData.scaleY || 1,
+                        angle: imgData.angle || 0,
+                        opacity: imgData.opacity ?? 1,
+                        originX: 'left',
+                        originY: 'top',
+                        custom: imgData.custom || {},
+                    });
+                    this.canvas.add(img);
+                } catch (e) {
+                    console.warn('Fehler beim Nachladen eines Bildes:', e);
+                }
+            }
+            this.canvas.renderAll();
+        }
+
+        /**
          * Löst relative Bild-URLs im Canvas-JSON zu absoluten URLs auf.
          * Nötig wenn die App in einem Unterordner läuft (z.B. /IntraRP/).
          */
@@ -1658,7 +1724,11 @@
                     const json = JSON.parse(result.layout.canvas_json);
                     // Bild-URLs zu absoluten URLs auflösen (Unterordner-Kompatibilität)
                     this._resolveImageUrls(json);
+                    // Bilder die nicht geladen werden können separat nachladen
+                    const imageObjects = this._extractAndRemoveImages(json);
                     await this.canvas.loadFromJSON(json);
+                    // Bilder einzeln nachladen (fehlertolerant)
+                    await this._reloadImages(imageObjects);
                     this._restoreLockStates();
                     this._applyPlaceholderHighlights();
                     this.canvas.renderAll();
