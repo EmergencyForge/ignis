@@ -1629,11 +1629,75 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         // --- Button-Handler ---
+        /**
+         * Zeigt ein Auswahl-Modal: Welche Templates sollen neu generiert werden?
+         * Gibt ein Promise zurück: 'all' | 'missing' | null (abgebrochen)
+         */
+        function showRegenerateChoice() {
+            return new Promise((resolve) => {
+                const id = 'regen-choice-' + Date.now();
+                const html = `
+                    <div class="modal fade" id="${id}" tabindex="-1" data-bs-backdrop="static">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title"><i class="fa-solid fa-arrows-rotate me-2"></i>Aus Vorlagen neu generieren</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p class="mb-3">Wie sollen die visuellen Editor-Layouts aus den Twig-Vorlagen generiert werden?</p>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary text-start px-3 py-2" data-choice="missing">
+                                            <i class="fa-solid fa-plus-circle me-2"></i>
+                                            <strong>Nur fehlende generieren</strong>
+                                            <br><small class="text-muted">Nur Templates ohne visuelles Layout werden neu erstellt. Bestehende Layouts bleiben unverändert.</small>
+                                        </button>
+                                        <button class="btn btn-outline-danger text-start px-3 py-2" data-choice="all">
+                                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                                            <strong>Alle überschreiben</strong>
+                                            <br><small class="text-muted">Alle Layouts werden aus den Twig-Vorlagen komplett neu generiert. Manuelle Änderungen im Editor gehen verloren!</small>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                document.body.insertAdjacentHTML('beforeend', html);
+                const modalEl = document.getElementById(id);
+                const modal = new bootstrap.Modal(modalEl);
+                let resolved = false;
+
+                modalEl.querySelectorAll('[data-choice]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        resolved = true;
+                        resolve(btn.dataset.choice);
+                        modal.hide();
+                    });
+                });
+
+                modalEl.addEventListener('hidden.bs.modal', () => {
+                    if (!resolved) resolve(null);
+                    modalEl.remove();
+                });
+
+                modal.show();
+            });
+        }
+
         document.getElementById('btn-convert-all')?.addEventListener('click', async function() {
             if (!templates || templates.length === 0) {
                 showAlert('Keine Templates vorhanden', { type: 'warning' });
                 return;
             }
+
+            const choice = await showRegenerateChoice();
+            if (!choice) return; // Abgebrochen
+
+            const overwriteAll = choice === 'all';
 
             const btn = this;
             const icon = btn.querySelector('i');
@@ -1645,6 +1709,12 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
             for (const t of templates) {
                 try {
+                    // Bei "nur fehlende": prüfen ob bereits ein Layout existiert
+                    if (!overwriteAll && t.editor_type === 'visual') {
+                        skipped++;
+                        continue;
+                    }
+
                     // 1. Browser-basierte Konvertierung: Twig-HTML → Canvas-JSON
                     const canvasJson = await convertTwigToCanvas(t.id);
 
@@ -1667,7 +1737,6 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
                     if (result.success) {
                         converted++;
-                        // Token rotiert nach jedem Request — neuen Token für nächsten Request verwenden
                         if (result.csrf_token) csrfToken = result.csrf_token;
                     } else {
                         errors.push(t.name + ': ' + (result.error || 'Speichern fehlgeschlagen'));
