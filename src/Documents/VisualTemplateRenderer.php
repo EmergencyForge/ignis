@@ -81,6 +81,9 @@ class VisualTemplateRenderer
         return $this->renderCanvasToHtml($canvasData, $fieldValues, $isDraft);
     }
 
+    /** Feldnamen die HTML enthalten dürfen (Rich-Text) */
+    private array $rawFields = [];
+
     /**
      * Konvertiert Canvas-JSON zu HTML
      */
@@ -251,10 +254,9 @@ HTML;
 
         $style = $this->cssArrayToString($css);
 
-        // Platzhalter-Werte sind bereits in replacePlaceholders() escaped.
-        // Template-Text kommt aus dem Canvas-Editor (Admin-authored) und ist vertrauenswuerdig.
-        // Nur nl2br fuer Zeilenumbrueche, kein weiteres htmlspecialchars (vermeidet Double-Escaping).
-        $htmlText = nl2br($text);
+        // Text mit Character-Level Styles (bold, italic, underline pro Zeichen) zu HTML konvertieren
+        $styles = $obj['styles'] ?? [];
+        $htmlText = $this->renderStyledText($text, $styles, $obj);
 
         // Seitenzahl-Element: Data-Attribute für DocumentPDFGenerator
         if ($isPageNumber) {
@@ -419,10 +421,14 @@ HTML;
     {
         return preg_replace_callback('/\{\{\s*([a-zA-Z0-9_\.]+)\s*\}\}/', function ($matches) use ($fieldValues) {
             $key = $matches[1];
+            // Rich-Text Felder nicht escapen (enthalten gültiges HTML)
+            $isRaw = in_array($key, $this->rawFields);
+
             // Direkt suchen
             if (isset($fieldValues[$key])) {
                 $val = $fieldValues[$key];
-                return is_string($val) ? htmlspecialchars($val, ENT_QUOTES, 'UTF-8') : $matches[0];
+                if (!is_string($val)) return $matches[0];
+                return $isRaw ? $val : htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
             }
             // Dot-Notation auflösen (z.B. issuer.fullname)
             $parts = explode('.', $key);
@@ -434,7 +440,8 @@ HTML;
                     return $matches[0]; // Platzhalter beibehalten wenn nicht gefunden
                 }
             }
-            return is_string($val) ? htmlspecialchars($val, ENT_QUOTES, 'UTF-8') : $matches[0];
+            if (!is_string($val)) return $matches[0];
+            return $isRaw ? $val : htmlspecialchars($val, ENT_QUOTES, 'UTF-8');
         }, $text);
     }
 
@@ -597,6 +604,18 @@ HTML;
             }
         }
 
+        // Rich-Text Felder sammeln (dürfen HTML enthalten)
+        $this->rawFields = [];
+        foreach ($templateFields as $field) {
+            if (in_array($field['field_type'], ['richtext', 'textarea'])) {
+                $this->rawFields[] = $field['field_name'];
+            }
+        }
+        // 'inhalt' ist das Legacy-Feld für Begründungen (immer Rich-Text)
+        if (!in_array('inhalt', $this->rawFields)) {
+            $this->rawFields[] = 'inhalt';
+        }
+
         // Verarbeite Felder: löse geschlechtsspezifische Werte und Select-Optionen auf
         $processedData = [];
         foreach ($templateFields as $field) {
@@ -695,6 +714,14 @@ HTML;
         ");
         $stmt->execute([$templateId]);
         $templateFields = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        // Rich-Text Felder sammeln
+        $this->rawFields = ['inhalt'];
+        foreach ($templateFields as $field) {
+            if (in_array($field['field_type'], ['richtext', 'textarea'])) {
+                $this->rawFields[] = $field['field_name'];
+            }
+        }
         if (!empty($templateFields[0]['config'])) {
             $templateConfig = json_decode($templateFields[0]['config'] ?? '{}', true) ?: [];
         }
@@ -839,6 +866,107 @@ HTML;
             }
         }
         return '';
+    }
+
+    /**
+     * Konvertiert Text mit Fabric.js Character-Level Styles zu HTML.
+     * Erkennt bold, italic, underline, Farbe und Schriftgröße pro Zeichen
+     * und erzeugt entsprechende <span>-Tags.
+     */
+    private function renderStyledText(string $text, array $styles, array $obj): string
+    {
+        if (empty($styles) || empty($text)) {
+            return nl2br(($text));
+        }
+
+        $lines = explode("\n", $text);
+        $htmlLines = [];
+
+        // Objekt-Defaults (werden überschrieben wenn char-styles vorhanden)
+        $defaultWeight = $obj['fontWeight'] ?? 'normal';
+        $defaultStyle = $obj['fontStyle'] ?? 'normal';
+        $defaultUnderline = !empty($obj['underline']);
+
+        foreach ($lines as $lineIdx => $line) {
+            $lineStyles = $styles[$lineIdx] ?? $styles[(string)$lineIdx] ?? [];
+
+            if (empty($lineStyles)) {
+                $htmlLines[] = htmlspecialchars($line, ENT_QUOTES, 'UTF-8');
+                continue;
+            }
+
+            // Zeichen einzeln durchgehen, Runs mit gleichen Styles gruppieren
+            $chars = mb_str_split($line);
+            $html = '';
+            $currentSpan = null;
+            $currentChars = '';
+
+            foreach ($chars as $ci => $char) {
+                $charStyle = $lineStyles[$ci] ?? $lineStyles[(string)$ci] ?? [];
+
+                $isBold = ($charStyle['fontWeight'] ?? $defaultWeight) === 'bold'
+                    || (isset($charStyle['fontWeight']) && (int)($charStyle['fontWeight']) >= 700);
+                $isItalic = ($charStyle['fontStyle'] ?? $defaultStyle) === 'italic';
+                $isUnderline = $charStyle['underline'] ?? $defaultUnderline;
+                // textBackgroundColor ignorieren (das sind unsere Platzhalter-Highlights)
+                $color = $charStyle['fill'] ?? null;
+                $fontSize = $charStyle['fontSize'] ?? null;
+
+                $styleKey = ($isBold ? 'b' : '') . ($isItalic ? 'i' : '') . ($isUnderline ? 'u' : '')
+                    . ($color ? 'c' . $color : '') . ($fontSize ? 's' . $fontSize : '');
+
+                if ($styleKey !== $currentSpan) {
+                    // Vorherigen Run abschließen
+                    if ($currentChars !== '') {
+                        $html .= $this->wrapStyledRun($currentChars, $currentSpan);
+                    }
+                    $currentSpan = $styleKey;
+                    $currentChars = '';
+                }
+
+                $currentChars .= htmlspecialchars($char, ENT_QUOTES, 'UTF-8');
+            }
+
+            // Letzten Run
+            if ($currentChars !== '') {
+                $html .= $this->wrapStyledRun($currentChars, $currentSpan);
+            }
+
+            $htmlLines[] = $html;
+        }
+
+        return implode("<br />\n", $htmlLines);
+    }
+
+    /**
+     * Wickelt einen Text-Run in die passenden HTML-Tags.
+     */
+    private function wrapStyledRun(string $text, ?string $styleKey): string
+    {
+        if (!$styleKey) return $text;
+
+        $hasBold = str_contains($styleKey, 'b');
+        $hasItalic = str_contains($styleKey, 'i');
+        $hasUnderline = str_contains($styleKey, 'u');
+
+        // Inline-Styles für Farbe/Größe
+        $inlineStyle = '';
+        if (preg_match('/c(#[0-9a-fA-F]{3,8})/', $styleKey, $m)) {
+            $inlineStyle .= 'color:' . $m[1] . ';';
+        }
+        if (preg_match('/s(\d+(?:\.\d+)?)/', $styleKey, $m)) {
+            $inlineStyle .= 'font-size:' . round((float)$m[1] / 1.333, 1) . 'pt;';
+        }
+
+        if ($inlineStyle) {
+            $text = "<span style=\"{$inlineStyle}\">{$text}</span>";
+        }
+
+        if ($hasUnderline) $text = "<u>{$text}</u>";
+        if ($hasItalic) $text = "<em>{$text}</em>";
+        if ($hasBold) $text = "<strong>{$text}</strong>";
+
+        return $text;
     }
 
     private function pxToMm(float $px): float
