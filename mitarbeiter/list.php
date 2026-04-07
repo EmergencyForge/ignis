@@ -285,9 +285,9 @@ $fwginfo = $stmtf->fetchAll(PDO::FETCH_UNIQUE);
                             <?php endif; ?>
                             <div class="col-md-6">
                                 <div class="form-floating">
-                                    <input class="form-control" type="text" inputmode="numeric" name="discordtag" id="cm_discordtag" pattern="[0-9]{17,18}" maxlength="18" placeholder="Discord-ID" required>
+                                    <input class="form-control" type="text" inputmode="numeric" name="discordtag" id="cm_discordtag" pattern="[0-9]{17,20}" maxlength="20" placeholder="Discord-ID" required>
                                     <label for="cm_discordtag">Discord-ID</label>
-                                    <div class="invalid-feedback">17-18 Ziffern</div>
+                                    <div class="invalid-feedback">17-20 Ziffern</div>
                                 </div>
                             </div>
                             <div class="col-md-6">

@@ -83,9 +83,17 @@ if (isset($_POST['new'])) {
         $fullname = $_POST['fullname'];
         $gebdatum = $_POST['gebdatum'];
         $dienstgrad = $_POST['dienstgrad'];
-        $discordtag = $_POST['discordtag'];
+        $discordtag = trim($_POST['discordtag']);
         $telefonnr = $_POST['telefonnr'];
         $dienstnr = trim($_POST['dienstnr']);
+
+        // Validate Discord-ID: 17-20 Ziffern
+        if (!empty($discordtag) && !preg_match('/^[0-9]{17,20}$/', $discordtag)) {
+            $_SESSION['message'] = 'Ungültige Discord-ID. Muss 17-20 Ziffern enthalten.';
+            $_SESSION['message_type'] = 'danger';
+            header("Location: " . BASE_PATH . "mitarbeiter/profile.php?id=" . $id);
+            exit;
+        }
         $qualird = $_POST['qualird'];
 
         // Validate dienstnr format: allow letters, numbers, and hyphens, but require at least one number
@@ -798,6 +806,14 @@ if (isset($_POST['new'])) {
                     input.className = 'form-control';
                     input.value = currentData[field] !== undefined ? currentData[field] : originalText;
                     if (originalText === 'Keine' || originalText === 'N. hinterlegt') input.value = currentData[field] || '';
+
+                    // Discord-ID: numerisch, 17-20 Zeichen
+                    if (field === 'discordtag') {
+                        input.inputMode = 'numeric';
+                        input.pattern = '[0-9]{17,20}';
+                        input.maxLength = 20;
+                        input.placeholder = 'Discord-ID (17-20 Ziffern)';
+                    }
                 }
 
                 cell.textContent = '';
