@@ -9,6 +9,23 @@ use App\Logging\ErrorHandler;
 use App\Session\SessionManager;
 
 // ============================================================================
+// Service-Container (PHP-DI) bootstrappen
+// ============================================================================
+// Wird einmalig pro Request gebaut und in $GLOBALS abgelegt, damit die
+// app()-Helper-Funktion aus src/helpers.php darauf zugreifen kann.
+// Bestehender Code bleibt unangetastet — der Container ist additiv.
+if (!isset($GLOBALS['app_container'])) {
+    $containerBuilder = new \DI\ContainerBuilder();
+    $containerBuilder->useAutowiring(true);
+    $containerBuilder->addDefinitions(__DIR__ . '/../../config/container.php');
+    $GLOBALS['app_container'] = $containerBuilder->build();
+
+    // Eloquent eager booten — ohne setAsGlobal() würden Models keine Verbindung
+    // finden. Idempotent: Capsule ist im Container ein Singleton.
+    $GLOBALS['app_container']->get(\Illuminate\Database\Capsule\Manager::class);
+}
+
+// ============================================================================
 // Globales Error-Handling & Logging registrieren
 // ============================================================================
 ErrorHandler::register();
@@ -36,6 +53,13 @@ if (isset($_SESSION['userid'])) {
 
 // Load configuration from database
 require_once __DIR__ . '/database.php';
+
+// Existierende $pdo-Instanz in den Container schieben, damit Legacy-Code
+// (der direkt $pdo nutzt) und neuer DI-Code (app(PDO::class)) dieselbe
+// Verbindung verwenden. Idempotent: kann mehrfach pro Request laufen.
+if (isset($pdo) && $pdo instanceof PDO) {
+    $GLOBALS['app_container']->set(PDO::class, $pdo);
+}
 
 // Auto-run pending database migrations (lightweight file-count check)
 try {

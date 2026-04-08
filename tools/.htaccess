@@ -1,0 +1,11 @@
+# tools/ — interne CLI-Helper, nicht via HTTP erreichbar.
+# AutoMigrator und composer-Hooks rufen die Files via php-CLI auf,
+# nicht via Webserver.
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>

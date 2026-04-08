@@ -14,11 +14,22 @@
     "fortawesome/font-awesome": "^7.1",
     "erusev/parsedown": "^1.7",
     "monolog/monolog": "^3.10",
-    "robmorgan/phinx": "^0.16"
+    "robmorgan/phinx": "^0.16",
+    "php-di/php-di": "^7.0",
+    "illuminate/database": "^11.0",
+    "illuminate/events": "^11.0"
   },
   "autoload": {
     "psr-4": {
       "App\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
     }
   },
   "config": {
@@ -29,6 +40,9 @@
   "scripts": {
     "db:migrate": "@php tools/db-migrate.php",
     "db:status": "@php vendor/bin/phinx status -e production -c phinx.php",
+    "test": "@php vendor/bin/phpunit",
+    "test:unit": "@php vendor/bin/phpunit --testsuite Unit",
+    "test:integration": "@php vendor/bin/phpunit --testsuite Integration",
     "post-install-cmd": [
       "@db:migrate"
     ],

@@ -3,6 +3,45 @@
 IndexIgnore *
 Options -Indexes
 
+#1b ---- Security: Block sensitive files
+#
+# Apache 2.4 verwendet `Require all denied`. Falls noch Apache 2.2 im Einsatz
+# ist, greift `Order/Deny` als Fallback. Beide Direktiven nebeneinander sind
+# erlaubt — die nicht passende wird ignoriert.
+
+# Block alle .env-Varianten (.env, .env.test, .env.local, .env.production, ...)
+<FilesMatch "^\.env">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block Phinx-Config (wird nur von CLI gelesen, nicht via HTTP)
+<Files "phinx.php">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</Files>
+
+# Block Composer/Build-Konfigurationen
+<FilesMatch "^(composer\.(json|lock)|package\.json|package-lock\.json|phpstan\.neon|phpunit\.xml(\.dist)?)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
 #2 ---- Without extension
 
 Options +MultiViews
