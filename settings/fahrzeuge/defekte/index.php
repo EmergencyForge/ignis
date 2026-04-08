@@ -153,7 +153,7 @@ $statusLabels = [
                     <?php if (!$tableExists): ?>
                         <div class="alert alert-warning">
                             <i class="fa-solid fa-database"></i> Die Tabelle <code>intra_fahrzeuge_defects</code> existiert noch nicht.
-                            Bitte führe den <a href="<?= BASE_PATH ?>setup/database-init.php">Datenbank-Updater</a> aus.
+                            Lade die Seite neu — die Datenbank wird automatisch migriert. Falls das Problem bestehen bleibt, führe auf der Konsole <code>composer db:migrate</code> aus.
                         </div>
                     <?php endif; ?>
 

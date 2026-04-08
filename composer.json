@@ -13,7 +13,8 @@
     "dompdf/dompdf": "^3.1",
     "fortawesome/font-awesome": "^7.1",
     "erusev/parsedown": "^1.7",
-    "monolog/monolog": "^3.10"
+    "monolog/monolog": "^3.10",
+    "robmorgan/phinx": "^0.16"
   },
   "autoload": {
     "psr-4": {
@@ -26,8 +27,8 @@
     "apcu-autoloader": true
   },
   "scripts": {
-    "db:migrate": "@php setup/database-init.php",
-    "db:validate": "@php setup/validate-migrations.php",
+    "db:migrate": "@php tools/db-migrate.php",
+    "db:status": "@php vendor/bin/phinx status -e production -c phinx.php",
     "post-install-cmd": [
       "@db:migrate"
     ],
