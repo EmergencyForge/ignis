@@ -3,6 +3,14 @@
 // Autoloader muss zuerst geladen werden
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+// .env laden, BEVOR der Container gebaut wird — Eloquent-Capsule liest die
+// DB-Credentials direkt aus $_ENV beim Eager-Boot. createImmutable überschreibt
+// keine bereits gesetzten Werte (z.B. wenn ein vorheriger Bootstrap-Schritt
+// schon dotenv geladen hat oder Variablen vom Webserver gesetzt sind).
+if (empty($_ENV['DB_HOST'])) {
+    \Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false)->load();
+}
+
 use App\Auth\Permissions;
 use App\Config\ConfigManager;
 use App\Logging\ErrorHandler;
