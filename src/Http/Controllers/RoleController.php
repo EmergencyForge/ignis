@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Auth\Permissions;
+use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
+use App\Http\Requests\Roles\CreateRoleRequest;
+use App\Http\Requests\Roles\UpdateRoleRequest;
 use App\Models\Role;
 use App\Utils\AuditLogger;
 use PDO;
@@ -49,7 +52,7 @@ class RoleController
 
     /**
      * POST /benutzer/rollen/create — Neue Rolle anlegen.
-     * Erfordert `full_admin`.
+     * Erfordert `full_admin`. Input wird via CreateRoleRequest validiert.
      */
     public function store(): void
     {
@@ -57,33 +60,26 @@ class RoleController
         $this->requireFullAdmin();
         $this->requireMethod('POST');
 
-        $name        = trim((string) ($_POST['name'] ?? ''));
-        $priority    = (int) ($_POST['priority'] ?? 0);
-        $color       = trim((string) ($_POST['color'] ?? ''));
-        $permissions = $_POST['permissions'] ?? [];
-
-        if ($name === '' || $color === '') {
-            Flash::set('error', 'missing-fields');
+        try {
+            $data = CreateRoleRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
             $this->redirect('benutzer/rollen/index.php');
-        }
-
-        if (!is_array($permissions)) {
-            $permissions = [];
         }
 
         try {
             $role              = new Role();
-            $role->name        = $name;
-            $role->priority    = $priority;
-            $role->color       = $color;
-            $role->permissions = array_values($permissions);
+            $role->name        = $data['name'];
+            $role->priority    = $data['priority'];
+            $role->color       = $data['color'];
+            $role->permissions = $data['permissions'];
             $role->save();
 
             Flash::set('role', 'created');
             (new AuditLogger($this->pdo))->log(
                 (int) $_SESSION['userid'],
                 'Rolle erstellt',
-                'Name: ' . $name,
+                'Name: ' . $data['name'],
                 'Rollen',
                 1
             );
@@ -97,7 +93,7 @@ class RoleController
 
     /**
      * POST /benutzer/rollen/update — Bestehende Rolle aktualisieren.
-     * Erfordert `full_admin`.
+     * Erfordert `full_admin`. Input wird via UpdateRoleRequest validiert.
      */
     public function update(): void
     {
@@ -105,40 +101,32 @@ class RoleController
         $this->requireFullAdmin();
         $this->requireMethod('POST');
 
-        $id          = (int) ($_POST['id'] ?? 0);
-        $name        = trim((string) ($_POST['name'] ?? ''));
-        $priority    = (int) ($_POST['priority'] ?? 0);
-        $color       = trim((string) ($_POST['color'] ?? ''));
-        $permissions = $_POST['permissions'] ?? [];
-
-        if ($id <= 0 || $name === '' || $color === '') {
-            Flash::set('role', 'invalid-input');
+        try {
+            $data = UpdateRoleRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
             $this->redirect('benutzer/rollen/index.php');
-        }
-
-        if (!is_array($permissions)) {
-            $permissions = [];
         }
 
         try {
             /** @var Role|null $role */
-            $role = Role::find($id);
+            $role = Role::find($data['id']);
             if ($role === null) {
                 Flash::set('role', 'not-found');
                 $this->redirect('benutzer/rollen/index.php');
             }
 
-            $role->name        = $name;
-            $role->priority    = $priority;
-            $role->color       = $color;
-            $role->permissions = array_values($permissions);
+            $role->name        = $data['name'];
+            $role->priority    = $data['priority'];
+            $role->color       = $data['color'];
+            $role->permissions = $data['permissions'];
             $role->save();
 
             Flash::set('success', 'updated');
             (new AuditLogger($this->pdo))->log(
                 (int) $_SESSION['userid'],
-                'Rolle aktualisiert [ID: ' . $id . ']',
-                'Name: ' . $name,
+                'Rolle aktualisiert [ID: ' . $data['id'] . ']',
+                'Name: ' . $data['name'],
                 'Rollen',
                 1
             );
