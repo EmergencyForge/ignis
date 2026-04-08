@@ -17,7 +17,8 @@
     "robmorgan/phinx": "^0.16",
     "php-di/php-di": "^7.0",
     "illuminate/database": "^11.0",
-    "illuminate/events": "^11.0"
+    "illuminate/events": "^11.0",
+    "respect/validation": "^2.3"
   },
   "autoload": {
     "psr-4": {

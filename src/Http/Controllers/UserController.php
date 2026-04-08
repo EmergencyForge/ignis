@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Auth\Permissions;
+use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
+use App\Http\Requests\Users\GenerateRegistrationCodeRequest;
 use App\Models\RegistrationCode;
 use App\Models\Role;
 use App\Models\User;
@@ -202,15 +204,20 @@ class UserController
 
     private function generateRegistrationCode(): void
     {
-        $code      = bin2hex(random_bytes(8));
-        $label     = trim((string) ($_POST['label'] ?? ''));
-        $expiresAt = !empty($_POST['expires_at']) ? $_POST['expires_at'] : null;
+        try {
+            $data = GenerateRegistrationCodeRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('benutzer/registration-codes.php');
+        }
+
+        $code = bin2hex(random_bytes(8));
 
         $rc = new RegistrationCode();
         $rc->code       = $code;
-        $rc->label      = $label !== '' ? $label : null;
+        $rc->label      = $data['label'];
         $rc->created_by = (int) $_SESSION['userid'];
-        $rc->expires_at = $expiresAt;
+        $rc->expires_at = $data['expires_at'];
         $rc->is_used    = false;
         $rc->save();
 
