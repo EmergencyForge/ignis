@@ -270,8 +270,16 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            const editModal   = document.getElementById('editRoleModal');
+            const createModal = document.getElementById('createRoleModal');
+
+            // Edit-Button: Modal mit den Daten der jeweiligen Rolle füllen.
+            // WICHTIG: querySelector wird auf das Edit-Modal gescopet, sonst
+            // würden auch die Checkboxen im Create-Modal mit-befüllt werden
+            // (beide nutzen name="permissions[]").
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', function() {
+                    if (!editModal) return;
                     const id = this.dataset.id;
                     document.getElementById('role-id').value = id;
                     document.getElementById('role-name').value = this.dataset.name;
@@ -279,17 +287,29 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
 
                     const perms = JSON.parse(this.dataset.perms || '[]');
 
-                    document.querySelectorAll('input[name="permissions[]"]').forEach(checkbox => {
+                    editModal.querySelectorAll('input[name="permissions[]"]').forEach(checkbox => {
                         checkbox.checked = perms.includes(checkbox.value);
                     });
 
                     const colorValue = this.dataset.color || '';
-                    const radio = document.getElementById('role-color-' + colorValue);
-                    if (radio) radio.checked = true;
+                    editModal.querySelectorAll('input[name="color"]').forEach(radio => {
+                        radio.checked = (radio.value === colorValue);
+                    });
 
                     document.getElementById('role-delete-id').value = id;
                 });
             });
+
+            // Create-Modal beim Öffnen IMMER zurücksetzen, damit nichts vom
+            // letzten Edit-Modal hängenbleibt.
+            if (createModal) {
+                createModal.addEventListener('show.bs.modal', function() {
+                    const form = createModal.querySelector('form');
+                    if (form) form.reset();
+                    createModal.querySelectorAll('input[name="permissions[]"]').forEach(cb => cb.checked = false);
+                    createModal.querySelectorAll('input[name="color"]').forEach(r => r.checked = false);
+                });
+            }
 
             const deleteBtn = document.getElementById('delete-role-btn');
             if (deleteBtn) {
