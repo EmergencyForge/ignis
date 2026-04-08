@@ -7,7 +7,7 @@
  * @var \PDO                                                            $pdo
  */
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Helpers\Flash;
 
 $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
@@ -38,7 +38,7 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
                     <div class="page-header mb-4">
                         <h1>Rollenverwaltung</h1>
                         <div class="header-actions">
-                            <?php if (Permissions::check('full_admin')): ?>
+                            <?php if (Gate::allows('role.create')): ?>
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createRoleModal">
                                     <i class="fa-solid fa-plus"></i> Rolle erstellen
                                 </button>
@@ -58,7 +58,7 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
                             </thead>
                             <tbody>
                                 <?php foreach ($roles as $role):
-                                    $editable      = Permissions::check('full_admin');
+                                    $editable      = Gate::allows('role.update', $role);
                                     $permissionsJs = htmlspecialchars(json_encode($role->permissions ?? []), ENT_QUOTES);
                                 ?>
                                     <tr>
@@ -89,7 +89,7 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
     </div>
 
     <!-- EDIT MODAL -->
-    <?php if (Permissions::check('admin')): ?>
+    <?php if (Gate::allows('role.update', null)): ?>
         <div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -164,7 +164,7 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
     <?php endif; ?>
 
     <!-- CREATE MODAL -->
-    <?php if (Permissions::check('full_admin')): ?>
+    <?php if (Gate::allows('role.create')): ?>
         <div class="modal fade" id="createRoleModal" tabindex="-1" aria-labelledby="createRoleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">

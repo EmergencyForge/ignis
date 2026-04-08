@@ -60,3 +60,11 @@ if (!empty($_ENV['DB_HOST']) && !empty($_ENV['DB_NAME'])) {
 if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     @session_start();
 }
+
+// App\Auth\Permissions hat einen Side-Effect am File-Body, der beim ersten
+// Class-Autoload $_SESSION['permissions'] aus der DB lädt (basierend auf
+// $_SESSION['userid']). In Tests ohne userid würde der Effect $_SESSION mit
+// einem leeren Array clobbern und Permission-Tests kaputt machen. Wir laden
+// die Klasse hier einmal eager — alle nachfolgenden Test-Setups können dann
+// $_SESSION['permissions'] frei manipulieren.
+class_exists(\App\Auth\Permissions::class);
