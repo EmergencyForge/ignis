@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Http\Requests\Users\GenerateRegistrationCodeRequest;
@@ -47,7 +47,7 @@ class UserController
     public function index(): void
     {
         $this->requireAuth();
-        $this->requirePermission(['admin', 'users.view'], redirectTo: 'index.php');
+        $this->ensure('user.viewList', redirectTo: 'index.php');
 
         $users = User::query()
             ->leftJoin(
@@ -83,16 +83,18 @@ class UserController
     public function edit(): void
     {
         $this->requireAuth();
-        $this->requirePermission(['admin', 'users.edit'], redirectTo: 'benutzer/list.php');
+        // Permission-Check ohne Target — vor dem Laden:
+        $this->ensure('user.update', redirectTo: 'benutzer/list.php');
 
         $target = $this->loadUserForEditing();
+
         $availableRoles = Role::query()
             ->where('priority', '>', (int) ($_SESSION['role_priority'] ?? 0))
             ->orderBy('priority')
             ->get();
 
         $auditEntries = [];
-        if (Permissions::check(['admin', 'audit.view'])) {
+        if (Gate::allows('user.viewAuditLog')) {
             $auditEntries = Capsule::table('intra_audit_log')
                 ->where('user', $target->id)
                 ->orderBy('timestamp', 'desc')
@@ -116,7 +118,7 @@ class UserController
     public function update(): void
     {
         $this->requireAuth();
-        $this->requirePermission(['admin', 'users.edit'], redirectTo: 'benutzer/list.php');
+        $this->ensure('user.update', redirectTo: 'benutzer/list.php');
 
         $target = $this->loadUserForEditing();
 
@@ -147,7 +149,7 @@ class UserController
     public function auditlog(): void
     {
         $this->requireAuth();
-        $this->requirePermission(['admin', 'audit.view'], redirectTo: 'index.php');
+        $this->ensure('user.viewAuditLog', redirectTo: 'index.php');
 
         $entries = Capsule::table('intra_audit_log')
             ->where('global', 1)
@@ -176,7 +178,7 @@ class UserController
     public function registrationCodes(): void
     {
         $this->requireAuth();
-        $this->requirePermission(['admin', 'users.create'], redirectTo: 'index.php');
+        $this->ensure('user.createRegistrationCode', redirectTo: 'index.php');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $_POST['action'] ?? '';
@@ -261,7 +263,6 @@ class UserController
     public function destroy(): void
     {
         $this->requireAuth();
-        $this->requirePermission(['admin', 'users.delete'], redirectTo: 'benutzer/list.php');
 
         $currentUserId = (int) $_SESSION['userid'];
         $targetId      = (int) ($_GET['id'] ?? 0);
@@ -284,7 +285,7 @@ class UserController
             $this->redirect('benutzer/list.php');
         }
 
-        if (!$this->canModify($target)) {
+        if (Gate::denies('user.delete', $target)) {
             Flash::set('user', 'low-permissions');
             $this->redirect('benutzer/list.php');
         }
@@ -312,7 +313,6 @@ class UserController
     public function setActive(): void
     {
         $this->requireAuth();
-        $this->requirePermission(['admin', 'users.delete'], redirectTo: 'benutzer/list.php');
 
         $currentUserId = (int) $_SESSION['userid'];
         $targetId      = (int) ($_GET['id'] ?? 0);
@@ -336,7 +336,7 @@ class UserController
             $this->redirect('benutzer/list.php');
         }
 
-        if (!$this->canModify($target)) {
+        if (Gate::denies('user.toggleActive', $target)) {
             Flash::set('user', 'low-permissions');
             $this->redirect('benutzer/list.php');
         }
@@ -379,9 +379,10 @@ class UserController
     // -----------------------------------------------------------------------
 
     /**
-     * Lädt den per ?id=X übergebenen User samt Rolle, prüft Self-Edit + Priority,
-     * redirected mit Flash falls nicht erlaubt. Wird sowohl von edit() als auch
-     * update() benutzt.
+     * Lädt den per ?id=X übergebenen User samt Rolle und führt die UX-Checks
+     * (Existenz, Self-Edit) sowie die Authorization-Prüfung durch — jeweils
+     * mit spezifischen Flash-Messages für gute UX. Wird sowohl von edit()
+     * als auch update() benutzt.
      */
     private function loadUserForEditing(): User
     {
@@ -403,8 +404,7 @@ class UserController
             $this->redirect('benutzer/list.php');
         }
 
-        $targetPriority = (int) ($target->userRole?->priority ?? 0);
-        if ($targetPriority <= (int) ($_SESSION['role_priority'] ?? 0)) {
+        if (Gate::denies('user.update', $target)) {
             Flash::set('user', 'low-permissions');
             $this->redirect('benutzer/list.php');
         }
@@ -432,21 +432,6 @@ class UserController
         return $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
     }
 
-    /**
-     * Prüft ob der Aufrufer das Ziel-User-Objekt überhaupt verändern darf:
-     *   - Ziel darf kein full_admin sein
-     *   - Ziel-Rolle muss eine NIEDRIGERE Priorität haben (höhere Zahl)
-     */
-    private function canModify(User $target): bool
-    {
-        if ($target->full_admin) {
-            return false;
-        }
-        $targetPriority = (int) ($target->userRole?->priority ?? 0);
-        $ownPriority    = (int) ($_SESSION['role_priority'] ?? 0);
-        return $targetPriority > $ownPriority;
-    }
-
     private function requireAuth(): void
     {
         if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
@@ -456,11 +441,13 @@ class UserController
     }
 
     /**
-     * @param string|array<int,string> $permission
+     * Wrapper um Gate::allows: bei Denial wird Flash + Redirect gemacht.
+     * Aktionen, die spezifischere Flash-Messages brauchen (z.B. "edit-self"),
+     * machen den Gate-Check inline statt diesen Helper zu nutzen.
      */
-    private function requirePermission(string|array $permission, string $redirectTo = 'index.php'): void
+    private function ensure(string $ability, mixed $resource = null, string $redirectTo = 'index.php'): void
     {
-        if (!Permissions::check($permission)) {
+        if (Gate::denies($ability, $resource)) {
             Flash::set('error', 'no-permissions');
             $this->redirect($redirectTo);
         }

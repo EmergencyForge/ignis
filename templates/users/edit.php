@@ -9,7 +9,7 @@
  *   @var \PDO                                                                $pdo (legacy compat)
  */
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Helpers\Flash;
 
 $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; " . SYSTEM_NAME;
@@ -31,7 +31,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
             <div class="row">
                 <div class="col mb-5">
                     <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span>
-                        <?php if (Permissions::check(['admin', 'users.delete'])): ?>
+                        <?php if (Gate::allows('user.delete', $target)): ?>
                             <?php if ($target->is_active): ?>
                                 <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#deactivateModal"><i class="fa-solid fa-user-slash"></i> Benutzer deaktivieren</button>
                             <?php else: ?>
@@ -82,7 +82,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                 </div>
             </div>
 
-            <?php if (Permissions::check(['admin', 'audit.view'])): ?>
+            <?php if (Gate::allows('user.viewAuditLog')): ?>
                 <h1 class="mb-3">Benutzer-Log</h1>
                 <div class="row">
                     <div class="col">
@@ -118,7 +118,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
     </div>
 
     <!-- MODALS BEGIN -->
-    <?php if (Permissions::check(['admin', 'users.delete'])): ?>
+    <?php if (Gate::allows('user.delete', $target)): ?>
 
         <?php if ($target->is_active): ?>
             <!-- Deaktivieren Modal -->

@@ -7,7 +7,7 @@
  *   @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles  (keyBy id)
  */
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Helpers\Flash;
 ?>
 <!DOCTYPE html>
@@ -88,7 +88,7 @@ use App\Helpers\Flash;
                                         <td><span class="badge text-bg-<?= htmlspecialchars($roleColor) ?>"><?= htmlspecialchars($roleName) ?></span></td>
                                         <td><?= $statusBadge ?></td>
                                         <td><span style="display:none"><?= htmlspecialchars($dateRaw) ?></span><?= htmlspecialchars($dateFmt) ?></td>
-                                        <?php if (Permissions::check(['admin', 'users.edit'])): ?>
+                                        <?php if (Gate::allows('user.update', $user)): ?>
                                             <td>
                                                 <div class="col-actions">
                                                     <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $user->id ?>"

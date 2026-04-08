@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Http\Requests\Roles\CreateRoleRequest;
@@ -39,7 +39,7 @@ class RoleController
     public function index(): void
     {
         $this->requireAuth();
-        $this->requirePermission(['admin', 'users.view'], redirectTo: 'index.php');
+        $this->ensure('role.viewList', redirectTo: 'index.php');
 
         $roles            = Role::query()->orderBy('priority')->get();
         $permissionGroups = require dirname(__DIR__, 3) . '/config/permissions.php';
@@ -57,7 +57,7 @@ class RoleController
     public function store(): void
     {
         $this->requireAuth();
-        $this->requireFullAdmin();
+        $this->ensure('role.create', redirectTo: 'benutzer/rollen/index.php');
         $this->requireMethod('POST');
 
         try {
@@ -98,7 +98,7 @@ class RoleController
     public function update(): void
     {
         $this->requireAuth();
-        $this->requireFullAdmin();
+        $this->ensure('role.update', redirectTo: 'benutzer/rollen/index.php');
         $this->requireMethod('POST');
 
         try {
@@ -145,7 +145,7 @@ class RoleController
     public function destroy(): void
     {
         $this->requireAuth();
-        $this->requireFullAdmin();
+        $this->ensure('role.delete', redirectTo: 'benutzer/rollen/index.php');
         $this->requireMethod('POST');
 
         $id = (int) ($_POST['id'] ?? 0);
@@ -194,21 +194,13 @@ class RoleController
     }
 
     /**
-     * @param string|array<int,string> $permission
+     * Wrapper um Gate::allows: bei Denial wird Flash + Redirect gemacht.
      */
-    private function requirePermission(string|array $permission, string $redirectTo = 'index.php'): void
+    private function ensure(string $ability, mixed $resource = null, string $redirectTo = 'index.php'): void
     {
-        if (!Permissions::check($permission)) {
+        if (Gate::denies($ability, $resource)) {
             Flash::set('error', 'no-permissions');
             $this->redirect($redirectTo);
-        }
-    }
-
-    private function requireFullAdmin(): void
-    {
-        if (!Permissions::check('full_admin')) {
-            Flash::set('error', 'no-permissions');
-            $this->redirect('benutzer/rollen/index.php');
         }
     }
 
