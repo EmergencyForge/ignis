@@ -27,8 +27,11 @@ class UserControllerTest extends TestCase
     public function controller_has_expected_action_methods(): void
     {
         $reflection = new \ReflectionClass(UserController::class);
-        $this->assertTrue($reflection->hasMethod('index'));
-        $this->assertTrue($reflection->hasMethod('destroy'));
-        $this->assertTrue($reflection->hasMethod('setActive'));
+        foreach (['index', 'edit', 'update', 'destroy', 'setActive', 'auditlog', 'registrationCodes'] as $method) {
+            $this->assertTrue(
+                $reflection->hasMethod($method),
+                "UserController::$method() fehlt"
+            );
+        }
     }
 }
