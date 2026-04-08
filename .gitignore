@@ -1,6 +1,7 @@
 phpinfo.php
 .env
-.env.test
+.env.*
+!.env.example
 vendor
 php_errors.log
 storage/logs/
