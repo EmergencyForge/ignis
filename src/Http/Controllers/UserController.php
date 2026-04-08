@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Models\RegistrationCode;
 use App\Models\Role;
 use App\Models\User;
 use App\Utils\AuditLogger;
@@ -68,6 +69,178 @@ class UserController
             'users' => $users,
             'roles' => $roles,
         ]);
+    }
+
+    /**
+     * GET /benutzer/edit?id=X — Edit-Formular für einen User.
+     *
+     * Lädt den Ziel-User samt Rolle, prüft Self-Edit + Priority, rendert dann
+     * das Edit-Template inkl. der für die Rollen-Auswahl filtrierten Rollen
+     * und der user-spezifischen Audit-Log-Subsection.
+     */
+    public function edit(): void
+    {
+        $this->requireAuth();
+        $this->requirePermission(['admin', 'users.edit'], redirectTo: 'benutzer/list.php');
+
+        $target = $this->loadUserForEditing();
+        $availableRoles = Role::query()
+            ->where('priority', '>', (int) ($_SESSION['role_priority'] ?? 0))
+            ->orderBy('priority')
+            ->get();
+
+        $auditEntries = [];
+        if (Permissions::check(['admin', 'audit.view'])) {
+            $auditEntries = Capsule::table('intra_audit_log')
+                ->where('user', $target->id)
+                ->orderBy('timestamp', 'desc')
+                ->get();
+        }
+
+        $this->renderView('users/edit', [
+            'target'         => $target,
+            'availableRoles' => $availableRoles,
+            'auditEntries'   => $auditEntries,
+        ]);
+    }
+
+    /**
+     * POST /benutzer/edit (mit `new=1`) — Update der Rolle eines Users.
+     *
+     * Aktuell wird nur das Feld `role` aktualisiert (genau wie der Legacy-Code,
+     * der `username` zwar im Form-Field hatte, aber nie ins UPDATE übernommen
+     * hat). Das Verhalten bleibt 1:1 erhalten.
+     */
+    public function update(): void
+    {
+        $this->requireAuth();
+        $this->requirePermission(['admin', 'users.edit'], redirectTo: 'benutzer/list.php');
+
+        $target = $this->loadUserForEditing();
+
+        $newRoleId = (int) ($_POST['role'] ?? 0);
+        if ($newRoleId > 0) {
+            $target->role = $newRoleId;
+            $target->save();
+
+            Flash::success('Benutzer wurde erfolgreich aktualisiert.');
+            (new AuditLogger($this->pdo))->log(
+                (int) $_SESSION['userid'],
+                'Benutzer aktualisiert [ID: ' . $target->id . ']',
+                null,
+                'Benutzer',
+                1
+            );
+        }
+
+        $this->redirect('benutzer/list.php');
+    }
+
+    /**
+     * GET /benutzer/auditlog — Globale Audit-Log-Tabelle.
+     *
+     * Zeigt alle Einträge mit `global = 1`. Joint sich die Usernamen via
+     * Capsule (kein eigener AuditLog-Model in dieser Phase).
+     */
+    public function auditlog(): void
+    {
+        $this->requireAuth();
+        $this->requirePermission(['admin', 'audit.view'], redirectTo: 'index.php');
+
+        $entries = Capsule::table('intra_audit_log')
+            ->where('global', 1)
+            ->orderBy('timestamp', 'desc')
+            ->get();
+
+        $usersById = User::query()
+            ->select(['id', 'username'])
+            ->get()
+            ->keyBy('id');
+
+        $this->renderView('users/auditlog', [
+            'entries'   => $entries,
+            'usersById' => $usersById,
+        ]);
+    }
+
+    /**
+     * GET /benutzer/registration-codes — Einladungs-Codes verwalten.
+     * POST mit `action=generate` → neuen Code erzeugen
+     * POST mit `action=delete`   → Code löschen (nur ungenutzte)
+     *
+     * Internes Dispatching nach REQUEST_METHOD + action — der Stub bleibt
+     * dadurch ein 2-Zeiler. Wird in Phase 3 durch echte Routes ersetzt.
+     */
+    public function registrationCodes(): void
+    {
+        $this->requireAuth();
+        $this->requirePermission(['admin', 'users.create'], redirectTo: 'index.php');
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $action = $_POST['action'] ?? '';
+            if ($action === 'generate') {
+                $this->generateRegistrationCode();
+                return;
+            }
+            if ($action === 'delete') {
+                $this->deleteRegistrationCode();
+                return;
+            }
+        }
+
+        $codes = RegistrationCode::query()
+            ->with(['creator', 'usedByUser'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $this->renderView('users/registration-codes', [
+            'codes'            => $codes,
+            'registrationMode' => defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open',
+            'systemUrl'        => $this->resolveSystemUrl(),
+        ]);
+    }
+
+    private function generateRegistrationCode(): void
+    {
+        $code      = bin2hex(random_bytes(8));
+        $label     = trim((string) ($_POST['label'] ?? ''));
+        $expiresAt = !empty($_POST['expires_at']) ? $_POST['expires_at'] : null;
+
+        $rc = new RegistrationCode();
+        $rc->code       = $code;
+        $rc->label      = $label !== '' ? $label : null;
+        $rc->created_by = (int) $_SESSION['userid'];
+        $rc->expires_at = $expiresAt;
+        $rc->is_used    = false;
+        $rc->save();
+
+        $inviteUrl = $this->resolveSystemUrl() . BASE_PATH . 'invite.php?code=' . $code;
+        Flash::set(
+            'success',
+            'Einladungslink erstellt! <br><code class="user-select-all">'
+                . htmlspecialchars($inviteUrl)
+                . '</code>'
+        );
+
+        $this->redirect('benutzer/registration-codes.php');
+    }
+
+    private function deleteRegistrationCode(): void
+    {
+        $codeId = (int) ($_POST['code_id'] ?? 0);
+
+        $deleted = RegistrationCode::query()
+            ->where('id', $codeId)
+            ->where('is_used', 0)
+            ->delete();
+
+        if ($deleted > 0) {
+            Flash::success('Einladung erfolgreich gelöscht.');
+        } else {
+            Flash::error('Einladung konnte nicht gelöscht werden (bereits verwendet oder nicht gefunden).');
+        }
+
+        $this->redirect('benutzer/registration-codes.php');
     }
 
     /**
@@ -197,6 +370,60 @@ class UserController
     // -----------------------------------------------------------------------
     //  Helper-Methoden — werden in Phase 3 in Middleware ausgelagert
     // -----------------------------------------------------------------------
+
+    /**
+     * Lädt den per ?id=X übergebenen User samt Rolle, prüft Self-Edit + Priority,
+     * redirected mit Flash falls nicht erlaubt. Wird sowohl von edit() als auch
+     * update() benutzt.
+     */
+    private function loadUserForEditing(): User
+    {
+        $targetId = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        if ($targetId <= 0) {
+            Flash::set('error', 'invalid-request');
+            $this->redirect('benutzer/list.php');
+        }
+
+        /** @var User|null $target */
+        $target = User::with('userRole')->find($targetId);
+        if ($target === null) {
+            Flash::set('error', 'user-not-found');
+            $this->redirect('benutzer/list.php');
+        }
+
+        if ($target->id === (int) $_SESSION['userid']) {
+            Flash::set('user', 'edit-self');
+            $this->redirect('benutzer/list.php');
+        }
+
+        $targetPriority = (int) ($target->userRole?->priority ?? 0);
+        if ($targetPriority <= (int) ($_SESSION['role_priority'] ?? 0)) {
+            Flash::set('user', 'low-permissions');
+            $this->redirect('benutzer/list.php');
+        }
+
+        return $target;
+    }
+
+    /**
+     * Baut die Basis-URL für Invite-Links. Bevorzugt SYSTEM_URL aus der Config,
+     * fällt auf den aktuellen Request-Host zurück. Identisch zur Legacy-Logik
+     * aus benutzer/registration-codes.php.
+     */
+    private function resolveSystemUrl(): string
+    {
+        $sysUrl = (defined('SYSTEM_URL') && SYSTEM_URL !== '' && SYSTEM_URL !== 'CHANGE_ME')
+            ? rtrim(SYSTEM_URL, '/')
+            : '';
+        if ($sysUrl !== '' && !preg_match('#^https?://#i', $sysUrl)) {
+            $sysUrl = 'https://' . $sysUrl;
+        }
+        if ($sysUrl !== '') {
+            return $sysUrl;
+        }
+        $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+        return $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+    }
 
     /**
      * Prüft ob der Aufrufer das Ziel-User-Objekt überhaupt verändern darf:
