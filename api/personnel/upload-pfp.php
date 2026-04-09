@@ -1,10 +1,20 @@
 <?php
+// Output-Buffer ZUERST starten — alle Includes (config.php, database.php) und
+// Vendor-Pakete (PHP-DI 7.0 mit PHP-8.4-Deprecations) schreiben sonst direkt
+// in die Response, was den JSON-Parse im Browser sprengt. Wir verwerfen jeden
+// vor-JSON-Output bevor wir den Content-Type-Header setzen.
+ob_start();
+
 require_once __DIR__ . '/../../assets/config/config.php';
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../assets/config/database.php';
 
 use App\Auth\Permissions;
 
+// Vor-JSON-Output (Deprecations, Warnings, Whitespace, ...) verwerfen
+if (ob_get_length() > 0) {
+    ob_clean();
+}
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['userid'])) {
