@@ -128,7 +128,15 @@ try {
         $changes[] = 'qualifw2';
     }
 
-    // Handle base data changes
+    // PFP-Handling: wenn der Caller kein PFP sendet (Inline-Edit + Quali-Modal
+    // schicken hardcoded `pfp: ''`), behalten wir den aktuellen Wert. Sonst
+    // würde jede Inline-Edit-Speicherung das Profilbild auf den Default
+    // zurücksetzen — das war ein langjähriger Legacy-Bug.
+    // Der echte PFP-Upload läuft eh über api/personnel/upload-pfp.php, nicht
+    // über diesen Endpoint.
+    if ($pfp === '') {
+        $pfp = $current['pfp'] ?? '';
+    }
     if (empty($pfp)) {
         $pfp = '/assets/img/empty_user.png';
     }

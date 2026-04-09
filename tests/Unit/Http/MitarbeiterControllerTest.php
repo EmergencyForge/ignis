@@ -18,10 +18,14 @@ class MitarbeiterControllerTest extends TestCase
     }
 
     #[Test]
-    public function controller_has_turn1_methods(): void
+    public function controller_has_all_action_methods(): void
     {
         $reflection = new \ReflectionClass(MitarbeiterController::class);
-        foreach (['index', 'store', 'destroy', 'deleteComment'] as $method) {
+        $methods = [
+            'index', 'store', 'destroy', 'deleteComment',                       // Turn 1
+            'show', 'update', 'updateFachdienste', 'addNote', 'createDocument', // Turn 2
+        ];
+        foreach ($methods as $method) {
             $this->assertTrue(
                 $reflection->hasMethod($method),
                 "MitarbeiterController::$method() fehlt"
