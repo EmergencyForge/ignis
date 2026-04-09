@@ -175,6 +175,29 @@ class MitarbeiterController extends Controller
         $geburtstag        = $mitarbeiter->gebdatum?->format('d.m.Y') ?? '';
         $einstellungsdatum = $mitarbeiter->einstdatum?->format('d.m.Y') ?? '';
 
+        // Legacy-Scope-Variablen für die Partials in assets/components/profiles/:
+        //   $openedID    — die ID des angezeigten Profils (auch für hidden inputs in modals)
+        //   $editdg      — Dienstgrad-ID des aktuell EINGELOGGTEN Users (sein eigenes Profil)
+        //   $edituseric  — fullname des aktuell eingeloggten Users (für Audit-Anzeigen)
+        // Wenn der eingeloggte User selbst kein Mitarbeiter-Profil hat, bleiben
+        // editdg = null und edituseric = 'Unbekannt Unbekannt' — die Partials
+        // zeigen dann eine Warnung, dass Profildaten fehlen.
+        $openedID    = $id;
+        $editdg      = null;
+        $edituseric  = 'Unbekannt Unbekannt';
+
+        $sessionDiscordTag = $_SESSION['discordtag'] ?? null;
+        if (!empty($sessionDiscordTag)) {
+            /** @var Mitarbeiter|null $ownProfile */
+            $ownProfile = Mitarbeiter::query()
+                ->where('discordtag', $sessionDiscordTag)
+                ->first();
+            if ($ownProfile !== null) {
+                $editdg     = $ownProfile->dienstgrad;
+                $edituseric = $ownProfile->fullname;
+            }
+        }
+
         $this->renderView('mitarbeiter/profile', [
             'mitarbeiter'       => $mitarbeiter,
             'row'               => $row,
@@ -189,6 +212,9 @@ class MitarbeiterController extends Controller
             'accountStatus'     => $accountStatus,
             'panelakte'         => $panelakte,
             'pendingInvite'     => $pendingInvite,
+            'openedID'          => $openedID,
+            'editdg'            => $editdg,
+            'edituseric'        => $edituseric,
         ]);
     }
 
