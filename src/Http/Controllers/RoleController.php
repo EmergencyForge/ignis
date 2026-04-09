@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Auth\Gate;
 use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Http\Requests\Roles\CreateRoleRequest;
 use App\Http\Requests\Roles\UpdateRoleRequest;
 use App\Models\Role;
 use App\Utils\AuditLogger;
-use PDO;
 
 /**
  * RoleController — Pilot-Migration für das benutzer/rollen/-Modul.
@@ -27,12 +25,8 @@ use PDO;
  *
  * In Phase 3 (Router) werden diese unter zentrale Routes wandern.
  */
-class RoleController
+class RoleController extends Controller
 {
-    public function __construct(
-        private PDO $pdo,
-    ) {}
-
     /**
      * GET /benutzer/rollen — Rollenverwaltung mit DataTable + Edit/Create-Modals.
      */
@@ -182,54 +176,18 @@ class RoleController
     }
 
     // -----------------------------------------------------------------------
-    //  Helpers — werden in Phase 3 in Middleware ausgelagert
+    //  Role-spezifische Helpers (auth/render kommen aus Controller-Base)
     // -----------------------------------------------------------------------
 
-    private function requireAuth(): void
-    {
-        if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
-            $this->redirect('login.php');
-        }
-    }
-
     /**
-     * Wrapper um Gate::allows: bei Denial wird Flash + Redirect gemacht.
+     * Hard-Stop für Endpoints, die nur per POST aufgerufen werden dürfen.
+     * Ist Controller-spezifisch (Default-Redirect zur Rollen-Liste), daher
+     * nicht in der Base-Klasse.
      */
-    private function ensure(string $ability, mixed $resource = null, string $redirectTo = 'index.php'): void
-    {
-        if (Gate::denies($ability, $resource)) {
-            Flash::set('error', 'no-permissions');
-            $this->redirect($redirectTo);
-        }
-    }
-
     private function requireMethod(string $method): void
     {
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== $method) {
             $this->redirect('benutzer/rollen/index.php');
         }
-    }
-
-    private function redirect(string $relativePath): never
-    {
-        header('Location: ' . BASE_PATH . $relativePath);
-        exit;
-    }
-
-    /**
-     * @param array<string,mixed> $data
-     */
-    private function renderView(string $view, array $data = []): void
-    {
-        $templatePath = dirname(__DIR__, 3) . '/templates/' . $view . '.php';
-        if (!is_file($templatePath)) {
-            throw new \RuntimeException("View not found: $view ($templatePath)");
-        }
-        // Legacy-Compat: bestehende Partials erwarten ein lokales $pdo
-        $pdo = $this->pdo;
-
-        extract($data, EXTR_SKIP);
-        require $templatePath;
     }
 }

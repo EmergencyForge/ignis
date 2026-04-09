@@ -13,7 +13,6 @@ use App\Models\Role;
 use App\Models\User;
 use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use PDO;
 
 /**
  * UserController — Pilot-Migration für das benutzer/-Modul.
@@ -31,12 +30,8 @@ use PDO;
  * Diese Klasse läuft unter PSR-4 Autoloading und wird via DI-Container
  * instanziiert (PDO + AuditLogger Constructor-Injection).
  */
-class UserController
+class UserController extends Controller
 {
-    public function __construct(
-        private PDO $pdo,
-    ) {}
-
     /**
      * GET /benutzer — Benutzer-Liste mit DataTable.
      *
@@ -375,7 +370,7 @@ class UserController
     }
 
     // -----------------------------------------------------------------------
-    //  Helper-Methoden — werden in Phase 3 in Middleware ausgelagert
+    //  User-spezifische Helpers (auth/render kommen aus Controller-Base)
     // -----------------------------------------------------------------------
 
     /**
@@ -430,59 +425,5 @@ class UserController
         }
         $scheme = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
         return $scheme . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
-    }
-
-    private function requireAuth(): void
-    {
-        if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
-            $this->redirect('login.php');
-        }
-    }
-
-    /**
-     * Wrapper um Gate::allows: bei Denial wird Flash + Redirect gemacht.
-     * Aktionen, die spezifischere Flash-Messages brauchen (z.B. "edit-self"),
-     * machen den Gate-Check inline statt diesen Helper zu nutzen.
-     */
-    private function ensure(string $ability, mixed $resource = null, string $redirectTo = 'index.php'): void
-    {
-        if (Gate::denies($ability, $resource)) {
-            Flash::set('error', 'no-permissions');
-            $this->redirect($redirectTo);
-        }
-    }
-
-    private function redirect(string $relativePath): never
-    {
-        header('Location: ' . BASE_PATH . $relativePath);
-        exit;
-    }
-
-    /**
-     * Rendert ein PHP-Template aus templates/. View-Daten werden via extract()
-     * in den lokalen Scope geschoben, damit das Template direkt darauf zugreifen
-     * kann ($users statt $viewData['users']).
-     *
-     * Stellt zusätzlich `$pdo` im Template-Scope bereit, weil bestehende
-     * Partials (navbar.php, global-announcements.php, footer.php, ...) das
-     * Variable als lokale Referenz erwarten — im Legacy-Flow wurde es vom
-     * `require database.php` automatisch gesetzt, mit dem Controller-Flow
-     * müssen wir es explizit reichen. Wird über die Phase-3-Templates
-     * (Twig + Layouts) entfallen.
-     *
-     * @param array<string,mixed> $data
-     */
-    private function renderView(string $view, array $data = []): void
-    {
-        $templatePath = dirname(__DIR__, 3) . '/templates/' . $view . '.php';
-        if (!is_file($templatePath)) {
-            throw new \RuntimeException("View not found: $view ($templatePath)");
-        }
-        // Legacy-Compat: bestehende Partials erwarten ein lokales $pdo
-        $pdo = $this->pdo;
-
-        extract($data, EXTR_SKIP);
-        require $templatePath;
     }
 }
