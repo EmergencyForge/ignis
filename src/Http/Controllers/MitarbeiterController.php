@@ -333,9 +333,18 @@ class MitarbeiterController extends Controller
         }
 
         $content = trim((string) ($_POST['content'] ?? ''));
-        $type    = (int) ($_POST['noteType'] ?? 0);
+        // noteType ist eine PersonalLogManager::TYPE_*-Konstante:
+        //   0 = TYPE_NOTE (allgemeine Notiz), 1 = TYPE_POSITIVE, 2 = TYPE_NEGATIVE
+        // Wir akzeptieren alle drei Werte explizit — `> 0` würde die allgemeine
+        // Notiz (=0) fälschlich rausfiltern.
+        $type = isset($_POST['noteType']) ? (int) $_POST['noteType'] : -1;
+        $allowedTypes = [
+            PersonalLogManager::TYPE_NOTE,
+            PersonalLogManager::TYPE_POSITIVE,
+            PersonalLogManager::TYPE_NEGATIVE,
+        ];
 
-        if ($content !== '' && $type > 0) {
+        if ($content !== '' && in_array($type, $allowedTypes, true)) {
             $userHelper = new UserHelper($this->pdo);
             (new PersonalLogManager($this->pdo))->addNote(
                 $id,
