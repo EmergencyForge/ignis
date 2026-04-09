@@ -8,12 +8,15 @@ use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
 use App\Http\Requests\Mitarbeiter\CreateMitarbeiterRequest;
+use App\Http\Requests\Mitarbeiter\UpdateMitarbeiterRequest;
 use App\Models\Dienstgrad;
 use App\Models\FwQuali;
 use App\Models\Mitarbeiter;
 use App\Models\RdQuali;
+use App\Notifications\NotificationManager;
 use App\Personnel\PersonalLogManager;
 use App\Utils\AuditLogger;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * MitarbeiterController — Migration des `mitarbeiter/`-Moduls (Phase 2 Welle 3).
@@ -26,9 +29,12 @@ use App\Utils\AuditLogger;
  *     destroy()       — delete.php
  *     deleteComment() — comment-delete.php
  *
- *   Turn 2 (folgt):
- *     show()   — profile.php (Detail-Seite)
- *     update() — POST-Handler für profile.php
+ *   Turn 2 (jetzt):
+ *     show()              — profile.php (Detail-Seite)
+ *     update()            — POST new=1 (Legacy Update-Form, validiert via FormRequest)
+ *     updateFachdienste() — POST new=4 (Fachdienste-JSON updaten)
+ *     addNote()           — POST new=5 (Notiz hinzufügen)
+ *     createDocument()    — POST new=6 (Dokument erstellen + Notification)
  *
  *   Turn 3 (folgt):
  *     showDocument()   — dokument-view.php
@@ -76,6 +82,370 @@ class MitarbeiterController extends Controller
             'fwQualis'    => $fwQualis,
             'showArchive' => $showArchive,
         ]);
+    }
+
+    /**
+     * GET /mitarbeiter/profile.php?id=X — Mitarbeiter-Detail mit Inline-Editor,
+     * Kommentaren, Logs, Dokumenten und Fachdienste-Modal.
+     *
+     * Die View bindet eine Reihe alter Partials ein (assets/components/profiles/*),
+     * die als lokale Variablen im Scope $row, $dginfo, $rdginfo, $fwginfo,
+     * $geburtstag, $einstellungsdatum, $bfqualtext, $dienstgradText, $rdqualtext,
+     * $accountStatus, $panelakte, $pendingInvite und $pdo erwarten. Wir bauen
+     * diesen Scope-Vertrag explizit auf, damit die Partials weiter funktionieren
+     * ohne sie selbst migrieren zu müssen.
+     */
+    public function show(): void
+    {
+        $this->requireAuth();
+        $this->ensure('mitarbeiter.view', redirectTo: 'index.php');
+
+        $id = (int) ($_GET['id'] ?? 0);
+        if ($id <= 0) {
+            Flash::set('error', 'invalid-id');
+            $this->redirect('index.php');
+        }
+
+        /** @var Mitarbeiter|null $mitarbeiter */
+        $mitarbeiter = Mitarbeiter::query()
+            ->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel'])
+            ->find($id);
+
+        if ($mitarbeiter === null) {
+            Flash::set('error', 'not-found');
+            $this->redirect('mitarbeiter/list.php');
+        }
+
+        // Account-Status für die Status-Card oben in der View ermitteln
+        // (verlinkter User, Pending-Invite, oder kein Konto)
+        $accountStatus = 'none';
+        $panelakte     = null;
+        $pendingInvite = null;
+
+        if (!empty($mitarbeiter->discordtag)) {
+            $userRow = Capsule::table('intra_users as u')
+                ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+                ->where('u.discord_id', $mitarbeiter->discordtag)
+                ->select(
+                    'u.id',
+                    'u.username',
+                    Capsule::raw('COALESCE(m.fullname, u.fullname) as fullname'),
+                    'u.aktenid',
+                    'u.is_active'
+                )
+                ->first();
+
+            if ($userRow) {
+                $panelakte     = (array) $userRow;
+                $accountStatus = $userRow->is_active ? 'active' : 'inactive';
+            } else {
+                // Pending Registration-Code mit Label = Mitarbeiter-Name?
+                $pending = Capsule::table('intra_registration_codes')
+                    ->where('is_used', 0)
+                    ->where('label', 'like', '%' . $mitarbeiter->fullname . '%')
+                    ->where(function ($q) {
+                        $q->whereNull('expires_at')
+                          ->orWhere('expires_at', '>', Capsule::raw('NOW()'));
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->limit(1)
+                    ->first();
+
+                if ($pending) {
+                    $pendingInvite = (array) $pending;
+                    $accountStatus = 'pending';
+                }
+            }
+        }
+
+        // Legacy-Scope-Variablen für die alten Partials zusammenstellen.
+        // $row ist die rohe Mitarbeiter-Row aus der DB (wie der Legacy-Code
+        // sie hatte). Die Partials greifen via $row['fullname'] etc. zu.
+        $row = $mitarbeiter->getAttributes();
+
+        $dginfo  = $mitarbeiter->dienstgradModel?->getAttributes() ?? [];
+        $rdginfo = $mitarbeiter->rdQualiModel?->getAttributes() ?? ['none' => 1];
+        $fwginfo = $mitarbeiter->fwQualiModel?->getAttributes() ?? ['none' => 1, 'shortname' => '-'];
+
+        $bfqualtext = $fwginfo['shortname'] ?? '-';
+        $dienstgradText = $mitarbeiter->dienstgradLabel();
+        $rdqualtext     = $mitarbeiter->rdQualiLabel();
+
+        $geburtstag        = $mitarbeiter->gebdatum?->format('d.m.Y') ?? '';
+        $einstellungsdatum = $mitarbeiter->einstdatum?->format('d.m.Y') ?? '';
+
+        $this->renderView('mitarbeiter/profile', [
+            'mitarbeiter'       => $mitarbeiter,
+            'row'               => $row,
+            'dginfo'            => $dginfo,
+            'rdginfo'           => $rdginfo,
+            'fwginfo'           => $fwginfo,
+            'bfqualtext'        => $bfqualtext,
+            'dienstgradText'    => $dienstgradText,
+            'rdqualtext'        => $rdqualtext,
+            'geburtstag'        => $geburtstag,
+            'einstellungsdatum' => $einstellungsdatum,
+            'accountStatus'     => $accountStatus,
+            'panelakte'         => $panelakte,
+            'pendingInvite'     => $pendingInvite,
+        ]);
+    }
+
+    /**
+     * POST /mitarbeiter/profile.php (new=1) — Legacy Update-Form.
+     *
+     * Wird in der aktuellen UI praktisch nicht mehr aufgerufen (Inline-Edit
+     * läuft über api/personnel/update-profile.php), aber der Endpoint existiert
+     * für Bookmarks/externe Tools weiter. Wir validieren defensiv via FormRequest
+     * und delegieren die einzelnen Diff-Audits an den PersonalLogManager — exakt
+     * wie der Legacy-Code.
+     */
+    public function update(): void
+    {
+        $this->requireAuth();
+        $this->ensure('mitarbeiter.update', redirectTo: 'index.php');
+
+        try {
+            $data = UpdateMitarbeiterRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('mitarbeiter/profile.php?id=' . (int) ($_POST['id'] ?? 0));
+        }
+
+        /** @var Mitarbeiter|null $mitarbeiter */
+        $mitarbeiter = Mitarbeiter::find($data['id']);
+        if ($mitarbeiter === null) {
+            Flash::error('Mitarbeiter nicht gefunden.');
+            $this->redirect('mitarbeiter/list.php');
+        }
+
+        $userHelper = new UserHelper($this->pdo);
+        $edituser   = $userHelper->getCurrentUserFullnameForAction();
+        $logManager = new PersonalLogManager($this->pdo);
+
+        // Rang-Wechsel logging
+        if ($mitarbeiter->dienstgrad !== $data['dienstgrad']) {
+            $oldName = Dienstgrad::find($mitarbeiter->dienstgrad)->name ?? '?';
+            $newName = Dienstgrad::find($data['dienstgrad'])->name ?? '?';
+            $logManager->logRankChange($mitarbeiter->id, $oldName, $newName, $edituser);
+            $mitarbeiter->dienstgrad = $data['dienstgrad'];
+        }
+
+        // RD-Quali-Wechsel logging
+        if ($mitarbeiter->qualird !== $data['qualird']) {
+            $oldName = RdQuali::find($mitarbeiter->qualird)->name ?? '?';
+            $newName = RdQuali::find($data['qualird'])->name ?? '?';
+            $logManager->logQualificationChange($mitarbeiter->id, 'RD', $oldName, $newName, $edituser);
+            $mitarbeiter->qualird = $data['qualird'];
+        }
+
+        // FW-Quali-Wechsel logging
+        if ($mitarbeiter->qualifw2 !== $data['qualifw2']) {
+            $oldName = FwQuali::find($mitarbeiter->qualifw2)->name ?? '?';
+            $newName = FwQuali::find($data['qualifw2'])->name ?? '?';
+            $logManager->logQualificationChange($mitarbeiter->id, 'FW', $oldName, $newName, $edituser);
+            $mitarbeiter->qualifw2 = $data['qualifw2'];
+        }
+
+        // Generische Datenänderung erkennen — wenn irgendetwas anderes anders
+        // ist, wird ein "Profil bearbeitet"-Eintrag geschrieben.
+        $dataChanged = (
+            $mitarbeiter->fullname   !== $data['fullname']   ||
+            (string) $mitarbeiter->gebdatum?->format('Y-m-d') !== $data['gebdatum'] ||
+            (string) $mitarbeiter->discordtag !== $data['discordtag'] ||
+            (string) $mitarbeiter->telefonnr  !== $data['telefonnr']  ||
+            $mitarbeiter->dienstnr   !== $data['dienstnr']   ||
+            $mitarbeiter->geschlecht !== $data['geschlecht'] ||
+            (string) $mitarbeiter->zusatz     !== $data['zusatzqual'] ||
+            (string) ($mitarbeiter->pfp ?? '') !== $data['pfp']       ||
+            (defined('CHAR_ID') && CHAR_ID && $mitarbeiter->charakterid !== $data['charakterid'])
+        );
+
+        if ($dataChanged) {
+            $mitarbeiter->fullname   = $data['fullname'];
+            $mitarbeiter->gebdatum   = $data['gebdatum'];
+            $mitarbeiter->discordtag = $data['discordtag'];
+            $mitarbeiter->telefonnr  = $data['telefonnr'];
+            $mitarbeiter->dienstnr   = $data['dienstnr'];
+            $mitarbeiter->geschlecht = $data['geschlecht'];
+            $mitarbeiter->zusatz     = $data['zusatzqual'];
+            $mitarbeiter->pfp        = $data['pfp'] !== '' ? $data['pfp'] : '/assets/img/empty_user.png';
+            if (defined('CHAR_ID') && CHAR_ID) {
+                $mitarbeiter->charakterid = $data['charakterid'];
+            }
+            $mitarbeiter->save();
+            $logManager->logProfileModification($mitarbeiter->id, $edituser);
+        } else {
+            $mitarbeiter->save();
+        }
+
+        $this->redirect('mitarbeiter/profile.php?id=' . $mitarbeiter->id);
+    }
+
+    /**
+     * POST /mitarbeiter/profile.php (new=4) — Fachdienste-JSON-Update.
+     */
+    public function updateFachdienste(): void
+    {
+        $this->requireAuth();
+        $this->ensure('mitarbeiter.update', redirectTo: 'index.php');
+
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        if ($id <= 0) {
+            $this->redirect('mitarbeiter/list.php');
+        }
+
+        /** @var Mitarbeiter|null $mitarbeiter */
+        $mitarbeiter = Mitarbeiter::find($id);
+        if ($mitarbeiter === null) {
+            $this->redirect('mitarbeiter/list.php');
+        }
+
+        $fachdienste     = isset($_POST['fachdienste']) && is_array($_POST['fachdienste']) ? $_POST['fachdienste'] : [];
+        $fachdienste     = array_values(array_filter($fachdienste, 'is_string'));
+        $fachdiensteJson = json_encode($fachdienste);
+
+        if ($mitarbeiter->fachdienste !== $fachdiensteJson) {
+            $mitarbeiter->fachdienste = $fachdiensteJson;
+            $mitarbeiter->save();
+
+            $userHelper = new UserHelper($this->pdo);
+            (new PersonalLogManager($this->pdo))->logDepartmentModification(
+                $id,
+                $userHelper->getCurrentUserFullnameForAction()
+            );
+        }
+
+        $this->redirect('mitarbeiter/profile.php?id=' . $id);
+    }
+
+    /**
+     * POST /mitarbeiter/profile.php (new=5) — Notiz/Comment hinzufügen.
+     */
+    public function addNote(): void
+    {
+        $this->requireAuth();
+        $this->ensure('mitarbeiter.update', redirectTo: 'index.php');
+
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        if ($id <= 0) {
+            $this->redirect('mitarbeiter/list.php');
+        }
+
+        $content = trim((string) ($_POST['content'] ?? ''));
+        $type    = trim((string) ($_POST['noteType'] ?? ''));
+
+        if ($content !== '' && $type !== '') {
+            $userHelper = new UserHelper($this->pdo);
+            (new PersonalLogManager($this->pdo))->addNote(
+                $id,
+                $type,
+                $content,
+                $userHelper->getCurrentUserFullnameForAction()
+            );
+        }
+
+        $this->redirect('mitarbeiter/profile.php?id=' . $id);
+    }
+
+    /**
+     * POST /mitarbeiter/profile.php (new=6) — Dokument für Mitarbeiter erstellen.
+     *
+     * Schreibt einen Eintrag in `intra_mitarbeiter_dokumente` und sendet eine
+     * Notification an den Empfänger, sofern dessen Discord-ID einem System-User
+     * zugeordnet ist. Die PDF-Generierung passiert auf der Folge-Seite
+     * (`assets/functions/docredir.php?docid=...`).
+     */
+    public function createDocument(): void
+    {
+        $this->requireAuth();
+        $this->ensure('mitarbeiter.manageDocs', redirectTo: 'index.php');
+
+        $profileId = (int) ($_POST['profileid'] ?? 0);
+        $docType   = (string) ($_POST['docType'] ?? '');
+        if ($profileId <= 0 || $docType === '') {
+            Flash::error('Ungültige Eingabe.');
+            $this->redirect('mitarbeiter/list.php');
+        }
+
+        /** @var Mitarbeiter|null $mitarbeiter */
+        $mitarbeiter = Mitarbeiter::find($profileId);
+        if ($mitarbeiter === null) {
+            Flash::error('Mitarbeiter nicht gefunden.');
+            $this->redirect('mitarbeiter/list.php');
+        }
+
+        // Eindeutige docid generieren (7-stellig, wie Legacy)
+        do {
+            $docId  = (string) random_int(1000000, 9999999);
+            $exists = Capsule::table('intra_mitarbeiter_dokumente')->where('docid', $docId)->exists();
+        } while ($exists);
+
+        // ausstellungsdatum kommt unter mehreren Field-Namen — der Legacy-Code
+        // mappt 10/11/12/13 auf den 10er-Suffix, sonst Suffix = $docType.
+        $ausstDtNr = in_array($docType, ['10', '11', '12', '13'], true) ? '10' : $docType;
+        $rawDate   = $_POST['ausstellungsdatum_' . $ausstDtNr] ?? $_POST['ausstellungsdatum_0'] ?? '';
+        $ausstellungsdatum = $rawDate !== '' ? date('Y-m-d', strtotime($rawDate)) : date('Y-m-d');
+
+        Capsule::table('intra_mitarbeiter_dokumente')->insert([
+            'docid'             => $docId,
+            'type'              => $docType,
+            'anrede'            => $_POST['anrede'] ?? null,
+            'erhalter'          => $_POST['erhalter'] ?? null,
+            'inhalt'            => $_POST['inhalt'] ?? null,
+            'suspendtime'       => !empty($_POST['suspendtime']) ? $_POST['suspendtime'] : null,
+            'erhalter_gebdat'   => $_POST['erhalter_gebdat'] ?? null,
+            'erhalter_rang'     => $_POST['erhalter_rang'] ?? null,
+            'erhalter_rang_rd'  => $_POST['erhalter_rang_rd'] ?? null,
+            'erhalter_quali'    => $_POST['erhalter_quali'] ?? null,
+            'ausstellungsdatum' => $ausstellungsdatum,
+            'ausstellerid'      => $_POST['ausstellerid'] ?? null,
+            'profileid'         => $profileId,
+            'aussteller_name'   => $_POST['aussteller_name'] ?? null,
+            'aussteller_rang'   => $_POST['aussteller_rang'] ?? null,
+            'discordid'         => $mitarbeiter->discordtag,
+        ]);
+
+        $userHelper = new UserHelper($this->pdo);
+        (new PersonalLogManager($this->pdo))->logDocumentCreation(
+            $profileId,
+            (int) $docId,
+            $userHelper->getCurrentUserFullnameForAction()
+        );
+
+        // Notification an den Empfänger (sofern verlinkter User existiert)
+        if (!empty($mitarbeiter->discordtag)) {
+            $notificationManager = new NotificationManager($this->pdo);
+            $recipientUserId     = $notificationManager->getUserIdByDiscordTag($mitarbeiter->discordtag);
+
+            if ($recipientUserId) {
+                $docTypeNames = [
+                    1  => 'Beförderungsurkunde',
+                    2  => 'Ernennungsurkunde',
+                    3  => 'Entlassungsurkunde',
+                    4  => 'Zertifikat',
+                    5  => 'Fachlehrgangszertifikat',
+                    6  => 'Ausbildungszertifikat',
+                    7  => 'Abmahnung',
+                    8  => 'Kündigung',
+                    9  => 'Dienstenthebung',
+                    10 => 'Dienstentfernung',
+                ];
+                $docTypeName = $docTypeNames[(int) $docType] ?? 'Dokument';
+
+                $notificationManager->create(
+                    $recipientUserId,
+                    'dokument',
+                    'Neues Dokument erstellt',
+                    "Ein neues Dokument ({$docTypeName} #{$docId}) wurde für Sie erstellt.",
+                    BASE_PATH . "assets/functions/docredir.php?docid={$docId}"
+                );
+            }
+        }
+
+        // Wie der Legacy-Code: redirect zum docredir, das die PDF generiert
+        header('Location: ' . BASE_PATH . 'assets/functions/docredir.php?docid=' . $docId, true, 302);
+        exit;
     }
 
     /**
