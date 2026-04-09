@@ -203,7 +203,11 @@ function fmt_elapsed(int|string $seconds): string
 
     <script src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
     <script>
-        // Initialize custom dropdowns when DOM is ready
+        // Move tab-generated modals to body so they escape the overflow-y:auto container
+        document.querySelectorAll('.flex-grow-1 .modal').forEach(function(m) {
+            document.body.appendChild(m);
+        });
+
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
                 eNOTFCustomDropdown.init();
