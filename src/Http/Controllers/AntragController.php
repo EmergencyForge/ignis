@@ -16,7 +16,6 @@ use App\Models\AntragTyp;
 use App\Notifications\NotificationManager;
 use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use PDO;
 
 /**
  * AntragController — Migration des `antrag/`-Moduls (Phase 2 Welle 2).
@@ -34,7 +33,7 @@ use PDO;
  * werden via Capsule Query Builder geladen — kein eigenes Mitarbeiter-Model
  * in dieser Phase, das kommt erst in einer späteren Welle.
  */
-class AntragController
+class AntragController extends Controller
 {
     /** @var array<int,array{class:string,text:string,icon:string}> */
     private const STATUS_DISPLAY = [
@@ -43,10 +42,6 @@ class AntragController
         Antrag::STATUS_DEFERRED    => ['class' => 'warning', 'text' => 'Aufgeschoben',   'icon' => 'fa-solid fa-circle-pause'],
         Antrag::STATUS_ACCEPTED    => ['class' => 'success', 'text' => 'Angenommen',     'icon' => 'fa-solid fa-circle-check'],
     ];
-
-    public function __construct(
-        private PDO $pdo,
-    ) {}
 
     // -----------------------------------------------------------------------
     //  Public Routes
@@ -393,44 +388,4 @@ class AntragController
             ->all();
     }
 
-    // -----------------------------------------------------------------------
-    //  Auth/Render Helpers — duplizieren aktuell zu User/Role/Antrag, wird in
-    //  Phase 4+ in eine Controller-Base extrahiert.
-    // -----------------------------------------------------------------------
-
-    private function requireAuth(): void
-    {
-        if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
-            $this->redirect('login.php');
-        }
-    }
-
-    private function ensure(string $ability, mixed $resource = null, string $redirectTo = 'index.php'): void
-    {
-        if (Gate::denies($ability, $resource)) {
-            Flash::set('error', 'no-permissions');
-            $this->redirect($redirectTo);
-        }
-    }
-
-    private function redirect(string $relativePath): never
-    {
-        header('Location: ' . BASE_PATH . $relativePath);
-        exit;
-    }
-
-    /**
-     * @param array<string,mixed> $data
-     */
-    private function renderView(string $view, array $data = []): void
-    {
-        $templatePath = dirname(__DIR__, 3) . '/templates/' . $view . '.php';
-        if (!is_file($templatePath)) {
-            throw new \RuntimeException("View not found: $view ($templatePath)");
-        }
-        $pdo = $this->pdo;
-        extract($data, EXTR_SKIP);
-        require $templatePath;
-    }
 }
