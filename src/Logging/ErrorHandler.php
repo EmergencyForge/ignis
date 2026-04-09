@@ -43,6 +43,16 @@ class ErrorHandler
             return false;
         }
 
+        // Vendor-Deprecations (z.B. PHP-DI 7.0 vs PHP 8.4 implicit-nullable
+        // Parameter) komplett verschlucken: nicht loggen, nicht anzeigen.
+        // Sie sind Noise für die App-Entwicklung — wir können sie erst beheben,
+        // wenn die Vendor-Pakete neue Releases bringen.
+        // Eigener src/ Code wird WEITERHIN normal geloggt + angezeigt.
+        $isDeprecation = ($severity === E_DEPRECATED || $severity === E_USER_DEPRECATED);
+        if ($isDeprecation && self::isVendorFile($file)) {
+            return true; // true = "wir haben's behandelt, PHP soll nichts mehr tun"
+        }
+
         $levelName = self::severityToLevel($severity);
         $context = [
             'file' => $file,
@@ -60,6 +70,16 @@ class ErrorHandler
         // Don't execute PHP's internal error handler for notices/warnings
         // but do for E_ERROR-level to preserve behavior
         return in_array($severity, [E_USER_ERROR, E_RECOVERABLE_ERROR], true);
+    }
+
+    /**
+     * Prüft ob ein File-Pfad zu einem Composer-Vendor-Package gehört.
+     */
+    private static function isVendorFile(string $file): bool
+    {
+        // Normalisierte Suche, damit Windows-Backslashes auch matchen
+        $normalized = str_replace('\\', '/', $file);
+        return str_contains($normalized, '/vendor/');
     }
 
     /**
