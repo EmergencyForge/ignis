@@ -712,7 +712,6 @@ if (isset($_POST['new'])) {
         // Profile picture upload
         var pfpUpload = document.getElementById('pfp-upload');
         var pfpPreview = document.getElementById('pfp-preview');
-        var pfpHidden = document.getElementById('pfp');
 
         if (pfpUpload && pfpPreview) {
             pfpPreview.addEventListener('click', function() { pfpUpload.click(); });
@@ -742,7 +741,6 @@ if (isset($_POST['new'])) {
                     pfpPreview.style.opacity = '1';
                     if (data.success) {
                         pfpPreview.src = data.url + '?t=' + Date.now();
-                        pfpHidden.value = data.url;
                         showToast('Profilbild aktualisiert', 'success');
                     } else {
                         showToast(data.message || 'Upload fehlgeschlagen', 'danger');
