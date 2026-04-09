@@ -333,9 +333,9 @@ class MitarbeiterController extends Controller
         }
 
         $content = trim((string) ($_POST['content'] ?? ''));
-        $type    = trim((string) ($_POST['noteType'] ?? ''));
+        $type    = (int) ($_POST['noteType'] ?? 0);
 
-        if ($content !== '' && $type !== '') {
+        if ($content !== '' && $type > 0) {
             $userHelper = new UserHelper($this->pdo);
             (new PersonalLogManager($this->pdo))->addNote(
                 $id,
