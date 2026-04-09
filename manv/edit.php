@@ -3,7 +3,6 @@
 /**
  * Stub für GET/POST /manv/edit.php?id=X
  *
- * Phase 2 Welle 6 Turn 1: Modul migriert auf ManvController.
  * GET  → ManvController::edit()   (Edit-Form)
  * POST → ManvController::update() (Lage aktualisieren)
  */

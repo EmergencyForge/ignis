@@ -3,7 +3,6 @@
 /**
  * Stub für GET/POST /manv/patient-view.php?id=X
  *
- * Phase 2 Welle 6 Turn 2: Modul migriert auf ManvController.
  * GET  → patientView()   (Detail-Form, inkl. quick_sk Quick-Sichtung)
  * POST → patientUpdate() (Patient aktualisieren)
  */

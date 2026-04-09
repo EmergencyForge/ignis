@@ -3,7 +3,6 @@
 /**
  * Stub für POST /fahrtenbuch/actions.php
  *
- * Phase 2 Welle 5: Modul migriert auf FahrtenbuchController.
  *
  * Routing nach POST-Action:
  *   action=create → store()

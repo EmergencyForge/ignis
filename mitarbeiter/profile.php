@@ -3,7 +3,6 @@
 /**
  * Stub für GET/POST /mitarbeiter/profile.php?id=X
  *
- * Phase 2 Welle 3 Turn 2: Modul migriert auf MitarbeiterController.
  *
  * Routing nach POST-Body:
  *   GET                    → show()              (Profil anzeigen)

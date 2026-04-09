@@ -3,7 +3,6 @@
 /**
  * Stub für GET /einsatz/index.php
  *
- * Phase 2 Welle 7 Turn 1: Modul migriert auf EinsatzController.
  * Logik: src/Http/Controllers/EinsatzController.php::index()
  *
  * WICHTIG: Cookie-Settings für CitizenFX-In-Game-Browser MÜSSEN VOR

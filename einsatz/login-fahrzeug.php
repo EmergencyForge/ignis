@@ -3,7 +3,6 @@
 /**
  * Stub für GET/POST /einsatz/login-fahrzeug.php
  *
- * Phase 2 Welle 7 Turn 1: Modul migriert auf EinsatzController.
  *   GET                → loginForm() (Form anzeigen oder Logout)
  *   GET ?logout=1      → loginForm() (Logout-Action wird intern erkannt)
  *   POST               → login()     (Fahrzeug-Login durchführen)

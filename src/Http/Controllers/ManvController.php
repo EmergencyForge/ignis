@@ -12,33 +12,10 @@ use App\MANV\MANVRessource;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * ManvController — Migration des `manv/`-Moduls.
+ * ManvController — MANV-Lagen (Massenanfall von Verletzten).
  *
- * Welle 6 — wird in mehreren Turns aufgebaut:
- *
- *   Turn 1 (jetzt):
- *     index()    — Übersicht aller MANV-Lagen mit Status-Filter
- *     create()   — GET: Form für neue Lage
- *     store()    — POST: Lage anlegen
- *     edit()     — GET: Edit-Form
- *     update()   — POST: Lage aktualisieren
- *     log()      — Aktionslog einer Lage
- *
- *   Turn 2 (jetzt):
- *     board()           — Live-Dashboard einer Lage
- *     patientCreate()   — GET: Form für neuen Patient
- *     patientStore()    — POST: Patient speichern
- *     patientView()     — GET: Patient-Detail mit Quick-Sichtung
- *     patientUpdate()   — POST: Patient aktualisieren
- *     ressourcen()      — GET: Fahrzeug-Verwaltung einer Lage
- *     ressourceStore()  — POST action=create: neue Ressource
- *     ressourceUpdate() — POST action=edit: Ressource bearbeiten
- *     ressourceDelete() — GET delete_id: Ressource löschen
- *
- * Die DB-Logik liegt komplett im existierenden Service-Layer
- * (App\MANV\MANVLage, MANVLog, MANVPatient, MANVRessource) — wir machen
- * keine eigenen Eloquent-Models in diesem Modul, weil der Service-Layer
- * schon eine perfekte Abstraktion ist.
+ * Die DB-Logik liegt im existierenden Service-Layer
+ * (App\MANV\MANVLage, MANVLog, MANVPatient, MANVRessource).
  */
 class ManvController extends Controller
 {
@@ -252,9 +229,7 @@ class ManvController extends Controller
         ]);
     }
 
-    // -----------------------------------------------------------------------
-    //  Turn 2 — Board, Patient, Ressourcen
-    // -----------------------------------------------------------------------
+    // ── Board, Patient, Ressourcen ───────────────────────
 
     /**
      * GET /manv/board.php?id=X — Live-Dashboard mit Patientenliste, Stats,

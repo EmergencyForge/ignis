@@ -18,12 +18,14 @@ class EinsatzControllerTest extends TestCase
     }
 
     #[Test]
-    public function controller_has_turn1_methods(): void
+    public function controller_has_all_action_methods(): void
     {
         $reflection = new \ReflectionClass(EinsatzController::class);
-        // Turn 1 methods: index, loginForm, login, list
-        // Turn 2/3 (board, view, create, store, actions, ...) folgen später
-        foreach (['index', 'loginForm', 'login', 'list'] as $method) {
+        $methods = [
+            'index', 'loginForm', 'login', 'list',
+            'view', 'createForm', 'store', 'dispatchAction',
+        ];
+        foreach ($methods as $method) {
             $this->assertTrue(
                 $reflection->hasMethod($method),
                 "EinsatzController::$method() fehlt"

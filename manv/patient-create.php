@@ -3,7 +3,6 @@
 /**
  * Stub für GET/POST /manv/patient-create.php?lage_id=X
  *
- * Phase 2 Welle 6 Turn 2: Modul migriert auf ManvController.
  * GET  → patientCreate() (Form)
  * POST → patientStore()  (Patient anlegen)
  */

@@ -3,7 +3,6 @@
 /**
  * Stub für GET /manv/index.php
  *
- * Phase 2 Welle 6 Turn 1: Modul wird inkrementell auf ManvController migriert.
  * Logik: src/Http/Controllers/ManvController.php::index()
  */
 

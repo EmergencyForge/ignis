@@ -22,9 +22,7 @@ class ManvControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass(ManvController::class);
         $methods = [
-            // Turn 1
             'index', 'create', 'store', 'edit', 'update', 'log',
-            // Turn 2
             'board', 'patientCreate', 'patientStore', 'patientView', 'patientUpdate',
             'ressourcen', 'ressourceStore', 'ressourceUpdate', 'ressourceDelete',
         ];

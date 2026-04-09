@@ -3,7 +3,6 @@
 /**
  * Stub für GET/POST /antrag/create.php?typ=X
  *
- * Phase 2 Welle 2: Modul migriert auf AntragController.
  * GET → AntragController::create() (Form anzeigen)
  * POST mit `submit_antrag` → AntragController::store() (Antrag speichern)
  */

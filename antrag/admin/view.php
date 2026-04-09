@@ -3,7 +3,6 @@
 /**
  * Stub für GET/POST /antrag/admin/view.php?antrag=X
  *
- * Phase 2 Welle 2: Modul migriert auf AntragController.
  * GET → AntragController::adminView() (Detail-Form)
  * POST mit `save` → AntragController::decide() (Status setzen + Notification)
  */

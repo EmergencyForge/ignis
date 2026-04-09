@@ -18,20 +18,7 @@ use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * AntragController — Migration des `antrag/`-Moduls (Phase 2 Welle 2).
- *
- * URL-Mapping:
- *   GET  antrag/select.php             → selectType()
- *   GET  antrag/create.php?typ=X       → create()
- *   POST antrag/create.php             → store()
- *   GET  antrag/view.php?antrag=X      → view()
- *   GET  antrag/admin/list.php         → adminList()
- *   GET  antrag/admin/view.php?antrag=X → adminView()
- *   POST antrag/admin/view.php         → decide()
- *
- * Mitarbeiter-Daten (für Auto-Fill in create() und name_dn-Bildung in store())
- * werden via Capsule Query Builder geladen — kein eigenes Mitarbeiter-Model
- * in dieser Phase, das kommt erst in einer späteren Welle.
+ * AntragController — Antragssystem (Urlaub, Beförderung, etc.).
  */
 class AntragController extends Controller
 {
