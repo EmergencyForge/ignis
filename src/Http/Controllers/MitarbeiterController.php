@@ -20,26 +20,7 @@ use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * MitarbeiterController — Migration des `mitarbeiter/`-Moduls (Phase 2 Welle 3).
- *
- * Wird inkrementell aufgebaut über mehrere Turns:
- *
- *   Turn 1 (jetzt):
- *     index()         — list.php (Übersicht mit Filtern + Create-Modal)
- *     store()         — create.php (AJAX-Endpoint, JSON-Response)
- *     destroy()       — delete.php
- *     deleteComment() — comment-delete.php
- *
- *   Turn 2:
- *     show()              — profile.php (Detail-Seite)
- *     update()            — POST new=1 (Legacy Update-Form, validiert via FormRequest)
- *     updateFachdienste() — POST new=4 (Fachdienste-JSON updaten)
- *     addNote()           — POST new=5 (Notiz hinzufügen)
- *     createDocument()    — POST new=6 (Dokument erstellen + Notification)
- *
- *   Turn 3 (jetzt):
- *     showDocument()   — dokument-view.php (PDF-Viewer mit Toolbar)
- *     deleteDocument() — dokument-delete.php (POST mit CSRF-Token)
+ * MitarbeiterController — Personalverwaltung (Mitarbeiter-Modul).
  */
 class MitarbeiterController extends Controller
 {

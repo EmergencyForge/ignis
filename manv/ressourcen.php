@@ -3,7 +3,6 @@
 /**
  * Stub für GET/POST /manv/ressourcen.php?lage_id=X
  *
- * Phase 2 Welle 6 Turn 2: Modul migriert auf ManvController.
  *
  * Routing:
  *   GET  ?delete_id=Y          → ressourceDelete() (Legacy GET-Delete via showConfirm)

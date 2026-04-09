@@ -22,9 +22,9 @@ class MitarbeiterControllerTest extends TestCase
     {
         $reflection = new \ReflectionClass(MitarbeiterController::class);
         $methods = [
-            'index', 'store', 'destroy', 'deleteComment',                       // Turn 1
-            'show', 'update', 'updateFachdienste', 'addNote', 'createDocument', // Turn 2
-            'showDocument', 'deleteDocument',                                   // Turn 3
+            'index', 'store', 'destroy', 'deleteComment',
+            'show', 'update', 'updateFachdienste', 'addNote', 'createDocument',
+            'showDocument', 'deleteDocument',
         ];
         foreach ($methods as $method) {
             $this->assertTrue(

@@ -5,28 +5,23 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Auth\Gate;
+use App\Auth\Permissions;
+use App\Federation\FederatedPersonnel;
 use App\Helpers\Flash;
+use App\Helpers\UserHelper;
 use App\Http\FiveMSupport;
+use App\Integrations\DiscordWebhook;
 use App\Models\FireIncident;
+use App\Notifications\NotificationManager;
+use App\Utils\AuditLogger;
+use DateTime;
+use DateTimeZone;
 use Illuminate\Database\Capsule\Manager as Capsule;
+use PDO;
+use PDOException;
 
 /**
- * EinsatzController — Migration des `einsatz/`-Moduls (FireTab/Feuerwehr).
- *
- * Welle 7 — wird in mehreren Turns aufgebaut:
- *
- *   Turn 1 (jetzt):
- *     index()      — Entry-Point: redirect zu list oder login
- *     loginForm()  — login-fahrzeug.php (GET)
- *     login()      — login-fahrzeug.php (POST)
- *     logout()     — login-fahrzeug.php?logout=1
- *     list()       — list.php (Einsatzliste für eingeloggtes Fahrzeug)
- *
- *   Turn 2 (folgt):
- *     create() / store() / view() / actions() — Einsatz-CRUD inkl. Tab-Container
- *
- *   Turn 3 (folgt):
- *     statusmeldungen, asu, fahrtenbuch, adminList
+ * EinsatzController — Feuerwehr-Einsätze (FireTab-Modul).
  *
  * Wichtig: Die Pages dieses Moduls werden im FiveM-In-Game-Browser (CitizenFX-
  * CEF-Webview) angezeigt. Daher MÜSSEN alle Action-Methoden, die HTML rendern,
@@ -261,5 +256,773 @@ class EinsatzController extends Controller
         $this->renderView('einsatz/list', [
             'incidents' => $incidents,
         ]);
+    }
+
+    // ── Einsatz-Detail / CRUD / Actions ──────────────────
+
+    /**
+     * GET /einsatz/view.php?id=X — Einsatz-Detail-View mit Tab-Container.
+     * Die 7 Tabs (stammdaten, bericht, fahrzeuge, lagemeldungen, lagekarte,
+     * abschluss, log) werden als Includes aus einsatz/tabs/ geladen.
+     */
+    public function view(): void
+    {
+        FiveMSupport::prepareCookiesAndHeaders();
+
+        if (!Gate::allows('fireIncident.accessModule')) {
+            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            $this->redirect('login.php');
+        }
+
+        $id = (int) ($_GET['id'] ?? 0);
+        $activeTab = $_GET['tab'] ?? 'stammdaten';
+
+        if ($id <= 0) {
+            Flash::error('Ungültige Einsatz-ID');
+            $this->redirect('index.php');
+        }
+
+        // Clear viewed sessions for other incidents
+        foreach (array_keys($_SESSION) as $key) {
+            if (str_starts_with($key, 'einsatz_viewed_') && $key !== 'einsatz_viewed_' . $id) {
+                unset($_SESSION[$key]);
+            }
+        }
+
+        // Load incident with leader name
+        $incident = Capsule::table('intra_fire_incidents as i')
+            ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
+            ->where('i.id', $id)
+            ->select('i.*', 'm.fullname as leader_name')
+            ->first();
+
+        if (!$incident) {
+            Flash::error('Einsatz nicht gefunden');
+            $this->redirect('index.php');
+        }
+        $incident = (array) $incident;
+
+        // Federation leader fallback
+        if (empty($incident['leader_name']) && !empty($incident['leader_id'])) {
+            $incident['leader_name'] = FederatedPersonnel::resolveName($this->pdo, $incident['leader_id']);
+        }
+
+        // Check vehicle assignment (skip for admin/QM)
+        $isAssigned = false;
+        if (isset($_SESSION['einsatz_vehicle_id'])) {
+            $isAssigned = Capsule::table('intra_fire_incident_vehicles')
+                ->where('incident_id', $id)
+                ->where('vehicle_id', $_SESSION['einsatz_vehicle_id'])
+                ->exists();
+        }
+
+        if (!$isAssigned && !Permissions::check(['admin', 'fire.incident.qm'])) {
+            // Users without vehicle login need admin/QM
+            if (!isset($_SESSION['einsatz_vehicle_id'])) {
+                Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
+                $this->redirect('einsatz/login-fahrzeug.php');
+            }
+            Flash::error('Ihr Fahrzeug ist diesem Einsatz nicht zugeordnet. Zugriff verweigert.');
+            $this->redirect('einsatz/list.php');
+        }
+
+        // Load vehicles
+        $allVehicles = Capsule::table('intra_fahrzeuge')
+            ->where('active', 1)
+            ->orderBy('priority')
+            ->select('id', 'name', 'identifier', 'veh_type')
+            ->get()->map(fn ($r) => (array) $r)->all();
+
+        $attachedVehicles = Capsule::table('intra_fire_incident_vehicles as v')
+            ->leftJoin('intra_fahrzeuge as f', 'v.vehicle_id', '=', 'f.id')
+            ->where('v.incident_id', $id)
+            ->orderBy('v.id')
+            ->select('v.*', 'f.name as sys_name', 'f.veh_type as sys_type')
+            ->get()->map(fn ($r) => (array) $r)->all();
+
+        // Load sitreps
+        $sitreps = Capsule::table('intra_fire_incident_sitreps as s')
+            ->leftJoin('intra_fahrzeuge as f', 's.vehicle_id', '=', 'f.id')
+            ->where('s.incident_id', $id)
+            ->orderBy('s.report_time')
+            ->select('s.*', 'f.name as sys_name')
+            ->get()->map(fn ($r) => (array) $r)->all();
+
+        // Load ASU protocols
+        $asuProtocols = Capsule::table('intra_fire_incident_asu')
+            ->where('incident_id', $id)
+            ->orderBy('created_at')
+            ->get()->map(fn ($r) => (array) $r)->all();
+
+        $validTabs = ['stammdaten', 'bericht', 'fahrzeuge', 'lagemeldungen', 'lagekarte', 'abschluss', 'log'];
+        if (!in_array($activeTab, $validTabs, true)) {
+            $activeTab = 'stammdaten';
+        }
+
+        $this->renderView('einsatz/view', [
+            'id'               => $id,
+            'activeTab'        => $activeTab,
+            'incident'         => $incident,
+            'allVehicles'      => $allVehicles,
+            'attachedVehicles' => $attachedVehicles,
+            'sitreps'          => $sitreps,
+            'asuProtocols'     => $asuProtocols,
+        ]);
+    }
+
+    /**
+     * GET /einsatz/create.php — Neuen Einsatz anlegen (Formular).
+     */
+    public function createForm(): void
+    {
+        FiveMSupport::prepareCookiesAndHeaders();
+
+        if (!Gate::allows('fireIncident.accessModule')) {
+            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            $this->redirect('login.php');
+        }
+
+        if (!Gate::allows('fireIncident.create')) {
+            Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
+            $this->redirect('einsatz/login-fahrzeug.php');
+        }
+
+        // Clear all einsatz_viewed session variables
+        foreach (array_keys($_SESSION) as $key) {
+            if (str_starts_with($key, 'einsatz_viewed_')) {
+                unset($_SESSION[$key]);
+            }
+        }
+
+        $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
+
+        $this->renderView('einsatz/create', [
+            'leaders' => $leaders,
+            'errors'  => [],
+        ]);
+    }
+
+    /**
+     * POST /einsatz/create.php — Neuen Einsatz speichern.
+     */
+    public function store(): void
+    {
+        FiveMSupport::prepareCookiesAndHeaders();
+
+        if (!Gate::allows('fireIncident.accessModule')) {
+            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            $this->redirect('login.php');
+        }
+
+        if (!Gate::allows('fireIncident.create')) {
+            Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
+            $this->redirect('einsatz/login-fahrzeug.php');
+        }
+
+        $incidentNumber = trim($_POST['incident_number'] ?? '');
+        $location       = trim($_POST['location'] ?? '');
+        $keyword        = trim($_POST['keyword'] ?? '');
+        $date           = $_POST['date'] ?? '';
+        $time           = $_POST['time'] ?? '';
+        $leaderId       = !empty($_POST['leader_id']) ? (int) $_POST['leader_id'] : null;
+        $notes          = trim($_POST['notes'] ?? '');
+        $callerName     = trim($_POST['caller_name'] ?? '');
+        $callerContact  = trim($_POST['caller_contact'] ?? '');
+        $ownerName      = trim($_POST['owner_name'] ?? '');
+        $ownerContact   = trim($_POST['owner_contact'] ?? '');
+        $locationX      = !empty($_POST['location_x']) ? (float) $_POST['location_x'] : null;
+        $locationY      = !empty($_POST['location_y']) ? (float) $_POST['location_y'] : null;
+
+        $errors = [];
+        if ($incidentNumber === '') $errors[] = 'Einsatznummer ist erforderlich.';
+        if ($location === '') $errors[] = 'Einsatzort ist erforderlich.';
+        if ($keyword === '') $errors[] = 'Einsatzstichwort ist erforderlich.';
+        if ($date === '' || $time === '') $errors[] = 'Datum und Uhrzeit sind erforderlich.';
+        if ($leaderId === null) $errors[] = 'Einsatzleiter ist erforderlich.';
+
+        $startedAt = null;
+        if ($date !== '' && $time !== '') {
+            $startedDt = DateTime::createFromFormat('Y-m-d H:i', "$date $time", new DateTimeZone('Europe/Berlin'));
+            $startedAt = $startedDt
+                ? $startedDt->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s')
+                : date('Y-m-d H:i:s');
+        }
+
+        if (!empty($errors)) {
+            $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
+            $this->renderView('einsatz/create', [
+                'leaders' => $leaders,
+                'errors'  => $errors,
+            ]);
+            return;
+        }
+
+        try {
+            Capsule::connection()->getPdo()->beginTransaction();
+
+            $incidentId = Capsule::table('intra_fire_incidents')->insertGetId([
+                'incident_number' => $incidentNumber,
+                'location'        => $location,
+                'keyword'         => $keyword,
+                'caller_name'     => $callerName ?: null,
+                'caller_contact'  => $callerContact ?: null,
+                'started_at'      => $startedAt,
+                'leader_id'       => $leaderId,
+                'owner_type'      => null,
+                'owner_name'      => $ownerName ?: null,
+                'owner_contact'   => $ownerContact ?: null,
+                'notes'           => $notes ?: null,
+                'status'          => 0,
+                'created_by'      => $_SESSION['userid'] ?? null,
+                'location_x'      => $locationX,
+                'location_y'      => $locationY,
+            ]);
+
+            // Auto-add logged-in vehicle
+            Capsule::table('intra_fire_incident_vehicles')->insert([
+                'incident_id'   => $incidentId,
+                'vehicle_id'    => $_SESSION['einsatz_vehicle_id'],
+                'from_other_org' => 0,
+                'created_by'    => $_SESSION['userid'] ?? null,
+            ]);
+
+            // Log creation
+            $this->logAction($incidentId, 'created', 'Einsatz erstellt');
+
+            Capsule::connection()->getPdo()->commit();
+
+            Flash::success('Einsatz wurde erstellt.');
+            $this->redirect('einsatz/view.php?id=' . $incidentId);
+        } catch (PDOException $e) {
+            Capsule::connection()->getPdo()->rollBack();
+            $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
+            $this->renderView('einsatz/create', [
+                'leaders' => $leaders,
+                'errors'  => ['Fehler beim Speichern: ' . $e->getMessage()],
+            ]);
+        }
+    }
+
+    /**
+     * POST /einsatz/actions.php — Dispatcher für die 12 Action-Typen.
+     * Wird vom Stub aufgerufen, ermittelt $_POST['action'] und delegiert.
+     */
+    public function dispatchAction(): void
+    {
+        FiveMSupport::prepareCookiesAndHeaders();
+
+        $id = (int) ($_POST['incident_id'] ?? $_GET['id'] ?? 0);
+        $returnTab = $_POST['return_tab'] ?? $_GET['tab'] ?? 'stammdaten';
+
+        if ($id <= 0) {
+            Flash::error('Ungültige Einsatz-ID');
+            $this->redirect('index.php');
+        }
+
+        // Preload incident
+        $incident = Capsule::table('intra_fire_incidents')->where('id', $id)->first();
+        if (!$incident) {
+            Flash::error('Einsatz nicht gefunden.');
+            $this->redirect('index.php');
+        }
+        $incident = (array) $incident;
+
+        $action = $_POST['action'] ?? '';
+
+        $actionMap = [
+            'add_vehicle'        => 'actionAddVehicle',
+            'remove_vehicle'     => 'actionRemoveVehicle',
+            'add_sitrep'         => 'actionAddSitrep',
+            'finalize'           => 'actionFinalize',
+            'set_status'         => 'actionSetStatus',
+            'update_notes'       => 'actionUpdateNotes',
+            'update_core'        => 'actionUpdateCore',
+            'add_asu'            => 'actionAddAsu',
+            'update_asu'         => 'actionUpdateAsu',
+            'delete_asu'         => 'actionDeleteAsu',
+            'archive_incident'   => 'actionArchive',
+            'unarchive_incident' => 'actionUnarchive',
+        ];
+
+        if (isset($actionMap[$action])) {
+            try {
+                $this->{$actionMap[$action]}($id, $incident);
+            } catch (PDOException $e) {
+                Flash::error('Fehler: ' . $e->getMessage());
+            }
+        }
+
+        // Archive/unarchive redirect to admin list (handled inside those methods)
+        $_SESSION['skip_next_view_log'] = true;
+        $this->redirect('einsatz/view.php?id=' . $id . '&tab=' . urlencode($returnTab));
+    }
+
+    // ── Individual action methods ──────────────────────────
+
+    private function actionAddVehicle(int $id, array $incident): void
+    {
+        if ($incident['finalized']) {
+            Flash::error('Einsatz ist bereits abgeschlossen.');
+            return;
+        }
+
+        $vehicleId         = !empty($_POST['vehicle_id']) ? (int) $_POST['vehicle_id'] : null;
+        $vehicleName       = trim($_POST['vehicle_name'] ?? '');
+        $vehicleIdentifier = trim($_POST['vehicle_identifier'] ?? '');
+        $radioName         = trim($_POST['radio_name'] ?? '');
+        $fromOther         = ($vehicleId === null) ? 1 : 0;
+
+        if ($vehicleId !== null) {
+            $exists = Capsule::table('intra_fire_incident_vehicles')
+                ->where('incident_id', $id)
+                ->where('vehicle_id', $vehicleId)
+                ->exists();
+            if ($exists) {
+                Flash::error('Fahrzeug bereits hinzugefügt.');
+                return;
+            }
+        }
+
+        Capsule::table('intra_fire_incident_vehicles')->insert([
+            'incident_id'        => $id,
+            'vehicle_id'         => $vehicleId,
+            'vehicle_name'       => $vehicleName ?: null,
+            'vehicle_identifier' => $vehicleIdentifier ?: null,
+            'from_other_org'     => $fromOther,
+            'radio_name'         => $radioName ?: null,
+            'created_by'         => $_SESSION['userid'] ?? null,
+        ]);
+
+        $displayName = $radioName ?: $vehicleName ?: $vehicleIdentifier ?: 'Unbekanntes Fahrzeug';
+        if ($vehicleId) {
+            $veh = Capsule::table('intra_fahrzeuge')->where('id', $vehicleId)->value('name');
+            if ($veh) $displayName = $veh;
+        }
+
+        $this->logAction($id, 'vehicle_added', "Fahrzeug '$displayName' hinzugefügt");
+        Flash::success('Einsatzmittel hinzugefügt.');
+    }
+
+    private function actionRemoveVehicle(int $id, array $incident): void
+    {
+        if ($incident['finalized']) {
+            Flash::error('Einsatz ist bereits abgeschlossen.');
+            return;
+        }
+
+        $rowId = (int) ($_POST['vehicle_row_id'] ?? 0);
+        if ($rowId <= 0) return;
+
+        $veh = Capsule::table('intra_fire_incident_vehicles as v')
+            ->leftJoin('intra_fahrzeuge as f', 'v.vehicle_id', '=', 'f.id')
+            ->where('v.id', $rowId)
+            ->where('v.incident_id', $id)
+            ->select('v.radio_name', 'v.vehicle_name', 'v.vehicle_identifier', 'f.name as sys_name')
+            ->first();
+
+        $displayName = 'Unbekanntes Fahrzeug';
+        if ($veh) {
+            $displayName = $veh->radio_name ?: $veh->sys_name ?: $veh->vehicle_name ?: $veh->vehicle_identifier ?: 'Unbekanntes Fahrzeug';
+        }
+
+        Capsule::table('intra_fire_incident_vehicles')
+            ->where('id', $rowId)
+            ->where('incident_id', $id)
+            ->delete();
+
+        $this->logAction($id, 'vehicle_removed', "Fahrzeug '$displayName' entfernt");
+        Flash::success('Fahrzeug entfernt.');
+    }
+
+    private function actionAddSitrep(int $id, array $incident): void
+    {
+        if ($incident['finalized']) {
+            Flash::error('Einsatz ist bereits abgeschlossen.');
+            return;
+        }
+
+        $rtDate             = $_POST['rt_date'] ?? '';
+        $rtTime             = $_POST['rt_time'] ?? '';
+        $text               = trim($_POST['text'] ?? '');
+        $vehicleAttachedId  = !empty($_POST['sitrep_attached_vehicle_id']) ? (int) $_POST['sitrep_attached_vehicle_id'] : null;
+
+        if (!$rtDate || !$rtTime || $text === '' || !$vehicleAttachedId) {
+            Flash::error('Bitte Datum, Uhrzeit, Text und Fahrzeug vor Ort wählen.');
+            return;
+        }
+
+        $reportDt   = DateTime::createFromFormat('Y-m-d H:i', "$rtDate $rtTime", new DateTimeZone('Europe/Berlin'));
+        $reportTime = $reportDt ? $reportDt->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s') : date('Y-m-d H:i:s');
+
+        $vinfo = Capsule::table('intra_fire_incident_vehicles as v')
+            ->leftJoin('intra_fahrzeuge as f', 'v.vehicle_id', '=', 'f.id')
+            ->where('v.id', $vehicleAttachedId)
+            ->where('v.incident_id', $id)
+            ->select('v.radio_name', 'f.name as sys_name')
+            ->first();
+
+        $radio = $vinfo->radio_name ?? $vinfo->sys_name ?? null;
+
+        Capsule::table('intra_fire_incident_sitreps')->insert([
+            'incident_id'        => $id,
+            'report_time'        => $reportTime,
+            'text'               => $text,
+            'vehicle_radio_name' => $radio,
+            'vehicle_id'         => null,
+            'created_by'         => $_SESSION['userid'] ?? null,
+        ]);
+
+        $this->logAction($id, 'sitrep_added', 'Lagemeldung hinzugefügt (Fahrzeug vor Ort: ' . ($radio ?: 'Unbekannt') . ')');
+        Flash::success('Lagemeldung gespeichert.');
+    }
+
+    private function actionFinalize(int $id, array $incident): void
+    {
+        $inc = Capsule::table('intra_fire_incidents')->where('id', $id)
+            ->select('location', 'keyword', 'started_at', 'leader_id')
+            ->first();
+
+        if (!$inc || !$inc->location || !$inc->keyword || !$inc->started_at || empty($inc->leader_id)) {
+            Flash::error('Pflichtangaben fehlen für Abschluss (inkl. Einsatzleiter).');
+            return;
+        }
+
+        Capsule::table('intra_fire_incidents')->where('id', $id)->update([
+            'finalized'    => 1,
+            'finalized_at' => Capsule::raw('NOW()'),
+            'finalized_by' => $_SESSION['userid'] ?? null,
+            'status'       => 0,
+        ]);
+
+        $this->logAction($id, 'finalized', 'Einsatz zur QM-Sichtung freigegeben');
+
+        // Load full data for notifications
+        $incidentData = (array) Capsule::table('intra_fire_incidents as i')
+            ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
+            ->where('i.id', $id)
+            ->select('i.*', 'm.fullname as leader_name')
+            ->first();
+
+        try {
+            $notificationManager = new NotificationManager($this->pdo);
+            $notificationManager->notifyFireProtocolFinalized($incidentData);
+        } catch (\Exception $e) {
+            error_log('Fehler beim Senden der Benachrichtigung (Fire Protokoll Freigabe): ' . $e->getMessage());
+        }
+
+        try {
+            $discordWebhook = new DiscordWebhook($this->pdo);
+            $discordWebhook->notifyFireProtocolReleased($incidentData);
+        } catch (\Exception $e) {
+            error_log('Discord Webhook Fehler (Fire Protokoll): ' . $e->getMessage());
+        }
+
+        Flash::success('Protokoll zur QM-Sichtung markiert.');
+    }
+
+    private function actionSetStatus(int $id, array $incident): void
+    {
+        if (!Permissions::check(['admin', 'fire.incident.qm'])) {
+            Flash::error('Keine Berechtigung.');
+            return;
+        }
+
+        $status = (int) ($_POST['status'] ?? 0);
+        if (!in_array($status, [0, 1, 2, 3, 4], true)) return;
+
+        Capsule::table('intra_fire_incidents')->where('id', $id)->update([
+            'status'     => $status,
+            'updated_by' => $_SESSION['userid'] ?? null,
+            'updated_at' => Capsule::raw('NOW()'),
+        ]);
+
+        $this->logAction($id, 'status_changed', "QM-Status geändert zu '" . (FireIncident::STATUS_LABELS[$status] ?? 'Unbekannt') . "'");
+
+        if (isset($_SESSION['userid'])) {
+            $auditLogger = new AuditLogger($this->pdo);
+            $auditLogger->log($_SESSION['userid'], 'QM-Status geändert [ID: ' . $id . '] → ' . (FireIncident::STATUS_LABELS[$status] ?? '?'), null, 'Feuerwehr', 1);
+        }
+
+        try {
+            $incidentData = (array) Capsule::table('intra_fire_incidents as i')
+                ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
+                ->where('i.id', $id)
+                ->select('i.*', 'm.fullname as leader_name')
+                ->first();
+
+            $notificationManager = new NotificationManager($this->pdo);
+            $userHelper = new UserHelper($this->pdo);
+            $qmUsername = $userHelper->getCurrentUserFullnameForAction();
+            $notificationManager->notifyFireProtocolStatusChanged($incidentData, $qmUsername);
+        } catch (\Exception $e) {
+            error_log('Fehler beim Senden der Benachrichtigung (Fire Protokoll Statusänderung): ' . $e->getMessage());
+        }
+
+        Flash::success('Status aktualisiert.');
+    }
+
+    private function actionUpdateNotes(int $id, array $incident): void
+    {
+        if ($incident['finalized']) {
+            Flash::error('Einsatz ist bereits abgeschlossen und kann nicht mehr bearbeitet werden.');
+            return;
+        }
+
+        $notes = trim($_POST['notes'] ?? '');
+        Capsule::table('intra_fire_incidents')->where('id', $id)->update([
+            'notes'      => $notes ?: null,
+            'updated_by' => $_SESSION['userid'] ?? null,
+            'updated_at' => Capsule::raw('NOW()'),
+        ]);
+
+        $this->logAction($id, 'data_updated', 'Einsatzgeschehen aktualisiert');
+        Flash::success('Einsatzgeschehen gespeichert.');
+    }
+
+    private function actionUpdateCore(int $id, array $incident): void
+    {
+        if ($incident['finalized']) {
+            Flash::error('Einsatz ist bereits abgeschlossen und kann nicht mehr bearbeitet werden.');
+            return;
+        }
+
+        $loc           = trim($_POST['edit_location'] ?? '');
+        $keyw          = trim($_POST['edit_keyword'] ?? '');
+        $incno         = trim($_POST['edit_incident_number'] ?? '');
+        $date          = $_POST['edit_date'] ?? '';
+        $time          = $_POST['edit_time'] ?? '';
+        $leader        = !empty($_POST['edit_leader_id']) ? (int) $_POST['edit_leader_id'] : null;
+        $callerName    = trim($_POST['edit_caller_name'] ?? '');
+        $callerContact = trim($_POST['edit_caller_contact'] ?? '');
+        $ownerName     = trim($_POST['edit_owner_name'] ?? '');
+        $ownerContact  = trim($_POST['edit_owner_contact'] ?? '');
+
+        if ($incno === '' || $loc === '' || $keyw === '' || $date === '' || $time === '' || $leader === null) {
+            Flash::error('Bitte alle Pflichtfelder ausfüllen (Nummer, Ort, Stichwort, Beginn, Einsatzleiter).');
+            return;
+        }
+
+        $startedDt = DateTime::createFromFormat('Y-m-d H:i', "$date $time", new DateTimeZone('Europe/Berlin'));
+        $started   = $startedDt ? $startedDt->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s') : date('Y-m-d H:i:s');
+
+        Capsule::table('intra_fire_incidents')->where('id', $id)->update([
+            'incident_number' => $incno,
+            'location'        => $loc,
+            'keyword'         => $keyw,
+            'caller_name'     => $callerName ?: null,
+            'caller_contact'  => $callerContact ?: null,
+            'started_at'      => $started,
+            'leader_id'       => $leader,
+            'owner_type'      => null,
+            'owner_name'      => $ownerName ?: null,
+            'owner_contact'   => $ownerContact ?: null,
+            'updated_by'      => $_SESSION['userid'] ?? null,
+            'updated_at'      => Capsule::raw('NOW()'),
+        ]);
+
+        $this->logAction($id, 'data_updated', 'Stammdaten aktualisiert');
+        Flash::success('Einsatzdaten gespeichert.');
+    }
+
+    private function actionAddAsu(int $id, array $incident): void
+    {
+        if ($incident['finalized']) {
+            Flash::error('Einsatz ist bereits abgeschlossen.');
+            return;
+        }
+
+        $asuDataJson = $_POST['asu_data'] ?? '';
+        if (empty($asuDataJson)) {
+            Flash::error('Keine ASU-Daten übermittelt.');
+            return;
+        }
+
+        $asuData = json_decode($asuDataJson, true);
+        if (!$asuData) {
+            Flash::error('Ungültige ASU-Daten.');
+            return;
+        }
+
+        if (empty($asuData['supervisor']) || empty($asuData['missionNumber']) || empty($asuData['missionLocation']) || empty($asuData['missionDate'])) {
+            Flash::error('Pflichtfelder fehlen (Überwacher, Einsatznummer, Ort, Datum).');
+            return;
+        }
+
+        // Parse DD.MM.YYYY → YYYY-MM-DD
+        $dateParts = explode('.', $asuData['missionDate']);
+        $missionDate = (count($dateParts) === 3)
+            ? $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0]
+            : $asuData['missionDate'];
+
+        try {
+            Capsule::table('intra_fire_incident_asu')->insert([
+                'incident_id'      => $id,
+                'supervisor'       => $asuData['supervisor'],
+                'mission_location' => $asuData['missionLocation'],
+                'mission_date'     => $missionDate,
+                'timestamp'        => Capsule::raw('NOW()'),
+                'data'             => $asuDataJson,
+            ]);
+
+            $this->logAction($id, 'asu_added', 'ASU-Protokoll hinzugefügt (Überwacher: ' . $asuData['supervisor'] . ')');
+            Flash::success('ASU-Protokoll erfolgreich gespeichert.');
+        } catch (PDOException $e) {
+            if ($e->getCode() == '23000') {
+                Flash::error('Ein ASU-Protokoll für diesen Überwacher existiert bereits.');
+            } else {
+                Flash::error('Fehler beim Speichern: ' . $e->getMessage());
+            }
+        }
+    }
+
+    private function actionUpdateAsu(int $id, array $incident): void
+    {
+        if ($incident['finalized']) {
+            Flash::error('Einsatz ist bereits abgeschlossen.');
+            return;
+        }
+
+        $asuId = (int) ($_POST['asu_id'] ?? 0);
+        if ($asuId <= 0) {
+            Flash::error('Keine ASU-ID übermittelt.');
+            return;
+        }
+
+        $asuDataJson = $_POST['asu_data'] ?? '';
+        if (empty($asuDataJson)) {
+            Flash::error('Keine ASU-Daten übermittelt.');
+            return;
+        }
+
+        $asuData = json_decode($asuDataJson, true);
+        if (!$asuData) {
+            Flash::error('Ungültige ASU-Daten.');
+            return;
+        }
+
+        if (empty($asuData['supervisor']) || empty($asuData['missionNumber']) || empty($asuData['missionLocation']) || empty($asuData['missionDate'])) {
+            Flash::error('Pflichtfelder fehlen (Überwacher, Einsatznummer, Ort, Datum).');
+            return;
+        }
+
+        $dateParts = explode('.', $asuData['missionDate']);
+        $missionDate = (count($dateParts) === 3)
+            ? $dateParts[2] . '-' . $dateParts[1] . '-' . $dateParts[0]
+            : $asuData['missionDate'];
+
+        try {
+            Capsule::table('intra_fire_incident_asu')
+                ->where('id', $asuId)
+                ->where('incident_id', $id)
+                ->update([
+                    'supervisor'       => $asuData['supervisor'],
+                    'mission_location' => $asuData['missionLocation'],
+                    'mission_date'     => $missionDate,
+                    'timestamp'        => Capsule::raw('NOW()'),
+                    'data'             => $asuDataJson,
+                ]);
+
+            $this->logAction($id, 'asu_updated', 'ASU-Protokoll aktualisiert (Überwacher: ' . $asuData['supervisor'] . ')');
+            Flash::success('ASU-Protokoll erfolgreich aktualisiert.');
+        } catch (PDOException $e) {
+            Flash::error('Fehler beim Aktualisieren: ' . $e->getMessage());
+        }
+    }
+
+    private function actionDeleteAsu(int $id, array $incident): void
+    {
+        if ($incident['finalized']) {
+            Flash::error('Einsatz ist bereits abgeschlossen.');
+            return;
+        }
+
+        $asuId = (int) ($_POST['asu_id'] ?? 0);
+        if ($asuId <= 0) return;
+
+        $supervisor = Capsule::table('intra_fire_incident_asu')
+            ->where('id', $asuId)
+            ->where('incident_id', $id)
+            ->value('supervisor');
+
+        Capsule::table('intra_fire_incident_asu')
+            ->where('id', $asuId)
+            ->where('incident_id', $id)
+            ->delete();
+
+        if ($supervisor) {
+            $this->logAction($id, 'asu_deleted', "ASU-Protokoll gelöscht (Überwacher: $supervisor)");
+        }
+
+        Flash::success('ASU-Protokoll gelöscht.');
+    }
+
+    private function actionArchive(int $id, array $incident): void
+    {
+        if (!Permissions::check(['admin', 'fire.incident.qm'])) {
+            Flash::error('Keine Berechtigung zum Archivieren von Einsätzen.');
+            return;
+        }
+
+        Capsule::table('intra_fire_incidents')->where('id', $id)->update([
+            'archived'    => 1,
+            'archived_at' => Capsule::raw('NOW()'),
+            'archived_by' => $_SESSION['userid'] ?? null,
+        ]);
+
+        $this->logAction($id, 'archived', 'Einsatz archiviert');
+
+        if (isset($_SESSION['userid'])) {
+            $auditLogger = new AuditLogger($this->pdo);
+            $auditLogger->log($_SESSION['userid'], 'Einsatz archiviert [ID: ' . $id . ']', null, 'Feuerwehr', 1);
+        }
+
+        Flash::success('Einsatz wurde archiviert.');
+        $this->redirect('einsatz/admin/list.php');
+    }
+
+    private function actionUnarchive(int $id, array $incident): void
+    {
+        if (!Permissions::check(['admin', 'fire.incident.qm'])) {
+            Flash::error('Keine Berechtigung zum Wiederherstellen von Einsätzen.');
+            return;
+        }
+
+        Capsule::table('intra_fire_incidents')->where('id', $id)->update([
+            'archived'    => 0,
+            'archived_at' => null,
+            'archived_by' => null,
+        ]);
+
+        $this->logAction($id, 'unarchived', 'Einsatz wiederhergestellt');
+
+        if (isset($_SESSION['userid'])) {
+            $auditLogger = new AuditLogger($this->pdo);
+            $auditLogger->log($_SESSION['userid'], 'Einsatz wiederhergestellt [ID: ' . $id . ']', null, 'Feuerwehr', 1);
+        }
+
+        Flash::success('Einsatz wurde wiederhergestellt.');
+        $this->redirect('einsatz/admin/list.php');
+    }
+
+    // ── Helpers ────────────────────────────────────────────
+
+    /**
+     * Schreibt einen Eintrag in intra_fire_incident_log.
+     * Silently fails — Logging-Fehler sollen den Hauptflow nicht blockieren.
+     */
+    private function logAction(int $incidentId, string $actionType, string $description): void
+    {
+        try {
+            Capsule::table('intra_fire_incident_log')->insert([
+                'incident_id'        => $incidentId,
+                'action_type'        => $actionType,
+                'action_description' => $description,
+                'vehicle_id'         => $_SESSION['einsatz_vehicle_id'] ?? null,
+                'operator_id'        => $_SESSION['einsatz_operator_id'] ?? null,
+                'created_by'         => $_SESSION['userid'] ?? null,
+            ]);
+        } catch (PDOException $e) {
+            // Silently fail
+        }
     }
 }

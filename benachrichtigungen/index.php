@@ -3,7 +3,6 @@
 /**
  * Stub für GET/POST /benachrichtigungen/index.php
  *
- * Phase 2 Welle 4: Modul migriert auf NotificationController.
  *
  * Routing nach POST-Action:
  *   GET                       → index()         (Liste mit Filter + Pagination)

@@ -3,7 +3,6 @@
 /**
  * Stub für GET /einsatz/list.php
  *
- * Phase 2 Welle 7 Turn 1: Modul migriert auf EinsatzController.
  * Logik: src/Http/Controllers/EinsatzController.php::list()
  *
  * Cookie-Settings für CitizenFX MÜSSEN vor session_start() gesetzt werden.
