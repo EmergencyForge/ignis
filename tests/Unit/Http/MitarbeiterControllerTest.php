@@ -24,6 +24,7 @@ class MitarbeiterControllerTest extends TestCase
         $methods = [
             'index', 'store', 'destroy', 'deleteComment',                       // Turn 1
             'show', 'update', 'updateFachdienste', 'addNote', 'createDocument', // Turn 2
+            'showDocument', 'deleteDocument',                                   // Turn 3
         ];
         foreach ($methods as $method) {
             $this->assertTrue(

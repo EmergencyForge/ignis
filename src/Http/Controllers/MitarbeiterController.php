@@ -12,6 +12,7 @@ use App\Http\Requests\Mitarbeiter\UpdateMitarbeiterRequest;
 use App\Models\Dienstgrad;
 use App\Models\FwQuali;
 use App\Models\Mitarbeiter;
+use App\Models\MitarbeiterDokument;
 use App\Models\RdQuali;
 use App\Notifications\NotificationManager;
 use App\Personnel\PersonalLogManager;
@@ -29,16 +30,16 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  *     destroy()       — delete.php
  *     deleteComment() — comment-delete.php
  *
- *   Turn 2 (jetzt):
+ *   Turn 2:
  *     show()              — profile.php (Detail-Seite)
  *     update()            — POST new=1 (Legacy Update-Form, validiert via FormRequest)
  *     updateFachdienste() — POST new=4 (Fachdienste-JSON updaten)
  *     addNote()           — POST new=5 (Notiz hinzufügen)
  *     createDocument()    — POST new=6 (Dokument erstellen + Notification)
  *
- *   Turn 3 (folgt):
- *     showDocument()   — dokument-view.php
- *     deleteDocument() — dokument-delete.php
+ *   Turn 3 (jetzt):
+ *     showDocument()   — dokument-view.php (PDF-Viewer mit Toolbar)
+ *     deleteDocument() — dokument-delete.php (POST mit CSRF-Token)
  */
 class MitarbeiterController extends Controller
 {
@@ -608,6 +609,137 @@ class MitarbeiterController extends Controller
             1
         );
 
+        $this->redirectBackOrIndex();
+    }
+
+    /**
+     * GET /mitarbeiter/dokument-view.php?docid=X — PDF-Viewer mit Toolbar.
+     *
+     * Joint das Dokument mit Template + Kategorie + Empfänger via Capsule —
+     * `intra_dokument_templates`/`intra_dokument_kategorien` haben in dieser
+     * Phase noch kein eigenes Eloquent-Model (gehört in die Dokumenten-Welle).
+     */
+    public function showDocument(): void
+    {
+        $this->requireAuth();
+
+        $docid = (string) ($_GET['docid'] ?? '');
+        if ($docid === '') {
+            Flash::set('error', 'Dokument-ID fehlt');
+            $this->redirect('index.php');
+        }
+
+        $doc = Capsule::table('intra_mitarbeiter_dokumente as pd')
+            ->leftJoin('intra_dokument_templates as t', 'pd.template_id', '=', 't.id')
+            ->leftJoin('intra_dokument_kategorien as dk', 't.category_id', '=', 'dk.id')
+            ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
+            ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+            ->leftJoin('intra_mitarbeiter as emp', 'pd.profileid', '=', 'emp.id')
+            ->where('pd.docid', $docid)
+            ->select(
+                'pd.*',
+                Capsule::raw('IFNULL(pd.is_archived, 0) as is_archived'),
+                't.name as template_name',
+                't.category as template_category',
+                't.editor_type',
+                'dk.name as category_name',
+                'dk.color as category_color',
+                Capsule::raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
+                'emp.fullname as empfaenger_fullname',
+                'emp.id as empfaenger_id'
+            )
+            ->first();
+
+        if ($doc === null) {
+            Flash::set('error', 'Dokument nicht gefunden');
+            $this->redirect('index.php');
+        }
+
+        // Berechtigung: Eigenes Dokument oder personnel.documents.* Permission
+        $isOwnDoc = ((string) $doc->ausstellerid === ($_SESSION['discord_id'] ?? ''));
+        if (!$isOwnDoc && !\App\Auth\Permissions::check([
+            'admin', 'personnel.documents.manage', 'personnel.documents.view', 'personnel.view'
+        ])) {
+            Flash::set('error', 'no-permissions');
+            $this->redirect('index.php');
+        }
+
+        $canManage = \App\Auth\Permissions::check(['admin', 'personnel.documents.manage']);
+        $typLabel  = \App\Documents\DocumentTemplateManager::getDocumentTypeLabel(
+            (int) $doc->type,
+            $doc->template_name ?? null
+        );
+
+        $pdfRelativePath = BASE_PATH . 'storage/documents/' . $doc->docid . '.pdf';
+        $pdfAbsolutePath = dirname(__DIR__, 3) . '/storage/documents/' . basename((string) $doc->docid) . '.pdf';
+        $pdfExists       = is_file($pdfAbsolutePath);
+        $isArchived      = !empty($doc->is_archived);
+        $austdatum       = $doc->ausstellungsdatum ? date('d.m.Y', strtotime($doc->ausstellungsdatum)) : '-';
+
+        $backUrl = $doc->empfaenger_id
+            ? BASE_PATH . 'mitarbeiter/profile.php?id=' . (int) $doc->empfaenger_id . '#documents'
+            : BASE_PATH . 'index.php';
+
+        $this->renderView('mitarbeiter/dokument-view', [
+            'doc'        => $doc,
+            'typLabel'   => $typLabel,
+            'pdfUrl'     => $pdfRelativePath,
+            'pdfExists'  => $pdfExists,
+            'isArchived' => $isArchived,
+            'austdatum'  => $austdatum,
+            'backUrl'    => $backUrl,
+            'canManage'  => $canManage,
+        ]);
+    }
+
+    /**
+     * POST /mitarbeiter/dokument-delete.php — Dokument endgültig löschen.
+     *
+     * Erfordert CSRF-Token + personnel.documents.manage. Löscht die PDF-Datei
+     * im Storage UND den DB-Eintrag.
+     */
+    public function deleteDocument(): void
+    {
+        $this->requireAuth();
+        $this->ensure('mitarbeiter.manageDocs', redirectTo: 'index.php');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Flash::set('error', 'Ungueltige Anfrage');
+            $this->redirectBackOrIndex();
+        }
+
+        $token = (string) ($_POST['csrf_token'] ?? '');
+        if (!\App\Security\CsrfProtection::validateToken($token)) {
+            Flash::set('error', 'Ungültiger Sicherheitstoken. Bitte versuche es erneut.');
+            $this->redirectBackOrIndex();
+        }
+
+        $docid = (string) ($_POST['docid'] ?? '');
+        $pid   = (string) ($_POST['pid'] ?? '');
+
+        if ($docid === '') {
+            Flash::set('error', 'Dokument-ID fehlt');
+            $this->redirectBackOrIndex();
+        }
+
+        // PDF-Datei löschen (basename als Schutz vor Path-Traversal)
+        $pdfPath = dirname(__DIR__, 3) . '/storage/documents/' . basename($docid) . '.pdf';
+        if (is_file($pdfPath)) {
+            @unlink($pdfPath);
+        }
+
+        // DB-Eintrag löschen
+        MitarbeiterDokument::query()->where('docid', $docid)->delete();
+
+        (new AuditLogger($this->pdo))->log(
+            (int) $_SESSION['userid'],
+            'Dokument gelöscht [ID: ' . $docid . ']',
+            $pid !== '' ? $pid : null,
+            'Mitarbeiter',
+            1
+        );
+
+        Flash::set('success', 'Dokument wurde gelöscht');
         $this->redirectBackOrIndex();
     }
 
