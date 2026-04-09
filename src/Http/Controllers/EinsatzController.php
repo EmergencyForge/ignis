@@ -1004,6 +1004,247 @@ class EinsatzController extends Controller
         $this->redirect('einsatz/admin/list.php');
     }
 
+    // ── Statusmeldungen / ASU / Fahrtenbuch / Admin ──────
+
+    /**
+     * GET /einsatz/statusmeldungen.php — Fahrzeug-Status-Meldungen (S0–S6).
+     * Zeigt Grid mit Statusbuttons, aktiver Einsatz und periodischem Polling.
+     */
+    public function statusmeldungen(): void
+    {
+        FiveMSupport::prepareCookiesAndHeaders();
+
+        if (!Gate::allows('fireIncident.accessModule')) {
+            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            $this->redirect('login.php');
+        }
+
+        if (!Gate::allows('fireIncident.hasFireTabSession')) {
+            Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
+            $this->redirect('einsatz/login-fahrzeug.php');
+        }
+
+        $vehicleId   = (int) $_SESSION['einsatz_vehicle_id'];
+        $vehicleName = $_SESSION['einsatz_vehicle_name'] ?? 'Unbekannt';
+
+        $currentStatus        = null;
+        $statusSource         = null;
+        $activeIncidentId     = null;
+        $activeIncidentNumber = null;
+
+        // 1. Fahrzeug-Status aus intra_fahrzeuge
+        $vehRow = Capsule::table('intra_fahrzeuge')
+            ->where('id', $vehicleId)
+            ->select('current_status', 'status_source')
+            ->first();
+
+        if ($vehRow && $vehRow->current_status !== null) {
+            $currentStatus = $vehRow->current_status;
+            $statusSource  = $vehRow->status_source;
+        }
+
+        // 2. Aktiver Einsatz
+        $row = Capsule::table('intra_fire_incident_vehicles as fiv')
+            ->join('intra_fire_incidents as fi', 'fiv.incident_id', '=', 'fi.id')
+            ->where('fiv.vehicle_id', $vehicleId)
+            ->where('fi.finalized', 0)
+            ->orderByDesc('fi.created_at')
+            ->select('fiv.current_status', 'fi.id as incident_id', 'fi.incident_number')
+            ->first();
+
+        if ($row) {
+            $activeIncidentId     = (int) $row->incident_id;
+            $activeIncidentNumber = $row->incident_number;
+            if ($statusSource !== 'no_dispatch' && $row->current_status !== null) {
+                $currentStatus = $row->current_status;
+            }
+        }
+
+        $statusConfig = [
+            '0' => ['text' => '0', 'label' => 'Dringender Sprechwunsch', 'bg' => '#e0050e', 'color' => '#ffffff'],
+            '1' => ['text' => '1', 'label' => 'Einsatzbereit Funk',      'bg' => '#5adf07', 'color' => '#000000'],
+            '2' => ['text' => '2', 'label' => 'Einsatzbereit Wache',     'bg' => '#057b09', 'color' => '#ffffff'],
+            '3' => ['text' => '3', 'label' => 'Einsatz übernommen',      'bg' => '#e6d611', 'color' => '#000000'],
+            '4' => ['text' => '4', 'label' => 'Am Einsatzort',           'bg' => '#832209', 'color' => '#ffffff'],
+            '5' => ['text' => '5', 'label' => 'Sprechwunsch',            'bg' => '#e99610', 'color' => '#000000'],
+            '6' => ['text' => '6', 'label' => 'Nicht einsatzbereit',     'bg' => '#848292', 'color' => '#000000'],
+        ];
+
+        $this->renderView('einsatz/statusmeldungen', [
+            'vehicleName'          => $vehicleName,
+            'currentStatus'        => $currentStatus,
+            'statusSource'         => $statusSource,
+            'activeIncidentId'     => $activeIncidentId,
+            'activeIncidentNumber' => $activeIncidentNumber,
+            'statusConfig'         => $statusConfig,
+        ]);
+    }
+
+    /**
+     * GET /einsatz/asu.php — Atemschutzüberwachung (ASU-Protokoll-Formular).
+     * Kann mit ?incident_id=X&incident_number=Y&location=Z&asu_id=A aufgerufen werden.
+     */
+    public function asuForm(): void
+    {
+        FiveMSupport::prepareCookiesAndHeaders();
+
+        if (!Gate::allows('fireIncident.accessModule')) {
+            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            $this->redirect('login.php');
+        }
+
+        if (!Gate::allows('fireIncident.hasFireTabSession')) {
+            Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
+            $this->redirect('einsatz/login-fahrzeug.php');
+        }
+
+        $prefillNumber    = $_GET['incident_number'] ?? '';
+        $prefillLocation  = $_GET['location'] ?? '';
+        $prefillIncidentId = $_GET['incident_id'] ?? null;
+        $asuId            = $_GET['asu_id'] ?? null;
+
+        $existingProtocol = null;
+        if ($asuId) {
+            $row = Capsule::table('intra_fire_incident_asu')->where('id', $asuId)->first();
+            if ($row) {
+                $existingProtocol = (array) $row;
+                $protocolData = json_decode($existingProtocol['data'], true) ?? [];
+                if (!$prefillNumber && !empty($protocolData['missionNumber'])) {
+                    $prefillNumber = $protocolData['missionNumber'];
+                }
+                if (!$prefillLocation && !empty($protocolData['missionLocation'])) {
+                    $prefillLocation = $protocolData['missionLocation'];
+                }
+            }
+        }
+
+        $this->renderView('einsatz/asu', [
+            'prefillNumber'     => $prefillNumber,
+            'prefillLocation'   => $prefillLocation,
+            'prefillIncidentId' => $prefillIncidentId,
+            'asuId'             => $asuId,
+            'existingProtocol'  => $existingProtocol,
+        ]);
+    }
+
+    /**
+     * GET /einsatz/fahrtenbuch.php — Fahrtenbuch im FireTab-Kontext.
+     * Zeigt Fahrten des eingeloggten Fahrzeugs mit Inline-Create/Edit-Formularen.
+     */
+    public function fireTabFahrtenbuch(): void
+    {
+        FiveMSupport::prepareCookiesAndHeaders();
+
+        if (!Gate::allows('fireIncident.accessModule')) {
+            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            $this->redirect('login.php');
+        }
+
+        if (!Gate::allows('fireIncident.hasFireTabSession')) {
+            Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
+            $this->redirect('einsatz/login-fahrzeug.php');
+        }
+
+        date_default_timezone_set('Europe/Berlin');
+
+        $vehicleId   = (int) $_SESSION['einsatz_vehicle_id'];
+        $vehicleName = $_SESSION['einsatz_vehicle_name'] ?? 'Unbekannt';
+        $fahrerName  = $_SESSION['einsatz_operator_name'] ?? '';
+
+        $vehicleIdentifier = (string) Capsule::table('intra_fahrzeuge')
+            ->where('id', $vehicleId)
+            ->value('identifier') ?: '';
+
+        $fahrttypen = [
+            'einsatzfahrt'   => 'Einsatzfahrt',
+            'bewegungsfahrt' => 'Bewegungsfahrt',
+            'werkstattfahrt' => 'Werkstattfahrt',
+            'uebungsfahrt'   => 'Übungsfahrt',
+            'dienstfahrt'    => 'Dienstfahrt',
+            'sonstige'       => 'Sonstige',
+        ];
+
+        $entries = Capsule::table('intra_fahrtenbuch')
+            ->where('vehicle_id', $vehicleId)
+            ->orderByDesc('datum')
+            ->orderByDesc('abfahrt')
+            ->get()
+            ->map(fn ($r) => (array) $r)
+            ->all();
+
+        $this->renderView('einsatz/fahrtenbuch', [
+            'vehicleId'         => $vehicleId,
+            'vehicleName'       => $vehicleName,
+            'fahrerName'        => $fahrerName,
+            'vehicleIdentifier' => $vehicleIdentifier,
+            'fahrttypen'        => $fahrttypen,
+            'entries'           => $entries,
+        ]);
+    }
+
+    /**
+     * GET /einsatz/admin/list.php — QM-Übersicht aller Einsatzprotokolle.
+     * Nur für Admin / fire.incident.qm. Zeigt aktive oder archivierte Einsätze
+     * inkl. Federation-Daten und Bulk-Delete-Funktion.
+     */
+    public function adminList(): void
+    {
+        $this->requireAuth();
+        $this->ensure('fireIncident.viewAdminList');
+
+        $showArchived = isset($_GET['show_archived']) && $_GET['show_archived'] === '1';
+
+        $query = Capsule::table('intra_fire_incidents as i')
+            ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
+            ->select('i.*', 'm.fullname as leader_name');
+
+        if ($showArchived) {
+            $query->where('i.archived', 1)->orderByDesc('i.archived_at');
+        } else {
+            $query->where('i.archived', 0)->orderByDesc('i.created_at');
+        }
+
+        $incidents = $query->get()->map(fn ($r) => (array) $r)->all();
+
+        // Resolve federation leader names
+        foreach ($incidents as &$inc) {
+            if (empty($inc['leader_name']) && !empty($inc['leader_id'])) {
+                $inc['leader_name'] = FederatedPersonnel::resolveName($this->pdo, $inc['leader_id']);
+            }
+        }
+        unset($inc);
+
+        // Append federated fire incidents (read-only)
+        if (\App\Federation\FederationMiddleware::isEnabled() && !$showArchived) {
+            try {
+                $fedRows = Capsule::table('intra_federation_cache_fire as fcf')
+                    ->join('intra_federation_links as fl', function ($join) {
+                        $join->on('fl.instance_id', '=', 'fcf.source_instance_id')
+                             ->where('fl.is_active', 1);
+                    })
+                    ->orderByDesc('fcf.incident_date')
+                    ->select('fcf.cached_data', 'fl.instance_name')
+                    ->get();
+
+                foreach ($fedRows as $fedRow) {
+                    $fi = json_decode($fedRow->cached_data, true);
+                    if (!$fi) continue;
+                    $fi['_federation_source']   = $fedRow->instance_name;
+                    $fi['_federation_readonly'] = true;
+                    $fi['id'] = 'fed_' . ($fi['id'] ?? 0);
+                    $incidents[] = $fi;
+                }
+            } catch (\PDOException $e) {
+                // Silently skip
+            }
+        }
+
+        $this->renderView('einsatz/admin-list', [
+            'incidents'    => $incidents,
+            'showArchived' => $showArchived,
+        ]);
+    }
+
     // ── Helpers ────────────────────────────────────────────
 
     /**

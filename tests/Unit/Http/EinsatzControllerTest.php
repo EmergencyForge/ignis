@@ -24,6 +24,7 @@ class EinsatzControllerTest extends TestCase
         $methods = [
             'index', 'loginForm', 'login', 'list',
             'view', 'createForm', 'store', 'dispatchAction',
+            'statusmeldungen', 'asuForm', 'fireTabFahrtenbuch', 'adminList',
         ];
         foreach ($methods as $method) {
             $this->assertTrue(
