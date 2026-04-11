@@ -52,7 +52,7 @@ try {
         'csrf_token' => CsrfProtection::getResponseToken(),
     ]);
 } catch (\Throwable $e) {
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Interner Fehler']);
 }
 
 function generateTemplateHtml(array $template): string
