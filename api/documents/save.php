@@ -100,7 +100,7 @@ try {
     ]);
 } catch (\Throwable $e) {
     Flash::error($e->getMessage());
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Interner Fehler']);
 }
 
 /**

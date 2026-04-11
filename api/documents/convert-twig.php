@@ -92,5 +92,6 @@ try {
         ]);
     }
 } catch (\Throwable $e) {
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    error_log('convert-twig error: ' . $e->getMessage());
+    echo json_encode(['success' => false, 'error' => 'Interner Fehler']);
 }

@@ -54,5 +54,5 @@ try {
     echo json_encode($template);
 } catch (Exception $e) {
     http_response_code(404);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['error' => 'Interner Fehler']);
 }

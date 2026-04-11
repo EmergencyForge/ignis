@@ -32,5 +32,5 @@ try {
     echo json_encode(['success' => $success]);
 } catch (Exception $e) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Interner Fehler']);
 }

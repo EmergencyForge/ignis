@@ -132,6 +132,5 @@ try {
     echo json_encode([
         'success' => false,
         'error' => 'Interner Fehler',
-        'message' => $e->getMessage()
     ]);
 }

@@ -57,7 +57,9 @@ if ($file['size'] > $maxSize) {
     exit(json_encode(['success' => false, 'message' => 'Datei zu groß (max. 2 MB)']));
 }
 
-$mimeType = mime_content_type($file['tmp_name']);
+$finfo = finfo_open(FILEINFO_MIME_TYPE);
+$mimeType = finfo_file($finfo, $file['tmp_name']);
+finfo_close($finfo);
 if (!in_array($mimeType, $allowedTypes)) {
     http_response_code(400);
     exit(json_encode(['success' => false, 'message' => 'Ungültiger Dateityp. Erlaubt: PNG, JPG, WebP']));

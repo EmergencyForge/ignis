@@ -34,5 +34,5 @@ try {
         'csrf_token' => CsrfProtection::getResponseToken(),
     ]);
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => 'Interner Fehler']);
 }

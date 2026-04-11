@@ -7,10 +7,19 @@
 use App\Auth\Permissions;
 if (!Permissions::check(['admin'])) return;
 
-// Safe count helper — returns 0 if table doesn't exist
+// Safe count helper — returns 0 if table doesn't exist or not whitelisted
 function _setupCount(PDO $pdo, string $table): int {
+    static $whitelist = [
+        'intra_mitarbeiter_dienstgrade',
+        'intra_mitarbeiter_rdquali',
+        'intra_users_roles',
+        'intra_mitarbeiter',
+        'intra_edivi_pois',
+        'intra_fahrzeuge',
+    ];
+    if (!in_array($table, $whitelist, true)) return 0;
     try { return (int)$pdo->query("SELECT COUNT(*) FROM $table")->fetchColumn(); }
-    catch (Exception $e) { return 0; }
+    catch (Exception) { return 0; }
 }
 
 // Check what's configured

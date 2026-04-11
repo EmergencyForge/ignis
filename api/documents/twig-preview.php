@@ -32,7 +32,7 @@ if (!$template || empty($template['template_file'])) {
 $templatePath = __DIR__ . '/../../dokumente/templates/' . $template['template_file'];
 if (!file_exists($templatePath)) {
     http_response_code(404);
-    exit('Template-Datei nicht gefunden: ' . $template['template_file']);
+    exit('Template-Datei nicht gefunden: ' . htmlspecialchars($template['template_file'], ENT_QUOTES, 'UTF-8'));
 }
 
 $html = file_get_contents($templatePath);
