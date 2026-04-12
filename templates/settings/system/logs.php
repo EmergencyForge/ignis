@@ -1,6 +1,6 @@
 <?php
 /**
- * View: System-Logs / Error-Lookup (WBB-style Inbox)
+ * View: System-Logs / Fehlerprotokoll
  *
  * @var array<int,array<string,mixed>> $files
  * @var array<int,array<string,mixed>> $recent
@@ -10,6 +10,24 @@
  */
 
 use App\Helpers\Flash;
+
+/**
+ * Mappt einen Log-Level auf das System-Status-Badge.
+ */
+function logs_level_badge(string $level): string
+{
+    $level = strtoupper($level);
+    $map = [
+        'CRITICAL' => 'status-danger',
+        'ERROR'    => 'status-danger',
+        'WARNING'  => 'status-warning',
+        'NOTICE'   => 'status-info',
+        'INFO'     => 'status-info',
+        'DEBUG'    => 'status-muted',
+    ];
+    $cls = $map[$level] ?? 'status-muted';
+    return "<span class='badge-status {$cls}'><span class='status-dot'></span>" . htmlspecialchars($level) . '</span>';
+}
 ?>
 <!DOCTYPE html>
 <html lang="de" data-bs-theme="light">
@@ -17,252 +35,157 @@ use App\Helpers\Flash;
 <head>
     <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
     <style>
-        /* ── Stat Cards ── */
-        .log-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
-            margin-bottom: 1.25rem;
+        /* Lookup-Hero: prominenter Eingabebereich für Error-IDs */
+        .logs-lookup-hero {
+            position: relative;
         }
-        .log-stat-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            border-radius: 8px;
-            padding: 14px 18px;
-        }
-        .log-stat-card .label {
-            font-size: 0.7rem;
+        .logs-lookup-hero .lookup-input {
+            font-family: var(--font-mono, 'Inconsolata', 'JetBrains Mono', Consolas, monospace);
+            letter-spacing: 0.14em;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--text-dimmed, #888);
+            font-weight: 600;
         }
-        .log-stat-card .value {
-            font-size: 1.75rem;
-            font-weight: 700;
-            line-height: 1.1;
-            margin-top: 4px;
-            font-family: 'JetBrains Mono', Consolas, monospace;
+        .logs-lookup-hero .lookup-input::placeholder {
+            opacity: 0.3;
+            letter-spacing: 0.14em;
+            font-weight: 400;
         }
-        .log-stat-card.crit .value { color: #ff6b8a; }
-        .log-stat-card.err .value  { color: #ff7d4d; }
-        .log-stat-card.warn .value { color: #ffc857; }
 
-        /* ── Inbox / Group Rows ── */
-        .log-inbox {
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            overflow: hidden;
+        /* Group rows: kompakt, nutzen System-Border-Tokens */
+        .logs-group {
+            border-bottom: 1px solid var(--bs-border-color, rgba(255, 255, 255, 0.08));
+            transition: background-color 0.12s;
         }
-        .log-group {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-            transition: background 0.12s;
-        }
-        .log-group:last-child { border-bottom: none; }
-        .log-group:hover { background: rgba(255, 255, 255, 0.025); }
-        .log-group.expanded { background: rgba(255, 255, 255, 0.04); }
+        .logs-group:last-child { border-bottom: none; }
+        .logs-group:hover { background-color: rgba(255, 255, 255, 0.03); }
+        .logs-group.expanded { background-color: rgba(255, 255, 255, 0.045); }
 
-        .log-group-row {
+        .logs-group-row {
             display: grid;
-            grid-template-columns: 110px 1fr 90px 170px 32px;
+            grid-template-columns: 110px 1fr 70px 130px 24px;
             align-items: center;
             gap: 14px;
-            padding: 12px 18px;
+            padding: 10px 14px;
             cursor: pointer;
         }
-        .log-group-row .level-cell {
-            display: flex;
-            align-items: center;
-        }
-        .log-group-row .info {
-            min-width: 0;
-        }
-        .log-group-row .info .exception {
-            font-family: 'JetBrains Mono', Consolas, monospace;
-            font-weight: 700;
+        .logs-group-row .info { min-width: 0; }
+        .logs-group-row .info .exception {
+            font-family: var(--font-mono, 'Inconsolata', monospace);
+            font-weight: 600;
             font-size: 0.85rem;
-            color: #fff;
             display: block;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .log-group-row .info .message {
+        .logs-group-row .info .message {
             font-size: 0.78rem;
-            color: var(--text-dimmed, #999);
+            opacity: 0.7;
             display: -webkit-box;
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
             margin-top: 2px;
         }
-        .log-group-row .info .file {
-            font-family: 'JetBrains Mono', Consolas, monospace;
+        .logs-group-row .info .file {
+            font-family: var(--font-mono, 'Inconsolata', monospace);
             font-size: 0.7rem;
-            color: var(--text-dimmed, #777);
+            opacity: 0.5;
             margin-top: 2px;
         }
-        .log-group-row .count-cell {
-            text-align: center;
-            font-family: 'JetBrains Mono', Consolas, monospace;
-            font-size: 0.85rem;
-            color: var(--text-dimmed, #999);
-        }
-        .log-group-row .count-cell .badge {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-size: 0.72rem;
-            padding: 3px 8px;
-            border-radius: 999px;
-            font-weight: 700;
-        }
-        .log-group-row .time-cell {
-            font-size: 0.75rem;
-            color: var(--text-dimmed, #999);
-            text-align: right;
-        }
-        .log-group-row .chevron {
-            color: var(--text-dimmed, #777);
-            transition: transform 0.18s;
-            text-align: center;
-        }
-        .log-group.expanded .chevron {
-            transform: rotate(90deg);
-        }
+        .logs-group-row .count-cell { text-align: center; }
+        .logs-group-row .time-cell { text-align: right; font-size: 0.72rem; opacity: 0.65; }
+        .logs-group-row .chevron { text-align: center; opacity: 0.45; transition: transform 0.18s; }
+        .logs-group.expanded .chevron { transform: rotate(90deg); opacity: 0.85; }
 
-        /* ── Expanded Detail ── */
-        .log-detail-pane {
+        .logs-detail {
             display: none;
-            padding: 0 18px 18px 18px;
-            background: rgba(0, 0, 0, 0.25);
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 14px 18px 18px 18px;
+            border-top: 1px dashed var(--bs-border-color, rgba(255, 255, 255, 0.08));
         }
-        .log-group.expanded .log-detail-pane {
-            display: block;
+        .logs-group.expanded .logs-detail { display: block; }
+        .logs-detail-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
         }
-        .log-detail-pane dl {
-            display: grid;
-            grid-template-columns: 130px 1fr;
-            gap: 4px 16px;
-            margin: 14px 0 0 0;
-        }
-        .log-detail-pane dt {
-            font-size: 0.7rem;
+        .logs-detail-section { margin-bottom: 14px; }
+        .logs-detail-section:last-child { margin-bottom: 0; }
+        .logs-detail-label {
+            font-size: 0.68rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-dimmed, #888);
-            padding-top: 4px;
+            letter-spacing: 0.06em;
+            opacity: 0.55;
+            margin-bottom: 4px;
+            font-weight: 600;
         }
-        .log-detail-pane dd {
-            margin: 0;
-            font-family: 'JetBrains Mono', Consolas, monospace;
+        .logs-detail-value {
+            font-family: var(--font-mono, 'Inconsolata', monospace);
             font-size: 0.82rem;
             word-break: break-all;
-            color: #d3d6e0;
         }
-        .log-trace {
-            background: #0f1014;
-            border: 1px solid #2a2d36;
-            color: #d3d6e0;
+        .logs-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px 18px;
+        }
+        .logs-trace {
+            background: var(--bs-tertiary-bg, #1a1a1a);
+            border: 1px solid var(--bs-border-color, rgba(255, 255, 255, 0.1));
             padding: 0.85rem 1rem;
             border-radius: 6px;
             font-size: 0.75rem;
             line-height: 1.55;
-            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-family: var(--font-mono, 'Inconsolata', monospace);
             white-space: pre;
             overflow-x: auto;
             max-height: 420px;
-            margin-top: 6px;
+            margin-top: 4px;
         }
-        .log-id-list {
+        .logs-id-list {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            margin-top: 4px;
+            margin-top: 2px;
         }
-        .log-id-pill {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            font-family: 'JetBrains Mono', Consolas, monospace;
+        .logs-id-pill {
+            background: var(--bs-tertiary-bg, rgba(255, 255, 255, 0.06));
+            border: 1px solid var(--bs-border-color, rgba(255, 255, 255, 0.1));
+            font-family: var(--font-mono, 'Inconsolata', monospace);
             font-size: 0.72rem;
             padding: 3px 8px;
             border-radius: 4px;
             cursor: pointer;
             transition: background 0.1s;
         }
-        .log-id-pill:hover {
-            background: rgba(255, 255, 255, 0.12);
-        }
+        .logs-id-pill:hover { background: var(--bs-secondary-bg, rgba(255, 255, 255, 0.12)); }
 
-        /* ── Level Pills ── */
-        .log-level-pill {
-            display: inline-block;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            padding: 3px 9px;
-            border-radius: 4px;
-            border: 1px solid currentColor;
-            min-width: 78px;
+        .logs-empty {
             text-align: center;
+            padding: 2.5rem 1rem;
+            opacity: 0.55;
         }
-        .log-level-CRITICAL { color: #ff6b8a; background: rgba(255, 107, 138, 0.08); }
-        .log-level-ERROR    { color: #ff7d4d; background: rgba(255, 125, 77, 0.08); }
-        .log-level-WARNING  { color: #ffc857; background: rgba(255, 200, 87, 0.08); }
-        .log-level-NOTICE   { color: #6ec1ff; background: rgba(110, 193, 255, 0.08); }
-        .log-level-INFO     { color: #6effaa; background: rgba(110, 255, 170, 0.08); }
-        .log-level-DEBUG    { color: #b3a6ff; background: rgba(179, 166, 255, 0.08); }
-
-        /* ── Search Bar ── */
-        .log-toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 1rem;
-            align-items: center;
-        }
-        .log-toolbar input,
-        .log-toolbar select {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-        }
-        .log-search-input {
-            font-family: 'JetBrains Mono', Consolas, monospace;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-        .log-empty {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: var(--text-dimmed, #888);
-        }
-        .log-empty i {
-            font-size: 2.5rem;
-            opacity: 0.4;
-            margin-bottom: 1rem;
+        .logs-empty i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
             display: block;
         }
 
         .copy-btn {
             cursor: pointer;
-            opacity: 0.5;
+            opacity: 0.4;
+            margin-left: 6px;
             transition: opacity 0.15s;
         }
-        .copy-btn:hover {
-            opacity: 1;
-        }
+        .copy-btn:hover { opacity: 1; }
 
         @media (max-width: 768px) {
-            .log-group-row {
-                grid-template-columns: 90px 1fr 60px 24px;
+            .logs-group-row {
+                grid-template-columns: 90px 1fr 50px 24px;
                 gap: 10px;
-                padding: 10px 12px;
             }
-            .log-group-row .time-cell {
-                display: none;
-            }
+            .logs-group-row .time-cell { display: none; }
         }
     </style>
 </head>
@@ -285,104 +208,136 @@ use App\Helpers\Flash;
                     <div class="page-header mb-4">
                         <h1>Fehlerprotokoll</h1>
                         <div class="header-actions">
-                            <button type="button" class="btn btn-soft-primary" id="refreshBtn">
+                            <button type="button" class="btn btn-ghost" id="refreshBtn">
                                 <i class="fa-solid fa-rotate me-1"></i>Aktualisieren
                             </button>
                         </div>
                     </div>
                     <?php Flash::render(); ?>
 
-                    <!-- Stats -->
-                    <div class="log-stats">
-                        <div class="log-stat-card">
-                            <div class="label">Errors gesamt</div>
-                            <div class="value"><?= number_format($stats['total'] ?? 0, 0, ',', '.') ?></div>
-                        </div>
-                        <div class="log-stat-card warn">
-                            <div class="label">Letzte 24h</div>
-                            <div class="value"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></div>
-                        </div>
-                        <div class="log-stat-card warn">
-                            <div class="label">Letzte 7 Tage</div>
-                            <div class="value"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></div>
-                        </div>
-                        <div class="log-stat-card crit">
-                            <div class="label">Critical</div>
-                            <div class="value"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></div>
-                        </div>
-                        <div class="log-stat-card err">
-                            <div class="label">Error</div>
-                            <div class="value"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></div>
+                    <!-- ───────────── HERO: Error-ID Lookup (primärer Use-Case) ───────────── -->
+                    <div class="intra__tile p-3 mb-3 logs-lookup-hero">
+                        <div class="d-flex align-items-center flex-wrap gap-3">
+                            <div class="flex-shrink-0">
+                                <div class="fw-semibold"><i class="fa-solid fa-key me-2 text-primary"></i>Error-ID Lookup</div>
+                                <div class="text-muted" style="font-size: 0.72rem;">
+                                    8-stellige ID aus der Production-Fehlerseite &mdash; z.B. <code>0B29305D</code>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1" style="min-width: 260px;">
+                                <div class="input-group">
+                                    <input type="text"
+                                           id="errorIdInput"
+                                           class="form-control lookup-input"
+                                           placeholder="A1B2C3D4"
+                                           maxlength="8"
+                                           autocomplete="off"
+                                           pattern="[A-Fa-f0-9]{8}"
+                                           autofocus>
+                                    <button type="button" class="btn btn-soft-primary" id="errorIdLookupBtn">
+                                        <i class="fa-solid fa-magnifying-glass me-1"></i>Suchen
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Toolbar -->
-                    <div class="intra__tile p-3 mb-3">
-                        <div class="log-toolbar">
-                            <div class="input-group" style="max-width:240px;">
-                                <span class="input-group-text"><i class="fa-solid fa-hashtag"></i></span>
+                    <!-- ───────────── Stats ───────────── -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-6 col-md">
+                            <div class="intra__tile p-3 text-center h-100">
+                                <div class="text-muted small text-uppercase" style="letter-spacing:0.05em;">Errors gesamt</div>
+                                <div class="fs-4 fw-bold mt-1"><?= number_format($stats['total'] ?? 0, 0, ',', '.') ?></div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md">
+                            <div class="intra__tile p-3 text-center h-100">
+                                <div class="text-muted small text-uppercase" style="letter-spacing:0.05em;">Letzte 24h</div>
+                                <div class="fs-4 fw-bold mt-1 text-warning"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md">
+                            <div class="intra__tile p-3 text-center h-100">
+                                <div class="text-muted small text-uppercase" style="letter-spacing:0.05em;">Letzte 7 Tage</div>
+                                <div class="fs-4 fw-bold mt-1 text-warning"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md">
+                            <div class="intra__tile p-3 text-center h-100">
+                                <div class="text-muted small text-uppercase" style="letter-spacing:0.05em;">Critical</div>
+                                <div class="fs-4 fw-bold mt-1 text-danger"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md">
+                            <div class="intra__tile p-3 text-center h-100">
+                                <div class="text-muted small text-uppercase" style="letter-spacing:0.05em;">Error</div>
+                                <div class="fs-4 fw-bold mt-1 text-danger"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ───────────── Browse / Filter / Inbox ───────────── -->
+                    <div class="intra__tile p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <div>
+                                <h5 class="mb-0"><i class="fa-solid fa-inbox me-2"></i>Letzte Fehler</h5>
+                                <small class="text-muted">Gruppiert nach Exception &amp; Datei. Klick zum Aufklappen.</small>
+                            </div>
+                            <div class="btn-toolbar-group" id="inboxScopeFilter">
+                                <button type="button" class="btn active" data-scope="all">Alle</button>
+                                <button type="button" class="btn" data-scope="CRITICAL">Critical</button>
+                                <button type="button" class="btn" data-scope="ERROR">Error</button>
+                                <button type="button" class="btn" data-scope="WARNING">Warning</button>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md">
                                 <input type="text"
-                                       id="errorIdInput"
-                                       class="form-control log-search-input"
-                                       placeholder="Error-ID"
-                                       maxlength="8"
+                                       id="searchQuery"
+                                       class="form-control"
+                                       placeholder="Volltext-Suche (Datei, Klasse, Message…)"
                                        autocomplete="off">
                             </div>
-                            <input type="text"
-                                   id="searchQuery"
-                                   class="form-control flex-grow-1"
-                                   style="min-width:200px;max-width:400px;"
-                                   placeholder="Volltext-Suche (Datei, Exception, Message…)"
-                                   autocomplete="off">
-                            <select id="searchLevel" class="form-select" style="max-width:140px;">
-                                <option value="">Alle Level</option>
-                                <option value="CRITICAL">Critical</option>
-                                <option value="ERROR">Error</option>
-                                <option value="WARNING">Warning</option>
-                                <option value="NOTICE">Notice</option>
-                                <option value="INFO">Info</option>
-                                <option value="DEBUG">Debug</option>
-                            </select>
-                            <select id="searchFile" class="form-select" style="max-width:240px;">
-                                <option value="">Alle Dateien</option>
-                                <?php foreach ($files as $f): ?>
-                                    <option value="<?= htmlspecialchars($f['name']) ?>">
-                                        <?= htmlspecialchars($f['name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                            <button type="button" class="btn btn-soft-primary" id="searchBtn">
-                                <i class="fa-solid fa-magnifying-glass me-1"></i>Suchen
-                            </button>
-                            <button type="button" class="btn btn-ghost" id="resetBtn" title="Zurück zur Inbox">
-                                <i class="fa-solid fa-inbox"></i>
-                            </button>
-                        </div>
-                        <div class="text-muted small">
-                            <i class="fa-solid fa-circle-info me-1"></i>
-                            Fehler werden nach Fingerprint (Exception + Datei + Zeile) gruppiert. Klick auf eine Zeile öffnet den Stack-Trace.
-                        </div>
-                    </div>
-
-                    <!-- Inbox -->
-                    <div id="inbox-container">
-                        <?php if (empty($groups)): ?>
-                            <div class="log-empty intra__tile">
-                                <i class="fa-solid fa-inbox"></i>
-                                <h5>Keine Fehler vorhanden</h5>
-                                <p>Es liegen aktuell keine Errors in den Log-Dateien vor.</p>
+                            <div class="col-md-3">
+                                <select id="searchFile" class="form-select">
+                                    <option value="">Alle Dateien</option>
+                                    <?php foreach ($files as $f): ?>
+                                        <option value="<?= htmlspecialchars($f['name']) ?>">
+                                            <?= htmlspecialchars($f['name']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
-                        <?php else: ?>
-                            <div class="log-inbox" id="inboxList"></div>
-                        <?php endif; ?>
+                            <div class="col-md-auto">
+                                <button type="button" class="btn btn-soft-primary" id="searchBtn">
+                                    <i class="fa-solid fa-magnifying-glass me-1"></i>Suchen
+                                </button>
+                                <button type="button" class="btn btn-ghost" id="resetBtn" title="Zurück zur Inbox">
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="inboxContainer">
+                            <?php if (empty($groups)): ?>
+                                <div class="logs-empty">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <h6>Keine Fehler vorhanden</h6>
+                                    <small>Es liegen aktuell keine Errors in den Log-Dateien vor.</small>
+                                </div>
+                            <?php else: ?>
+                                <div id="inboxList"></div>
+                            <?php endif; ?>
+                        </div>
                     </div>
 
-                    <!-- Files Übersicht (collapsed) -->
-                    <details class="intra__tile p-3 mt-4">
+                    <!-- ───────────── Files (collapsed) ───────────── -->
+                    <details class="intra__tile p-3 mt-3">
                         <summary class="fw-bold" style="cursor:pointer;">
                             <i class="fa-solid fa-folder-tree me-2"></i>Verfügbare Log-Dateien (<?= count($files) ?>)
                         </summary>
-                        <table class="table table-sm mt-3 mb-0">
+                        <table class="table table-striped table-sm mt-3 mb-0">
                             <thead>
                                 <tr>
                                     <th>Datei</th>
@@ -399,9 +354,9 @@ use App\Helpers\Flash;
                                         <td class="text-end"><?= number_format($f['size'] / 1024, 1) ?> KB</td>
                                         <td>
                                             <?php if ($f['type'] === 'error'): ?>
-                                                <span class="badge bg-danger">error</span>
+                                                <span class="badge-status status-danger"><span class="status-dot"></span>error</span>
                                             <?php else: ?>
-                                                <span class="badge bg-secondary">app</span>
+                                                <span class="badge-status status-muted"><span class="status-dot"></span>app</span>
                                             <?php endif; ?>
                                         </td>
                                         <td><?= date('d.m.Y H:i', $f['mtime']) ?></td>
@@ -432,9 +387,30 @@ use App\Helpers\Flash;
             div.textContent = String(text);
             return div.innerHTML;
         }
+        // Escape für HTML-Attribute (escapeHtml reicht nicht — Quotes müssen auch ersetzt werden,
+        // sonst bricht data-copy-text="..." wenn der Text Anführungszeichen enthält)
+        function escapeAttr(text) {
+            if (text === null || text === undefined) return '';
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
 
-        function levelPill(level) {
-            return '<span class="log-level-pill log-level-' + escapeHtml(level) + '">' + escapeHtml(level) + '</span>';
+        function levelBadge(level) {
+            const lvl = String(level || '').toUpperCase();
+            const map = {
+                'CRITICAL': 'status-danger',
+                'ERROR':    'status-danger',
+                'WARNING':  'status-warning',
+                'NOTICE':   'status-info',
+                'INFO':     'status-info',
+                'DEBUG':    'status-muted',
+            };
+            const cls = map[lvl] || 'status-muted';
+            return '<span class="badge-status ' + cls + '"><span class="status-dot"></span>' + escapeHtml(lvl) + '</span>';
         }
 
         function timeAgo(datetime) {
@@ -453,98 +429,170 @@ use App\Helpers\Flash;
             return datetime.substring(0, 16);
         }
 
+        function buildReportText(entry, group) {
+            const lines = [];
+            lines.push('=== intraRP Error Report ===');
+            if (entry.error_id) lines.push('Error-ID:   ' + entry.error_id);
+            if (entry.level)    lines.push('Level:      ' + entry.level);
+            if (entry.datetime) lines.push('Zeitpunkt:  ' + entry.datetime);
+            if (entry.exception) lines.push('Exception:  ' + entry.exception);
+            if (entry.file_path || entry.file) {
+                lines.push('Datei:      ' + (entry.file_path || entry.file) + (entry.line ? ':' + entry.line : ''));
+            }
+            if (entry.message)  lines.push('Message:    ' + entry.message);
+            if (group && group.count > 1) {
+                lines.push('Vorkommen:  ' + group.count + '× (erst: ' + group.first_seen + ', letzt: ' + group.last_seen + ')');
+            }
+            if (group && group.error_ids && group.error_ids.length > 0) {
+                lines.push('Error-IDs:  ' + group.error_ids.join(', ') + (group.count > group.error_ids.length ? ' (+' + (group.count - group.error_ids.length) + ' weitere)' : ''));
+            }
+            if (entry.source_file) lines.push('Logfile:    ' + entry.source_file);
+            if (entry.trace) {
+                lines.push('');
+                lines.push('--- Stack-Trace ---');
+                lines.push(entry.trace);
+            }
+            const skipKeys = ['error_id', 'exception', 'file', 'line', 'trace'];
+            const extraKeys = Object.keys(entry.context || {}).filter(k => skipKeys.indexOf(k) === -1);
+            if (extraKeys.length > 0) {
+                lines.push('');
+                lines.push('--- Context ---');
+                lines.push(JSON.stringify(
+                    Object.fromEntries(extraKeys.map(k => [k, entry.context[k]])),
+                    null, 2
+                ));
+            }
+            return lines.join('\n');
+        }
+
         function renderEntryDetail(entry, group) {
             const filePath = entry.file_path || '';
             const fileShort = entry.file || '–';
             const line = entry.line ? ':' + entry.line : '';
             const exception = entry.exception || '–';
             const trace = entry.trace || '';
+            const reportText = buildReportText(entry, group);
 
-            let html = '<dl>';
+            let html = '';
 
-            if (group && group.error_ids && group.error_ids.length > 0) {
-                html += '<dt>Error-IDs</dt><dd><div class="log-id-list">';
+            // Action bar: Kopier-Buttons
+            html += '<div class="logs-detail-actions">';
+            html += '<button type="button" class="btn btn-soft-primary btn-sm copy-btn" data-copy-text="' + escapeAttr(reportText) + '">';
+            html += '<i class="fa-solid fa-copy me-1"></i>Kompletten Report kopieren</button>';
+            if (entry.error_id) {
+                html += '<button type="button" class="btn btn-ghost btn-sm copy-btn" data-copy="' + escapeAttr(entry.error_id) + '">';
+                html += '<i class="fa-solid fa-hashtag me-1"></i>' + escapeHtml(entry.error_id) + '</button>';
+            }
+            if (trace) {
+                html += '<button type="button" class="btn btn-ghost btn-sm copy-btn" data-copy-text="' + escapeAttr(trace) + '">';
+                html += '<i class="fa-solid fa-list-ul me-1"></i>Nur Trace kopieren</button>';
+            }
+            html += '</div>';
+
+            // Message (prominenteste Info)
+            html += '<div class="logs-detail-section">';
+            html += '<div class="logs-detail-label">Fehlermeldung</div>';
+            html += '<div class="logs-detail-value" style="font-size:0.92rem;">' + escapeHtml(entry.message) + '</div>';
+            html += '</div>';
+
+            // Kompaktes Grid mit allen Kern-Infos
+            html += '<div class="logs-detail-section logs-detail-grid">';
+            html += '<div><div class="logs-detail-label">Exception</div><div class="logs-detail-value">' + escapeHtml(exception) + '</div></div>';
+            html += '<div><div class="logs-detail-label">Datei</div><div class="logs-detail-value">' + escapeHtml(fileShort + line);
+            if (filePath && filePath !== fileShort) {
+                html += '<div style="opacity:.5;font-size:0.7rem;margin-top:2px;">' + escapeHtml(filePath) + '</div>';
+            }
+            html += '</div></div>';
+            if (group) {
+                html += '<div><div class="logs-detail-label">Zuletzt gesehen</div><div class="logs-detail-value">' + escapeHtml(timeAgo(group.last_seen)) + '<div style="opacity:.5;font-size:0.7rem;margin-top:2px;">' + escapeHtml(group.last_seen) + '</div></div></div>';
+                if (group.count > 1) {
+                    html += '<div><div class="logs-detail-label">Vorkommen</div><div class="logs-detail-value">' + group.count + '× seit ' + escapeHtml(group.first_seen) + '</div></div>';
+                }
+            }
+            if (entry.source_file) {
+                html += '<div><div class="logs-detail-label">Logfile</div><div class="logs-detail-value">' + escapeHtml(entry.source_file) + '</div></div>';
+            }
+            html += '</div>';
+
+            // Error-IDs (Chips, falls Gruppe)
+            if (group && group.error_ids && group.error_ids.length > 1) {
+                html += '<div class="logs-detail-section">';
+                html += '<div class="logs-detail-label">Error-IDs dieser Gruppe</div>';
+                html += '<div class="logs-id-list">';
                 group.error_ids.forEach(id => {
-                    html += '<span class="log-id-pill copy-btn" data-copy="' + escapeHtml(id) + '" title="Klick zum Kopieren">' + escapeHtml(id) + '</span>';
+                    html += '<span class="logs-id-pill copy-btn" data-copy="' + escapeAttr(id) + '" title="Klick zum Kopieren">' + escapeHtml(id) + '</span>';
                 });
                 if (group.count > group.error_ids.length) {
-                    html += '<span class="log-id-pill" style="cursor:default;opacity:0.6">+ ' + (group.count - group.error_ids.length) + ' weitere</span>';
+                    html += '<span class="logs-id-pill" style="cursor:default;opacity:0.55">+ ' + (group.count - group.error_ids.length) + ' weitere</span>';
                 }
-                html += '</div></dd>';
-            } else if (entry.error_id) {
-                html += '<dt>Error-ID</dt><dd><code>' + escapeHtml(entry.error_id) + '</code> <i class="fa-solid fa-copy copy-btn" data-copy="' + escapeHtml(entry.error_id) + '"></i></dd>';
+                html += '</div></div>';
             }
 
-            html += '<dt>Exception</dt><dd><code>' + escapeHtml(exception) + '</code></dd>';
-            html += '<dt>Datei</dt><dd><code>' + escapeHtml(fileShort + line) + '</code>'
-                  + (filePath ? '<br><small style="opacity:.55">' + escapeHtml(filePath) + '</small>' : '') + '</dd>';
-            html += '<dt>Message</dt><dd>' + escapeHtml(entry.message) + '</dd>';
-
-            if (group) {
-                html += '<dt>Zuerst gesehen</dt><dd>' + escapeHtml(group.first_seen) + '</dd>';
-                html += '<dt>Zuletzt gesehen</dt><dd>' + escapeHtml(group.last_seen) + ' <span style="opacity:.55">(' + timeAgo(group.last_seen) + ')</span></dd>';
-            }
-
+            // Stack-Trace
             if (trace) {
-                html += '<dt>Stack-Trace</dt><dd><pre class="log-trace">' + escapeHtml(trace) + '</pre></dd>';
+                html += '<div class="logs-detail-section">';
+                html += '<div class="logs-detail-label">Stack-Trace</div>';
+                html += '<pre class="logs-trace">' + escapeHtml(trace) + '</pre>';
+                html += '</div>';
             }
 
+            // Extra Context (selten)
             const skipKeys = ['error_id', 'exception', 'file', 'line', 'trace'];
             const extraKeys = Object.keys(entry.context || {}).filter(k => skipKeys.indexOf(k) === -1);
             if (extraKeys.length > 0) {
-                html += '<dt>Context</dt><dd><pre class="log-trace">' + escapeHtml(JSON.stringify(
+                html += '<div class="logs-detail-section">';
+                html += '<div class="logs-detail-label">Context</div>';
+                html += '<pre class="logs-trace">' + escapeHtml(JSON.stringify(
                     Object.fromEntries(extraKeys.map(k => [k, entry.context[k]])),
                     null, 2
-                )) + '</pre></dd>';
+                )) + '</pre>';
+                html += '</div>';
             }
 
-            if (entry.source_file) {
-                html += '<dt>Logfile</dt><dd><code>' + escapeHtml(entry.source_file) + '</code></dd>';
-            }
-
-            html += '</dl>';
             return html;
         }
 
         function renderGroup(group, idx) {
             const sample = group.sample;
-            const html = `
-                <div class="log-group" data-idx="${idx}">
-                    <div class="log-group-row">
-                        <div class="level-cell">${levelPill(sample.level)}</div>
+            return `
+                <div class="logs-group" data-idx="${idx}">
+                    <div class="logs-group-row">
+                        <div>${levelBadge(sample.level)}</div>
                         <div class="info">
                             <span class="exception">${escapeHtml(sample.exception || '(kein Exception-Typ)')}</span>
                             <div class="message">${escapeHtml(sample.message)}</div>
                             <div class="file">${escapeHtml((sample.file || '–') + (sample.line ? ':' + sample.line : ''))}</div>
                         </div>
                         <div class="count-cell">
-                            ${group.count > 1 ? '<span class="badge">×' + group.count + '</span>' : ''}
+                            ${group.count > 1 ? '<span class="badge-status status-warning"><span class="status-dot"></span>×' + group.count + '</span>' : ''}
                         </div>
                         <div class="time-cell">${escapeHtml(timeAgo(group.last_seen))}</div>
                         <div class="chevron"><i class="fa-solid fa-chevron-right"></i></div>
                     </div>
-                    <div class="log-detail-pane"></div>
+                    <div class="logs-detail"></div>
                 </div>
             `;
-            return html;
         }
 
         function renderGroups(groups) {
+            if (!inboxList) return;
             if (!groups || groups.length === 0) {
-                inboxList.innerHTML = '<div class="log-empty"><i class="fa-solid fa-circle-check"></i><h5>Keine Treffer</h5></div>';
+                inboxList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-magnifying-glass"></i><h6>Keine Treffer</h6></div>';
                 return;
             }
             inboxList.innerHTML = groups.map((g, i) => renderGroup(g, i)).join('');
 
-            inboxList.querySelectorAll('.log-group').forEach(rowEl => {
-                rowEl.addEventListener('click', function (e) {
-                    if (e.target.closest('.copy-btn')) return; // ignore copy clicks
-                    const idx = parseInt(this.getAttribute('data-idx'), 10);
-                    const wasExpanded = this.classList.contains('expanded');
-                    inboxList.querySelectorAll('.log-group').forEach(g => g.classList.remove('expanded'));
+            // Toggle nur auf dem Header-Row — Klicks im Detail-Panel schließen nicht mehr
+            inboxList.querySelectorAll('.logs-group-row').forEach(headerEl => {
+                headerEl.addEventListener('click', function (e) {
+                    if (e.target.closest('.copy-btn')) return;
+                    const groupEl = this.closest('.logs-group');
+                    const idx = parseInt(groupEl.getAttribute('data-idx'), 10);
+                    const wasExpanded = groupEl.classList.contains('expanded');
+                    inboxList.querySelectorAll('.logs-group').forEach(g => g.classList.remove('expanded'));
                     if (!wasExpanded) {
-                        this.classList.add('expanded');
-                        const detailEl = this.querySelector('.log-detail-pane');
+                        groupEl.classList.add('expanded');
+                        const detailEl = groupEl.querySelector('.logs-detail');
                         if (!detailEl.dataset.rendered) {
                             detailEl.innerHTML = renderEntryDetail(groups[idx].sample, groups[idx]);
                             detailEl.dataset.rendered = '1';
@@ -554,26 +602,65 @@ use App\Helpers\Flash;
             });
         }
 
-        // ── Initial Render ──
-        if (inboxList) {
-            renderGroups(initialGroups);
+        // Globaler Copy-Handler (funktioniert auch für dynamisch gerenderten Detail-Content)
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                return true;
+            } catch (e) {
+                // Fallback für ältere Browser
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (err) {}
+                document.body.removeChild(ta);
+                return true;
+            }
         }
+        document.addEventListener('click', function (e) {
+            const btn = e.target.closest('.copy-btn');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            const text = btn.getAttribute('data-copy-text') || btn.getAttribute('data-copy') || '';
+            if (!text) return;
+            copyToClipboard(text).then(() => {
+                const origHtml = btn.innerHTML;
+                const origClass = btn.className;
+                if (btn.tagName === 'BUTTON') {
+                    btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Kopiert';
+                    btn.classList.add('btn-success');
+                    btn.classList.remove('btn-soft-primary', 'btn-ghost');
+                } else {
+                    btn.classList.add('copied');
+                    btn.textContent = '✓ kopiert';
+                }
+                setTimeout(() => {
+                    btn.innerHTML = origHtml;
+                    btn.className = origClass;
+                }, 1400);
+            });
+        });
+
+        // ── Initial Render ──
+        renderGroups(initialGroups);
 
         // ── Refresh ──
         document.getElementById('refreshBtn').addEventListener('click', async function () {
             this.disabled = true;
+            const orig = this.innerHTML;
             this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Lade…';
             try {
                 const res = await fetch(apiUrl + '?recent=1&grouped=1&limit=200');
                 const data = await res.json();
-                if (data.success && data.groups) {
-                    renderGroups(data.groups);
-                }
-            } catch (e) {
-                console.error(e);
-            } finally {
+                if (data.success && data.groups) renderGroups(data.groups);
+            } catch (e) { console.error(e); }
+            finally {
                 this.disabled = false;
-                this.innerHTML = '<i class="fa-solid fa-rotate me-1"></i>Aktualisieren';
+                this.innerHTML = orig;
             }
         });
 
@@ -581,17 +668,21 @@ use App\Helpers\Flash;
         async function lookupErrorId() {
             const id = (document.getElementById('errorIdInput').value || '').trim().toUpperCase();
             if (!/^[A-F0-9]{8}$/.test(id)) {
-                alert('Bitte 8-stelligen Hex-Code eingeben.');
+                if (typeof showToast === 'function') {
+                    showToast('Bitte 8-stelligen Hex-Code eingeben.', 'warning');
+                } else {
+                    alert('Bitte 8-stelligen Hex-Code eingeben.');
+                }
                 return;
             }
             try {
                 const res = await fetch(apiUrl + '?id=' + encodeURIComponent(id));
                 const data = await res.json();
                 if (!data.success) {
-                    inboxList.innerHTML = '<div class="log-empty"><i class="fa-solid fa-magnifying-glass"></i><h5>Keine Treffer für ' + escapeHtml(id) + '</h5><p>Diese Error-ID existiert nicht in den verfügbaren Log-Dateien.</p></div>';
+                    renderGroups([]);
+                    inboxList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-magnifying-glass"></i><h6>Keine Treffer für ' + escapeHtml(id) + '</h6><small>Diese Error-ID existiert nicht in den verfügbaren Log-Dateien.</small></div>';
                     return;
                 }
-                // Wrap single entry as a one-element group
                 const fakeGroup = [{
                     fingerprint: 'single',
                     count: 1,
@@ -601,23 +692,19 @@ use App\Helpers\Flash;
                     error_ids: data.entry.error_id ? [data.entry.error_id] : [],
                 }];
                 renderGroups(fakeGroup);
-                // Auto-expand
                 setTimeout(() => {
-                    const first = inboxList.querySelector('.log-group');
+                    const first = inboxList.querySelector('.logs-group');
                     if (first) first.click();
                 }, 50);
             } catch (e) {
-                inboxList.innerHTML = '<div class="log-empty"><i class="fa-solid fa-triangle-exclamation"></i><h5>Fehler: ' + escapeHtml(e.message) + '</h5></div>';
+                inboxList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-triangle-exclamation"></i><h6>Fehler: ' + escapeHtml(e.message) + '</h6></div>';
             }
         }
 
+        document.getElementById('errorIdLookupBtn').addEventListener('click', lookupErrorId);
         document.getElementById('errorIdInput').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                lookupErrorId();
-            }
+            if (e.key === 'Enter') { e.preventDefault(); lookupErrorId(); }
         });
-        // Auto-search wenn ID-Feld 8 Zeichen hat
         document.getElementById('errorIdInput').addEventListener('input', function () {
             if (this.value.length === 8) lookupErrorId();
         });
@@ -626,9 +713,11 @@ use App\Helpers\Flash;
         async function runSearch() {
             const params = new URLSearchParams();
             params.set('q', document.getElementById('searchQuery').value || '');
-            const lvl = document.getElementById('searchLevel').value;
             const file = document.getElementById('searchFile').value;
-            if (lvl) params.set('level', lvl);
+            const activeScope = document.querySelector('#inboxScopeFilter .btn.active');
+            if (activeScope && activeScope.dataset.scope !== 'all') {
+                params.set('level', activeScope.dataset.scope);
+            }
             if (file) params.set('file', file);
             params.set('limit', '100');
 
@@ -636,10 +725,9 @@ use App\Helpers\Flash;
                 const res = await fetch(apiUrl + '?' + params.toString());
                 const data = await res.json();
                 if (!data.success || !data.results || data.results.length === 0) {
-                    inboxList.innerHTML = '<div class="log-empty"><i class="fa-solid fa-magnifying-glass"></i><h5>Keine Treffer</h5></div>';
+                    inboxList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-magnifying-glass"></i><h6>Keine Treffer</h6></div>';
                     return;
                 }
-                // Convert flat results to single-entry groups
                 const groups = data.results.map(entry => ({
                     fingerprint: entry.fingerprint || '',
                     count: 1,
@@ -650,24 +738,39 @@ use App\Helpers\Flash;
                 }));
                 renderGroups(groups);
             } catch (e) {
-                inboxList.innerHTML = '<div class="log-empty"><i class="fa-solid fa-triangle-exclamation"></i><h5>Fehler: ' + escapeHtml(e.message) + '</h5></div>';
+                inboxList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-triangle-exclamation"></i><h6>Fehler: ' + escapeHtml(e.message) + '</h6></div>';
             }
         }
 
         document.getElementById('searchBtn').addEventListener('click', runSearch);
         document.getElementById('searchQuery').addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                runSearch();
-            }
+            if (e.key === 'Enter') { e.preventDefault(); runSearch(); }
+        });
+
+        // ── Scope-Filter (Alle/Critical/Error/Warning) ──
+        document.querySelectorAll('#inboxScopeFilter .btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                document.querySelectorAll('#inboxScopeFilter .btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                const scope = this.dataset.scope;
+                if (scope === 'all') {
+                    renderGroups(initialGroups);
+                    return;
+                }
+                try {
+                    const res = await fetch(apiUrl + '?recent=1&grouped=1&limit=200&min_level=' + scope);
+                    const data = await res.json();
+                    if (data.success && data.groups) renderGroups(data.groups);
+                } catch (e) { console.error(e); }
+            });
         });
 
         // ── Reset ──
         document.getElementById('resetBtn').addEventListener('click', function () {
-            document.getElementById('errorIdInput').value = '';
             document.getElementById('searchQuery').value = '';
-            document.getElementById('searchLevel').value = '';
             document.getElementById('searchFile').value = '';
+            document.querySelectorAll('#inboxScopeFilter .btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('#inboxScopeFilter .btn[data-scope="all"]').classList.add('active');
             renderGroups(initialGroups);
         });
 
@@ -689,10 +792,8 @@ use App\Helpers\Flash;
                         error_ids: entry.error_id ? [entry.error_id] : [],
                     }));
                     renderGroups(groups);
-                    window.scrollTo({ top: inboxList.offsetTop - 80, behavior: 'smooth' });
-                } catch (err) {
-                    console.error(err);
-                }
+                    document.getElementById('inboxContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } catch (err) { console.error(err); }
             });
         });
 

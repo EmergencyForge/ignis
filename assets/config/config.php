@@ -17,6 +17,14 @@ use App\Logging\ErrorHandler;
 use App\Session\SessionManager;
 
 // ============================================================================
+// Globales Error-Handling & Logging registrieren
+// ============================================================================
+// MUSS vor dem Container-Build passieren, damit Vendor-Deprecations (z.B. von
+// PHP-DI selbst) vom isVendorFile()-Filter im ErrorHandler abgefangen werden
+// und nicht im Browser landen.
+ErrorHandler::register();
+
+// ============================================================================
 // Service-Container (PHP-DI) bootstrappen
 // ============================================================================
 // Wird einmalig pro Request gebaut und in $GLOBALS abgelegt, damit die
@@ -32,11 +40,6 @@ if (!isset($GLOBALS['app_container'])) {
     // finden. Idempotent: Capsule ist im Container ein Singleton.
     $GLOBALS['app_container']->get(\Illuminate\Database\Capsule\Manager::class);
 }
-
-// ============================================================================
-// Globales Error-Handling & Logging registrieren
-// ============================================================================
-ErrorHandler::register();
 
 // ============================================================================
 // Session mit Sicherheitsoptimierungen starten
