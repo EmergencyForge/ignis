@@ -56,10 +56,14 @@
   /**
    * Handle blur event - finalize formatting.
    *
-   * Wichtig: nach dem Formatieren MUSS ein change-Event dispatched werden,
-   * damit der globale Autosave-Handler in notify.php den NEUEN (formatierten)
-   * Wert sieht und korrekt speichert. Sonst sendet er den Roh-Input
-   * (z.B. "01012000"), den der Server als ungültig ablehnt.
+   * Wichtig: nach dem Formatieren MÜSSEN input UND change Events dispatched werden:
+   *   - change → notify.php Autosave speichert den formatierten Wert (statt Roh-Input)
+   *   - input  → page-spezifische Listener (z.B. updateAge in rettdaten/index.php),
+   *              die am input-Event hängen, können ihre Berechnungen aktualisieren
+   *
+   * Ohne diese Events sieht notify.php nur den Roh-Input "01012000", den der
+   * Server mit 400 ablehnt, und der gleichzeitig den activeRequests-Lock setzt,
+   * der das zweite (formatierte) Save blockiert.
    */
   function handleBlur(e) {
     var input = e.target;
@@ -68,7 +72,7 @@
     var formatted = formatDateValue(input.value);
     if (formatted && formatted !== input.value) {
       input.value = formatted;
-      // change-Event triggern, damit notify.php den formatierten Wert speichert
+      input.dispatchEvent(new Event("input", { bubbles: true }));
       input.dispatchEvent(new Event("change", { bubbles: true }));
     } else if (!formatted) {
       // Invalid format - clear
