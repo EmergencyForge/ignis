@@ -989,6 +989,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                         <a href="<?= BASE_PATH ?>settings/system/index.php" class="sidebar-sublink">Updater</a>
                         <a href="<?= BASE_PATH ?>settings/system/telemetry.php" class="sidebar-sublink">Telemetrie</a>
                         <a href="<?= BASE_PATH ?>settings/system/performance.php" class="sidebar-sublink">Performance</a>
+                        <a href="<?= BASE_PATH ?>settings/system/logs.php" class="sidebar-sublink">Logs &amp; Errors</a>
                         <a href="<?= BASE_PATH ?>settings/federation/index.php" class="sidebar-sublink">Instanzvernetzung</a>
                     <?php endif; ?>
                 </div>
