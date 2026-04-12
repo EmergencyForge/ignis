@@ -396,14 +396,27 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         }
 
         function updateAge() {
-            const birthDateValue = document.getElementById('patgebdat').value;
-            const age = calculateAge(birthDateValue);
-            document.getElementById('_AGE_').value = age;
+            const el = document.getElementById('patgebdat');
+            if (!el) return;
+            const age = calculateAge(el.value);
+            const ageEl = document.getElementById('_AGE_');
+            if (ageEl) ageEl.value = age;
         }
 
+        // Initial run + nachträglich (force-german-date.js läuft als defer-script,
+        // konvertiert type=date→text und kann den Wert nach DOMContentLoaded nochmal
+        // ändern). DOMContentLoaded reicht NICHT, weil es vor dem Reformat feuert.
         document.addEventListener('DOMContentLoaded', updateAge);
-        document.getElementById('patgebdat').addEventListener('input', updateAge);
-        document.getElementById('patgebdat').addEventListener('change', updateAge);
+        window.addEventListener('load', updateAge);
+
+        // Event-Delegation auf document, damit auch synthetisch dispatched Events
+        // (von force-german-date.js nach blur-Format) zuverlässig gefangen werden.
+        document.addEventListener('input', function (e) {
+            if (e.target && e.target.id === 'patgebdat') updateAge();
+        }, true);
+        document.addEventListener('change', function (e) {
+            if (e.target && e.target.id === 'patgebdat') updateAge();
+        }, true);
     </script>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
     <script>
