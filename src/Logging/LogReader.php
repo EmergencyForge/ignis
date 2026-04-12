@@ -139,6 +139,169 @@ class LogReader
         return array_reverse($entries);
     }
 
+    /**
+     * Liest die letzten N Error-Einträge aus ALLEN error-*.log Dateien
+     * (ggf. auch app-*.log wenn $includeApp = true), sortiert nach Zeitstempel
+     * absteigend. Wird vom Default-View des Admin-Panels genutzt.
+     *
+     * @return list<array<string,mixed>>
+     */
+    public function getRecentErrors(int $limit = 50, bool $includeApp = false, ?string $minLevel = null): array
+    {
+        $results = [];
+        $files = $this->listFiles();
+
+        // Level-Hierarchie für Filter
+        $levelOrder = [
+            'DEBUG' => 0, 'INFO' => 1, 'NOTICE' => 2,
+            'WARNING' => 3, 'ERROR' => 4, 'CRITICAL' => 5,
+            'ALERT' => 6, 'EMERGENCY' => 7,
+        ];
+        $minRank = $minLevel ? ($levelOrder[strtoupper($minLevel)] ?? 4) : null;
+
+        foreach ($files as $file) {
+            if ($file['type'] === 'other') continue;
+            if (!$includeApp && $file['type'] === 'app') continue;
+
+            $entries = $this->parseFileEntries($file['path']);
+            foreach ($entries as $entry) {
+                if ($minRank !== null) {
+                    $rank = $levelOrder[$entry['level']] ?? 0;
+                    if ($rank < $minRank) continue;
+                }
+                $entry['source_file'] = $file['name'];
+                $entry['fingerprint'] = $this->fingerprint($entry);
+                $results[] = $entry;
+            }
+        }
+
+        // Neueste zuerst
+        usort($results, fn ($a, $b) => strcmp($b['datetime'], $a['datetime']));
+
+        return array_slice($results, 0, $limit);
+    }
+
+    /**
+     * Gruppiert eine flache Liste von Einträgen nach ihrem Fingerprint
+     * (Exception + File + Line). Doppelte Fehler werden zusammengefasst und
+     * mit Count + erstem/letztem Auftreten versehen — das ist die "Inbox"-
+     * Ansicht im Admin-Panel (analog zu WBB Fehlerprotokoll).
+     *
+     * @param  list<array<string,mixed>>  $entries
+     * @return list<array<string,mixed>>
+     */
+    public function groupByFingerprint(array $entries): array
+    {
+        $groups = [];
+
+        foreach ($entries as $entry) {
+            $fp = $entry['fingerprint'] ?? $this->fingerprint($entry);
+
+            if (!isset($groups[$fp])) {
+                $groups[$fp] = [
+                    'fingerprint' => $fp,
+                    'count'       => 0,
+                    'first_seen'  => $entry['datetime'],
+                    'last_seen'   => $entry['datetime'],
+                    'sample'      => $entry,
+                    'error_ids'   => [],
+                ];
+            }
+
+            $groups[$fp]['count']++;
+            if (strcmp($entry['datetime'], $groups[$fp]['last_seen']) > 0) {
+                $groups[$fp]['last_seen'] = $entry['datetime'];
+                $groups[$fp]['sample'] = $entry;
+            }
+            if (strcmp($entry['datetime'], $groups[$fp]['first_seen']) < 0) {
+                $groups[$fp]['first_seen'] = $entry['datetime'];
+            }
+
+            if (!empty($entry['error_id']) && count($groups[$fp]['error_ids']) < 10) {
+                $groups[$fp]['error_ids'][] = $entry['error_id'];
+            }
+        }
+
+        $result = array_values($groups);
+        // Nach last_seen absteigend
+        usort($result, fn ($a, $b) => strcmp($b['last_seen'], $a['last_seen']));
+
+        return $result;
+    }
+
+    /**
+     * Liefert Statistiken über ALLE error-*.log Dateien (Counts pro Level,
+     * letzte 24h, letzte 7 Tage). Für die Inbox-Header-Anzeige.
+     *
+     * @return array{total:int,last_24h:int,last_7d:int,by_level:array<string,int>,by_day:array<string,int>}
+     */
+    public function getStats(int $maxScan = 5000): array
+    {
+        $stats = [
+            'total'    => 0,
+            'last_24h' => 0,
+            'last_7d'  => 0,
+            'by_level' => [],
+            'by_day'   => [],
+        ];
+
+        $now24h = time() - 86400;
+        $now7d  = time() - 86400 * 7;
+        $scanned = 0;
+
+        foreach ($this->listFiles() as $file) {
+            if ($file['type'] !== 'error') continue;
+            if ($scanned >= $maxScan) break;
+
+            $entries = $this->parseFileEntries($file['path']);
+            foreach ($entries as $entry) {
+                if ($scanned >= $maxScan) break;
+                $scanned++;
+                $stats['total']++;
+
+                $level = $entry['level'] ?: 'UNKNOWN';
+                $stats['by_level'][$level] = ($stats['by_level'][$level] ?? 0) + 1;
+
+                $ts = strtotime($entry['datetime']);
+                if ($ts !== false) {
+                    if ($ts >= $now24h) $stats['last_24h']++;
+                    if ($ts >= $now7d)  $stats['last_7d']++;
+
+                    $day = date('Y-m-d', $ts);
+                    $stats['by_day'][$day] = ($stats['by_day'][$day] ?? 0) + 1;
+                }
+            }
+        }
+
+        return $stats;
+    }
+
+    /**
+     * Berechnet einen Fingerprint für einen Log-Eintrag (Exception + File + Line),
+     * um doppelte Fehler zusammenzufassen.
+     *
+     * @param  array<string,mixed>  $entry
+     */
+    private function fingerprint(array $entry): string
+    {
+        $parts = [
+            $entry['exception'] ?? '',
+            $entry['file_path'] ?? '',
+            $entry['line']      ?? '',
+        ];
+
+        // Falls keine Exception/File-Info: nutze normalisierte Message
+        if (empty(array_filter($parts))) {
+            $msg = $entry['message'] ?? '';
+            // Variablen-Werte entfernen (Zeitstempel, IDs etc.) für stabilen Hash
+            $msg = preg_replace('/\b[0-9A-F]{8}\b/', 'X', $msg);
+            $msg = preg_replace('/\b\d+\b/', 'N', $msg);
+            $parts = [$msg];
+        }
+
+        return substr(md5(implode('|', $parts)), 0, 12);
+    }
+
     // ── Internals ─────────────────────────────────────────────
 
     private function scanFileForErrorId(string $path, string $errorId): ?array

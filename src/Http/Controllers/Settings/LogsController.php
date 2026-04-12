@@ -34,7 +34,9 @@ class LogsController extends Controller
         if (
             isset($_GET['id']) ||
             isset($_GET['q']) ||
-            isset($_GET['file_tail'])
+            isset($_GET['file_tail']) ||
+            isset($_GET['recent']) ||
+            isset($_GET['stats'])
         ) {
             $this->serveJson();
             return;
@@ -42,8 +44,16 @@ class LogsController extends Controller
 
         $reader = $this->reader();
 
+        // Default-View: letzte 200 Errors gruppiert nach Fingerprint + Stats
+        $recent = $reader->getRecentErrors(200);
+        $groups = $reader->groupByFingerprint($recent);
+        $stats  = $reader->getStats();
+
         $this->renderView('settings/system/logs', [
-            'files' => $reader->listFiles(),
+            'files'  => $reader->listFiles(),
+            'recent' => $recent,
+            'groups' => $groups,
+            'stats'  => $stats,
         ]);
     }
 
@@ -103,6 +113,38 @@ class LogsController extends Controller
                     'success' => true,
                     'count'   => count($entries),
                     'entries' => $entries,
+                ], JSON_UNESCAPED_UNICODE);
+                return;
+            }
+
+            // 4) Recent Errors (mit optionalem Grouping)
+            if (isset($_GET['recent'])) {
+                $limit    = max(1, min(500, (int) ($_GET['limit'] ?? 100)));
+                $grouped  = !empty($_GET['grouped']);
+                $minLevel = $_GET['min_level'] ?? null;
+                $entries  = $reader->getRecentErrors($limit, false, $minLevel);
+
+                if ($grouped) {
+                    echo json_encode([
+                        'success' => true,
+                        'count'   => count($entries),
+                        'groups'  => $reader->groupByFingerprint($entries),
+                    ], JSON_UNESCAPED_UNICODE);
+                } else {
+                    echo json_encode([
+                        'success' => true,
+                        'count'   => count($entries),
+                        'entries' => $entries,
+                    ], JSON_UNESCAPED_UNICODE);
+                }
+                return;
+            }
+
+            // 5) Stats
+            if (isset($_GET['stats'])) {
+                echo json_encode([
+                    'success' => true,
+                    'stats'   => $reader->getStats(),
                 ], JSON_UNESCAPED_UNICODE);
                 return;
             }
