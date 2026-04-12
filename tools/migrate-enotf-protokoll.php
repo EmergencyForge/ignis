@@ -92,11 +92,12 @@ foreach ($rii as $file) {
     file_put_contents($targetFile, $newContent);
 
     // Stub für die ursprüngliche Datei schreiben
-    $depthDots = match ($depth) {
-        0 => '..',
-        1 => '../..',
-        default => '../../..',
-    };
+    // Stub-Pfad: enotf/protokoll/{...}.php → relativ zu project root.
+    // depth 0 (z.B. index.php direkt in protokoll/): braucht 2x ../
+    // depth 1 (z.B. abschluss/1.php): braucht 3x ../
+    // depth 2: braucht 4x ../
+    $depthDots = str_repeat('../', $depth + 2);
+    $depthDots = rtrim($depthDots, '/');
     $templatePath = 'enotf/protokoll/' . substr($relPath, 0, -4);
 
     $stub = <<<STUB

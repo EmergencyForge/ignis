@@ -13,6 +13,6 @@ if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
     @ini_set('session.cookie_secure', '1');
 }
 
-require_once __DIR__ . '/../../assets/config/config.php';
+require_once __DIR__ . '/../../../assets/config/config.php';
 
 app(\App\Http\Controllers\EnotfProtokollController::class)->serve('enotf/protokoll/abschluss/2');
