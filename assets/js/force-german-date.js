@@ -54,16 +54,23 @@
   }
 
   /**
-   * Handle blur event - finalize formatting
+   * Handle blur event - finalize formatting.
+   *
+   * Wichtig: nach dem Formatieren MUSS ein change-Event dispatched werden,
+   * damit der globale Autosave-Handler in notify.php den NEUEN (formatierten)
+   * Wert sieht und korrekt speichert. Sonst sendet er den Roh-Input
+   * (z.B. "01012000"), den der Server als ungültig ablehnt.
    */
   function handleBlur(e) {
     var input = e.target;
     if (!input.value) return;
 
     var formatted = formatDateValue(input.value);
-    if (formatted) {
+    if (formatted && formatted !== input.value) {
       input.value = formatted;
-    } else {
+      // change-Event triggern, damit notify.php den formatierten Wert speichert
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    } else if (!formatted) {
       // Invalid format - clear
       console.warn("Invalid date format:", input.value);
     }
