@@ -171,7 +171,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <label for="patgebdat" class="edivi__description">Geburtsdatum</label>
                                             <input type="date" name="patgebdat" id="patgebdat" class="w-100 form-control" value="<?= !empty($daten['patgebdat']) ? date('Y-m-d', strtotime($daten['patgebdat'])) : '' ?>">
                                         </div>
-                                        <div class="col-1">
+                                        <div class="col-2">
                                             <label for="_AGE_" class="edivi__description">Alter</label>
                                             <input type="text" name="_AGE_" id="_AGE_" class="w-100 form-control" value="0" readonly>
                                         </div>
@@ -371,17 +371,23 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <script>
         function calculateAge(birthDateString) {
             if (!birthDateString) return 0;
-            // DD.MM.YYYY Format parsen
-            const parts = birthDateString.split('.');
-            if (parts.length !== 3) return 0;
-            const birthDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-            const today = new Date();
 
+            // <input type="date"> liefert YYYY-MM-DD; manuelle Eingabe ggf. DD.MM.YYYY
+            let birthDate;
+            if (/^\d{4}-\d{2}-\d{2}$/.test(birthDateString)) {
+                const [y, mo, d] = birthDateString.split('-').map(Number);
+                birthDate = new Date(y, mo - 1, d);
+            } else {
+                const parts = birthDateString.split('.');
+                if (parts.length !== 3) return 0;
+                birthDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            }
+
+            const today = new Date();
             if (isNaN(birthDate)) return 0;
 
             let age = today.getFullYear() - birthDate.getFullYear();
             const m = today.getMonth() - birthDate.getMonth();
-
             if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
                 age--;
             }
@@ -397,6 +403,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
         document.addEventListener('DOMContentLoaded', updateAge);
         document.getElementById('patgebdat').addEventListener('input', updateAge);
+        document.getElementById('patgebdat').addEventListener('change', updateAge);
     </script>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
     <script>
