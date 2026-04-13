@@ -108,6 +108,6 @@ class EnotfAdminController extends Controller
      */
     public function bulkDeleteEmpty(): void
     {
-        require dirname(__DIR__, 3) . '/api/enotf/bulk-delete-empty.php';
+        require dirname(__DIR__, 3) . '/src/LegacyApi/enotf/bulk-delete-empty.php';
     }
 }

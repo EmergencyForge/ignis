@@ -269,20 +269,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['new']) && $_POST['new
                 'kreislauf' => $_POST['kreislauf']
             ];
 
-            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Erstelle DiscordWebhook-Objekt...\n", FILE_APPEND);
-            $discordWebhook = new DiscordWebhook($pdo);
-
-            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Rufe notifyEnotfPreregistration auf...\n", FILE_APPEND);
-            $result = $discordWebhook->notifyEnotfPreregistration($preregData);
-
-            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Discord Webhook Ergebnis: " . ($result ? 'ERFOLG' : 'FEHLER') . "\n", FILE_APPEND);
-            error_log("Discord Webhook Voranmeldung aufgerufen, Ergebnis: " . ($result ? 'true' : 'false'));
-        } catch (\Exception $e) {
-            // Fehler beim Discord-Webhook loggen, aber Prozess nicht unterbrechen
+            // Domain-Event feuern — Listener dispatchen Discord-Webhook-Job
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Firing EnotfPreregistered event...\n", FILE_APPEND);
+            app(\App\Events\EventDispatcher::class)->fire(
+                new \App\Events\EnotfPreregistered($preregData)
+            );
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Event fired\n", FILE_APPEND);
+        } catch (\Throwable $e) {
             file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] EXCEPTION: " . $e->getMessage() . "\n", FILE_APPEND);
-            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Stack Trace: " . $e->getTraceAsString() . "\n", FILE_APPEND);
-            error_log("Discord Webhook Fehler (eNOTF Voranmeldung): " . $e->getMessage());
-            error_log("Discord Webhook Stack Trace: " . $e->getTraceAsString());
+            \App\Logging\Logger::error('EnotfPreregistered: Event-Fire Fehler', [
+                'error' => $e->getMessage(),
+            ]);
         }
 
         Redirects::redirect($defaultUrl, []);

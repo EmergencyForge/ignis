@@ -22,8 +22,11 @@
 
 declare(strict_types=1);
 
+use Illuminate\Container\Container as IlluminateContainer;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Queue\Capsule\Manager as QueueCapsule;
+use Illuminate\Queue\QueueManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -159,5 +162,93 @@ return [
     \App\Http\Controllers\Api\CharacterController::class      => \DI\autowire(),
     \App\Http\Controllers\Api\FireStatusPollController::class => \DI\autowire(),
     \App\Http\Controllers\Api\EmdSyncController::class        => \DI\autowire(),
+    \App\Http\Controllers\Api\NotificationController::class   => \DI\autowire(),
+    \App\Http\Controllers\Api\LegacyDispatcher::class         => \DI\autowire(),
+
+    // Service-Klassen die von Controllern via Constructor-Injection genutzt werden
+    \App\Notifications\NotificationManager::class => \DI\autowire(),
+
+    // -----------------------------------------------------------------------
+    //  Job Queue (Phase 4.1) — illuminate/queue standalone mit DB-Driver
+    //
+    //  Die Queue nutzt dieselbe DB wie die App (Table `intra_jobs`). Der
+    //  Worker läuft Cron-getrieben via `cli/queue-worker.php` — kein
+    //  persistenter Prozess nötig, webspace-kompatibel.
+    //
+    //  Tabellennamen: intra_jobs + intra_failed_jobs (Phinx-Migration
+    //  20260413000001 legt sie an).
+    // -----------------------------------------------------------------------
+
+    QueueCapsule::class => function (ContainerInterface $c): QueueCapsule {
+        // Eloquent-Capsule muss gebootet sein, damit die DB-Connection steht
+        $c->get(Capsule::class);
+
+        $queue = new QueueCapsule(new IlluminateContainer());
+        $queue->addConnection([
+            'driver'     => 'database',
+            'connection' => 'default',
+            'table'      => 'intra_jobs',
+            'queue'      => 'default',
+            'retry_after' => 90,
+        ]);
+        $queue->setAsGlobal();
+
+        return $queue;
+    },
+
+    QueueManager::class => function (ContainerInterface $c): QueueManager {
+        return $c->get(QueueCapsule::class)->getQueueManager();
+    },
+
+    // Job-Dispatcher — thin wrapper, damit Application-Code via
+    // `app(JobDispatcher::class)->dispatch(new MyJob(...))` aufruft,
+    // statt direkt gegen die Illuminate-API zu arbeiten.
+    \App\Jobs\JobDispatcher::class => \DI\autowire(),
+
+    // -----------------------------------------------------------------------
+    //  Event Dispatcher (Phase 4.2)
+    //
+    //  Nutzt `Illuminate\Events\Dispatcher` unter der Haube (kommt als
+    //  Transitive-Dependency mit Eloquent). Der EventDispatcher-Wrapper
+    //  abstrahiert das und macht die Call-Sites lesbar.
+    //
+    //  Listener werden aus `config/events.php` geladen und beim ersten
+    //  Resolve des EventDispatcher registriert. Das stellt sicher, dass
+    //  jeder `fire()`-Call alle konfigurierten Listener erreicht, ohne
+    //  dass irgendwo expliziter Bootstrap-Code nötig ist.
+    // -----------------------------------------------------------------------
+
+    \Illuminate\Events\Dispatcher::class => function (): \Illuminate\Events\Dispatcher {
+        // Frischer Dispatcher — NICHT den Eloquent-internen wiederverwenden,
+        // weil der für Model-Events zuständig ist. Unser Dispatcher ist
+        // für Domain-Events (App\Events\*) und bleibt davon getrennt.
+        return new \Illuminate\Events\Dispatcher();
+    },
+
+    \App\Events\EventDispatcher::class => function (ContainerInterface $c): \App\Events\EventDispatcher {
+        $illuminate = $c->get(\Illuminate\Events\Dispatcher::class);
+        $dispatcher = new \App\Events\EventDispatcher($illuminate);
+
+        // Listener aus config/events.php laden und beim Illuminate-Dispatcher
+        // registrieren. Jeder Listener wird lazy aus dem Container resolved,
+        // damit Constructor-Injection funktioniert.
+        $eventMap = require __DIR__ . '/events.php';
+        foreach ($eventMap as $eventClass => $listenerClasses) {
+            foreach ($listenerClasses as $listenerClass) {
+                $illuminate->listen($eventClass, function ($event) use ($c, $listenerClass): void {
+                    /** @var object $listener */
+                    $listener = $c->get($listenerClass);
+                    $listener->handle($event);
+                });
+            }
+        }
+
+        return $dispatcher;
+    },
+
+    // Listener werden autowired — Constructor-Injection von JobDispatcher etc.
+    \App\Listeners\DispatchDiscordWebhookOnEnotfReleased::class      => \DI\autowire(),
+    \App\Listeners\DispatchDiscordWebhookOnFireReleased::class       => \DI\autowire(),
+    \App\Listeners\DispatchDiscordWebhookOnEnotfPreregistered::class => \DI\autowire(),
 
 ];

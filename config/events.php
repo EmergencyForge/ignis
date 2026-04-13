@@ -1,0 +1,46 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * intraRP — Event-Listener-Map (Phase 4.2)
+ *
+ * Zentrales Mapping Event → Listener. Wird vom EventServiceRegistrar
+ * beim Container-Build gelesen und registriert alle Listener beim
+ * Illuminate-Dispatcher.
+ *
+ * Struktur:
+ *
+ *     Event-Klasse::class => [
+ *         Listener1::class,
+ *         Listener2::class,
+ *         ...
+ *     ]
+ *
+ * Listener werden in der hier angegebenen Reihenfolge aufgerufen. Jeder
+ * Listener ist eine Klasse mit einer `handle(EventClass $event): void`-
+ * Methode und wird via DI-Container instanziiert (Constructor-Injection
+ * funktioniert automatisch).
+ *
+ * Neue Listener hinzufügen: hier eintragen, fertig. Kein Bootstrap-Code
+ * anfassen.
+ */
+
+use App\Events\EnotfPreregistered;
+use App\Events\EnotfProtocolReleased;
+use App\Events\FireProtocolReleased;
+use App\Listeners\DispatchDiscordWebhookOnEnotfPreregistered;
+use App\Listeners\DispatchDiscordWebhookOnEnotfReleased;
+use App\Listeners\DispatchDiscordWebhookOnFireReleased;
+
+return [
+    EnotfProtocolReleased::class => [
+        DispatchDiscordWebhookOnEnotfReleased::class,
+    ],
+    FireProtocolReleased::class => [
+        DispatchDiscordWebhookOnFireReleased::class,
+    ],
+    EnotfPreregistered::class => [
+        DispatchDiscordWebhookOnEnotfPreregistered::class,
+    ],
+];

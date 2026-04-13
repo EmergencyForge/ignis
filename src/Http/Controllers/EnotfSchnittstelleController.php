@@ -65,6 +65,6 @@ class EnotfSchnittstelleController extends Controller
      */
     public function apiPrereg(): void
     {
-        require dirname(__DIR__, 3) . '/api/enotf/prereg.php';
+        require dirname(__DIR__, 3) . '/src/LegacyApi/enotf/prereg.php';
     }
 }

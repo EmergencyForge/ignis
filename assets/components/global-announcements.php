@@ -50,7 +50,7 @@ try {
         // Keine Announcements und kein Refresh nötig — nur Background-JS ausgeben falls Heartbeat nötig
         if ($needsHeartbeat): ?>
             <script>
-                fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=heartbeat').catch(function(){});
+                fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=heartbeat').catch(function() {});
             </script>
         <?php endif;
         return;
@@ -62,11 +62,11 @@ try {
         ?>
         <script>
             <?php if ($needsHeartbeat): ?>
-                fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=heartbeat').catch(function(){});
+                fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=heartbeat').catch(function() {});
             <?php endif; ?>
-            fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=refresh-announcements').catch(function(){});
+            fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=refresh-announcements').catch(function() {});
         </script>
-        <?php
+<?php
         return;
     }
 
@@ -406,10 +406,21 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         color: #fff;
     }
 
-    #efAnnouncementsModal .announcement-message h1 { font-size: 1.3rem; }
-    #efAnnouncementsModal .announcement-message h2 { font-size: 1.15rem; }
-    #efAnnouncementsModal .announcement-message h3 { font-size: 1rem; }
-    #efAnnouncementsModal .announcement-message h4 { font-size: 0.9rem; }
+    #efAnnouncementsModal .announcement-message h1 {
+        font-size: 1.3rem;
+    }
+
+    #efAnnouncementsModal .announcement-message h2 {
+        font-size: 1.15rem;
+    }
+
+    #efAnnouncementsModal .announcement-message h3 {
+        font-size: 1rem;
+    }
+
+    #efAnnouncementsModal .announcement-message h4 {
+        font-size: 0.9rem;
+    }
 
     #efAnnouncementsModal .announcement-message hr {
         margin: 1rem 0;
@@ -423,9 +434,17 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
     }
 
     @keyframes ef-pulse {
-        0% { box-shadow: 0 0 0 0 rgba(176, 58, 58, 0.6); }
-        70% { box-shadow: 0 0 0 12px rgba(176, 58, 58, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(176, 58, 58, 0); }
+        0% {
+            box-shadow: 0 0 0 0 rgba(176, 58, 58, 0.6);
+        }
+
+        70% {
+            box-shadow: 0 0 0 12px rgba(176, 58, 58, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(176, 58, 58, 0);
+        }
     }
 </style>
 
@@ -538,10 +557,10 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
         // === Background-Requests (non-blocking, per AJAX) ===
         <?php if ($needsHeartbeat): ?>
-            fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=heartbeat').catch(function(){});
+            fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=heartbeat').catch(function() {});
         <?php endif; ?>
         <?php if ($needsCacheRefresh): ?>
-            fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=refresh-announcements').catch(function(){});
+            fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=refresh-announcements').catch(function() {});
         <?php endif; ?>
     });
 </script>
