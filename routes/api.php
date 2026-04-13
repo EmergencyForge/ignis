@@ -45,14 +45,63 @@ $router->get('/api/_router/whoami', function ($request) {
     ]);
 }, [new AuthMiddleware()]);
 
+// ----------------------------------------------------------------------------
+//  FiveM-Server-Endpoints (Maschine-zu-Maschine, API-Key)
+//
+//  Diese Routen werden vom FiveM-Game-Server gerufen. Backward-Compat:
+//  Beide Pfade (mit und ohne `.php`-Suffix) sind registriert, weil bestehende
+//  FiveM-Clients den alten URLs folgen — die `.php`-Files sind durch den
+//  Cutover gelöscht, der Router hängt sich via .htaccess-Fallback rein.
+// ----------------------------------------------------------------------------
+
+use App\Http\Controllers\Api\CharacterController;
+use App\Http\Controllers\Api\EmdSyncController;
+use App\Http\Controllers\Api\FireStatusPollController;
+
+// Browser-side: aktuelle Session-ID abfragen — kein Auth, läuft im
+// User-Browser, wird dann an FiveM weitergereicht.
+$router->match(['GET', 'POST'], '/api/character/get-session-id',     [CharacterController::class, 'sessionId']);
+$router->match(['GET', 'POST'], '/api/character/get-session-id.php', [CharacterController::class, 'sessionId']);
+
+// FiveM-Server: Charakter-Daten in Spieler-Session injizieren
+$router->post('/api/character/identify',
+    [CharacterController::class, 'identify'],
+    [ApiKeyMiddleware::class]
+);
+$router->post('/api/character/identify.php',
+    [CharacterController::class, 'identify'],
+    [ApiKeyMiddleware::class]
+);
+
+// FiveM-Server: Fire-Status-Queue pollen
+$router->post('/api/emd/status-poll',
+    [FireStatusPollController::class, 'poll'],
+    [ApiKeyMiddleware::class]
+);
+$router->post('/api/emd/status-poll.php',
+    [FireStatusPollController::class, 'poll'],
+    [ApiKeyMiddleware::class]
+);
+
+// FiveM-Server: EMD-Sync (Haupt-Endpoint für Einsatz-/Status-/Fahrzeug-Sync)
+// Migriert aus api/emd/sync.php — Business-Logik 1:1 übernommen, inkl. FW-Fix.
+$router->post('/api/emd/sync',
+    [EmdSyncController::class, 'sync'],
+    [ApiKeyMiddleware::class]
+);
+$router->post('/api/emd/sync.php',
+    [EmdSyncController::class, 'sync'],
+    [ApiKeyMiddleware::class]
+);
+// Legacy-Alias: vor langem umgezogener Redirect-Stub (api/emd-sync.php →
+// api/emd/sync.php) — wir honorieren den alten Pfad für den Fall dass noch
+// irgendwo ein FiveM-Script darauf zeigt.
+$router->post('/api/emd-sync.php',
+    [EmdSyncController::class, 'sync'],
+    [ApiKeyMiddleware::class]
+);
+
 /*
- * BEISPIEL — FiveM-Server-Endpoint (Maschine-zu-Maschine, API-Key)
- *
- * $router->post('/api/fivem/character/identify',
- *     [\App\Http\Controllers\Api\CharacterIdentifyController::class, 'handle'],
- *     [ApiKeyMiddleware::class]
- * );
- *
  * BEISPIEL — Admin-API-Endpoint (Session + Permission + CSRF)
  *
  * $router->post('/api/users/{id:\d+}',

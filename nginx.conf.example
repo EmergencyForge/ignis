@@ -138,12 +138,22 @@ server {
     # Wenn /pfad nicht existiert, prüfe ob /pfad.php existiert
     # und leite an PHP-FPM weiter.
 
+    # Fallback-Kette (Reihenfolge wichtig!):
+    #   1. $uri        → existierende Datei direkt ausliefern
+    #   2. $uri/       → Directory-Index (index.php)
+    #   3. $uri.php    → extensionless Legacy-URLs (/benutzer/list → list.php)
+    #   4. @router     → zentraler Front-Controller (public/index.php)
+    #
+    # Der Router-Fallback greift nur, wenn keine Legacy-Datei matcht —
+    # bestehende Modul-Stubs bleiben dadurch voll funktionsfähig und
+    # der Router bedient nur neue Routen oder URLs, die bewusst durch
+    # ihn laufen sollen.
     location / {
-        try_files $uri $uri/ @extensionless;
+        try_files $uri $uri/ $uri.php @router;
     }
 
-    location @extensionless {
-        rewrite ^(.+)$ $1.php last;
+    location @router {
+        rewrite ^(.*)$ /public/index.php last;
     }
 
     # ====================================================

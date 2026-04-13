@@ -24,7 +24,9 @@ declare(strict_types=1);
  */
 
 use App\Http\Request;
+use App\Http\Response;
 use App\Http\Router;
+use App\Http\Validation\ValidationException;
 
 require_once __DIR__ . '/../assets/config/config.php';
 
@@ -49,6 +51,14 @@ try {
     $request  = Request::fromGlobals();
     $response = $router->dispatch($request);
     $response->send();
+} catch (ValidationException $e) {
+    // Declarative Validation aus einem FormRequest — immer als
+    // 422-JSON mit Feld → Fehler-Map.
+    Response::json([
+        'success' => false,
+        'message' => $e->getMessage(),
+        'errors'  => $e->errors,
+    ], 422)->send();
 } catch (\Throwable $e) {
     // Unerwartete Exceptions landen beim globalen ErrorHandler (Logger),
     // der bereits in config.php via ErrorHandler::register() aktiv ist.
