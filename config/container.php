@@ -126,4 +126,27 @@ return [
 
     \App\Session\SessionManager::class => \DI\autowire(),
 
+    // -----------------------------------------------------------------------
+    //  HTTP-Routing & Middleware-Pipeline (Phase 3.1)
+    //
+    //  Der Router wird vom Front-Controller (public/index.php) aufgerufen,
+    //  nachdem Routen-Dateien geladen wurden. Er bekommt Container und
+    //  Pipeline injiziert, beide sind Singletons pro Request.
+    //
+    //  Middleware-Instanzen, die zustandslos und DI-freundlich sind, werden
+    //  hier als Singletons registriert — parametrisierte Middlewares (Auth
+    //  mit Config-Flag, Permission mit Permission-String) werden dagegen
+    //  pro Route direkt instanziiert.
+    // -----------------------------------------------------------------------
+
+    \App\Http\Pipeline::class => \DI\autowire(),
+    \App\Http\Router::class   => \DI\autowire(),
+
+    // Stateless Middlewares ohne Parameter — als Singletons registriert,
+    // damit sie per Pipeline-Shortstring ("FQCN") aufgelöst werden können.
+    \App\Http\Middleware\ApiKeyMiddleware::class       => \DI\autowire(),
+    \App\Http\Middleware\CsrfMiddleware::class         => \DI\autowire(),
+    \App\Http\Middleware\FiveMCspMiddleware::class     => \DI\autowire(),
+    \App\Http\Middleware\PinLockscreenMiddleware::class => \DI\autowire(),
+
 ];

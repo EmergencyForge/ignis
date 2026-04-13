@@ -81,3 +81,23 @@ RewriteRule ^enotf/print/([\w._-]+)/?$ enotf/print/index.php?enr=$1 [L,QSA]
 
 # --- Admin: /enotf/admin → list.php ---
 RewriteRule ^enotf/admin/?$ enotf/admin/list.php [L,QSA]
+
+# ============================================================
+# Router Fallback (Phase 3.1)
+#
+# Greift NUR, wenn der Request weder auf eine echte Datei noch
+# ein echtes Verzeichnis zeigt, UND weiter oben keine eNOTF-Clean-
+# URL-Regel zugeschlagen hat. Leitet in dem Fall an den Single-
+# Entry-Point `public/index.php` weiter, wo der `App\Http\Router`
+# das Matching übernimmt.
+#
+# Bestehende Modul-Files (benutzer/list.php, einsatz/index.php, ...)
+# bleiben unberührt, weil `!-f` dann false ist und die Regel nicht
+# greift. MultiViews (+MultiViews oben) resolvt zusätzlich `/foo`
+# zu `/foo.php` BEVOR die Rewrites laufen, sodass Extension-lose
+# Legacy-URLs weiterhin direkt funktionieren.
+# ============================================================
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/index.php [L,QSA]
