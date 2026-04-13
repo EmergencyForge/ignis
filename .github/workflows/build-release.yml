@@ -76,29 +76,79 @@ jobs:
         run: |
           ARCHIVE_NAME="intraRP-${{ env.version }}.zip"
 
+          # Exclude-Liste — kategorisiert.
+          #
+          # WICHTIG: Folgende Pfade MÜSSEN im Release bleiben (nicht excluden!):
+          #   - database/migrations/*  → AutoMigrator führt diese beim ersten Request aus
+          #   - database/seeds/*       → Initialdaten (Rollen, Permissions, ...)
+          #   - phinx.php              → Phinx-Config (vom AutoMigrator geladen)
+          #   - tools/db-migrate.php   → wird von composer.json post-install-cmd aufgerufen
+          #   - .htaccess              → Routing
+          #   - config/, src/, assets/, templates/, api/, alle Modul-Ordner
+          #   - composer.json/.lock, nginx.conf.example, README.md, LICENSE
+          #   - .env.example
           zip -r "$ARCHIVE_NAME" . \
+            `# — Git / VCS —` \
             -x ".git/*" \
-            -x ".github/*" \
             -x ".gitignore" \
-            -x ".env" \
+            -x ".gitattributes" \
+            -x ".github/*" \
+            `# — Editor / IDE / AI-Tooling —` \
             -x ".vscode/*" \
             -x ".idea/*" \
             -x ".qodo/*" \
             -x ".claude/*" \
-            -x ".phpunit.cache/*" \
-            -x "tests/*" \
-            -x "phpstan.neon" \
             -x "CLAUDE.md" \
             -x ".impeccable.md" \
-            -x "*.backup" \
-            -x "intrap" \
+            `# — Environment-Files (KEEP .env.example!) —` \
+            -x ".env" \
+            -x ".env.test" \
+            -x ".env.testing" \
+            `# — Test-Infrastruktur —` \
+            -x "tests/*" \
+            -x "phpunit.xml" \
+            -x "phpunit.xml.dist" \
+            -x ".phpunit.cache/*" \
+            -x ".phpunit.result.cache" \
+            `# — Static Analysis —` \
+            -x "phpstan.neon" \
+            -x "phpstan.neon.dist" \
+            -x ".phpstan.cache/*" \
+            `# — Docker (Dev-Infra, kein offizieller Install-Pfad) —` \
+            -x "docker/*" \
+            -x "docker-compose.yml" \
+            -x "docker-compose.*.yml" \
+            -x "Dockerfile" \
+            -x "Dockerfile.*" \
+            -x ".dockerignore" \
+            `# — Dev-Tools (db-migrate.php MUSS drin bleiben — composer post-install) —` \
+            -x "tools/test-*.php" \
+            -x "tools/migrate-enotf-protokoll.php" \
+            -x "scripts/*" \
+            `# — Runtime-Artefakte (sicherheitshalber, auch wenn via .gitignore) —` \
+            -x "php_errors.log" \
+            -x "support_errors.log" \
+            -x "storage/logs/*" \
+            -x "storage/cache/*" \
+            -x "storage/documents/*.pdf" \
+            -x "storage/profile-pictures/*" \
+            -x "uploads/*" \
+            `# — Preview / Design-Dateien —` \
             -x "*preview*.html" \
+            -x "_preview*.html" \
+            `# — Sonstiges / Backups —` \
+            -x "*.backup" \
+            -x "*.bak" \
+            -x "intrap" \
+            `# — Dev-Pakete als Safety-Net (redundant zu --no-dev, aber defense-in-depth) —` \
             -x "vendor/phpstan/*" \
             -x "vendor/phpunit/*" \
             -x "vendor/myclabs/*" \
             -x "vendor/phar-io/*" \
             -x "vendor/sebastian/*" \
-            -x "vendor/theseer/*"
+            -x "vendor/theseer/*" \
+            -x "vendor/mockery/*" \
+            -x "vendor/nikic/php-parser/test/*"
 
           echo "archive_name=$ARCHIVE_NAME" >> $GITHUB_ENV
           echo "archive_size=$(du -h "$ARCHIVE_NAME" | cut -f1)" >> $GITHUB_ENV
