@@ -732,15 +732,22 @@ try {
     foreach ($vehiclesByDispatch as $dispatchId => $dispatchVehicles) {
         logSync("Verarbeite Einsatz #$dispatchId mit " . count($dispatchVehicles) . " Fahrzeugen", 'INFO');
 
+        // Fahrzeuge werden direkt in zwei getrennte Listen sortiert:
+        //  - $validVehicles: Rettungsdienst (rd_type 1=Notarzt, 2=Transport) → erzeugen eNOTF-Protokolle
+        //  - $fireVehicles:  Feuerwehr    (rd_type 3)                        → erzeugen Fire-Incidents
+        // Ein Fahrzeug gehört IMMER nur in eine Liste — sonst werden für FW-Einsätze
+        // fälschlich zusätzlich eNOTF-Protokolle angelegt (Bug-Report: 1/44/1 erzeugt
+        // sowohl firetab- als auch eNOTF-Einträge).
         $validVehicles = [];
+        $fireVehicles  = [];
 
         foreach ($dispatchVehicles as $vehicle) {
             $valueName = $vehicle['value'] ?? null;
 
             $stmt = $pdo->prepare("
                 SELECT id, name, identifier, veh_type, rd_type
-                FROM intra_fahrzeuge 
-                WHERE name = :name 
+                FROM intra_fahrzeuge
+                WHERE name = :name
                 LIMIT 1
             ");
             $stmt->execute([':name' => $valueName]);
@@ -758,32 +765,35 @@ try {
                 continue;
             }
 
-            $validVehicles[] = [
-                'name' => $valueName,
-                'identifier' => $dbVehicle['identifier'],
-                'rd_type' => $rdType,
-                'is_notarzt' => ($rdType === 1),
-                'is_transport' => ($rdType === 2)
+            $vehicleRecord = [
+                'name'         => $valueName,
+                'identifier'   => $dbVehicle['identifier'],
+                'rd_type'      => $rdType,
+                'is_notarzt'   => ($rdType === 1),
+                'is_transport' => ($rdType === 2),
+                'is_fire'      => ($rdType === 3),
             ];
+
+            if ($rdType === 3) {
+                $fireVehicles[] = $vehicleRecord;
+            } else {
+                $validVehicles[] = $vehicleRecord;
+            }
         }
 
-        if (empty($validVehicles)) {
-            logSync("Keine gültigen RD-Fahrzeuge für Einsatz #$dispatchId, wird übersprungen", 'WARNING');
+        $hasFireVehicle = !empty($fireVehicles);
+
+        if (empty($validVehicles) && !$hasFireVehicle) {
+            logSync("Keine gültigen RD-/FW-Fahrzeuge für Einsatz #$dispatchId, wird übersprungen", 'WARNING');
             $skippedDispatches++;
             continue;
         }
 
-        logSync("Es wurden " . count($validVehicles) . " gültige RD-Fahrzeuge für Einsatz #$dispatchId gefunden", 'INFO');
-
-        // Prüfe ob es sich um einen Feuerwehreinsatz handelt (rd_type = 3)
-        $hasFireVehicle = false;
-        $fireVehicles = [];
-        foreach ($validVehicles as $vehicle) {
-            if ($vehicle['rd_type'] === 3) {
-                $hasFireVehicle = true;
-                $fireVehicles[] = $vehicle;
-            }
-        }
+        logSync(
+            "Einsatz #$dispatchId: " . count($validVehicles) . " RD-Fahrzeuge, "
+            . count($fireVehicles) . " FW-Fahrzeuge gefunden",
+            'INFO'
+        );
 
         // Wenn Feuerwehreinsatz: Erstelle Fire Incident
         if ($hasFireVehicle && count($fireVehicles) > 0) {
