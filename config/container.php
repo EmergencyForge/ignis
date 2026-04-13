@@ -99,7 +99,14 @@ return [
     //  nutzen Eloquent exklusiv für ihre Tabellen.
     // -----------------------------------------------------------------------
     Capsule::class => function (): Capsule {
-        $capsule = new Capsule();
+        // Shared Illuminate-Container — wird auch von QueueCapsule genutzt,
+        // damit beide Capsules dieselben Services (insb. `db`) sehen.
+        // Static-Singleton-Pattern von Illuminate sorgt dafür, dass
+        // Container::getInstance() überall dasselbe Objekt liefert.
+        $illuminate = IlluminateContainer::getInstance() ?: new IlluminateContainer();
+        IlluminateContainer::setInstance($illuminate);
+
+        $capsule = new Capsule($illuminate);
         $capsule->addConnection([
             'driver'    => 'mysql',
             'host'      => $_ENV['DB_HOST'] ?? 'localhost',
@@ -118,6 +125,13 @@ return [
         $capsule->setEventDispatcher(new Dispatcher());
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
+
+        // DatabaseManager explizit auf dem shared Container als `db` binden,
+        // damit die QueueCapsule ihn findet. Standalone-Eloquent registriert
+        // ihn nicht automatisch unter diesem Key.
+        if (!$illuminate->bound('db')) {
+            $illuminate->instance('db', $capsule->getDatabaseManager());
+        }
 
         return $capsule;
     },
@@ -180,10 +194,29 @@ return [
     // -----------------------------------------------------------------------
 
     QueueCapsule::class => function (ContainerInterface $c): QueueCapsule {
-        // Eloquent-Capsule muss gebootet sein, damit die DB-Connection steht
+        // Eloquent-Capsule booten — das registriert `db` auf dem shared
+        // Illuminate-Container, den wir hier weiterverwenden.
         $c->get(Capsule::class);
 
-        $queue = new QueueCapsule(new IlluminateContainer());
+        $illuminate = IlluminateContainer::getInstance() ?: new IlluminateContainer();
+        IlluminateContainer::setInstance($illuminate);
+
+        // Defensive: falls Capsule::class aus irgendeinem Grund kein `db`
+        // registriert hat (z.B. alte Reihenfolge), holen wir es jetzt nach.
+        if (!$illuminate->bound('db')) {
+            $capsule = $c->get(Capsule::class);
+            $illuminate->instance('db', $capsule->getDatabaseManager());
+        }
+
+        // Events-Dispatcher für die Queue — das Queue-System nutzt intern
+        // `JobProcessing`/`JobProcessed`-Events. Wir registrieren einen
+        // frischen Dispatcher, damit die Queue nicht in unseren Domain-
+        // Event-Dispatcher hineinreicht.
+        if (!$illuminate->bound('events')) {
+            $illuminate->instance('events', new \Illuminate\Events\Dispatcher($illuminate));
+        }
+
+        $queue = new QueueCapsule($illuminate);
         $queue->addConnection([
             'driver'     => 'database',
             'connection' => 'default',

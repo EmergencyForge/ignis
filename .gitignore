@@ -8,6 +8,7 @@ storage/logs/
 storage/documents/**.pdf
 storage/profile-pictures/
 support_errors.log
+storage/last_emd_sync.txt
 *.backup
 .vscode
 .idea
