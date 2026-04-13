@@ -41,7 +41,16 @@ class SystemController extends Controller
     {
         $this->requireAuth();
         $this->ensureAdmin();
-        $this->renderView('settings/system/telemetry', []);
+
+        // Installations-UUID an das Template reichen, damit sie als Support-
+        // Banner angezeigt werden kann. Wird lazy erzeugt, falls noch keine
+        // existiert — das ist idempotent, kein Risiko bei Mehrfach-Aufruf.
+        $telemetry      = new \App\Telemetry\TelemetryManager($this->pdo);
+        $installationId = $telemetry->getInstallationId();
+
+        $this->renderView('settings/system/telemetry', [
+            'installationId' => $installationId,
+        ]);
     }
 
     /**

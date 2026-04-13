@@ -118,9 +118,118 @@ $cacheInfo = $announcements->getCacheInfo();
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
                         <h1 class="mb-0">Telemetrie & Ankündigungen</h1>
                     </div>
+
+                    <?php
+                    // $installationId kommt aus SystemController::telemetry() —
+                    // Fallback für den Fall, dass das Template direkt ohne den
+                    // Controller gerendert wird (z.B. alter Stub).
+                    if (!isset($installationId) || !$installationId) {
+                        $installationId = (new \App\Telemetry\TelemetryManager($pdo))->getInstallationId();
+                    }
+                    ?>
+                    <style>
+                        /* Support-UUID Banner: kompakt, UUID per Default versteckt */
+                        .uuid-banner { border-left: 3px solid var(--bs-primary, #0d6efd); }
+                        .uuid-banner .uuid-label {
+                            font-size: 0.72rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.06em;
+                            opacity: 0.55;
+                            font-weight: 600;
+                        }
+                        .uuid-banner code.uuid-value {
+                            font-family: var(--font-mono, 'Inconsolata', 'JetBrains Mono', Consolas, monospace);
+                            font-size: 0.82rem;
+                            background: var(--bs-tertiary-bg, rgba(255,255,255,0.05));
+                            padding: 0.22rem 0.55rem;
+                            border-radius: 4px;
+                            user-select: all;
+                        }
+                        /* Hover-to-reveal Blur (Status-Tabelle) */
+                        .uuid-blur {
+                            filter: blur(5px);
+                            transition: filter 0.15s ease-out;
+                            cursor: help;
+                        }
+                        .uuid-blur:hover,
+                        .uuid-blur:focus-within {
+                            filter: blur(0);
+                        }
+                    </style>
+                    <div class="intra__tile p-3 mb-4 uuid-banner">
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <div class="flex-shrink-0" style="font-size: 1.1rem; color: var(--bs-primary, #0d6efd);">
+                                <i class="fa-solid fa-id-card"></i>
+                            </div>
+                            <div class="flex-grow-1" style="min-width: 240px;">
+                                <div class="uuid-label mb-1">Support &amp; Telemetrie — Deine Installations-UUID</div>
+                                <div class="text-muted" style="font-size: 0.78rem; line-height: 1.45;">
+                                    Für schnellen Support: Im intraRP-Discord <code style="font-size: 0.75rem;">/connect &lt;UUID&gt;</code> nutzen — damit kann unser Support-Team direkt auf die unten beschriebenen Daten zugreifen und dir ggf. schneller mit deinem Anliegen helfen.
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 d-flex align-items-center gap-2" id="uuidBannerControls">
+                                <code id="installationUuidValue" class="uuid-value" style="display: none;">
+                                    <?= htmlspecialchars($installationId) ?>
+                                </code>
+                                <button type="button" class="btn btn-sm btn-soft-primary" id="toggleUuidBtn" onclick="toggleInstallationUuid()">
+                                    <i class="fa-regular fa-eye me-1"></i>Einblenden
+                                </button>
+                                <button type="button" class="btn btn-sm btn-ghost" id="copyUuidBtn" onclick="copyInstallationUuid()" title="UUID kopieren">
+                                    <i class="fa-regular fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <script>
+                        (function () {
+                            const uuidEl   = document.getElementById('installationUuidValue');
+                            const toggleBtn = document.getElementById('toggleUuidBtn');
+
+                            window.toggleInstallationUuid = function () {
+                                const visible = uuidEl.style.display !== 'none';
+                                if (visible) {
+                                    uuidEl.style.display = 'none';
+                                    toggleBtn.innerHTML = '<i class="fa-regular fa-eye me-1"></i>Einblenden';
+                                } else {
+                                    uuidEl.style.display = '';
+                                    toggleBtn.innerHTML = '<i class="fa-regular fa-eye-slash me-1"></i>Verbergen';
+                                }
+                            };
+
+                            function copyText(text, btn) {
+                                const done = () => {
+                                    const orig = btn.innerHTML;
+                                    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                                    setTimeout(() => { btn.innerHTML = orig; }, 1500);
+                                };
+                                if (navigator.clipboard && navigator.clipboard.writeText) {
+                                    navigator.clipboard.writeText(text).then(done).catch(fallback);
+                                } else {
+                                    fallback();
+                                }
+                                function fallback() {
+                                    const ta = document.createElement('textarea');
+                                    ta.value = text;
+                                    ta.style.position = 'fixed';
+                                    ta.style.opacity = '0';
+                                    document.body.appendChild(ta);
+                                    ta.select();
+                                    try { document.execCommand('copy'); } catch (e) {}
+                                    document.body.removeChild(ta);
+                                    done();
+                                }
+                            }
+
+                            window.copyInstallationUuid = function () {
+                                const uuid = (uuidEl?.textContent || '').trim();
+                                if (!uuid) return;
+                                copyText(uuid, document.getElementById('copyUuidBtn'));
+                            };
+                        })();
+                    </script>
 
                     <?php if ($message): ?>
                         <div class="alert alert-<?= $messageType ?> alert-dismissible fade show">
@@ -172,7 +281,9 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <table class="table table-sm">
                                         <tr>
                                             <td class="text-muted">Installation-ID:</td>
-                                            <td><code class="small"><?= htmlspecialchars($installationId) ?></code></td>
+                                            <td>
+                                                <code class="small uuid-blur" title="Hover zum Einblenden"><?= htmlspecialchars($installationId) ?></code>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td class="text-muted">Letzter Heartbeat:</td>
