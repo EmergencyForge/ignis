@@ -332,6 +332,111 @@ function logs_level_badge(string $level): string
                         </div>
                     </div>
 
+                    <!-- ───────────── Failed Jobs Section ───────────── -->
+                    <?php
+                    $failedTotal = $failedJobsStats['total'] ?? 0;
+                    $failed24h   = $failedJobsStats['last_24h'] ?? 0;
+                    ?>
+                    <div class="intra__tile p-3 mt-3">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-hexagon-exclamation text-warning"></i>
+                                <h6 class="mb-0 fw-semibold">Fehlgeschlagene Hintergrund-Jobs</h6>
+                                <?php if ($failedTotal > 0): ?>
+                                    <span class="badge-status status-danger">
+                                        <span class="status-dot"></span><?= (int) $failedTotal ?>
+                                    </span>
+                                <?php endif; ?>
+                                <?php if ($failed24h > 0): ?>
+                                    <span class="badge-status status-warning">
+                                        <span class="status-dot"></span><?= (int) $failed24h ?> in 24h
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="btn-toolbar-group">
+                                <button type="button" class="btn btn-sm btn-ghost" id="refreshFailedJobsBtn" title="Liste neu laden">
+                                    <i class="fa-solid fa-rotate"></i>
+                                </button>
+                                <?php if ($failedTotal > 0): ?>
+                                    <button type="button" class="btn btn-sm btn-soft-primary" id="retryAllFailedJobsBtn">
+                                        <i class="fa-solid fa-arrows-rotate me-1"></i>Alle erneut versuchen
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-ghost text-danger" id="deleteAllFailedJobsBtn">
+                                        <i class="fa-solid fa-trash me-1"></i>Alle löschen
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <div id="failedJobsList">
+                            <?php if (empty($failedJobs)): ?>
+                                <div class="logs-empty">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <h6>Keine fehlgeschlagenen Jobs</h6>
+                                    <small>
+                                        Hintergrund-Jobs, die nach allen Retries nicht erfolgreich durchgelaufen sind,
+                                        erscheinen hier und können manuell nachverfolgt oder neu gestartet werden.
+                                    </small>
+                                </div>
+                            <?php else: ?>
+                                <?php foreach ($failedJobs as $fj): ?>
+                                    <div class="logs-group" data-failed-id="<?= (int) $fj['id'] ?>">
+                                        <div class="logs-group-row">
+                                            <div><span class="badge-status status-danger"><span class="status-dot"></span>FAILED</span></div>
+                                            <div class="info">
+                                                <span class="exception"><?= htmlspecialchars($fj['job_class'] ?? 'Unbekannter Job') ?></span>
+                                                <div class="message"><?= htmlspecialchars($fj['short_message'] ?? '–') ?></div>
+                                                <div class="file">Queue: <?= htmlspecialchars($fj['queue']) ?> &middot; UUID: <?= htmlspecialchars(substr($fj['uuid'], 0, 8)) ?>…</div>
+                                            </div>
+                                            <div class="count-cell"></div>
+                                            <div class="time-cell"><?= htmlspecialchars($fj['failed_at_formatted']) ?></div>
+                                            <div class="chevron"><i class="fa-solid fa-chevron-right"></i></div>
+                                        </div>
+                                        <div class="logs-detail" data-rendered="1">
+                                            <div class="logs-detail-actions">
+                                                <button type="button" class="btn btn-soft-primary btn-sm failed-retry-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                    <i class="fa-solid fa-arrows-rotate me-1"></i>Erneut versuchen
+                                                </button>
+                                                <button type="button" class="btn btn-ghost btn-sm text-danger failed-delete-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                    <i class="fa-solid fa-trash me-1"></i>Löschen
+                                                </button>
+                                                <button type="button" class="btn btn-ghost btn-sm copy-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
+                                                    <i class="fa-regular fa-copy"></i> UUID
+                                                </button>
+                                            </div>
+                                            <div class="logs-detail-section logs-detail-grid">
+                                                <div>
+                                                    <div class="logs-detail-label">Job-Klasse</div>
+                                                    <div class="logs-detail-value"><?= htmlspecialchars($fj['job_class'] ?? '–') ?></div>
+                                                </div>
+                                                <div>
+                                                    <div class="logs-detail-label">Queue</div>
+                                                    <div class="logs-detail-value"><?= htmlspecialchars($fj['queue']) ?></div>
+                                                </div>
+                                                <div>
+                                                    <div class="logs-detail-label">UUID</div>
+                                                    <div class="logs-detail-value" style="word-break:break-all;"><?= htmlspecialchars($fj['uuid']) ?></div>
+                                                </div>
+                                                <div>
+                                                    <div class="logs-detail-label">Fehlgeschlagen</div>
+                                                    <div class="logs-detail-value"><?= htmlspecialchars($fj['failed_at_formatted']) ?></div>
+                                                </div>
+                                            </div>
+                                            <div class="logs-detail-section">
+                                                <div class="logs-detail-label">Exception</div>
+                                                <pre class="logs-trace"><?= htmlspecialchars($fj['exception']) ?></pre>
+                                            </div>
+                                            <div class="logs-detail-section">
+                                                <div class="logs-detail-label">Payload</div>
+                                                <pre class="logs-trace"><?= htmlspecialchars($fj['payload']) ?></pre>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
                     <!-- ───────────── Files (collapsed) ───────────── -->
                     <details class="intra__tile p-3 mt-3">
                         <summary class="fw-bold" style="cursor:pointer;">
@@ -814,6 +919,182 @@ function logs_level_badge(string $level): string
         if (urlParams.has('id')) {
             document.getElementById('errorIdInput').value = urlParams.get('id');
             lookupErrorId();
+        }
+    })();
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  Failed Jobs Section — Expand/Collapse + Retry/Delete/Refresh
+    // ═══════════════════════════════════════════════════════════════════
+    (function () {
+        const apiUrl      = '<?= BASE_PATH ?>settings/system/logs.php';
+        const failedList  = document.getElementById('failedJobsList');
+        if (!failedList) return;
+
+        function toggleFailedRow(rowEl) {
+            const groupEl = rowEl.closest('.logs-group');
+            if (!groupEl) return;
+            groupEl.classList.toggle('expanded');
+        }
+
+        // Row-Toggle
+        failedList.addEventListener('click', function (e) {
+            // Ignorieren wenn auf einen Action-Button geklickt wurde
+            if (e.target.closest('.failed-retry-btn, .failed-delete-btn, .copy-btn')) return;
+
+            const headerEl = e.target.closest('.logs-group-row');
+            if (headerEl) toggleFailedRow(headerEl);
+        });
+
+        async function postAction(action, id) {
+            const body = new URLSearchParams();
+            body.set('action', action);
+            if (id !== null && id !== undefined) body.set('id', String(id));
+
+            const res = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body.toString(),
+            });
+            return res.json();
+        }
+
+        async function refreshFailedJobs() {
+            try {
+                const res = await fetch(apiUrl + '?failed_jobs=1&limit=100');
+                const data = await res.json();
+                if (!data.success) return;
+
+                if (!data.table_exists) {
+                    failedList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-database"></i><h6>Queue-Tabelle nicht vorhanden</h6><small>Führe die Phinx-Migration aus, um die Job-Queue zu aktivieren.</small></div>';
+                    return;
+                }
+
+                if (!data.jobs || data.jobs.length === 0) {
+                    failedList.innerHTML = '<div class="logs-empty"><i class="fa-solid fa-circle-check"></i><h6>Keine fehlgeschlagenen Jobs</h6></div>';
+                    // Seite reloaden um den Zähler/Toolbar-State zu aktualisieren
+                    setTimeout(() => window.location.reload(), 400);
+                    return;
+                }
+
+                // Re-render — zum Low-Effort einfach reload, damit PHP den kompletten
+                // Header inklusive "Alle erneut versuchen"-Button und Zähler aktualisiert.
+                window.location.reload();
+            } catch (err) {
+                console.error('Failed to refresh failed jobs:', err);
+            }
+        }
+
+        // Refresh-Button
+        const refreshBtn = document.getElementById('refreshFailedJobsBtn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', async function () {
+                const orig = this.innerHTML;
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                this.disabled = true;
+                try {
+                    await refreshFailedJobs();
+                } finally {
+                    this.disabled = false;
+                    this.innerHTML = orig;
+                }
+            });
+        }
+
+        // Einzel-Retry
+        failedList.addEventListener('click', async function (e) {
+            const btn = e.target.closest('.failed-retry-btn');
+            if (!btn) return;
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            if (!id) return;
+
+            const orig = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Re-queue…';
+
+            try {
+                const data = await postAction('retry', id);
+                if (data.success) {
+                    btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>In Queue';
+                    setTimeout(() => refreshFailedJobs(), 700);
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-xmark me-1"></i>Fehler';
+                    setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1800);
+                }
+            } catch (err) {
+                btn.innerHTML = orig;
+                btn.disabled = false;
+                console.error(err);
+            }
+        });
+
+        // Einzel-Delete
+        failedList.addEventListener('click', async function (e) {
+            const btn = e.target.closest('.failed-delete-btn');
+            if (!btn) return;
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            if (!id) return;
+
+            if (!confirm('Diesen fehlgeschlagenen Job wirklich löschen?')) return;
+
+            btn.disabled = true;
+            try {
+                const data = await postAction('delete', id);
+                if (data.success) {
+                    const groupEl = btn.closest('.logs-group');
+                    if (groupEl) groupEl.style.display = 'none';
+                    setTimeout(() => refreshFailedJobs(), 400);
+                } else {
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                btn.disabled = false;
+                console.error(err);
+            }
+        });
+
+        // Retry All
+        const retryAllBtn = document.getElementById('retryAllFailedJobsBtn');
+        if (retryAllBtn) {
+            retryAllBtn.addEventListener('click', async function () {
+                if (!confirm('Alle fehlgeschlagenen Jobs erneut in die Queue legen?')) return;
+                const orig = this.innerHTML;
+                this.disabled = true;
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Re-queue…';
+                try {
+                    const data = await postAction('retry_all', null);
+                    if (data.success) {
+                        this.innerHTML = '<i class="fa-solid fa-check me-1"></i>' + data.count + ' queued';
+                        setTimeout(() => refreshFailedJobs(), 700);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    this.innerHTML = orig;
+                    this.disabled = false;
+                }
+            });
+        }
+
+        // Delete All
+        const deleteAllBtn = document.getElementById('deleteAllFailedJobsBtn');
+        if (deleteAllBtn) {
+            deleteAllBtn.addEventListener('click', async function () {
+                if (!confirm('Wirklich ALLE fehlgeschlagenen Jobs löschen? Das kann nicht rückgängig gemacht werden.')) return;
+                const orig = this.innerHTML;
+                this.disabled = true;
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Lösche…';
+                try {
+                    const data = await postAction('delete_all', null);
+                    if (data.success) {
+                        setTimeout(() => refreshFailedJobs(), 400);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    this.innerHTML = orig;
+                    this.disabled = false;
+                }
+            });
         }
     })();
     </script>
