@@ -149,4 +149,15 @@ return [
     \App\Http\Middleware\FiveMCspMiddleware::class     => \DI\autowire(),
     \App\Http\Middleware\PinLockscreenMiddleware::class => \DI\autowire(),
 
+    // -----------------------------------------------------------------------
+    //  HTTP-Controller (Phase 3.1+)
+    //
+    //  Werden vom Router via Container aufgelöst — Constructor-Injection
+    //  von PDO/Logger/etc. funktioniert dank Autowiring.
+    // -----------------------------------------------------------------------
+
+    \App\Http\Controllers\Api\CharacterController::class      => \DI\autowire(),
+    \App\Http\Controllers\Api\FireStatusPollController::class => \DI\autowire(),
+    \App\Http\Controllers\Api\EmdSyncController::class        => \DI\autowire(),
+
 ];
