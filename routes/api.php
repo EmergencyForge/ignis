@@ -57,6 +57,7 @@ $router->get('/api/_router/whoami', function ($request) {
 use App\Http\Controllers\Api\CharacterController;
 use App\Http\Controllers\Api\EmdSyncController;
 use App\Http\Controllers\Api\FireStatusPollController;
+use App\Http\Controllers\Api\NotificationController;
 
 // Browser-side: aktuelle Session-ID abfragen — kein Auth, läuft im
 // User-Browser, wird dann an FiveM weitergereicht.
@@ -99,6 +100,39 @@ $router->post('/api/emd/sync.php',
 $router->post('/api/emd-sync.php',
     [EmdSyncController::class, 'sync'],
     [ApiKeyMiddleware::class]
+);
+
+// ----------------------------------------------------------------------------
+//  Notifications (Browser-Session, Admin-UI)
+//
+//  Beide Endpoints laufen hinter Session-Auth. CSRF ist bewusst NICHT
+//  eingehängt — der bestehende Frontend-Code schickt keinen Token mit,
+//  ein CSRF-Upgrade braucht koordinierte Frontend-Anpassung.
+// ----------------------------------------------------------------------------
+
+// Polling für neue Notifications (Navbar-Badge)
+$router->get('/api/notifications/poll',
+    [NotificationController::class, 'poll'],
+    [new AuthMiddleware()]
+);
+$router->get('/api/notifications/poll.php',
+    [NotificationController::class, 'poll'],
+    [new AuthMiddleware()]
+);
+
+// Einzelne Notification als gelesen markieren
+$router->post('/api/notifications/mark-read',
+    [NotificationController::class, 'markRead'],
+    [new AuthMiddleware()]
+);
+$router->post('/api/notifications/mark-read.php',
+    [NotificationController::class, 'markRead'],
+    [new AuthMiddleware()]
+);
+// Legacy-Stub-Alias: benachrichtigungen/mark-read.php → NotificationController
+$router->post('/benachrichtigungen/mark-read.php',
+    [NotificationController::class, 'markRead'],
+    [new AuthMiddleware()]
 );
 
 /*

@@ -710,12 +710,13 @@ class EinsatzController extends Controller
             error_log('Fehler beim Senden der Benachrichtigung (Fire Protokoll Freigabe): ' . $e->getMessage());
         }
 
-        try {
-            $discordWebhook = new DiscordWebhook($this->pdo);
-            $discordWebhook->notifyFireProtocolReleased($incidentData);
-        } catch (\Exception $e) {
-            error_log('Discord Webhook Fehler (Fire Protokoll): ' . $e->getMessage());
-        }
+        // Domain-Event feuern (Phase 4.2) — Listener kümmern sich um Side-
+        // Effects wie Discord-Webhook, Audit-Log etc. Der Controller weiß
+        // nichts von der konkreten Integration, das entkoppelt saubere
+        // Domain-Logik von Infrastruktur-Details.
+        app(\App\Events\EventDispatcher::class)->fire(
+            new \App\Events\FireProtocolReleased($incidentData)
+        );
 
         Flash::success('Protokoll zur QM-Sichtung markiert.');
     }

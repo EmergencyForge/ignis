@@ -58,7 +58,7 @@ class SystemController extends Controller
      */
     public function regenerateApiKey(): void
     {
-        require dirname(__DIR__, 4) . '/api/system/regenerate-api-key.php';
+        require dirname(__DIR__, 4) . '/src/LegacyApi/system/regenerate-api-key.php';
     }
 
     private function ensureAdmin(): void
