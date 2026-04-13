@@ -167,7 +167,7 @@ $cacheInfo = $announcements->getCacheInfo();
                             <div class="flex-grow-1" style="min-width: 240px;">
                                 <div class="uuid-label mb-1">Support &amp; Telemetrie — Deine Installations-UUID</div>
                                 <div class="text-muted" style="font-size: 0.78rem; line-height: 1.45;">
-                                    Für schnellen Support: Im intraRP-Discord <code style="font-size: 0.75rem;">/connect &lt;UUID&gt;</code> nutzen — damit kann unser Support-Team direkt auf die unten beschriebenen Daten zugreifen und dir ggf. schneller mit deinem Anliegen helfen.
+                                    Für schnellen Support: Im intraRP-Discord <code style="font-size: 0.75rem;">/telemetry connect &lt;UUID&gt; [label]</code> nutzen — damit kann unser Support-Team direkt auf die unten beschriebenen Daten zugreifen und dir ggf. schneller mit deinem Anliegen helfen.
                                 </div>
                             </div>
                             <div class="flex-shrink-0 d-flex align-items-center gap-2" id="uuidBannerControls">
