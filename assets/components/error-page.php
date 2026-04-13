@@ -431,6 +431,16 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     <span class="err-badge err-badge-danger" style="font-size:0.7em"><?= htmlspecialchars($requestMethod) ?></span>
                     <?= htmlspecialchars($requestUrl) ?>
                 </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button type="button" class="err-btn-ghost" id="copyMarkdownBtn" onclick="copyErrorAsMarkdown()">
+                        <i class="fa-brands fa-markdown"></i> Als Markdown kopieren
+                    </button>
+                    <?php if (!empty($errorId)): ?>
+                        <button type="button" class="err-btn-ghost" id="copyDevIdBtn" onclick="copyDevErrorId()">
+                            <i class="fa-regular fa-copy"></i> <?= htmlspecialchars($errorId) ?>
+                        </button>
+                    <?php endif; ?>
+                </div>
             <?php else: ?>
                 <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
                     <span class="err-badge err-badge-danger">500</span>
@@ -714,6 +724,134 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <?php endif; ?>
 
     <?php if ($isDev): ?>
+    <?php
+    // ========================================================================
+    //  Markdown-Report bauen — wird vom "Als Markdown kopieren"-Button genutzt.
+    //  Format ist bewusst Issue-/Discord-/Slack-freundlich: Code-Fences für
+    //  Trace + Source, Backticks für File-Pfade, Headings als ##/###.
+    // ========================================================================
+    $_md = [];
+    $_md[] = '## ' . _err_classBasename($exceptionClass);
+    $_md[] = '';
+    $_md[] = '> ' . trim(str_replace("\n", "\n> ", $errorMessage));
+    $_md[] = '';
+
+    $_metaRows = [];
+    $_metaRows[] = '| Feld | Wert |';
+    $_metaRows[] = '|---|---|';
+    $_metaRows[] = '| Exception | `' . $exceptionClass . '` |';
+    if ($exceptionCode !== null && $exceptionCode !== '' && $exceptionCode !== 0) {
+        $_metaRows[] = '| Code | `' . $exceptionCode . '` |';
+    }
+    if (!empty($errorId)) {
+        $_metaRows[] = '| Error-ID | `' . $errorId . '` |';
+    }
+    $_metaRows[] = '| Zeitpunkt | ' . date('Y-m-d H:i:s') . ' |';
+    $_metaRows[] = '| Method | `' . $requestMethod . '` |';
+    $_metaRows[] = '| URL | `' . $requestUrl . '` |';
+    $_metaRows[] = '| PHP | ' . $phpVersion . ' |';
+    $_metaRows[] = '| intraRP | ' . $appVersion . ' |';
+    if (!empty($_ENV['APP_ENV'])) {
+        $_metaRows[] = '| APP_ENV | `' . $_ENV['APP_ENV'] . '` |';
+    }
+    $_md[] = implode("\n", $_metaRows);
+    $_md[] = '';
+
+    // Stack-Trace (kompakte Form)
+    if (!empty($frames)) {
+        $_md[] = '### Stack Trace';
+        $_md[] = '';
+        $_md[] = '```';
+        foreach ($frames as $i => $f) {
+            $_fn = '';
+            if (!empty($f['class'])) {
+                $_fn = $f['class'] . '::' . ($f['function'] ?? '') . '()';
+            } elseif (!empty($f['function'])) {
+                $_fn = $f['function'] . '()';
+            } else {
+                $_fn = '{main}';
+            }
+            $_loc = ($f['file'] ?? '[internal]') . (!empty($f['line']) ? ':' . $f['line'] : '');
+            $_md[] = '#' . $i . ' ' . $_loc . ' — ' . $_fn;
+        }
+        $_md[] = '```';
+        $_md[] = '';
+    }
+
+    // Application-Frames hervorgehoben (oft das was wirklich relevant ist)
+    if (!empty($appFrames)) {
+        $_md[] = '### Application Frames';
+        $_md[] = '';
+        foreach ($appFrames as $i => $f) {
+            $_fn = '';
+            if (!empty($f['class'])) {
+                $_fn = $f['class'] . '::' . ($f['function'] ?? '') . '()';
+            } elseif (!empty($f['function'])) {
+                $_fn = $f['function'] . '()';
+            }
+            $_loc = _err_shortenPath($f['file'] ?? '[internal]') . (!empty($f['line']) ? ':' . $f['line'] : '');
+            $_md[] = ($i + 1) . '. `' . $_loc . '` — ' . $_fn;
+        }
+        $_md[] = '';
+    }
+
+    // Request-Daten (nur wenn nicht leer, knapp gehalten)
+    if (!empty($_GET) || !empty($_POST)) {
+        $_md[] = '### Request Data';
+        $_md[] = '';
+        if (!empty($_GET)) {
+            $_md[] = '**Query:**';
+            $_md[] = '```json';
+            $_md[] = json_encode($_GET, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $_md[] = '```';
+        }
+        if (!empty($_POST)) {
+            $_md[] = '**POST:**';
+            $_md[] = '```json';
+            $_md[] = json_encode($_POST, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $_md[] = '```';
+        }
+        $_md[] = '';
+    }
+
+    $_markdownReport = implode("\n", $_md);
+    ?>
+    <script type="application/json" id="errorMarkdownData"><?= json_encode($_markdownReport, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
+    <script>
+        function copyErrorAsMarkdown() {
+            const dataEl = document.getElementById('errorMarkdownData');
+            const md = dataEl ? JSON.parse(dataEl.textContent) : '';
+            navigator.clipboard.writeText(md).then(() => {
+                const btn = document.getElementById('copyMarkdownBtn');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Markdown kopiert';
+                setTimeout(() => btn.innerHTML = orig, 1800);
+            }).catch(err => {
+                console.error('Clipboard write failed:', err);
+                // Fallback: Textarea + execCommand
+                const ta = document.createElement('textarea');
+                ta.value = md;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta);
+                const btn = document.getElementById('copyMarkdownBtn');
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Markdown kopiert';
+                setTimeout(() => btn.innerHTML = '<i class="fa-brands fa-markdown"></i> Als Markdown kopieren', 1800);
+            });
+        }
+        function copyDevErrorId() {
+            const btn = document.getElementById('copyDevIdBtn');
+            const id = btn.textContent.trim();
+            navigator.clipboard.writeText(id).then(() => {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Kopiert';
+                setTimeout(() => btn.innerHTML = orig, 1500);
+            });
+        }
+    </script>
     <script>
         document.querySelectorAll('.err-tab').forEach(btn => {
             btn.addEventListener('click', () => {
