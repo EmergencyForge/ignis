@@ -48,14 +48,16 @@ if (!$isLocalhost) {
 }
 
 // ── Parameter ──────────────────────────────────────────────────────
-$queueName = (string) ($_GET['queue']   ?? 'default');
-$maxTime   = (int)    ($_GET['max_time'] ?? 55);
+$queueName = (string) ($_GET['queue']    ?? 'default');
+$maxTime   = (int)    ($_GET['max_time'] ?? 25);
 $maxJobs   = (int)    ($_GET['max_jobs'] ?? 50);
-$sleep     = max(1, (int) ($_GET['sleep'] ?? 3));
 
-// Harte Obergrenze für HTTP-Requests, damit der Webserver kein Timeout macht
-$maxTime = min($maxTime, 90);
-@set_time_limit($maxTime + 10);
+// HTTP-Cron-Timeout-Schutz:
+// cron-job.org und die meisten Shared-Hosts killen Requests nach 30s.
+// Deshalb 25s als Default und als Obergrenze — der Worker beendet sich
+// sauber bevor der Webserver/Proxy/Cron-Service den Request kappt.
+$maxTime = max(5, min($maxTime, 25));
+@set_time_limit($maxTime + 5);
 @ignore_user_abort(true);
 
 Logger::info('QueueWorkerCron: started', [
@@ -71,6 +73,13 @@ try {
     $queueManager = app(QueueManager::class);
     $connection   = $queueManager->connection();
 
+    // Loop-Semantik für HTTP-Worker: abarbeiten was DA ist, dann SOFORT
+    // antworten. Kein Sleep-und-Warte-auf-neue-Jobs, weil HTTP-Cron-Trigger
+    // einen schnellen Response brauchen (cron-job.org: 30s hard timeout).
+    //
+    // Der nächste Cron-Lauf (in 1-5 Minuten) holt die Jobs ab, die in
+    // der Zwischenzeit dazugekommen sind. Das entspricht dem "immediate
+    // return"-Pattern aus den Laravel-Docs für Cron-triggered Worker.
     while (true) {
         if ((time() - $startTime) >= $maxTime) {
             break;
@@ -82,9 +91,9 @@ try {
         /** @var \Illuminate\Contracts\Queue\Job|null $job */
         $job = $connection->pop($queueName);
 
+        // Queue leer → sofort beenden. Keine Wartezeit.
         if ($job === null) {
-            sleep($sleep);
-            continue;
+            break;
         }
 
         try {
