@@ -35,6 +35,7 @@ use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\FiveMCspMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
 use App\Http\Middleware\PinLockscreenMiddleware;
+use App\Http\Middleware\PolicyMiddleware;
 
 // ----------------------------------------------------------------------------
 //  Beispiel-Routen — werden in den Folge-Wellen durch echte Modul-Routen
@@ -52,29 +53,41 @@ $router->get('/_router/ping', function ($request) {
 });
 
 /*
- * BEISPIEL — Benutzer-Modul (Pilot, wird aktiviert)
+ * BEISPIEL — Benutzer-Modul mit Policy-basierter Autorisierung
  *
- * $router->group('/users', [new AuthMiddleware(), 'App\\Http\\Middleware\\PermissionMiddleware:personnel.view'], function ($r) {
- *     $r->get('/',          [\App\Http\Controllers\UserController::class, 'index']);
- *     $r->get('/{id:\d+}',  [\App\Http\Controllers\UserController::class, 'show']);
- *     $r->post('/{id:\d+}', [\App\Http\Controllers\UserController::class, 'update'],
- *         [new PermissionMiddleware('personnel.edit')]);
+ * $router->group('/users', [new AuthMiddleware()], function ($r) {
+ *     // Liste: klassen-level Ability, kein Ziel-Objekt
+ *     $r->get('/',
+ *         [\App\Http\Controllers\UserController::class, 'index'],
+ *         [new PolicyMiddleware('user.viewList')]
+ *     );
+ *
+ *     // Edit: mit Route-Parameter als Resource
+ *     $r->post('/{id:\d+}',
+ *         [\App\Http\Controllers\UserController::class, 'update'],
+ *         [new PolicyMiddleware('user.update', resourceParam: 'id')]
+ *     );
  * });
  *
  * BEISPIEL — eNOTF-Protokoll (config-gated Auth + PIN-Lockscreen + FiveM-CSP)
  *
  * $router->group('/enotf', [
- *     new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH'),   // nur wenn Flag=true
- *     PinLockscreenMiddleware::class,                  // eigener PIN-Gate
- *     FiveMCspMiddleware::class,                       // CSP für CitizenFX
+ *     new AuthMiddleware('ENOTF_REQUIRE_USER_AUTH'),
+ *     PinLockscreenMiddleware::class,
+ *     FiveMCspMiddleware::class,
  * ], function ($r) {
  *     $r->get('/protokoll/{enr}', [\App\Http\Controllers\EnotfProtokollController::class, 'index']);
  * });
  *
- * BEISPIEL — Wissensdatenbank (public, wenn KB_PUBLIC_ACCESS=true)
+ * BEISPIEL — Wissensdatenbank (public wenn KB_PUBLIC_ACCESS=true)
  *
  * $router->get('/wissensdb/{slug}',
  *     [\App\Http\Controllers\KnowledgebaseController::class, 'show'],
  *     [new AuthMiddleware('KB_PUBLIC_ACCESS', invert: true)]
  * );
+ *
+ * Für einfache Permission-Checks ohne Policy-Kontext reicht weiterhin
+ * der schlankere PermissionMiddleware — z.B. Admin-only Endpoints ohne
+ * Resource-Bezug. PolicyMiddleware ist der richtige Griff, sobald die
+ * Entscheidung vom Ziel-Objekt abhängt (Priority-Vergleich, Ownership etc.).
  */

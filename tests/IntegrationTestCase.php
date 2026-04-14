@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests;
 
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDO;
 use PDOException;
 
@@ -18,6 +19,22 @@ use PDOException;
  *   - Skippt sich gracefully, wenn keine Test-DB-Credentials gesetzt sind
  *     oder die Verbindung fehlschlägt — so bleibt CI grün ohne Test-DB.
  *
+ * Transaction-Isolation (Default an):
+ *   - In setUp() wird eine Eloquent-Transaction geöffnet
+ *   - In tearDown() wird sie wieder rolled-back
+ *   - Tests die Eloquent-Models nutzen sehen ihre Daten während des Tests,
+ *     aber die DB ist nach jedem Test im Ausgangszustand
+ *   - Tests die EMPFANGENE Seiteneffekte prüfen wollen (z.B. was aus einer
+ *     Transaction nach Commit sichtbar ist) können `$useTransactions = false`
+ *     setzen — dann müssen sie selbst aufräumen
+ *
+ * Wichtig: Eloquent-Transactions wirken nur auf Queries, die über die
+ * Capsule laufen (Model::save(), Model::create(), Model::where() etc.).
+ * Raw $this->pdo-Queries laufen über eine separate Connection und werden
+ * NICHT automatisch rolled back. Tests die raw PDO nutzen müssen also
+ * entweder manuell cleanup-en oder `$useTransactions = false` setzen und
+ * wissen was sie tun.
+ *
  * Wenn du die Test-DB komplett resetten willst:
  *   php tools/test-fresh-db.php --keep
  */
@@ -25,8 +42,16 @@ abstract class IntegrationTestCase extends TestCase
 {
     protected PDO $pdo;
 
+    /**
+     * Ob eine Eloquent-Transaction pro Test geöffnet und am Ende
+     * rolled-back werden soll. Default: an. Überschreibbar in Subklassen,
+     * wenn ein Test echte Commits testen muss.
+     */
+    protected bool $useTransactions = true;
+
     private static bool $dbReady = false;
     private static ?string $skipReason = null;
+    private bool $transactionOpen = false;
 
     protected function setUp(): void
     {
@@ -53,7 +78,48 @@ abstract class IntegrationTestCase extends TestCase
 
         parent::setUp();
 
-        $this->pdo = $this->resolve(PDO::class);
+        // Eloquent-Capsule eager booten (falls im Bootstrap skippt wurde
+        // weil DB-Credentials noch nicht gesetzt waren).
+        $this->container->get(Capsule::class);
+
+        // Connection-Unification: Controller bekommen `PDO::class` via
+        // Constructor-Injection aus dem Container. Wenn der Container eine
+        // SEPARATE PDO-Instanz erzeugt als die, die Capsule intern nutzt,
+        // sehen Controller-Queries keine Daten, die über Capsule oder
+        // FixtureFactory angelegt wurden — und umgekehrt. Für Integration-
+        // Tests injecten wir daher die Capsule-PDO in den Container, damit
+        // ALLE Queries über dieselbe Connection laufen und die Transaction-
+        // Isolation End-to-End funktioniert.
+        $capsulePdo = Capsule::connection()->getPdo();
+        if (method_exists($this->container, 'set')) {
+            $this->container->set(PDO::class, $capsulePdo);
+        }
+        $this->pdo = $capsulePdo;
+
+        if ($this->useTransactions) {
+            try {
+                Capsule::connection()->beginTransaction();
+                $this->transactionOpen = true;
+            } catch (\Throwable $e) {
+                // Wenn wir keine Transaction bekommen (z.B. Nested-TX-Bug),
+                // lieber ohne fortfahren als den ganzen Test zu skippen.
+                $this->transactionOpen = false;
+            }
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->transactionOpen) {
+            try {
+                Capsule::connection()->rollBack();
+            } catch (\Throwable) {
+                // ignore — Connection already closed, test was destructive etc.
+            }
+            $this->transactionOpen = false;
+        }
+
+        parent::tearDown();
     }
 
     /**
