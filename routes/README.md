@@ -1,6 +1,6 @@
 # intraRP — Routes
 
-Zentrale Definition aller HTTP-Routen für intraRP (Phase 3.1+).
+Zentrale Definition aller HTTP-Routen für intraRP.
 
 ## Dateien
 

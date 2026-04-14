@@ -29,19 +29,33 @@ use Illuminate\Queue\QueueManager;
 header('Content-Type: text/plain; charset=utf-8');
 
 // ── Auth-Check ─────────────────────────────────────────────────────
-$providedKey = $_SERVER['HTTP_X_API_KEY']
-    ?? ($_GET['key'] ?? '')
-    ?? ($_GET['api_key'] ?? '');
+// Reihenfolge: Header > Query-Key > Query-Api-Key. Header ist bevorzugt,
+// weil Query-Params in Webserver-Access-Logs und Cron-Service-Statistiken
+// landen. Die Query-Varianten sind nur als Fallback für Cron-Services ohne
+// Custom-Header-Support.
+$providedKey = (string) (
+    $_SERVER['HTTP_X_API_KEY']
+    ?? $_GET['key']
+    ?? $_GET['api_key']
+    ?? ''
+);
 
 $configuredKey = defined('API_KEY') ? (string) constant('API_KEY') : '';
 
 $isLocalhost = in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
 if (!$isLocalhost) {
-    if ($configuredKey === '' || $configuredKey === 'CHANGE_ME' || !hash_equals($configuredKey, (string) $providedKey)) {
+    if ($configuredKey === '' || $configuredKey === 'CHANGE_ME' || !hash_equals($configuredKey, $providedKey)) {
+        // Brute-Force-Bremse: 1s Delay bei Fehl-Auth. Für legitime
+        // Cron-Aufrufe harmlos (1× pro Minute), für Brute-Force-Attacks
+        // senkt es die Rate von tausenden Versuchen pro Sekunde auf 1.
+        sleep(1);
+
         http_response_code(403);
         echo "Forbidden\n";
         Logger::warning('QueueWorkerCron: unauthorized access attempt', [
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'ip'          => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'user_agent'  => substr((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 200),
+            'had_key'     => $providedKey !== '',
         ]);
         exit;
     }

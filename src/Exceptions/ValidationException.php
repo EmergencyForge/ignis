@@ -11,7 +11,7 @@ use Throwable;
  * Wird von FormRequest::validate() geworfen, wenn die Eingaben nicht den
  * deklarativen Regeln entsprechen.
  *
- * Hält strukturierte Field-Errors für API-Responses (Phase 4+) sowie eine
+ * Hält strukturierte Field-Errors für API-Responses sowie eine
  * lesbare Zusammenfassung für Flash-Messages.
  */
 class ValidationException extends RuntimeException

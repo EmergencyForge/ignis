@@ -16,7 +16,7 @@ use PDO;
  * `requireAuth()`, `ensure()`, `redirect()` und `renderView()` nicht mehr
  * selbst implementieren.
  *
- * In Phase 4+ (Router + Middleware) werden requireAuth/ensure von der
+ *
  * Middleware-Pipeline übernommen — bis dahin bleiben sie hier als Inline-
  * Helper für die Stub-basierte Routing-Welt.
  *

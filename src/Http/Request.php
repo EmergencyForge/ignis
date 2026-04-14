@@ -8,9 +8,8 @@ namespace App\Http;
  * Schlankes Request-Wrapper-Objekt für die Middleware-Pipeline.
  *
  * Kein PSR-7 — intraRP hält die HTTP-Abstraktion bewusst minimal, um
- * webspace-kompatibel und framework-frei zu bleiben. PSR-7 ist Phase 5.1
- * (optional) und wird erst eingeführt, wenn externe PSR-15-Middleware
- * benötigt wird.
+ * webspace-kompatibel und framework-frei zu bleiben. PSR-7 wird erst
+ * eingeführt, falls externe PSR-15-Middleware benötigt wird.
  *
  * Das Objekt ist lesbar mutierbar (`withAttribute`) via Copy-on-Write,
  * damit Middlewares Context anreichern können (z.B. `user_id`) ohne die

@@ -7,9 +7,13 @@
  * 0 3 * * * /usr/bin/php /path/to/cron/telemetry-cron.php
  */
 
-// CLI-Check
+// CLI-Check — dieses Script ist ausschließlich CLI-only.
+// Direkter HTTP-Zugriff wird abgewiesen.
 if (php_sapi_name() !== 'cli') {
-    die("Dieses Script muss via CLI ausgeführt werden.\n");
+    http_response_code(403);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Forbidden\n";
+    exit(1);
 }
 
 // Bootstrap

@@ -3,26 +3,20 @@
 declare(strict_types=1);
 
 /**
- * intraRP Queue Worker
+ * Legacy-Wrapper für den Queue-Worker.
  *
- * Wird vom Cron im 1-5 Minuten Intervall aufgerufen:
+ * Delegiert an `cli/intra.php queue:work` weiter. Existierende Cron-Einträge
+ * die auf `cli/queue-worker.php` zeigen bleiben funktionsfähig, ohne dass
+ * der Server-Admin den Crontab anfassen muss.
  *
- *     * * * * * /usr/bin/php /path/to/intraRP/cli/queue-worker.php >> storage/logs/queue.log 2>&1
+ * Neue Installationen sollten direkt `cli/intra.php queue:work [options]`
+ * verwenden — siehe `docs/dokumentation/cron-setup.md`.
  *
- * Zieht Jobs aus der Queue und führt sie aus. Beendet sich nach
- * `--max-time` Sekunden oder `--max-jobs` Jobs (je nachdem was zuerst
- * eintritt) — der nächste Cron-Lauf startet einen frischen Worker. Das
- * ist webspace-kompatibel, braucht keinen persistenten Prozess und
- * verhindert Memory-Leaks.
+ * Original-CLI-Argumente werden durchgereicht:
  *
- * CLI-Optionen:
- *   --queue=<name>      Welche Queue prozessieren (Default: "default")
- *   --max-time=<sek>    Max Laufzeit in Sekunden  (Default: 55)
- *   --max-jobs=<n>      Max Jobs pro Worker-Lauf  (Default: 50)
- *   --sleep=<sek>       Wartezeit wenn Queue leer (Default: 3)
- *
- * Beispiel:
- *     php cli/queue-worker.php --queue=notifications --max-time=30
+ *     php cli/queue-worker.php --max-time=55 --queue=notifications
+ *         →
+ *     php cli/intra.php queue:work --max-time=55 --queue=notifications
  */
 
 if (PHP_SAPI !== 'cli') {
@@ -31,99 +25,15 @@ if (PHP_SAPI !== 'cli') {
     exit(1);
 }
 
-require_once __DIR__ . '/../assets/config/config.php';
+// argv umbauen: [0]=intra.php, [1]=queue:work, [2..]=original args
+$forwardedArgv = array_merge(
+    [__DIR__ . '/intra.php', 'queue:work'],
+    array_slice($argv, 1)
+);
 
-use App\Logging\Logger;
-use Illuminate\Queue\QueueManager;
+$_SERVER['argv'] = $forwardedArgv;
+$_SERVER['argc'] = count($forwardedArgv);
+$argv = $forwardedArgv;
+$argc = count($forwardedArgv);
 
-// ── CLI-Args parsen ────────────────────────────────────────────────
-$options = [
-    'queue'    => 'default',
-    'max-time' => 55,
-    'max-jobs' => 50,
-    'sleep'    => 3,
-];
-foreach (array_slice($argv, 1) as $arg) {
-    if (preg_match('/^--([a-z-]+)=(.+)$/', $arg, $m)) {
-        $options[$m[1]] = $m[2];
-    }
-}
-
-$queueName = (string) $options['queue'];
-$maxTime   = (int)    $options['max-time'];
-$maxJobs   = (int)    $options['max-jobs'];
-$sleep     = max(1, (int) $options['sleep']);
-
-Logger::info('QueueWorker: started', [
-    'queue'    => $queueName,
-    'max_time' => $maxTime,
-    'max_jobs' => $maxJobs,
-    'pid'      => getmypid(),
-]);
-
-$startTime      = time();
-$processedJobs  = 0;
-$exitCode       = 0;
-
-try {
-    $queueManager = app(QueueManager::class);
-    $connection   = $queueManager->connection();
-
-    // ── Haupt-Loop ─────────────────────────────────────────────────
-    // Eigener Worker, weil Illuminate\Queue\Worker `illuminate/foundation`
-    // an Bord ziehen würde (wollen wir nicht). Der Loop ist bewusst simpel:
-    // poll → fire → loop, mit Time-/Count-Limits.
-    while (true) {
-        if ((time() - $startTime) >= $maxTime) {
-            Logger::info('QueueWorker: max-time reached', ['processed' => $processedJobs]);
-            break;
-        }
-        if ($processedJobs >= $maxJobs) {
-            Logger::info('QueueWorker: max-jobs reached', ['processed' => $processedJobs]);
-            break;
-        }
-
-        /** @var \Illuminate\Contracts\Queue\Job|null $job */
-        $job = $connection->pop($queueName);
-
-        if ($job === null) {
-            // Queue leer — kurz schlafen, dann nochmal probieren
-            sleep($sleep);
-            continue;
-        }
-
-        try {
-            // fire() triggert intern den payload-Handler — das ist unser
-            // `SerializedJob::handle($illuminateJob, $data)`, der dann die
-            // eigentliche App-Job-Klasse aus den serialisierten Daten
-            // rekonstruiert und ihre `handle()`-Methode ausführt.
-            $job->fire();
-            $processedJobs++;
-
-            Logger::info('QueueWorker: job processed', [
-                'queue'    => $queueName,
-                'attempts' => $job->attempts(),
-            ]);
-        } catch (\Throwable $e) {
-            // fire() macht eigentlich sein eigenes Error-Handling
-            // (release/fail), aber falls doch eine Exception durchkommt,
-            // loggen wir sie und machen weiter.
-            Logger::error('QueueWorker: job threw outside fire()', [
-                'error' => $e->getMessage(),
-            ]);
-        }
-    }
-
-    Logger::info('QueueWorker: finished', [
-        'processed' => $processedJobs,
-        'duration'  => time() - $startTime,
-    ]);
-    exit($exitCode);
-} catch (\Throwable $e) {
-    Logger::error('QueueWorker: crashed', [
-        'error' => $e->getMessage(),
-        'trace' => $e->getTraceAsString(),
-    ]);
-    fwrite(STDERR, 'Queue Worker crashed: ' . $e->getMessage() . "\n");
-    exit(1);
-}
+require __DIR__ . '/intra.php';

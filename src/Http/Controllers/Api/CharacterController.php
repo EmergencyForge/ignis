@@ -12,7 +12,6 @@ use App\Logging\Logger;
 /**
  * FiveM-Charakter-Endpoints.
  *
- * Migriert aus:
  *   - api/character/identify.php       → identify()
  *   - api/character/get-session-id.php → sessionId()
  *

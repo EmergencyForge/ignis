@@ -15,11 +15,11 @@ use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
- * UserController — Pilot-Migration für das benutzer/-Modul.
+ * UserController für das benutzer/-Modul.
  *
- * Erste konkrete Anwendung des Eloquent-ORM in intraRP. Die Methoden hier
- * werden aktuell von Stub-Files in benutzer/*.php aus aufgerufen, in Phase 3
- * (Router) wandern sie unter zentrale Routes-Definitions.
+ * Nutzt Eloquent-Models für Daten-Zugriff. Die Methoden werden aktuell von
+ * Stub-Files in benutzer/*.php aus aufgerufen und können später unter
+ * zentrale Routes-Definitions in routes/web.php wandern.
  *
  * Verantwortlichkeiten:
  *   - Auth & Permission Checks (vor Router-Middleware: inline)
@@ -168,7 +168,7 @@ class UserController extends Controller
      * POST mit `action=delete`   → Code löschen (nur ungenutzte)
      *
      * Internes Dispatching nach REQUEST_METHOD + action — der Stub bleibt
-     * dadurch ein 2-Zeiler. Wird in Phase 3 durch echte Routes ersetzt.
+     * dadurch ein 2-Zeiler. 
      */
     public function registrationCodes(): void
     {

@@ -19,7 +19,7 @@ use App\Exceptions\AuthorizationException;
  *     → \App\Policies\RolePolicy::create(null)
  *
  * Policy-Methoden lesen den aktuellen User aus $_SESSION (siehe Policy-Klassen).
- * In Phase 4+ wird das durch echte Constructor-Injection ersetzt.
+ *
  *
  * Vorteile gegenüber direktem Permissions::check():
  *   - Eine Stelle pro Resource für ALLE Berechtigungsregeln

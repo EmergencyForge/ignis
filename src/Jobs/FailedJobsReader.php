@@ -24,9 +24,9 @@ use PDOException;
  *   - Retry (Job erneut in `intra_jobs` pushen)
  *   - Delete (einzeln oder alle auf einmal)
  *
- * Die Klasse arbeitet rein gegen die DB; wenn die Tabelle noch nicht
- * migriert ist (frische Installation vor Phase 4.1), fallen alle
- * Lookups still auf leere Ergebnisse zurück.
+ * Die Klasse arbeitet rein gegen die DB; wenn die Tabelle `intra_failed_jobs`
+ * noch nicht existiert (z.B. frische Installation ohne ausgeführte Migration),
+ * fallen alle Lookups still auf leere Ergebnisse zurück.
  */
 final class FailedJobsReader
 {

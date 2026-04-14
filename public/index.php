@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * intraRP — Front-Controller (Single Entry Point, Phase 3.1)
+ * intraRP Front-Controller (Single Entry Point).
  *
  * Verantwortlich für:
  *   1. Bootstrap laden (Container, Session, ErrorHandler, Config)
@@ -11,16 +11,10 @@ declare(strict_types=1);
  *   3. Request aus Superglobals bauen, Router dispatchen lassen
  *   4. Response emittieren
  *
- * Die .htaccess des Projekt-Roots leitet alle nicht-existierenden Pfade
- * hierher weiter (Fallback nach !-f/!-d Check). Bestehende Modul-Stubs
- * unter `benutzer/`, `einsatz/`, `enotf/` etc. werden weiterhin direkt
- * von Apache gehandhabt — sie sind echte Files und MultiViews/RewriteRules
- * matchen sie, bevor die Fallback-Regel greift. So läuft der Router
- * PARALLEL zur Legacy-Welt, ohne sie zu stören.
- *
- * Migrierte Module registrieren ihre Routen in routes/web.php oder
- * routes/api.php und löschen danach ihre Stubs — dann greift der Router
- * für diese URLs.
+ * Die .htaccess leitet alle nicht-existierenden Pfade hierher weiter
+ * (Fallback nach !-f/!-d Check). Bestehende Modul-Stubs werden weiterhin
+ * direkt von Apache gehandhabt — sie sind echte Files und MultiViews/
+ * RewriteRules matchen sie, bevor die Fallback-Regel greift.
  */
 
 use App\Http\Request;
@@ -63,7 +57,9 @@ try {
 } catch (\Throwable $e) {
     // Unerwartete Exceptions landen beim globalen ErrorHandler (Logger),
     // der bereits in config.php via ErrorHandler::register() aktiv ist.
-    // Hier reichen wir die Exception weiter, damit sie dort sauber
-    // erfasst und mit Error-ID versehen wird.
+    // Defensive: display_errors lokal ausschalten, falls jemand es in der
+    // PHP-Config aktiviert hat — sonst würde PHP vor dem ErrorHandler den
+    // Stack-Trace direkt in die HTTP-Response schreiben.
+    @ini_set('display_errors', '0');
     throw $e;
 }

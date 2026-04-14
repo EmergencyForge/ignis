@@ -11,8 +11,8 @@ use App\Models\User;
  * UserPolicy — Single Source of Truth für "wer darf was mit System-Benutzern".
  *
  * Methoden geben true/false zurück. Die "wer ist der Aktor"-Information wird
- * (vorerst) aus $_SESSION gelesen — in Phase 4+ wird das durch echte
- * Constructor-Injection eines AuthContext ersetzt.
+ * aus $_SESSION gelesen und kann später durch Constructor-Injection eines
+ * AuthContext-Services ersetzt werden.
  *
  * Aufruf bevorzugt über den Gate:
  *

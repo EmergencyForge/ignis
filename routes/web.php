@@ -52,7 +52,7 @@ $router->get('/_router/ping', function ($request) {
 });
 
 /*
- * BEISPIEL — Benutzer-Modul (Pilot, wird in Welle 3.1a aktiviert)
+ * BEISPIEL — Benutzer-Modul (Pilot, wird aktiviert)
  *
  * $router->group('/users', [new AuthMiddleware(), 'App\\Http\\Middleware\\PermissionMiddleware:personnel.view'], function ($r) {
  *     $r->get('/',          [\App\Http\Controllers\UserController::class, 'index']);

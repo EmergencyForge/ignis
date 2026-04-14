@@ -9,7 +9,7 @@ use App\Http\Response;
 
 /**
  * Minimal-Interface für intraRP-Middleware. Bewusst kein PSR-15, um die
- * Abhängigkeit auf PSR-7 zu vermeiden (siehe Request.php — Phase 5.1).
+ * Abhängigkeit auf PSR-7 zu vermeiden (siehe Request.php).
  *
  * Eine Middleware bekommt den Request und eine `$next`-Closure. Sie darf:
  *   - den Request modifizieren (withAttribute) und `$next($request)` aufrufen

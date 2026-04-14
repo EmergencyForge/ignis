@@ -710,7 +710,7 @@ class EinsatzController extends Controller
             error_log('Fehler beim Senden der Benachrichtigung (Fire Protokoll Freigabe): ' . $e->getMessage());
         }
 
-        // Domain-Event feuern (Phase 4.2) — Listener kümmern sich um Side-
+        // Domain-Event feuern — Listener kümmern sich um Side-
         // Effects wie Discord-Webhook, Audit-Log etc. Der Controller weiß
         // nichts von der konkreten Integration, das entkoppelt saubere
         // Domain-Logik von Infrastruktur-Details.

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * intraRP — Event-Listener-Map (Phase 4.2)
+ * intraRP — Event-Listener-Map
  *
  * Zentrales Mapping Event → Listener. Wird vom EventServiceRegistrar
  * beim Container-Build gelesen und registriert alle Listener beim
