@@ -17,6 +17,7 @@ declare(strict_types=1);
  * RewriteRules matchen sie, bevor die Fallback-Regel greift.
  */
 
+use App\Exceptions\AuthorizationException;
 use App\Http\Request;
 use App\Http\Response;
 use App\Http\Router;
@@ -54,6 +55,25 @@ try {
         'message' => $e->getMessage(),
         'errors'  => $e->errors,
     ], 422)->send();
+} catch (AuthorizationException $e) {
+    // Gate::authorize() aus Controller oder Policy-Middleware.
+    // API-Requests bekommen JSON, HTML-Requests einen Flash+Redirect.
+    $isApi = str_starts_with($_SERVER['REQUEST_URI'] ?? '', '/api/')
+        || str_contains((string) ($_SERVER['HTTP_ACCEPT'] ?? ''), 'application/json');
+
+    if ($isApi) {
+        Response::json([
+            'success' => false,
+            'message' => 'Keine Berechtigung',
+            'ability' => $e->ability(),
+        ], 403)->send();
+    } else {
+        if (class_exists(\App\Helpers\Flash::class)) {
+            \App\Helpers\Flash::set('error', 'no-permissions');
+        }
+        $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+        Response::redirect($base . 'index.php', 302)->send();
+    }
 } catch (\Throwable $e) {
     // Unerwartete Exceptions landen beim globalen ErrorHandler (Logger),
     // der bereits in config.php via ErrorHandler::register() aktiv ist.

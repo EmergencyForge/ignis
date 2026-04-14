@@ -1103,14 +1103,18 @@ final class EmdSyncController
                 continue;
             }
 
-            // Neue ENR bestimmen: basis oder basis_N
+            // Neue ENR bestimmen: basis oder basis_N.
+            // WICHTIG: ENRs werden durchgängig als string gehandhabt, weil
+            // der Suffix-Fall ("123_1") string ist und uns sonst strict
+            // in_array-Vergleiche (string vs. int) reinreiten würden.
             $enrToUse = null;
-            if (!in_array((string) $dispatchId, $existingEnrs, true)) {
-                $enrToUse = $dispatchId;
+            $baseEnr  = (string) $dispatchId;
+            if (!in_array($baseEnr, $existingEnrs, true)) {
+                $enrToUse = $baseEnr;
             } else {
                 $suffix = 1;
                 while (true) {
-                    $testEnr = $dispatchId . '_' . $suffix;
+                    $testEnr = $baseEnr . '_' . $suffix;
                     if (!in_array($testEnr, $existingEnrs, true)) {
                         $enrToUse = $testEnr;
                         break;
