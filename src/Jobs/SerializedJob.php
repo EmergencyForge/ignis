@@ -29,12 +29,29 @@ final class SerializedJob
     public function handle(IlluminateJobContract $illuminateJob, array $data): void
     {
         try {
+            // Security: Class-Whitelist für unserialize() — verhindert
+            // Object-Injection-Angriffe falls jemals jemand beliebige Daten
+            // in die intra_jobs-Tabelle schreiben sollte (SQLi etc.).
+            // Nur Klassen unterhalb App\Jobs\ und bekannte Primitives/Arrays
+            // werden deserialisiert; alles andere wird zu __PHP_Incomplete_Class
+            // und fällt beim `instanceof Job`-Check unten raus.
+            $declaredClass = $data['class'] ?? '';
+            if (!is_string($declaredClass) || !str_starts_with($declaredClass, 'App\\Jobs\\')) {
+                Logger::error('SerializedJob: rejected non-App\\Jobs class', [
+                    'class' => $declaredClass,
+                ]);
+                $illuminateJob->fail(new \RuntimeException('Ungültige Job-Klasse'));
+                return;
+            }
+
             /** @var Job $job */
-            $job = unserialize($data['serialized']);
+            $job = unserialize($data['serialized'], [
+                'allowed_classes' => $this->allowedJobClasses($declaredClass),
+            ]);
 
             if (!($job instanceof Job)) {
                 Logger::error('SerializedJob: payload is not a Job instance', [
-                    'class' => $data['class'] ?? 'unknown',
+                    'class' => $declaredClass,
                 ]);
                 $illuminateJob->fail(new \RuntimeException('Ungültiger Job-Payload'));
                 return;
@@ -70,5 +87,31 @@ final class SerializedJob
                 $illuminateJob->release($backoff);
             }
         }
+    }
+
+    /**
+     * Liefert die Liste von Klassen, die `unserialize()` beim Deserialisieren
+     * eines Jobs tatsächlich als echte Objekte rekonstruieren darf. Alle
+     * anderen Klassen werden zu `__PHP_Incomplete_Class` und sind damit
+     * harmlos — `handle()` und Magic-Methods werden nicht aufgerufen.
+     *
+     * Wir erlauben die konkrete Job-Klasse selbst plus alle bekannten
+     * App\Jobs\* Subklassen. DateTime/DateTimeZone werden auch erlaubt,
+     * weil Jobs oft DateTimes als Payload haben.
+     *
+     * @return array<int, class-string>
+     */
+    private function allowedJobClasses(string $jobClass): array
+    {
+        return [
+            $jobClass,
+            \App\Jobs\Job::class,
+            \App\Jobs\SendDiscordWebhookJob::class,
+            \App\Jobs\SendNotificationJob::class,
+            \DateTime::class,
+            \DateTimeImmutable::class,
+            \DateTimeZone::class,
+            \DateInterval::class,
+        ];
     }
 }

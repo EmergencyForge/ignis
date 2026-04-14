@@ -144,7 +144,7 @@ return [
     \App\Session\SessionManager::class => \DI\autowire(),
 
     // -----------------------------------------------------------------------
-    //  HTTP-Routing & Middleware-Pipeline (Phase 3.1)
+    //  HTTP-Routing & Middleware-Pipeline
     //
     //  Der Router wird vom Front-Controller (public/index.php) aufgerufen,
     //  nachdem Routen-Dateien geladen wurden. Er bekommt Container und
@@ -167,7 +167,7 @@ return [
     \App\Http\Middleware\PinLockscreenMiddleware::class => \DI\autowire(),
 
     // -----------------------------------------------------------------------
-    //  HTTP-Controller (Phase 3.1+)
+    //  HTTP-Controller
     //
     //  Werden vom Router via Container aufgelöst — Constructor-Injection
     //  von PDO/Logger/etc. funktioniert dank Autowiring.
@@ -183,7 +183,7 @@ return [
     \App\Notifications\NotificationManager::class => \DI\autowire(),
 
     // -----------------------------------------------------------------------
-    //  Job Queue (Phase 4.1) — illuminate/queue standalone mit DB-Driver
+    //  Job Queue — illuminate/queue standalone mit DB-Driver
     //
     //  Die Queue nutzt dieselbe DB wie die App (Table `intra_jobs`). Der
     //  Worker läuft Cron-getrieben via `cli/queue-worker.php` — kein
@@ -239,7 +239,7 @@ return [
     \App\Jobs\JobDispatcher::class => \DI\autowire(),
 
     // -----------------------------------------------------------------------
-    //  Event Dispatcher (Phase 4.2)
+    //  Event Dispatcher
     //
     //  Nutzt `Illuminate\Events\Dispatcher` unter der Haube (kommt als
     //  Transitive-Dependency mit Eloquent). Der EventDispatcher-Wrapper
@@ -283,5 +283,26 @@ return [
     \App\Listeners\DispatchDiscordWebhookOnEnotfReleased::class      => \DI\autowire(),
     \App\Listeners\DispatchDiscordWebhookOnFireReleased::class       => \DI\autowire(),
     \App\Listeners\DispatchDiscordWebhookOnEnotfPreregistered::class => \DI\autowire(),
+
+    // -----------------------------------------------------------------------
+    //  Console — Symfony-Console-Commands
+    //
+    //  Die Application sammelt alle Commands aus `config/console.php` und
+    //  resolved jeden Command via DI-Container. Constructor-Injection der
+    //  Command-Klassen funktioniert dadurch automatisch.
+    // -----------------------------------------------------------------------
+
+    \App\Console\Application::class => \DI\autowire(),
+
+    \App\Console\Commands\QueueWorkCommand::class         => \DI\autowire(),
+    \App\Console\Commands\QueueFailedListCommand::class   => \DI\autowire(),
+    \App\Console\Commands\QueueFailedRetryCommand::class  => \DI\autowire(),
+    \App\Console\Commands\QueueFailedClearCommand::class  => \DI\autowire(),
+    \App\Console\Commands\MigrateCommand::class           => \DI\autowire(),
+    \App\Console\Commands\TelemetrySendCommand::class     => \DI\autowire(),
+
+    // Service-Klassen für Commands
+    \App\Jobs\FailedJobsReader::class     => \DI\autowire(),
+    \App\Telemetry\TelemetryManager::class => \DI\autowire(),
 
 ];

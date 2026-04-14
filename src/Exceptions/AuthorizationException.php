@@ -12,7 +12,7 @@ use Throwable;
  * nicht ausgeführt werden darf.
  *
  * Im Web-Kontext wird die Exception aktuell vom Controller selbst gefangen
- * (Flash + Redirect). Mit Phase 4+ (Router-Middleware) wird sie zentral in
+ * (Flash + Redirect). Mit wird sie zentral in
  * eine 403-Response übersetzt.
  */
 class AuthorizationException extends RuntimeException

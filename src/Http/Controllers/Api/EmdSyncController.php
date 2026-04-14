@@ -16,7 +16,6 @@ use PDOException;
 /**
  * EMD-Sync-Controller — der zentrale FiveM-Server-Endpoint.
  *
- * Migriert aus `api/emd/sync.php` (1532 Zeilen Legacy-Inline-PHP). Die
  * Business-Logik ist 1:1 übernommen, nur strukturell umgebaut:
  *
  *   - Alle `logSync(...)` → `Logger::*(...)` (landet im zentralen

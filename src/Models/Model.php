@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model as EloquentModel;
  *
  *   - guarded = []: Mass-Assignment-Schutz wird bewusst nicht verwendet.
  *     Stattdessen kontrollieren die Controller / Form-Requests welche Felder
- *     gespeichert werden dürfen (Phase 3 — Validation-Schicht).
+ *     gespeichert werden dürfen.
  *
  *   - $perPage = 25: Default für Pagination.
  */

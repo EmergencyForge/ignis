@@ -14,7 +14,6 @@ use Throwable;
 /**
  * Notification-API.
  *
- * Migriert aus:
  *   - api/notifications/poll.php       → poll()
  *   - api/notifications/mark-read.php  → markRead()
  *

@@ -42,6 +42,25 @@ Options -Indexes
     </IfModule>
 </FilesMatch>
 
+# Block interne Verzeichnisse komplett vor direktem Web-Zugriff.
+# Diese Ordner enthalten Quellcode, CLI-Scripts, Tools und Legacy-Code,
+# die niemals direkt über HTTP erreichbar sein sollen — sie werden
+# entweder aus anderen Scripts includiert oder nur über die CLI aufgerufen.
+RewriteRule ^src/ - [F,L]
+RewriteRule ^cli/ - [F,L]
+RewriteRule ^tools/ - [F,L]
+RewriteRule ^tests/ - [F,L]
+RewriteRule ^database/ - [F,L]
+RewriteRule ^config/ - [F,L]
+RewriteRule ^docker/ - [F,L]
+RewriteRule ^routes/ - [F,L]
+RewriteRule ^\.github/ - [F,L]
+
+# cron/ bleibt erreichbar, weil HTTP-triggerbare Cron-Endpoints dort liegen
+# (queue-worker-cron.php, telemetry-cron.php). Diese prüfen API-Key intern
+# und sind die einzigen expliziten Einsprungspunkte — andere Dateien dort
+# werden nicht erstellt, aber Legacy-Datei-Schutz hängt an den Script-Checks.
+
 #2 ---- Without extension
 
 Options +MultiViews

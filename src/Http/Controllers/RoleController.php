@@ -23,7 +23,7 @@ use App\Utils\AuditLogger;
  *   update()  — benutzer/rollen/update.php  (POST)
  *   destroy() — benutzer/rollen/delete.php  (POST)
  *
- * In Phase 3 (Router) werden diese unter zentrale Routes wandern.
+ *
  */
 class RoleController extends Controller
 {

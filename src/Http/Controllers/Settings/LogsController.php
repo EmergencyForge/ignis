@@ -89,6 +89,15 @@ class LogsController extends Controller
         }
         header('Content-Type: application/json; charset=utf-8');
 
+        // CSRF-Schutz für state-ändernde Admin-Aktionen. Der Token kommt
+        // via Header (X-CSRF-Token) oder POST-Feld (csrf_token).
+        $csrfToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? ($_POST['csrf_token'] ?? '');
+        if (!is_string($csrfToken) || $csrfToken === '' || !\App\Security\CsrfProtection::validateToken($csrfToken)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'CSRF-Token ungültig oder abgelaufen']);
+            return;
+        }
+
         $reader = $this->failedJobsReader();
         $action = (string) ($_POST['action'] ?? '');
         $id     = (int)    ($_POST['id']     ?? 0);

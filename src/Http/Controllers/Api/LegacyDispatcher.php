@@ -13,7 +13,6 @@ use PDO;
  * LegacyDispatcher — dünner Wrapper um die noch nicht vollständig portierten
  * Legacy-API-Endpoints unter `src/LegacyApi/`.
  *
- * Hintergrund: Beim großen "api/*"-Cutover in Phase 3.1 haben wir die
  * URL-Ebene komplett in den Router verlegt (alle Endpoints laufen durch
  * `Middleware-Pipeline → Controller`), aber die inneren Business-Logiken
  * der Endpoints sind bewusst **noch nicht** Zeile-für-Zeile nach PHP-
@@ -55,18 +54,43 @@ final class LegacyDispatcher
      */
     public function run(Request $request, string $legacyPath): Response
     {
-        // Pfad-Traversal-Schutz — legacyPath darf keine `..`-Hops enthalten
-        if (str_contains($legacyPath, '..') || str_starts_with($legacyPath, '/')) {
+        // Defense-in-depth gegen Path-Traversal. Der $legacyPath kommt
+        // normalerweise aus routes/api.legacy.php (hartkodiert), nicht aus
+        // User-Input. Trotzdem mehrfach gehärtet, falls sich in Zukunft
+        // jemals dynamische Pfade einschleichen:
+        //   1. keine `..`-Sequenzen
+        //   2. kein führender Slash / Backslash
+        //   3. kein Null-Byte
+        //   4. nur .php-Extension erlaubt
+        //   5. realpath() muss INNERHALB von LEGACY_BASE bleiben
+        if (
+            str_contains($legacyPath, '..')
+            || str_contains($legacyPath, "\0")
+            || str_starts_with($legacyPath, '/')
+            || str_starts_with($legacyPath, '\\')
+            || !str_ends_with($legacyPath, '.php')
+        ) {
             Logger::error('LegacyDispatcher: ungültiger Pfad', ['path' => $legacyPath]);
             return Response::json(['success' => false, 'error' => 'Ungültiger Endpoint'], 400);
         }
 
-        $file = self::LEGACY_BASE . '/' . $legacyPath;
-        $file = str_replace('\\', '/', $file);
+        $file = str_replace('\\', '/', self::LEGACY_BASE . '/' . $legacyPath);
 
         if (!is_file($file)) {
             Logger::error('LegacyDispatcher: Datei nicht gefunden', ['path' => $legacyPath, 'resolved' => $file]);
             return Response::json(['success' => false, 'error' => 'Endpoint nicht verfügbar'], 404);
+        }
+
+        // Realpath-Check: der aufgelöste absolute Pfad MUSS mit LEGACY_BASE
+        // beginnen, sonst hat jemand z.B. via Symlink-Trick rausgebrochen.
+        $realFile = realpath($file);
+        $realBase = realpath(self::LEGACY_BASE);
+        if ($realFile === false || $realBase === false || !str_starts_with($realFile, $realBase)) {
+            Logger::error('LegacyDispatcher: realpath außerhalb LEGACY_BASE', [
+                'path'     => $legacyPath,
+                'resolved' => $realFile ?: 'false',
+            ]);
+            return Response::json(['success' => false, 'error' => 'Ungültiger Endpoint'], 400);
         }
 
         // $pdo und $request im Include-Scope verfügbar machen —
@@ -75,7 +99,7 @@ final class LegacyDispatcher
         // direkt statt $request.
         $pdo = $this->pdo;
 
-        require $file;
+        require $realFile;
 
         // Legacy-Files schreiben direkt per `echo` in die Response.
         // Pipeline soll nichts mehr hinzufügen.

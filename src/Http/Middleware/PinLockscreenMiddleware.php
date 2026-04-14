@@ -12,7 +12,6 @@ use App\Http\Response;
 /**
  * eNOTF PIN-Lockscreen.
  *
- * Migriert aus `assets/functions/enotf/pin_middleware.php` (Legacy-Helper,
  * der direkt via include eingebunden wurde). Logik ist bit-genau:
  *
  *  - Nur aktiv, wenn `ENOTF_USE_PIN === true`

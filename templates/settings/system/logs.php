@@ -10,6 +10,10 @@
  */
 
 use App\Helpers\Flash;
+use App\Security\CsrfProtection;
+
+// CSRF-Token für Failed-Jobs-POST-Aktionen generieren/holen
+$csrfToken = CsrfProtection::getToken();
 
 /**
  * Mappt einen Log-Level auf das System-Status-Badge.
@@ -945,14 +949,20 @@ function logs_level_badge(string $level): string
             if (headerEl) toggleFailedRow(headerEl);
         });
 
+        const CSRF_TOKEN = <?= json_encode($csrfToken) ?>;
+
         async function postAction(action, id) {
             const body = new URLSearchParams();
             body.set('action', action);
+            body.set('csrf_token', CSRF_TOKEN);
             if (id !== null && id !== undefined) body.set('id', String(id));
 
             const res = await fetch(apiUrl, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRF-Token':  CSRF_TOKEN,
+                },
                 body: body.toString(),
             });
             return res.json();

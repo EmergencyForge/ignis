@@ -85,7 +85,7 @@ $router->post('/api/emd/status-poll.php',
 );
 
 // FiveM-Server: EMD-Sync (Haupt-Endpoint für Einsatz-/Status-/Fahrzeug-Sync)
-// Migriert aus api/emd/sync.php — Business-Logik 1:1 übernommen, inkl. FW-Fix.
+// Business-Logik 1:1 übernommen, inkl. FW-Fix.
 $router->post('/api/emd/sync',
     [EmdSyncController::class, 'sync'],
     [ApiKeyMiddleware::class]

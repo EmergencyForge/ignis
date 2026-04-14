@@ -14,7 +14,6 @@ use PDOException;
 /**
  * FiveM Fire-Status-Polling-Endpoint.
  *
- * Migriert aus `api/emd/status-poll.php`. Wird vom FiveM-Server zyklisch
  * gepollt, um neue Status-Änderungen für Fire-Vehicles abzuholen. Jeder
  * abgeholte Datensatz wird sofort als `delivered=1` markiert (At-most-once
  * Delivery semantik — falls der FiveM-Server zwischendurch crasht, gehen
