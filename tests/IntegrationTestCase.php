@@ -152,15 +152,12 @@ abstract class IntegrationTestCase extends TestCase
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ]);
 
-        // 3) Phinx-Migrations ausführen, falls phinxlog leer/fehlt
-        $hasPhinxlog = $pdo->query("SHOW TABLES LIKE 'phinxlog'")->rowCount() > 0;
-        $migrationsCount = $hasPhinxlog
-            ? (int) $pdo->query("SELECT COUNT(*) FROM phinxlog")->fetchColumn()
-            : 0;
-
-        if ($migrationsCount === 0) {
-            $this->runPhinxMigrate();
-        }
+        // 3) Phinx-Migrations ausführen. Phinx ist idempotent: bereits
+        //    angewandte Migrations werden via phinxlog erkannt und übersprungen.
+        //    Wir lassen es aber jedes Mal einmal pro Test-Run laufen, damit
+        //    neue Migrations automatisch in der Test-DB landen (sonst müsste
+        //    man die Test-DB manuell droppen wenn eine neue Migration dazukommt).
+        $this->runPhinxMigrate();
     }
 
     private function runPhinxMigrate(): void
