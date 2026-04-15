@@ -153,21 +153,21 @@ div.btn:active {
 }
 
 .btn-secondary {
-  --bs-btn-bg: #3d3a44;
-  --bs-btn-border-color: #3d3a44;
-  --bs-btn-hover-bg: #4a4752;
-  --bs-btn-hover-border-color: #4a4752;
-  --bs-btn-active-bg: #33303a;
-  --bs-btn-active-border-color: #33303a;
+  --bs-btn-bg: #1f1f1f;
+  --bs-btn-border-color: #1f1f1f;
+  --bs-btn-hover-bg: #2a2a2a;
+  --bs-btn-hover-border-color: #2a2a2a;
+  --bs-btn-active-bg: #161616;
+  --bs-btn-active-border-color: #161616;
 }
 
 .btn-dark {
-  --bs-btn-bg: #2a2830;
-  --bs-btn-border-color: #3d3a44;
-  --bs-btn-hover-bg: #35323c;
-  --bs-btn-hover-border-color: #4a4752;
-  --bs-btn-active-bg: #232128;
-  --bs-btn-active-border-color: #3d3a44;
+  --bs-btn-bg: #0e0e0e;
+  --bs-btn-border-color: #1f1f1f;
+  --bs-btn-hover-bg: #161616;
+  --bs-btn-hover-border-color: #2a2a2a;
+  --bs-btn-active-bg: #050505;
+  --bs-btn-active-border-color: #1f1f1f;
 }
 
 .btn-outline-primary,
@@ -562,7 +562,7 @@ div.btn.disabled {
 .btn-toolbar-group {
   display: inline-flex;
   gap: 2px;
-  background: #232128;
+  background: #050505;
   border-radius: var(--radius-md);
   padding: 3px;
 }
@@ -640,7 +640,7 @@ select.form-select option {
 
 .modal .modal-content {
   border-radius: var(--radius-xl);
-  background-color: #29282f;
+  background-color: #0f0f0f;
   border: 1px solid var(--darkgray);
 }
 
@@ -775,7 +775,7 @@ select.form-select option {
 
 #qmActionsModal .edivi__box,
 #qmLogModal .edivi__box {
-  background: #333333;
+  background: #1a1a1a;
   margin: 10px 0;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
   border-radius: 0;
@@ -784,7 +784,7 @@ select.form-select option {
 
 #qmActionsModal .edivi__box.edivi__log-comment,
 #qmLogModal .edivi__box.edivi__log-comment {
-  background: #333333;
+  background: #1a1a1a;
   color: #a2a2a2;
   padding: 12px;
   margin: 0;
@@ -797,7 +797,7 @@ select.form-select option {
   padding: 6px 9px;
   border-radius: 2px;
   background: #a2a2a2;
-  color: #333333;
+  color: #1a1a1a;
   opacity: 0.6;
   font-size: 1rem !important;
 }
@@ -829,7 +829,7 @@ select.form-select option {
 
 #qmActionsModal .edivi__admin option,
 #qmLogModal .edivi__admin option {
-  background: #333333;
+  background: #1a1a1a;
   color: #fff;
 }
 
@@ -1031,7 +1031,7 @@ td.dt-empty {
   bottom: calc(100% + 6px);
   left: 50%;
   transform: translateX(-50%);
-  background: #1a1820;
+  background: #000000;
   color: #fff;
   font-size: 0.7rem;
   font-weight: 400;
@@ -1291,7 +1291,7 @@ td.dt-empty {
 .custom-toggle .track {
   position: absolute;
   inset: 0;
-  background: #3d3a44;
+  background: #1f1f1f;
   border-radius: 11px;
   transition: background 0.25s var(--spring-gentle);
   cursor: pointer;
@@ -1463,7 +1463,7 @@ td.dt-empty {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  background: #29282f;
+  background: #0f0f0f;
   border: 1px solid var(--darkgray);
   border-radius: var(--radius-lg);
   padding: 0.7rem 1rem;
@@ -1701,7 +1701,7 @@ td.dt-empty {
   padding: 4px 8px;
   height: auto;
   min-height: unset;
-  background-color: var(--body-bg-darker, #232128);
+  background-color: var(--body-bg-darker, #050505);
   color: var(--text-normal, #bbbac1);
   border-color: var(--main-color, #d10000);
 }
@@ -1876,7 +1876,7 @@ td.dt-empty {
   align-items: center;
   padding: 0.45rem 0.75rem;
   margin: 0.4rem 0.6rem 0.6rem;
-  background: #2c2c34;
+  background: #0f0f0f;
   border-radius: 10px;
   flex-shrink: 0;
 }

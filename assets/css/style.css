@@ -6,7 +6,7 @@
   --main-color-rgb: 209, 0, 0;
   --fw-red: #d10000;
   --gray: #f0f2f4;
-  --darkgray: #3d3a44;
+  --darkgray: #2a2a2a;
   --tag-color: #a4a6a7;
   --alt-white: #f9fafb;
   --white: #fff;
@@ -31,20 +31,20 @@
   --box-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
   --box-shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.15);
   --box-shadow-strong: 0 6px 20px rgba(0, 0, 0, 0.2);
-  --body-bg: #2b2930;
-  --body-bg-darker: #232128;
-  --body-bg-lighter: #35323c;
+  --body-bg: #0a0a0a;
+  --body-bg-darker: #050505;
+  --body-bg-lighter: #161616;
   --sidebar-width: 260px;
-  --sidebar-bg: #232128;
-  --sidebar-hover-bg: #2d2c31;
-  --sidebar-avatar-bg: #2e2b35;
+  --sidebar-bg: #050505;
+  --sidebar-hover-bg: #141414;
+  --sidebar-avatar-bg: #161616;
   --sidebar-icon-color: #c8c6cf;
   --sidebar-link-color: #fff;
   --sidebar-role-text: #c8c6cf;
   --text-title: #fff;
   --text-normal: #bbbac1;
   --text-dimmed: #818189;
-  --input-bg: #25242c;
+  --input-bg: #121212;
   --input-placeholder: #818189;
   --input-text: #fff;
 }
@@ -216,7 +216,7 @@ body#dashboard {
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;
-  background-color: var(--body-bg-darker, #232128);
+  background-color: var(--body-bg-darker, #050505);
   position: relative;
 }
 
@@ -224,7 +224,7 @@ body#alogin {
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;
-  background-color: var(--body-bg-darker, #232128);
+  background-color: var(--body-bg-darker, #050505);
   position: relative;
 }
 
@@ -326,7 +326,7 @@ body#alogin {
 }
 
 body#alogin .card {
-  background: var(--body-bg-darker, #232128) !important;
+  background: var(--body-bg-darker, #050505) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
