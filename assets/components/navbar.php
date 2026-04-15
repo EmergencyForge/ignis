@@ -77,7 +77,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         padding: 0.45rem 0.75rem;
         flex-shrink: 0;
         margin: 0.4rem 0.6rem 0.6rem;
-        background: #2c2c34;
+        background: #0f0f0f;
         border-radius: 10px;
     }
 

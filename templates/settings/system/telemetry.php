@@ -256,7 +256,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                         Du kannst die Telemetrie jederzeit deaktivieren.
                                     </p>
 
-                                    <div class="d-flex gap-2 mb-3">
+                                    <div class="d-flex gap-2 mb-3 flex-wrap">
                                         <form method="POST" class="d-inline">
                                             <input type="hidden" name="action" value="toggle_telemetry">
                                             <button type="submit" class="btn btn-<?= $telemetryEnabled ? 'warning' : 'success' ?>">
@@ -264,6 +264,10 @@ $cacheInfo = $announcements->getCacheInfo();
                                                 <?= $telemetryEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                                             </button>
                                         </form>
+
+                                        <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#datenschutzModal">
+                                            <i class="fas fa-shield-alt me-1"></i> Datenschutz
+                                        </button>
 
                                         <?php if ($telemetryEnabled): ?>
                                             <form method="POST" class="d-inline">
@@ -414,40 +418,52 @@ $cacheInfo = $announcements->getCacheInfo();
                             </div>
                         </div>
 
-                        <!-- Datenschutz-Info -->
-                        <div class="col-12">
-                            <div class="card border-info">
-                                <div class="card-header bg-info bg-opacity-10">
-                                    <i class="fas fa-shield-alt me-2"></i>Datenschutz
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <h6 class="text-success"><i class="fas fa-check me-1"></i> Was wir sammeln:</h6>
-                                            <ul class="small mb-0">
-                                                <li>Anonyme Installation-ID (UUID)</li>
-                                                <li>Server- und Systemname</li>
-                                                <li>intraRP- und PHP-Version</li>
-                                                <li>Anzahl Mitarbeiter, User, Fahrzeuge</li>
-                                                <li>Aktivitätsstatistiken (eNOTF, Einsätze)</li>
-                                                <li>Aktive Module</li>
-                                            </ul>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h6 class="text-danger"><i class="fas fa-times me-1"></i> Was wir NICHT sammeln:</h6>
-                                            <ul class="small mb-0">
-                                                <li>Namen, E-Mails, Discord-IDs</li>
-                                                <li>IP-Adressen der Nutzer</li>
-                                                <li>Passwörter oder API-Keys</li>
-                                                <li>Konkrete Einsatz- oder Protokolldaten</li>
-                                                <li>Persönliche Informationen jeglicher Art</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Datenschutz-Modal -->
+    <div class="modal fade" id="datenschutzModal" tabindex="-1" aria-labelledby="datenschutzModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="datenschutzModalLabel">
+                        <i class="fas fa-shield-alt me-2 text-info"></i>Datenschutz
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        Wir nehmen den Schutz deiner Daten ernst. Hier siehst du genau, was die Telemetrie überträgt — und was nicht.
+                    </p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h6 class="text-success"><i class="fas fa-check me-1"></i> Was wir sammeln:</h6>
+                            <ul class="small mb-0">
+                                <li>Anonyme Installation-ID (UUID)</li>
+                                <li>Server- und Systemname</li>
+                                <li>intraRP- und PHP-Version</li>
+                                <li>Anzahl Mitarbeiter, User, Fahrzeuge</li>
+                                <li>Aktivitätsstatistiken (eNOTF, Einsätze)</li>
+                                <li>Aktive Module</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-danger"><i class="fas fa-times me-1"></i> Was wir NICHT sammeln:</h6>
+                            <ul class="small mb-0">
+                                <li>Namen, E-Mails, Discord-IDs</li>
+                                <li>IP-Adressen der Nutzer</li>
+                                <li>Passwörter oder API-Keys</li>
+                                <li>Konkrete Einsatz- oder Protokolldaten</li>
+                                <li>Persönliche Informationen jeglicher Art</li>
+                            </ul>
                         </div>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
                 </div>
             </div>
         </div>
