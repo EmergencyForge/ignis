@@ -1,9 +1,9 @@
 :root {
   --secondary-color: #011e4a;
   --secondary-color-dimmed: #0a2e5a;
-  --main-color: #d10000;
-  --main-color-dimmed: #660000;
-  --main-color-rgb: 209, 0, 0;
+  --main-color: #ff4d00;
+  --main-color-dimmed: #cc3d00;
+  --main-color-rgb: 255, 77, 0;
   --fw-red: #d10000;
   --gray: #f0f2f4;
   --darkgray: #2a2a2a;
