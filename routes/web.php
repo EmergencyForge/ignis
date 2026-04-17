@@ -264,7 +264,7 @@ $router->get('/mitarbeiter/comment-delete.php', [MitarbeiterController::class, '
 //  keine PolicyMiddleware (analog zu AntragController::view).
 //
 //  Die `.php`-Varianten bleiben registriert, weil sowohl Navbar als auch
-//  alle Templates noch auf `<?= BASE_PATH ?>manv/xxx.php` verlinken.
+//  alle Templates noch auf die Legacy-URLs mit .php-Suffix verlinken.
 // ----------------------------------------------------------------------------
 
 $manvAuth = [new AuthMiddleware()];
