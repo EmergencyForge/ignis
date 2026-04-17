@@ -34,11 +34,16 @@ use App\Http\Controllers\Api\VehicleTzTemplatesController;
 use App\Http\Controllers\Api\VersionController;
 use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\AuthMiddleware;
+use App\Http\Middleware\JsonExceptionMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
 
-$auth   = [new AuthMiddleware()];
-$apiKey = [ApiKeyMiddleware::class];
-$public = [];
+// JsonExceptionMiddleware läuft als äußerste Schicht und wandelt
+// FormRequest-Validation- und Gate-Authorization-Exceptions zentral in
+// 422- bzw. 403-JSON-Responses um. Controller können die Exceptions
+// einfach fliegen lassen.
+$auth   = [JsonExceptionMiddleware::class, new AuthMiddleware()];
+$apiKey = [JsonExceptionMiddleware::class, ApiKeyMiddleware::class];
+$public = [JsonExceptionMiddleware::class];
 
 // ============================================================================
 //  Announcements — refactored zum echten Controller

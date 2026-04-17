@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Validation;
 
+use App\Exceptions\ValidationException;
 use App\Http\Request;
 use Respect\Validation\Exceptions\NestedValidationException;
 use Respect\Validation\Exceptions\ValidationException as RespectValidationException;

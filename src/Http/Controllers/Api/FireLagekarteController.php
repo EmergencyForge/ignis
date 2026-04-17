@@ -64,60 +64,40 @@ final class FireLagekarteController
 
     private function createMarker(Request $request): Response
     {
-        $incidentId  = (int) ($request->post['incident_id'] ?? 0);
-        $markerType  = trim($request->post['marker_type'] ?? '');
-        $posX        = (float) ($request->post['pos_x'] ?? 0);
-        $posY        = (float) ($request->post['pos_y'] ?? 0);
-        $description = trim($request->post['description'] ?? '');
+        // FormRequest-Validation — wirft ValidationException → JsonExceptionMiddleware
+        // wandelt in 422 JSON. Der Controller ist danach frei von Input-Checks.
+        $data = \App\Http\Requests\Fire\CreateMarkerRequest::validate($request->post);
 
-        if ($incidentId <= 0) {
-            throw new \InvalidArgumentException('Ungültige Einsatz-ID');
-        }
-        if ($markerType === '') {
-            throw new \InvalidArgumentException('Marker-Typ ist erforderlich');
-        }
-        if ($posX < 0 || $posX > 100 || $posY < 0 || $posY > 100) {
-            throw new \InvalidArgumentException('Ungültige Position');
-        }
-
-        $this->assertIncidentEditable($incidentId);
-        $this->assertVehicleAssignedOrAdmin($incidentId);
+        $this->assertIncidentEditable($data['incident_id']);
+        $this->assertVehicleAssignedOrAdmin($data['incident_id']);
 
         $userId     = isset($_SESSION['userid']) ? (int) $_SESSION['userid'] : null;
-        $vehicleId  = isset($request->post['vehicle_id'])
-            ? (int) $request->post['vehicle_id']
-            : (isset($_SESSION['einsatz_vehicle_id']) ? (int) $_SESSION['einsatz_vehicle_id'] : null);
+        $vehicleId  = $data['vehicle_id']
+            ?? (isset($_SESSION['einsatz_vehicle_id']) ? (int) $_SESSION['einsatz_vehicle_id'] : null);
         $operatorId = $_SESSION['einsatz_operator_id'] ?? null;
 
         $userId    = $this->nullIfNotExists('intra_mitarbeiter', $userId);
         $vehicleId = $this->nullIfNotExists('intra_fahrzeuge', $vehicleId);
 
-        $stmt = $this->pdo->prepare("
+        $this->pdo->prepare("
             INSERT INTO intra_fire_incident_map_markers
                 (incident_id, marker_type, pos_x, pos_y, description,
                  grundzeichen, organisation, fachaufgabe, einheit, symbol, typ, text, name,
                  created_by, vehicle_id, operator_id, created_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-        ");
-        $stmt->execute([
-            $incidentId, $markerType, $posX, $posY, $description,
-            trim($request->post['grundzeichen'] ?? '') ?: null,
-            trim($request->post['organisation'] ?? '') ?: null,
-            trim($request->post['fachaufgabe'] ?? '')  ?: null,
-            trim($request->post['einheit'] ?? '')      ?: null,
-            trim($request->post['symbol'] ?? '')       ?: null,
-            trim($request->post['typ'] ?? '')          ?: null,
-            trim($request->post['text'] ?? '')         ?: null,
-            trim($request->post['name'] ?? '')         ?: null,
+        ")->execute([
+            $data['incident_id'], $data['marker_type'], $data['pos_x'], $data['pos_y'], $data['description'],
+            $data['grundzeichen'], $data['organisation'], $data['fachaufgabe'],
+            $data['einheit'], $data['symbol'], $data['typ'], $data['text'], $data['name'],
             $userId, $vehicleId, $operatorId,
         ]);
 
         $markerId = (int) $this->pdo->lastInsertId();
 
         $this->logActivity(
-            $incidentId, $userId, $vehicleId, $operatorId,
+            $data['incident_id'], $userId, $vehicleId, $operatorId,
             'marker_created',
-            "Lagekarten-Marker hinzugefügt: {$markerType}" . ($description !== '' ? " - {$description}" : '')
+            "Lagekarten-Marker hinzugefügt: {$data['marker_type']}" . ($data['description'] !== '' ? " - {$data['description']}" : '')
         );
 
         return Response::json([

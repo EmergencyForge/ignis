@@ -6,7 +6,7 @@ namespace Tests\Unit\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\CharacterController;
 use App\Http\Request;
-use App\Http\Validation\ValidationException;
+use App\Exceptions\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -70,9 +70,9 @@ class CharacterControllerTest extends TestCase
             $this->controller->identify($req);
             $this->fail('Expected ValidationException');
         } catch (ValidationException $e) {
-            $this->assertArrayHasKey('char_name', $e->errors);
-            $this->assertArrayHasKey('char_job', $e->errors);
-            $this->assertArrayNotHasKey('session_id', $e->errors);
+            $this->assertArrayHasKey('char_name', $e->errors());
+            $this->assertArrayHasKey('char_job', $e->errors());
+            $this->assertArrayNotHasKey('session_id', $e->errors());
         }
     }
 
@@ -101,7 +101,7 @@ class CharacterControllerTest extends TestCase
             $this->controller->identify($req);
             $this->fail('Expected ValidationException');
         } catch (ValidationException $e) {
-            $this->assertArrayHasKey('char_name', $e->errors);
+            $this->assertArrayHasKey('char_name', $e->errors());
         }
     }
 }

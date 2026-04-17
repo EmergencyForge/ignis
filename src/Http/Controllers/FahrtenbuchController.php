@@ -30,13 +30,12 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 class FahrtenbuchController extends Controller
 {
     /**
-     * GET /fahrtenbuch/index.php — Admin-Übersicht mit Filter + Stats.
+     * GET /fahrtenbuch — Admin-Übersicht mit Filter + Stats.
+     *
+     * Auth + PolicyMiddleware('fahrt.viewList') laufen im Router.
      */
     public function index(): void
     {
-        $this->requireAuth();
-        $this->ensure('fahrt.viewList', redirectTo: 'index.php');
-
         $canManage = Gate::allows('fahrt.delete');
 
         // Fahrzeuge für Filter und Create-Form (mit Capsule, keine Eloquent-Modell)
@@ -248,12 +247,14 @@ class FahrtenbuchController extends Controller
 
     /**
      * POST /fahrtenbuch/actions.php (action=delete) — Eintrag löschen.
-     * Nur Admin mit fahrtenbuch.manage. eNOTF/FireTab dürfen nicht löschen.
+     * Nur Admin mit `fahrt.delete`. eNOTF/FireTab dürfen nicht löschen —
+     * deshalb `requireAuth()` (nicht `requireAnyContext()`) + inline Gate-Check,
+     * weil der Dispatcher selber multi-context ist.
      */
     public function destroy(): void
     {
         $this->requireAuth();
-        $this->ensure('fahrt.delete', redirectTo: 'fahrtenbuch/index.php');
+        Gate::authorize('fahrt.delete');
 
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {

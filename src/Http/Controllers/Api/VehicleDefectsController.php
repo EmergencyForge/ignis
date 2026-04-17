@@ -199,53 +199,42 @@ final class VehicleDefectsController
         if (!$isEnotfUser && Gate::denies('vehicle.createDefect')) {
             return Response::json(['error' => 'Keine Berechtigung'], 403);
         }
-
-        $vehicleId   = (int) ($request->post['vehicle_id'] ?? 0);
-        $title       = trim($request->post['title'] ?? '');
-        $description = trim($request->post['description'] ?? '');
-        $category    = $request->post['category'] ?? 'sonstiges';
-        $operable    = isset($request->post['vehicle_operable']) ? (int) $request->post['vehicle_operable'] : 1;
-
-        if (!$vehicleId || $title === '') {
-            return Response::json(['error' => 'Fahrzeug und Titel sind Pflichtfelder']);
-        }
         if (!$userId && !$isEnotfUser) {
             return Response::json(['error' => 'Benutzer konnte nicht zugeordnet werden']);
         }
-        if (!in_array($category, self::ALLOWED_CATEGORIES, true)) {
-            $category = 'sonstiges';
-        }
+
+        // FormRequest-Validation — wirft ValidationException bei Fehlern,
+        // die JsonExceptionMiddleware wandelt das in 422 JSON um.
+        $data = \App\Http\Requests\Vehicles\CreateDefectRequest::validate($request->post);
 
         $this->pdo->prepare(
             "INSERT INTO intra_fahrzeuge_defects
                  (vehicle_id, title, description, category, vehicle_operable, reported_by)
              VALUES (:vid, :title, :desc, :cat, :op, :uid)"
         )->execute([
-            ':vid'   => $vehicleId,
-            ':title' => $title,
-            ':desc'  => $description,
-            ':cat'   => $category,
-            ':op'    => $operable ? 1 : 0,
+            ':vid'   => $data['vehicle_id'],
+            ':title' => $data['title'],
+            ':desc'  => $data['description'],
+            ':cat'   => $data['category'],
+            ':op'    => $data['vehicle_operable'],
             ':uid'   => $userId,
         ]);
 
         $defectId = (int) $this->pdo->lastInsertId();
 
-        // Log: Erstellung
-        $logDetails = 'Defekt gemeldet: ' . $title;
+        $logDetails = 'Defekt gemeldet: ' . $data['title'];
         if ($isEnotfUser && !$userId) {
             $logDetails .= ' (Gemeldet durch: ' . $username . ')';
         }
         $this->writeLog($defectId, $userId, 'created', $logDetails);
 
-        // Bei nicht einsatzfähig: Fahrzeug deaktivieren
-        if (!$operable) {
+        if (!$data['vehicle_operable']) {
             $this->pdo->prepare("UPDATE intra_fahrzeuge SET active = 0 WHERE id = :id")
-                ->execute([':id' => $vehicleId]);
+                ->execute([':id' => $data['vehicle_id']]);
             $this->writeLog($defectId, $userId, 'vehicle_disabled', 'Fahrzeug als nicht einsatzfähig markiert');
         }
 
-        $this->notifyStaff($defectId, $vehicleId, $title, (bool) $operable, $userId);
+        $this->notifyStaff($defectId, $data['vehicle_id'], $data['title'], (bool) $data['vehicle_operable'], $userId);
 
         return Response::json(['success' => true, 'id' => $defectId, 'message' => 'Defekt gemeldet']);
     }

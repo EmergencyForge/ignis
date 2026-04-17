@@ -35,12 +35,13 @@ class AntragController extends Controller
     // -----------------------------------------------------------------------
 
     /**
-     * GET /antrag/select.php — Liste der aktiven Antragstypen als Karten.
+     * GET /antrag/select — Liste der aktiven Antragstypen als Karten.
+     *
+     * Auth-Middleware im Router erzwingt Login; keine zusätzliche
+     * Permission nötig — jede:r eingeloggte User sieht die Typen-Auswahl.
      */
     public function selectType(): void
     {
-        $this->requireAuth();
-
         $typen = AntragTyp::query()
             ->active()
             ->withCount('felder')
@@ -52,13 +53,12 @@ class AntragController extends Controller
     }
 
     /**
-     * GET /antrag/create.php?typ=X — Form-Renderer für einen Antragstyp.
+     * GET /antrag/create?typ=X — Form-Renderer für einen Antragstyp.
+     *
+     * Auth + PolicyMiddleware('antrag.create') laufen vor dem Controller.
      */
     public function create(): void
     {
-        $this->requireAuth();
-        $this->ensure('antrag.create');
-
         $mitarbeiter = $this->loadCurrentMitarbeiter();
         if ($mitarbeiter === null) {
             Flash::set('error', 'Kein Mitarbeiterprofil für Ihre Discord-ID gefunden.');
@@ -91,13 +91,12 @@ class AntragController extends Controller
     }
 
     /**
-     * POST /antrag/create.php — Antrag einreichen, Daten in Transaction speichern.
+     * POST /antrag/create?typ=X — Antrag einreichen, Daten in Transaction speichern.
+     *
+     * Auth + PolicyMiddleware('antrag.create') laufen vor dem Controller.
      */
     public function store(): void
     {
-        $this->requireAuth();
-        $this->ensure('antrag.create');
-
         $mitarbeiter = $this->loadCurrentMitarbeiter();
         if ($mitarbeiter === null) {
             Flash::set('error', 'Kein Mitarbeiterprofil für Ihre Discord-ID gefunden.');
@@ -156,12 +155,14 @@ class AntragController extends Controller
     }
 
     /**
-     * GET /antrag/view.php?antrag=X — Detailansicht eines Antrags.
+     * GET /antrag/view?antrag=X — Detailansicht eines Antrags.
+     *
+     * Auth-Middleware erzwingt Login. Die eigentliche Zugriffs-Prüfung
+     * (`Gate::denies('antrag.view', $antrag)` mit geladenem Model) passiert
+     * unten im Controller, weil dafür der Antrag erst geladen werden muss.
      */
     public function view(): void
     {
-        $this->requireAuth();
-
         $caseId = (string) ($_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');
@@ -194,13 +195,12 @@ class AntragController extends Controller
     }
 
     /**
-     * GET /antrag/admin/list.php — Admin-Übersicht aller Anträge.
+     * GET /antrag/admin/list — Admin-Übersicht aller Anträge.
+     *
+     * Auth + PolicyMiddleware('antrag.viewAny') laufen vor dem Controller.
      */
     public function adminList(): void
     {
-        $this->requireAuth();
-        $this->ensure('antrag.viewAny', redirectTo: 'index.php');
-
         $antraege = Antrag::query()
             ->with('typ')
             ->orderBy('time_added', 'desc')
@@ -213,13 +213,12 @@ class AntragController extends Controller
     }
 
     /**
-     * GET /antrag/admin/view.php?antrag=X — Admin-Detailansicht mit Status-Form.
+     * GET /antrag/admin/view?antrag=X — Admin-Detailansicht mit Status-Form.
+     *
+     * Auth + PolicyMiddleware('antrag.decide') laufen vor dem Controller.
      */
     public function adminView(): void
     {
-        $this->requireAuth();
-        $this->ensure('antrag.decide', redirectTo: 'index.php');
-
         $caseId = (string) ($_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');
@@ -249,15 +248,14 @@ class AntragController extends Controller
     }
 
     /**
-     * POST /antrag/admin/view.php — Status-Änderung durch Bearbeiter.
+     * POST /antrag/admin/view?antrag=X — Status-Änderung durch Bearbeiter.
      * Schreibt Audit-Log-Einträge für jede einzelne Änderung und sendet eine
      * Notification an den Antragsteller.
+     *
+     * Auth + PolicyMiddleware('antrag.decide') laufen vor dem Controller.
      */
     public function decide(): void
     {
-        $this->requireAuth();
-        $this->ensure('antrag.decide', redirectTo: 'index.php');
-
         $caseId = (string) ($_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');

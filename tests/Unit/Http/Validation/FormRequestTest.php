@@ -6,7 +6,7 @@ namespace Tests\Unit\Http\Validation;
 
 use App\Http\Request;
 use App\Http\Validation\FormRequest;
-use App\Http\Validation\ValidationException;
+use App\Exceptions\ValidationException;
 use PHPUnit\Framework\Attributes\Test;
 use Respect\Validation\Validator as v;
 use Tests\TestCase;
@@ -52,8 +52,8 @@ class FormRequestTest extends TestCase
             $this->fail('Expected ValidationException');
         } catch (ValidationException $e) {
             $this->assertSame(422, $e->getCode());
-            $this->assertArrayHasKey('name', $e->errors);
-            $this->assertArrayHasKey('age', $e->errors);
+            $this->assertArrayHasKey('name', $e->errors());
+            $this->assertArrayHasKey('age', $e->errors());
         }
     }
 
@@ -66,7 +66,7 @@ class FormRequestTest extends TestCase
             DummyFormRequest::validate($req);
             $this->fail('Expected ValidationException');
         } catch (ValidationException $e) {
-            $this->assertSame('Name darf nicht leer sein', $e->errors['name']);
+            $this->assertSame('Name darf nicht leer sein', $e->errors()['name']);
         }
     }
 
@@ -79,8 +79,8 @@ class FormRequestTest extends TestCase
             DummyFormRequest::validate($req);
             $this->fail('Expected ValidationException');
         } catch (ValidationException $e) {
-            $this->assertArrayHasKey('name', $e->errors);
-            $this->assertArrayHasKey('age', $e->errors);
+            $this->assertArrayHasKey('name', $e->errors());
+            $this->assertArrayHasKey('age', $e->errors());
         }
     }
 
