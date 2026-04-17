@@ -28,14 +28,13 @@ class NotificationController extends Controller
     private const VALID_TYPES = ['antrag', 'protokoll', 'dokument', 'system', 'fire_protocol'];
 
     /**
-     * GET /benachrichtigungen/index.php — Liste der eigenen Benachrichtigungen,
+     * GET /benachrichtigungen — Liste der eigenen Benachrichtigungen,
      * mit Filter (alle/ungelesen + Type-Filter) und Pagination via offset.
+     *
+     * Auth + PolicyMiddleware('notification.viewAny') laufen im Router.
      */
     public function index(): void
     {
-        $this->requireAuth();
-        $this->ensure('notification.viewAny', redirectTo: 'index.php');
-
         $manager = new NotificationManager($this->pdo);
         $userId  = (int) $_SESSION['userid'];
 
@@ -74,12 +73,10 @@ class NotificationController extends Controller
 
     /**
      * POST mit action=mark_read — eine einzelne Benachrichtigung als gelesen markieren.
+     * Auth + Gate::authorize('notification.markRead') im Dispatcher.
      */
     public function markAsRead(): void
     {
-        $this->requireAuth();
-        $this->ensure('notification.markRead', redirectTo: 'index.php');
-
         $id = (int) ($_POST['id'] ?? 0);
         if ($id > 0) {
             (new NotificationManager($this->pdo))->markAsRead($id, (int) $_SESSION['userid']);
@@ -91,12 +88,10 @@ class NotificationController extends Controller
 
     /**
      * POST mit action=mark_all_read — ALLE Benachrichtigungen als gelesen markieren.
+     * Auth + Gate::authorize('notification.markRead') im Dispatcher.
      */
     public function markAllAsRead(): void
     {
-        $this->requireAuth();
-        $this->ensure('notification.markRead', redirectTo: 'index.php');
-
         (new NotificationManager($this->pdo))->markAllAsRead((int) $_SESSION['userid']);
         Flash::set('success', 'Alle Benachrichtigungen als gelesen markiert');
 
@@ -105,12 +100,10 @@ class NotificationController extends Controller
 
     /**
      * POST mit action=delete — eine einzelne Benachrichtigung löschen.
+     * Auth + Gate::authorize('notification.delete') im Dispatcher.
      */
     public function delete(): void
     {
-        $this->requireAuth();
-        $this->ensure('notification.delete', redirectTo: 'index.php');
-
         $id = (int) ($_POST['id'] ?? 0);
         if ($id > 0) {
             (new NotificationManager($this->pdo))->delete($id, (int) $_SESSION['userid']);

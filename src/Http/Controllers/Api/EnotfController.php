@@ -991,30 +991,37 @@ final class EnotfController
      */
     public function saveFields(Request $request): Response
     {
-        $enr   = $request->post['enr'] ?? null;
-        $field = $request->post['field'] ?? null;
-        $value = array_key_exists('value', $request->post) ? $request->post['value'] : null;
-
-        if (!$enr || !$field) {
-            return Response::text('Missing data', 400);
+        // Generische Input-Shape via FormRequest. Fehlende Felder → 400 text.
+        // (Kein JSON — der Endpoint antwortet grundsätzlich text/plain, deshalb
+        // fangen wir die ValidationException hier manuell und übersetzen sie.)
+        try {
+            $data = \App\Http\Requests\Enotf\SaveFieldRequest::validate($request->post);
+        } catch (\App\Exceptions\ValidationException $e) {
+            return Response::text($e->firstError() ?? 'Missing data', 400);
         }
 
-        // ── Freigabe-Sonderfall ──
+        $enr   = $data['enr'];
+        $field = $data['field'];
+        $value = $data['value'];
+
+        // Freigabe-Sonderfall: eigener Code-Pfad mit Event-Fire
         if ($field === 'freigeber') {
             return $this->handleFreigabe($enr, $value);
         }
 
-        // ── c_zugang-Validierung ──
+        // Alle anderen Felder: Whitelist-Check + feldspezifische Validation
+        if (!in_array($field, self::ALLOWED_FIELDS, true)) {
+            return Response::text("Invalid field: {$field}", 400);
+        }
+
+        // Feldspezifische Validation/Transformation
         if ($field === 'c_zugang') {
             $err = $this->validateCZugang($value);
             if ($err !== null) {
                 return Response::text($err, 400);
             }
         }
-
-        // ── Datums-Konvertierung ──
-        $dateFields = ['edatum', 'patgebdat', 'symptombeginn_datum'];
-        if (in_array($field, $dateFields, true) && $value !== null && $value !== '') {
+        if (in_array($field, self::DATE_FIELDS, true) && $value !== null && $value !== '') {
             $converted = $this->convertDateValue($value);
             if ($converted === false) {
                 return Response::text('Ungültiges Datumsformat', 400);
@@ -1022,52 +1029,76 @@ final class EnotfController
             $value = $converted;
         }
 
-        // ── Feld-Whitelist ──
-        if (!in_array($field, self::ALLOWED_FIELDS, true)) {
-            return Response::text("Invalid field: {$field}", 400);
-        }
-
+        // Protokoll-Status prüfen + Update durchführen
         try {
-            $stmt = $this->pdo->prepare("SELECT freigegeben FROM intra_edivi WHERE enr = :enr");
-            $stmt->execute([':enr' => $enr]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$row) {
+            $status = $this->loadProtokollReleaseStatus($enr);
+            if ($status === 'not_found') {
                 return Response::text('Protokoll nicht gefunden.', 404);
             }
-            if ((int) $row['freigegeben'] === 1) {
+            if ($status === 'released') {
                 return Response::text('Protokoll ist freigegeben und kann nicht mehr bearbeitet werden.', 403);
             }
 
-            $this->pdo->prepare("UPDATE intra_edivi SET {$field} = :value, last_edit = NOW() WHERE enr = :enr")
-                ->execute([':value' => $value, ':enr' => $enr]);
+            $this->writeProtokollField($enr, $field, $value);
 
-            // Namensänderung → patname + pat_synced synchron halten
-            if ($field === 'pat_vorname' || $field === 'pat_nachname') {
-                $cur = $this->pdo->prepare("SELECT pat_vorname, pat_nachname FROM intra_edivi WHERE enr = ?");
-                $cur->execute([$enr]);
-                $c = $cur->fetch(PDO::FETCH_ASSOC);
-                $vn = trim($c['pat_vorname'] ?? '');
-                $nn = trim($c['pat_nachname'] ?? '');
-                $combined = $nn . ($nn !== '' && $vn !== '' ? ', ' : '') . $vn;
-                $this->pdo->prepare("UPDATE intra_edivi SET patname = ?, pat_synced = 0 WHERE enr = ?")
-                    ->execute([$combined, $enr]);
-            }
-
-            if ($field === 'c_zugang') {
-                $msg = match (true) {
-                    $value === '0'                   => 'Zugang auf \'Kein Zugang\' gesetzt',
-                    $value === null || $value === ''  => 'Zugang zurückgesetzt',
-                    default                          => 'Zugang erfolgreich gespeichert',
-                };
-                return Response::text($msg);
-            }
-
-            return Response::text('Field updated');
+            return Response::text($this->successMessageFor($field, $value));
         } catch (PDOException $e) {
             Logger::error('Enotf: save-fields Fehler', ['error' => $e->getMessage()]);
             return Response::text('Datenbankfehler', 500);
         }
+    }
+
+    /** Date-Feld-Liste für Datums-Konvertierung (DD.MM.YYYY → YYYY-MM-DD). */
+    private const DATE_FIELDS = ['edatum', 'patgebdat', 'symptombeginn_datum'];
+
+    /**
+     * @return 'not_found'|'released'|'editable'
+     */
+    private function loadProtokollReleaseStatus(string $enr): string
+    {
+        $stmt = $this->pdo->prepare("SELECT freigegeben FROM intra_edivi WHERE enr = :enr");
+        $stmt->execute([':enr' => $enr]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return 'not_found';
+        }
+        return (int) $row['freigegeben'] === 1 ? 'released' : 'editable';
+    }
+
+    /**
+     * Schreibt das Feld + Side-Effects (patname-Sync bei Vor-/Nachname).
+     * Field-Name ist durch Whitelist abgesichert → SQL-Injection ausgeschlossen.
+     */
+    private function writeProtokollField(string $enr, string $field, mixed $value): void
+    {
+        $this->pdo->prepare("UPDATE intra_edivi SET {$field} = :value, last_edit = NOW() WHERE enr = :enr")
+            ->execute([':value' => $value, ':enr' => $enr]);
+
+        // Namensänderung → patname + pat_synced synchron halten (Side-Effect)
+        if ($field === 'pat_vorname' || $field === 'pat_nachname') {
+            $cur = $this->pdo->prepare("SELECT pat_vorname, pat_nachname FROM intra_edivi WHERE enr = ?");
+            $cur->execute([$enr]);
+            $c = $cur->fetch(PDO::FETCH_ASSOC);
+            $vn = trim($c['pat_vorname'] ?? '');
+            $nn = trim($c['pat_nachname'] ?? '');
+            $combined = $nn . ($nn !== '' && $vn !== '' ? ', ' : '') . $vn;
+            $this->pdo->prepare("UPDATE intra_edivi SET patname = ?, pat_synced = 0 WHERE enr = ?")
+                ->execute([$combined, $enr]);
+        }
+    }
+
+    /** Erfolgsmeldung zum geschriebenen Feld. */
+    private function successMessageFor(string $field, mixed $value): string
+    {
+        if ($field === 'c_zugang') {
+            return match (true) {
+                $value === '0'                   => "Zugang auf 'Kein Zugang' gesetzt",
+                $value === null || $value === '' => 'Zugang zurückgesetzt',
+                default                          => 'Zugang erfolgreich gespeichert',
+            };
+        }
+        return 'Field updated';
     }
 
     // ── Share: Accept Request ────────────────────────────────────────

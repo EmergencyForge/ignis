@@ -100,12 +100,9 @@ final class VehicleImportController
     /** Neues Fahrzeug aus einem Queue-Eintrag anlegen. */
     private function importNew(Request $request): Response
     {
-        $queueId = (int) ($request->post['queue_id'] ?? 0);
-        if ($queueId <= 0) {
-            return Response::json(['success' => false, 'message' => 'Ungültige ID']);
-        }
+        $data = \App\Http\Requests\Vehicles\ImportQueueItemRequest::validate($request->post);
 
-        $item = $this->loadPendingItem($queueId);
+        $item = $this->loadPendingItem($data['queue_id']);
         if (!$item) {
             return Response::json(['success' => false, 'message' => 'Eintrag nicht gefunden oder bereits verarbeitet']);
         }
@@ -116,9 +113,9 @@ final class VehicleImportController
             return Response::json(['success' => false, 'message' => 'Fahrzeug existiert bereits. Nutze Überschreiben oder Zusammenführen.']);
         }
 
-        $vehType     = trim($request->post['veh_type'] ?? $item['veh_type']);
-        $rdType      = (int) ($request->post['rd_type'] ?? $item['rd_type']);
-        $allowedJobs = trim($request->post['allowed_jobs'] ?? $item['job'] ?? '') ?: null;
+        $vehType     = $data['veh_type']     ?? trim((string) $item['veh_type']);
+        $rdType      = $data['rd_type']      ?? (int) $item['rd_type'];
+        $allowedJobs = $data['allowed_jobs'] ?? (trim((string) ($item['job'] ?? '')) ?: null);
 
         $this->pdo->prepare(
             "INSERT INTO intra_fahrzeuge (name, identifier, veh_type, rd_type, allowed_jobs, priority, active, kennzeichen)
@@ -131,7 +128,7 @@ final class VehicleImportController
             ':allowed_jobs' => $allowedJobs,
         ]);
 
-        $this->markProcessed($queueId);
+        $this->markProcessed($data['queue_id']);
 
         (new AuditLogger($this->pdo))->log(
             (int) $_SESSION['userid'],
@@ -147,20 +144,19 @@ final class VehicleImportController
     /** Bestehendes Fahrzeug durch Queue-Daten ersetzen. */
     private function overwriteExisting(Request $request): Response
     {
-        $queueId    = (int) ($request->post['queue_id'] ?? 0);
-        $existingId = (int) ($request->post['existing_id'] ?? 0);
-        if ($queueId <= 0 || $existingId <= 0) {
-            return Response::json(['success' => false, 'message' => 'Ungültige IDs']);
+        $data = \App\Http\Requests\Vehicles\ImportQueueItemRequest::validate($request->post);
+        if ($data['existing_id'] === null) {
+            return Response::json(['success' => false, 'message' => 'Existing-ID fehlt.']);
         }
 
-        $item = $this->loadPendingItem($queueId);
+        $item = $this->loadPendingItem($data['queue_id']);
         if (!$item) {
             return Response::json(['success' => false, 'message' => 'Eintrag nicht gefunden']);
         }
 
-        $vehType     = trim($request->post['veh_type'] ?? $item['veh_type']);
-        $rdType      = (int) ($request->post['rd_type'] ?? $item['rd_type']);
-        $allowedJobs = trim($request->post['allowed_jobs'] ?? $item['job'] ?? '') ?: null;
+        $vehType     = $data['veh_type']     ?? trim((string) $item['veh_type']);
+        $rdType      = $data['rd_type']      ?? (int) $item['rd_type'];
+        $allowedJobs = $data['allowed_jobs'] ?? (trim((string) ($item['job'] ?? '')) ?: null);
 
         $this->pdo->prepare(
             "UPDATE intra_fahrzeuge
@@ -173,15 +169,15 @@ final class VehicleImportController
             ':veh_type'     => $vehType,
             ':rd_type'      => $rdType,
             ':allowed_jobs' => $allowedJobs,
-            ':id'           => $existingId,
+            ':id'           => $data['existing_id'],
         ]);
 
-        $this->markProcessed($queueId);
+        $this->markProcessed($data['queue_id']);
 
         (new AuditLogger($this->pdo))->log(
             (int) $_SESSION['userid'],
             'Fahrzeug per EMD-Import überschrieben',
-            "Name: {$item['name']} | ID: {$existingId}",
+            "Name: {$item['name']} | ID: {$data['existing_id']}",
             'Fahrzeuge',
             1
         );
@@ -192,19 +188,18 @@ final class VehicleImportController
     /** Queue-Daten in bestehendes Fahrzeug zusammenführen (nur leere Felder). */
     private function mergeWithExisting(Request $request): Response
     {
-        $queueId    = (int) ($request->post['queue_id'] ?? 0);
-        $existingId = (int) ($request->post['existing_id'] ?? 0);
-        if ($queueId <= 0 || $existingId <= 0) {
-            return Response::json(['success' => false, 'message' => 'Ungültige IDs']);
+        $data = \App\Http\Requests\Vehicles\ImportQueueItemRequest::validate($request->post);
+        if ($data['existing_id'] === null) {
+            return Response::json(['success' => false, 'message' => 'Existing-ID fehlt.']);
         }
 
-        $item = $this->loadPendingItem($queueId);
+        $item = $this->loadPendingItem($data['queue_id']);
         if (!$item) {
             return Response::json(['success' => false, 'message' => 'Eintrag nicht gefunden']);
         }
 
         $existStmt = $this->pdo->prepare("SELECT * FROM intra_fahrzeuge WHERE id = ?");
-        $existStmt->execute([$existingId]);
+        $existStmt->execute([$data['existing_id']]);
         $existing = $existStmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$existing) {
@@ -221,15 +216,15 @@ final class VehicleImportController
             ':veh_type'     => !empty($existing['veh_type'])   ? $existing['veh_type']   : ($item['veh_type'] ?: ''),
             ':rd_type'      => ((int) $existing['rd_type'] > 0) ? $existing['rd_type']    : $item['rd_type'],
             ':allowed_jobs' => !empty($existing['allowed_jobs']) ? $existing['allowed_jobs'] : ($item['job'] ?: null),
-            ':id'           => $existingId,
+            ':id'           => $data['existing_id'],
         ]);
 
-        $this->markProcessed($queueId);
+        $this->markProcessed($data['queue_id']);
 
         (new AuditLogger($this->pdo))->log(
             (int) $_SESSION['userid'],
             'Fahrzeug per EMD-Import zusammengeführt',
-            "Name: {$item['name']} | ID: {$existingId}",
+            "Name: {$item['name']} | ID: {$data['existing_id']}",
             'Fahrzeuge',
             1
         );
@@ -239,16 +234,13 @@ final class VehicleImportController
 
     private function ignore(Request $request): Response
     {
-        $queueId = (int) ($request->post['queue_id'] ?? 0);
-        if ($queueId <= 0) {
-            return Response::json(['success' => false, 'message' => 'Ungültige ID']);
-        }
+        $data = \App\Http\Requests\Vehicles\ImportQueueItemRequest::validate($request->post);
 
         $this->pdo->prepare(
             "UPDATE intra_fahrzeuge_import_queue
              SET status = 'rejected', processed_at = NOW(), processed_by = ?
              WHERE id = ? AND status = 'pending'"
-        )->execute([$_SESSION['userid'], $queueId]);
+        )->execute([$_SESSION['userid'], $data['queue_id']]);
 
         return Response::json(['success' => true, 'message' => 'Fahrzeug ignoriert']);
     }

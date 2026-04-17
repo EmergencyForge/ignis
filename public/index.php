@@ -18,10 +18,10 @@ declare(strict_types=1);
  */
 
 use App\Exceptions\AuthorizationException;
+use App\Exceptions\ValidationException;
 use App\Http\Request;
 use App\Http\Response;
 use App\Http\Router;
-use App\Http\Validation\ValidationException;
 
 require_once __DIR__ . '/../assets/config/config.php';
 
@@ -52,8 +52,8 @@ try {
     // 422-JSON mit Feld → Fehler-Map.
     Response::json([
         'success' => false,
-        'message' => $e->getMessage(),
-        'errors'  => $e->errors,
+        'message' => $e->firstError() ?? $e->getMessage(),
+        'errors'  => $e->errors(),
     ], 422)->send();
 } catch (AuthorizationException $e) {
     // Gate::authorize() aus Controller oder Policy-Middleware.

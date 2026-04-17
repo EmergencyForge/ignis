@@ -164,6 +164,7 @@ return [
     \App\Http\Middleware\ApiKeyMiddleware::class       => \DI\autowire(),
     \App\Http\Middleware\CsrfMiddleware::class         => \DI\autowire(),
     \App\Http\Middleware\FiveMCspMiddleware::class     => \DI\autowire(),
+    \App\Http\Middleware\JsonExceptionMiddleware::class => \DI\autowire(),
     \App\Http\Middleware\PinLockscreenMiddleware::class => \DI\autowire(),
 
     // -----------------------------------------------------------------------

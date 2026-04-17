@@ -25,25 +25,33 @@ use App\Helpers\Flash;
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <h1 class="mb-5">Protokollübersicht</h1>
-                    <div class="my-3 d-flex align-items-center gap-3">
+        <div class="container my-4">
+            <nav class="admin-breadcrumb">
+                <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                <span>Protokolle</span>
+                <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                <span class="current">eNOTF QM</span>
+            </nav>
+            <div class="page-header mb-4">
+                <h1>Protokollübersicht</h1>
+                <div class="header-actions">
+                    <div class="d-flex align-items-center gap-3">
                         <div class="btn-toolbar-group">
                             <a href="?view=0" class="btn <?= (!isset($_GET['view']) || $_GET['view'] != 1) ? 'active' : '' ?>">Alle</a>
                             <a href="?view=1" class="btn <?= (isset($_GET['view']) && $_GET['view'] == 1) ? 'active' : '' ?>">Unbearbeitet</a>
                         </div>
-
                         <?php if (Permissions::check(['admin', 'edivi.edit'])) { ?>
                             <button onclick="showBulkDeleteModal()" class="btn btn-outline-danger btn-sm">
                                 <i class="fa-solid fa-trash-can"></i> Leere Protokolle löschen
                             </button>
                         <?php } ?>
                     </div>
-                    <?php
-                    Flash::render();
-                    ?>
+                </div>
+            </div>
+            <?php Flash::render(); ?>
+            <div class="row">
+                <div class="col mb-5">
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-protokoll">
                             <thead>

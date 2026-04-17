@@ -6,7 +6,7 @@ namespace Tests\Unit\Http\Controllers\Api;
 
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Request;
-use App\Http\Validation\ValidationException;
+use App\Exceptions\ValidationException;
 use App\Notifications\NotificationManager;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
