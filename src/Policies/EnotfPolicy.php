@@ -138,4 +138,13 @@ class EnotfPolicy
     {
         return defined('ENOTF_JOB_FILTER') && ENOTF_JOB_FILTER === true;
     }
+
+    /**
+     * Admin-Operationen: Bulk-Delete leerer Protokolle.
+     * Benötigt Protokoll-Edit-Permission oder Admin.
+     */
+    public static function bulkDelete(mixed $context = null): bool
+    {
+        return Permissions::check(['admin', 'edivi.edit']);
+    }
 }

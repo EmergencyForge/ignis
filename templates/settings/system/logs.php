@@ -166,15 +166,25 @@ function logs_level_badge(string $level): string
         .logs-id-pill:hover { background: var(--bs-secondary-bg, rgba(255, 255, 255, 0.12)); }
 
         .logs-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
             padding: 2.5rem 1rem;
             opacity: 0.55;
         }
-        .logs-empty i {
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
-            display: block;
+        .logs-empty > i {
+            font-size: 2rem !important;
+            margin: 0 0 0.75rem 0 !important;
+            padding: 0 !important;
+            background: none !important;
+            display: block !important;
+            width: auto !important;
+            height: auto !important;
         }
+        .logs-empty > h6 { margin-bottom: 0.5rem; }
+        .logs-empty > small { max-width: 560px; line-height: 1.5; }
 
         .copy-btn {
             cursor: pointer;

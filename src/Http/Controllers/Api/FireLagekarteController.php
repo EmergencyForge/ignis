@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Helpers\MapCoordinates;
 use App\Http\Request;
 use App\Http\Response;
@@ -185,7 +185,7 @@ final class FireLagekarteController
             throw new \InvalidArgumentException('Der Einsatz ist bereits abgeschlossen');
         }
 
-        if (!Permissions::check(['admin', 'fire.incident.qm'])) {
+        if (Gate::denies('fireIncident.manageQm')) {
             $userId = $_SESSION['userid'] ?? null;
             if ((int) $marker['created_by'] !== (int) $userId) {
                 throw new \InvalidArgumentException('Sie können nur Ihre eigenen Marker löschen');
@@ -419,7 +419,7 @@ final class FireLagekarteController
      */
     private function assertVehicleAssignedOrAdmin(int $incidentId): void
     {
-        if (Permissions::check(['admin', 'fire.incident.qm'])) {
+        if (Gate::allows('fireIncident.manageQm')) {
             return;
         }
         if (!isset($_SESSION['einsatz_vehicle_id'])) {

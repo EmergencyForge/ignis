@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Auth\Gate;
 use App\Events\EnotfProtocolReleased;
 use App\Events\EventDispatcher;
 use App\Helpers\Flash;
@@ -874,7 +875,7 @@ final class EnotfController
         if (!isset($_SESSION['userid'], $_SESSION['permissions'])) {
             return Response::json(['success' => false, 'message' => 'Nicht authentifiziert']);
         }
-        if (!\App\Auth\Permissions::check(['admin', 'edivi.edit'])) {
+        if (Gate::denies('enotf.bulkDelete')) {
             return Response::json(['success' => false, 'message' => 'Keine Berechtigung']);
         }
 
