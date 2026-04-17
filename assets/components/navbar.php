@@ -719,53 +719,503 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     }
 
     /* ========================================
-       MOBILE TOPBAR
+       TOPBAR (Desktop + Mobile)
        ======================================== */
-    .sidebar-mobile-topbar {
+    .intra-topbar {
         position: fixed;
         top: 0;
-        left: 0;
+        left: var(--sidebar-width);
         right: 0;
         height: 56px;
         background: var(--sidebar-bg);
         z-index: 1030;
-        display: none;
+        display: flex;
         align-items: center;
         padding: 0 1rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        gap: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .sidebar-mobile-topbar img {
-        height: 32px;
-        width: auto;
+    /* Offset body so page content begins below the topbar (mit etwas Luft) */
+    body:has(.intra-topbar) {
+        padding-top: 72px;
+    }
+
+    /* Mobile hamburger + brand (hidden on desktop, since sidebar carries the logo) */
+    .intra-topbar .topbar-mobile-hamburger,
+    .intra-topbar .topbar-mobile-brand {
+        display: none;
     }
 
     .sidebar-toggle-btn {
         background: none;
         border: none;
         color: #fff;
-        font-size: 1.3rem;
-        padding: 0.5rem;
-        margin-right: 0.75rem;
+        font-size: 1.25rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
         border-radius: 8px;
         transition: background 0.15s;
+        flex-shrink: 0;
     }
 
     .sidebar-toggle-btn:hover {
         background: var(--sidebar-hover-bg);
     }
 
-    .sidebar-mobile-right {
+    .topbar-mobile-brand img {
+        height: 30px;
+        width: auto;
+    }
+
+    /* Search trigger — desktop shows a full search-style pill, mobile shows an icon */
+    .topbar-search-trigger {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex: 1;
+        max-width: 420px;
+        height: 36px;
+        padding: 0 0.75rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: var(--sidebar-icon-color);
+        cursor: pointer;
+        font-size: 0.82rem;
+        transition: background 0.15s, border-color 0.15s;
+    }
+
+    .topbar-search-trigger:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+
+    .topbar-search-trigger i {
+        font-size: 0.85rem;
+    }
+
+    .topbar-search-trigger-label {
+        flex: 1;
+        text-align: left;
+    }
+
+    .topbar-search-trigger-kbd {
+        font-size: 0.65rem;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+        padding: 0.1rem 0.35rem;
+        color: var(--sidebar-icon-color);
+    }
+
+    /* Right-side actions cluster */
+    .topbar-actions {
         margin-left: auto;
         display: flex;
         align-items: center;
+        gap: 0.25rem;
+    }
+
+    .topbar-icon-btn {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        color: var(--sidebar-icon-color);
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-size: 1rem;
+    }
+
+    .topbar-icon-btn:hover,
+    .topbar-icon-btn.open {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .topbar-icon-btn .topbar-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        border-radius: 10px;
+        background: var(--main-color);
+        color: #fff;
+        font-size: 0.6rem;
+        font-weight: 700;
+        line-height: 16px;
+        text-align: center;
+        border: 2px solid var(--sidebar-bg);
+    }
+
+    /* User avatar trigger */
+    .topbar-user-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        height: 40px;
+        padding: 0 0.55rem 0 0.4rem;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .topbar-user-btn:hover,
+    .topbar-user-btn.open {
+        background: var(--sidebar-hover-bg);
+    }
+
+    .topbar-user-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--sidebar-avatar-bg);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.72rem;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+
+    .topbar-user-name {
+        font-size: 0.82rem;
+        font-weight: 500;
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .topbar-user-chevron {
+        font-size: 0.6rem;
+        color: var(--sidebar-icon-color);
+        transition: transform 0.2s var(--spring-gentle);
+    }
+
+    .topbar-user-btn.open .topbar-user-chevron {
+        transform: rotate(180deg);
+    }
+
+    /* Flyouts / Dropdowns (shared) */
+    .topbar-flyout {
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        min-width: 260px;
+        background: var(--sidebar-bg);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        opacity: 0;
+        transform: translateY(-6px);
+        pointer-events: none;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .topbar-flyout.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    /* Notifications flyout */
+    .notifications-flyout {
+        width: 380px;
+        max-width: calc(100vw - 2rem);
+        display: flex;
+        flex-direction: column;
+        max-height: min(520px, calc(100vh - 80px));
+    }
+
+    .notifications-flyout-header {
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 0.75rem 0.6rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        flex-shrink: 0;
+    }
+
+    .notifications-flyout-title {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #fff;
+        flex: 1;
+    }
+
+    .notifications-flyout-mark-all {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        color: var(--sidebar-icon-color);
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-size: 0.82rem;
+    }
+
+    .notifications-flyout-mark-all:hover:not(:disabled) {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+    }
+
+    .notifications-flyout-mark-all:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+    .notifications-flyout-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 0.25rem;
+        scrollbar-width: thin;
+        scrollbar-color: var(--darkgray) transparent;
+    }
+
+    .notifications-flyout-body::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .notifications-flyout-body::-webkit-scrollbar-thumb {
+        background: var(--darkgray);
+        border-radius: 2px;
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        padding: 0.55rem 0.6rem;
+        border-radius: 8px;
+        color: var(--text-normal);
+        text-decoration: none;
+        position: relative;
+        transition: background 0.12s;
+        border-left: 2px solid transparent;
+    }
+
+    .notification-item:hover {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .notification-item.unread {
+        background: rgba(var(--main-color-rgb), 0.06);
+        border-left-color: var(--main-color);
+    }
+
+    .notification-item.unread:hover {
+        background: rgba(var(--main-color-rgb), 0.1);
+    }
+
+    .notification-item-icon {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--sidebar-icon-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+    }
+
+    .notification-item.unread .notification-item-icon {
+        background: rgba(var(--main-color-rgb), 0.15);
+        color: var(--main-color);
+    }
+
+    .notification-item-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .notification-item-title {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #fff;
+        line-height: 1.25;
+        margin-bottom: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .notification-item-meta {
+        font-size: 0.68rem;
+        color: var(--sidebar-icon-color);
+    }
+
+    .notification-item-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--main-color);
+        flex-shrink: 0;
+        margin-top: 6px;
+    }
+
+    .notifications-flyout-empty {
+        padding: 2rem 1rem;
+        color: var(--sidebar-icon-color);
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         gap: 0.5rem;
     }
 
-    .sidebar-mobile-right .sidebar-notification-badge {
-        font-size: 0.6rem;
-        padding: 0.1rem 0.35rem;
+    .notifications-flyout-empty i {
+        font-size: 1.75rem !important;
+        opacity: 0.4;
+        margin: 0 !important;
+        text-align: center !important;
+        width: auto !important;
+    }
+
+    .notifications-flyout-empty span {
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
+    .notifications-flyout-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 0.4rem;
+        flex-shrink: 0;
+    }
+
+    .notifications-flyout-footer a {
+        display: block;
+        text-align: center;
+        padding: 0.45rem;
+        font-size: 0.78rem;
+        color: var(--sidebar-icon-color);
+        text-decoration: none;
+        border-radius: 6px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .notifications-flyout-footer a:hover {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    /* User dropdown */
+    .user-dropdown {
+        width: 240px;
+        padding: 0.4rem;
+    }
+
+    .user-dropdown-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.55rem 0.65rem 0.65rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 0.35rem;
+    }
+
+    .user-dropdown-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--sidebar-avatar-bg);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.82rem;
+        flex-shrink: 0;
+    }
+
+    .user-dropdown-identity {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .user-dropdown-name {
+        display: block;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-dropdown-role {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--sidebar-role-text);
+        font-size: 0.72rem;
+    }
+
+    .user-dropdown-role-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .user-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.5rem 0.65rem;
+        color: var(--sidebar-link-color);
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        transition: background 0.12s;
+    }
+
+    .user-dropdown-item:hover {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .user-dropdown-item i {
+        width: 16px;
+        color: var(--sidebar-icon-color);
+        text-align: center;
+        font-size: 0.85rem;
+    }
+
+    .user-dropdown-item:hover i {
+        color: #fff;
     }
 
     /* Overlay — smooth backdrop with blur */
@@ -797,16 +1247,42 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             transform: translateX(0);
         }
 
-        .sidebar-mobile-topbar {
+        .intra-topbar {
+            left: 0;
+        }
+
+        .intra-topbar .topbar-mobile-hamburger,
+        .intra-topbar .topbar-mobile-brand {
             display: flex;
+        }
+
+        .topbar-search-trigger {
+            flex: 0 0 auto;
+            max-width: none;
+            width: 40px;
+            padding: 0;
+            justify-content: center;
+            background: transparent;
+            border: none;
+        }
+
+        .topbar-search-trigger:hover {
+            background: var(--sidebar-hover-bg);
+            border-color: transparent;
+        }
+
+        .topbar-search-trigger-label,
+        .topbar-search-trigger-kbd {
+            display: none;
+        }
+
+        .topbar-user-name,
+        .topbar-user-chevron {
+            display: none;
         }
     }
 
     @media (min-width: 992px) {
-        .sidebar-mobile-topbar {
-            display: none !important;
-        }
-
         .sidebar-overlay {
             display: none !important;
         }
@@ -843,21 +1319,6 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         <a href="<?= BASE_PATH ?>index.php">
             <img src="<?= SYSTEM_LOGO ?>" alt="<?= SYSTEM_NAME ?>">
         </a>
-    </div>
-
-    <!-- User Info -->
-    <div class="sidebar-user">
-        <div class="sidebar-avatar"><?= htmlspecialchars($sidebarInitials) ?></div>
-        <div class="sidebar-user-info">
-            <span class="sidebar-username"><?= htmlspecialchars($sidebarUsername) ?></span>
-            <span class="sidebar-role">
-                <span class="sidebar-role-dot" style="background:<?= $roleHex ?>"></span>
-                <?= htmlspecialchars($_SESSION['role_name'] ?? 'Benutzer') ?>
-            </span>
-        </div>
-        <button class="sidebar-search-btn" id="globalSearchOpen" title="Suchen (Ctrl+K)">
-            <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
     </div>
 
     <!-- Navigation -->
@@ -997,70 +1458,122 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         <?php endif; ?>
     </nav>
 
-    <!-- Bottom: Theme + Notifications + Logout -->
-    <div class="sidebar-bottom">
-        <!-- Akzentfarbe (vorerst ausgeblendet)
-        <div class="sidebar-link" style="justify-content:space-between;cursor:default;">
-            <div style="display:flex;align-items:center;gap:0.5rem;">
-                <i class="fa-solid fa-palette" style="width:22px;text-align:center;font-size:0.95rem;"></i>
-                <span>Akzentfarbe</span>
-            </div>
-            <div style="position:relative;">
-                <button class="sidebar-theme-btn" id="themePickerToggle" title="Akzentfarbe wählen">
-                    <span class="tp-current-dot" style="width:14px;height:14px;border-radius:50%;background:var(--main-color);display:block;"></span>
-                </button>
-                <div class="theme-picker-popover" id="themePickerPopover">
-                    <div class="tp-title">Akzentfarbe</div>
-                    <div class="tp-presets">
-                        <div class="tp-swatch" data-accent="red" style="background:#d10000;" title="Rot"></div>
-                        <div class="tp-swatch" data-accent="blue" style="background:#2563eb;" title="Blau"></div>
-                        <div class="tp-swatch" data-accent="green" style="background:#16a34a;" title="Grün"></div>
-                        <div class="tp-swatch" data-accent="purple" style="background:#7c3aed;" title="Lila"></div>
-                        <div class="tp-swatch" data-accent="orange" style="background:#ea580c;" title="Orange"></div>
-                        <div class="tp-swatch" data-accent="teal" style="background:#0d9488;" title="Teal"></div>
-                        <div class="tp-swatch" data-accent="pink" style="background:#db2777;" title="Pink"></div>
-                        <div class="tp-swatch" data-accent="amber" style="background:#d97706;" title="Bernstein"></div>
-                    </div>
-                    <div class="tp-custom-row">
-                        <span class="tp-custom-label">Eigene Farbe</span>
-                        <input type="color" class="tp-custom-input" id="themeCustomColor" value="#d10000" title="Eigene Akzentfarbe wählen">
-                    </div>
-                </div>
-            </div>
-        </div>
-        -->
-        <a href="<?= BASE_PATH ?>benachrichtigungen/index.php" class="sidebar-link">
-            <i class="fa-solid fa-bell"></i><span>Benachrichtigungen</span>
-            <span class="sidebar-notification-badge notification-poll-badge" style="<?= $unreadCount > 0 ? '' : 'display:none;' ?>"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
-        </a>
-        <a href="<?= BASE_PATH ?>logout.php" class="sidebar-link">
-            <i class="fa-solid fa-right-from-bracket"></i><span>Abmelden</span>
-        </a>
-    </div>
 </aside>
 
 <?php include __DIR__ . '/global-announcements.php'; ?>
 
+<?php
+// Icon-Map für Notifications im Flyout (identisch zu templates/benachrichtigungen/index.php)
+$topbarNotifIcons = [
+    'antrag'        => 'fa-file',
+    'protokoll'     => 'fa-truck-medical',
+    'dokument'      => 'fa-folder-open',
+    'fire_protocol' => 'fa-fire',
+    'system'        => 'fa-gears',
+];
+$topbarTimeAgo = static function (string $createdAt): string {
+    try {
+        $dt   = new DateTime($createdAt);
+        $now  = new DateTime('now');
+        $diff = $now->diff($dt);
+        if ($diff->invert === 0) return 'Gerade eben';
+        if ($diff->days > 0)     return 'Vor ' . $diff->days . ' Tag' . ($diff->days > 1 ? 'en' : '');
+        if ($diff->h > 0)        return 'Vor ' . $diff->h . ' Std.';
+        if ($diff->i > 0)        return 'Vor ' . $diff->i . ' Min.';
+        return 'Gerade eben';
+    } catch (\Exception $e) {
+        return '';
+    }
+};
+?>
 <!-- ===================== -->
-<!-- MOBILE TOPBAR         -->
+<!-- TOPBAR (Desktop + Mobile) -->
 <!-- ===================== -->
-<div class="sidebar-mobile-topbar">
-    <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Menü öffnen">
+<header class="intra-topbar">
+    <button class="sidebar-toggle-btn topbar-mobile-hamburger" id="sidebarToggle" aria-label="Menü öffnen">
         <i class="fa-solid fa-bars"></i>
     </button>
-    <a href="<?= BASE_PATH ?>index.php">
+    <a href="<?= BASE_PATH ?>index.php" class="topbar-mobile-brand">
         <img src="<?= SYSTEM_LOGO ?>" alt="<?= SYSTEM_NAME ?>">
     </a>
-    <div class="sidebar-mobile-right">
-        <button class="sidebar-toggle-btn global-search-mobile-btn" style="margin-right:0;font-size:1rem;" aria-label="Suchen">
-            <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
-        <a href="<?= BASE_PATH ?>benachrichtigungen/index.php" class="sidebar-link notification-poll-mobile" style="padding:0.4rem;margin:0;<?= $unreadCount > 0 ? '' : 'display:none;' ?>">
-            <i class="fa-solid fa-bell" style="margin-right:0;width:auto;"></i>
-            <span class="sidebar-notification-badge notification-poll-badge"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
-        </a>
+
+    <button type="button" class="topbar-search-trigger" id="globalSearchOpen" aria-label="Suchen">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span class="topbar-search-trigger-label">Suchen...</span>
+        <span class="topbar-search-trigger-kbd">Ctrl+K</span>
+    </button>
+
+    <div class="topbar-actions">
+        <!-- Notifications -->
+        <div style="position:relative;">
+            <button type="button" class="topbar-icon-btn" id="topbarNotifBtn" aria-label="Benachrichtigungen" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-bell"></i>
+                <span class="topbar-badge notification-poll-badge" style="<?= $unreadCount > 0 ? '' : 'display:none;' ?>"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
+            </button>
+            <div class="topbar-flyout notifications-flyout" id="topbarNotifFlyout" role="menu">
+                <div class="notifications-flyout-header">
+                    <span class="notifications-flyout-title">Benachrichtigungen</span>
+                    <button type="button" class="notifications-flyout-mark-all" id="topbarNotifMarkAll" title="Alle als gelesen markieren" <?= $unreadCount > 0 ? '' : 'disabled' ?>>
+                        <i class="fa-solid fa-check-double"></i>
+                    </button>
+                </div>
+                <div class="notifications-flyout-body" id="topbarNotifBody">
+                    <?php if (empty($recentNotifications)): ?>
+                        <div class="notifications-flyout-empty">
+                            <i class="fa-solid fa-bell-slash"></i>
+                            <span>Keine Benachrichtigungen</span>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($recentNotifications as $n):
+                            $type      = $n['type'] ?? 'system';
+                            $icon      = $topbarNotifIcons[$type] ?? 'fa-bell';
+                            $isUnread  = empty($n['is_read']);
+                            $link      = !empty($n['link']) ? BASE_PATH . ltrim($n['link'], '/') : BASE_PATH . 'benachrichtigungen/index.php';
+                            $timeAgo   = $topbarTimeAgo((string) ($n['created_at'] ?? ''));
+                        ?>
+                            <a href="<?= htmlspecialchars($link) ?>" class="notification-item<?= $isUnread ? ' unread' : '' ?>" data-id="<?= (int) ($n['id'] ?? 0) ?>">
+                                <span class="notification-item-icon"><i class="fa-solid <?= $icon ?>"></i></span>
+                                <div class="notification-item-body">
+                                    <span class="notification-item-title"><?= htmlspecialchars($n['title'] ?? '') ?></span>
+                                    <span class="notification-item-meta"><?= htmlspecialchars($timeAgo) ?></span>
+                                </div>
+                                <?php if ($isUnread): ?><span class="notification-item-dot"></span><?php endif; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <div class="notifications-flyout-footer">
+                    <a href="<?= BASE_PATH ?>benachrichtigungen/index.php">Alle anzeigen</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- User -->
+        <div style="position:relative;">
+            <button type="button" class="topbar-user-btn" id="topbarUserBtn" aria-label="Benutzermenü" aria-haspopup="true" aria-expanded="false">
+                <span class="topbar-user-avatar"><?= htmlspecialchars($sidebarInitials) ?></span>
+                <span class="topbar-user-name"><?= htmlspecialchars($sidebarUsername) ?></span>
+                <i class="fa-solid fa-chevron-down topbar-user-chevron"></i>
+            </button>
+            <div class="topbar-flyout user-dropdown" id="topbarUserDropdown" role="menu">
+                <div class="user-dropdown-header">
+                    <div class="user-dropdown-avatar"><?= htmlspecialchars($sidebarInitials) ?></div>
+                    <div class="user-dropdown-identity">
+                        <span class="user-dropdown-name"><?= htmlspecialchars($sidebarUsername) ?></span>
+                        <span class="user-dropdown-role">
+                            <span class="user-dropdown-role-dot" style="background:<?= $roleHex ?>"></span>
+                            <?= htmlspecialchars($_SESSION['role_name'] ?? 'Benutzer') ?>
+                        </span>
+                    </div>
+                </div>
+                <a href="<?= BASE_PATH ?>logout.php" class="user-dropdown-item">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Abmelden</span>
+                </a>
+            </div>
+        </div>
     </div>
-</div>
+</header>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- ===================== -->
@@ -1529,6 +2042,85 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 $themePopover.removeClass("show");
             }
         });
+
+        // ========================================
+        // TOPBAR: Notifications-Flyout & User-Dropdown
+        // ========================================
+        var $notifBtn = $("#topbarNotifBtn");
+        var $notifFlyout = $("#topbarNotifFlyout");
+        var $userBtn = $("#topbarUserBtn");
+        var $userDropdown = $("#topbarUserDropdown");
+        var $markAll = $("#topbarNotifMarkAll");
+
+        function closeAllFlyouts() {
+            $notifFlyout.removeClass("show");
+            $notifBtn.removeClass("open").attr("aria-expanded", "false");
+            $userDropdown.removeClass("show");
+            $userBtn.removeClass("open").attr("aria-expanded", "false");
+        }
+
+        $notifBtn.on("click", function(e) {
+            e.stopPropagation();
+            var willOpen = !$notifFlyout.hasClass("show");
+            closeAllFlyouts();
+            if (willOpen) {
+                $notifFlyout.addClass("show");
+                $notifBtn.addClass("open").attr("aria-expanded", "true");
+            }
+        });
+
+        $userBtn.on("click", function(e) {
+            e.stopPropagation();
+            var willOpen = !$userDropdown.hasClass("show");
+            closeAllFlyouts();
+            if (willOpen) {
+                $userDropdown.addClass("show");
+                $userBtn.addClass("open").attr("aria-expanded", "true");
+            }
+        });
+
+        // Klicks innerhalb der Flyouts sollen das Flyout nicht schließen
+        $notifFlyout.on("click", function(e) {
+            e.stopPropagation();
+        });
+        $userDropdown.on("click", function(e) {
+            e.stopPropagation();
+        });
+
+        $(document).on("click", function() {
+            closeAllFlyouts();
+        });
+
+        $(document).on("keydown", function(e) {
+            if (e.key === "Escape") {
+                closeAllFlyouts();
+            }
+        });
+
+        // Alle als gelesen
+        $markAll.on("click", function(e) {
+            e.stopPropagation();
+            if ($markAll.prop("disabled")) return;
+            $markAll.prop("disabled", true);
+            $.ajax({
+                url: "<?= BASE_PATH ?>api/notifications/mark-all-read.php",
+                method: "POST",
+                dataType: "json"
+            }).done(function(data) {
+                if (data && data.success) {
+                    $notifFlyout.find(".notification-item.unread")
+                        .removeClass("unread")
+                        .find(".notification-item-dot").remove();
+                    $(".notification-poll-badge").each(function() {
+                        $(this).text("0").hide();
+                    });
+                } else {
+                    $markAll.prop("disabled", false);
+                }
+            }).fail(function() {
+                $markAll.prop("disabled", false);
+            });
+        });
     });
 </script>
 
@@ -1603,14 +2195,14 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 
         function updateBadges(count) {
             var badges = document.querySelectorAll('.notification-poll-badge');
-            var mobileLink = document.querySelector('.notification-poll-mobile');
+            var markAllBtn = document.getElementById('topbarNotifMarkAll');
             var text = count > 9 ? '9+' : String(count);
             badges.forEach(function(b) {
                 b.textContent = text;
                 b.style.display = count > 0 ? '' : 'none';
             });
-            if (mobileLink) {
-                mobileLink.style.display = count > 0 ? '' : 'none';
+            if (markAllBtn) {
+                markAllBtn.disabled = count <= 0;
             }
         }
 

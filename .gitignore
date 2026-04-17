@@ -1,4 +1,5 @@
 phpinfo.php
+router.php
 .env
 .env.*
 !.env.example
