@@ -177,7 +177,6 @@ return [
     \App\Http\Controllers\Api\FireStatusPollController::class    => \DI\autowire(),
     \App\Http\Controllers\Api\EmdSyncController::class           => \DI\autowire(),
     \App\Http\Controllers\Api\NotificationController::class      => \DI\autowire(),
-    \App\Http\Controllers\Api\LegacyDispatcher::class            => \DI\autowire(),
     \App\Http\Controllers\Api\VersionController::class             => \DI\autowire(),
     \App\Http\Controllers\Api\PoiDepartmentsController::class      => \DI\autowire(),
     \App\Http\Controllers\Api\KlinikCodeController::class          => \DI\autowire(),
@@ -195,6 +194,9 @@ return [
     \App\Http\Controllers\Api\FederationController::class          => \DI\autowire(),
     \App\Http\Controllers\Api\DocumentsController::class           => \DI\autowire(),
     \App\Http\Controllers\Api\EnotfController::class               => \DI\autowire(),
+    \App\Http\Controllers\Api\VehicleImportController::class       => \DI\autowire(),
+    \App\Http\Controllers\Api\VehicleDefectsController::class      => \DI\autowire(),
+    \App\Http\Controllers\Api\FireLagekarteController::class       => \DI\autowire(),
 
     // Service-Klassen die von Controllern via Constructor-Injection genutzt werden
     \App\Notifications\NotificationManager::class => \DI\autowire(),
