@@ -307,6 +307,7 @@ final class VehicleImportController
 
     private function flagPath(): string
     {
-        return dirname(__DIR__, 3) . '/storage/emd_vehicle_import_request.flag';
+        // __DIR__ = src/Http/Controllers/Api → 4x dirname() → Projekt-Root
+        return dirname(__DIR__, 4) . '/storage/emd_vehicle_import_request.flag';
     }
 }

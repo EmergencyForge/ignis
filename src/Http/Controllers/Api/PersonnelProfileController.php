@@ -34,7 +34,7 @@ final class PersonnelProfileController
             return new Response(400, '');
         }
         return $this->renderPartial(
-            dirname(__DIR__, 3) . '/assets/components/profiles/comments/main.php'
+            dirname(__DIR__, 4) . '/assets/components/profiles/comments/main.php'
         );
     }
 
@@ -47,7 +47,7 @@ final class PersonnelProfileController
             return new Response(400, '');
         }
         return $this->renderPartial(
-            dirname(__DIR__, 3) . '/assets/components/profiles/logs/main.php'
+            dirname(__DIR__, 4) . '/assets/components/profiles/logs/main.php'
         );
     }
 

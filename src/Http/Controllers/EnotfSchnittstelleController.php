@@ -61,10 +61,15 @@ class EnotfSchnittstelleController extends Controller
     }
 
     /**
-     * Stub-Wrapper für api-prereg — leitet weiter an api/enotf/prereg.php.
+     * Stub-Wrapper für api-prereg — der echte Endpoint liegt nach dem
+     * Legacy-Cleanup unter `/api/enotf/prereg`. Bestehende Direktaufrufe
+     * werden per HTTP 308 weitergeleitet, damit kein Fatal Error entsteht.
      */
     public function apiPrereg(): void
     {
-        require dirname(__DIR__, 3) . '/src/LegacyApi/enotf/prereg.php';
+        $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+        $qs   = !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '';
+        header('Location: ' . $base . 'api/enotf/prereg' . $qs, true, 308);
+        exit;
     }
 }

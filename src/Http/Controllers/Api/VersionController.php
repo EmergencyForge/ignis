@@ -18,7 +18,7 @@ final class VersionController
 {
     public function index(Request $request): Response
     {
-        $versionFile = dirname(__DIR__, 3) . '/system/updates/version.json';
+        $versionFile = dirname(__DIR__, 4) . '/system/updates/version.json';
 
         if (!is_file($versionFile)) {
             return Response::json([

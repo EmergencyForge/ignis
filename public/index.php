@@ -34,7 +34,7 @@ $router = app(Router::class);
 $routeFiles = [
     __DIR__ . '/../routes/web.php',
     __DIR__ . '/../routes/api.php',
-    __DIR__ . '/../routes/api.legacy.php',
+    __DIR__ . '/../routes/api.session.php',
 ];
 
 foreach ($routeFiles as $file) {
