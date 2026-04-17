@@ -516,7 +516,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         color: #fff;
         text-decoration: none;
         /* Accent bar on active link */
-        box-shadow: inset 3px 0 0 var(--main-color);
+        /* box-shadow: inset 3px 0 0 var(--main-color); */
     }
 
     .sidebar-link i:first-child {

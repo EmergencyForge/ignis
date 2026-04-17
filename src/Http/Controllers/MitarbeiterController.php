@@ -35,8 +35,6 @@ class MitarbeiterController extends Controller
      */
     public function index(): void
     {
-        $this->requireAuth();
-        $this->ensure('mitarbeiter.viewList', redirectTo: 'index.php');
 
         $showArchive = isset($_GET['archiv']);
 
@@ -79,8 +77,6 @@ class MitarbeiterController extends Controller
      */
     public function show(): void
     {
-        $this->requireAuth();
-        $this->ensure('mitarbeiter.view', redirectTo: 'index.php');
 
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
@@ -210,8 +206,6 @@ class MitarbeiterController extends Controller
      */
     public function update(): void
     {
-        $this->requireAuth();
-        $this->ensure('mitarbeiter.update', redirectTo: 'index.php');
 
         try {
             $data = UpdateMitarbeiterRequest::validate($_POST);
@@ -295,8 +289,6 @@ class MitarbeiterController extends Controller
      */
     public function updateFachdienste(): void
     {
-        $this->requireAuth();
-        $this->ensure('mitarbeiter.update', redirectTo: 'index.php');
 
         $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) {
@@ -332,8 +324,6 @@ class MitarbeiterController extends Controller
      */
     public function addNote(): void
     {
-        $this->requireAuth();
-        $this->ensure('mitarbeiter.update', redirectTo: 'index.php');
 
         $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) {
@@ -375,8 +365,6 @@ class MitarbeiterController extends Controller
      */
     public function createDocument(): void
     {
-        $this->requireAuth();
-        $this->ensure('mitarbeiter.manageDocs', redirectTo: 'index.php');
 
         $profileId = (int) ($_POST['profileid'] ?? 0);
         $docType   = (string) ($_POST['docType'] ?? '');
@@ -477,7 +465,6 @@ class MitarbeiterController extends Controller
      */
     public function store(): void
     {
-        $this->requireAuth();
 
         if (\App\Auth\Gate::denies('mitarbeiter.create')) {
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -568,8 +555,6 @@ class MitarbeiterController extends Controller
      */
     public function destroy(): void
     {
-        $this->requireAuth();
-        $this->ensure('mitarbeiter.delete', redirectTo: 'mitarbeiter/list.php');
 
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
@@ -598,8 +583,6 @@ class MitarbeiterController extends Controller
      */
     public function deleteComment(): void
     {
-        $this->requireAuth();
-        $this->ensure('mitarbeiter.deleteComments', redirectTo: 'benutzer/list.php');
 
         $logId = (int) ($_GET['id'] ?? 0);
         if ($logId <= 0) {
@@ -628,7 +611,6 @@ class MitarbeiterController extends Controller
      */
     public function showDocument(): void
     {
-        $this->requireAuth();
 
         $docid = (string) ($_GET['docid'] ?? '');
         if ($docid === '') {
@@ -707,8 +689,6 @@ class MitarbeiterController extends Controller
      */
     public function deleteDocument(): void
     {
-        $this->requireAuth();
-        $this->ensure('mitarbeiter.manageDocs', redirectTo: 'index.php');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             Flash::set('error', 'Ungueltige Anfrage');

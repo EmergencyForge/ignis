@@ -33,11 +33,9 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AntragController;
 use App\Http\Controllers\FahrtenbuchController;
+use App\Http\Controllers\MitarbeiterController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Middleware\AuthMiddleware;
-use App\Http\Middleware\FiveMCspMiddleware;
-use App\Http\Middleware\PermissionMiddleware;
-use App\Http\Middleware\PinLockscreenMiddleware;
 use App\Http\Middleware\PolicyMiddleware;
 
 // Smoke-Test-Route — hilft beim Verifizieren, dass die Pipeline steht.
@@ -176,6 +174,85 @@ $fahrtPostDispatch = function (\App\Http\Request $request) {
 
 $router->post('/fahrtenbuch/actions',     $fahrtPostDispatch);
 $router->post('/fahrtenbuch/actions.php', $fahrtPostDispatch);
+
+// ----------------------------------------------------------------------------
+//  Mitarbeiter-Modul
+//
+//  Das Mitarbeiter-Modul hat 7 URL-Entry-Points. profile.php hat einen
+//  POST-Dispatcher mit `$_POST['new']`-Feld (1/4/5/6), der je nach Action
+//  eine andere Permission braucht — wir lösen das analog zu Notification
+//  mit einem Router-Closure + inline Gate::authorize().
+//
+//  Inline-Edit / PFP-Upload / Quali-Modal laufen über `/api/personnel/*`
+//  (nicht durch dieses Modul) und sind nicht Teil dieser Registrierung.
+// ----------------------------------------------------------------------------
+
+$mitarbeiterListAuth    = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.viewList')];
+$mitarbeiterViewAuth    = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.view')];
+$mitarbeiterCreateAuth  = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.create')];
+$mitarbeiterDeleteAuth  = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.delete')];
+$mitarbeiterDocsAuth    = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.manageDocs')];
+$mitarbeiterCommentAuth = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.deleteComments')];
+
+$router->get('/mitarbeiter/list',     [MitarbeiterController::class, 'index'], $mitarbeiterListAuth);
+$router->get('/mitarbeiter/list.php', [MitarbeiterController::class, 'index'], $mitarbeiterListAuth);
+
+$router->get('/mitarbeiter/profile',     [MitarbeiterController::class, 'show'], $mitarbeiterViewAuth);
+$router->get('/mitarbeiter/profile.php', [MitarbeiterController::class, 'show'], $mitarbeiterViewAuth);
+
+// Profile POST-Dispatcher anhand $_POST['new']
+// 1=Update / 4=Fachdienste / 5=Notiz → mitarbeiter.update
+// 6=Dokument erstellen → mitarbeiter.manageDocs
+$mitarbeiterProfileDispatch = function (\App\Http\Request $request) {
+    $controller = app(MitarbeiterController::class);
+    $action     = (string) ($request->post['new'] ?? '');
+
+    switch ($action) {
+        case '1':
+            \App\Auth\Gate::authorize('mitarbeiter.update');
+            $controller->update();
+            break;
+        case '4':
+            \App\Auth\Gate::authorize('mitarbeiter.update');
+            $controller->updateFachdienste();
+            break;
+        case '5':
+            \App\Auth\Gate::authorize('mitarbeiter.update');
+            $controller->addNote();
+            break;
+        case '6':
+            \App\Auth\Gate::authorize('mitarbeiter.manageDocs');
+            $controller->createDocument();
+            break;
+        default:
+            \App\Auth\Gate::authorize('mitarbeiter.view');
+            $controller->show();
+    }
+    return \App\Http\Response::empty();
+};
+
+$router->post('/mitarbeiter/profile',     $mitarbeiterProfileDispatch, [new AuthMiddleware()]);
+$router->post('/mitarbeiter/profile.php', $mitarbeiterProfileDispatch, [new AuthMiddleware()]);
+
+// store() ist ein AJAX-JSON-Endpoint (gibt JSON zurück, nicht Redirect)
+$router->post('/mitarbeiter/create',     [MitarbeiterController::class, 'store'], $mitarbeiterCreateAuth);
+$router->post('/mitarbeiter/create.php', [MitarbeiterController::class, 'store'], $mitarbeiterCreateAuth);
+
+// destroy() läuft per GET (Legacy — könnte später auf DELETE umgestellt werden,
+// aber im aktuellen UI wird das via Link getriggert)
+$router->get('/mitarbeiter/delete',     [MitarbeiterController::class, 'destroy'], $mitarbeiterDeleteAuth);
+$router->get('/mitarbeiter/delete.php', [MitarbeiterController::class, 'destroy'], $mitarbeiterDeleteAuth);
+
+// Dokument-View (GET — zeigt Dokumenten-Details), dokument-delete (POST mit CSRF)
+$router->get('/mitarbeiter/dokument-view',     [MitarbeiterController::class, 'showDocument'], [new AuthMiddleware()]);
+$router->get('/mitarbeiter/dokument-view.php', [MitarbeiterController::class, 'showDocument'], [new AuthMiddleware()]);
+
+$router->post('/mitarbeiter/dokument-delete',     [MitarbeiterController::class, 'deleteDocument'], $mitarbeiterDocsAuth);
+$router->post('/mitarbeiter/dokument-delete.php', [MitarbeiterController::class, 'deleteDocument'], $mitarbeiterDocsAuth);
+
+// Comment-Delete (GET, Legacy-Pfad — ein Link in der Detail-Liste)
+$router->get('/mitarbeiter/comment-delete',     [MitarbeiterController::class, 'deleteComment'], $mitarbeiterCommentAuth);
+$router->get('/mitarbeiter/comment-delete.php', [MitarbeiterController::class, 'deleteComment'], $mitarbeiterCommentAuth);
 
 /*
  * BEISPIEL — Benutzer-Modul mit Policy-basierter Autorisierung
