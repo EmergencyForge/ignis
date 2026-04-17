@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AntragController;
 use App\Http\Controllers\FahrtenbuchController;
+use App\Http\Controllers\ManvController;
 use App\Http\Controllers\MitarbeiterController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Middleware\AuthMiddleware;
@@ -253,6 +254,81 @@ $router->post('/mitarbeiter/dokument-delete.php', [MitarbeiterController::class,
 // Comment-Delete (GET, Legacy-Pfad — ein Link in der Detail-Liste)
 $router->get('/mitarbeiter/comment-delete',     [MitarbeiterController::class, 'deleteComment'], $mitarbeiterCommentAuth);
 $router->get('/mitarbeiter/comment-delete.php', [MitarbeiterController::class, 'deleteComment'], $mitarbeiterCommentAuth);
+
+// ----------------------------------------------------------------------------
+//  MANV-Modul
+//
+//  MANV-Lagen (Massenanfall von Verletzten). Der ManvController ruft intern
+//  `ensure('manv.<ability>', redirectTo: 'index.php')` auf — das liefert
+//  benutzerfreundliche Redirects statt 403. Deshalb hier nur AuthMiddleware,
+//  keine PolicyMiddleware (analog zu AntragController::view).
+//
+//  Die `.php`-Varianten bleiben registriert, weil sowohl Navbar als auch
+//  alle Templates noch auf `<?= BASE_PATH ?>manv/xxx.php` verlinken.
+// ----------------------------------------------------------------------------
+
+$manvAuth = [new AuthMiddleware()];
+
+$router->get('/manv/',          [ManvController::class, 'index'], $manvAuth);
+$router->get('/manv/index',     [ManvController::class, 'index'], $manvAuth);
+$router->get('/manv/index.php', [ManvController::class, 'index'], $manvAuth);
+
+$router->get('/manv/board',     [ManvController::class, 'board'], $manvAuth);
+$router->get('/manv/board.php', [ManvController::class, 'board'], $manvAuth);
+
+$router->get('/manv/create',      [ManvController::class, 'create'], $manvAuth);
+$router->get('/manv/create.php',  [ManvController::class, 'create'], $manvAuth);
+$router->post('/manv/create',     [ManvController::class, 'store'],  $manvAuth);
+$router->post('/manv/create.php', [ManvController::class, 'store'],  $manvAuth);
+
+$router->get('/manv/edit',      [ManvController::class, 'edit'],   $manvAuth);
+$router->get('/manv/edit.php',  [ManvController::class, 'edit'],   $manvAuth);
+$router->post('/manv/edit',     [ManvController::class, 'update'], $manvAuth);
+$router->post('/manv/edit.php', [ManvController::class, 'update'], $manvAuth);
+
+$router->get('/manv/log',     [ManvController::class, 'log'], $manvAuth);
+$router->get('/manv/log.php', [ManvController::class, 'log'], $manvAuth);
+
+$router->get('/manv/patient-create',      [ManvController::class, 'patientCreate'], $manvAuth);
+$router->get('/manv/patient-create.php',  [ManvController::class, 'patientCreate'], $manvAuth);
+$router->post('/manv/patient-create',     [ManvController::class, 'patientStore'],  $manvAuth);
+$router->post('/manv/patient-create.php', [ManvController::class, 'patientStore'],  $manvAuth);
+
+$router->get('/manv/patient-view',      [ManvController::class, 'patientView'],   $manvAuth);
+$router->get('/manv/patient-view.php',  [ManvController::class, 'patientView'],   $manvAuth);
+$router->post('/manv/patient-view',     [ManvController::class, 'patientUpdate'], $manvAuth);
+$router->post('/manv/patient-view.php', [ManvController::class, 'patientUpdate'], $manvAuth);
+
+// Ressourcen: kombinierter Endpoint.
+//   GET  ?delete_id=Y   → ressourceDelete() (Legacy-GET-Delete, via showConfirm)
+//   GET                 → ressourcen()      (View)
+//   POST action=create  → ressourceStore()
+//   POST action=edit    → ressourceUpdate()
+$manvRessourcenGet = function (\App\Http\Request $request) {
+    $controller = app(ManvController::class);
+    if (isset($request->query['delete_id'])) {
+        $controller->ressourceDelete();
+    } else {
+        $controller->ressourcen();
+    }
+    return \App\Http\Response::empty();
+};
+$manvRessourcenPost = function (\App\Http\Request $request) {
+    $controller = app(ManvController::class);
+    $action     = (string) ($request->post['action'] ?? '');
+    if ($action === 'create') {
+        $controller->ressourceStore();
+    } elseif ($action === 'edit') {
+        $controller->ressourceUpdate();
+    } else {
+        $controller->ressourcen();
+    }
+    return \App\Http\Response::empty();
+};
+$router->get('/manv/ressourcen',      $manvRessourcenGet,  $manvAuth);
+$router->get('/manv/ressourcen.php',  $manvRessourcenGet,  $manvAuth);
+$router->post('/manv/ressourcen',     $manvRessourcenPost, $manvAuth);
+$router->post('/manv/ressourcen.php', $manvRessourcenPost, $manvAuth);
 
 /*
  * BEISPIEL — Benutzer-Modul mit Policy-basierter Autorisierung
