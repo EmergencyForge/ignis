@@ -1,3 +1,16 @@
 <?php
-// Redirect stub - this endpoint has moved to: api/system/global-search.php
-require __DIR__ . '/../../../src/LegacyApi/system/global-search.php';
+// Redirect-Stub — der Endpoint liegt seit dem Router-Cutover unter /api/system/global-search.
+// HTTP 308 bewahrt Methode + Body, damit bestehende JS-POSTs unverandert durchkommen.
+// BASE_PATH wird aus REQUEST_URI rueckgerechnet, damit Subdirectory-Installs funktionieren.
+declare(strict_types=1);
+
+$selfPath = 'assets/functions/system/global-search-api.php';
+$reqPath  = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?? '/';
+$pos      = strpos($reqPath, $selfPath);
+$base     = $pos !== false ? substr($reqPath, 0, $pos) : '/';
+if ($base === '') {
+    $base = '/';
+}
+$qs = !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '';
+header('Location: ' . rtrim($base, '/') . '/api/system/global-search' . $qs, true, 308);
+exit;

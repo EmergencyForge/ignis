@@ -54,11 +54,15 @@ class SystemController extends Controller
     }
 
     /**
-     * Stub-Wrapper für regenerate-api-key — leitet weiter an api/system/.
+     * Stub-Wrapper — der echte Endpoint liegt nach dem Legacy-Cleanup
+     * unter `/api/system/regenerate-api-key`. HTTP 308 bewahrt Methode
+     * und Body, damit bestehende Direktaufrufe nicht mit Fatal Error brechen.
      */
     public function regenerateApiKey(): void
     {
-        require dirname(__DIR__, 4) . '/src/LegacyApi/system/regenerate-api-key.php';
+        $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+        header('Location: ' . rtrim($base, '/') . '/api/system/regenerate-api-key', true, 308);
+        exit;
     }
 
     private function ensureAdmin(): void

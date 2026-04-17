@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
+use App\Auth\Gate;
 use App\Http\Request;
 use App\Http\Response;
 use App\KnowledgeBase\KBHelper;
 use App\Logging\Logger;
+use App\Policies\MitarbeiterPolicy;
+use App\Policies\FireIncidentPolicy;
+use App\Policies\VehiclePolicy;
+use App\Policies\DocumentPolicy;
 use App\Utils\AuditLogger;
 use App\Utils\SystemUpdater;
 use PDO;
@@ -333,42 +338,42 @@ final class SystemController
                 $results[] = ['module' => 'Wissensdatenbank', 'icon' => 'fa-book-medical', 'items' => $kbResults];
             }
 
-            if (\App\Auth\Permissions::check(['admin', 'personnel.view'])) {
+            if (MitarbeiterPolicy::viewList()) {
                 $items = $this->searchMitarbeiter($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'Mitarbeiter', 'icon' => 'fa-users', 'items' => $items];
                 }
             }
 
-            if (\App\Auth\Permissions::check(['admin', 'fire.incident.qm'])) {
+            if (FireIncidentPolicy::manageQm()) {
                 $items = $this->searchFireIncidents($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'Brandeinsätze', 'icon' => 'fa-fire', 'items' => $items];
                 }
             }
 
-            if (\App\Auth\Permissions::check(['admin', 'edivi.view'])) {
+            if (Gate::check(['admin', 'edivi.view'])) {
                 $items = $this->searchEnotf($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'eNOTF Protokolle', 'icon' => 'fa-file-medical', 'items' => $items];
                 }
             }
 
-            if (\App\Auth\Permissions::check(['admin', 'personnel.view'])) {
+            if (MitarbeiterPolicy::viewList()) {
                 $items = $this->searchDocuments($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'Dokumente', 'icon' => 'fa-file-lines', 'items' => $items];
                 }
             }
 
-            if (\App\Auth\Permissions::check(['admin'])) {
+            if (DocumentPolicy::resetTemplate()) {
                 $items = $this->searchTemplates($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'Dokumentvorlagen', 'icon' => 'fa-file-contract', 'items' => $items];
                 }
             }
 
-            if (\App\Auth\Permissions::check(['admin', 'vehicles.view'])) {
+            if (VehiclePolicy::view()) {
                 $items = $this->searchVehicles($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'Fahrzeuge', 'icon' => 'fa-truck', 'items' => $items];

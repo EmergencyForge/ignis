@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
@@ -37,7 +37,7 @@ final class VehicleImportController
         if (!isset($_SESSION['userid'], $_SESSION['permissions'])) {
             return Response::json(['success' => false, 'message' => 'Nicht authentifiziert']);
         }
-        if (!Permissions::check(['admin', 'vehicles.manage'])) {
+        if (Gate::denies('vehicle.manageImport')) {
             return Response::json(['success' => false, 'message' => 'Keine Berechtigung']);
         }
 

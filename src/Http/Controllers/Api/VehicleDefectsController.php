@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
@@ -105,7 +105,7 @@ final class VehicleDefectsController
         if (!isset($_SESSION['userid'])) {
             return Response::json(['error' => 'Nicht authentifiziert'], 401);
         }
-        if (!Permissions::check(['admin', 'vehicles.view'])) {
+        if (Gate::denies('vehicle.view')) {
             return Response::json(['error' => 'Keine Berechtigung'], 403);
         }
 
@@ -196,7 +196,7 @@ final class VehicleDefectsController
 
     private function create(Request $request, int $userId, string $username, bool $isEnotfUser): Response
     {
-        if (!$isEnotfUser && !Permissions::check(['admin', 'vehicles.manage', 'vehicles.view'])) {
+        if (!$isEnotfUser && Gate::denies('vehicle.createDefect')) {
             return Response::json(['error' => 'Keine Berechtigung'], 403);
         }
 
@@ -252,7 +252,7 @@ final class VehicleDefectsController
 
     private function update(Request $request, int $userId): Response
     {
-        if (!Permissions::check(['admin', 'vehicles.manage'])) {
+        if (Gate::denies('vehicle.manage')) {
             return Response::json(['error' => 'Keine Berechtigung'], 403);
         }
 
@@ -321,7 +321,7 @@ final class VehicleDefectsController
 
     private function resolve(Request $request, int $userId): Response
     {
-        if (!Permissions::check(['admin', 'vehicles.manage'])) {
+        if (Gate::denies('vehicle.manage')) {
             return Response::json(['error' => 'Keine Berechtigung'], 403);
         }
 
@@ -366,7 +366,7 @@ final class VehicleDefectsController
 
     private function delete(Request $request): Response
     {
-        if (!Permissions::check(['admin'])) {
+        if (Gate::denies('vehicle.deleteDefect')) {
             return Response::json(['error' => 'Nur Admins können Defekte löschen'], 403);
         }
 

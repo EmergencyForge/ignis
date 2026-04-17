@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Documents\DocumentIdGenerator;
 use App\Documents\DocumentPDFGenerator;
 use App\Documents\DocumentRenderer;
@@ -114,7 +114,7 @@ final class DocumentsController
      */
     public function saveTemplate(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung']);
         }
 
@@ -215,7 +215,7 @@ final class DocumentsController
      */
     public function deleteTemplate(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung'], 403);
         }
 
@@ -243,7 +243,7 @@ final class DocumentsController
      */
     public function duplicateTemplate(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung'], 403);
         }
 
@@ -275,7 +275,7 @@ final class DocumentsController
      */
     public function regenerateTemplateFile(Request $request): Response
     {
-        if (!Permissions::check(['admin'])) {
+        if (Gate::denies('document.resetTemplate')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung']);
         }
 
@@ -323,7 +323,7 @@ final class DocumentsController
      */
     public function createCustom(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung'], 403);
         }
 
@@ -485,7 +485,7 @@ final class DocumentsController
 
             // Zugriffsprüfung: Admin, Personal-Verwalter oder Eigenersteller
             $isOwnDoc = ($doc['ausstellerid'] == ($_SESSION['discord_id'] ?? ''));
-            if (!$isOwnDoc && !Permissions::check(['admin', 'personnel.documents.manage', 'personnel.documents.view'])) {
+            if (!$isOwnDoc && Gate::denies('document.view')) {
                 return Response::json(['success' => false, 'error' => 'Keine Berechtigung'], 403);
             }
 
@@ -531,7 +531,7 @@ final class DocumentsController
      */
     public function archiveDocument(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung'], 403);
         }
 
@@ -582,7 +582,7 @@ final class DocumentsController
      */
     public function assetList(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung']);
         }
 
@@ -601,7 +601,7 @@ final class DocumentsController
      */
     public function assetUpload(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung']);
         }
 
@@ -634,7 +634,7 @@ final class DocumentsController
      */
     public function assetDelete(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung']);
         }
 
@@ -666,7 +666,7 @@ final class DocumentsController
      */
     public function layoutGet(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung']);
         }
 
@@ -705,7 +705,7 @@ final class DocumentsController
      */
     public function layoutSave(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung']);
         }
 
@@ -761,7 +761,7 @@ final class DocumentsController
      */
     public function layoutVersions(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung'], 403);
         }
 
@@ -805,7 +805,7 @@ final class DocumentsController
      */
     public function layoutPreview(Request $request): Response
     {
-        if (!Permissions::check(['admin', 'personnel.documents.manage'])) {
+        if (Gate::denies('document.manage')) {
             return new Response(
                 status:  403,
                 body:    '<html><body style="font-family:sans-serif;color:red;padding:2rem;">Keine Berechtigung</body></html>',
@@ -884,7 +884,7 @@ final class DocumentsController
      */
     public function twigPreview(Request $request): Response
     {
-        if (!Permissions::check(['admin'])) {
+        if (Gate::denies('document.resetTemplate')) {
             return new Response(403, 'Keine Berechtigung');
         }
 
@@ -936,7 +936,7 @@ final class DocumentsController
             ]);
         }
 
-        if (!Permissions::check(['admin'])) {
+        if (Gate::denies('document.resetTemplate')) {
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung']);
         }
 
@@ -1031,7 +1031,7 @@ final class DocumentsController
         }
 
         // Ab hier nur Admins
-        if (!Permissions::check(['admin'])) {
+        if (Gate::denies('document.resetTemplate')) {
             return Response::json(['error' => 'Keine Berechtigung'], 403);
         }
 
