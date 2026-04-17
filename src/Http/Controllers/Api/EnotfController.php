@@ -120,7 +120,7 @@ final class EnotfController
             }
         }
 
-        $syncFile = dirname(__DIR__, 3) . '/storage/last_emd_sync.txt';
+        $syncFile = dirname(__DIR__, 4) . '/storage/last_emd_sync.txt';
         if (file_exists($syncFile)) {
             $response['last_emd_sync'] = trim((string) file_get_contents($syncFile));
         }

@@ -386,7 +386,7 @@ final class PersonnelController
             ], 400);
         }
 
-        $storagePath = dirname(__DIR__, 3) . '/storage/profile-pictures';
+        $storagePath = dirname(__DIR__, 4) . '/storage/profile-pictures';
         if (!is_dir($storagePath)) {
             mkdir($storagePath, 0755, true);
         }
@@ -415,7 +415,7 @@ final class PersonnelController
             $oldPfp = $stmt->fetchColumn();
 
             if ($oldPfp && str_starts_with((string) $oldPfp, $base . 'storage/profile-pictures/')) {
-                $oldFile = dirname(__DIR__, 3) . '/' . str_replace($base, '', (string) $oldPfp);
+                $oldFile = dirname(__DIR__, 4) . '/' . str_replace($base, '', (string) $oldPfp);
                 if (file_exists($oldFile)) {
                     @unlink($oldFile);
                 }

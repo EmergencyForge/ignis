@@ -294,7 +294,7 @@ final class DocumentsController
                 throw new \Exception('Template nicht gefunden');
             }
 
-            $templatePath = dirname(__DIR__, 3) . '/dokumente/templates/';
+            $templatePath = dirname(__DIR__, 4) . '/dokumente/templates/';
             if (!is_dir($templatePath)) {
                 mkdir($templatePath, 0755, true);
             }
@@ -496,7 +496,7 @@ final class DocumentsController
 
             $base      = defined('BASE_PATH') ? (string) BASE_PATH : '/';
             $pdfUrl    = $base . 'storage/documents/' . $doc['docid'] . '.pdf';
-            $pdfExists = file_exists(dirname(__DIR__, 3) . '/storage/documents/' . basename($doc['docid']) . '.pdf');
+            $pdfExists = file_exists(dirname(__DIR__, 4) . '/storage/documents/' . basename($doc['docid']) . '.pdf');
 
             return Response::json([
                 'success'  => true,
@@ -839,8 +839,8 @@ final class DocumentsController
                     'defaultPaperSize'       => 'A4',
                     'defaultPaperOrientation' => 'portrait',
                     'dpi'                    => 150,
-                    'fontDir'                => dirname(__DIR__, 3) . '/storage/fonts/',
-                    'fontCache'              => dirname(__DIR__, 3) . '/storage/fonts/',
+                    'fontDir'                => dirname(__DIR__, 4) . '/storage/fonts/',
+                    'fontCache'              => dirname(__DIR__, 4) . '/storage/fonts/',
                 ]);
                 $dompdf->loadHtml($html);
                 $dompdf->setPaper('A4', 'portrait');
@@ -899,7 +899,7 @@ final class DocumentsController
             return new Response(404, 'Template nicht gefunden');
         }
 
-        $templatePath = dirname(__DIR__, 3) . '/dokumente/templates/' . $template['template_file'];
+        $templatePath = dirname(__DIR__, 4) . '/dokumente/templates/' . $template['template_file'];
         if (!file_exists($templatePath)) {
             return new Response(
                 status: 404,
@@ -1138,7 +1138,7 @@ final class DocumentsController
      */
     private function createTemplateFile(array $data): bool
     {
-        $templatePath = dirname(__DIR__, 3) . '/dokumente/templates/';
+        $templatePath = dirname(__DIR__, 4) . '/dokumente/templates/';
         if (!file_exists($templatePath)) {
             mkdir($templatePath, 0755, true);
         }

@@ -104,10 +104,16 @@ class EnotfAdminController extends Controller
     }
 
     /**
-     * Stub-Wrapper für bulk-delete-empty — leitet weiter an api/enotf/.
+     * Stub-Wrapper für bulk-delete-empty — Aufruf läuft seit dem Legacy-
+     * Cleanup direkt über den Router an `/api/enotf/bulk-delete-empty`.
+     * Diese Methode bleibt erhalten, damit bestehende Direktaufrufe
+     * per HTTP 308 auf die kanonische URL redirectet werden, statt
+     * einen Fatal Error zu produzieren.
      */
     public function bulkDeleteEmpty(): void
     {
-        require dirname(__DIR__, 3) . '/src/LegacyApi/enotf/bulk-delete-empty.php';
+        $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+        header('Location: ' . $base . 'api/enotf/bulk-delete-empty', true, 308);
+        exit;
     }
 }

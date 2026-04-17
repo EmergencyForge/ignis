@@ -181,7 +181,7 @@ final class SystemController
             }
 
             // Templates
-            $templatePath = realpath(dirname(__DIR__, 3) . '/dokumente/templates/');
+            $templatePath = realpath(dirname(__DIR__, 4) . '/dokumente/templates/');
             $data['templates'] = [
                 'count' => $templatePath ? count(glob($templatePath . '/*.html.twig') ?: []) : 0,
             ];
