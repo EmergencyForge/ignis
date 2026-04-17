@@ -3,18 +3,14 @@
 declare(strict_types=1);
 
 /**
- * intraRP — Legacy-API-Routen
+ * intraRP — API-Routen (Router v2)
  *
- * Alle Routen, die noch nicht zu echten Controller-Methoden portiert sind,
- * sondern ihre Business-Logik aus `src/LegacyApi/` laden (via LegacyDispatcher).
+ * Alle `/api/*`-Endpoints sind über echte Controller-Methoden angebunden,
+ * aufgeteilt in `App\Http\Controllers\Api\*`. Sowohl die saubere URL als
+ * auch das alte `.php`-Suffix werden registriert, damit Client-Code
+ * während des Umstiegs nicht reißt.
  *
  * Diese Datei wird von `public/index.php` nach `routes/api.php` geladen.
- * Nach und nach sollen einzelne Blocks hier rausfliegen, sobald die
- * Legacy-Files in richtige Controller + FormRequest refactored sind.
- *
- * Konvention: jede Route ist mit ihrem Middleware-Stack annotiert und
- * matcht sowohl den alten Pfad (inkl. `.php`-Suffix für Backwards-Compat)
- * als auch die neue saubere URL.
  *
  * @var \App\Http\Router $router
  */
@@ -28,7 +24,6 @@ use App\Http\Controllers\Api\FireController;
 use App\Http\Controllers\Api\HospitalAvailabilityController;
 use App\Http\Controllers\Api\KlinikCodeController;
 use App\Http\Controllers\Api\KnowledgebaseController;
-use App\Http\Controllers\Api\LegacyDispatcher;
 use App\Http\Controllers\Api\ManvController;
 use App\Http\Controllers\Api\PersonnelController;
 use App\Http\Controllers\Api\PersonnelProfileController;
@@ -40,22 +35,6 @@ use App\Http\Controllers\Api\VersionController;
 use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\PermissionMiddleware;
-use App\Http\Response;
-
-// Helper-Closure für den häufigen Fall "Route → LegacyDispatcher::run"
-$legacy = fn (string $path) => function (\App\Http\Request $req) use ($path): Response {
-    return app(LegacyDispatcher::class)->run($req, $path);
-};
-
-// Registriert eine Route sowohl unter `/clean/path` als auch `/clean/path.php`.
-// $methods: "GET", "POST", "GET|POST", ["GET", "POST"], ...
-$legacyRoute = function (string $methods, string $cleanPath, string $legacyFile, array $middleware) use ($router, $legacy): void {
-    $methodList = is_array($methods) ? $methods : explode('|', $methods);
-    $handler    = $legacy($legacyFile);
-
-    $router->match($methodList, $cleanPath,           $handler, $middleware);
-    $router->match($methodList, $cleanPath . '.php',  $handler, $middleware);
-};
 
 $auth   = [new AuthMiddleware()];
 $apiKey = [ApiKeyMiddleware::class];
@@ -132,14 +111,8 @@ $router->match(['GET', 'POST', 'DELETE'], '/api/documents/categories',     $docH
 $router->match(['GET', 'POST', 'DELETE'], '/api/documents/categories.php', $docHandler('categories'), $auth);
 
 // ============================================================================
-//  eNOTF-API — teilweise refactored.
-//  Refactored (echte Controller): prereg, delete-vehicle-session, sync-status,
-//    session-update, check-vehicle-session, session-status, poi/poi-search,
-//    share/get-available-vehicles
-//  Legacy (bleiben im LegacyDispatcher bis separate Turns):
-//    billing, bulk-delete-empty, check-conflict, delete-protocol, patient-sync,
-//    save-fields, poi/save-field, share/accept-request, share/check-requests,
-//    share/get-own-protocols, share/reject-request, share/send-request
+//  eNOTF-API — vollständig refactored.
+//  Alle Endpoints laufen über EnotfController.
 // ============================================================================
 $enotfHandler = fn (string $method) => [EnotfController::class, $method];
 
@@ -168,24 +141,44 @@ $router->match(['GET', 'POST'], '/api/enotf/poi/poi-search.php', $enotfHandler('
 $router->match(['GET'], '/api/enotf/share/get-available-vehicles',     $enotfHandler('shareGetAvailableVehicles'), $auth);
 $router->match(['GET'], '/api/enotf/share/get-available-vehicles.php', $enotfHandler('shareGetAvailableVehicles'), $auth);
 
-// ── Noch Legacy ──
-$legacyRoute('GET|POST',    '/api/enotf/billing',                'enotf/billing.php',                $auth);
-$legacyRoute('POST|DELETE', '/api/enotf/bulk-delete-empty',      'enotf/bulk-delete-empty.php',      $auth);
-$legacyRoute('GET|POST',    '/api/enotf/check-conflict',         'enotf/check-conflict.php',         $auth);
-$legacyRoute('POST|DELETE', '/api/enotf/delete-protocol',        'enotf/delete-protocol.php',        $auth);
-$legacyRoute('POST',        '/api/enotf/patient-sync',           'enotf/patient-sync.php',           $auth);
-$legacyRoute('POST',        '/api/enotf/save-fields',            'enotf/save-fields.php',            $auth);
-$legacyRoute('POST',        '/api/enotf/poi/save-field',         'enotf/poi/save-field.php',         $auth);
-$legacyRoute('POST',        '/api/enotf/share/accept-request',      'enotf/share/accept-request.php',      $auth);
-$legacyRoute('GET',         '/api/enotf/share/check-requests',      'enotf/share/check-requests.php',      $auth);
-$legacyRoute('GET',         '/api/enotf/share/get-own-protocols',   'enotf/share/get-own-protocols.php',   $auth);
-$legacyRoute('POST',        '/api/enotf/share/reject-request',      'enotf/share/reject-request.php',      $auth);
-$legacyRoute('POST',        '/api/enotf/share/send-request',        'enotf/share/send-request.php',        $auth);
+$router->match(['POST'], '/api/enotf/check-conflict',     $enotfHandler('checkConflict'), $auth);
+$router->match(['POST'], '/api/enotf/check-conflict.php', $enotfHandler('checkConflict'), $auth);
+
+$router->match(['POST'], '/api/enotf/patient-sync',     $enotfHandler('patientSync'), $auth);
+$router->match(['POST'], '/api/enotf/patient-sync.php', $enotfHandler('patientSync'), $auth);
+
+$router->match(['POST'], '/api/enotf/poi/save-field',     $enotfHandler('poiSaveField'), $auth);
+$router->match(['POST'], '/api/enotf/poi/save-field.php', $enotfHandler('poiSaveField'), $auth);
+
+$router->match(['POST', 'DELETE'], '/api/enotf/delete-protocol',     $enotfHandler('deleteProtocol'), $auth);
+$router->match(['POST', 'DELETE'], '/api/enotf/delete-protocol.php', $enotfHandler('deleteProtocol'), $auth);
+
+$router->match(['GET'],  '/api/enotf/share/check-requests',       $enotfHandler('shareCheckRequests'),    $auth);
+$router->match(['GET'],  '/api/enotf/share/check-requests.php',   $enotfHandler('shareCheckRequests'),    $auth);
+$router->match(['GET'],  '/api/enotf/share/get-own-protocols',    $enotfHandler('shareGetOwnProtocols'),  $auth);
+$router->match(['GET'],  '/api/enotf/share/get-own-protocols.php',$enotfHandler('shareGetOwnProtocols'),  $auth);
+$router->match(['POST'], '/api/enotf/share/reject-request',       $enotfHandler('shareRejectRequest'),    $auth);
+$router->match(['POST'], '/api/enotf/share/reject-request.php',   $enotfHandler('shareRejectRequest'),    $auth);
+$router->match(['POST'], '/api/enotf/share/send-request',         $enotfHandler('shareSendRequest'),      $auth);
+$router->match(['POST'], '/api/enotf/share/send-request.php',     $enotfHandler('shareSendRequest'),      $auth);
+
+$router->match(['POST'],         '/api/enotf/billing',              $enotfHandler('billing'),           $auth);
+$router->match(['POST'],         '/api/enotf/billing.php',          $enotfHandler('billing'),           $auth);
+
+$router->match(['GET', 'POST', 'DELETE'], '/api/enotf/bulk-delete-empty',     $enotfHandler('bulkDeleteEmpty'), $auth);
+$router->match(['GET', 'POST', 'DELETE'], '/api/enotf/bulk-delete-empty.php', $enotfHandler('bulkDeleteEmpty'), $auth);
+
+$router->match(['POST'],        '/api/enotf/save-fields',          $enotfHandler('saveFields'),         $auth);
+$router->match(['POST'],        '/api/enotf/save-fields.php',      $enotfHandler('saveFields'),         $auth);
+
+$router->match(['POST'],        '/api/enotf/share/accept-request',     $enotfHandler('shareAcceptRequest'), $auth);
+$router->match(['POST'],        '/api/enotf/share/accept-request.php', $enotfHandler('shareAcceptRequest'), $auth);
+
 // Legacy-Aliase (alte Redirect-Stubs)
-$router->post('/api/enotf-billing.php',         $legacy('enotf/billing.php'),         $auth);
-$router->post('/api/enotf-delete-protocol.php', $legacy('enotf/delete-protocol.php'), $auth);
-$router->post('/api/enotf-patient-sync.php',    $legacy('enotf/patient-sync.php'),    $auth);
-$router->get( '/api/enotf-sync-status.php',     $legacy('enotf/sync-status.php'),     $auth);
+$router->post('/api/enotf-billing.php',         $enotfHandler('billing'),        $auth);
+$router->post('/api/enotf-delete-protocol.php', $enotfHandler('deleteProtocol'), $auth);
+$router->post('/api/enotf-patient-sync.php',    $enotfHandler('patientSync'),    $auth);
+$router->get( '/api/enotf-sync-status.php',     $enotfHandler('syncStatus'),     $auth);
 
 // ============================================================================
 //  Federation (Server-to-Server) — refactored.
@@ -205,8 +198,7 @@ $router->match(['GET'],         '/api/federation/fire-incidents',     [Federatio
 $router->match(['GET'],         '/api/federation/fire-incidents.php', [FederationController::class, 'fireIncidents'], $public);
 
 // ============================================================================
-//  Fire-Incident-API — status + bulk-delete-empty refactored.
-//  lagekarte bleibt vorerst über LegacyDispatcher (680 Zeilen, separater Turn)
+//  Fire-Incident-API — vollständig refactored.
 // ============================================================================
 $fireQmAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'fire.incident.qm'])];
 
@@ -216,8 +208,8 @@ $router->match(['GET', 'POST'], '/api/fire/status.php', [FireController::class, 
 $router->match(['GET', 'POST', 'DELETE'], '/api/fire/bulk-delete-empty',     [FireController::class, 'bulkDeleteEmpty'], $fireQmAuth);
 $router->match(['GET', 'POST', 'DELETE'], '/api/fire/bulk-delete-empty.php', [FireController::class, 'bulkDeleteEmpty'], $fireQmAuth);
 
-// lagekarte bleibt vorerst Legacy-Dispatcher (wird später separat refactored)
-$legacyRoute('GET|POST', '/api/fire/lagekarte', 'fire/lagekarte.php', $auth);
+$router->match(['GET', 'POST'], '/api/fire/lagekarte',     [\App\Http\Controllers\Api\FireLagekarteController::class, 'handle'], $auth);
+$router->match(['GET', 'POST'], '/api/fire/lagekarte.php', [\App\Http\Controllers\Api\FireLagekarteController::class, 'handle'], $auth);
 
 // ============================================================================
 //  Hospitals — refactored zum echten Controller
@@ -354,10 +346,12 @@ $router->match(['GET', 'POST'], '/api/telemetry/background.php', [TelemetryApiCo
 $router->match(['GET', 'POST'], '/api/telemetry-background.php', [TelemetryApiController::class, 'background'], $auth);
 
 // ============================================================================
-//  Vehicles — tz-templates refactored, defects/import bleiben Legacy
+//  Vehicles — alle Endpoints refactored.
 // ============================================================================
-$legacyRoute('GET|POST', '/api/vehicles/defects-handler', 'vehicles/defects-handler.php', $auth);
-$legacyRoute('GET|POST', '/api/vehicles/import-handler',  'vehicles/import-handler.php',  $auth);
+$router->match(['GET', 'POST'], '/api/vehicles/defects-handler',     [\App\Http\Controllers\Api\VehicleDefectsController::class, 'handle'], $auth);
+$router->match(['GET', 'POST'], '/api/vehicles/defects-handler.php', [\App\Http\Controllers\Api\VehicleDefectsController::class, 'handle'], $auth);
+$router->match(['GET', 'POST'], '/api/vehicles/import-handler',      [\App\Http\Controllers\Api\VehicleImportController::class,  'handle'], $auth);
+$router->match(['GET', 'POST'], '/api/vehicles/import-handler.php',  [\App\Http\Controllers\Api\VehicleImportController::class,  'handle'], $auth);
 
 $router->match(['GET', 'POST'], '/api/vehicles/tz-templates',     [VehicleTzTemplatesController::class, 'handle'], $auth);
 $router->match(['GET', 'POST'], '/api/vehicles/tz-templates.php', [VehicleTzTemplatesController::class, 'handle'], $auth);

@@ -213,7 +213,7 @@ final class FederationController
             $stmt = $this->pdo->prepare("
                 SELECT
                     id, enr, edatum, ezeit,
-                    patname, pfname, patgebdat, geschlecht_pat,
+                    patname, pat_vorname, pat_nachname, pfname, patgebdat, patsex,
                     einsatzort, elokation,
                     fzg_transp, fzg_na,
                     ziel_poi, ziel_adresse,
@@ -283,10 +283,10 @@ final class FederationController
             $stmt = $this->pdo->prepare("
                 SELECT
                     i.id, i.incident_number, i.keyword, i.location,
+                    i.location_x, i.location_y,
                     i.status, i.finalized,
                     i.leader_id, m.fullname AS leader_name,
                     i.owner_type, i.owner_name, i.owner_contact,
-                    i.gta_x, i.gta_y, i.gta_z,
                     i.created_at, i.updated_at
                 FROM intra_fire_incidents i
                 LEFT JOIN intra_mitarbeiter m ON i.leader_id = m.id
