@@ -97,4 +97,29 @@ final class NotificationController
             return Response::json(['success' => false, 'message' => 'Server error'], 500);
         }
     }
+
+    /**
+     * POST /api/notifications/mark-all-read
+     *
+     * Markiert alle Notifications des eingeloggten Users als gelesen.
+     * Wird vom Topbar-Flyout ("Alle als gelesen markieren") verwendet.
+     */
+    public function markAllRead(Request $request): Response
+    {
+        $userId = (int) ($_SESSION['userid'] ?? 0);
+        if ($userId <= 0) {
+            return Response::json(['success' => false, 'message' => 'Not authorized'], 403);
+        }
+
+        try {
+            $this->notifications->markAllAsRead($userId);
+            return Response::json(['success' => true]);
+        } catch (Throwable $e) {
+            Logger::error('NotificationMarkAllRead: Fehler', [
+                'error'   => $e->getMessage(),
+                'user_id' => $userId,
+            ]);
+            return Response::json(['success' => false, 'message' => 'Server error'], 500);
+        }
+    }
 }

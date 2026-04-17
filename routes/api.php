@@ -135,6 +135,16 @@ $router->post('/benachrichtigungen/mark-read.php',
     [new AuthMiddleware()]
 );
 
+// Alle Notifications als gelesen markieren (Topbar-Flyout)
+$router->post('/api/notifications/mark-all-read',
+    [NotificationController::class, 'markAllRead'],
+    [new AuthMiddleware()]
+);
+$router->post('/api/notifications/mark-all-read.php',
+    [NotificationController::class, 'markAllRead'],
+    [new AuthMiddleware()]
+);
+
 /*
  * BEISPIEL — Admin-API-Endpoint (Session + Permission + CSRF)
  *
