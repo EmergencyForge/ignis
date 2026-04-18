@@ -9,17 +9,15 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- Preload critical font -->
 <link rel="preload" href="<?= BASE_PATH ?>assets/fonts/mavenpro/font/maven-pro-v39-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
 <!-- Stylesheets: Bootstrap first, then overrides -->
-<link rel="stylesheet" href="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>vendor/fortawesome/font-awesome/css/all.min.css">
+<link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor.css">
+<link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/tailwind.css">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/divi.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-custom-dropdown.css">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-modals.css">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-toast.css">
-<!-- Core scripts (required by inline scripts, cannot be deferred) -->
-<script src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
-<script src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Core-Bundle: jQuery + Bootstrap + DataTables (synchron, wegen window.$-Nutzung in Inline-Scripts) -->
+<script src="<?= BASE_PATH ?>public/assets/dist/vendor.js"></script>
 <!-- App scripts: defer to unblock rendering -->
 <script defer src="<?= BASE_PATH ?>assets/js/toasts.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>

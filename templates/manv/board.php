@@ -248,8 +248,6 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
 
     <?php include __DIR__ . '/../../assets/components/footer.php'; ?>
 
-    <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
-    <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#patientenTable').DataTable({

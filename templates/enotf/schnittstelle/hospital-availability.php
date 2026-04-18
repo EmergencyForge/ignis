@@ -113,10 +113,6 @@ $status_config = [
     <title>Krankenhaus-Verfügbarkeit &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
 
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/divi.min.css" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/fortawesome/font-awesome/css/all.min.css">
-    <script src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
-    <script src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="shortcut icon" href="<?= BASE_PATH ?>assets/favicon/favicon.ico" />

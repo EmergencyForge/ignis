@@ -20,21 +20,25 @@ export default defineConfig({
         outDir: resolve(__dirname, 'public/assets/dist'),
         emptyOutDir: false,
         manifest: false,
-        cssCodeSplit: false,
+        // Getrennte CSS-Bundles pro Entry (tailwind.css + vendor.css)
+        // statt einem monolithischen style.css
+        cssCodeSplit: true,
         rollupOptions: {
             input: {
                 tailwind: resolve(__dirname, 'assets/js/tailwind.js'),
+                vendor:   resolve(__dirname, 'assets/js/vendor.js'),
             },
             output: {
-                // CSS-Assets mit festem Namen (für stabile link-Tags),
-                // sonstige Assets (Fonts, Icons) mit Content-Hash für Caching.
-                // Vite nennt den CSS-Output bei JS-Entries nach dem Entry-Key
-                // in rollupOptions.input — deshalb heisst das Bundle hier
-                // `tailwind.css`, passend zur tailwind.js-Entry-Konvention.
+                // CSS-Bundles nach Entry-Key benennen (tailwind.css / vendor.css),
+                // damit Templates mit festen Pfaden verlinken können.
+                // Fonts/Icons bekommen Content-Hash für Caching.
                 assetFileNames: (info) => {
                     const name = info.name ?? '';
+                    // Vite liefert bei Multi-Entry-Builds nur „tailwind.css" bzw.
+                    // „vendor.css" als Source-Name — wir reichen den Namen direkt
+                    // durch und hängen nur bei Binär-Assets einen Hash an.
                     if (name.endsWith('.css')) {
-                        return 'tailwind.css';
+                        return '[name][extname]';
                     }
                     return 'assets/[name]-[hash][extname]';
                 },
