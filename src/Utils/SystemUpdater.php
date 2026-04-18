@@ -598,6 +598,23 @@ class SystemUpdater
                 throw new Exception('Fehler beim Kopieren der Update-Dateien: ' . $e->getMessage() . ' - Backup verfügbar in: ' . $backupDir);
             }
 
+            // Step 4.5: Delete-Manifest abarbeiten (entfernt Ordner/Dateien, die
+            // mit der neuen Version wegfallen sollen — z.B. Modul-Verzeichnisse
+            // nach einer Router-Migration). Fehlendes Manifest ist kein Fehler.
+            try {
+                $manifestResult = $this->applyUpdateManifest($sourceDir, $appRoot);
+                if ($manifestResult['applied']) {
+                    \App\Logging\Logger::info('Update-Manifest verarbeitet', [
+                        'deleted' => $manifestResult['deleted'],
+                        'skipped' => $manifestResult['skipped'],
+                    ]);
+                } elseif (!empty($manifestResult['error'])) {
+                    \App\Logging\Logger::warning('Update-Manifest-Fehler: ' . $manifestResult['error']);
+                }
+            } catch (\Throwable $e) {
+                \App\Logging\Logger::warning('Update-Manifest konnte nicht angewendet werden: ' . $e->getMessage());
+            }
+
             // Step 5: Update version.json
             if (!$this->updateVersionFile([
                 'version' => $newVersion,
@@ -853,6 +870,155 @@ class SystemUpdater
         if (!empty($failedCriticalFiles)) {
             throw new Exception('Kritische Dateien konnten nicht aktualisiert werden: ' . implode(', ', $failedCriticalFiles));
         }
+    }
+
+    /**
+     * Verarbeitet `update-manifest.json` aus dem Release-ZIP und löscht die
+     * dort deklarierten Pfade aus dem Projekt-Root.
+     *
+     * Manifest-Format (im Root des ZIPs):
+     *   {
+     *     "version": "2.0.0",
+     *     "delete_paths": ["enotf", "einsatz", "manv", ...]
+     *   }
+     *
+     * Jeder Pfad wird strikt validiert:
+     *   - kein Path-Traversal (`..`, Nullbytes, absolute Pfade)
+     *   - geschützte Verzeichnisse (`storage`, `system`, `vendor`, `.git`,
+     *     `.env*`, `public/index.php`) sind tabu
+     *   - der Real-Pfad muss innerhalb des App-Roots liegen
+     *
+     * Fehlende Pfade werden als „skipped" ausgewiesen, nicht als Fehler —
+     * ein Kunde hat einen migrations-spezifischen Modul-Ordner evtl. schon
+     * von Hand entfernt.
+     *
+     * @return array{applied:bool, deleted:array<int,string>, skipped:array<int,array{path:string,reason:string}>, error?:string}
+     */
+    private function applyUpdateManifest(string $sourceDir, string $appRoot): array
+    {
+        $result = ['applied' => false, 'deleted' => [], 'skipped' => []];
+
+        $manifestPath = $sourceDir . '/update-manifest.json';
+        if (!is_file($manifestPath)) {
+            return $result;
+        }
+
+        $raw = @file_get_contents($manifestPath);
+        if ($raw === false) {
+            $result['error'] = 'update-manifest.json konnte nicht gelesen werden';
+            return $result;
+        }
+
+        $manifest = json_decode($raw, true);
+        if (!is_array($manifest)) {
+            $result['error'] = 'update-manifest.json ist kein gültiges JSON';
+            return $result;
+        }
+
+        $deletePaths = $manifest['delete_paths'] ?? [];
+        if (!is_array($deletePaths)) {
+            $result['error'] = 'delete_paths im Manifest ist kein Array';
+            return $result;
+        }
+
+        $result['applied'] = true;
+
+        foreach ($deletePaths as $entry) {
+            if (!is_string($entry)) {
+                $result['skipped'][] = ['path' => (string) $entry, 'reason' => 'kein String'];
+                continue;
+            }
+
+            $normalized = $this->validateManifestDeletePath($entry, $appRoot);
+            if ($normalized === null) {
+                $result['skipped'][] = ['path' => $entry, 'reason' => 'geschützt/ungültig'];
+                continue;
+            }
+
+            $fullPath = $appRoot . '/' . $normalized;
+            if (!file_exists($fullPath) && !is_link($fullPath)) {
+                $result['skipped'][] = ['path' => $normalized, 'reason' => 'nicht vorhanden'];
+                continue;
+            }
+
+            try {
+                if (is_dir($fullPath) && !is_link($fullPath)) {
+                    $this->recursiveDelete($fullPath);
+                } else {
+                    @unlink($fullPath);
+                }
+                $result['deleted'][] = $normalized;
+            } catch (\Throwable $e) {
+                $result['skipped'][] = ['path' => $normalized, 'reason' => 'Löschen fehlgeschlagen: ' . $e->getMessage()];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Validiert einen Pfad aus dem Update-Manifest und gibt ihn normalisiert
+     * zurück, oder `null` wenn er nicht gelöscht werden darf.
+     *
+     * Reject-Regeln:
+     *   - leer, `/`, `.`, `..`
+     *   - enthält `..`, Nullbyte, Backslash-escaped Traversal
+     *   - absolute Pfade (`/foo`, `C:\foo`)
+     *   - geschützte Prefixe: `storage`, `system`, `vendor`, `.git`, `.env`, `public/index.php`
+     *   - realpath-Check: Parent-Dir darf nicht außerhalb des App-Roots liegen
+     */
+    private function validateManifestDeletePath(string $path, string $appRoot): ?string
+    {
+        $path = trim($path);
+        if ($path === '' || $path === '/' || $path === '.' || $path === '..') {
+            return null;
+        }
+
+        if (str_contains($path, "\0") || str_contains($path, '..')) {
+            return null;
+        }
+
+        if (str_starts_with($path, '/') || str_starts_with($path, '\\') || preg_match('#^[a-zA-Z]:#', $path)) {
+            return null;
+        }
+
+        $normalized = trim(str_replace('\\', '/', $path), '/');
+        if ($normalized === '') {
+            return null;
+        }
+
+        $protectedPrefixes = [
+            'storage',
+            'system',
+            'vendor',
+            '.git',
+            '.env',
+            'public/index.php',
+            'composer.json',
+            'composer.lock',
+            '.htaccess',
+        ];
+        foreach ($protectedPrefixes as $prefix) {
+            if ($normalized === $prefix || str_starts_with($normalized, $prefix . '/')) {
+                return null;
+            }
+        }
+
+        // Realpath-Check: Parent muss innerhalb des App-Roots liegen
+        $fullPath   = $appRoot . '/' . $normalized;
+        $parentDir  = dirname($fullPath);
+        $resolvedParent = realpath($parentDir);
+        $resolvedRoot   = realpath($appRoot);
+        if ($resolvedParent === false || $resolvedRoot === false) {
+            return null;
+        }
+        $resolvedRootWithSep = rtrim($resolvedRoot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+        if (!str_starts_with($resolvedParent . DIRECTORY_SEPARATOR, $resolvedRootWithSep)
+            && $resolvedParent !== $resolvedRoot) {
+            return null;
+        }
+
+        return $normalized;
     }
 
     /**
