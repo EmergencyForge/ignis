@@ -18,6 +18,9 @@ export default {
             'templates/**/*.php',
             'assets/components/**/*.php',
             'public/*.php',
+            // Root-Level PHP-Entry-Points (login.php, dashboard.php, index.php, ...)
+            // enthalten auch Markup und müssen von Tailwind gescannt werden.
+            '*.php',
         ],
         // Explizite Exclude-Liste — ohne das versucht der fast-glob-Scanner
         // gerne mal auch durch vendor/, node_modules/ oder storage/ zu laufen,
