@@ -71,35 +71,13 @@ RewriteEngine On
 
 # ============================================================
 # eNOTF Clean URLs
-# Aktiv auf allen Umgebungen (damit Clean-URLs immer funktionieren).
-# Die URL-Generierung (clean vs. legacy) steuert EnotfUrl.php
-# per APP_ENV.
+#
+# Diese Rewrites sind seit Welle 9 (Router-Cutover) obsolet — der
+# App\Http\Router registriert die Clean-URL-Muster direkt in
+# routes/web.php und dispatcht auf EnotfProtokollController.
+# Das `enotf/`-Verzeichnis existiert nicht mehr, die Rewrites
+# würden ins Leere zeigen.
 # ============================================================
-
-# --- Top-Level-Seiten (.php-Erweiterung entfernen) ---
-# MultiViews erledigt das bereits, diese Regeln dienen als expliziter Fallback
-RewriteRule ^enotf/(login|overview|create|lockscreen|loggedout|fahrzeuginfo|hospital-availability)$ enotf/$1.php [L,QSA]
-
-# --- Protokoll: /enotf/p/{enr} ---
-RewriteRule ^enotf/p/([\w._-]+)/?$ enotf/protokoll/index.php?enr=$1 [L,QSA]
-
-# --- Protokoll: /enotf/p/{enr}/{section} (Sektions-Index) ---
-RewriteRule ^enotf/p/([\w._-]+)/([\w-]+)/?$ enotf/protokoll/$2/index.php?enr=$1 [L,QSA]
-
-# --- Protokoll: /enotf/p/{enr}/{section}/{page_or_subsection} ---
-# Sektionen mit Unterverzeichnissen (erstbefund, massnahmen): 3. Segment = Verzeichnis
-RewriteRule ^enotf/p/([\w._-]+)/(erstbefund|massnahmen)/([\w-]+)/?$ enotf/protokoll/$2/$3/index.php?enr=$1 [L,QSA]
-# Sektionen mit .php-Dateien (diagnose, anamnese, rettdaten, verlauf, abschluss): 3. Segment = Datei
-RewriteRule ^enotf/p/([\w._-]+)/(diagnose|anamnese|rettdaten|verlauf|abschluss)/([\w_-]+)/?$ enotf/protokoll/$2/$3.php?enr=$1 [L,QSA]
-
-# --- Protokoll: /enotf/p/{enr}/{section}/{subsection}/{page} (tiefe Seiten) ---
-RewriteRule ^enotf/p/([\w._-]+)/([\w-]+)/([\w-]+)/([\w_-]+)/?$ enotf/protokoll/$2/$3/$4.php?enr=$1 [L,QSA]
-
-# --- Print: /enotf/print/{enr} ---
-RewriteRule ^enotf/print/([\w._-]+)/?$ enotf/print/index.php?enr=$1 [L,QSA]
-
-# --- Admin: /enotf/admin → list.php ---
-RewriteRule ^enotf/admin/?$ enotf/admin/list.php [L,QSA]
 
 # ============================================================
 # Router Fallback (Phase 3.1)

@@ -64,54 +64,28 @@ server {
     client_max_body_size 10M;
 
     # ====================================================
-    # eNOTF Clean-URL Rewrites
-    # ====================================================
-    # Diese Rewrites werden VOR den location-Blöcken verarbeitet.
-    # Die Reihenfolge ist wichtig: spezifischere Regeln zuerst.
-
-    # Protokoll: /enotf/p/{enr}/{section}/{subsection}/{page} (4 Segmente)
-    rewrite ^/enotf/p/([\w._-]+)/([\w-]+)/([\w-]+)/([\w_-]+)/?$
-            /enotf/protokoll/$2/$3/$4.php?enr=$1 last;
-
-    # Protokoll: /enotf/p/{enr}/{section}/{page} – Unterverzeichnisse (erstbefund, massnahmen)
-    rewrite ^/enotf/p/([\w._-]+)/(erstbefund|massnahmen)/([\w-]+)/?$
-            /enotf/protokoll/$2/$3/index.php?enr=$1 last;
-
-    # Protokoll: /enotf/p/{enr}/{section}/{page} – PHP-Dateien
-    rewrite ^/enotf/p/([\w._-]+)/(diagnose|anamnese|rettdaten|verlauf|abschluss)/([\w_-]+)/?$
-            /enotf/protokoll/$2/$3.php?enr=$1 last;
-
-    # Protokoll: /enotf/p/{enr}/{section}
-    rewrite ^/enotf/p/([\w._-]+)/([\w-]+)/?$
-            /enotf/protokoll/$2/index.php?enr=$1 last;
-
-    # Protokoll: /enotf/p/{enr}
-    rewrite ^/enotf/p/([\w._-]+)/?$
-            /enotf/protokoll/index.php?enr=$1 last;
-
-    # Print: /enotf/print/{enr}
-    rewrite ^/enotf/print/([\w._-]+)/?$
-            /enotf/print/index.php?enr=$1 last;
-
-    # Admin: /enotf/admin → list.php
-    rewrite ^/enotf/admin/?$ /enotf/admin/list.php last;
-
-    # ====================================================
     # Zugriffsbeschränkungen (VOR den allgemeinen Locations)
     # ====================================================
+    #
+    # HINWEIS zu eNOTF Clean-URLs: Seit der Router-Migration (Welle 9)
+    # bedient `App\Http\Router` sämtliche `/enotf/p/...`-URLs direkt —
+    # die früheren rewrite-Regeln sind obsolet. Der `try_files`-Fallback
+    # weiter unten leitet jeden Request, der keine Datei matched, an
+    # `public/index.php` weiter.
 
     # Sensible Dateien komplett blockieren
     location ~ /\.(env|git|htaccess|htpasswd) {
         return 403;
     }
 
-    # /tests/ – komplett blockieren
-    location /tests/ {
+    # Nicht-web-Verzeichnisse — synchron zur .htaccess-Blocklist
+    # (src, cli, tools, tests, database, config, docker, routes, .github)
+    location ~ ^/(src|cli|tools|tests|database|config|docker|routes|\.github)/ {
         return 403;
     }
 
-    # /vendor/, /src/, /storage/logs/, /assets/config/ – kein direkter Zugriff
-    location ~ ^/(vendor|src|storage/logs|assets/config)/ {
+    # Zusätzlich: vendor, storage/logs, storage/cache, assets/config
+    location ~ ^/(vendor|storage/logs|storage/cache|assets/config)/ {
         return 403;
     }
 
@@ -133,21 +107,20 @@ server {
     }
 
     # ====================================================
-    # Extension-less PHP URLs (Apache MultiViews-Ersatz)
+    # Request-Dispatch (Router-first)
     # ====================================================
-    # Wenn /pfad nicht existiert, prüfe ob /pfad.php existiert
-    # und leite an PHP-FPM weiter.
-
+    #
     # Fallback-Kette (Reihenfolge wichtig!):
-    #   1. $uri        → existierende Datei direkt ausliefern
-    #   2. $uri/       → Directory-Index (index.php)
-    #   3. $uri.php    → extensionless Legacy-URLs (/benutzer/list → list.php)
+    #   1. $uri        → existierende Datei (Assets, uploads) direkt ausliefern
+    #   2. $uri/       → Directory-Index (praktisch nur noch für `public/`)
+    #   3. $uri.php    → extensionlose URLs (seltener Fall — Module sind
+    #                    vollständig auf den Router umgestellt, aber dieser
+    #                    Schritt bleibt als Safety-Net)
     #   4. @router     → zentraler Front-Controller (public/index.php)
     #
-    # Der Router-Fallback greift nur, wenn keine Legacy-Datei matcht —
-    # bestehende Modul-Stubs bleiben dadurch voll funktionsfähig und
-    # der Router bedient nur neue Routen oder URLs, die bewusst durch
-    # ihn laufen sollen.
+    # Seit Welle 9 gibt es keine Modul-Stubs mehr (`benutzer/`, `antrag/`,
+    # `manv/`, `einsatz/`, `settings/`, `enotf/`, ...) — der Router
+    # bedient alle Applications-URLs über public/index.php.
     location / {
         try_files $uri $uri/ $uri.php @router;
     }

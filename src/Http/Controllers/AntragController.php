@@ -9,6 +9,7 @@ use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
 use App\Http\Requests\Antraege\DecideAntragRequest;
+use App\Http\Validation\AntragFieldValidator;
 use App\Models\Antrag;
 use App\Models\AntragData;
 use App\Models\AntragField;
@@ -121,13 +122,24 @@ class AntragController extends Controller
             ->orderBy('sortierung')
             ->get();
 
+        // Validierung: Typ-Check pro Feld, Pflichtfeld-Check, Mass-Assignment-
+        // Schutz. Readonly-Felder werden hier bewusst NICHT aus $_POST gezogen
+        // — die befüllen wir unten aus dem Server-Kontext (auto_fill).
+        try {
+            $validated = AntragFieldValidator::validate($felder, $_POST);
+        } catch (ValidationException $e) {
+            $errorMsgs = $e->errors();
+            Flash::set('error', reset($errorMsgs) ?: 'Bitte überprüfe die Eingaben.');
+            $this->redirect('antrag/create.php?typ=' . $typId);
+        }
+
         // Eindeutige Public-ID generieren (6 Stellen)
         do {
             $uniqueId = (string) random_int(100000, 999999);
         } while (Antrag::query()->where('uniqueid', $uniqueId)->exists());
 
         try {
-            Capsule::connection()->transaction(function () use ($typ, $felder, $mitarbeiter, $uniqueId): void {
+            Capsule::connection()->transaction(function () use ($typ, $felder, $mitarbeiter, $uniqueId, $validated): void {
                 $antrag = new Antrag();
                 $antrag->uniqueid      = $uniqueId;
                 $antrag->antragstyp_id = $typ->id;
@@ -138,10 +150,14 @@ class AntragController extends Controller
                 $antrag->save();
 
                 foreach ($felder as $feld) {
+                    $wert = (bool) $feld->readonly
+                        ? $this->resolveAutoFillValue($feld, $mitarbeiter)
+                        : ($validated[$feld->feldname] ?? '');
+
                     $data = new AntragData();
                     $data->antrag_id = $antrag->id;
                     $data->feldname  = $feld->feldname;
-                    $data->wert      = (string) ($_POST[$feld->feldname] ?? '');
+                    $data->wert      = $wert;
                     $data->save();
                 }
             });
@@ -152,6 +168,30 @@ class AntragController extends Controller
 
         Flash::set('success', 'Antrag erfolgreich eingereicht!');
         $this->redirect('antrag/view.php?antrag=' . $uniqueId);
+    }
+
+    /**
+     * Übersetzt einen `auto_fill`-Key aus AntragField in den Wert aus dem
+     * aktuellen Mitarbeiter-Profil. Spiegel der gleichnamigen Template-
+     * Logik in `templates/antraege/create.php` — hier server-seitig als
+     * Source of Truth für readonly-Felder, damit client-seitiges Editieren
+     * (DevTools) keine falschen Werte einschleusen kann.
+     */
+    private function resolveAutoFillValue(AntragField $feld, \stdClass $mitarbeiter): string
+    {
+        $key = (string) ($feld->auto_fill ?? '');
+        if ($key === '') {
+            return (string) ($feld->standardwert ?? '');
+        }
+
+        return match ($key) {
+            'fullname_dienstnr' => $mitarbeiter->fullname . ' (' . $mitarbeiter->dienstnr . ')',
+            'fullname'          => (string) $mitarbeiter->fullname,
+            'dienstnr'          => (string) $mitarbeiter->dienstnr,
+            'dienstgrad'        => (string) ($mitarbeiter->dienstgrad_name ?? ''),
+            'discordtag'        => (string) $mitarbeiter->discordtag,
+            default             => (string) ($feld->standardwert ?? ''),
+        };
     }
 
     /**

@@ -8,6 +8,7 @@ use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use Psr\Container\ContainerInterface;
 
+use function FastRoute\cachedDispatcher;
 use function FastRoute\simpleDispatcher;
 
 /**
@@ -51,6 +52,16 @@ final class Router
     public function __construct(
         private readonly ContainerInterface $container,
         private readonly Pipeline $pipeline,
+        /**
+         * Cache-Verhalten für den FastRoute-Dispatcher.
+         *   - `true`  (Default): File-Cache unter `storage/cache/routes.php`,
+         *                        mit mtime-basierter Auto-Invalidation.
+         *   - `false`:            Kein Cache — jede Request baut den Dispatcher
+         *                        frisch. Tests nutzen das, damit das Live-Cache-
+         *                        File (mit Produktions-Routen) die Test-Router-
+         *                        Instanzen nicht verfälscht.
+         */
+        private readonly bool $enableCache = true,
     ) {}
 
     // ── Route-Registrierung ───────────────────────────────────────────
@@ -163,8 +174,13 @@ final class Router
                     ->withHeader('Allow', implode(', ', $allowed));
 
             case Dispatcher::FOUND:
-                /** @var array{0:int,1:array{methods:array<int,string>,path:string,handler:mixed,middleware:array<int, string|Middleware\MiddlewareInterface>},2:array<string,string>} $info */
-                $routeDef = $info[1];
+                /** @var array{0:int,1:int,2:array<string,string>} $info */
+                // FastRoute liefert den Routen-Index zurück (Handler-Kennung) —
+                // wir schlagen die echte Route-Definition (mit Closure, Middleware)
+                // aus $this->routes nach. Indirektion ist nötig, weil Closures
+                // nicht serialisiert werden können (Cache-Kompatibilität).
+                $routeIdx = $info[1];
+                $routeDef = $this->routes[$routeIdx];
                 /** @var array<string,string> $params */
                 $params   = $info[2];
 
@@ -184,14 +200,56 @@ final class Router
 
     private function buildDispatcher(): Dispatcher
     {
-        return simpleDispatcher(function (RouteCollector $rc): void {
+        $routeCallback = function (RouteCollector $rc): void {
             foreach ($this->routes as $idx => $route) {
-                // FastRoute braucht eine serialisierbare Handler-Kennung —
-                // wir geben den Array-Index, der unsere $routes indiziert,
-                // plus die Original-Definition zum späteren Callable-Bau.
-                $rc->addRoute($route['methods'], $route['path'], $route);
+                // Nur den Index in den Cache — die Route-Definition enthält
+                // Closures und Middleware-Instances, die nicht serialisierbar sind.
+                // Die echte Definition wird bei dispatch() via $this->routes[$idx]
+                // nachgeschlagen.
+                $rc->addRoute($route['methods'], $route['path'], $idx);
             }
-        });
+        };
+
+        if (!$this->enableCache) {
+            // simpleDispatcher baut frisch, ohne File-Cache — notwendig für Tests,
+            // da cachedDispatcher auch mit `cacheDisabled=true` eine cacheFile-
+            // Option erzwingt (API-Quirk von FastRoute).
+            return simpleDispatcher($routeCallback);
+        }
+
+        $cacheFile = dirname(__DIR__, 2) . '/storage/cache/routes.php';
+        $this->invalidateStaleRouteCache($cacheFile);
+
+        $cacheDir = dirname($cacheFile);
+        if (!is_dir($cacheDir)) {
+            @mkdir($cacheDir, 0755, true);
+        }
+
+        return cachedDispatcher($routeCallback, [
+            'cacheFile'     => $cacheFile,
+            'cacheDisabled' => false,
+        ]);
+    }
+
+    /**
+     * Löscht den Route-Cache, wenn eine der Route-Definitions-Dateien neuer
+     * ist als das Cache-File. Stellt sicher, dass Dev-Änderungen an routes/
+     * im nächsten Request wirksam sind, ohne manuelles Cache-Clearing.
+     */
+    private function invalidateStaleRouteCache(string $cacheFile): void
+    {
+        if (!is_file($cacheFile)) {
+            return;
+        }
+
+        $cacheMtime = (int) filemtime($cacheFile);
+        $routesDir  = dirname(__DIR__, 2) . '/routes';
+        foreach ((glob($routesDir . '/*.php') ?: []) as $routeFile) {
+            if ((int) filemtime($routeFile) > $cacheMtime) {
+                @unlink($cacheFile);
+                return;
+            }
+        }
     }
 
     /**
