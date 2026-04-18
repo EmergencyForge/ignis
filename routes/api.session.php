@@ -205,7 +205,7 @@ $router->match(['GET'],         '/api/federation/fire-incidents.php', [Federatio
 // ============================================================================
 //  Fire-Incident-API — vollständig refactored.
 // ============================================================================
-$fireQmAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'fire.incident.qm'])];
+$fireQmAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'fire.incident.qm'])];
 
 $router->match(['GET', 'POST'], '/api/fire/status',     [FireController::class, 'status'], $auth);
 $router->match(['GET', 'POST'], '/api/fire/status.php', [FireController::class, 'status'], $auth);
@@ -243,8 +243,8 @@ $router->post('/api/generate-klinikcode.php',   $klinikHandler, $auth);
 //  (POST/DELETE categories, POST/DELETE tags) erfordern Session + kb.edit
 //  und werden intern im Controller geprüft.
 // ============================================================================
-$kbReadAuth  = [new AuthMiddleware('KB_PUBLIC_ACCESS', invert: true)];
-$kbWriteAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'kb.edit'])];
+$kbReadAuth  = [JsonExceptionMiddleware::class, new AuthMiddleware('KB_PUBLIC_ACCESS', invert: true)];
+$kbWriteAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'kb.edit'])];
 
 // Categories
 $router->get(   '/api/knowledgebase/categories',     [KnowledgebaseController::class, 'listCategories'],  $kbReadAuth);
@@ -276,9 +276,9 @@ $router->match(['GET', 'POST'], '/api/manv-api.php', [ManvController::class, 'ha
 // ============================================================================
 //  Personnel (Mitarbeiter-Admin-UI) — vollständig refactored
 // ============================================================================
-$personnelEditAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'personnel.edit'])];
-$personnelViewAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'personnel.view'])];
-$usersCreateAuth   = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'users.create'])];
+$personnelEditAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'personnel.edit'])];
+$personnelViewAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'personnel.view'])];
+$usersCreateAuth   = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'users.create'])];
 
 // Dienstnummer-Check (JSON + Legacy-Plain-Text-Variante)
 $router->post('/api/personnel/check-dienstnr',            [PersonnelController::class, 'checkDienstnr'],        $personnelEditAuth);
@@ -305,14 +305,14 @@ $router->post('/api/personnel/upload-pfp.php',     [PersonnelController::class, 
 // ============================================================================
 //  POIs (Point-of-Interest Admin) — refactored zum echten Controller
 // ============================================================================
-$poiAuth = [new AuthMiddleware(), new PermissionMiddleware(['admin', 'pois.manage'])];
+$poiAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'pois.manage'])];
 $router->post('/api/pois/departments-sort',     [PoiDepartmentsController::class, 'updateSort'], $poiAuth);
 $router->post('/api/pois/departments-sort.php', [PoiDepartmentsController::class, 'updateSort'], $poiAuth);
 
 // ============================================================================
 //  System-Admin-API — vollständig refactored
 // ============================================================================
-$adminAuth = [new AuthMiddleware(), new PermissionMiddleware('admin')];
+$adminAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware('admin')];
 
 // Composer-Status
 $router->match(['GET', 'POST'], '/api/system/composer-status',     [SystemApiController::class, 'composerStatus'], $adminAuth);

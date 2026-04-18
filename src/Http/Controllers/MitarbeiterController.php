@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
+use App\Http\Requests\Mitarbeiter\CreateDocumentRequest;
 use App\Http\Requests\Mitarbeiter\CreateMitarbeiterRequest;
 use App\Http\Requests\Mitarbeiter\UpdateMitarbeiterRequest;
 use App\Models\Dienstgrad;
@@ -365,13 +366,15 @@ class MitarbeiterController extends Controller
      */
     public function createDocument(): void
     {
-
-        $profileId = (int) ($_POST['profileid'] ?? 0);
-        $docType   = (string) ($_POST['docType'] ?? '');
-        if ($profileId <= 0 || $docType === '') {
-            Flash::error('Ungültige Eingabe.');
+        try {
+            $data = CreateDocumentRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
             $this->redirect('mitarbeiter/list.php');
         }
+
+        $profileId = $data['profileid'];
+        $docType   = $data['docType'];
 
         /** @var Mitarbeiter|null $mitarbeiter */
         $mitarbeiter = Mitarbeiter::find($profileId);
@@ -386,28 +389,22 @@ class MitarbeiterController extends Controller
             $exists = Capsule::table('intra_mitarbeiter_dokumente')->where('docid', $docId)->exists();
         } while ($exists);
 
-        // ausstellungsdatum kommt unter mehreren Field-Namen — der Legacy-Code
-        // mappt 10/11/12/13 auf den 10er-Suffix, sonst Suffix = $docType.
-        $ausstDtNr = in_array($docType, ['10', '11', '12', '13'], true) ? '10' : $docType;
-        $rawDate   = $_POST['ausstellungsdatum_' . $ausstDtNr] ?? $_POST['ausstellungsdatum_0'] ?? '';
-        $ausstellungsdatum = $rawDate !== '' ? date('Y-m-d', strtotime($rawDate)) : date('Y-m-d');
-
         Capsule::table('intra_mitarbeiter_dokumente')->insert([
             'docid'             => $docId,
             'type'              => $docType,
-            'anrede'            => $_POST['anrede'] ?? null,
-            'erhalter'          => $_POST['erhalter'] ?? null,
-            'inhalt'            => $_POST['inhalt'] ?? null,
-            'suspendtime'       => !empty($_POST['suspendtime']) ? $_POST['suspendtime'] : null,
-            'erhalter_gebdat'   => $_POST['erhalter_gebdat'] ?? null,
-            'erhalter_rang'     => $_POST['erhalter_rang'] ?? null,
-            'erhalter_rang_rd'  => $_POST['erhalter_rang_rd'] ?? null,
-            'erhalter_quali'    => $_POST['erhalter_quali'] ?? null,
-            'ausstellungsdatum' => $ausstellungsdatum,
-            'ausstellerid'      => $_POST['ausstellerid'] ?? null,
+            'anrede'            => $data['anrede'],
+            'erhalter'          => $data['erhalter'],
+            'inhalt'            => $data['inhalt'],
+            'suspendtime'       => $data['suspendtime'],
+            'erhalter_gebdat'   => $data['erhalter_gebdat'],
+            'erhalter_rang'     => $data['erhalter_rang'],
+            'erhalter_rang_rd'  => $data['erhalter_rang_rd'],
+            'erhalter_quali'    => $data['erhalter_quali'],
+            'ausstellungsdatum' => $data['ausstellungsdatum'],
+            'ausstellerid'      => $data['ausstellerid'],
             'profileid'         => $profileId,
-            'aussteller_name'   => $_POST['aussteller_name'] ?? null,
-            'aussteller_rang'   => $_POST['aussteller_rang'] ?? null,
+            'aussteller_name'   => $data['aussteller_name'],
+            'aussteller_rang'   => $data['aussteller_rang'],
             'discordid'         => $mitarbeiter->discordtag,
         ]);
 

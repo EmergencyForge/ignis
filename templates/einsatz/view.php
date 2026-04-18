@@ -131,10 +131,7 @@ function fmt_elapsed(int|string $seconds): string
                 <?php Flash::render(); ?>
 
                 <!-- Tab Content -->
-                <?php
-                // Tabs liegen weiterhin unter einsatz/tabs/ (noch nicht nach templates/ portiert)
-                include dirname(__DIR__, 2) . '/einsatz/tabs/' . $activeTab . '.php';
-                ?>
+                <?php include __DIR__ . '/tabs/' . $activeTab . '.php'; ?>
             </div>
         </div>
     </div>

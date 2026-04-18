@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Helpers\UserHelper;
 use App\Http\Request;
+use App\Http\Requests\Personnel\UpdateProfileRequest;
 use App\Http\Response;
 use App\Logging\Logger;
 use App\Personnel\PersonalLogManager;
@@ -155,38 +156,24 @@ final class PersonnelController
      */
     public function updateProfile(Request $request): Response
     {
-        $data = $request->json();
-        if (!is_array($data) || !isset($data['id'])) {
-            return Response::json(['success' => false, 'message' => 'Ungültige Anfrage'], 400);
-        }
+        // Deklarative Validation (Pflichtfelder, Format, Längen, Typ-Cast).
+        // Dienstnr-Uniqueness bleibt unten im Controller, weil sie DB-Zugriff
+        // und den aktuellen Datensatz-Kontext braucht.
+        $data = UpdateProfileRequest::validate((array) $request->json());
 
-        $id         = (int) $data['id'];
-        $fullname   = trim((string) ($data['fullname'] ?? ''));
-        $gebdatum   = (string) ($data['gebdatum'] ?? '');
-        $dienstgrad = (int) ($data['dienstgrad'] ?? 0);
-        $discordtag = trim((string) ($data['discordtag'] ?? ''));
-        $telefonnr  = trim((string) ($data['telefonnr'] ?? ''));
-        $dienstnr   = trim((string) ($data['dienstnr'] ?? ''));
-        $qualird    = (int) ($data['qualird'] ?? 0);
-        $qualifw2   = (int) ($data['qualifw2'] ?? 0);
-        $geschlecht = (int) ($data['geschlecht'] ?? 0);
-        $zusatzqual = trim((string) ($data['zusatzqual'] ?? ''));
-        $pfp        = trim((string) ($data['pfp'] ?? ''));
-        $charakterid = (defined('CHAR_ID') && CHAR_ID) ? trim((string) ($data['charakterid'] ?? '')) : '';
-
-        if ($fullname === '' || $gebdatum === '') {
-            return Response::json([
-                'success' => false,
-                'message' => 'Name und Geburtsdatum sind Pflichtfelder',
-            ], 400);
-        }
-
-        if ($dienstnr !== '' && !preg_match('/^(?=.*[0-9])[A-Za-z0-9\-]+$/', $dienstnr)) {
-            return Response::json([
-                'success' => false,
-                'message' => 'Ungültiges Format für Dienstnummer',
-            ], 400);
-        }
+        $id          = $data['id'];
+        $fullname    = $data['fullname'];
+        $gebdatum    = $data['gebdatum'];
+        $dienstgrad  = $data['dienstgrad'];
+        $discordtag  = $data['discordtag'];
+        $telefonnr   = $data['telefonnr'];
+        $dienstnr    = $data['dienstnr'];
+        $qualird     = $data['qualird'];
+        $qualifw2    = $data['qualifw2'];
+        $geschlecht  = $data['geschlecht'];
+        $zusatzqual  = $data['zusatzqual'];
+        $pfp         = $data['pfp'];
+        $charakterid = (defined('CHAR_ID') && CHAR_ID) ? $data['charakterid'] : '';
 
         if ($dienstnr !== '') {
             $checkStmt = $this->pdo->prepare(

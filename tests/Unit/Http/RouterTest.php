@@ -21,7 +21,10 @@ class RouterTest extends TestCase
     {
         parent::setUp();
         $pipeline = new Pipeline($this->container);
-        $this->router = new Router($this->container, $pipeline);
+        // enableCache=false: Test-Router-Instanzen sollen keinen File-Cache
+        // teilen — sonst würde die Live-Cache-Datei (Produktions-Routen) die
+        // Test-URL-Patterns überschreiben und alle Tests 404en.
+        $this->router = new Router($this->container, $pipeline, enableCache: false);
     }
 
     private function request(string $method, string $path): Request

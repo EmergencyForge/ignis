@@ -85,7 +85,7 @@
                             </div>
                         </div>
 
-                        <?php require dirname(__DIR__, 2) . '/einsatz/tabs/asu_trupps.php'; ?>
+                        <?php require __DIR__ . '/tabs/asu_trupps.php'; ?>
                     </form>
                 </div>
             </div>
