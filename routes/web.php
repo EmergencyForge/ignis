@@ -830,6 +830,18 @@ $protokollResolveTemplate = static function (?string $section, ?string $subsecti
         if ($section === 'index') {
             return $base . '/index';
         }
+        // Ambiguität: {section} kann Unter-Verzeichnis (mit index.php) ODER
+        // direktes Leaf-Template sein (z.B. `protokollart.php`). Früher hat
+        // Apache MultiViews das `/index.php` weggefallen lassen, wenn's keinen
+        // passenden Ordner gab — der Router muss das jetzt selbst per FS-Check
+        // erkennen.
+        $candidateDirIndex = $projectRoot . '/templates/' . $base . '/' . $section . '/index.php';
+        if (!is_file($candidateDirIndex)) {
+            $candidateLeaf = $projectRoot . '/templates/' . $base . '/' . $section . '.php';
+            if (is_file($candidateLeaf)) {
+                return $base . '/' . $section;
+            }
+        }
         return $base . '/' . $section . '/index';
     }
     if ($page === null) {

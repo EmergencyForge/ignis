@@ -9,6 +9,7 @@
  */
 
 use App\Helpers\EnotfUrl;
+use App\Helpers\Redirects;
 
 // Status configuration
 $status_config = [
