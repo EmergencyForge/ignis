@@ -10,7 +10,11 @@ declare(strict_types=1);
 
 $distPath = __DIR__ . '/assets/dist/tailwind.css';
 $cssExists = is_file($distPath);
-$cssUrl    = '/public/assets/dist/tailwind.css';
+// Standalone-Page ohne Bootstrap-Bootstrap — asset() setzt den Cache-Buster,
+// filemtime als Fallback falls BASE_PATH nicht definiert ist.
+$cssUrl    = function_exists('asset')
+    ? asset('public/assets/dist/tailwind.css')
+    : '/public/assets/dist/tailwind.css?v=' . ($cssExists ? (int) filemtime($distPath) : 0);
 ?><!DOCTYPE html>
 <html lang="de">
 <head>

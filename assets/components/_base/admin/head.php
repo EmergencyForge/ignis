@@ -9,8 +9,8 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- Preload critical font -->
 <link rel="preload" href="<?= BASE_PATH ?>assets/fonts/rubik/font/rubik-v31-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
 <!-- Stylesheets (vendor-Bundle: Bootstrap + DataTables + FontAwesome aus node_modules via Vite) -->
-<link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/vendor.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/tailwind.css">
+<link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
+<link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/rubik/css/all.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/style.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/admin.min.css" />
@@ -19,7 +19,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 (function(){var a=localStorage.getItem('intra_theme_accent');if(!a)return;var p={red:{m:'#d10000',d:'#660000'},blue:{m:'#2563eb',d:'#1e40af'},green:{m:'#16a34a',d:'#15803d'},purple:{m:'#7c3aed',d:'#6d28d9'},orange:{m:'#ea580c',d:'#c2410c'},teal:{m:'#0d9488',d:'#0f766e'},pink:{m:'#db2777',d:'#be185d'},amber:{m:'#d97706',d:'#b45309'}};var mc,dc;if(p[a]){mc=p[a].m;dc=p[a].d;}else if(/^#[0-9a-fA-F]{6}$/.test(a)){mc=a;var r=parseInt(a.slice(1,3),16),g=parseInt(a.slice(3,5),16),b=parseInt(a.slice(5,7),16);dc='#'+[r,g,b].map(function(c){return Math.max(0,Math.round(c*0.65)).toString(16).padStart(2,'0');}).join('');}else return;var rgb=parseInt(mc.slice(1,3),16)+', '+parseInt(mc.slice(3,5),16)+', '+parseInt(mc.slice(5,7),16);var s=document.documentElement.style;s.setProperty('--main-color',mc);s.setProperty('--main-color-dimmed',dc);s.setProperty('--main-color-rgb',rgb);s.setProperty('--fw-red',mc);})();
 </script>
 <!-- Core-Bundle: jQuery + Bootstrap + DataTables (synchron, weil Inline-Scripts auf window.$ angewiesen sind) -->
-<script src="<?= BASE_PATH ?>public/assets/dist/vendor.js"></script>
+<script src="<?= asset('public/assets/dist/vendor.js') ?>"></script>
 <!-- App scripts: defer to unblock rendering -->
 <script defer src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/toasts.js"></script>
