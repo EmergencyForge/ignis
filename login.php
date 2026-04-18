@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
     include __DIR__ . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" id="alogin" class="container-full position-relative">
+<body data-bs-theme="dark" id="alogin" class="relative">
     <div id="login-background">
         <div class="bg-grid"></div>
         <div class="bg-floats"></div>
@@ -70,66 +70,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
         <div class="bg-glow bg-glow--2"></div>
     </div>
 
-    <div class="container d-flex justify-content-center align-items-center flex-column h-100">
-        <div class="row" style="width:30%">
-            <div class="col text-center">
-                <img src="https://web-assets.emergencyforge.de/images/defaultLogo.webp" alt="EmergencyForge Logo" class="mb-4" width="75%" height="auto">
-                <div class="card px-4 py-3 text-center">
+    <div class="container mx-auto flex h-full flex-col items-center justify-center">
+        <div class="w-[30%]">
+            <div class="text-center">
+                <img src="https://web-assets.emergencyforge.de/images/defaultLogo.webp" alt="EmergencyForge Logo" class="mx-auto mb-6" width="75%" height="auto">
+                <div class="card px-6 py-4 text-center">
                     <h1 id="loginHeader"><?php echo SYSTEM_NAME ?></h1>
                     <p class="subtext">Das Intranet der Stadt <?php echo SERVER_CITY ?>!</p>
 
                     <?php
                     if ($error) {
-                        echo '<div class="alert alert-danger mb-3" role="alert">';
+                        echo '<div class="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-red-400" role="alert">';
                         echo '<i class="fa-solid fa-exclamation-triangle"></i> ' . htmlspecialchars($error);
                         echo '</div>';
                     }
 
                     // Normal login view
                     if ($registrationMode === 'closed' && !$error) {
-                        echo '<div class="alert alert-warning mb-3" role="alert">';
+                        echo '<div class="mb-4 rounded-lg border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-yellow-400" role="alert">';
                         echo '<i class="fa-solid fa-exclamation-triangle"></i> Registrierung für neue Benutzer ist derzeit geschlossen.';
                         echo '</div>';
                     } elseif ($registrationMode === 'code') {
                         if (!$error) {
-                            echo '<div class="alert alert-info mb-3" role="alert">';
+                            echo '<div class="mb-4 rounded-lg border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-400" role="alert">';
                             echo '<i class="fa-solid fa-info-circle"></i> Neue Benutzer benötigen einen Registrierungscode.';
                             echo '</div>';
                         }
 
                         // Optional code input field
-                        echo '<form method="POST" class="mb-3">';
-                        echo '<div class="mb-2 position-relative">';
-                        echo '<i class="fa-solid fa-key position-absolute" style="left: 12px; top: 50%; transform: translateY(-50%); color: #6c757d;"></i>';
+                        echo '<form method="POST" class="mb-4">';
+                        echo '<div class="relative mb-3">';
+                        echo '<i class="fa-solid fa-key pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>';
                         echo '<input type="text" class="form-control" name="registration_code" placeholder="Registrierungscode" style="padding-left: 35px;">';
                         echo '</div>';
-                        echo '<button type="submit" class="btn btn-ghost w-100">Mit Code registrieren</button>';
+                        echo '<button type="submit" class="btn btn-ghost block w-full">Mit Code registrieren</button>';
                         echo '</form>';
-                        echo '<div class="text-center mb-2"><small class="text-muted">oder</small></div>';
+                        echo '<div class="mb-3 text-center"><small class="text-gray-400">oder</small></div>';
                     }
                     ?>
 
-                    <div class="text-center mb-3">
-                        <a href="<?= BASE_PATH ?>auth/discord.php" class="btn btn-soft-primary btn-lg w-100"><i class="fa-brands fa-discord"></i> Login</a>
+                    <div class="mb-4 text-center">
+                        <a href="<?= BASE_PATH ?>auth/discord.php" class="btn btn-soft-primary btn-lg block w-full"><i class="fa-brands fa-discord"></i> Login</a>
                     </div>
                 </div>
             </div>
         </div>
-        <p class="mt-3 small text-center">&copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
+        <p class="mt-4 text-center text-xs">&copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
         <?php
         $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? LEGAL_IMPRESSUM_URL : '';
         $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? LEGAL_DATENSCHUTZ_URL : '';
         ?>
         <?php if ($impressumUrl !== '' || $datenschutzUrl !== ''): ?>
-            <p class="small text-center">
+            <p class="text-center text-xs">
                 <?php if ($impressumUrl !== ''): ?>
-                    <a href="<?= htmlspecialchars($impressumUrl) ?>" target="_blank" class="text-light">Impressum</a>
+                    <a href="<?= htmlspecialchars($impressumUrl) ?>" target="_blank" class="text-gray-200">Impressum</a>
                 <?php endif; ?>
                 <?php if ($impressumUrl !== '' && $datenschutzUrl !== ''): ?>
-                    <span class="mx-1">|</span>
+                    <span class="mx-2">|</span>
                 <?php endif; ?>
                 <?php if ($datenschutzUrl !== ''): ?>
-                    <a href="<?= htmlspecialchars($datenschutzUrl) ?>" target="_blank" class="text-light">Datenschutz</a>
+                    <a href="<?= htmlspecialchars($datenschutzUrl) ?>" target="_blank" class="text-gray-200">Datenschutz</a>
                 <?php endif; ?>
             </p>
         <?php endif; ?>
