@@ -12,8 +12,6 @@ use App\Http\Response;
 /**
  * eNOTF PIN-Lockscreen.
  *
- * der direkt via include eingebunden wurde). Logik ist bit-genau:
- *
  *  - Nur aktiv, wenn `ENOTF_USE_PIN === true`
  *  - Admin + User mit `edivi.view` sind vom Lockscreen ausgenommen
  *  - Kliniker-Zugriff via Einmal-Code (2h-Window, `$_SESSION['klinik_access_*']`)

@@ -22,4 +22,5 @@ return [
     \App\Console\Commands\QueueFailedClearCommand::class,
     \App\Console\Commands\MigrateCommand::class,
     \App\Console\Commands\TelemetrySendCommand::class,
+    \App\Console\Commands\AnnouncementsRefreshCommand::class,
 ];

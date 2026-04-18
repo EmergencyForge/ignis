@@ -9,10 +9,9 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 /**
- * Sanity-Tests für den UserController. Echte HTTP-Action-Tests (mit Sessions
- * und Redirects) brauchen Browser-/Feature-Test-Setup, das kommt mit dem
- * Router in Phase 3. Hier nur: Klasse ist autoload-bar und vom Container
- * auflösbar.
+ * Sanity-Tests für den UserController: Klasse ist autoload-bar und vom
+ * Container auflösbar. Echte HTTP-Action-Tests (mit Sessions und
+ * Redirects) laufen als Feature-Tests.
  */
 class UserControllerTest extends TestCase
 {

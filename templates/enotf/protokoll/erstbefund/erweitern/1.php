@@ -16,7 +16,7 @@ if (isset($_GET['enr'])) {
     $stmt = $pdo->prepare($queryget);
     $stmt->execute(['enr' => $_GET['enr']]);
     $daten = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (count($daten) == 0) {
+    if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
         exit();
     }

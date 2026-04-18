@@ -67,11 +67,9 @@ server {
     # Zugriffsbeschränkungen (VOR den allgemeinen Locations)
     # ====================================================
     #
-    # HINWEIS zu eNOTF Clean-URLs: Seit der Router-Migration (Welle 9)
-    # bedient `App\Http\Router` sämtliche `/enotf/p/...`-URLs direkt —
-    # die früheren rewrite-Regeln sind obsolet. Der `try_files`-Fallback
-    # weiter unten leitet jeden Request, der keine Datei matched, an
-    # `public/index.php` weiter.
+    # eNOTF-Clean-URLs (`/enotf/p/{enr}/...`) und alle anderen
+    # Applikations-URLs werden vom Front-Controller über den
+    # `try_files`-Fallback weiter unten dispatched.
 
     # Sensible Dateien komplett blockieren
     location ~ /\.(env|git|htaccess|htpasswd) {
@@ -118,9 +116,9 @@ server {
     #                    Schritt bleibt als Safety-Net)
     #   4. @router     → zentraler Front-Controller (public/index.php)
     #
-    # Seit Welle 9 gibt es keine Modul-Stubs mehr (`benutzer/`, `antrag/`,
-    # `manv/`, `einsatz/`, `settings/`, `enotf/`, ...) — der Router
-    # bedient alle Applications-URLs über public/index.php.
+    # Alle Applikations-URLs (`/benutzer/...`, `/enotf/...`, `/settings/...`
+    # usw.) landen über den Fallback im Front-Controller, weil keine
+    # physischen Modul-Verzeichnisse mehr existieren.
     location / {
         try_files $uri $uri/ $uri.php @router;
     }

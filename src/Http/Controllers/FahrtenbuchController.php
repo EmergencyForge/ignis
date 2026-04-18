@@ -205,8 +205,8 @@ class FahrtenbuchController extends Controller
             $this->redirectByReturnTo();
         }
 
-        // Felder updaten — leere Strings für vehicle/fahrer_name fallen auf
-        // den bestehenden Wert zurück (Legacy-Verhalten)
+        // Felder updaten — leere Strings für vehicle/fahrer_name überschreiben
+        // den bestehenden Wert nicht.
         $vehicleId         = $entry->vehicle_id;
         $vehicleIdentifier = $entry->vehicle_identifier;
 

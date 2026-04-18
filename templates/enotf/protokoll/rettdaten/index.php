@@ -24,7 +24,7 @@ if (isset($_GET['enr'])) {
     $stmtZeiten->execute(['enr' => $_GET['enr']]);
     $zeiten = $stmtZeiten->fetch(PDO::FETCH_ASSOC);
 
-    if (count($daten) == 0) {
+    if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
         exit();
     }

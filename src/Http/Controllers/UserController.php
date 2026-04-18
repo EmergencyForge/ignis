@@ -36,8 +36,8 @@ class UserController extends Controller
      * GET /benutzer — Benutzer-Liste mit DataTable.
      *
      * Schließt einen LEFT JOIN auf intra_mitarbeiter ein, um den Mitarbeiter-
-     * Namen anzuzeigen falls verlinkt. Wenn kein Profil verlinkt ist, zeigen
-     * wir "Kein Profil verbunden" wie der Legacy-Code.
+     * Namen anzuzeigen falls verlinkt. Ohne Verlinkung wird "Kein Profil
+     * verbunden" angezeigt.
      */
     public function index(): void
     {
@@ -106,9 +106,8 @@ class UserController extends Controller
     /**
      * POST /benutzer/edit (mit `new=1`) — Update der Rolle eines Users.
      *
-     * Aktuell wird nur das Feld `role` aktualisiert (genau wie der Legacy-Code,
-     * der `username` zwar im Form-Field hatte, aber nie ins UPDATE übernommen
-     * hat). Das Verhalten bleibt 1:1 erhalten.
+     * Aktualisiert bewusst nur das Feld `role`. Der Username bleibt
+     * unveränderlich, obwohl das Form-Field ihn mitschickt.
      */
     public function update(): void
     {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Queue-Infrastruktur (Phase 4.1).
+ * Queue-Infrastruktur.
  *
  * Erzeugt die zwei Tabellen, die `illuminate/queue` mit dem DB-Driver
  * braucht:

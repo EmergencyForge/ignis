@@ -61,9 +61,7 @@ class EnotfSchnittstelleController extends Controller
     }
 
     /**
-     * Stub-Wrapper für api-prereg — der echte Endpoint liegt nach dem
-     * Legacy-Cleanup unter `/api/enotf/prereg`. Bestehende Direktaufrufe
-     * werden per HTTP 308 weitergeleitet, damit kein Fatal Error entsteht.
+     * 308-Redirect auf den kanonischen Endpoint `/api/enotf/prereg`.
      */
     public function apiPrereg(): void
     {

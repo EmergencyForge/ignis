@@ -56,9 +56,8 @@ $router->get('/_router/ping', function ($request) {
 });
 
 // ----------------------------------------------------------------------------
-//  Benutzer-Modul (Pilot — Controller + Templates seit Welle 1 migriert, hier
-//  nur noch Routes). UserController + RoleController machen requireAuth +
-//  ensure() intern, Routes brauchen nur AuthMiddleware.
+//  Benutzer-Modul — UserController + RoleController rufen intern
+//  requireAuth() + ensure() auf, Routes brauchen nur AuthMiddleware.
 // ----------------------------------------------------------------------------
 
 $userAuth = [new AuthMiddleware()];
@@ -308,7 +307,7 @@ $router->get('/mitarbeiter/dokument-view.php', [MitarbeiterController::class, 's
 $router->post('/mitarbeiter/dokument-delete',     [MitarbeiterController::class, 'deleteDocument'], $mitarbeiterDocsAuth);
 $router->post('/mitarbeiter/dokument-delete.php', [MitarbeiterController::class, 'deleteDocument'], $mitarbeiterDocsAuth);
 
-// Comment-Delete (GET, Legacy-Pfad — ein Link in der Detail-Liste)
+// Comment-Delete — wird per Link in der Detail-Liste getriggert, daher GET.
 $router->get('/mitarbeiter/comment-delete',     [MitarbeiterController::class, 'deleteComment'], $mitarbeiterCommentAuth);
 $router->get('/mitarbeiter/comment-delete.php', [MitarbeiterController::class, 'deleteComment'], $mitarbeiterCommentAuth);
 
@@ -639,21 +638,20 @@ $router->match(['GET', 'POST'], '/settings/pois/departments-update-sort.php',   
 $router->match(['GET', 'POST'], '/settings/system/regenerate-api-key.php',      $settingsApiRedirect('/api/system/regenerate-api-key'));
 
 // ----------------------------------------------------------------------------
-//  eNOTF-Modul — Sub-Welle 9a: Root-Pages + Login-Flow
+//  eNOTF-Modul — Root-Pages + Login-Flow
 //
-//  eNOTF läuft im FiveM-CEF-Browser (iframe) genauso wie einsatz/ — deshalb
-//  FiveMCspMiddleware an allen Routen. AuthMiddleware wird über das Config-
-//  Flag ENOTF_REQUIRE_USER_AUTH gesteuert (Controller-Doku).
+//  Läuft im FiveM-CEF-Browser (iframe) → FiveMCspMiddleware an allen Routen.
+//  User-Auth ist optional und wird über das Config-Flag
+//  ENOTF_REQUIRE_USER_AUTH gesteuert.
 //
 //  Drei Middleware-Gruppen:
 //    • Public          — keine Auth (nur CSP/iframe-Support)
 //    • Entry / Login   — optionale User-Auth, KEIN PIN-Lockscreen (sonst
-//                        Loop auf lockscreen.php selbst)
+//                        Redirect-Loop auf lockscreen.php selbst)
 //    • Crew-protected  — User-Auth + PIN-Lockscreen + CSP (volle Pipeline)
 //
-//  Der Controller ruft intern FiveMSupport::prepareCookiesAndHeaders() —
-//  iframe-Cookie-Handling bleibt unabhängig davon durch den SessionManager
-//  abgedeckt (erkennt `/enotf/` in REQUEST_URI).
+//  iframe-Cookie-Handling (SameSite=None, Secure) kommt vom SessionManager,
+//  der `/enotf/` in REQUEST_URI automatisch erkennt.
 // ----------------------------------------------------------------------------
 
 $enotfPublic     = [FiveMCspMiddleware::class];
@@ -696,15 +694,12 @@ $router->get('/enotf/hospital-availability',     [EnotfController::class, 'hospi
 $router->get('/enotf/hospital-availability.php', [EnotfController::class, 'hospitalAvailability'], $enotfPublic);
 
 // ----------------------------------------------------------------------------
-//  eNOTF-Modul — Sub-Welle 9b: Admin
+//  eNOTF-Modul — Admin
 //
-//  EnotfAdminController macht Auth + Permissions intern (requireAuth +
-//  Permissions::check(['admin','edivi.view'|'edivi.edit'])) — Routes
-//  brauchen nur AuthMiddleware. Admin-Seiten laufen ausschließlich im
-//  Back-Office, nicht im FiveM-CEF → keine FiveMCspMiddleware nötig.
-//
-//  admin/zielverwaltung/ ist noch NICHT migriert (die 4 Files enthalten
-//  reale Logik, kein Controller vorhanden). Separate Sub-Welle.
+//  EnotfAdminController prüft intern requireAuth() +
+//  Permissions::check(['admin','edivi.view'|'edivi.edit']) → Routes
+//  brauchen nur AuthMiddleware. Back-Office-UI, nicht im FiveM-CEF →
+//  keine FiveMCspMiddleware nötig.
 // ----------------------------------------------------------------------------
 
 $enotfAdminAuth = [new AuthMiddleware()];
@@ -752,24 +747,24 @@ $router->post('/enotf/admin/zielverwaltung/delete',     [\App\Http\Controllers\E
 $router->post('/enotf/admin/zielverwaltung/delete.php', [\App\Http\Controllers\EnotfZielverwaltungController::class, 'destroy'], $enotfAdminAuth);
 
 // ----------------------------------------------------------------------------
-//  eNOTF-Modul — Sub-Welle 9d: Print + Schnittstelle
+//  eNOTF-Modul — Print + Schnittstelle
 //
-//  Print:        crew-facing, Controller enforced PIN intern — Routes mit
-//                FiveMCspMiddleware + PinLockscreenMiddleware (belt-and-
-//                suspenders, die Middleware-Policy ist identisch zum
-//                internen Controller-Check).
-//  Schnittstelle: public (Klinik-Access ohne User-Login möglich). Routes
-//                ohne Auth, nur FiveMCspMiddleware. Voranmeldung prüft PIN
-//                intern je nach Config.
+//  Print:         Crew-facing, voller Middleware-Stack inkl. PIN-Lockscreen.
+//                 EnotfPrintController::show() macht zusätzlich einen eigenen
+//                 PIN-Check — Belt-and-Suspenders, beide Policies sind
+//                 deckungsgleich.
+//  Schnittstelle: Public (Klinik-Access ohne User-Login möglich) → nur
+//                 FiveMCspMiddleware. `voranmeldung` prüft PIN je nach
+//                 Config selbst.
 // ----------------------------------------------------------------------------
 
-// Print (Legacy `.htaccess`-Rewrite: /enotf/print/{enr} → index.php?enr=$1)
+// Print — ENR kommt entweder als Query (/enotf/print/index.php?enr=…)
+// oder als Clean-URL-Segment (/enotf/print/{enr}).
 $router->get('/enotf/print',            [\App\Http\Controllers\EnotfPrintController::class, 'show'], $enotfCrew);
 $router->get('/enotf/print/',           [\App\Http\Controllers\EnotfPrintController::class, 'show'], $enotfCrew);
 $router->get('/enotf/print/index',      [\App\Http\Controllers\EnotfPrintController::class, 'show'], $enotfCrew);
 $router->get('/enotf/print/index.php',  [\App\Http\Controllers\EnotfPrintController::class, 'show'], $enotfCrew);
-// Clean-URL: /enotf/print/{enr} → show() liest ?enr= aus Query; Router
-// muss den Parameter als Query-String durchreichen
+// Clean-URL: Parameter über $_GET reichen, damit show() weiterhin ?enr= liest.
 $router->get('/enotf/print/{enr:[\w._-]+}', function (\App\Http\Request $request, string $enr) {
     $_GET['enr'] = $enr;
     app(\App\Http\Controllers\EnotfPrintController::class)->show();
@@ -795,27 +790,23 @@ $router->get('/enotf/schnittstelle/hospital-availability.php', [\App\Http\Contro
 $router->match(['GET', 'POST'], '/enotf/schnittstelle/api-prereg.php', $enotfApiRedirect('/api/enotf/prereg'));
 
 // ----------------------------------------------------------------------------
-//  eNOTF-Modul — Sub-Welle 9c: Protokoll-Pages (121 Files)
+//  eNOTF-Modul — Protokoll-Pages
 //
 //  EnotfProtokollController::serve(string $templatePath) rendert jede
-//  Protokoll-Page. Der Template-Pfad entspricht der URL-Struktur 1:1
-//  (z.B. URL `/enotf/protokoll/abschluss/3_1.php` → Template
-//  `enotf/protokoll/abschluss/3_1`).
+//  Protokoll-Page. Der Template-Pfad spiegelt die URL-Struktur:
+//  URL `/enotf/protokoll/abschluss/3_1.php` → Template
+//  `enotf/protokoll/abschluss/3_1`.
 //
 //  Zwei URL-Formen werden unterstützt:
-//    1. Direct-Path (Legacy):  /enotf/protokoll/<section>/<page>.php?enr=X
-//    2. Clean-URL (.htaccess):  /enotf/p/{enr}/<section>/<page>
+//    1. Direct-Path:  /enotf/protokoll/<section>/<page>.php?enr=X
+//    2. Clean-URL:    /enotf/p/{enr}/<section>/<page>
 //
-//  Der Clean-URL-Handler bildet die .htaccess-Rewrites des Root-
-//  htaccess nach: je nach Section sind 3 Segmente entweder
-//  "{section}/{page}" (diagnose, anamnese, rettdaten, verlauf,
-//  abschluss) oder "{section}/{subsection}/index" (erstbefund,
-//  massnahmen). Fallback ist dateisystem-basiert — wenn die
-//  index-Variante nicht existiert, wird als Leaf-Page aufgelöst.
+//  Segment 3 ist mehrdeutig — für die Sections `erstbefund` und `massnahmen`
+//  ist es ein Unter-Verzeichnis (→ index.php), für alle anderen ein
+//  Leaf-Template (→ <page>.php). Der Resolver prüft das per FS-Check.
 // ----------------------------------------------------------------------------
 
-// Helper: löst Path-Segmente auf den Template-Pfad auf (mit FS-Fallback
-// für die 3-Segment-Ambiguität)
+// Helper: resolviert Path-Segmente auf einen Template-Pfad.
 $protokollResolveTemplate = static function (?string $section, ?string $subsection, ?string $page): string {
     $projectRoot = dirname(__DIR__);
     $base        = 'enotf/protokoll';
@@ -864,6 +855,11 @@ $protokollDirectHandler = function (\App\Http\Request $request) use ($protokollR
         $suffix = rtrim($m[1], '/');
         $suffix = (string) preg_replace('/\.php$/', '', $suffix);
     }
+
+    // Apache-MultiViews-Parität: `/foo/index.php` und `/foo/` zeigen auf
+    // denselben Template-Pfad. Trailing `/index` oder `/index/…` strippen.
+    $suffix = (string) preg_replace('#(?:^|/)index$#', '', $suffix);
+    $suffix = trim($suffix, '/');
 
     if ($suffix === '') {
         $templatePath = 'enotf/protokoll/index';

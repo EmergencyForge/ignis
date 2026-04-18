@@ -54,9 +54,7 @@ class SystemController extends Controller
     }
 
     /**
-     * Stub-Wrapper — der echte Endpoint liegt nach dem Legacy-Cleanup
-     * unter `/api/system/regenerate-api-key`. HTTP 308 bewahrt Methode
-     * und Body, damit bestehende Direktaufrufe nicht mit Fatal Error brechen.
+     * 308-Redirect auf den kanonischen Endpoint `/api/system/regenerate-api-key`.
      */
     public function regenerateApiKey(): void
     {

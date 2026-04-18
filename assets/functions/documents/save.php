@@ -1,6 +1,6 @@
 <?php
-// Redirect-Stub — der Endpoint liegt seit dem Router-Cutover unter /api/documents/save.
-// HTTP 308 bewahrt Methode + Body, damit bestehende JS-POSTs unverandert durchkommen.
+// 308-Redirect auf /api/documents/save.
+// 308 bewahrt Methode + Body, damit bestehende JS-POSTs ohne Änderung durchkommen.
 // BASE_PATH wird aus REQUEST_URI rueckgerechnet, damit Subdirectory-Installs funktionieren.
 declare(strict_types=1);
 

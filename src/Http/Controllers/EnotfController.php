@@ -223,7 +223,7 @@ class EnotfController extends Controller
     /**
      * GET /enotf/loggedout.php — Logout-Aktion (mode=self|all) + Loggedout-Page.
      *
-     * ACHTUNG: macht DB-Writes auf GET (Legacy-Verhalten beibehalten).
+     * ACHTUNG: macht DB-Writes auf GET (von JS-Links getriggert, kein Form-POST).
      */
     public function logout(): void
     {
