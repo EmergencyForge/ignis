@@ -16,6 +16,10 @@ export default defineConfig({
     // Vite's publicDir feature ist für SPA-Apps gedacht — bei uns liefert
     // der PHP-Router public/index.php selbst aus, Vite soll da nichts reinkopieren.
     publicDir: false,
+    // Relative Asset-URLs im CSS (z.B. `url(assets/fa-solid-900.woff2)`),
+    // damit der Browser die Fonts immer relativ zur CSS-Datei sucht — unabhängig
+    // davon, ob die App unter `/`, einer Subdomain oder einem Subdirectory läuft.
+    base: './',
     build: {
         outDir: resolve(__dirname, 'public/assets/dist'),
         emptyOutDir: false,
