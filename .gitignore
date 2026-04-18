@@ -8,6 +8,7 @@ php_errors.log
 storage/logs/
 storage/documents/**.pdf
 storage/profile-pictures/
+node_modules/
 storage/cache/
 support_errors.log
 storage/last_emd_sync.txt
