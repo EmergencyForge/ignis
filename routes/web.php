@@ -824,6 +824,12 @@ $protokollResolveTemplate = static function (?string $section, ?string $subsecti
         return $base . '/index';
     }
     if ($subsection === null) {
+        // `/enotf/protokoll/index.php` und `/enotf/protokoll/` (via Clean-URL
+        // mit nur ENR) resolven beide auf das Protokoll-Root-Template —
+        // "index" ist hier KEIN Sektions-Ordner-Name.
+        if ($section === 'index') {
+            return $base . '/index';
+        }
         return $base . '/' . $section . '/index';
     }
     if ($page === null) {
