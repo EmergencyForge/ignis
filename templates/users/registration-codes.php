@@ -185,8 +185,6 @@ $SITE_TITLE = 'Einladungen verwalten';
 
     <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
-    <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
-    <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         function copyInviteLink(url) {
             navigator.clipboard.writeText(url).then(function() {

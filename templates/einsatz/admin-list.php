@@ -156,8 +156,6 @@ use App\Helpers\Flash;
         </div>
     </div>
 
-    <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net/js/dataTables.min.js"></script>
-    <script src="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#table-incidents').DataTable({

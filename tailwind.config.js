@@ -67,6 +67,13 @@ export default {
             },
         },
     },
+    // Preflight (Tailwinds Base-Reset) ist aus, damit Bootstrap-Komponenten
+    // daneben weiterlaufen. Tailwind-Klassen sind nur Utilities — kein CSS-
+    // Layer-Konflikt mit Bootstrap mehr. Kann re-aktiviert werden, sobald
+    // Bootstrap komplett raus ist.
+    corePlugins: {
+        preflight: false,
+    },
     plugins: [
         require('@tailwindcss/forms'),
         require('@tailwindcss/typography'),

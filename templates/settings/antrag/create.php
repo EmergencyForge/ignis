@@ -21,9 +21,6 @@ use App\Helpers\Flash;
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/admin.min.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-    <script src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
-    <script src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
     <meta name="theme-color" content="<?= SYSTEM_COLOR ?>" />
 </head>

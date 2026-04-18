@@ -87,8 +87,6 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars(_err_classBasename($exceptionClass)) ?> - Fehler</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>vendor/fortawesome/font-awesome/css/all.min.css">
     <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/rubik/css/all.min.css">
     <style>
         :root {
