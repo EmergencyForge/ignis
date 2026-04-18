@@ -19,9 +19,10 @@ use Respect\Validation\Validator as v;
  * plus die generische `ausstellungsdatum_0`-Fallback-Variante; der
  * Controller wählt den passenden Wert aus.
  *
- * Optionale Strings werden als String akzeptiert (inkl. leer). Komplexe
- * Date-Validation bleibt im Controller, weil der Legacy-Code `strtotime`
- * + `date('Y-m-d', ...)` sehr tolerant anwendet.
+ * Optionale Strings werden als String akzeptiert (inkl. leer). Die
+ * Date-Normalisierung (`strtotime` → `Y-m-d`) bleibt absichtlich
+ * tolerant — das Form rendert den Wert direkt aus `<input type="date">`
+ * bzw. deutschen Datumsformaten.
  */
 class CreateDocumentRequest extends FormRequest
 {

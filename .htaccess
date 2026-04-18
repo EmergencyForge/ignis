@@ -70,23 +70,13 @@ Options +MultiViews
 RewriteEngine On
 
 # ============================================================
-# eNOTF Clean URLs
+# Router Fallback
 #
-# Diese Rewrites sind seit Welle 9 (Router-Cutover) obsolet — der
-# App\Http\Router registriert die Clean-URL-Muster direkt in
-# routes/web.php und dispatcht auf EnotfProtokollController.
-# Das `enotf/`-Verzeichnis existiert nicht mehr, die Rewrites
-# würden ins Leere zeigen.
-# ============================================================
-
-# ============================================================
-# Router Fallback (Phase 3.1)
-#
-# Greift NUR, wenn der Request weder auf eine echte Datei noch
-# ein echtes Verzeichnis zeigt, UND weiter oben keine eNOTF-Clean-
-# URL-Regel zugeschlagen hat. Leitet in dem Fall an den Single-
-# Entry-Point `public/index.php` weiter, wo der `App\Http\Router`
-# das Matching übernimmt.
+# Greift, wenn der Request weder auf eine echte Datei noch auf
+# ein echtes Verzeichnis zeigt, und leitet ihn an den Single-
+# Entry-Point `public/index.php` weiter, wo `App\Http\Router`
+# das Matching übernimmt. eNOTF-Clean-URLs (`/enotf/p/{enr}/...`)
+# sind direkt im Router registriert.
 #
 # Bestehende Modul-Files (benutzer/list.php, einsatz/index.php, ...)
 # bleiben unberührt, weil `!-f` dann false ist und die Regel nicht

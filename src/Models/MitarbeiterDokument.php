@@ -11,8 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * ausgestellte Dokumente (Beförderungsurkunden, Zertifikate, Abmahnungen, …).
  *
  * Cross-Module-Joins auf `intra_dokument_templates` und `intra_dokument_kategorien`
- * laufen via Capsule (kein Eloquent-Model in dieser Phase — gehört in die
- * Dokumenten-Welle).
+ * laufen via Capsule — für diese Tabellen gibt es (noch) kein Eloquent-Model.
  *
  * @property int         $id
  * @property int         $docid             Public-ID, im URL benutzt

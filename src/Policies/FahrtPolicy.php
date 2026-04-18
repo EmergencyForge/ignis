@@ -10,14 +10,14 @@ use App\Models\Fahrt;
 /**
  * FahrtPolicy — wer darf was mit Fahrtenbuch-Einträgen.
  *
- * Multi-Context-Auth (das ist im Legacy-Code so):
+ * Multi-Context-Auth:
  *   - Admin: Permissions::check(['admin', 'fahrtenbuch.view']) für Liste,
  *            Permissions::check(['admin', 'fahrtenbuch.manage']) für Create/Delete
  *   - Eigene Einträge (created_by == $userId): editierbar
  *   - eNOTF-Session (set $_SESSION['fahrername']): kann eigene 'enotf'-Einträge editieren
  *   - FireTab-Session (set $_SESSION['einsatz_vehicle_id']): kann eigene 'firetab'-Einträge editieren
  *
- * Die Liste in `index()` ist nur Admin (das war im Legacy-Code so).
+ * Die Liste in `index()` ist nur Admin.
  * Create darf jeder mit gültigem Session-Context (Admin/eNOTF/FireTab).
  */
 class FahrtPolicy

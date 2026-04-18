@@ -1,6 +1,6 @@
 <?php
-// Redirect-Stub — der Endpoint liegt seit dem Router-Cutover unter /api/knowledgebase/tags.
-// HTTP 308 bewahrt Methode + Body, damit bestehende JS-POSTs unverandert durchkommen.
+// 308-Redirect auf /api/knowledgebase/tags.
+// 308 bewahrt Methode + Body, damit bestehende JS-POSTs ohne Änderung durchkommen.
 // BASE_PATH wird aus REQUEST_URI rueckgerechnet, damit Subdirectory-Installs funktionieren.
 declare(strict_types=1);
 

@@ -40,7 +40,7 @@ class UpdateProfileRequest extends FormRequest
             )), false),
             v::key('qualird',     v::optional(v::intVal()->min(0)), false),
             v::key('qualifw2',    v::optional(v::intVal()->min(0)), false),
-            v::key('geschlecht',  v::optional(v::intVal()->in([0, 1, 2], true)), false),
+            v::key('geschlecht',  v::optional(v::intVal()->in([0, 1, 2])), false),
             v::key('zusatzqual',  v::optional(v::stringType()->length(0, 500)), false),
             v::key('pfp',         v::optional(v::stringType()->length(0, 500)), false),
             v::key('charakterid', v::optional(v::stringType()->length(0, 100)), false),

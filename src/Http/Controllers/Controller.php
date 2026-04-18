@@ -70,12 +70,9 @@ abstract class Controller
      * in den lokalen Scope geschoben, damit das Template direkt darauf zugreifen
      * kann ($users statt $viewData['users']).
      *
-     * Stellt zusätzlich `$pdo` im Template-Scope bereit, weil bestehende
-     * Partials (navbar.php, global-announcements.php, footer.php, ...) das
-     * Variable als lokale Referenz erwarten — im Legacy-Flow wurde es vom
-     * `require database.php` automatisch gesetzt, mit dem Controller-Flow
-     * müssen wir es explizit reichen. Wird über die Phase-3-Templates
-     * (Twig + Layouts) entfallen.
+     * Stellt zusätzlich `$pdo` im Template-Scope bereit, weil die Partials
+     * (navbar.php, global-announcements.php, footer.php, ...) die Variable
+     * als lokale Referenz erwarten.
      *
      * @param array<string,mixed> $data
      */

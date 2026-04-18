@@ -9,9 +9,9 @@ use App\Auth\Permissions;
 /**
  * ManvPolicy — wer darf was im MANV-Modul.
  *
- * Im Legacy-Code nutzen ALLE manv/*.php Files denselben Permission-Check
- * `['admin', 'manv.manage']`. Wir bündeln das in eine Policy, damit eine
- * spätere Differenzierung (z.B. read-only für Schaulustige) leichter wird.
+ * Alle Endpoints teilen den Permission-Check `['admin', 'manv.manage']`.
+ * In einer Policy gebündelt, damit eine spätere Differenzierung (z.B.
+ * read-only für Beobachter) an einer Stelle passiert.
  */
 class ManvPolicy
 {

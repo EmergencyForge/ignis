@@ -1,6 +1,6 @@
 <?php
-// Redirect-Stub — der Endpoint liegt seit dem Router-Cutover unter /api/enotf/save-fields.
-// HTTP 308 bewahrt Methode + Body, damit bestehende JS-POSTs unverandert durchkommen.
+// 308-Redirect auf /api/enotf/save-fields.
+// 308 bewahrt Methode + Body, damit bestehende JS-POSTs ohne Änderung durchkommen.
 // BASE_PATH wird aus REQUEST_URI rueckgerechnet, damit Subdirectory-Installs funktionieren.
 declare(strict_types=1);
 

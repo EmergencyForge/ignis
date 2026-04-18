@@ -1,14 +1,24 @@
 #!/usr/bin/env php
 <?php
+
+declare(strict_types=1);
+
 /**
- * Cron-Job für Telemetrie und Announcements
- * 
- * Empfohlene Crontab-Einstellung (täglich um 3:00 Uhr):
- * 0 3 * * * /usr/bin/php /path/to/cron/telemetry-cron.php
+ * Cron-Wrapper: löst Telemetrie-Heartbeat + Announcements-Refresh aus.
+ *
+ * Die Logik liegt in den Console-Commands `telemetry:send` und
+ * `announcements:refresh`. Dieser Wrapper chained beide, damit
+ * bestehende Crontab-Einträge
+ *
+ *     0 3 * * *  /usr/bin/php /path/to/cron/telemetry-cron.php
+ *
+ * ohne Änderung weiterlaufen. Neue Installationen können direkt den
+ * CLI-Entry aufrufen.
+ *
+ * Die Commands laufen in separaten Sub-Prozessen, damit ihre
+ * DI-Container- und Session-Zustände isoliert bleiben.
  */
 
-// CLI-Check — dieses Script ist ausschließlich CLI-only.
-// Direkter HTTP-Zugriff wird abgewiesen.
 if (php_sapi_name() !== 'cli') {
     http_response_code(403);
     header('Content-Type: text/plain; charset=utf-8');
@@ -16,46 +26,26 @@ if (php_sapi_name() !== 'cli') {
     exit(1);
 }
 
-// Bootstrap
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../assets/config/database.php';
-require_once __DIR__ . '/../src/Telemetry/TelemetryManager.php';
-require_once __DIR__ . '/../src/Telemetry/GlobalAnnouncementManager.php';
+$cliEntry = realpath(__DIR__ . '/../cli/intra.php');
+if ($cliEntry === false || !is_file($cliEntry)) {
+    fwrite(STDERR, "cli/intra.php nicht gefunden — Installation unvollständig.\n");
+    exit(1);
+}
 
-use App\Telemetry\TelemetryManager;
-use App\Telemetry\GlobalAnnouncementManager;
-
-echo "[" . date('Y-m-d H:i:s') . "] Telemetrie-Cron gestartet\n";
-
-// 1. Telemetrie-Heartbeat (falls aktiviert)
-$telemetry = new TelemetryManager($pdo);
-
-if ($telemetry->isEnabled()) {
-    if ($telemetry->shouldSendHeartbeat()) {
-        echo "Sende Telemetrie-Heartbeat...\n";
-        $result = $telemetry->sendHeartbeat();
-        echo "Ergebnis: " . $result['message'] . "\n";
-    } else {
-        echo "Telemetrie: Heartbeat noch nicht fällig.\n";
+/**
+ * Führt einen Console-Command als Sub-Prozess aus und liefert den Exit-Code.
+ */
+$runCommand = static function (string $cliEntry, string $commandName): int {
+    $descriptors = [1 => STDOUT, 2 => STDERR];
+    $proc = proc_open([PHP_BINARY, $cliEntry, $commandName], $descriptors, $pipes);
+    if (!is_resource($proc)) {
+        fwrite(STDERR, "Command '$commandName' konnte nicht gestartet werden.\n");
+        return 1;
     }
-} else {
-    echo "Telemetrie ist deaktiviert.\n";
-}
+    return proc_close($proc);
+};
 
-// 2. Announcements-Cache aktualisieren
-$announcements = new GlobalAnnouncementManager($pdo);
+$exit1 = $runCommand($cliEntry, 'telemetry:send');
+$exit2 = $runCommand($cliEntry, 'announcements:refresh');
 
-if ($announcements->isEnabled()) {
-    echo "Aktualisiere Announcements-Cache...\n";
-    $result = $announcements->refreshCache();
-    echo "Ergebnis: " . $result['message'] . "\n";
-} else {
-    echo "Announcements sind deaktiviert.\n";
-}
-
-// 3. Alte Dismissals aufräumen
-echo "Räume alte Dismissals auf...\n";
-$deleted = $announcements->cleanupOldDismissals(90);
-echo "Gelöscht: {$deleted} alte Einträge\n";
-
-echo "[" . date('Y-m-d H:i:s') . "] Cron abgeschlossen\n";
+exit($exit1 !== 0 ? $exit1 : $exit2);

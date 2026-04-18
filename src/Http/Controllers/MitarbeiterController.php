@@ -28,7 +28,7 @@ class MitarbeiterController extends Controller
     /**
      * GET /mitarbeiter/list.php — Übersicht aktiver oder archivierter Mitarbeiter.
      *
-     * Filter-Logik (aus dem Legacy-Code):
+     * Filter-Logik:
      *   - Es gibt einen "Archiv-Dienstgrad" (intra_mitarbeiter_dienstgrade.archive=1)
      *   - Mitarbeiter mit diesem Dienstgrad gelten als entlassen
      *   - ?archiv → zeige nur Archivierte
@@ -137,9 +137,8 @@ class MitarbeiterController extends Controller
             }
         }
 
-        // Legacy-Scope-Variablen für die alten Partials zusammenstellen.
-        // $row ist die rohe Mitarbeiter-Row aus der DB (wie der Legacy-Code
-        // sie hatte). Die Partials greifen via $row['fullname'] etc. zu.
+        // Scope-Variablen für die Partials — die greifen via $row['fullname']
+        // etc. zu, statt aufs Eloquent-Model.
         $row = $mitarbeiter->getAttributes();
 
         $dginfo  = $mitarbeiter->dienstgradModel?->getAttributes() ?? [];
@@ -200,10 +199,9 @@ class MitarbeiterController extends Controller
      * POST /mitarbeiter/profile.php (new=1) — Legacy Update-Form.
      *
      * Wird in der aktuellen UI praktisch nicht mehr aufgerufen (Inline-Edit
-     * läuft über api/personnel/update-profile.php), aber der Endpoint existiert
-     * für Bookmarks/externe Tools weiter. Wir validieren defensiv via FormRequest
-     * und delegieren die einzelnen Diff-Audits an den PersonalLogManager — exakt
-     * wie der Legacy-Code.
+     * läuft über api/personnel/update-profile.php), aber der Endpoint bleibt
+     * für Bookmarks/externe Tools erhalten. Validierung via FormRequest,
+     * Diff-Audits an den PersonalLogManager.
      */
     public function update(): void
     {
@@ -445,7 +443,7 @@ class MitarbeiterController extends Controller
             }
         }
 
-        // Wie der Legacy-Code: redirect zum docredir, das die PDF generiert
+        // Redirect zum docredir, das die PDF generiert.
         header('Location: ' . BASE_PATH . 'assets/functions/docredir.php?docid=' . $docId, true, 302);
         exit;
     }
@@ -454,7 +452,7 @@ class MitarbeiterController extends Controller
      * POST /mitarbeiter/create.php — AJAX-Endpoint zum Anlegen eines Mitarbeiters.
      * Antwortet IMMER mit JSON.
      *
-     * Reaktion zu Legacy-Verhalten 1:1:
+     * Response-Shape:
      *   - GET-Request → Redirect zur Liste
      *   - POST ohne Permission → 403 JSON
      *   - POST mit invaliden Daten → success=false JSON
@@ -602,9 +600,9 @@ class MitarbeiterController extends Controller
     /**
      * GET /mitarbeiter/dokument-view.php?docid=X — PDF-Viewer mit Toolbar.
      *
-     * Joint das Dokument mit Template + Kategorie + Empfänger via Capsule —
-     * `intra_dokument_templates`/`intra_dokument_kategorien` haben in dieser
-     * Phase noch kein eigenes Eloquent-Model (gehört in die Dokumenten-Welle).
+     * Joint das Dokument mit Template + Kategorie + Empfänger via Capsule.
+     * `intra_dokument_templates`/`intra_dokument_kategorien` haben (noch)
+     * kein eigenes Eloquent-Model.
      */
     public function showDocument(): void
     {
@@ -733,8 +731,7 @@ class MitarbeiterController extends Controller
 
     /**
      * Antwortet mit einer JSON-Response und exit(). Wird vom AJAX-Endpoint
-     * store() benutzt — der Legacy-Code hat hier ebenfalls IMMER JSON
-     * zurückgegeben, daher ist das kein Render-View-Fall.
+     * store() benutzt, der immer JSON liefert.
      *
      * @param array<string,mixed> $payload
      */

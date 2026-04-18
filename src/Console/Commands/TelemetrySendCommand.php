@@ -14,12 +14,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Sendet einen Telemetrie-Heartbeat an den EmergencyForge-Hub.
  *
- * Ersetzt den alten `cron/telemetry-cron.php` für CLI-fähige Setups —
- * der Legacy-Cron bleibt bestehen, damit existierende Crontabs nichts
- * ändern müssen, aber neue Installationen sollten den Command nutzen.
- *
  *   php cli/intra.php telemetry:send
  *   php cli/intra.php telemetry:send --force   # auch wenn kein Heartbeat fällig
+ *
+ * `cron/telemetry-cron.php` ist ein Wrapper auf diesen Command für
+ * existierende Crontab-Einträge.
  */
 #[AsCommand(
     name: 'telemetry:send',

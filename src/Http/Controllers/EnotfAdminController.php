@@ -104,11 +104,8 @@ class EnotfAdminController extends Controller
     }
 
     /**
-     * Stub-Wrapper für bulk-delete-empty — Aufruf läuft seit dem Legacy-
-     * Cleanup direkt über den Router an `/api/enotf/bulk-delete-empty`.
-     * Diese Methode bleibt erhalten, damit bestehende Direktaufrufe
-     * per HTTP 308 auf die kanonische URL redirectet werden, statt
-     * einen Fatal Error zu produzieren.
+     * 308-Redirect auf den kanonischen Endpoint `/api/enotf/bulk-delete-empty`.
+     * Hält Direktaufrufe an die alte URL am Leben (bewahrt Method + Body).
      */
     public function bulkDeleteEmpty(): void
     {
