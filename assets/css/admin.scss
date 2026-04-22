@@ -70,7 +70,7 @@ a:hover {
   color: var(--link-hover);
 }
 
-a:not(.btn):not(.sidebar-link):not(.nav-link):hover {
+a:not(.btn):not(.sidebar-link):not(.nav-link):not(.no-underline):hover {
   text-decoration: underline;
 }
 
@@ -1335,6 +1335,31 @@ td.dt-empty {
 
 .form-check-input:checked {
   animation: check-pulse 0.25s var(--spring-gentle);
+  background-color: var(--main-color);
+  border-color: var(--main-color);
+}
+
+.form-check-input:focus {
+  border-color: var(--main-color);
+  box-shadow: 0 0 0 0.2rem rgba(var(--main-color-rgb), 0.25);
+}
+
+// Bootstrap-Switch: Focus/Hover-SVG (blauer Kreis) durch Brand-Orange ersetzen
+// und sicherstellen dass :checked den Thumb rechts positioniert — auch bei
+// gleichzeitig aktivem :focus (Bootstrap setzt sonst das blaue Focus-SVG).
+.form-switch .form-check-input:focus,
+.form-switch .form-check-input:hover {
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23FF4D00'/%3e%3c/svg%3e") !important;
+  border-color: var(--main-color) !important;
+}
+
+.form-switch .form-check-input:checked,
+.form-switch .form-check-input:checked:focus,
+.form-switch .form-check-input:checked:hover {
+  background-position: right center !important;
+  background-color: var(--main-color) !important;
+  border-color: var(--main-color) !important;
+  --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
 }
 
 @keyframes check-pulse {

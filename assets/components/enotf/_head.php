@@ -9,13 +9,15 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- Preload critical font -->
 <link rel="preload" href="<?= BASE_PATH ?>assets/fonts/mavenpro/font/maven-pro-v39-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
 <!-- Stylesheets: Bootstrap first, then overrides -->
+<!-- Vendor + App-SCSS zuerst, Tailwind-Utilities zuletzt damit sie bei
+     gleicher Spezifität im Cascade-Tie gewinnen. -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
-<link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/divi.min.css" />
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-custom-dropdown.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-modals.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-toast.css">
+<link rel="stylesheet" href="<?= asset('assets/css/divi.min.css') ?>" />
+<link rel="stylesheet" href="<?= asset('assets/css/enotf-custom-dropdown.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/enotf-modals.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/enotf-toast.css') ?>">
+<link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
 <!-- Core-Bundle: jQuery + Bootstrap + DataTables (synchron, wegen window.$-Nutzung in Inline-Scripts) -->
 <script src="<?= asset('public/assets/dist/vendor.js') ?>"></script>
 <!-- App scripts: defer to unblock rendering -->

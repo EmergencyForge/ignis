@@ -236,23 +236,22 @@ body#alogin {
   height: 100%;
   z-index: -1;
   overflow: hidden;
-  background: radial-gradient(ellipse at 50% 120%, rgba(var(--accent-rgb, 209, 0, 0), 0.08) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, rgba(var(--accent-rgb, 209, 0, 0), 0.04) 0%, transparent 50%),
-              linear-gradient(180deg, #1a1720 0%, #12101a 50%, #0e0c14 100%);
+  background: radial-gradient(ellipse at 50% 120%, rgba(var(--accent-rgb, 209, 0, 0), 0.08) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(var(--accent-rgb, 209, 0, 0), 0.04) 0%, transparent 50%), linear-gradient(180deg, #1a1720 0%, #12101a 50%, #0e0c14 100%);
   animation: bgPulse 8s ease-in-out infinite;
 }
 
 @keyframes bgPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.92; }
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.92;
+  }
 }
-
 #login-background .bg-grid {
   position: absolute;
   inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 75%);
@@ -293,7 +292,6 @@ body#alogin {
     opacity: 0;
   }
 }
-
 #login-background .bg-glow {
   position: absolute;
   border-radius: 50%;
@@ -321,10 +319,13 @@ body#alogin {
 }
 
 @keyframes glowPulse {
-  0%, 100% { opacity: 0; }
-  50% { opacity: 1; }
+  0%, 100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
 }
-
 body#alogin .card {
   background: var(--body-bg-darker, #050505) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;

@@ -29,241 +29,235 @@ $SITE_TITLE = 'Fahrtenbuch';
 
 <body data-bs-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php">Fahrzeuge</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">Fahrtenbuch</span>
-                    </nav>
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
+                <nav class="admin-breadcrumb">
+                    <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
+                    <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php">Fahrzeuge</a>
+                    <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
+                    <span class="current">Fahrtenbuch</span>
+                </nav>
 
-                    <div class="page-header mb-4">
-                        <h1>Fahrtenbuch</h1>
-                        <?php if ($canManage): ?>
-                            <div class="header-actions">
-                                <button type="button" class="btn btn-success" id="toggleCreateForm">
-                                    <i class="fa-solid fa-plus"></i> Neuer Eintrag
-                                </button>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-
-                    <?php Flash::render(); ?>
-
-                    <?php if (!$tableExists): ?>
-                        <div class="alert alert-warning">
-                            <i class="fa-solid fa-database"></i> Die Tabelle <code>intra_fahrtenbuch</code> existiert noch nicht.
-                            Bitte führe <code>composer db:migrate</code> aus oder lade die Seite neu — die Datenbank wird automatisch migriert.
-                        </div>
-                    <?php else: ?>
-
-                    <!-- Stats -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center">
-                                <div class="fs-2 fw-bold"><?= (int) $stats['total'] ?></div>
-                                <small class="text-muted">Einträge gesamt</small>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center">
-                                <div class="fs-2 fw-bold"><?= number_format((float) $stats['total_km'], 1, ',', '.') ?></div>
-                                <small class="text-muted">Kilometer gesamt</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Create Form -->
+                <div class="page-header mb-4">
+                    <h1>Fahrtenbuch</h1>
                     <?php if ($canManage): ?>
-                    <div id="createFormWrap" style="display:none;" class="intra__tile p-4 mb-4">
-                        <h5 class="mb-3">Neuer Eintrag</h5>
-                        <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php">
-                            <input type="hidden" name="action" value="create">
-                            <input type="hidden" name="return_to" value="admin">
-                            <input type="hidden" name="source" value="admin">
-
-                            <?php
-                            $context = 'admin';
-                            $entry = null;
-                            $vehicleName = '';
-                            $vehicleIdentifier = '';
-                            $vehicleId = null;
-                            $fahrerName = '';
-                            include __DIR__ . '/../../assets/components/fahrtenbuch/_form-fields.php';
-                            ?>
-
-                            <div class="d-flex gap-2 mt-3">
-                                <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Speichern</button>
-                                <button type="button" class="btn btn-sm btn-ghost" id="cancelCreateForm">Abbrechen</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Edit Form -->
-                    <div id="editFormWrap" style="display:none;" class="intra__tile p-4 mb-4">
-                        <h5 class="mb-3">Eintrag bearbeiten</h5>
-                        <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php" id="editForm">
-                            <input type="hidden" name="action" value="update">
-                            <input type="hidden" name="id" id="edit_id" value="">
-                            <input type="hidden" name="return_to" value="admin">
-
-                            <?php
-                            $context = 'admin';
-                            $entry = null;
-                            include __DIR__ . '/../../assets/components/fahrtenbuch/_form-fields.php';
-                            ?>
-
-                            <div class="d-flex gap-2 mt-3">
-                                <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Aktualisieren</button>
-                                <button type="button" class="btn btn-sm btn-ghost" id="cancelEditForm">Abbrechen</button>
-                            </div>
-                        </form>
-                    </div>
+                        <div class="header-actions">
+                            <button type="button" class="btn btn-success" id="toggleCreateForm">
+                                <i class="fa-solid fa-plus"></i> Neuer Eintrag
+                            </button>
+                        </div>
                     <?php endif; ?>
+                </div>
 
-                    <!-- Filter -->
-                    <div class="intra__tile p-3 mb-4">
-                        <form method="GET" class="row g-2 align-items-end">
-                            <div class="col-auto">
-                                <label class="form-label mb-1">Fahrzeug</label>
-                                <select name="vehicle" class="form-select form-select-sm">
-                                    <option value="">Alle</option>
-                                    <?php foreach ($vehicles as $v): ?>
-                                        <option value="<?= (int) $v['id'] ?>" <?= $filterVehicle === (int) $v['id'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($v['name']) ?> (<?= htmlspecialchars($v['identifier']) ?>)
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-auto">
-                                <label class="form-label mb-1">Fahrttyp</label>
-                                <select name="fahrttyp" class="form-select form-select-sm">
-                                    <option value="">Alle</option>
-                                    <?php foreach ($fahrttypen as $slug => $label): ?>
-                                        <option value="<?= htmlspecialchars($slug) ?>" <?= $filterFahrttyp === $slug ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($label) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-auto">
-                                <label class="form-label mb-1">Von</label>
-                                <input type="date" name="date_from" class="form-control form-control-sm" value="<?= htmlspecialchars($filterDateFrom) ?>">
-                            </div>
-                            <div class="col-auto">
-                                <label class="form-label mb-1">Bis</label>
-                                <input type="date" name="date_to" class="form-control form-control-sm" value="<?= htmlspecialchars($filterDateTo) ?>">
-                            </div>
-                            <div class="col-auto">
-                                <button type="submit" class="btn btn-sm btn-soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
-                                <a href="?" class="btn btn-sm btn-ghost">Zurücksetzen</a>
-                            </div>
-                        </form>
+                <?php Flash::render(); ?>
+
+                <?php if (!$tableExists): ?>
+                    <div class="alert alert-warning">
+                        <i class="fa-solid fa-database"></i> Die Tabelle <code>intra_fahrtenbuch</code> existiert noch nicht.
+                        Bitte führe <code>composer db:migrate</code> aus oder lade die Seite neu — die Datenbank wird automatisch migriert.
                     </div>
+                <?php else: ?>
 
-                    <!-- Entries Table -->
-                    <div class="intra__tile">
-                        <?php if (!empty($entries)): ?>
-                            <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
-                                    <input type="text" id="fbLocalSearch" class="form-control" placeholder="Einträge durchsuchen...">
-                                </div>
+                <!-- Stats -->
+                <div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <div class="intra__tile p-3 text-center">
+                        <div class="text-3xl font-bold"><?= (int) $stats['total'] ?></div>
+                        <small class="text-gray-400">Einträge gesamt</small>
+                    </div>
+                    <div class="intra__tile p-3 text-center">
+                        <div class="text-3xl font-bold"><?= number_format((float) $stats['total_km'], 1, ',', '.') ?></div>
+                        <small class="text-gray-400">Kilometer gesamt</small>
+                    </div>
+                </div>
+
+                <!-- Create Form -->
+                <?php if ($canManage): ?>
+                <div id="createFormWrap" style="display:none;" class="intra__tile mb-4 p-4">
+                    <h5 class="mb-4">Neuer Eintrag</h5>
+                    <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php">
+                        <input type="hidden" name="action" value="create">
+                        <input type="hidden" name="return_to" value="admin">
+                        <input type="hidden" name="source" value="admin">
+
+                        <?php
+                        $context = 'admin';
+                        $entry = null;
+                        $vehicleName = '';
+                        $vehicleIdentifier = '';
+                        $vehicleId = null;
+                        $fahrerName = '';
+                        include __DIR__ . '/../../assets/components/fahrtenbuch/_form-fields.php';
+                        ?>
+
+                        <div class="mt-4 flex gap-2">
+                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Speichern</button>
+                            <button type="button" class="btn btn-sm btn-ghost" id="cancelCreateForm">Abbrechen</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Edit Form -->
+                <div id="editFormWrap" style="display:none;" class="intra__tile mb-4 p-4">
+                    <h5 class="mb-4">Eintrag bearbeiten</h5>
+                    <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php" id="editForm">
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="id" id="edit_id" value="">
+                        <input type="hidden" name="return_to" value="admin">
+
+                        <?php
+                        $context = 'admin';
+                        $entry = null;
+                        include __DIR__ . '/../../assets/components/fahrtenbuch/_form-fields.php';
+                        ?>
+
+                        <div class="mt-4 flex gap-2">
+                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Aktualisieren</button>
+                            <button type="button" class="btn btn-sm btn-ghost" id="cancelEditForm">Abbrechen</button>
+                        </div>
+                    </form>
+                </div>
+                <?php endif; ?>
+
+                <!-- Filter -->
+                <div class="intra__tile mb-4 p-3">
+                    <form method="GET" class="flex flex-wrap items-end gap-2">
+                        <div>
+                            <label class="form-label mb-1">Fahrzeug</label>
+                            <select name="vehicle" class="form-select form-select-sm">
+                                <option value="">Alle</option>
+                                <?php foreach ($vehicles as $v): ?>
+                                    <option value="<?= (int) $v['id'] ?>" <?= $filterVehicle === (int) $v['id'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($v['name']) ?> (<?= htmlspecialchars($v['identifier']) ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label mb-1">Fahrttyp</label>
+                            <select name="fahrttyp" class="form-select form-select-sm">
+                                <option value="">Alle</option>
+                                <?php foreach ($fahrttypen as $slug => $label): ?>
+                                    <option value="<?= htmlspecialchars($slug) ?>" <?= $filterFahrttyp === $slug ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars($label) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label mb-1">Von</label>
+                            <input type="date" name="date_from" class="form-control form-control-sm" value="<?= htmlspecialchars($filterDateFrom) ?>">
+                        </div>
+                        <div>
+                            <label class="form-label mb-1">Bis</label>
+                            <input type="date" name="date_to" class="form-control form-control-sm" value="<?= htmlspecialchars($filterDateTo) ?>">
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" class="btn btn-sm btn-soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
+                            <a href="?" class="btn btn-sm btn-ghost no-underline hover:no-underline">Zurücksetzen</a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Entries Table -->
+                <div class="intra__tile">
+                    <?php if (!empty($entries)): ?>
+                        <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+                                <input type="text" id="fbLocalSearch" class="form-control" placeholder="Einträge durchsuchen...">
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    <div class="p-3">
+                        <?php if (empty($entries)): ?>
+                            <div class="py-4 text-center text-gray-400">
+                                <i class="fa-solid fa-book fa-2x mb-2" style="opacity:0.4;"></i>
+                                <div>Keine Einträge gefunden</div>
+                            </div>
+                        <?php else: ?>
+                            <div class="table-responsive">
+                                <table class="table intra__table table-sm mb-0" id="fahrtenbuchAdminTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Datum</th>
+                                            <th>Abfahrt</th>
+                                            <th>Ankunft</th>
+                                            <th>Fahrzeug</th>
+                                            <th>Fahrer</th>
+                                            <th>Fahrttyp</th>
+                                            <th>km</th>
+                                            <th>Stationierungsort</th>
+                                            <th>Grund</th>
+                                            <th>Quelle</th>
+                                            <?php if ($canManage): ?><th></th><?php endif; ?>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($entries as $e):
+                                            $typSlug  = $e['fahrttyp'] ?? '';
+                                            $typLabel = $fahrttypen[$typSlug] ?? $typSlug;
+                                            $typBadge = $fahrttypBadges[$typSlug] ?? 'secondary';
+                                            $sourceLabels = ['enotf' => 'eNOTF', 'firetab' => 'FireTab', 'admin' => 'Admin'];
+                                        ?>
+                                            <tr data-search="<?= htmlspecialchars(mb_strtolower(
+                                                ($e['vehicle_name'] ?? $e['vehicle_identifier']) . ' ' .
+                                                $e['fahrer_name'] . ' ' . $typLabel . ' ' .
+                                                ($e['stationierungsort'] ?? '') . ' ' . ($e['grund'] ?? '')
+                                            )) ?>">
+                                                <td><?= date('d.m.Y', strtotime($e['datum'])) ?></td>
+                                                <td><?= date('H:i', strtotime($e['abfahrt'])) ?></td>
+                                                <td><?= $e['ankunft'] ? date('H:i', strtotime($e['ankunft'])) : '<span class="text-gray-400">—</span>' ?></td>
+                                                <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
+                                                <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
+                                                <td><span class="badge text-bg-<?= htmlspecialchars($typBadge) ?>"><?= htmlspecialchars($typLabel) ?></span></td>
+                                                <td><?= $e['kilometer'] !== null ? number_format((float) $e['kilometer'], 1, ',', '.') : '—' ?></td>
+                                                <td class="truncate" style="max-width:150px;" title="<?= htmlspecialchars($e['stationierungsort'] ?? '') ?>">
+                                                    <?= htmlspecialchars($e['stationierungsort'] ?? '') ?: '—' ?>
+                                                </td>
+                                                <td class="truncate" style="max-width:150px;" title="<?= htmlspecialchars($e['grund'] ?? '') ?>">
+                                                    <?= htmlspecialchars($e['grund'] ?? '') ?: '—' ?>
+                                                </td>
+                                                <td><span class="badge text-bg-secondary"><?= htmlspecialchars($sourceLabels[$e['source']] ?? $e['source']) ?></span></td>
+                                                <?php if ($canManage): ?>
+                                                    <td class="whitespace-nowrap text-right">
+                                                        <button type="button" class="btn btn-sm btn-ghost fb-edit-btn"
+                                                                data-id="<?= (int) $e['id'] ?>"
+                                                                data-datum="<?= htmlspecialchars($e['datum']) ?>"
+                                                                data-abfahrt="<?= date('H:i', strtotime($e['abfahrt'])) ?>"
+                                                                data-ankunft="<?= $e['ankunft'] ? date('H:i', strtotime($e['ankunft'])) : '' ?>"
+                                                                data-vehicle-id="<?= (int) ($e['vehicle_id'] ?? 0) ?>"
+                                                                data-vehicle-identifier="<?= htmlspecialchars($e['vehicle_identifier']) ?>"
+                                                                data-fahrer-name="<?= htmlspecialchars($e['fahrer_name']) ?>"
+                                                                data-fahrttyp="<?= htmlspecialchars($e['fahrttyp']) ?>"
+                                                                data-kilometer="<?= htmlspecialchars((string) ($e['kilometer'] ?? '')) ?>"
+                                                                data-stationierungsort="<?= htmlspecialchars($e['stationierungsort'] ?? '') ?>"
+                                                                data-grund="<?= htmlspecialchars($e['grund'] ?? '') ?>"
+                                                                title="Bearbeiten">
+                                                            <i class="fa-solid fa-pen"></i>
+                                                        </button>
+                                                        <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php" class="inline"
+                                                              onsubmit="return confirm('Eintrag wirklich löschen?');">
+                                                            <input type="hidden" name="action" value="delete">
+                                                            <input type="hidden" name="id" value="<?= (int) $e['id'] ?>">
+                                                            <input type="hidden" name="return_to" value="admin">
+                                                            <button type="submit" class="btn btn-sm btn-ghost text-danger" title="Löschen">
+                                                                <i class="fa-solid fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                <?php endif; ?>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
                             </div>
                         <?php endif; ?>
-                        <div class="p-3">
-                            <?php if (empty($entries)): ?>
-                                <div class="text-center text-muted py-4">
-                                    <i class="fa-solid fa-book fa-2x mb-2" style="opacity:0.4;"></i>
-                                    <div>Keine Einträge gefunden</div>
-                                </div>
-                            <?php else: ?>
-                                <div class="table-responsive">
-                                    <table class="table intra__table table-sm mb-0" id="fahrtenbuchAdminTable">
-                                        <thead>
-                                            <tr>
-                                                <th>Datum</th>
-                                                <th>Abfahrt</th>
-                                                <th>Ankunft</th>
-                                                <th>Fahrzeug</th>
-                                                <th>Fahrer</th>
-                                                <th>Fahrttyp</th>
-                                                <th>km</th>
-                                                <th>Stationierungsort</th>
-                                                <th>Grund</th>
-                                                <th>Quelle</th>
-                                                <?php if ($canManage): ?><th></th><?php endif; ?>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php foreach ($entries as $e):
-                                                $typSlug  = $e['fahrttyp'] ?? '';
-                                                $typLabel = $fahrttypen[$typSlug] ?? $typSlug;
-                                                $typBadge = $fahrttypBadges[$typSlug] ?? 'secondary';
-                                                $sourceLabels = ['enotf' => 'eNOTF', 'firetab' => 'FireTab', 'admin' => 'Admin'];
-                                            ?>
-                                                <tr data-search="<?= htmlspecialchars(mb_strtolower(
-                                                    ($e['vehicle_name'] ?? $e['vehicle_identifier']) . ' ' .
-                                                    $e['fahrer_name'] . ' ' . $typLabel . ' ' .
-                                                    ($e['stationierungsort'] ?? '') . ' ' . ($e['grund'] ?? '')
-                                                )) ?>">
-                                                    <td><?= date('d.m.Y', strtotime($e['datum'])) ?></td>
-                                                    <td><?= date('H:i', strtotime($e['abfahrt'])) ?></td>
-                                                    <td><?= $e['ankunft'] ? date('H:i', strtotime($e['ankunft'])) : '<span class="text-muted">—</span>' ?></td>
-                                                    <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
-                                                    <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
-                                                    <td><span class="badge text-bg-<?= htmlspecialchars($typBadge) ?>"><?= htmlspecialchars($typLabel) ?></span></td>
-                                                    <td><?= $e['kilometer'] !== null ? number_format((float) $e['kilometer'], 1, ',', '.') : '—' ?></td>
-                                                    <td class="text-truncate" style="max-width:150px;" title="<?= htmlspecialchars($e['stationierungsort'] ?? '') ?>">
-                                                        <?= htmlspecialchars($e['stationierungsort'] ?? '') ?: '—' ?>
-                                                    </td>
-                                                    <td class="text-truncate" style="max-width:150px;" title="<?= htmlspecialchars($e['grund'] ?? '') ?>">
-                                                        <?= htmlspecialchars($e['grund'] ?? '') ?: '—' ?>
-                                                    </td>
-                                                    <td><span class="badge text-bg-secondary"><?= htmlspecialchars($sourceLabels[$e['source']] ?? $e['source']) ?></span></td>
-                                                    <?php if ($canManage): ?>
-                                                        <td class="text-end text-nowrap">
-                                                            <button type="button" class="btn btn-sm btn-ghost fb-edit-btn"
-                                                                    data-id="<?= (int) $e['id'] ?>"
-                                                                    data-datum="<?= htmlspecialchars($e['datum']) ?>"
-                                                                    data-abfahrt="<?= date('H:i', strtotime($e['abfahrt'])) ?>"
-                                                                    data-ankunft="<?= $e['ankunft'] ? date('H:i', strtotime($e['ankunft'])) : '' ?>"
-                                                                    data-vehicle-id="<?= (int) ($e['vehicle_id'] ?? 0) ?>"
-                                                                    data-vehicle-identifier="<?= htmlspecialchars($e['vehicle_identifier']) ?>"
-                                                                    data-fahrer-name="<?= htmlspecialchars($e['fahrer_name']) ?>"
-                                                                    data-fahrttyp="<?= htmlspecialchars($e['fahrttyp']) ?>"
-                                                                    data-kilometer="<?= htmlspecialchars((string) ($e['kilometer'] ?? '')) ?>"
-                                                                    data-stationierungsort="<?= htmlspecialchars($e['stationierungsort'] ?? '') ?>"
-                                                                    data-grund="<?= htmlspecialchars($e['grund'] ?? '') ?>"
-                                                                    title="Bearbeiten">
-                                                                <i class="fa-solid fa-pen"></i>
-                                                            </button>
-                                                            <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php" class="d-inline"
-                                                                  onsubmit="return confirm('Eintrag wirklich löschen?');">
-                                                                <input type="hidden" name="action" value="delete">
-                                                                <input type="hidden" name="id" value="<?= (int) $e['id'] ?>">
-                                                                <input type="hidden" name="return_to" value="admin">
-                                                                <button type="submit" class="btn btn-sm btn-ghost text-danger" title="Löschen">
-                                                                    <i class="fa-solid fa-trash"></i>
-                                                                </button>
-                                                            </form>
-                                                        </td>
-                                                    <?php endif; ?>
-                                                </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            <?php endif; ?>
-                        </div>
                     </div>
-
-                    <?php endif; // tableExists ?>
                 </div>
+
+                <?php endif; // tableExists ?>
             </div>
         </div>
     </div>

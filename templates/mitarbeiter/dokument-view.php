@@ -132,7 +132,7 @@ $SITE_TITLE = htmlspecialchars($typLabel);
                 <span class="badge text-bg-success" style="font-size:0.65rem;opacity:0.8;"><i class="fa-solid fa-circle-check me-1"></i>Aktiv</span>
             <?php endif; ?>
 
-            <div class="ms-auto d-flex gap-1 doc-actions">
+            <div class="doc-actions ms-auto flex gap-1">
                 <?php if ($pdfExists): ?>
                     <a href="<?= htmlspecialchars($pdfUrl) ?>" download class="btn btn-outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>
                     <a href="<?= htmlspecialchars($pdfUrl) ?>" target="_blank" class="btn btn-outline-light" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>

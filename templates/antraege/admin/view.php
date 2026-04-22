@@ -22,15 +22,13 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
 <head>
     <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
     <style>
-        .intra__tile {
-            padding: 1.5rem;
-        }
         .field-label {
             font-weight: 600;
             color: #aaa;
             font-size: 0.875rem;
             margin-bottom: 0.25rem;
         }
+
         .field-value {
             background: rgba(0, 0, 0, 0.3);
             padding: 0.75rem;
@@ -40,166 +38,157 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
     </style>
 </head>
 
-<body data-bs-theme="dark">
+<body data-bs-theme="dark" data-page="antrag-admin-view">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
 
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h1>
-                        <i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?> me-2"></i>
-                        <?= htmlspecialchars($antrag->typ->name) ?> bearbeiten #<?= htmlspecialchars($caseId) ?>
-                    </h1>
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <h1>
+                <i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?> me-2"></i>
+                <?= htmlspecialchars($antrag->typ->name) ?> bearbeiten #<?= htmlspecialchars($caseId) ?>
+            </h1>
 
-                    <?php Flash::render(); ?>
+            <?php Flash::render(); ?>
 
-                    <form method="post">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <!-- Antragsteller -->
-                                <div class="intra__tile mb-4">
-                                    <h5 class="mb-3"><i class="fa-solid fa-user me-2"></i>Antragsteller</h5>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <div class="field-label">Name und Dienstnummer</div>
-                                            <div class="field-value"><?= htmlspecialchars($antrag->name_dn) ?></div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <div class="field-label">Dienstgrad</div>
-                                            <div class="field-value"><?= htmlspecialchars($antrag->dienstgrad ?? '') ?></div>
-                                        </div>
-                                    </div>
+            <form method="post">
+                <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                    <!-- Haupt-Spalte (lg: 2/3 Breite) -->
+                    <div class="lg:col-span-2">
+                        <!-- Antragsteller -->
+                        <div class="intra__tile mb-4 p-3">
+                            <h5 class="mb-4"><i class="fa-solid fa-user me-2"></i>Antragsteller</h5>
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div>
+                                    <div class="field-label">Name und Dienstnummer</div>
+                                    <div class="field-value"><?= htmlspecialchars($antrag->name_dn) ?></div>
                                 </div>
+                                <div>
+                                    <div class="field-label">Dienstgrad</div>
+                                    <div class="field-value"><?= htmlspecialchars($antrag->dienstgrad ?? '') ?></div>
+                                </div>
+                            </div>
+                        </div>
 
-                                <!-- Antragsinhalt -->
-                                <div class="intra__tile mb-4">
-                                    <h5 class="mb-3"><i class="fa-solid fa-file-lines me-2"></i>Antragsinhalt</h5>
+                        <!-- Antragsinhalt -->
+                        <div class="intra__tile mb-4 p-3">
+                            <h5 class="mb-4"><i class="fa-solid fa-file-lines me-2"></i>Antragsinhalt</h5>
 
-                                    <?php
-                                    $current_row = [];
-                                    foreach ($felderMitWerten as $index => $feld):
-                                        $breite_class = $feld->breite === 'half' ? 'col-md-6' : 'col-12';
-
-                                        if (empty($current_row)) {
-                                            echo '<div class="row">';
-                                        }
-                                        $current_row[] = $feld->breite;
+                            <?php if (!empty($felderMitWerten)): ?>
+                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                    <?php foreach ($felderMitWerten as $feld):
+                                        $isFullWidth = $feld->feldtyp === 'textarea' || $feld->breite !== 'half';
+                                        $spanClass   = $isFullWidth ? 'md:col-span-2' : '';
                                     ?>
-                                        <div class="<?= $breite_class ?> mb-3">
+                                        <div class="<?= $spanClass ?>">
                                             <div class="field-label"><?= htmlspecialchars($feld->label) ?></div>
                                             <div class="field-value">
                                                 <?php if ($feld->feldtyp === 'checkbox'): ?>
-                                                    <?= $feld->wert ? '<i class="fa-solid fa-square-check text-success"></i> Ja' : '<i class="fa-regular fa-square text-muted"></i> Nein' ?>
+                                                    <?= $feld->wert ? '<i class="fa-solid fa-square-check text-success"></i> Ja' : '<i class="fa-regular fa-square text-gray-400"></i> Nein' ?>
                                                 <?php elseif (empty($feld->wert)): ?>
-                                                    <span class="text-muted"><i>Keine Angabe</i></span>
+                                                    <span class="text-gray-400"><i>Keine Angabe</i></span>
                                                 <?php else: ?>
                                                     <?= nl2br(htmlspecialchars($feld->wert)) ?>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
-                                    <?php
-                                        $is_last      = $index === count($felderMitWerten) - 1;
-                                        $row_complete = ($feld->breite === 'full') || (count($current_row) >= 2) || $is_last;
-
-                                        if ($row_complete) {
-                                            echo '</div>';
-                                            $current_row = [];
-                                        }
-                                    endforeach;
-                                    ?>
+                                    <?php endforeach; ?>
                                 </div>
-
-                                <!-- Bearbeitung -->
-                                <div class="intra__tile mb-4">
-                                    <h5 class="mb-3"><i class="fa-solid fa-clipboard-check me-2"></i>Bearbeitung</h5>
-
-                                    <div class="mb-3">
-                                        <label class="form-label text-muted small">Aktueller Bearbeiter</label>
-                                        <div class="form-control-plaintext">
-                                            <?php if (!empty($antrag->cirs_manager)): ?>
-                                                <span class="fw-bold"><?= htmlspecialchars($antrag->cirs_manager) ?></span>
-                                            <?php else: ?>
-                                                <span class="text-muted"><i>Noch nicht zugewiesen</i></span>
-                                            <?php endif; ?>
-                                        </div>
-                                        <small class="text-muted">Wird auf "<?= htmlspecialchars($currentUserFullname) ?>" gesetzt beim Speichern</small>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="cirs_status" class="form-label fw-bold">Status setzen <span class="text-danger">*</span></label>
-                                        <select class="form-select" id="cirs_status" name="cirs_status" required>
-                                            <?php foreach (Antrag::STATUS_LABELS as $value => $label): ?>
-                                                <option value="<?= (int) $value ?>" <?= $antrag->cirs_status === $value ? 'selected' : '' ?>>
-                                                    <?= htmlspecialchars($label) ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="cirs_text" class="form-label fw-bold">Bemerkung durch Bearbeiter</label>
-                                        <textarea class="form-control" id="cirs_text" name="cirs_text" rows="5"
-                                            placeholder="Fügen Sie hier Ihre Bemerkungen zum Antrag hinzu..."><?= htmlspecialchars($antrag->cirs_text ?? '') ?></textarea>
-                                        <small class="text-muted">Diese Bemerkung wird dem Antragsteller angezeigt</small>
-                                    </div>
+                            <?php else: ?>
+                                <div class="rounded bg-black/30 p-3">
+                                    <p class="mb-0 text-gray-400"><i>Keine Felddaten vorhanden</i></p>
                                 </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <!-- Bearbeitung -->
+                        <div class="intra__tile mb-6 p-3">
+                            <h5 class="mb-4"><i class="fa-solid fa-clipboard-check me-2"></i>Bearbeitung</h5>
+
+                            <div class="mb-4">
+                                <label class="form-label text-xs text-gray-400">Aktueller Bearbeiter</label>
+                                <div class="form-control-plaintext">
+                                    <?php if (!empty($antrag->cirs_manager)): ?>
+                                        <span class="font-bold"><?= htmlspecialchars($antrag->cirs_manager) ?></span>
+                                    <?php else: ?>
+                                        <span class="text-gray-400"><i>Noch nicht zugewiesen</i></span>
+                                    <?php endif; ?>
+                                </div>
+                                <small class="mt-1 block text-xs text-gray-400">Wird auf "<?= htmlspecialchars($currentUserFullname) ?>" gesetzt beim Speichern</small>
                             </div>
 
-                            <div class="col-lg-4">
-                                <!-- Antragsdetails -->
-                                <div class="intra__tile mb-4">
-                                    <h6 class="mb-3"><i class="fa-solid fa-circle-info me-2"></i>Antragsdetails</h6>
-                                    <div class="small">
-                                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary">
-                                            <span class="text-muted">Antragsnummer:</span>
-                                            <span class="fw-bold">#<?= htmlspecialchars($caseId) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary">
-                                            <span class="text-muted">Typ:</span>
-                                            <span><?= htmlspecialchars($antrag->typ->name) ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary">
-                                            <span class="text-muted">Erstellt am:</span>
-                                            <span><?= $createDate ? $createDate->format('d.m.Y H:i') : '' ?></span>
-                                        </div>
-                                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary">
-                                            <span class="text-muted">Discord-ID:</span>
-                                            <span class="font-monospace small"><?= htmlspecialchars($antrag->discordid ?? 'N/A') ?></span>
-                                        </div>
-                                        <?php if ($antrag->cirs_time): ?>
-                                            <div class="d-flex justify-content-between py-2 border-bottom border-secondary">
-                                                <span class="text-muted">Letzte Bearbeitung:</span>
-                                                <span><?= $antrag->cirs_time->format('d.m.Y H:i') ?></span>
-                                            </div>
-                                        <?php endif; ?>
-                                        <div class="d-flex justify-content-between py-2">
-                                            <span class="text-muted">Status:</span>
-                                            <span class="badge text-bg-<?= $currentStatus['class'] ?>">
-                                                <i class="<?= $currentStatus['icon'] ?> me-1"></i>
-                                                <?= $currentStatus['text'] ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
+                            <div class="mb-4">
+                                <label for="cirs_status" class="form-label font-bold">Status setzen <span class="text-red-500">*</span></label>
+                                <select class="form-select" id="cirs_status" name="cirs_status" required>
+                                    <?php foreach (Antrag::STATUS_LABELS as $value => $label): ?>
+                                        <option value="<?= (int) $value ?>" <?= $antrag->cirs_status === $value ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($label) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
 
-                                <!-- Aktionen -->
-                                <div class="intra__tile">
-                                    <h6 class="mb-3"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Aktionen</h6>
-                                    <div class="d-grid gap-2">
-                                        <button type="submit" name="save" class="btn btn-success">
-                                            <i class="fa-solid fa-floppy-disk me-2"></i>Änderungen speichern
-                                        </button>
-                                        <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="btn btn-ghost">
-                                            <i class="fa-solid fa-arrow-left me-2"></i>Zurück zur Übersicht
-                                        </a>
+                            <div class="mb-4">
+                                <label for="cirs_text" class="form-label font-bold">Bemerkung durch Bearbeiter</label>
+                                <textarea class="form-control" id="cirs_text" name="cirs_text" rows="5"
+                                    placeholder="Fügen Sie hier Ihre Bemerkungen zum Antrag hinzu..."><?= htmlspecialchars($antrag->cirs_text ?? '') ?></textarea>
+                                <small class="mt-1 block text-xs text-gray-400">Diese Bemerkung wird dem Antragsteller angezeigt</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar (lg: 1/3 Breite) -->
+                    <div class="lg:col-span-1">
+                        <!-- Antragsdetails -->
+                        <div class="intra__tile mb-4 p-3">
+                            <h6 class="mb-4"><i class="fa-solid fa-circle-info me-2"></i>Antragsdetails</h6>
+                            <div class="text-sm">
+                                <div class="flex justify-between border-b border-white/10 py-2">
+                                    <span class="text-gray-400">Antragsnummer:</span>
+                                    <span class="font-bold">#<?= htmlspecialchars($caseId) ?></span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/10 py-2">
+                                    <span class="text-gray-400">Typ:</span>
+                                    <span><?= htmlspecialchars($antrag->typ->name) ?></span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/10 py-2">
+                                    <span class="text-gray-400">Erstellt am:</span>
+                                    <span><?= $createDate ? $createDate->format('d.m.Y H:i') : '' ?></span>
+                                </div>
+                                <div class="flex justify-between border-b border-white/10 py-2">
+                                    <span class="text-gray-400">Discord-ID:</span>
+                                    <span class="font-mono text-xs"><?= htmlspecialchars($antrag->discordid ?? 'N/A') ?></span>
+                                </div>
+                                <?php if ($antrag->cirs_time): ?>
+                                    <div class="flex justify-between border-b border-white/10 py-2">
+                                        <span class="text-gray-400">Letzte Bearbeitung:</span>
+                                        <span><?= $antrag->cirs_time->format('d.m.Y H:i') ?></span>
                                     </div>
+                                <?php endif; ?>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-gray-400">Status:</span>
+                                    <span class="badge text-bg-<?= $currentStatus['class'] ?>">
+                                        <i class="<?= $currentStatus['icon'] ?> me-1"></i>
+                                        <?= $currentStatus['text'] ?>
+                                    </span>
                                 </div>
                             </div>
                         </div>
-                    </form>
+
+                        <!-- Aktionen -->
+                        <div class="intra__tile p-3">
+                            <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Aktionen</h6>
+                            <div class="flex flex-col gap-2">
+                                <button type="submit" name="save" class="btn btn-success">
+                                    <i class="fa-solid fa-floppy-disk me-2"></i>Änderungen speichern
+                                </button>
+                                <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="btn btn-ghost no-underline hover:no-underline">
+                                    <i class="fa-solid fa-arrow-left me-2"></i>Zurück zur Übersicht
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
