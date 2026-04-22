@@ -4,8 +4,6 @@ if (!isset($incident, $pdo, $id)) {
     die('Error: Required context not available');
 }
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-
 use App\Helpers\MapCoordinates;
 
 // Helper function to get display name with fallback to vehicle operator

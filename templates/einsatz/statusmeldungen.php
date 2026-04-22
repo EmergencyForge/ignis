@@ -96,7 +96,7 @@ use App\Helpers\Flash;
 </head>
 
 <body data-bs-theme="dark" data-page="statusmeldungen">
-    <div class="d-flex">
+    <div class="flex">
         <?php
         $einsatzActivePage = 'statusmeldungen';
         $einsatzExtraNav = '';
@@ -104,18 +104,18 @@ use App\Helpers\Flash;
         ?>
 
         <!-- Main Content -->
-        <div class="flex-grow-1" style="overflow-y: auto;">
-            <div class="container my-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="flex-1 overflow-y-auto">
+            <div class="container mx-auto my-4">
+                <div class="mb-4 flex items-center justify-between">
                     <h1><i class="fa-solid fa-signal me-2"></i>Statusmeldungen</h1>
                 </div>
 
                 <?php Flash::render(); ?>
 
-                <div class="intra__tile p-4 mb-3">
+                <div class="intra__tile mb-3 p-4">
                     <!-- Fahrzeug-Info und aktueller Status -->
-                    <div class="d-flex align-items-center mb-4">
-                        <div class="me-3">
+                    <div class="mb-4 flex items-center gap-3">
+                        <div>
                             <?php
                             $displayStatus = $statusConfig['6']; // Default: NG
                             $displayStatusText = 'NG';
@@ -131,7 +131,7 @@ use App\Helpers\Flash;
                         </div>
                         <div>
                             <h5 class="mb-0"><?= htmlspecialchars($vehicleName) ?></h5>
-                            <small class="text-muted">
+                            <small class="text-gray-400">
                                 Aktueller Status: <strong id="currentStatusLabel"><?= htmlspecialchars($displayStatus['label']) ?></strong>
                                 <?php if ($activeIncidentNumber && $statusSource !== 'no_dispatch'): ?>
                                     &middot; Einsatz #<?= htmlspecialchars($activeIncidentNumber) ?>

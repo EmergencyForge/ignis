@@ -4,7 +4,7 @@
 
 ?>
 
-<div class="intra__tile p-3 mb-3">
+<div class="intra__tile mb-3 p-3">
     <h4>Eingesetzte Mittel</h4>
 
     <?php if (empty($attachedVehicles)): ?>
@@ -66,9 +66,9 @@
                                 </div>
                             </td>
                             <td><?= htmlspecialchars($ident) ?></td>
-                            <td class="text-end">
+                            <td class="text-right">
                                 <?php if (!$incident['finalized']): ?>
-                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="d-inline">
+                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="inline">
                                         <input type="hidden" name="action" value="remove_vehicle">
                                         <input type="hidden" name="incident_id" value="<?= $id ?>">
                                         <input type="hidden" name="return_tab" value="fahrzeuge">
@@ -94,8 +94,8 @@
             <input type="hidden" name="incident_id" value="<?= $id ?>">
             <input type="hidden" name="return_tab" value="fahrzeuge">
 
-            <div class="row g-3">
-                <div class="col-md-6">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div>
                     <label class="form-label">Vorhandene Fahrzeuge</label>
                     <select name="vehicle_id" class="form-select" data-custom-dropdown="true" data-search-threshold="5">
                         <option value="">Bitte wählen....</option>
@@ -108,21 +108,21 @@
                             <option value="<?= (int)$v['id'] ?>"><?= htmlspecialchars($v['veh_type'] ?? $v['name']) ?> (<?= htmlspecialchars($v['name']) ?>)</option>
                         <?php endforeach; ?>
                     </select>
-                    <small class="text-muted">Oder Freitext-Felder unten nutzen</small>
+                    <small class="text-gray-400">Oder Freitext-Felder unten nutzen</small>
                 </div>
-                <div class="col-md-6">
+                <div>
                     <label class="form-label">Freitext Funkrufname</label>
                     <input type="text" name="radio_name" class="form-control" placeholder="z.B. Florian Musterhausen 1/44/1">
                 </div>
-                <div class="col-md-6">
+                <div>
                     <label class="form-label">Freitext Art</label>
                     <input type="text" name="vehicle_name" class="form-control" placeholder="z.B. HLF, TLF, DLK">
                 </div>
-                <div class="col-md-6">
+                <div>
                     <label class="form-label">Freitext Identifier</label>
                     <input type="text" name="vehicle_identifier" class="form-control" placeholder="Kennzeichen oder ID">
                 </div>
-                <div class="col-12 d-flex justify-content-end">
+                <div class="flex justify-end md:col-span-2">
                     <button type="submit" class="btn btn-primary">
                         <i class="fa-solid fa-plus me-1"></i>Fahrzeug hinzufügen
                     </button>

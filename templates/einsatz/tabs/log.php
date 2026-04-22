@@ -41,7 +41,7 @@ $actionTypeLabels = [
 ];
 ?>
 
-<div class="intra__tile p-3 mb-3">
+<div class="intra__tile mb-3 p-3">
     <div class="intra__tile-header">
         <h4>Einsatzprotokoll (Log)</h4>
     </div>
@@ -68,9 +68,9 @@ $actionTypeLabels = [
                             $typeInfo = $actionTypeLabels[$entry['action_type']] ?? ['label' => $entry['action_type'], 'icon' => 'fa-circle', 'color' => 'secondary'];
                             $isViewed = $entry['action_type'] === 'viewed';
                         ?>
-                            <tr class="<?= $isViewed ? 'text-muted' : '' ?>" style="<?= $isViewed ? 'opacity: 0.6; font-size: 0.9em;' : '' ?>">
+                            <tr class="<?= $isViewed ? 'text-gray-400' : '' ?>" style="<?= $isViewed ? 'opacity: 0.6; font-size: 0.9em;' : '' ?>">
                                 <td>
-                                    <small class="<?= $isViewed ? 'text-muted' : '' ?>">
+                                    <small class="<?= $isViewed ? 'text-gray-400' : '' ?>">
                                         <?= fmt_dt($entry['created_at']) ?>
                                     </small>
                                 </td>
@@ -83,15 +83,15 @@ $actionTypeLabels = [
                                 <td><?= htmlspecialchars($entry['action_description']) ?></td>
                                 <td>
                                     <?php if ($entry['vehicle_name']): ?>
-                                        <i class="fas fa-truck me-1 text-muted"></i>
+                                        <i class="fas fa-truck me-1 text-gray-400"></i>
                                         <?= htmlspecialchars($entry['vehicle_name']) ?>
                                     <?php else: ?>
-                                        <span class="text-muted">—</span>
+                                        <span class="text-gray-400">—</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if ($entry['operator_name']): ?>
-                                        <i class="fas fa-user me-1 text-muted"></i>
+                                        <i class="fas fa-user me-1 text-gray-400"></i>
                                         <?= htmlspecialchars($entry['operator_name']) ?>
                                     <?php elseif ($entry['created_by'] === null): ?>
                                         <span class="badge system-badge">
@@ -99,10 +99,10 @@ $actionTypeLabels = [
                                             System
                                         </span>
                                     <?php elseif ($entry['created_by_name']): ?>
-                                        <i class="fas fa-user me-1 text-muted"></i>
+                                        <i class="fas fa-user me-1 text-gray-400"></i>
                                         <?= htmlspecialchars($entry['created_by_name']) ?>
                                     <?php else: ?>
-                                        <span class="text-muted">—</span>
+                                        <span class="text-gray-400">—</span>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -112,7 +112,7 @@ $actionTypeLabels = [
             </div>
 
             <div class="mt-3">
-                <small class="text-muted">
+                <small class="text-gray-400">
                     <i class="fas fa-info-circle me-1"></i>
                     Gesamt: <?= count($logEntries) ?> Einträge
                 </small>

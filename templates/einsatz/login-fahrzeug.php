@@ -56,7 +56,7 @@ use App\Helpers\Flash;
 </head>
 
 <body data-bs-theme="dark">
-    <div class="container">
+    <div class="container mx-auto">
         <div class="login-container">
             <?php if (isset($_SESSION['einsatz_vehicle_id'])): ?>
                 <!-- Already logged in -->
@@ -70,7 +70,7 @@ use App\Helpers\Flash;
                             <strong>Fahrzeug:</strong> <?= htmlspecialchars($_SESSION['einsatz_vehicle_name']) ?><br>
                             <strong>Besatzung:</strong> <?= htmlspecialchars($_SESSION['einsatz_operator_name']) ?>
                         </div>
-                        <div class="d-grid gap-2">
+                        <div class="flex flex-col gap-2">
                             <a href="<?= BASE_PATH ?>einsatz/list.php" class="btn btn-primary btn-lg">
                                 <i class="fa-solid fa-list me-2"></i>Zur Einsatzliste
                             </a>
@@ -84,11 +84,11 @@ use App\Helpers\Flash;
                 <!-- Login form -->
                 <div class="card">
                     <div class="card-body">
-                        <h3 class="text-center mb-4">
+                        <h3 class="mb-4 text-center">
                             <i class="fa-solid fa-truck me-2"></i>
                             Fahrzeug-Anmeldung
                         </h3>
-                        <p class="text-muted text-center mb-4">
+                        <p class="mb-4 text-center text-gray-400">
                             Bitte melden Sie sich auf einem Fahrzeug an, um Einsätze zu erstellen oder anzuzeigen.
                         </p>
 
@@ -132,7 +132,7 @@ use App\Helpers\Flash;
                                     <?php if ($charLocked && $lockedOperator): ?>
                                         <input type="hidden" name="operator_id" value="<?= (int) $lockedOperator['id'] ?>">
                                         <input type="text" class="form-select form-select-lg" value="<?= htmlspecialchars($lockedOperator['fullname']) ?>" readonly>
-                                        <small class="text-muted"><i class="fa-solid fa-lock me-1"></i>Charakter-Sperre aktiv</small>
+                                        <small class="text-gray-400"><i class="fa-solid fa-lock me-1"></i>Charakter-Sperre aktiv</small>
                                     <?php else: ?>
                                         <select name="operator_id" id="operatorSelect" class="form-select form-select-lg" required data-custom-dropdown="true" data-search-threshold="5">
                                             <option value="">-- Bitte Mitarbeiter wählen --</option>
@@ -142,11 +142,11 @@ use App\Helpers\Flash;
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
-                                        <small class="text-muted">Wählen Sie Ihren Namen aus der Liste</small>
+                                        <small class="text-gray-400">Wählen Sie Ihren Namen aus der Liste</small>
                                     <?php endif; ?>
                                 </div>
 
-                                <div class="d-grid gap-2">
+                                <div class="flex flex-col gap-2">
                                     <button type="submit" class="btn btn-primary btn-lg">
                                         <i class="fa-solid fa-sign-in-alt me-2"></i>
                                         Anmelden

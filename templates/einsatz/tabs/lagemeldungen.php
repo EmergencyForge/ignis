@@ -4,7 +4,7 @@
 
 ?>
 
-<div class="intra__tile p-3 mb-3">
+<div class="intra__tile mb-3 p-3">
     <h4>Lagemeldungen</h4>
 
     <?php if (empty($sitreps)): ?>
@@ -16,8 +16,8 @@
         <ul class="list-group">
             <?php foreach ($sitreps as $sr): ?>
                 <li class="list-group-item">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
                             <div class="mb-2">
                                 <strong><i class="fa-solid fa-clock me-1"></i><?= fmt_dt($sr['report_time']) ?></strong>
                                 <?php if ($sr['vehicle_radio_name']): ?>
@@ -28,7 +28,7 @@
                                     <span class="badge bg-info ms-2"><?= htmlspecialchars($sr['sys_name']) ?></span>
                                 <?php endif; ?>
                             </div>
-                            <div class="text-break"><?= nl2br(htmlspecialchars($sr['text'])) ?></div>
+                            <div class="break-words"><?= nl2br(htmlspecialchars($sr['text'])) ?></div>
                         </div>
                     </div>
                 </li>
@@ -44,16 +44,16 @@
             <input type="hidden" name="incident_id" value="<?= $id ?>">
             <input type="hidden" name="return_tab" value="lagemeldungen">
 
-            <div class="row g-3">
-                <div class="col-md-3">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-12">
+                <div class="md:col-span-3">
                     <label class="form-label">Datum *</label>
                     <input type="date" name="rt_date" class="form-control" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') ?>" required>
                 </div>
-                <div class="col-md-3">
+                <div class="md:col-span-3">
                     <label class="form-label">Uhrzeit *</label>
                     <input type="time" name="rt_time" class="form-control" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('H:i') ?>" required>
                 </div>
-                <div class="col-md-6">
+                <div class="md:col-span-6">
                     <label class="form-label">Gemeldet durch (Fahrzeug) *</label>
                     <select name="sitrep_attached_vehicle_id" class="form-select" required>
                         <option value="">– auswählen –</option>
@@ -72,11 +72,11 @@
                         </small>
                     <?php endif; ?>
                 </div>
-                <div class="col-12">
+                <div class="md:col-span-12">
                     <label class="form-label">Meldungstext *</label>
                     <textarea name="text" class="form-control" rows="4" required placeholder="Text der Lagemeldung..."></textarea>
                 </div>
-                <div class="col-12 d-flex justify-content-end">
+                <div class="flex justify-end md:col-span-12">
                     <button type="submit" class="btn btn-primary" <?= empty($attachedVehicles) ? 'disabled' : '' ?>>
                         <i class="fa-solid fa-plus me-1"></i>Lagemeldung speichern
                     </button>
@@ -84,7 +84,7 @@
             </div>
         </form>
     <?php else: ?>
-        <div class="alert alert-info mt-3 mb-0">
+        <div class="alert alert-info mb-0 mt-3">
             <i class="fa-solid fa-lock me-2"></i>
             <?php if ($incident['finalized']): ?>
                 Einsatz ist abgeschlossen - keine Änderungen möglich.

@@ -20,11 +20,10 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <nav class="admin-breadcrumb">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
+                <nav class="admin-breadcrumb">
                         <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
                         <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
                         <span>Einstellungen</span>
@@ -35,8 +34,8 @@ use App\Helpers\Flash;
                         <h1>Schnellzugriff-Verwaltung</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
-                                <div class="d-flex gap-2">
-                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index.php" class="btn btn-outline-secondary">
+                                <div class="flex gap-2">
+                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index.php" class="btn btn-outline-secondary no-underline hover:no-underline">
                                         <i class="fa-solid fa-folder"></i> Kategorien verwalten
                                     </a>
                                     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
@@ -54,7 +53,7 @@ use App\Helpers\Flash;
                             <button class="btn" data-filter="Nein">Inaktiv</button>
                         </div>
                     </div>
-                    <div class="intra__tile py-2 px-3">
+                    <div class="intra__tile px-3 py-2">
                         <table class="table table-striped" id="table-quicklinks">
                             <thead>
                                 <tr>
@@ -100,7 +99,6 @@ use App\Helpers\Flash;
                             </tbody>
                         </table>
                     </div>
-                </div>
             </div>
         </div>
     </div>
@@ -124,12 +122,12 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="quicklink-url" class="form-label">URL</label>
                                 <input type="text" class="form-control" name="url" id="quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
-                                <small class="form-text text-muted">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
+                                <small class="form-text text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-icon" class="form-label">Icon (Font Awesome Klasse)</label>
                                 <input type="text" class="form-control" name="icon" id="quicklink-icon" placeholder="fa-solid fa-link" required>
-                                <small class="form-text text-muted">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
+                                <small class="form-text text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-category" class="form-label">Kategorie</label>
@@ -158,7 +156,7 @@ use App\Helpers\Flash;
                                 <label class="form-check-label" for="quicklink-active">Aktiv?</label>
                             </div>
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
+                        <div class="modal-footer flex justify-between">
                             <button type="button" class="btn btn-ghost-danger" id="delete-quicklink-btn">Löschen</button>
                             <div>
                                 <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
@@ -187,12 +185,12 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="create-quicklink-url" class="form-label">URL</label>
                                 <input type="text" class="form-control" name="url" id="create-quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
-                                <small class="form-text text-muted">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
+                                <small class="form-text text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-icon" class="form-label">Icon (Font Awesome Klasse)</label>
                                 <input type="text" class="form-control" name="icon" id="create-quicklink-icon" placeholder="fa-solid fa-link" value="fa-solid fa-link" required>
-                                <small class="form-text text-muted">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
+                                <small class="form-text text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-category" class="form-label">Kategorie</label>
