@@ -15,7 +15,7 @@ if ($incident) {
 }
 ?>
 
-<div class="intra__tile p-3 mb-3">
+<div class="intra__tile mb-3 p-3">
     <h4 class="mb-4">Einsatz abschließen</h4>
 
     <?php if ($incident['finalized']): ?>
@@ -24,44 +24,40 @@ if ($incident) {
             <strong>Dieser Einsatz wurde bereits abgeschlossen</strong>
         </div>
 
-        <div class="row g-3 mt-3">
-            <div class="col-md-6">
-                <div class="card bg-dark">
-                    <div class="card-body">
-                        <h6 class="card-title">Abgeschlossen am</h6>
-                        <p class="card-text">
-                            <?php
-                            if ($incident['finalized_at']) {
-                                $dt = new DateTime($incident['finalized_at'], new DateTimeZone('UTC'));
-                                $dt->setTimezone(new DateTimeZone('Europe/Berlin'));
-                                echo $dt->format('d.m.Y H:i');
-                            } else {
-                                echo '-';
-                            }
-                            ?>
-                        </p>
-                    </div>
+        <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div class="card bg-dark">
+                <div class="card-body">
+                    <h6 class="card-title">Abgeschlossen am</h6>
+                    <p class="card-text">
+                        <?php
+                        if ($incident['finalized_at']) {
+                            $dt = new DateTime($incident['finalized_at'], new DateTimeZone('UTC'));
+                            $dt->setTimezone(new DateTimeZone('Europe/Berlin'));
+                            echo $dt->format('d.m.Y H:i');
+                        } else {
+                            echo '-';
+                        }
+                        ?>
+                    </p>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card bg-dark">
-                    <div class="card-body">
-                        <h6 class="card-title">QM-Status</h6>
-                        <p class="card-text">
-                            <?php
-                            $statusMap = [
-                                0 => ['bg-secondary', 'Ungesehen'],
-                                1 => ['bg-warning', 'In Prüfung'],
-                                2 => ['bg-success', 'Freigegeben'],
-                                3 => ['bg-danger', 'Ungenügend'],
-                                4 => ['bg-dark', 'Ausgeblendet'],
-                            ];
-                            $s = (int)$incident['status'];
-                            [$badge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
-                            ?>
-                            <span class="badge <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
-                        </p>
-                    </div>
+            <div class="card bg-dark">
+                <div class="card-body">
+                    <h6 class="card-title">QM-Status</h6>
+                    <p class="card-text">
+                        <?php
+                        $statusMap = [
+                            0 => ['bg-secondary', 'Ungesehen'],
+                            1 => ['bg-warning', 'In Prüfung'],
+                            2 => ['bg-success', 'Freigegeben'],
+                            3 => ['bg-danger', 'Ungenügend'],
+                            4 => ['bg-dark', 'Ausgeblendet'],
+                        ];
+                        $s = (int)$incident['status'];
+                        [$badge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
+                        ?>
+                        <span class="badge <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -106,7 +102,7 @@ if ($incident) {
             </div>
         </div>
 
-        <div class="d-flex justify-content-center mt-4">
+        <div class="mt-4 flex justify-center">
             <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#finalizeConfirmModal" <?= $canFinalize ? '' : 'disabled' ?>>
                 <i class="fa-solid fa-check-circle me-2"></i>
                 Einsatz jetzt abschließen

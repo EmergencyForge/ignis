@@ -38,12 +38,12 @@ function einsatz_fmt_dt(?string $ts): string
 </head>
 
 <body data-bs-theme="dark" data-page="einsatzliste">
-    <div class="d-flex">
+    <div class="flex">
         <?php $einsatzActivePage = 'list'; include __DIR__ . '/../../assets/components/einsatz-sidebar.php'; ?>
 
         <!-- Main Content -->
-        <div class="flex-grow-1" style="overflow-y: auto;">
-            <div class="container my-4">
+        <div class="flex-1 overflow-y-auto">
+            <div class="container mx-auto my-4">
                 <h1 class="mb-4">
                     <i class="fa-solid fa-list me-2"></i>
                     Meine Einsätze
@@ -57,7 +57,7 @@ function einsatz_fmt_dt(?string $ts): string
                         Noch keine Einsätze für Ihr Fahrzeug vorhanden. Erstellen Sie einen neuen Einsatz über den Button in der Navigation.
                     </div>
                 <?php else: ?>
-                    <div class="row g-3">
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                         <?php foreach ($incidents as $inc): ?>
                             <?php
                             // Status badge — bei nicht-finalisierten immer "In Bearbeitung",
@@ -77,69 +77,63 @@ function einsatz_fmt_dt(?string $ts): string
                                 [$statusBadge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
                             }
                             ?>
-                            <div class="col-md-6 col-lg-4">
-                                <div class="card incident-card h-100">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h5 class="card-title mb-0">
-                                                #<?= htmlspecialchars($inc['incident_number'] ?? 'Keine Nummer') ?>
-                                            </h5>
-                                            <span class="badge <?= $statusBadge ?> status-badge">
-                                                <?= $statusText ?>
-                                            </span>
-                                        </div>
-
-                                        <h6 class="text-muted mb-3">
-                                            <i class="fa-solid fa-fire me-1"></i>
-                                            <?= htmlspecialchars($inc['keyword']) ?>
-                                        </h6>
-
-                                        <div class="row">
-                                            <div class="col">
-                                                <div class="mb-2">
-                                                    <small class="text-muted">
-                                                        <i class="fa-solid fa-map-marker-alt me-1"></i>
-                                                        <?= htmlspecialchars($inc['location']) ?>
-                                                    </small>
-                                                </div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="mb-2">
-                                                    <small class="text-muted">
-                                                        <i class="fa-solid fa-clock me-1"></i>
-                                                        <?= einsatz_fmt_dt($inc['started_at']) ?>
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <?php if (!empty($inc['leader_name'])): ?>
-                                            <div class="mb-2">
-                                                <small class="text-muted">
-                                                    <i class="fa-solid fa-user-tie me-1"></i>
-                                                    <?= htmlspecialchars($inc['leader_name']) ?>
-                                                </small>
-                                            </div>
-                                        <?php endif; ?>
-
-                                        <hr class="my-2">
-
-                                        <div class="d-flex justify-content-between text-muted small mb-3">
-                                            <span>
-                                                <i class="fa-solid fa-truck me-1"></i>
-                                                <?= (int) $inc['vehicle_count'] ?> Bet. EM
-                                            </span>
-                                            <span>
-                                                <i class="fa-solid fa-comment me-1"></i>
-                                                <?= (int) $inc['sitrep_count'] ?> Lagemeldung(en)
-                                            </span>
-                                        </div>
-
-                                        <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int) $inc['id'] ?>" class="btn btn-main-color w-100">
-                                            <i class="fa-solid fa-eye me-1"></i>
-                                            Einsatz öffnen
-                                        </a>
+                            <div class="card incident-card h-full">
+                                <div class="card-body">
+                                    <div class="mb-2 flex items-start justify-between">
+                                        <h5 class="card-title mb-0">
+                                            #<?= htmlspecialchars($inc['incident_number'] ?? 'Keine Nummer') ?>
+                                        </h5>
+                                        <span class="badge <?= $statusBadge ?> status-badge">
+                                            <?= $statusText ?>
+                                        </span>
                                     </div>
+
+                                    <h6 class="mb-3 text-gray-400">
+                                        <i class="fa-solid fa-fire me-1"></i>
+                                        <?= htmlspecialchars($inc['keyword']) ?>
+                                    </h6>
+
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="mb-2">
+                                            <small class="text-gray-400">
+                                                <i class="fa-solid fa-map-marker-alt me-1"></i>
+                                                <?= htmlspecialchars($inc['location']) ?>
+                                            </small>
+                                        </div>
+                                        <div class="mb-2">
+                                            <small class="text-gray-400">
+                                                <i class="fa-solid fa-clock me-1"></i>
+                                                <?= einsatz_fmt_dt($inc['started_at']) ?>
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <?php if (!empty($inc['leader_name'])): ?>
+                                        <div class="mb-2">
+                                            <small class="text-gray-400">
+                                                <i class="fa-solid fa-user-tie me-1"></i>
+                                                <?= htmlspecialchars($inc['leader_name']) ?>
+                                            </small>
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <hr class="my-2">
+
+                                    <div class="mb-3 flex justify-between text-xs text-gray-400">
+                                        <span>
+                                            <i class="fa-solid fa-truck me-1"></i>
+                                            <?= (int) $inc['vehicle_count'] ?> Bet. EM
+                                        </span>
+                                        <span>
+                                            <i class="fa-solid fa-comment me-1"></i>
+                                            <?= (int) $inc['sitrep_count'] ?> Lagemeldung(en)
+                                        </span>
+                                    </div>
+
+                                    <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int) $inc['id'] ?>" class="btn btn-main-color w-full no-underline hover:no-underline">
+                                        <i class="fa-solid fa-eye me-1"></i>
+                                        Einsatz öffnen
+                                    </a>
                                 </div>
                             </div>
                         <?php endforeach; ?>

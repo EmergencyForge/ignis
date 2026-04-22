@@ -31,7 +31,7 @@
 </head>
 
 <body data-bs-theme="dark" data-page="asu">
-    <div class="d-flex">
+    <div class="flex">
         <?php
         $einsatzActivePage = 'asu';
         $einsatzExtraNav = '';
@@ -42,9 +42,9 @@
         ?>
 
         <!-- Main Content -->
-        <div class="flex-grow-1" style="overflow-y: auto;">
-            <div class="container my-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="flex-1 overflow-y-auto">
+            <div class="container mx-auto my-4">
+                <div class="mb-3 flex items-center justify-between">
                     <h1><i class="fa-solid fa-lungs me-2"></i>Atemschutzüberwachung (ASU)</h1>
                     <div class="current-time-display">
                         <i class="fa-solid fa-clock me-2"></i>
@@ -64,20 +64,20 @@
                                 <h5 class="mb-0">Einsatzinformationen</h5>
                             </div>
                             <div class="card-body">
-                                <div class="row g-3">
-                                    <div class="col-md-3">
+                                <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+                                    <div>
                                         <label class="form-label">Einsatznummer *</label>
                                         <input type="text" class="form-control" id="missionNumber" value="<?= htmlspecialchars($prefillNumber) ?>" required>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div>
                                         <label class="form-label">Einsatzort *</label>
                                         <input type="text" class="form-control" id="missionLocation" value="<?= htmlspecialchars($prefillLocation) ?>" required>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div>
                                         <label class="form-label">Einsatzdatum *</label>
                                         <input type="text" class="form-control" id="missionDate" placeholder="TT.MM.JJJJ" required>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div>
                                         <label class="form-label">Überwacher *</label>
                                         <input type="text" class="form-control" id="supervisor" placeholder="Name des Überwachenden" required>
                                     </div>

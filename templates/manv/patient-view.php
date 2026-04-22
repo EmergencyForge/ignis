@@ -54,8 +54,8 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
 
 <body data-bs-theme="dark" id="patient-view" data-page="edivi">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
             <?php Flash::render(); ?>
 
             <?php if (!empty($success)): ?>
@@ -72,24 +72,24 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                 </div>
             <?php endif; ?>
 
-            <div class="patient-header mb-5">
-                <div class="row align-items-center">
-                    <div class="col-md-6">
+            <div class="patient-header mb-6">
+                <div class="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
                         <h1 class="mb-2"><?= htmlspecialchars($patient['patienten_nummer']) ?></h1>
                         <h4>
                             <?= htmlspecialchars($patient['vorname'] ?? '') ?> <?= htmlspecialchars($patient['name'] ?? 'Unbekannt') ?>
                         </h4>
-                        <p class="text-muted mb-0">
+                        <p class="mb-0 text-gray-400">
                             MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?>
                         </p>
                     </div>
-                    <div class="col-md-6 text-end">
+                    <div class="md:text-right">
                         <h2>
-                            <span class="badge bg-<?= $skColor ?> fs-4">
+                            <span class="badge bg-<?= $skColor ?> text-2xl">
                                 <?= htmlspecialchars($patient['sichtungskategorie'] ?? 'Ungesichtet') ?>
                             </span>
                         </h2>
-                        <small class="text-muted">
+                        <small class="text-gray-400">
                             <?php if (!empty($patient['sichtungskategorie_zeit'])): ?>
                                 Gesichtet: <?= date('d.m.Y H:i', strtotime($patient['sichtungskategorie_zeit'])) ?>
                             <?php endif; ?>
@@ -125,8 +125,8 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
             </div>
 
             <form method="POST" action="">
-                <div class="row">
-                    <div class="col-md-6">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div>
                         <div class="card mb-4">
                             <div class="card-header">
                                 <h5 class="mb-0">Personalien</h5>
@@ -176,7 +176,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div>
                         <div class="card mb-4">
                             <div class="card-header">
                                 <h5 class="mb-0"><?= $canTransport ? 'Transport' : 'Fahrzeugzuweisung' ?></h5>
@@ -228,7 +228,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
 
                                 <?php if ($canTransport && !empty($patient['transport_abfahrt'])): ?>
                                     <div class="info-box">
-                                        <small class="text-muted">
+                                        <small class="text-gray-400">
                                             <i class="fas fa-clock me-1"></i>
                                             Abfahrt: <?= date('d.m.Y H:i', strtotime($patient['transport_abfahrt'])) ?>
                                         </small>
@@ -255,17 +255,13 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between mb-4">
-                    <div>
-                        <a href="<?= BASE_PATH ?>manv/board.php?id=<?= (int) $patient['manv_lage_id'] ?>" class="btn btn-ghost">
-                            <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
-                        </a>
-                    </div>
-                    <div>
-                        <button type="submit" class="btn btn-soft-primary btn-lg">
-                            <i class="fas fa-save me-2"></i>Änderungen speichern
-                        </button>
-                    </div>
+                <div class="mb-4 flex items-center justify-between">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= (int) $patient['manv_lage_id'] ?>" class="btn btn-ghost no-underline hover:no-underline">
+                        <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
+                    </a>
+                    <button type="submit" class="btn btn-soft-primary btn-lg">
+                        <i class="fas fa-save me-2"></i>Änderungen speichern
+                    </button>
                 </div>
             </form>
         </div>

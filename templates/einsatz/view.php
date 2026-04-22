@@ -63,7 +63,7 @@ function fmt_elapsed(int|string $seconds): string
 </head>
 
 <body data-bs-theme="dark" data-page="protokolle">
-    <div class="d-flex">
+    <div class="flex">
         <?php
         $einsatzActivePage = 'view';
         ob_start();
@@ -94,13 +94,13 @@ function fmt_elapsed(int|string $seconds): string
         <?php include __DIR__ . '/../../assets/components/einsatz-sidebar.php'; ?>
 
         <!-- Main Content -->
-        <div class="flex-grow-1" style="overflow-y: auto;">
-            <div class="container my-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="einsatz-main flex-1 overflow-y-auto">
+            <div class="container mx-auto my-4">
+                <div class="mb-4 flex items-center justify-between">
                     <h1>Einsatzprotokoll</h1>
-                    <div>
+                    <div class="flex items-center gap-2">
                         <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
-                            <span class="me-2 align-middle text-muted small">QM-Status:
+                            <span class="align-middle text-xs text-gray-400">QM-Status:
                                 <?php
                                 if (!$incident['finalized']) {
                                     $badge = 'bg-secondary';
@@ -127,7 +127,7 @@ function fmt_elapsed(int|string $seconds): string
                         <?php endif; ?>
                     </div>
                 </div>
-                <div class="mb-2 text-muted">Einsatznummer: <?= htmlspecialchars($incident['incident_number'] ?? '–') ?></div>
+                <div class="mb-2 text-gray-400">Einsatznummer: <?= htmlspecialchars($incident['incident_number'] ?? '–') ?></div>
                 <?php Flash::render(); ?>
 
                 <!-- Tab Content -->
@@ -146,11 +146,11 @@ function fmt_elapsed(int|string $seconds): string
                 </div>
                 <div class="modal-body">
                     <p><strong>Möchten Sie diesen Einsatz wirklich abschließen?</strong></p>
-                    <p class="text-muted small">Das Protokoll wird zur QM-Sichtung markiert und alle Daten werden gesperrt. Diese Aktion kann nicht rückgängig gemacht werden.</p>
+                    <p class="text-xs text-gray-400">Das Protokoll wird zur QM-Sichtung markiert und alle Daten werden gesperrt. Diese Aktion kann nicht rückgängig gemacht werden.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="d-inline">
+                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="inline">
                         <input type="hidden" name="action" value="finalize">
                         <input type="hidden" name="incident_id" value="<?= $id ?>">
                         <input type="hidden" name="return_tab" value="abschluss">
@@ -201,7 +201,7 @@ function fmt_elapsed(int|string $seconds): string
     <script src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
     <script>
         // Move tab-generated modals to body so they escape the overflow-y:auto container
-        document.querySelectorAll('.flex-grow-1 .modal').forEach(function(m) {
+        document.querySelectorAll('.einsatz-main .modal').forEach(function(m) {
             document.body.appendChild(m);
         });
 

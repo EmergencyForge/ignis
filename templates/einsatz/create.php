@@ -31,12 +31,12 @@ use App\Helpers\Flash;
 </head>
 
 <body data-bs-theme="dark" data-page="protokolle">
-    <div class="d-flex">
+    <div class="flex">
         <?php $einsatzActivePage = 'create'; include __DIR__ . '/../../assets/components/einsatz-sidebar.php'; ?>
 
         <!-- Main Content -->
-        <div class="flex-grow-1" style="overflow-y: auto;">
-            <div class="container my-4">
+        <div class="flex-1 overflow-y-auto">
+            <div class="container mx-auto my-4">
                 <h1>Neuen Einsatz anlegen</h1>
                 <?php Flash::render(); ?>
                 <?php if (!empty($errors)): ?>
@@ -48,28 +48,28 @@ use App\Helpers\Flash;
                 <?php endif; ?>
 
                 <form method="post" class="intra__tile p-3">
-                    <div class="row g-3">
-                        <div class="col-md-6">
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-12">
+                        <div class="md:col-span-6">
                             <label class="form-label">Einsatznummer*</label>
                             <input type="text" name="incident_number" class="form-control" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="md:col-span-6">
                             <label class="form-label">Einsatzort*</label>
                             <input type="text" name="location" class="form-control" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="md:col-span-6">
                             <label class="form-label">Einsatzstichwort*</label>
                             <input type="text" name="keyword" class="form-control" required>
                         </div>
-                        <div class="col-md-3">
+                        <div class="md:col-span-3">
                             <label class="form-label">Datum*</label>
                             <input type="date" name="date" class="form-control" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') ?>" required>
                         </div>
-                        <div class="col-md-3">
+                        <div class="md:col-span-3">
                             <label class="form-label">Uhrzeit*</label>
                             <input type="time" name="time" class="form-control" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="md:col-span-6">
                             <label class="form-label">Einsatzleiter*</label>
                             <select name="leader_id" class="form-select" required data-custom-dropdown="true" data-search-threshold="5">
                                 <option value="">Bitte wählen...</option>
@@ -78,33 +78,33 @@ use App\Helpers\Flash;
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="col-12">
+                        <div class="md:col-span-12">
                             <hr>
                         </div>
-                        <div class="col-md-6">
+                        <div class="md:col-span-6">
                             <label class="form-label">Melder – Name</label>
                             <input type="text" name="caller_name" class="form-control">
                         </div>
-                        <div class="col-md-6">
+                        <div class="md:col-span-6">
                             <label class="form-label">Melder – Kontakt</label>
                             <input type="text" name="caller_contact" class="form-control">
                         </div>
-                        <div class="col-12">
+                        <div class="md:col-span-12">
                             <hr>
                         </div>
-                        <div class="col-md-6">
+                        <div class="md:col-span-6">
                             <label class="form-label">Geschädigter/Eigentümer/Halter – Name</label>
                             <input type="text" name="owner_name" class="form-control">
                         </div>
-                        <div class="col-md-6">
+                        <div class="md:col-span-6">
                             <label class="form-label">Geschädigter/Eigentümer/Halter – Kontakt</label>
                             <input type="text" name="owner_contact" class="form-control">
                         </div>
-                        <div class="col-12">
-                            <small class="text-muted">Optional: Angaben zum Geschädigten, Eigentümer oder Halter (Name/Kontakt).</small>
+                        <div class="md:col-span-12">
+                            <small class="text-gray-400">Optional: Angaben zum Geschädigten, Eigentümer oder Halter (Name/Kontakt).</small>
                         </div>
                     </div>
-                    <div class="mt-3 d-flex justify-content-end">
+                    <div class="mt-4 flex justify-end">
                         <button type="submit" class="btn btn-primary">Einsatz erstellen</button>
                     </div>
                 </form>
