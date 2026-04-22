@@ -19,15 +19,15 @@ $SITE_TITLE = 'Aktionslog - ' . htmlspecialchars($lage['einsatznummer']);
 
 <body data-bs-theme="dark" id="manv-log" data-page="edivi">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row mb-5">
-                <div class="col-md-8">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
                     <h1>Aktionslog</h1>
-                    <p class="text-muted">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
+                    <p class="text-gray-400">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
                 </div>
-                <div class="col-md-4 text-end">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost">
+                <div class="md:text-right">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left me-2"></i>Zurück
                     </a>
                 </div>
@@ -36,7 +36,7 @@ $SITE_TITLE = 'Aktionslog - ' . htmlspecialchars($lage['einsatznummer']);
             <div class="card">
                 <div class="card-body">
                     <?php if (empty($logEntries)): ?>
-                        <p class="text-muted">Keine Logeinträge vorhanden.</p>
+                        <p class="text-gray-400">Keine Logeinträge vorhanden.</p>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-striped">

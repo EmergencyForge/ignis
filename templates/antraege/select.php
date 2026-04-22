@@ -44,53 +44,47 @@ $SITE_TITLE = "Antrag einreichen";
 <body data-bs-theme="dark" data-page="antrag-select">
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
 
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <h1>Neuen Antrag stellen</h1>
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <h1>Neuen Antrag stellen</h1>
 
-                    <?php Flash::render(); ?>
+            <?php Flash::render(); ?>
 
-                    <?php if ($typen->isEmpty()): ?>
-                        <div class="alert alert-info">
-                            <i class="fa-solid fa-circle-info me-2"></i>
-                            Aktuell sind keine Antragstypen verfügbar.
-                        </div>
-                    <?php else: ?>
-                        <div class="row g-4">
-                            <?php foreach ($typen as $typ): ?>
-                                <div class="col-md-6 col-lg-4">
-                                    <a href="<?= BASE_PATH . 'antrag/create.php?typ=' . (int) $typ->id ?>"
-                                        class="text-decoration-none">
-                                        <div class="antrag-card p-4 rounded text-center h-100">
-                                            <h4 class="mb-3"><?= htmlspecialchars($typ->name) ?></h4>
-
-                                            <?php if (!empty($typ->beschreibung)): ?>
-                                                <p class="text-muted small mb-3">
-                                                    <?= htmlspecialchars($typ->beschreibung) ?>
-                                                </p>
-                                            <?php endif; ?>
-
-                                            <div class="mt-3">
-                                                <button class="btn btn-soft-primary btn-sm">
-                                                    <i class="fa-solid fa-arrow-right me-1"></i>
-                                                    Antrag stellen
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="mt-4">
-                        <a href="<?= BASE_PATH ?>index.php" class="btn btn-ghost">
-                            <i class="fas fa-arrow-left me-2"></i>Zurück zum Dashboard
-                        </a>
-                    </div>
+            <?php if ($typen->isEmpty()): ?>
+                <div class="rounded-lg border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-400">
+                    <i class="fa-solid fa-circle-info me-2"></i>
+                    Aktuell sind keine Antragstypen verfügbar.
                 </div>
+            <?php else: ?>
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    <?php foreach ($typen as $typ): ?>
+                        <a href="<?= BASE_PATH . 'antrag/create.php?typ=' . (int) $typ->id ?>"
+                            class="no-underline hover:no-underline">
+                            <div class="antrag-card h-full rounded p-6 text-center">
+                                <h4 class="mb-4"><?= htmlspecialchars($typ->name) ?></h4>
+
+                                <?php if (!empty($typ->beschreibung)): ?>
+                                    <p class="mb-4 text-sm text-gray-400">
+                                        <?= htmlspecialchars($typ->beschreibung) ?>
+                                    </p>
+                                <?php endif; ?>
+
+                                <div class="mt-4">
+                                    <button class="btn btn-soft-primary btn-sm">
+                                        <i class="fa-solid fa-arrow-right me-1"></i>
+                                        Antrag stellen
+                                    </button>
+                                </div>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <div class="mt-6">
+                <a href="<?= BASE_PATH ?>index.php" class="btn btn-ghost">
+                    <i class="fas fa-arrow-left me-2"></i>Zurück zum Dashboard
+                </a>
             </div>
         </div>
     </div>

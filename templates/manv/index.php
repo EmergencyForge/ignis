@@ -42,26 +42,26 @@ $SITE_TITLE = 'MANV-Übersicht';
 
 <body data-bs-theme="dark" id="manv-overview" data-page="edivi">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row mb-5">
-                <div class="col-md-8">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
                     <?php if ($statusFilter !== 'aktiv'): ?>
-                        <a href="<?= BASE_PATH ?>manv/index.php" class="btn btn-ghost mb-3">
+                        <a href="<?= BASE_PATH ?>manv/index.php" class="btn btn-ghost mb-3 no-underline hover:no-underline">
                             <i class="fas fa-arrow-left me-2"></i>Zurück zu aktiven Lagen
                         </a>
                     <?php endif; ?>
                     <h1>MANV-Übersicht
                         <?php if ($statusFilter === 'abgeschlossen'): ?>
-                            <small class="text-muted ms-2">(Abgeschlossene Lagen)</small>
+                            <small class="ms-2 text-gray-400">(Abgeschlossene Lagen)</small>
                         <?php elseif ($statusFilter === 'archiviert'): ?>
-                            <small class="text-muted ms-2">(Archivierte Lagen)</small>
+                            <small class="ms-2 text-gray-400">(Archivierte Lagen)</small>
                         <?php endif; ?>
                     </h1>
-                    <p class="text-muted">Massenanfall von Verletzten - Lagenverwaltung</p>
+                    <p class="text-gray-400">Massenanfall von Verletzten - Lagenverwaltung</p>
                 </div>
-                <div class="col-md-4 text-end">
-                    <a href="<?= BASE_PATH ?>manv/create.php" class="btn btn-soft-primary btn-lg">
+                <div class="md:text-right">
+                    <a href="<?= BASE_PATH ?>manv/create.php" class="btn btn-soft-primary btn-lg no-underline hover:no-underline">
                         <i class="fas fa-plus me-2"></i>Neue MANV-Lage anlegen
                     </a>
                 </div>
@@ -81,7 +81,7 @@ $SITE_TITLE = 'MANV-Übersicht';
                     ?>
                 </div>
             <?php else: ?>
-                <div class="row">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <?php foreach ($lagen as $lage):
                         $stats = $statistiken[$lage['id']] ?? [
                             'total_patienten' => 0, 'sk1' => 0, 'sk2' => 0, 'sk3' => 0, 'sk4' => 0,
@@ -98,68 +98,54 @@ $SITE_TITLE = 'MANV-Übersicht';
                             $statusText  = 'Archiviert';
                         }
                     ?>
-                        <div class="col-md-6 col-lg-4 mb-4">
-                            <div class="card manv-card h-100" onclick="window.location.href='<?= BASE_PATH ?>manv/board.php?id=<?= (int) $lage['id'] ?>'">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5 class="mb-0">
-                                        <i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($lage['einsatznummer']) ?>
-                                    </h5>
-                                    <span class="badge <?= $statusClass ?> status-badge"><?= $statusText ?></span>
-                                </div>
-                                <div class="card-body">
-                                    <h6 class="card-subtitle mb-3 text-muted">
-                                        <?= htmlspecialchars($lage['einsatzort']) ?>
-                                    </h6>
+                        <div class="card manv-card h-full" onclick="window.location.href='<?= BASE_PATH ?>manv/board.php?id=<?= (int) $lage['id'] ?>'">
+                            <div class="card-header flex items-center justify-between">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($lage['einsatznummer']) ?>
+                                </h5>
+                                <span class="badge <?= $statusClass ?> status-badge"><?= $statusText ?></span>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-4 text-gray-400">
+                                    <?= htmlspecialchars($lage['einsatzort']) ?>
+                                </h6>
 
-                                    <?php if (!empty($lage['einsatzanlass'])): ?>
-                                        <p class="card-text mb-3">
-                                            <small><?= htmlspecialchars(substr($lage['einsatzanlass'], 0, 100)) ?><?= strlen($lage['einsatzanlass']) > 100 ? '...' : '' ?></small>
-                                        </p>
-                                    <?php endif; ?>
+                                <?php if (!empty($lage['einsatzanlass'])): ?>
+                                    <p class="card-text mb-4">
+                                        <small><?= htmlspecialchars(substr($lage['einsatzanlass'], 0, 100)) ?><?= strlen($lage['einsatzanlass']) > 100 ? '...' : '' ?></small>
+                                    </p>
+                                <?php endif; ?>
 
-                                    <div class="row mb-3">
-                                        <div class="col-6">
-                                            <div class="stat-box">
-                                                <div class="text-muted small">LNA</div>
-                                                <div><strong><?= htmlspecialchars($lage['lna_name'] ?? 'Nicht zugewiesen') ?></strong></div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6">
-                                            <div class="stat-box">
-                                                <div class="text-muted small">OrgL</div>
-                                                <div><strong><?= htmlspecialchars($lage['orgl_name'] ?? 'Nicht zugewiesen') ?></strong></div>
-                                            </div>
-                                        </div>
-                                    </div>
-
+                                <div class="mb-4 grid grid-cols-2 gap-3">
                                     <div class="stat-box">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="text-muted">Patienten gesamt:</span>
-                                            <span class="badge bg-primary"><?= (int) $stats['total_patienten'] ?></span>
-                                        </div>
-                                        <div class="row text-center">
-                                            <div class="col">
-                                                <div class="badge bg-danger w-100">SK1: <?= (int) $stats['sk1'] ?></div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="badge bg-warning w-100">SK2: <?= (int) $stats['sk2'] ?></div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="badge bg-success w-100">SK3: <?= (int) $stats['sk3'] ?></div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="badge bg-info w-100">SK4: <?= (int) $stats['sk4'] ?></div>
-                                            </div>
-                                        </div>
-                                        <div class="mt-2 small text-muted">
-                                            Transportiert: <?= (int) $stats['transportiert'] ?> | Wartend: <?= (int) $stats['wartend'] ?>
-                                        </div>
+                                        <div class="text-xs text-gray-400">LNA</div>
+                                        <div><strong><?= htmlspecialchars($lage['lna_name'] ?? 'Nicht zugewiesen') ?></strong></div>
                                     </div>
+                                    <div class="stat-box">
+                                        <div class="text-xs text-gray-400">OrgL</div>
+                                        <div><strong><?= htmlspecialchars($lage['orgl_name'] ?? 'Nicht zugewiesen') ?></strong></div>
+                                    </div>
+                                </div>
 
-                                    <div class="mt-3 small text-muted">
-                                        <i class="fas fa-clock me-1"></i>
-                                        Beginn: <?= !empty($lage['einsatzbeginn']) ? date('d.m.Y H:i', strtotime($lage['einsatzbeginn'])) : 'Nicht angegeben' ?>
+                                <div class="stat-box">
+                                    <div class="mb-2 flex items-center justify-between">
+                                        <span class="text-gray-400">Patienten gesamt:</span>
+                                        <span class="badge bg-primary"><?= (int) $stats['total_patienten'] ?></span>
                                     </div>
+                                    <div class="grid grid-cols-4 gap-1 text-center">
+                                        <div class="badge bg-danger w-full">SK1: <?= (int) $stats['sk1'] ?></div>
+                                        <div class="badge bg-warning w-full">SK2: <?= (int) $stats['sk2'] ?></div>
+                                        <div class="badge bg-success w-full">SK3: <?= (int) $stats['sk3'] ?></div>
+                                        <div class="badge bg-info w-full">SK4: <?= (int) $stats['sk4'] ?></div>
+                                    </div>
+                                    <div class="mt-2 text-xs text-gray-400">
+                                        Transportiert: <?= (int) $stats['transportiert'] ?> | Wartend: <?= (int) $stats['wartend'] ?>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 text-xs text-gray-400">
+                                    <i class="fas fa-clock me-1"></i>
+                                    Beginn: <?= !empty($lage['einsatzbeginn']) ? date('d.m.Y H:i', strtotime($lage['einsatzbeginn'])) : 'Nicht angegeben' ?>
                                 </div>
                             </div>
                         </div>
@@ -167,20 +153,18 @@ $SITE_TITLE = 'MANV-Übersicht';
                 </div>
             <?php endif; ?>
 
-            <div class="row mt-4 mb-5">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="mb-0">Archivierte Lagen</h5>
-                        </div>
-                        <div class="card-body">
-                            <a href="<?= BASE_PATH ?>manv/index.php?status=abgeschlossen" class="btn btn-outline-secondary">
-                                <i class="fas fa-archive me-2"></i>Abgeschlossene Lagen anzeigen
-                            </a>
-                            <a href="<?= BASE_PATH ?>manv/index.php?status=archiviert" class="btn btn-outline-secondary ms-2">
-                                <i class="fas fa-archive me-2"></i>Archivierte Lagen anzeigen
-                            </a>
-                        </div>
+            <div class="mt-4 mb-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Archivierte Lagen</h5>
+                    </div>
+                    <div class="card-body flex flex-wrap gap-2">
+                        <a href="<?= BASE_PATH ?>manv/index.php?status=abgeschlossen" class="btn btn-outline-secondary no-underline hover:no-underline">
+                            <i class="fas fa-archive me-2"></i>Abgeschlossene Lagen anzeigen
+                        </a>
+                        <a href="<?= BASE_PATH ?>manv/index.php?status=archiviert" class="btn btn-outline-secondary no-underline hover:no-underline">
+                            <i class="fas fa-archive me-2"></i>Archivierte Lagen anzeigen
+                        </a>
                     </div>
                 </div>
             </div>

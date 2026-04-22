@@ -23,13 +23,11 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
 
 <body data-bs-theme="dark" id="manv-edit" data-page="edivi">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row mb-5">
-                <div class="col-12">
-                    <h1>MANV-Lage bearbeiten</h1>
-                    <p class="text-muted"><?= htmlspecialchars($lage['einsatznummer']) ?></p>
-                </div>
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
+                <h1>MANV-Lage bearbeiten</h1>
+                <p class="text-gray-400"><?= htmlspecialchars($lage['einsatznummer']) ?></p>
             </div>
 
             <?php Flash::render(); ?>
@@ -54,30 +52,30 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                         <h5 class="mb-0">Grunddaten</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
                                 <label for="einsatznummer" class="form-label">Einsatznummer *</label>
                                 <input type="text" class="form-control" id="einsatznummer" name="einsatznummer" value="<?= htmlspecialchars($lage['einsatznummer']) ?>" required>
-                                <small class="text-muted">z.B. 2025-12345</small>
+                                <small class="mt-1 block text-xs text-gray-400">z.B. 2025-12345</small>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div>
                                 <label for="einsatzbeginn" class="form-label">Einsatzbeginn</label>
                                 <input type="datetime-local" class="form-control" id="einsatzbeginn" name="einsatzbeginn" value="<?= !empty($lage['einsatzbeginn']) ? date('Y-m-d\TH:i', strtotime($lage['einsatzbeginn'])) : '' ?>">
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mt-4">
                             <label for="einsatzort" class="form-label">Einsatzort *</label>
                             <input type="text" class="form-control" id="einsatzort" name="einsatzort" value="<?= htmlspecialchars($lage['einsatzort']) ?>" required>
-                            <small class="text-muted">z.B. Hauptstraße 123, Musterstadt</small>
+                            <small class="mt-1 block text-xs text-gray-400">z.B. Hauptstraße 123, Musterstadt</small>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mt-4">
                             <label for="einsatzanlass" class="form-label">Einsatzanlass / Szenario</label>
                             <textarea class="form-control" id="einsatzanlass" name="einsatzanlass" rows="3"><?= htmlspecialchars($lage['einsatzanlass'] ?? '') ?></textarea>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mt-4">
                             <label for="status" class="form-label">Status</label>
                             <select class="form-control" id="status" name="status">
                                 <option value="aktiv" <?= $lage['status'] === 'aktiv' ? 'selected' : '' ?>>Aktiv</option>
@@ -93,8 +91,8 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                         <h5 class="mb-0">Einsatzleitung</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
                                 <label for="lna_mitarbeiter_id" class="form-label">Leitender Notarzt (LNA)</label>
                                 <select class="form-control" id="lna_mitarbeiter_id" name="lna_mitarbeiter_id">
                                     <option value="">Bitte wählen...</option>
@@ -108,7 +106,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                                 </select>
                                 <input type="hidden" id="lna_name" name="lna_name" value="<?= htmlspecialchars($lage['lna_name'] ?? '') ?>">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div>
                                 <label for="orgl_mitarbeiter_id" class="form-label">Organisatorischer Leiter (OrgL)</label>
                                 <select class="form-control" id="orgl_mitarbeiter_id" name="orgl_mitarbeiter_id">
                                     <option value="">Bitte wählen...</option>
@@ -131,15 +129,15 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                         <h5 class="mb-0">Notizen</h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
+                        <div>
                             <label for="notizen" class="form-label">Allgemeine Notizen</label>
                             <textarea class="form-control" id="notizen" name="notizen" rows="4"><?= htmlspecialchars($lage['notizen'] ?? '') ?></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between mb-4">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost">
+                <div class="mb-4 flex items-center justify-between">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
                     </a>
                     <button type="submit" class="btn btn-soft-primary btn-lg">

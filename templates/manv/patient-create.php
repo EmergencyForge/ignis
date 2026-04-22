@@ -23,13 +23,11 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
 
 <body data-bs-theme="dark" id="patient-create" data-page="edivi">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row mb-5">
-                <div class="col-12">
-                    <h1>Neuer Patient</h1>
-                    <p class="text-muted">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?> - <?= htmlspecialchars($lage['einsatzort']) ?></p>
-                </div>
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
+                <h1>Neuer Patient</h1>
+                <p class="text-gray-400">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?> - <?= htmlspecialchars($lage['einsatzort']) ?></p>
             </div>
 
             <?php Flash::render(); ?>
@@ -46,22 +44,20 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                         <h5 class="mb-0">Personalien</h5>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
                                 <label for="name" class="form-label">Name</label>
                                 <input type="text" class="form-control" id="name" name="name">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div>
                                 <label for="vorname" class="form-label">Vorname</label>
                                 <input type="text" class="form-control" id="vorname" name="vorname">
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div>
                                 <label for="geburtsdatum" class="form-label">Geburtsdatum</label>
                                 <input type="date" class="form-control" id="geburtsdatum" name="geburtsdatum">
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div>
                                 <label for="geschlecht" class="form-label">Geschlecht</label>
                                 <select class="form-control" id="geschlecht" name="geschlecht">
                                     <option value="unbekannt">Unbekannt</option>
@@ -79,7 +75,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                         <h5 class="mb-0">Sichtungskategorie</h5>
                     </div>
                     <div class="card-body">
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="sichtungskategorie" class="form-label">Kategorie *</label>
                             <select class="form-control form-control-lg" id="sichtungskategorie" name="sichtungskategorie" required>
                                 <option value="">Bitte wählen...</option>
@@ -108,8 +104,8 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     <div class="card-header">
                         <h5 class="mb-0">Transport</h5>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
+                    <div class="card-body space-y-4">
+                        <div>
                             <label for="transportmittel_id" class="form-label">Zugewiesenes Fahrzeug</label>
                             <select class="form-control" id="transportmittel_id" name="transportmittel_id">
                                 <option value="">Noch nicht zugewiesen</option>
@@ -123,19 +119,21 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="mb-3">
-                            <label for="display_fahrzeugtyp" class="form-label">Art</label>
-                            <input type="text" class="form-control" id="display_fahrzeugtyp" readonly>
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+                            <div>
+                                <label for="display_fahrzeugtyp" class="form-label">Art</label>
+                                <input type="text" class="form-control" id="display_fahrzeugtyp" readonly>
+                            </div>
+                            <div>
+                                <label for="display_rufname" class="form-label">Rufname / Kennung</label>
+                                <input type="text" class="form-control" id="display_rufname" readonly>
+                            </div>
+                            <div>
+                                <label for="display_lokalisation" class="form-label">Fahrzeug-Lokalisation</label>
+                                <input type="text" class="form-control" id="display_lokalisation" readonly>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="display_rufname" class="form-label">Rufname / Kennung</label>
-                            <input type="text" class="form-control" id="display_rufname" readonly>
-                        </div>
-                        <div class="mb-3">
-                            <label for="display_lokalisation" class="form-label">Fahrzeug-Lokalisation</label>
-                            <input type="text" class="form-control" id="display_lokalisation" readonly>
-                        </div>
-                        <div class="mb-3">
+                        <div>
                             <label for="transportziel" class="form-label">Transportziel</label>
                             <select class="form-control" id="transportziel" name="transportziel">
                                 <option value="">Bitte wählen...</option>
@@ -154,20 +152,20 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     <div class="card-header">
                         <h5 class="mb-0">Medizinische Informationen</h5>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
+                    <div class="card-body space-y-4">
+                        <div>
                             <label for="verletzungen" class="form-label">Verletzungen / Diagnose</label>
                             <textarea class="form-control" id="verletzungen" name="verletzungen" rows="3" placeholder="Beschreibung der Verletzungen..."></textarea>
                         </div>
-                        <div class="mb-3">
+                        <div>
                             <label for="notizen" class="form-label">Notizen</label>
                             <textarea class="form-control" id="notizen" name="notizen" rows="2" placeholder="Zusätzliche Notizen..."></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between mb-4">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost">
+                <div class="mb-4 flex items-center justify-between">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
                     </a>
                     <button type="submit" class="btn btn-soft-primary btn-lg">

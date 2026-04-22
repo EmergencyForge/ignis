@@ -16,7 +16,13 @@ import $ from 'jquery';
 window.$      = $;
 window.jQuery = $;
 
-import 'bootstrap';
+// Bootstrap als Namespace auf window.bootstrap legen, damit Legacy-Inline-
+// Scripts `bootstrap.Modal.getOrCreateInstance(...)`, `bootstrap.Tooltip`
+// etc. weiterhin funktionieren. Ohne diesen Export wäre Bootstrap zwar
+// gebundled, aber nur intern für jQuery-Plugins erreichbar.
+import * as bootstrap from 'bootstrap';
+window.bootstrap = bootstrap;
+
 import 'datatables.net-bs5';
 
 // CSS-Imports — Vite extrahiert automatisch nach vendor.css

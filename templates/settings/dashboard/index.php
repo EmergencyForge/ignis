@@ -18,79 +18,68 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Dashboard-Konfiguration</h1>
-                        <div class="btn-group">
-                            <a href="<?= BASE_PATH ?>dashboard.php" class="btn btn-outline-light me-2" target="_blank"><i class="fa-solid fa-external-link-alt"></i> Dashboard aufrufen</a>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
-                                <i class="fa-solid fa-plus"></i> Kategorie erstellen
-                            </button>
-                        </div>
-                    </div>
-                    <?php Flash::render(); ?>
-                    <div class="intra__tile py-2 px-3">
-                        <?php if (empty($categories)): ?>
-                            <div class="alert alert-warning" role="alert">Es wurde noch kein Dashboard konfiguriert.</div>
-                        <?php else: ?>
-                            <?php foreach ($categories as $row):
-                                $tiles = $tilesByCategory[(int)$row['id']] ?? [];
-                            ?>
-                                <div class="mb-5">
-                                    <div class="row">
-                                        <div class="col d-flex justify-content-between align-items-center mb-3">
-                                            <h2><?= htmlspecialchars($row['title']) ?></h2>
-                                            <div class="btn-group" role="group">
-                                                <button type="button"
-                                                    class="btn btn-sm btn-soft-primary btn-icon me-2 edit-category-btn"
-                                                    data-id="<?= (int)$row['id'] ?>"
-                                                    data-title="<?= htmlspecialchars($row['title']) ?>"
-                                                    data-priority="<?= (int)$row['priority'] ?>"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#editCategoryModal">
-                                                    <i class="fa-solid fa-pen"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-sm btn-success create-tile-btn"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#createTileModal"
-                                                    data-category="<?= (int)$row['id'] ?>">
-                                                    <i class="fa-solid fa-plus"></i> Neue Verlinkung
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col">
-                                            <ol>
-                                                <?php foreach ($tiles as $tile): ?>
-                                                    <li class="d-flex justify-content-between align-items-center mb-4">
-                                                        <h4><i class="<?= htmlspecialchars($tile['icon']) ?>"></i> <?= htmlspecialchars($tile['title']) ?></h4>
-                                                        <button type="button"
-                                                            class="btn btn-sm btn-soft-primary edit-tile-btn"
-                                                            style="white-space:nowrap;"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#editTileModal"
-                                                            data-id="<?= (int)$tile['id'] ?>"
-                                                            data-category="<?= (int)$tile['category'] ?>"
-                                                            data-title="<?= htmlspecialchars($tile['title']) ?>"
-                                                            data-url="<?= htmlspecialchars($tile['url']) ?>"
-                                                            data-icon="<?= htmlspecialchars($tile['icon']) ?>"
-                                                            data-priority="<?= (int)$tile['priority'] ?>">
-                                                            <i class="fa-solid fa-pen"></i> Verlinkung bearbeiten
-                                                        </button>
-                                                    </li>
-                                                <?php endforeach; ?>
-                                            </ol>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6 flex items-center justify-between">
+                <h1 class="mb-0">Dashboard-Konfiguration</h1>
+                <div class="flex gap-2">
+                    <a href="<?= BASE_PATH ?>dashboard.php" class="btn btn-outline-light no-underline hover:no-underline" target="_blank"><i class="fa-solid fa-external-link-alt"></i> Dashboard aufrufen</a>
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                        <i class="fa-solid fa-plus"></i> Kategorie erstellen
+                    </button>
                 </div>
+            </div>
+            <?php Flash::render(); ?>
+            <div class="intra__tile px-3 py-2">
+                <?php if (empty($categories)): ?>
+                    <div class="alert alert-warning" role="alert">Es wurde noch kein Dashboard konfiguriert.</div>
+                <?php else: ?>
+                    <?php foreach ($categories as $row):
+                        $tiles = $tilesByCategory[(int)$row['id']] ?? [];
+                    ?>
+                        <div class="mb-6">
+                            <div class="mb-4 flex items-center justify-between">
+                                <h2><?= htmlspecialchars($row['title']) ?></h2>
+                                <div class="flex gap-2">
+                                    <button type="button"
+                                        class="edit-category-btn btn btn-sm btn-soft-primary btn-icon"
+                                        data-id="<?= (int)$row['id'] ?>"
+                                        data-title="<?= htmlspecialchars($row['title']) ?>"
+                                        data-priority="<?= (int)$row['priority'] ?>"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#editCategoryModal">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button type="button" class="create-tile-btn btn btn-sm btn-success"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#createTileModal"
+                                        data-category="<?= (int)$row['id'] ?>">
+                                        <i class="fa-solid fa-plus"></i> Neue Verlinkung
+                                    </button>
+                                </div>
+                            </div>
+                            <ol>
+                                <?php foreach ($tiles as $tile): ?>
+                                    <li class="mb-4 flex items-center justify-between">
+                                        <h4><i class="<?= htmlspecialchars($tile['icon']) ?>"></i> <?= htmlspecialchars($tile['title']) ?></h4>
+                                        <button type="button"
+                                            class="edit-tile-btn btn btn-sm btn-soft-primary whitespace-nowrap"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editTileModal"
+                                            data-id="<?= (int)$tile['id'] ?>"
+                                            data-category="<?= (int)$tile['category'] ?>"
+                                            data-title="<?= htmlspecialchars($tile['title']) ?>"
+                                            data-url="<?= htmlspecialchars($tile['url']) ?>"
+                                            data-icon="<?= htmlspecialchars($tile['icon']) ?>"
+                                            data-priority="<?= (int)$tile['priority'] ?>">
+                                            <i class="fa-solid fa-pen"></i> Verlinkung bearbeiten
+                                        </button>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ol>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -129,7 +118,7 @@ use App\Helpers\Flash;
                             <input type="number" class="form-control" name="priority" id="tile-priority" required>
                         </div>
                     </div>
-                    <div class="modal-footer d-flex justify-content-between">
+                    <div class="modal-footer flex justify-between">
                         <button type="button" class="btn btn-ghost-danger" id="delete-tile-btn">Löschen</button>
                         <div>
                             <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
@@ -206,7 +195,7 @@ use App\Helpers\Flash;
                             <input type="number" class="form-control" name="priority" id="category-priority" required>
                         </div>
                     </div>
-                    <div class="modal-footer d-flex justify-content-between">
+                    <div class="modal-footer flex justify-between">
                         <button type="button" class="btn btn-ghost-danger" id="delete-category-btn">Löschen</button>
                         <div>
                             <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>

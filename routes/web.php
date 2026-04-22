@@ -478,6 +478,8 @@ $router->get('/settings/antrag/list',       [\App\Http\Controllers\Settings\Antr
 $router->get('/settings/antrag/list.php',   [\App\Http\Controllers\Settings\AntragSettingsController::class, 'listAction'],  $settingsAuth);
 $router->get('/settings/antrag/create',     [\App\Http\Controllers\Settings\AntragSettingsController::class, 'createForm'], $settingsAuth);
 $router->get('/settings/antrag/create.php', [\App\Http\Controllers\Settings\AntragSettingsController::class, 'createForm'], $settingsAuth);
+$router->get('/settings/antrag/edit',       [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
+$router->get('/settings/antrag/edit.php',   [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
 $router->post('/settings/antrag/edit',      [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
 $router->post('/settings/antrag/edit.php',  [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
 
