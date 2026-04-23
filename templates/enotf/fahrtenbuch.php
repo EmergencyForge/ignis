@@ -41,18 +41,17 @@ $currentDate = date('d.m.Y');
     include __DIR__ . '/../../assets/components/enotf/topbar.php';
     ?>
     <div class="container-fluid" id="edivi__container">
-        <div class="row h-100">
-            <div class="col" id="edivi__content">
+        <div class="h-full">
+            <div id="edivi__content">
                 <div class="hr my-2" style="color:transparent"></div>
 
-                <div class="row">
-                    <div class="col-12">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h4 class="text-light mb-0"><i class="fa-solid fa-book me-2"></i>Fahrtenbuch</h4>
-                            <button type="button" class="edivi__nidabutton" id="toggleCreateForm">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
+                <div>
+                    <div class="mb-3 flex items-center justify-between">
+                        <h4 class="text-light mb-0"><i class="fa-solid fa-book me-2"></i>Fahrtenbuch</h4>
+                        <button type="button" class="edivi__nidabutton" id="toggleCreateForm">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
 
                         <!-- Create Form -->
                         <div id="createFormWrap" style="display:none;" class="vehicle-info-card p-4 mb-4">
@@ -67,7 +66,7 @@ $currentDate = date('d.m.Y');
                                 include __DIR__ . '/../../assets/components/fahrtenbuch/_form-fields.php';
                                 ?>
 
-                                <div class="d-flex gap-2 mt-3">
+                                <div class="mt-3 flex gap-2">
                                     <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Speichern</button>
                                     <button type="button" class="btn btn-sm btn-outline-light" id="cancelCreateForm">Abbrechen</button>
                                 </div>
@@ -90,7 +89,7 @@ $currentDate = date('d.m.Y');
                                 include __DIR__ . '/../../assets/components/fahrtenbuch/_form-fields.php';
                                 ?>
 
-                                <div class="d-flex gap-2 mt-3">
+                                <div class="mt-3 flex gap-2">
                                     <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Aktualisieren</button>
                                     <button type="button" class="btn btn-sm btn-outline-light" id="cancelEditForm">Abbrechen</button>
                                 </div>
@@ -98,15 +97,14 @@ $currentDate = date('d.m.Y');
                         </div>
 
                         <!-- Entries List -->
-                        <div class="vehicle-info-card p-4">
-                            <?php
-                            $context = 'enotf';
-                            $canEdit = true;
-                            $canDelete = false;
-                            $actionsUrl = BASE_PATH . 'fahrtenbuch/actions.php';
-                            include __DIR__ . '/../../assets/components/fahrtenbuch/_list-table.php';
-                            ?>
-                        </div>
+                    <div class="vehicle-info-card p-4">
+                        <?php
+                        $context = 'enotf';
+                        $canEdit = true;
+                        $canDelete = false;
+                        $actionsUrl = BASE_PATH . 'fahrtenbuch/actions.php';
+                        include __DIR__ . '/../../assets/components/fahrtenbuch/_list-table.php';
+                        ?>
                     </div>
                 </div>
             </div>

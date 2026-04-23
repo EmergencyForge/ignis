@@ -542,8 +542,10 @@ $router->get('/settings/fahrzeuge/defekte/index',     [\App\Http\Controllers\Set
 $router->get('/settings/fahrzeuge/defekte/index.php', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);
 
 // Federation-Settings
-$router->get('/settings/federation/index',     [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);
-$router->get('/settings/federation/index.php', [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);
+$router->get('/settings/federation/index',      [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);
+$router->get('/settings/federation/index.php',  [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);
+$router->post('/settings/federation/index',     [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);
+$router->post('/settings/federation/index.php', [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);
 
 // Medikamente-Settings
 $router->get('/settings/medikamente/index',     [\App\Http\Controllers\Settings\MedikamenteController::class, 'index'],   $settingsAuth);
@@ -615,14 +617,20 @@ $router->post('/settings/pois/departments-reset-availability',     [\App\Http\Co
 $router->post('/settings/pois/departments-reset-availability.php', [\App\Http\Controllers\Settings\PoiController::class, 'departmentResetAvailability'], $settingsAuth);
 
 // System-Settings
-$router->get('/settings/system/index',       [\App\Http\Controllers\Settings\SystemController::class, 'index'],       $settingsAuth);
-$router->get('/settings/system/index.php',   [\App\Http\Controllers\Settings\SystemController::class, 'index'],       $settingsAuth);
-$router->get('/settings/system/config',      [\App\Http\Controllers\Settings\SystemController::class, 'config'],      $settingsAuth);
-$router->get('/settings/system/config.php',  [\App\Http\Controllers\Settings\SystemController::class, 'config'],      $settingsAuth);
+$router->get('/settings/system/index',        [\App\Http\Controllers\Settings\SystemController::class, 'index'],       $settingsAuth);
+$router->get('/settings/system/index.php',    [\App\Http\Controllers\Settings\SystemController::class, 'index'],       $settingsAuth);
+$router->post('/settings/system/index',       [\App\Http\Controllers\Settings\SystemController::class, 'index'],       $settingsAuth);
+$router->post('/settings/system/index.php',   [\App\Http\Controllers\Settings\SystemController::class, 'index'],       $settingsAuth);
+$router->get('/settings/system/config',       [\App\Http\Controllers\Settings\SystemController::class, 'config'],      $settingsAuth);
+$router->get('/settings/system/config.php',   [\App\Http\Controllers\Settings\SystemController::class, 'config'],      $settingsAuth);
+$router->post('/settings/system/config',      [\App\Http\Controllers\Settings\SystemController::class, 'config'],      $settingsAuth);
+$router->post('/settings/system/config.php',  [\App\Http\Controllers\Settings\SystemController::class, 'config'],      $settingsAuth);
 $router->get('/settings/system/performance', [\App\Http\Controllers\Settings\SystemController::class, 'performance'], $settingsAuth);
 $router->get('/settings/system/performance.php', [\App\Http\Controllers\Settings\SystemController::class, 'performance'], $settingsAuth);
-$router->get('/settings/system/telemetry',     [\App\Http\Controllers\Settings\SystemController::class, 'telemetry'],   $settingsAuth);
-$router->get('/settings/system/telemetry.php', [\App\Http\Controllers\Settings\SystemController::class, 'telemetry'],   $settingsAuth);
+$router->get('/settings/system/telemetry',      [\App\Http\Controllers\Settings\SystemController::class, 'telemetry'],   $settingsAuth);
+$router->get('/settings/system/telemetry.php',  [\App\Http\Controllers\Settings\SystemController::class, 'telemetry'],   $settingsAuth);
+$router->post('/settings/system/telemetry',     [\App\Http\Controllers\Settings\SystemController::class, 'telemetry'],   $settingsAuth);
+$router->post('/settings/system/telemetry.php', [\App\Http\Controllers\Settings\SystemController::class, 'telemetry'],   $settingsAuth);
 $router->get('/settings/system/logs',     [\App\Http\Controllers\Settings\LogsController::class, 'index'], $settingsAuth);
 $router->get('/settings/system/logs.php', [\App\Http\Controllers\Settings\LogsController::class, 'index'], $settingsAuth);
 

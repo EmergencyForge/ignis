@@ -37,87 +37,83 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
 
 <body data-bs-theme="dark" id="manv-board" data-page="edivi">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row mb-5">
-                <div class="col-md-8">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div>
                     <h1><?= htmlspecialchars($lage['einsatznummer']) ?></h1>
-                    <p class="text-muted mb-0">
+                    <p class="mb-0 text-gray-400">
                         <i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($lage['einsatzort']) ?>
                     </p>
-                    <small class="text-muted">
+                    <small class="text-gray-400">
                         Beginn: <?= !empty($lage['einsatzbeginn']) ? date('d.m.Y H:i', strtotime($lage['einsatzbeginn'])) : 'Nicht angegeben' ?>
                     </small>
                 </div>
-                <div class="col-md-4 text-end">
-                    <a href="<?= BASE_PATH ?>manv/edit.php?id=<?= $lageId ?>" class="btn btn-soft-primary">
+                <div class="md:text-right">
+                    <a href="<?= BASE_PATH ?>manv/edit.php?id=<?= $lageId ?>" class="btn btn-soft-primary no-underline hover:no-underline">
                         <i class="fas fa-edit me-2"></i>Bearbeiten
                     </a>
                 </div>
             </div>
 
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <strong>LNA:</strong> <?= htmlspecialchars($lage['lna_name'] ?? 'Nicht zugewiesen') ?>
-                        </div>
+            <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                <div class="card">
+                    <div class="card-body">
+                        <strong>LNA:</strong> <?= htmlspecialchars($lage['lna_name'] ?? 'Nicht zugewiesen') ?>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <strong>OrgL:</strong> <?= htmlspecialchars($lage['orgl_name'] ?? 'Nicht zugewiesen') ?>
-                        </div>
+                <div class="card">
+                    <div class="card-body">
+                        <strong>OrgL:</strong> <?= htmlspecialchars($lage['orgl_name'] ?? 'Nicht zugewiesen') ?>
                     </div>
                 </div>
             </div>
 
             <div class="stats-bar">
-                <div class="row text-center">
-                    <div class="col-md-2">
+                <div class="grid grid-cols-4 gap-2 text-center md:grid-cols-8">
+                    <div>
                         <h3 class="mb-0"><?= (int) $stats['total_patienten'] ?></h3>
-                        <small class="text-muted">Gesamt</small>
+                        <small class="text-gray-400">Gesamt</small>
                     </div>
-                    <div class="col-md-2">
+                    <div>
                         <h3 class="mb-0 text-danger"><?= (int) $stats['sk1'] ?></h3>
-                        <small class="text-muted">SK1</small>
+                        <small class="text-gray-400">SK1</small>
                     </div>
-                    <div class="col-md-2">
+                    <div>
                         <h3 class="mb-0 text-warning"><?= (int) $stats['sk2'] ?></h3>
-                        <small class="text-muted">SK2</small>
+                        <small class="text-gray-400">SK2</small>
                     </div>
-                    <div class="col-md-1">
+                    <div>
                         <h3 class="mb-0 text-success"><?= (int) $stats['sk3'] ?></h3>
-                        <small class="text-muted">SK3</small>
+                        <small class="text-gray-400">SK3</small>
                     </div>
-                    <div class="col-md-1">
+                    <div>
                         <h3 class="mb-0 text-info"><?= (int) $stats['sk4'] ?></h3>
-                        <small class="text-muted">SK4</small>
+                        <small class="text-gray-400">SK4</small>
                     </div>
-                    <div class="col-md-1">
+                    <div>
                         <h3 class="mb-0" style="color: #fff;"><?= (int) ($stats['sk5'] ?? 0) ?></h3>
-                        <small class="text-muted">SK5</small>
+                        <small class="text-gray-400">SK5</small>
                     </div>
-                    <div class="col-md-1">
+                    <div>
                         <h3 class="mb-0" style="color: #9b59b6;"><?= (int) ($stats['sk6'] ?? 0) ?></h3>
-                        <small class="text-muted">SK6</small>
+                        <small class="text-gray-400">SK6</small>
                     </div>
-                    <div class="col-md-2">
+                    <div>
                         <h3 class="mb-0"><?= (int) $stats['transportiert'] ?></h3>
-                        <small class="text-muted">Transportiert</small>
+                        <small class="text-gray-400">Transportiert</small>
                     </div>
                 </div>
             </div>
 
             <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header flex flex-wrap items-center justify-between gap-2">
                     <h5 class="mb-0"><i class="fas fa-users me-2"></i>Patienten</h5>
-                    <div>
-                        <a href="ressourcen.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-outline-secondary me-2">
+                    <div class="flex flex-wrap gap-2">
+                        <a href="ressourcen.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-truck me-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
                         </a>
-                        <a href="<?= BASE_PATH ?>manv/patient-create.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-soft-primary">
+                        <a href="<?= BASE_PATH ?>manv/patient-create.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-soft-primary no-underline hover:no-underline">
                             <i class="fas fa-user-plus me-2"></i>Neuer Patient
                         </a>
                     </div>
@@ -160,14 +156,14 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                             <?php if (!empty($patient['verletzungen'])): ?>
                                                 <?= htmlspecialchars(mb_substr($patient['verletzungen'], 0, 50)) ?><?= mb_strlen($patient['verletzungen']) > 50 ? '...' : '' ?>
                                             <?php else: ?>
-                                                <span class="text-muted">-</span>
+                                                <span class="text-gray-400">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php if (!empty($patient['transportmittel_rufname'])): ?>
                                                 <i class="fas fa-ambulance me-1"></i><?= htmlspecialchars($patient['fahrzeug_rufname'] ?? $patient['transportmittel_rufname']) ?>
                                             <?php else: ?>
-                                                <span class="text-muted">Nicht zugewiesen</span>
+                                                <span class="text-gray-400">Nicht zugewiesen</span>
                                             <?php endif; ?>
                                         </td>
                                         <td><?= !empty($patient['transportziel']) ? htmlspecialchars($patient['transportziel']) : '-' ?></td>
@@ -200,17 +196,15 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                 </div>
             </div>
 
-            <div class="row mt-4 mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <a href="index.php" class="btn btn-ghost">
-                                <i class="fas fa-arrow-left me-2"></i>Zurück zur Übersicht
-                            </a>
-                            <a href="log.php?id=<?= $lageId ?>" class="btn btn-outline-secondary ms-2">
-                                <i class="fas fa-history me-2"></i>Aktionslog
-                            </a>
-                        </div>
+            <div class="mb-4 mt-4">
+                <div class="card">
+                    <div class="card-body flex flex-wrap gap-2">
+                        <a href="index.php" class="btn btn-ghost no-underline hover:no-underline">
+                            <i class="fas fa-arrow-left me-2"></i>Zurück zur Übersicht
+                        </a>
+                        <a href="log.php?id=<?= $lageId ?>" class="btn btn-outline-secondary no-underline hover:no-underline">
+                            <i class="fas fa-history me-2"></i>Aktionslog
+                        </a>
                     </div>
                 </div>
             </div>

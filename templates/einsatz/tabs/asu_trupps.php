@@ -1,9 +1,76 @@
+<style>
+    /* ASU-Komponenten im Brand-Style (Zifferblatt, Zeiger, Progressbar).
+       `.asu-progress` ist `position:relative`, damit der %-Text als absoluter
+       Overlay unabhängig vom Füllstand zentriert bleibt. */
+    .asu-clock {
+        width: 190px;
+        height: 190px;
+        margin-inline: auto;
+        position: relative;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.35));
+    }
+
+    .asu-clock svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    .asu-clock-center {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: none;
+        gap: 0.15rem;
+    }
+
+    .asu-clock-time {
+        font-size: 1.9rem;
+        font-weight: 700;
+        font-family: 'Inconsolata', 'JetBrains Mono', Consolas, monospace;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.04em;
+        color: var(--main-color);
+        line-height: 1;
+    }
+
+    .asu-clock-label {
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.45);
+        font-weight: 500;
+    }
+
+    /* Warning/Danger-States (triggert aus JS via classList) */
+    .asu-clock-time.text-warning { color: #ffc107; }
+    .asu-clock-time.text-danger  { color: #ef4444; }
+
+    /* Progressbar */
+    .asu-progress {
+        background-color: rgba(255, 255, 255, 0.08);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .asu-progress-bar {
+        background-color: var(--main-color);
+        transition: background-color 0.3s, width 0.3s;
+    }
+
+    .asu-progress-bar.asu-warning { background-color: #ffc107; }
+    .asu-progress-bar.asu-danger  { background-color: #ef4444; }
+</style>
+
 <!-- 3 Trupps nebeneinander -->
-<div class="row g-3">
+<div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
     <!-- Trupp 1 -->
-    <div class="col-lg-4">
+    <div>
         <div class="card bg-dark h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header flex items-center justify-between">
                 <h5 class="mb-0">1. Trupp</h5>
                 <div class="btn-group btn-group-sm">
                     <button type="button" class="btn btn-success" onclick="startTrupp(1)">
@@ -17,40 +84,42 @@
             <div class="card-body">
                 <!-- Eieruhr -->
                 <div class="text-center mb-3">
-                    <div class="asu-clock mx-auto" style="width: 180px; height: 180px; position: relative;">
-                        <svg width="180" height="180" viewBox="0 0 180 180">
-                            <!-- Ziffernblatt mit Markierungen -->
-                            <circle cx="90" cy="90" r="85" fill="#25242c" stroke="#3d3a44" stroke-width="2" />
+                    <div class="asu-clock">
+                        <svg viewBox="0 0 180 180">
+                            <!-- Ziffernblatt: dunkler inset-Look mit feinem inneren Highlight -->
+                            <circle cx="90" cy="90" r="85" fill="#17161c" stroke="rgba(255,255,255,0.04)" stroke-width="1" />
+                            <circle cx="90" cy="90" r="84" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="1" />
+                            <circle cx="90" cy="90" r="80" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="1" />
                             <!-- 12 Stundenmarkierungen -->
-                            <line x1="90" y1="10" x2="90" y2="20" stroke="#666" stroke-width="2" />
-                            <line x1="155.9" y1="34.1" x2="148.3" y2="41.7" stroke="#666" stroke-width="1.5" />
-                            <line x1="170" y1="90" x2="160" y2="90" stroke="#666" stroke-width="2" />
-                            <line x1="155.9" y1="145.9" x2="148.3" y2="138.3" stroke="#666" stroke-width="1.5" />
-                            <line x1="90" y1="170" x2="90" y2="160" stroke="#666" stroke-width="2" />
-                            <line x1="24.1" y1="145.9" x2="31.7" y2="138.3" stroke="#666" stroke-width="1.5" />
-                            <line x1="10" y1="90" x2="20" y2="90" stroke="#666" stroke-width="2" />
-                            <line x1="24.1" y1="34.1" x2="31.7" y2="41.7" stroke="#666" stroke-width="1.5" />
+                            <line x1="90" y1="10" x2="90" y2="20" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="155.9" y1="34.1" x2="148.3" y2="41.7" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+                            <line x1="170" y1="90" x2="160" y2="90" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="155.9" y1="145.9" x2="148.3" y2="138.3" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+                            <line x1="90" y1="170" x2="90" y2="160" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="24.1" y1="145.9" x2="31.7" y2="138.3" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+                            <line x1="10" y1="90" x2="20" y2="90" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="24.1" y1="34.1" x2="31.7" y2="41.7" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
                             <!-- Progress Circle -->
-                            <circle cx="90" cy="90" r="75" fill="none" stroke="#3d3a44" stroke-width="6" transform="rotate(-90 90 90)" />
-                            <circle cx="90" cy="90" r="75" fill="none" stroke="#d10000" stroke-width="6"
+                            <circle cx="90" cy="90" r="75" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6" stroke-linecap="round" transform="rotate(-90 90 90)" />
+                            <circle cx="90" cy="90" r="75" fill="none" stroke="var(--main-color)" stroke-width="6" stroke-linecap="round"
                                 stroke-dasharray="471.24" stroke-dashoffset="471.24"
                                 id="trupp1ProgressCircle" style="transition: stroke-dashoffset 0.3s;" transform="rotate(-90 90 90)" />
-                            <!-- Zeiger -->
-                            <line x1="90" y1="90" x2="90" y2="25" stroke="#d10000" stroke-width="3" stroke-linecap="round"
-                                id="trupp1Hand" style="transition: transform 0.3s; transform-origin: 90px 90px; opacity: 0.4;" />
-                            <!-- Mittelpunkt -->
-                            <circle cx="90" cy="90" r="5" fill="#d10000" style="opacity: 0.4;" />
+                            <!-- Zeiger: nur im Außenring zwischen Text und Progress-Arc.
+                                 Inner y=40 → Radius 50 vom Center, lässt die Zeit-Ziffern frei.
+                                 Outer y=18 → Radius 72, direkt vor dem Progress-Arc (r=75).
+                                 `stroke-linecap="round"` erzeugt abgerundete Kappen. -->
+                            <line x1="90" y1="40" x2="90" y2="18" stroke="var(--main-color)" stroke-width="5" stroke-linecap="round" filter="drop-shadow(0 0 4px rgba(var(--main-color-rgb), 0.7))"
+                                id="trupp1Hand" style="transition: transform 0.3s; transform-origin: 90px 90px;" />
                         </svg>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
-                            <div id="trupp1Time" style="font-size: 1.8rem; font-weight: bold; font-family: monospace; color: #d10000;">00:00</div>
-                            <small class="text-muted" style="font-size: 0.75rem;">Einsatzzeit</small>
+                        <div class="asu-clock-center">
+                            <div id="trupp1Time" class="asu-clock-time">00:00</div>
+                            <small class="asu-clock-label">Einsatzzeit</small>
                         </div>
                     </div>
                     <!-- Progressbar -->
-                    <div class="progress mt-2" style="height: 20px;">
-                        <div class="progress-bar bg-danger" id="trupp1ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <span id="trupp1Percent" style="font-weight: bold;">0%</span>
-                        </div>
+                    <div class="progress asu-progress relative mt-2" style="height: 20px;">
+                        <div class="progress-bar asu-progress-bar" id="trupp1ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        <span id="trupp1Percent" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white" style="pointer-events:none;mix-blend-mode:difference;">0%</span>
                     </div>
                 </div>
 
@@ -71,12 +140,12 @@
                 <hr>
 
                 <!-- Einsatzinfo -->
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
+                <div class="mb-2 grid grid-cols-2 gap-2">
+                    <div>
                         <label class="form-label small">Anfangsdruck (bar)</label>
                         <input type="number" class="form-control form-control-sm" id="trupp1StartPressure" placeholder="300" min="0" max="400">
                     </div>
-                    <div class="col-6">
+                    <div>
                         <label class="form-label small">Einsatzbeginn</label>
                         <input type="time" class="form-control form-control-sm" id="trupp1StartTime">
                     </div>
@@ -101,12 +170,12 @@
                     <label class="form-label small">Einsatzziel</label>
                     <input type="text" class="form-control form-control-sm" id="trupp1Objective" placeholder="z.B. 2. OG Zimmer 5">
                 </div>
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
+                <div class="mb-2 grid grid-cols-2 gap-2">
+                    <div>
                         <label class="form-label small">Rückzug</label>
                         <input type="time" class="form-control form-control-sm" id="trupp1Retreat">
                     </div>
-                    <div class="col-6">
+                    <div>
                         <label class="form-label small">Einsatzende</label>
                         <input type="time" class="form-control form-control-sm" id="trupp1End">
                     </div>
@@ -120,9 +189,9 @@
     </div>
 
     <!-- Trupp 2 -->
-    <div class="col-lg-4">
+    <div>
         <div class="card bg-dark h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header flex items-center justify-between">
                 <h5 class="mb-0">2. Trupp</h5>
                 <div class="btn-group btn-group-sm">
                     <button type="button" class="btn btn-success" onclick="startTrupp(2)">
@@ -136,40 +205,42 @@
             <div class="card-body">
                 <!-- Eieruhr -->
                 <div class="text-center mb-3">
-                    <div class="asu-clock mx-auto" style="width: 180px; height: 180px; position: relative;">
-                        <svg width="180" height="180" viewBox="0 0 180 180">
-                            <!-- Ziffernblatt mit Markierungen -->
-                            <circle cx="90" cy="90" r="85" fill="#25242c" stroke="#3d3a44" stroke-width="2" />
+                    <div class="asu-clock">
+                        <svg viewBox="0 0 180 180">
+                            <!-- Ziffernblatt: dunkler inset-Look mit feinem inneren Highlight -->
+                            <circle cx="90" cy="90" r="85" fill="#17161c" stroke="rgba(255,255,255,0.04)" stroke-width="1" />
+                            <circle cx="90" cy="90" r="84" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="1" />
+                            <circle cx="90" cy="90" r="80" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="1" />
                             <!-- 12 Stundenmarkierungen -->
-                            <line x1="90" y1="10" x2="90" y2="20" stroke="#666" stroke-width="2" />
-                            <line x1="155.9" y1="34.1" x2="148.3" y2="41.7" stroke="#666" stroke-width="1.5" />
-                            <line x1="170" y1="90" x2="160" y2="90" stroke="#666" stroke-width="2" />
-                            <line x1="155.9" y1="145.9" x2="148.3" y2="138.3" stroke="#666" stroke-width="1.5" />
-                            <line x1="90" y1="170" x2="90" y2="160" stroke="#666" stroke-width="2" />
-                            <line x1="24.1" y1="145.9" x2="31.7" y2="138.3" stroke="#666" stroke-width="1.5" />
-                            <line x1="10" y1="90" x2="20" y2="90" stroke="#666" stroke-width="2" />
-                            <line x1="24.1" y1="34.1" x2="31.7" y2="41.7" stroke="#666" stroke-width="1.5" />
+                            <line x1="90" y1="10" x2="90" y2="20" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="155.9" y1="34.1" x2="148.3" y2="41.7" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+                            <line x1="170" y1="90" x2="160" y2="90" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="155.9" y1="145.9" x2="148.3" y2="138.3" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+                            <line x1="90" y1="170" x2="90" y2="160" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="24.1" y1="145.9" x2="31.7" y2="138.3" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+                            <line x1="10" y1="90" x2="20" y2="90" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="24.1" y1="34.1" x2="31.7" y2="41.7" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
                             <!-- Progress Circle -->
-                            <circle cx="90" cy="90" r="75" fill="none" stroke="#3d3a44" stroke-width="6" transform="rotate(-90 90 90)" />
-                            <circle cx="90" cy="90" r="75" fill="none" stroke="#d10000" stroke-width="6"
+                            <circle cx="90" cy="90" r="75" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6" stroke-linecap="round" transform="rotate(-90 90 90)" />
+                            <circle cx="90" cy="90" r="75" fill="none" stroke="var(--main-color)" stroke-width="6" stroke-linecap="round"
                                 stroke-dasharray="471.24" stroke-dashoffset="471.24"
                                 id="trupp2ProgressCircle" style="transition: stroke-dashoffset 0.3s;" transform="rotate(-90 90 90)" />
-                            <!-- Zeiger -->
-                            <line x1="90" y1="90" x2="90" y2="25" stroke="#d10000" stroke-width="3" stroke-linecap="round"
-                                id="trupp2Hand" style="transition: transform 0.3s; transform-origin: 90px 90px; opacity: 0.4;" />
-                            <!-- Mittelpunkt -->
-                            <circle cx="90" cy="90" r="5" fill="#d10000" style="opacity: 0.4;" />
+                            <!-- Zeiger: nur im Außenring zwischen Text und Progress-Arc.
+                                 Inner y=40 → Radius 50 vom Center, lässt die Zeit-Ziffern frei.
+                                 Outer y=18 → Radius 72, direkt vor dem Progress-Arc (r=75).
+                                 `stroke-linecap="round"` erzeugt abgerundete Kappen. -->
+                            <line x1="90" y1="40" x2="90" y2="18" stroke="var(--main-color)" stroke-width="5" stroke-linecap="round" filter="drop-shadow(0 0 4px rgba(var(--main-color-rgb), 0.7))"
+                                id="trupp2Hand" style="transition: transform 0.3s; transform-origin: 90px 90px;" />
                         </svg>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
-                            <div id="trupp2Time" style="font-size: 1.8rem; font-weight: bold; font-family: monospace; color: #d10000;">00:00</div>
-                            <small class="text-muted" style="font-size: 0.75rem;">Einsatzzeit</small>
+                        <div class="asu-clock-center">
+                            <div id="trupp2Time" class="asu-clock-time">00:00</div>
+                            <small class="asu-clock-label">Einsatzzeit</small>
                         </div>
                     </div>
                     <!-- Progressbar -->
-                    <div class="progress mt-2" style="height: 20px;">
-                        <div class="progress-bar bg-danger" id="trupp2ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <span id="trupp2Percent" style="font-weight: bold;">0%</span>
-                        </div>
+                    <div class="progress asu-progress relative mt-2" style="height: 20px;">
+                        <div class="progress-bar asu-progress-bar" id="trupp2ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        <span id="trupp2Percent" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white" style="pointer-events:none;mix-blend-mode:difference;">0%</span>
                     </div>
                 </div>
 
@@ -190,12 +261,12 @@
                 <hr>
 
                 <!-- Einsatzinfo -->
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
+                <div class="mb-2 grid grid-cols-2 gap-2">
+                    <div>
                         <label class="form-label small">Anfangsdruck (bar)</label>
                         <input type="number" class="form-control form-control-sm" id="trupp2StartPressure" placeholder="300" min="0" max="400">
                     </div>
-                    <div class="col-6">
+                    <div>
                         <label class="form-label small">Einsatzbeginn</label>
                         <input type="time" class="form-control form-control-sm" id="trupp2StartTime">
                     </div>
@@ -220,12 +291,12 @@
                     <label class="form-label small">Einsatzziel</label>
                     <input type="text" class="form-control form-control-sm" id="trupp2Objective" placeholder="z.B. 2. OG Zimmer 5">
                 </div>
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
+                <div class="mb-2 grid grid-cols-2 gap-2">
+                    <div>
                         <label class="form-label small">Rückzug</label>
                         <input type="time" class="form-control form-control-sm" id="trupp2Retreat">
                     </div>
-                    <div class="col-6">
+                    <div>
                         <label class="form-label small">Einsatzende</label>
                         <input type="time" class="form-control form-control-sm" id="trupp2End">
                     </div>
@@ -239,9 +310,9 @@
     </div>
 
     <!-- Trupp 3 (Sicherheitstrupp) -->
-    <div class="col-lg-4">
+    <div>
         <div class="card bg-dark h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header flex items-center justify-between">
                 <h5 class="mb-0">Sicherheitstrupp</h5>
                 <div class="btn-group btn-group-sm">
                     <button type="button" class="btn btn-success" onclick="startTrupp(3)">
@@ -255,40 +326,42 @@
             <div class="card-body">
                 <!-- Eieruhr -->
                 <div class="text-center mb-3">
-                    <div class="asu-clock mx-auto" style="width: 180px; height: 180px; position: relative;">
-                        <svg width="180" height="180" viewBox="0 0 180 180">
-                            <!-- Ziffernblatt mit Markierungen -->
-                            <circle cx="90" cy="90" r="85" fill="#25242c" stroke="#3d3a44" stroke-width="2" />
+                    <div class="asu-clock">
+                        <svg viewBox="0 0 180 180">
+                            <!-- Ziffernblatt: dunkler inset-Look mit feinem inneren Highlight -->
+                            <circle cx="90" cy="90" r="85" fill="#17161c" stroke="rgba(255,255,255,0.04)" stroke-width="1" />
+                            <circle cx="90" cy="90" r="84" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="1" />
+                            <circle cx="90" cy="90" r="80" fill="none" stroke="rgba(255,255,255,0.025)" stroke-width="1" />
                             <!-- 12 Stundenmarkierungen -->
-                            <line x1="90" y1="10" x2="90" y2="20" stroke="#666" stroke-width="2" />
-                            <line x1="155.9" y1="34.1" x2="148.3" y2="41.7" stroke="#666" stroke-width="1.5" />
-                            <line x1="170" y1="90" x2="160" y2="90" stroke="#666" stroke-width="2" />
-                            <line x1="155.9" y1="145.9" x2="148.3" y2="138.3" stroke="#666" stroke-width="1.5" />
-                            <line x1="90" y1="170" x2="90" y2="160" stroke="#666" stroke-width="2" />
-                            <line x1="24.1" y1="145.9" x2="31.7" y2="138.3" stroke="#666" stroke-width="1.5" />
-                            <line x1="10" y1="90" x2="20" y2="90" stroke="#666" stroke-width="2" />
-                            <line x1="24.1" y1="34.1" x2="31.7" y2="41.7" stroke="#666" stroke-width="1.5" />
+                            <line x1="90" y1="10" x2="90" y2="20" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="155.9" y1="34.1" x2="148.3" y2="41.7" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+                            <line x1="170" y1="90" x2="160" y2="90" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="155.9" y1="145.9" x2="148.3" y2="138.3" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+                            <line x1="90" y1="170" x2="90" y2="160" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="24.1" y1="145.9" x2="31.7" y2="138.3" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
+                            <line x1="10" y1="90" x2="20" y2="90" stroke="rgba(255,255,255,0.22)" stroke-width="2" />
+                            <line x1="24.1" y1="34.1" x2="31.7" y2="41.7" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" />
                             <!-- Progress Circle -->
-                            <circle cx="90" cy="90" r="75" fill="none" stroke="#3d3a44" stroke-width="6" transform="rotate(-90 90 90)" />
-                            <circle cx="90" cy="90" r="75" fill="none" stroke="#d10000" stroke-width="6"
+                            <circle cx="90" cy="90" r="75" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="6" stroke-linecap="round" transform="rotate(-90 90 90)" />
+                            <circle cx="90" cy="90" r="75" fill="none" stroke="var(--main-color)" stroke-width="6" stroke-linecap="round"
                                 stroke-dasharray="471.24" stroke-dashoffset="471.24"
                                 id="trupp3ProgressCircle" style="transition: stroke-dashoffset 0.3s;" transform="rotate(-90 90 90)" />
-                            <!-- Zeiger -->
-                            <line x1="90" y1="90" x2="90" y2="25" stroke="#d10000" stroke-width="3" stroke-linecap="round"
-                                id="trupp3Hand" style="transition: transform 0.3s; transform-origin: 90px 90px; opacity: 0.4;" />
-                            <!-- Mittelpunkt -->
-                            <circle cx="90" cy="90" r="5" fill="#d10000" style="opacity: 0.4;" />
+                            <!-- Zeiger: nur im Außenring zwischen Text und Progress-Arc.
+                                 Inner y=40 → Radius 50 vom Center, lässt die Zeit-Ziffern frei.
+                                 Outer y=18 → Radius 72, direkt vor dem Progress-Arc (r=75).
+                                 `stroke-linecap="round"` erzeugt abgerundete Kappen. -->
+                            <line x1="90" y1="40" x2="90" y2="18" stroke="var(--main-color)" stroke-width="5" stroke-linecap="round" filter="drop-shadow(0 0 4px rgba(var(--main-color-rgb), 0.7))"
+                                id="trupp3Hand" style="transition: transform 0.3s; transform-origin: 90px 90px;" />
                         </svg>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
-                            <div id="trupp3Time" style="font-size: 1.8rem; font-weight: bold; font-family: monospace; color: #d10000;">00:00</div>
-                            <small class="text-muted" style="font-size: 0.75rem;">Einsatzzeit</small>
+                        <div class="asu-clock-center">
+                            <div id="trupp3Time" class="asu-clock-time">00:00</div>
+                            <small class="asu-clock-label">Einsatzzeit</small>
                         </div>
                     </div>
                     <!-- Progressbar -->
-                    <div class="progress mt-2" style="height: 20px;">
-                        <div class="progress-bar bg-danger" id="trupp3ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                            <span id="trupp3Percent" style="font-weight: bold;">0%</span>
-                        </div>
+                    <div class="progress asu-progress relative mt-2" style="height: 20px;">
+                        <div class="progress-bar asu-progress-bar" id="trupp3ProgressBar" role="progressbar" style="width: 0%; transition: width 0.3s;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        <span id="trupp3Percent" class="absolute inset-0 flex items-center justify-center text-xs font-bold text-white" style="pointer-events:none;mix-blend-mode:difference;">0%</span>
                     </div>
                 </div>
 
@@ -309,12 +382,12 @@
                 <hr>
 
                 <!-- Einsatzinfo -->
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
+                <div class="mb-2 grid grid-cols-2 gap-2">
+                    <div>
                         <label class="form-label small">Anfangsdruck (bar)</label>
                         <input type="number" class="form-control form-control-sm" id="trupp3StartPressure" placeholder="300" min="0" max="400">
                     </div>
-                    <div class="col-6">
+                    <div>
                         <label class="form-label small">Einsatzbeginn</label>
                         <input type="time" class="form-control form-control-sm" id="trupp3StartTime">
                     </div>
@@ -339,12 +412,12 @@
                     <label class="form-label small">Einsatzziel</label>
                     <input type="text" class="form-control form-control-sm" id="trupp3Objective" placeholder="z.B. 2. OG Zimmer 5">
                 </div>
-                <div class="row g-2 mb-2">
-                    <div class="col-6">
+                <div class="mb-2 grid grid-cols-2 gap-2">
+                    <div>
                         <label class="form-label small">Rückzug</label>
                         <input type="time" class="form-control form-control-sm" id="trupp3Retreat">
                     </div>
-                    <div class="col-6">
+                    <div>
                         <label class="form-label small">Einsatzende</label>
                         <input type="time" class="form-control form-control-sm" id="trupp3End">
                     </div>

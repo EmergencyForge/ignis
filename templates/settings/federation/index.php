@@ -259,18 +259,17 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
+                    <div class="mb-6 flex items-center justify-between">
                         <h1 class="mb-0"><i class="fa-solid fa-link" style="color:var(--main-color);margin-right:0.5rem"></i>Instanzvernetzung</h1>
                     </div>
                     <?php Flash::render(); ?>
 
                     <!-- Federation Toggle -->
                     <div class="card mb-4">
-                        <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card-header flex items-center justify-between">
                             <h5 class="mb-0">Instanzübergreifende Vernetzung</h5>
                             <form method="post" class="d-inline">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
@@ -285,27 +284,27 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                 Verbinde diese Instanz mit anderen intraRP-Installationen, um Personal, eNOTF-Protokolle und Einsätze instanzübergreifend zu nutzen.
                             </p>
                             <?php if ($federationEnabled): ?>
-                                <div class="row g-3">
-                                    <div class="col-md-6">
+                                <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                                    <div>
                                         <label class="form-label" style="font-size:var(--fs-sm);">Instanz-ID</label>
                                         <input type="text" class="form-control form-control-sm" value="<?= htmlspecialchars($instanceId) ?>" readonly style="font-family:var(--font-mono);font-size:var(--fs-xs);">
                                     </div>
-                                    <div class="col-md-6">
-                                        <form method="post" class="d-flex gap-2 align-items-end">
+                                    <div>
+                                        <form method="post" class="flex items-end gap-2">
                                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                             <input type="hidden" name="action" value="update_name">
-                                            <div class="flex-grow-1">
+                                            <div class="flex-1">
                                                 <label class="form-label" style="font-size:var(--fs-sm);">Instanzname</label>
                                                 <input type="text" name="instance_name" class="form-control form-control-sm"
                                                        value="<?= htmlspecialchars($instanceName) ?>"
                                                        placeholder="z.B. Berufsfeuerwehr Berlin">
                                             </div>
-                                            <button type="submit" class="btn btn-sm btn-outline-primary" style="white-space:nowrap;">Speichern</button>
+                                            <button type="submit" class="btn btn-sm btn-outline-primary whitespace-nowrap">Speichern</button>
                                         </form>
                                     </div>
                                 </div>
                             <?php else: ?>
-                                <div class="text-muted" style="font-size:var(--fs-sm);">
+                                <div class="text-gray-400" style="font-size:var(--fs-sm);">
                                     <i class="fa-solid fa-circle-info"></i> Instanzvernetzung ist deaktiviert. Aktiviere sie, um Verbindungen zu anderen Instanzen herzustellen.
                                 </div>
                             <?php endif; ?>
@@ -320,9 +319,9 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                             <h5 class="mb-0">Verbindung herstellen</h5>
                         </div>
                         <div class="card-body">
-                            <div class="row g-4">
+                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <!-- Generate Token -->
-                                <div class="col-md-6">
+                                <div>
                                     <h6><i class="fa-solid fa-key" style="color:var(--main-color);margin-right:0.3rem"></i> Schlüssel generieren</h6>
                                     <p style="font-size:var(--fs-xs);color:var(--text-dimmed);">
                                         Generiere einen Verbindungsschlüssel und teile ihn mit dem Admin der anderen Instanz.
@@ -349,7 +348,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                 </div>
 
                                 <!-- Pair with Token -->
-                                <div class="col-md-6">
+                                <div>
                                     <h6><i class="fa-solid fa-plug" style="color:var(--main-color);margin-right:0.3rem"></i> Verbindung eingehen</h6>
                                     <p style="font-size:var(--fs-xs);color:var(--text-dimmed);">
                                         Füge einen Verbindungsschlüssel einer anderen Instanz ein.
@@ -380,14 +379,14 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                             <h5 class="mb-0">Verbundene Instanzen <span class="badge bg-secondary"><?= count($links) ?></span></h5>
                         </div>
                         <?php if (empty($links)): ?>
-                            <div class="card-body d-flex flex-column align-items-center justify-content-center" style="color:var(--text-dimmed);font-size:var(--fs-sm);padding:2rem;">
+                            <div class="card-body flex flex-col items-center justify-center" style="color:var(--text-dimmed);font-size:var(--fs-sm);padding:2rem;">
                                 <i class="fa-solid fa-link-slash" style="font-size:1.5rem;margin-bottom:0.5rem;"></i>
                                 <span>Noch keine Verbindungen hergestellt.</span>
                             </div>
                         <?php else: ?>
                             <?php foreach ($links as $link): ?>
                             <div class="card-body border-bottom" style="border-color:var(--darkgray) !important;">
-                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="mb-3 flex items-start justify-between">
                                     <div>
                                         <h6 class="mb-1">
                                             <?= htmlspecialchars($link['instance_name']) ?>
@@ -423,12 +422,12 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                     <input type="hidden" name="action" value="update_link">
                                     <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
 
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-md-6">
+                                    <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                                        <div>
                                             <label class="form-label" style="font-size:var(--fs-xs);font-weight:600;">
                                                 <i class="fa-solid fa-download" style="color:var(--main-color)"></i> Von dort abrufen
                                             </label>
-                                            <div class="d-flex flex-column gap-1">
+                                            <div class="flex flex-col gap-1">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="consume_personnel" id="consume_personnel_<?= $link['id'] ?>" <?= $link['consume_personnel'] ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="consume_personnel_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Personal</label>
@@ -443,11 +442,11 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div>
                                             <label class="form-label" style="font-size:var(--fs-xs);font-weight:600;">
                                                 <i class="fa-solid fa-upload" style="color:var(--main-color)"></i> Dorthin bereitstellen
                                             </label>
-                                            <div class="d-flex flex-column gap-1">
+                                            <div class="flex flex-col gap-1">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" name="provide_personnel" id="provide_personnel_<?= $link['id'] ?>" <?= $link['provide_personnel'] ? 'checked' : '' ?>>
                                                     <label class="form-check-label" for="provide_personnel_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Personal</label>
@@ -464,29 +463,25 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         </div>
                                     </div>
 
-                                    <div class="row g-3 align-items-end">
-                                        <div class="col-auto">
+                                    <div class="flex flex-wrap items-end gap-3">
+                                        <div>
                                             <label class="form-label" style="font-size:var(--fs-xs);">Sync-Intervall (Min.)</label>
                                             <input type="number" name="sync_interval_minutes" class="form-control form-control-sm" style="width:80px;"
                                                    value="<?= (int)$link['sync_interval_minutes'] ?>" min="5" max="1440">
                                         </div>
-                                        <div class="col-auto">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="is_active" id="is_active_<?= $link['id'] ?>" <?= $link['is_active'] ? 'checked' : '' ?>>
-                                                <label class="form-check-label" for="is_active_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Aktiv</label>
-                                            </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="is_active" id="is_active_<?= $link['id'] ?>" <?= $link['is_active'] ? 'checked' : '' ?>>
+                                            <label class="form-check-label" for="is_active_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Aktiv</label>
                                         </div>
-                                        <div class="col-auto">
-                                            <button type="submit" class="btn btn-sm btn-outline-primary">
-                                                <i class="fa-solid fa-floppy-disk"></i> Speichern
-                                            </button>
-                                        </div>
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            <i class="fa-solid fa-floppy-disk"></i> Speichern
+                                        </button>
                                     </div>
                                 </form>
 
-                                <div class="mt-3 pt-2 d-flex gap-2" style="border-top:1px solid var(--darkgray);">
+                                <div class="mt-3 flex gap-2 pt-2" style="border-top:1px solid var(--darkgray);">
                                     <?php if ($link['consume_personnel'] || $link['consume_enotf'] || $link['consume_fire']): ?>
-                                    <form method="post" class="d-inline">
+                                    <form method="post" class="inline">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="action" value="sync_now">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
@@ -512,7 +507,6 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
 
                     <?php endif; ?>
 
-                </div>
             </div>
         </div>
     </div>

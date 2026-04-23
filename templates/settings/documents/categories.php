@@ -24,8 +24,8 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container my-5">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto my-6">
             <nav class="admin-breadcrumb">
                 <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
                 <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
@@ -48,7 +48,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <?php Flash::render(); ?>
 
-            <div class="intra__tile py-2 px-3">
+            <div class="intra__tile px-3 py-2">
                 <table class="table table-striped mb-0" id="categoryTable">
                     <thead>
                         <tr>
@@ -63,7 +63,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <tbody>
                         <?php if (empty($kategorien)): ?>
                             <tr>
-                                <td colspan="6" class="text-center text-muted">Keine Kategorien vorhanden.</td>
+                                <td colspan="6" class="text-center text-gray-400">Keine Kategorien vorhanden.</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($kategorien as $kat): ?>
@@ -74,20 +74,20 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <td>
                                         <?php if (!empty($kat['icon'])): ?>
                                             <i class="<?= htmlspecialchars($kat['icon']) ?>"></i>
-                                            <small class="text-muted ms-1"><?= htmlspecialchars($kat['icon']) ?></small>
+                                            <small class="text-gray-400 ms-1"><?= htmlspecialchars($kat['icon']) ?></small>
                                         <?php else: ?>
-                                            <span class="text-muted">-</span>
+                                            <span class="text-gray-400">-</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
                                         <?php if ($kat['template_count'] > 0): ?>
                                             <span class="badge text-bg-secondary"><?= (int)$kat['template_count'] ?></span>
                                         <?php else: ?>
-                                            <span class="text-muted">0</span>
+                                            <span class="text-gray-400">0</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <div class="d-flex gap-1 justify-content-end">
+                                        <div class="flex justify-end gap-1">
                                             <button type="button" class="btn btn-sm btn-soft-primary btn-icon" data-tooltip="Bearbeiten"
                                                 onclick="editCategory(<?= htmlspecialchars(json_encode($kat)) ?>)">
                                                 <i class="fa-solid fa-pen"></i>
@@ -108,7 +108,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <div class="mt-3">
-                <small class="text-muted">
+                <small class="text-gray-400">
                     <i class="fa-solid fa-info-circle"></i> Kategorien gruppieren Dokumenten-Templates. Kategorien, die von Templates verwendet werden, können nicht gelöscht werden.
                 </small>
             </div>
@@ -145,7 +145,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="catIcon" class="form-label">Icon <span class="text-muted small">(optional)</span></label>
+                        <label for="catIcon" class="form-label">Icon <span class="text-gray-400 small">(optional)</span></label>
                         <input type="text" class="form-control" id="catIcon" placeholder="z.B. fa-solid fa-scroll">
                         <div class="form-text">Font Awesome Klasse. Vorschau: <i id="iconPreview" class="ms-1"></i></div>
                     </div>

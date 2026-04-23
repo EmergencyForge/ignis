@@ -114,11 +114,10 @@ $cacheInfo = $announcements->getCacheInfo();
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
+                    <div class="mb-4 flex items-center justify-between">
                         <h1 class="mb-0">Telemetrie & Ankündigungen</h1>
                     </div>
 
@@ -159,18 +158,18 @@ $cacheInfo = $announcements->getCacheInfo();
                             filter: blur(0);
                         }
                     </style>
-                    <div class="intra__tile p-3 mb-4 uuid-banner">
-                        <div class="d-flex align-items-center gap-3 flex-wrap">
-                            <div class="flex-shrink-0" style="font-size: 1.1rem; color: var(--bs-primary, #0d6efd);">
+                    <div class="intra__tile uuid-banner mb-4 p-3">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="shrink-0" style="font-size: 1.1rem; color: var(--bs-primary, #0d6efd);">
                                 <i class="fa-solid fa-id-card"></i>
                             </div>
-                            <div class="flex-grow-1" style="min-width: 240px;">
+                            <div class="flex-1" style="min-width: 240px;">
                                 <div class="uuid-label mb-1">Support &amp; Telemetrie — Deine Installations-UUID</div>
-                                <div class="text-muted" style="font-size: 0.78rem; line-height: 1.45;">
+                                <div class="text-gray-400" style="font-size: 0.78rem; line-height: 1.45;">
                                     Für schnellen Support: Im intraRP-Discord <code style="font-size: 0.75rem;">/telemetry connect &lt;UUID&gt; [label]</code> nutzen — damit kann unser Support-Team direkt auf die unten beschriebenen Daten zugreifen und dir ggf. schneller mit deinem Anliegen helfen.
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 d-flex align-items-center gap-2" id="uuidBannerControls">
+                            <div class="flex shrink-0 items-center gap-2" id="uuidBannerControls">
                                 <code id="installationUuidValue" class="uuid-value" style="display: none;">
                                     <?= htmlspecialchars($installationId) ?>
                                 </code>
@@ -238,26 +237,26 @@ $cacheInfo = $announcements->getCacheInfo();
                         </div>
                     <?php endif; ?>
 
-                    <div class="row g-4">
+                    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         <!-- Telemetrie -->
-                        <div class="col-lg-6">
+                        <div>
                             <div class="card h-100">
-                                <div class="card-header d-flex justify-content-between align-items-center">
+                                <div class="card-header flex items-center justify-between">
                                     <span><i class="fas fa-chart-line me-2"></i>Telemetrie</span>
                                     <span class="badge bg-<?= $telemetryEnabled ? 'success' : 'secondary' ?>">
                                         <?= $telemetryEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
                                 </div>
                                 <div class="card-body">
-                                    <p class="text-muted">
+                                    <p class="text-gray-400">
                                         Telemetrie hilft uns, intraRP weiterzuentwickeln.
                                         Es werden nur <strong>anonymisierte</strong> Statistiken übermittelt -
                                         keine persönlichen Daten, Namen oder IP-Adressen.
                                         Du kannst die Telemetrie jederzeit deaktivieren.
                                     </p>
 
-                                    <div class="d-flex gap-2 mb-3 flex-wrap">
-                                        <form method="POST" class="d-inline">
+                                    <div class="mb-3 flex flex-wrap gap-2">
+                                        <form method="POST" class="inline">
                                             <input type="hidden" name="action" value="toggle_telemetry">
                                             <button type="submit" class="btn btn-<?= $telemetryEnabled ? 'warning' : 'success' ?>">
                                                 <i class="fas fa-<?= $telemetryEnabled ? 'toggle-off' : 'toggle-on' ?> me-1"></i>
@@ -270,7 +269,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                         </button>
 
                                         <?php if ($telemetryEnabled): ?>
-                                            <form method="POST" class="d-inline">
+                                            <form method="POST" class="inline">
                                                 <input type="hidden" name="action" value="send_heartbeat">
                                                 <button type="submit" class="btn btn-outline-primary">
                                                     <i class="fas fa-paper-plane me-1"></i> Jetzt senden
@@ -284,24 +283,24 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <h6>Status</h6>
                                     <table class="table table-sm">
                                         <tr>
-                                            <td class="text-muted">Installation-ID:</td>
+                                            <td class="text-gray-400">Installation-ID:</td>
                                             <td>
                                                 <code class="small uuid-blur" title="Hover zum Einblenden"><?= htmlspecialchars($installationId) ?></code>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Letzter Heartbeat:</td>
-                                            <td><?= $lastHeartbeat ? date('d.m.Y H:i', strtotime($lastHeartbeat)) : '<span class="text-muted">Noch nie</span>' ?></td>
+                                            <td class="text-gray-400">Letzter Heartbeat:</td>
+                                            <td><?= $lastHeartbeat ? date('d.m.Y H:i', strtotime($lastHeartbeat)) : '<span class="text-gray-400">Noch nie</span>' ?></td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Hub-Server:</td>
+                                            <td class="text-gray-400">Hub-Server:</td>
                                             <td><code class="small"><?= htmlspecialchars($hubUrl) ?></code></td>
                                         </tr>
                                     </table>
 
                                     <?php if ($previewData): ?>
                                         <details class="mt-3">
-                                            <summary class="text-muted" style="cursor: pointer;">Datenvorschau anzeigen</summary>
+                                            <summary class="text-gray-400" style="cursor: pointer;">Datenvorschau anzeigen</summary>
                                             <pre class="bg-dark text-light p-3 rounded mt-2 small" style="max-height: 300px; overflow: auto;"><?= htmlspecialchars(json_encode($previewData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
                                         </details>
                                     <?php endif; ?>
@@ -310,22 +309,22 @@ $cacheInfo = $announcements->getCacheInfo();
                         </div>
 
                         <!-- Globale Announcements -->
-                        <div class="col-lg-6">
+                        <div>
                             <div class="card h-100">
-                                <div class="card-header d-flex justify-content-between align-items-center">
+                                <div class="card-header flex items-center justify-between">
                                     <span><i class="fas fa-bullhorn me-2"></i>Globale Ankündigungen</span>
                                     <span class="badge bg-<?= $announcementsEnabled ? 'success' : 'secondary' ?>">
                                         <?= $announcementsEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
                                 </div>
                                 <div class="card-body">
-                                    <p class="text-muted">
+                                    <p class="text-gray-400">
                                         Globale Ankündigungen informieren dich über wichtige Updates,
                                         Sicherheitshinweise und News vom intraRP-Team.
                                     </p>
 
-                                    <div class="d-flex gap-2 mb-3">
-                                        <form method="POST" class="d-inline">
+                                    <div class="mb-3 flex gap-2">
+                                        <form method="POST" class="inline">
                                             <input type="hidden" name="action" value="toggle_announcements">
                                             <button type="submit" class="btn btn-<?= $announcementsEnabled ? 'warning' : 'success' ?>">
                                                 <i class="fas fa-<?= $announcementsEnabled ? 'toggle-off' : 'toggle-on' ?> me-1"></i>
@@ -334,7 +333,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                         </form>
 
                                         <?php if ($announcementsEnabled): ?>
-                                            <form method="POST" class="d-inline">
+                                            <form method="POST" class="inline">
                                                 <input type="hidden" name="action" value="refresh_announcements">
                                                 <button type="submit" class="btn btn-outline-primary">
                                                     <i class="fas fa-sync me-1"></i> Cache aktualisieren
@@ -348,12 +347,12 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <h6>Cache-Status</h6>
                                     <table class="table table-sm mb-3">
                                         <tr>
-                                            <td class="text-muted">Einträge im Cache:</td>
+                                            <td class="text-gray-400">Einträge im Cache:</td>
                                             <td><?= $cacheInfo['count'] ?></td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Letzter Abruf:</td>
-                                            <td><?= $cacheInfo['last_fetch'] ? date('d.m.Y H:i', strtotime($cacheInfo['last_fetch'])) : '<span class="text-muted">Noch nie</span>' ?></td>
+                                            <td class="text-gray-400">Letzter Abruf:</td>
+                                            <td><?= $cacheInfo['last_fetch'] ? date('d.m.Y H:i', strtotime($cacheInfo['last_fetch'])) : '<span class="text-gray-400">Noch nie</span>' ?></td>
                                         </tr>
                                     </table>
 
@@ -388,7 +387,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                         <div class="list-group list-group-flush">
                                             <?php foreach ($currentAnnouncements as $ann): ?>
                                                 <div class="list-group-item px-0">
-                                                    <div class="d-flex align-items-center flex-wrap gap-1">
+                                                    <div class="flex flex-wrap items-center gap-1">
                                                         <span class="badge bg-<?= $ann['type'] === 'critical' ? 'danger' : ($ann['type'] === 'warning' ? 'warning' : 'info') ?>">
                                                             <?= htmlspecialchars($ann['type']) ?>
                                                         </span>
@@ -398,7 +397,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                                         <strong><?= htmlspecialchars($ann['title']) ?></strong>
                                                     </div>
                                                     <?php if (!empty($ann['message'])): ?>
-                                                        <small class="text-muted"><?= htmlspecialchars($ann['message']) ?></small>
+                                                        <small class="text-gray-400"><?= htmlspecialchars($ann['message']) ?></small>
                                                     <?php endif; ?>
                                                 </div>
                                             <?php endforeach; ?>
@@ -412,14 +411,13 @@ $cacheInfo = $announcements->getCacheInfo();
                                             </details>
                                         </div>
                                     <?php else: ?>
-                                        <p class="text-muted small mb-0">Keine Ankündigungen.</p>
+                                        <p class="text-gray-400 small mb-0">Keine Ankündigungen.</p>
                                     <?php endif; ?>
                                 </div>
                             </div>
                         </div>
 
                     </div>
-                </div>
             </div>
         </div>
     </div>
@@ -435,11 +433,11 @@ $cacheInfo = $announcements->getCacheInfo();
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted small mb-3">
+                    <p class="text-gray-400 small mb-3">
                         Wir nehmen den Schutz deiner Daten ernst. Hier siehst du genau, was die Telemetrie überträgt — und was nicht.
                     </p>
-                    <div class="row g-3">
-                        <div class="col-md-6">
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <div>
                             <h6 class="text-success"><i class="fas fa-check me-1"></i> Was wir sammeln:</h6>
                             <ul class="small mb-0">
                                 <li>Anonyme Installation-ID (UUID)</li>
@@ -450,7 +448,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                 <li>Aktive Module</li>
                             </ul>
                         </div>
-                        <div class="col-md-6">
+                        <div>
                             <h6 class="text-danger"><i class="fas fa-times me-1"></i> Was wir NICHT sammeln:</h6>
                             <ul class="small mb-0">
                                 <li>Namen, E-Mails, Discord-IDs</li>

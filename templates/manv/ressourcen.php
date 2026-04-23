@@ -22,22 +22,20 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
 
 <body data-bs-theme="dark" id="manv-ressourcen" data-page="edivi">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row mb-5 align-items-end">
-                <div class="col-lg-8 col-12">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
                     <h1>Fahrzeugverwaltung</h1>
-                    <p class="text-muted">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
+                    <p class="text-gray-400">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
                 </div>
-                <div class="col-lg-4 col-12">
-                    <div class="d-flex flex-column flex-lg-row gap-2 justify-content-lg-end mt-3 mt-lg-0">
-                        <button type="button" class="btn btn-success btn-icon" data-bs-toggle="modal" data-bs-target="#quickAddModal" title="Schnell hinzufügen">
-                            <i class="fas fa-bolt"></i>
-                        </button>
-                        <button type="button" class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#createModal">
-                            <i class="fas fa-plus me-1"></i> Fahrzeug hinzufügen
-                        </button>
-                    </div>
+                <div class="flex flex-col gap-2 lg:flex-row lg:justify-end">
+                    <button type="button" class="btn btn-success btn-icon" data-bs-toggle="modal" data-bs-target="#quickAddModal" title="Schnell hinzufügen">
+                        <i class="fas fa-bolt"></i>
+                    </button>
+                    <button type="button" class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                        <i class="fas fa-plus me-1"></i> Fahrzeug hinzufügen
+                    </button>
                 </div>
             </div>
 
@@ -49,7 +47,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                 </div>
                 <div class="card-body">
                     <?php if (empty($fahrzeuge)): ?>
-                        <p class="text-muted">Keine Fahrzeuge vorhanden.</p>
+                        <p class="text-gray-400">Keine Fahrzeuge vorhanden.</p>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-striped">
@@ -94,7 +92,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             </div>
 
             <div class="mb-4">
-                <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost">
+                <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost no-underline hover:no-underline">
                     <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
                 </a>
             </div>
@@ -167,7 +165,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                         autocomplete="off" required>
                                 </div>
                                 <input type="hidden" id="fahrzeug_id" name="fahrzeug_id">
-                                <small class="text-muted">Beginnen Sie zu tippen - Vorschläge werden automatisch angezeigt</small>
+                                <small class="text-gray-400">Beginnen Sie zu tippen - Vorschläge werden automatisch angezeigt</small>
                                 <div id="search_results" class="list-group mt-2" style="display: none; max-height: 350px; overflow-y: auto; overflow-x: hidden;"></div>
                             </div>
 
@@ -185,27 +183,23 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
 
                             <hr class="my-4">
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="bezeichnung" class="form-label">Rufname / Kennung *</label>
-                                        <input type="text" class="form-control" id="bezeichnung" name="bezeichnung" required readonly>
-                                        <small class="text-muted">Eindeutiger Rufname zur Identifikation</small>
-                                    </div>
+                            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                                <div>
+                                    <label for="bezeichnung" class="form-label">Rufname / Kennung *</label>
+                                    <input type="text" class="form-control" id="bezeichnung" name="bezeichnung" required readonly>
+                                    <small class="text-gray-400">Eindeutiger Rufname zur Identifikation</small>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="fahrzeugtyp" class="form-label">Fahrzeugtyp</label>
-                                        <input type="text" class="form-control" id="fahrzeugtyp" name="fahrzeugtyp" readonly>
-                                        <small class="text-muted">Art des Fahrzeugs</small>
-                                    </div>
+                                <div>
+                                    <label for="fahrzeugtyp" class="form-label">Fahrzeugtyp</label>
+                                    <input type="text" class="form-control" id="fahrzeugtyp" name="fahrzeugtyp" readonly>
+                                    <small class="text-gray-400">Art des Fahrzeugs</small>
                                 </div>
                             </div>
 
-                            <div class="mb-3">
+                            <div class="mt-3 mb-3">
                                 <label for="lokalisation" class="form-label">Lokalisation / Position</label>
                                 <input type="text" class="form-control" id="lokalisation" name="lokalisation" placeholder="z.B. Verletztensammelstelle, Haltepunkt Nord...">
-                                <small class="text-muted">Optional: Wo befindet sich das Fahrzeug an der Einsatzstelle?</small>
+                                <small class="text-gray-400">Optional: Wo befindet sich das Fahrzeug an der Einsatzstelle?</small>
                             </div>
                             <div class="mb-3">
                                 <label for="notizen" class="form-label">Notizen</label>
@@ -233,7 +227,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
-                            <p class="text-muted mb-3">Für schnelles Hinzufügen ohne Systemfahrzeug</p>
+                            <p class="text-gray-400 mb-3">Für schnelles Hinzufügen ohne Systemfahrzeug</p>
                             <div class="mb-3">
                                 <label for="quick_bezeichnung" class="form-label">Rufname / Kennung *</label>
                                 <input type="text" class="form-control" id="quick_bezeichnung" name="bezeichnung" placeholder="z.B. RTW 1/83-1" required>

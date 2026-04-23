@@ -130,7 +130,7 @@ use App\Helpers\Flash;
             </ol>
         </nav>
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="mb-4 flex items-center justify-between">
             <h1 class="mb-0">Performance-Dashboard</h1>
             <button class="btn btn-outline-secondary btn-sm" id="refreshBtn" onclick="loadData()">
                 <i class="fa-solid fa-arrows-rotate"></i> Aktualisieren
@@ -140,66 +140,52 @@ use App\Helpers\Flash;
         <?php Flash::render(); ?>
 
         <!-- Übersicht-Karten -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="perf-card">
-                    <h6><i class="fa-solid fa-database me-1"></i> Datenbank-Größe</h6>
-                    <div class="perf-stat" id="dbSize">--</div>
-                    <div class="perf-label" id="dbSizeDetail">Lade...</div>
-                </div>
+        <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="perf-card">
+                <h6><i class="fa-solid fa-database me-1"></i> Datenbank-Größe</h6>
+                <div class="perf-stat" id="dbSize">--</div>
+                <div class="perf-label" id="dbSizeDetail">Lade...</div>
             </div>
-            <div class="col-md-3">
-                <div class="perf-card">
-                    <h6><i class="fa-solid fa-table me-1"></i> Tabellen / Zeilen</h6>
-                    <div class="perf-stat" id="dbTables">--</div>
-                    <div class="perf-label" id="dbRows">--</div>
-                </div>
+            <div class="perf-card">
+                <h6><i class="fa-solid fa-table me-1"></i> Tabellen / Zeilen</h6>
+                <div class="perf-stat" id="dbTables">--</div>
+                <div class="perf-label" id="dbRows">--</div>
             </div>
-            <div class="col-md-3">
-                <div class="perf-card">
-                    <h6><i class="fa-solid fa-users me-1"></i> Aktive Benutzer</h6>
-                    <div class="perf-stat" id="activeUsers">--</div>
-                    <div class="perf-label" id="activeUsersDetail">Lade...</div>
-                </div>
+            <div class="perf-card">
+                <h6><i class="fa-solid fa-users me-1"></i> Aktive Benutzer</h6>
+                <div class="perf-stat" id="activeUsers">--</div>
+                <div class="perf-label" id="activeUsersDetail">Lade...</div>
             </div>
-            <div class="col-md-3">
-                <div class="perf-card">
-                    <h6><i class="fa-solid fa-server me-1"></i> Server-Uptime</h6>
-                    <div class="perf-stat" id="uptime">--</div>
-                    <div class="perf-label" id="uptimeDetail">Lade...</div>
-                </div>
+            <div class="perf-card">
+                <h6><i class="fa-solid fa-server me-1"></i> Server-Uptime</h6>
+                <div class="perf-stat" id="uptime">--</div>
+                <div class="perf-label" id="uptimeDetail">Lade...</div>
             </div>
         </div>
 
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="perf-card">
-                    <h6><i class="fa-solid fa-chart-pie me-1"></i> Content-Statistiken</h6>
-                    <div id="contentStats">
-                        <div class="loading-placeholder mb-2"></div>
-                        <div class="loading-placeholder mb-2"></div>
-                        <div class="loading-placeholder"></div>
-                    </div>
+        <div class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div class="perf-card">
+                <h6><i class="fa-solid fa-chart-pie me-1"></i> Content-Statistiken</h6>
+                <div id="contentStats">
+                    <div class="loading-placeholder mb-2"></div>
+                    <div class="loading-placeholder mb-2"></div>
+                    <div class="loading-placeholder"></div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="perf-card">
-                    <h6><i class="fa-solid fa-microchip me-1"></i> Server-Umgebung</h6>
-                    <div id="serverInfo">
-                        <div class="loading-placeholder mb-2"></div>
-                        <div class="loading-placeholder mb-2"></div>
-                        <div class="loading-placeholder"></div>
-                    </div>
+            <div class="perf-card">
+                <h6><i class="fa-solid fa-microchip me-1"></i> Server-Umgebung</h6>
+                <div id="serverInfo">
+                    <div class="loading-placeholder mb-2"></div>
+                    <div class="loading-placeholder mb-2"></div>
+                    <div class="loading-placeholder"></div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="perf-card">
-                    <h6><i class="fa-brands fa-php me-1"></i> PHP-Konfiguration</h6>
-                    <div id="phpInfo">
-                        <div class="loading-placeholder mb-2"></div>
-                        <div class="loading-placeholder mb-2"></div>
-                        <div class="loading-placeholder"></div>
-                    </div>
+            <div class="perf-card">
+                <h6><i class="fa-brands fa-php me-1"></i> PHP-Konfiguration</h6>
+                <div id="phpInfo">
+                    <div class="loading-placeholder mb-2"></div>
+                    <div class="loading-placeholder mb-2"></div>
+                    <div class="loading-placeholder"></div>
                 </div>
             </div>
         </div>
@@ -212,8 +198,8 @@ use App\Helpers\Flash;
                     <thead>
                         <tr>
                             <th>Tabelle</th>
-                            <th class="text-end">Zeilen</th>
-                            <th class="text-end">Größe</th>
+                            <th class="text-right">Zeilen</th>
+                            <th class="text-right">Größe</th>
                             <th style="width: 25%;">Anteil</th>
                         </tr>
                     </thead>
@@ -225,23 +211,19 @@ use App\Helpers\Flash;
         </div>
 
         <!-- Verbindungen & System-Status -->
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="perf-card">
-                    <h6><i class="fa-solid fa-plug me-1"></i> Verbindungen</h6>
-                    <div id="connectionInfo">
-                        <div class="loading-placeholder mb-2"></div>
-                        <div class="loading-placeholder"></div>
-                    </div>
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div class="perf-card">
+                <h6><i class="fa-solid fa-plug me-1"></i> Verbindungen</h6>
+                <div id="connectionInfo">
+                    <div class="loading-placeholder mb-2"></div>
+                    <div class="loading-placeholder"></div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="perf-card">
-                    <h6><i class="fa-solid fa-code-branch me-1"></i> System-Status</h6>
-                    <div id="systemStatus">
-                        <div class="loading-placeholder mb-2"></div>
-                        <div class="loading-placeholder"></div>
-                    </div>
+            <div class="perf-card">
+                <h6><i class="fa-solid fa-code-branch me-1"></i> System-Status</h6>
+                <div id="systemStatus">
+                    <div class="loading-placeholder mb-2"></div>
+                    <div class="loading-placeholder"></div>
                 </div>
             </div>
         </div>

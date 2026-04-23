@@ -179,32 +179,29 @@ $currentDate = date('d.m.Y');
                                                         <?php
                                                         $quicklinks = $linksByCategory[$category['slug']] ?? [];
 
-                                                        $currentRow = [];
-                                                        foreach ($quicklinks as $link) {
-                                                            // Start a new row if current row is empty
-                                                            if (empty($currentRow)) {
-                                                                echo '<div class="row">';
-                                                            }
-
-                                                            $currentRow[] = $link;
-
-                                                            // Output the link
-                                                            echo '<div class="' . htmlspecialchars($link['col_width']) . ' p-2">';
-                                                            echo '<a href="' . htmlspecialchars($link['url']) . '" class="w-100 edivi__nidabutton" style="display:inline-block;text-align:center">';
-                                                            echo '<i class="' . htmlspecialchars($link['icon']) . '"></i> ' . htmlspecialchars($link['title']);
-                                                            echo '</a>';
-                                                            echo '</div>';
-
-                                                            // Close row after 2 items or if it's the last item
-                                                            if (count($currentRow) >= 2 || $link === end($quicklinks)) {
-                                                                echo '</div>';
-                                                                $currentRow = [];
-                                                            }
-                                                        }
-
-                                                        // If no links found, show a message
                                                         if (empty($quicklinks)) {
-                                                            echo '<p class="text-muted">Keine Links verfügbar.</p>';
+                                                            echo '<p class="text-gray-400">Keine Links verfügbar.</p>';
+                                                        } else {
+                                                            // col_width aus DB ist Bootstrap-Syntax (col, col-6, col-4, col-3, col-12).
+                                                            // Auf Tailwind-Grid-Span übersetzen, damit die Link-Kacheln auch im
+                                                            // migrierten Kontext korrekt nebeneinander liegen.
+                                                            $colWidthMap = [
+                                                                'col'    => 'col-span-6',
+                                                                'col-3'  => 'col-span-3',
+                                                                'col-4'  => 'col-span-4',
+                                                                'col-6'  => 'col-span-6',
+                                                                'col-12' => 'col-span-12',
+                                                            ];
+                                                            echo '<div class="grid grid-cols-12 gap-2">';
+                                                            foreach ($quicklinks as $link) {
+                                                                $span = $colWidthMap[$link['col_width']] ?? 'col-span-6';
+                                                                echo '<div class="' . $span . '">';
+                                                                echo '<a href="' . htmlspecialchars($link['url']) . '" class="edivi__nidabutton block w-full text-center no-underline hover:no-underline">';
+                                                                echo '<i class="' . htmlspecialchars($link['icon']) . '"></i> ' . htmlspecialchars($link['title']);
+                                                                echo '</a>';
+                                                                echo '</div>';
+                                                            }
+                                                            echo '</div>';
                                                         }
                                                         ?>
                                                     </div>
