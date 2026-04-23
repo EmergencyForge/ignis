@@ -70,7 +70,7 @@ a:hover {
   color: var(--link-hover);
 }
 
-a:not(.btn):not(.sidebar-link):not(.nav-link):not(.no-underline):hover {
+a:not(.btn):not(.sidebar-link):not(.nav-link):not(.no-underline):not(.gsr-item):hover {
   text-decoration: underline;
 }
 
@@ -1340,6 +1340,8 @@ td.dt-empty {
   background-position: right center !important;
   background-color: var(--main-color) !important;
   border-color: var(--main-color) !important;
+  background-size: 1em 1em !important;
+  background-repeat: no-repeat !important;
   --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e") !important;
 }
 

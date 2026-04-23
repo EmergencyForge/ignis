@@ -18,25 +18,24 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
-                        <h1 class="mb-0">Schnellzugriff-Kategorien Verwaltung</h1>
-                        <?php if (Permissions::check('admin')) : ?>
-                            <div class="d-flex gap-2">
-                                <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="btn btn-ghost">
-                                    <i class="fa-solid fa-arrow-left"></i> Zurück
-                                </a>
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
-                                    <i class="fa-solid fa-plus"></i> Kategorie erstellen
-                                </button>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <?php Flash::render(); ?>
-                    <div class="intra__tile py-2 px-3">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
+                <div class="mb-6 flex items-center justify-between">
+                    <h1 class="mb-0">Schnellzugriff-Kategorien Verwaltung</h1>
+                    <?php if (Permissions::check('admin')) : ?>
+                        <div class="flex gap-2">
+                            <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="btn btn-ghost no-underline hover:no-underline">
+                                <i class="fa-solid fa-arrow-left"></i> Zurück
+                            </a>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                                <i class="fa-solid fa-plus"></i> Kategorie erstellen
+                            </button>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <?php Flash::render(); ?>
+                <div class="intra__tile px-3 py-2">
                         <table class="table table-striped" id="table-categories">
                             <thead>
                                 <tr>
@@ -72,7 +71,6 @@ use App\Helpers\Flash;
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                    </div>
                 </div>
             </div>
         </div>
@@ -97,7 +95,7 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="category-slug" class="form-label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
                                 <input type="text" class="form-control" name="slug" id="category-slug" pattern="[a-z0-9\-]+" required>
-                                <small class="form-text text-muted">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
+                                <small class="form-text text-gray-400">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
                             <div class="mb-3">
                                 <label for="category-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
@@ -108,7 +106,7 @@ use App\Helpers\Flash;
                                 <label class="form-check-label" for="category-active">Aktiv?</label>
                             </div>
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
+                        <div class="modal-footer flex justify-between">
                             <button type="button" class="btn btn-ghost-danger" id="delete-category-btn">Löschen</button>
                             <div>
                                 <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
@@ -137,7 +135,7 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="create-category-slug" class="form-label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
                                 <input type="text" class="form-control" name="slug" id="create-category-slug" pattern="[a-z0-9\-]+" required>
-                                <small class="form-text text-muted">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
+                                <small class="form-text text-gray-400">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
                             <div class="mb-3">
                                 <label for="create-category-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>

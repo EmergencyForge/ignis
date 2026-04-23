@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
         Flash::set('info', 'Keine Änderungen vorgenommen.');
     }
 
-    header("Location: " . $_SERVER['PHP_SELF']);
+    header("Location: " . BASE_PATH . "settings/system/config.php");
     exit();
 }
 
@@ -142,10 +142,9 @@ $configByCategory = $configManager->getConfigByCategory();
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
                     <nav class="admin-breadcrumb">
                         <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
                         <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
@@ -319,13 +318,12 @@ $configByCategory = $configManager->getConfigByCategory();
                             </div>
                         <?php endforeach; ?>
 
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+                        <div class="mb-6 flex flex-col gap-2 md:flex-row md:justify-end">
                             <button type="submit" name="save_config" class="btn btn-soft-primary btn-lg">
                                 <i class="fa-solid fa-save"></i> Änderungen speichern
                             </button>
                         </div>
                     </form>
-                </div>
             </div>
         </div>
     </div>

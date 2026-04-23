@@ -29,8 +29,8 @@ $currentDate = date('d.m.Y');
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="container-fluid" id="edivi__container">
-            <div class="row h-100">
-                <div class="col" id="edivi__content">
+            <div class="h-full">
+                <div id="edivi__content">
                     <div class="edivi__login-buttons">
                         <div class="row">
                             <div class="col">
