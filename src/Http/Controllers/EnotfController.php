@@ -8,6 +8,8 @@ use App\Enotf\EnotfSession;
 use App\Federation\FederatedPersonnel;
 use App\Helpers\EnotfUrl;
 use App\Http\FiveMSupport;
+use App\Http\Middleware\PinLockscreenMiddleware;
+use App\Http\Request;
 use App\Policies\EnotfPolicy;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -360,7 +362,7 @@ class EnotfController extends Controller
     /**
      * GET /enotf/lockscreen.php — PIN-Eingabe.
      */
-    public function lockscreen(): void
+    public function lockscreen(Request $request): void
     {
         FiveMSupport::prepareCookiesAndHeaders();
         $this->enforceUserAuthGate();
@@ -369,7 +371,10 @@ class EnotfController extends Controller
             $this->redirectAbsolute(EnotfUrl::page('overview'));
         }
 
-        if (EnotfPolicy::pinExempt()) {
+        // Dev-only Test-Bypass für Admins — ?test setzt das Flag, ?test=off cleaned.
+        $testMode = PinLockscreenMiddleware::applyTestFlag($request);
+
+        if (!$testMode && EnotfPolicy::pinExempt()) {
             $redirect = $_SESSION['pin_return_url'] ?? EnotfUrl::page('overview');
             unset($_SESSION['pin_return_url']);
             $this->redirectAbsolute($redirect);

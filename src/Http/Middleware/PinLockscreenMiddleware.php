@@ -33,8 +33,14 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
             return $next($request);
         }
 
-        // Exempt-User (Admin / edivi.view) überspringen den Lockscreen komplett
-        if (Permissions::check(['edivi.view'])) {
+        // `?test` (oder `?test=1`) aktiviert einen Admin-Bypass-Bypass für den
+        // Lockscreen-Flow — nur in development, damit in Produktion keine
+        // versehentlichen Auth-Schlupflöcher entstehen. `?test=off` cleaned.
+        $testMode = self::applyTestFlag($request);
+
+        // Exempt-User (Admin / edivi.view) überspringen den Lockscreen komplett —
+        // außer Test-Modus ist aktiv.
+        if (!$testMode && Permissions::check(['edivi.view'])) {
             return $next($request);
         }
 
@@ -68,6 +74,30 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
 
         $_SESSION['pin_last_activity'] = $now;
         return $next($request);
+    }
+
+    /**
+     * Dev-only Test-Mode: `?test` (oder `?test=1`) setzt ein Session-Flag, das
+     * die Admin-Exemption im Lockscreen-Flow abschaltet, damit Admins den Flow
+     * selbst durchspielen können. `?test=off` oder `?test=0` räumt auf.
+     * In Produktion no-op.
+     */
+    public static function applyTestFlag(Request $request): bool
+    {
+        if (($_ENV['APP_ENV'] ?? 'production') !== 'development') {
+            return false;
+        }
+
+        $raw = $request->query['test'] ?? null;
+        if ($raw !== null) {
+            if ($raw === 'off' || $raw === '0') {
+                unset($_SESSION['enotf_pin_test']);
+                return false;
+            }
+            $_SESSION['enotf_pin_test'] = true;
+            return true;
+        }
+        return !empty($_SESSION['enotf_pin_test']);
     }
 
     private function hasActiveKlinikAccess(): bool
