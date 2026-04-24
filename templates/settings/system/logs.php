@@ -206,10 +206,9 @@ function logs_level_badge(string $level): string
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
                     <nav class="admin-breadcrumb">
                         <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
                         <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
@@ -230,15 +229,15 @@ function logs_level_badge(string $level): string
                     <?php Flash::render(); ?>
 
                     <!-- ───────────── HERO: Error-ID Lookup (primärer Use-Case) ───────────── -->
-                    <div class="intra__tile p-3 mb-3 logs-lookup-hero">
-                        <div class="d-flex align-items-center flex-wrap gap-3">
-                            <div class="flex-shrink-0">
-                                <div class="fw-semibold"><i class="fa-solid fa-key me-2 text-primary"></i>Error-ID Lookup</div>
-                                <div class="text-muted" style="font-size: 0.72rem;">
+                    <div class="intra__tile logs-lookup-hero mb-3 p-3">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <div class="shrink-0">
+                                <div class="font-semibold"><i class="fa-solid fa-key me-2 text-primary"></i>Error-ID Lookup</div>
+                                <div class="text-gray-400" style="font-size: 0.72rem;">
                                     8-stellige ID aus der Production-Fehlerseite &mdash; z.B. <code>0B29305D</code>
                                 </div>
                             </div>
-                            <div class="flex-grow-1" style="min-width: 260px;">
+                            <div class="flex-1" style="min-width: 260px;">
                                 <div class="input-group">
                                     <input type="text"
                                            id="errorIdInput"
@@ -257,45 +256,35 @@ function logs_level_badge(string $level): string
                     </div>
 
                     <!-- ───────────── Stats ───────────── -->
-                    <div class="row g-2 mb-3">
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center h-100">
-                                <div class="text-muted small text-uppercase" style="letter-spacing:0.05em;">Errors gesamt</div>
-                                <div class="fs-4 fw-bold mt-1"><?= number_format($stats['total'] ?? 0, 0, ',', '.') ?></div>
-                            </div>
+                    <div class="mb-3 grid grid-cols-2 gap-2 md:grid-cols-5">
+                        <div class="intra__tile h-full p-3 text-center">
+                            <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Errors gesamt</div>
+                            <div class="mt-1 text-xl font-bold"><?= number_format($stats['total'] ?? 0, 0, ',', '.') ?></div>
                         </div>
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center h-100">
-                                <div class="text-muted small text-uppercase" style="letter-spacing:0.05em;">Letzte 24h</div>
-                                <div class="fs-4 fw-bold mt-1 text-warning"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></div>
-                            </div>
+                        <div class="intra__tile h-full p-3 text-center">
+                            <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Letzte 24h</div>
+                            <div class="mt-1 text-xl font-bold text-warning"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></div>
                         </div>
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center h-100">
-                                <div class="text-muted small text-uppercase" style="letter-spacing:0.05em;">Letzte 7 Tage</div>
-                                <div class="fs-4 fw-bold mt-1 text-warning"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></div>
-                            </div>
+                        <div class="intra__tile h-full p-3 text-center">
+                            <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Letzte 7 Tage</div>
+                            <div class="mt-1 text-xl font-bold text-warning"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></div>
                         </div>
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center h-100">
-                                <div class="text-muted small text-uppercase" style="letter-spacing:0.05em;">Critical</div>
-                                <div class="fs-4 fw-bold mt-1 text-danger"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></div>
-                            </div>
+                        <div class="intra__tile h-full p-3 text-center">
+                            <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Critical</div>
+                            <div class="mt-1 text-xl font-bold text-danger"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></div>
                         </div>
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center h-100">
-                                <div class="text-muted small text-uppercase" style="letter-spacing:0.05em;">Error</div>
-                                <div class="fs-4 fw-bold mt-1 text-danger"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></div>
-                            </div>
+                        <div class="intra__tile h-full p-3 text-center">
+                            <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Error</div>
+                            <div class="mt-1 text-xl font-bold text-danger"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></div>
                         </div>
                     </div>
 
                     <!-- ───────────── Browse / Filter / Inbox ───────────── -->
                     <div class="intra__tile p-3">
-                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 <h5 class="mb-0"><i class="fa-solid fa-inbox me-2"></i>Letzte Fehler</h5>
-                                <small class="text-muted">Gruppiert nach Exception &amp; Datei. Klick zum Aufklappen.</small>
+                                <small class="text-gray-400">Gruppiert nach Exception &amp; Datei. Klick zum Aufklappen.</small>
                             </div>
                             <div class="btn-toolbar-group" id="inboxScopeFilter">
                                 <button type="button" class="btn active" data-scope="all">Alle</button>
@@ -489,7 +478,6 @@ function logs_level_badge(string $level): string
                             </tbody>
                         </table>
                     </details>
-                </div>
             </div>
         </div>
     </div>

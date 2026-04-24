@@ -115,10 +115,9 @@ $statusLabels = [
 
 <body data-bs-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . "/../../../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
                     <nav class="admin-breadcrumb">
                         <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
                         <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
@@ -148,43 +147,33 @@ $statusLabels = [
                     <?php endif; ?>
 
                     <!-- Statistik-Karten -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center">
-                                <div class="fs-2 fw-bold text-danger"><?= (int)$stats['open_count'] ?></div>
-                                <small class="text-muted">Offen</small>
-                            </div>
+                    <div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-5">
+                        <div class="intra__tile p-3 text-center">
+                            <div class="text-3xl font-bold text-danger"><?= (int)$stats['open_count'] ?></div>
+                            <small class="text-gray-400">Offen</small>
                         </div>
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center">
-                                <div class="fs-2 fw-bold text-warning"><?= (int)$stats['in_progress_count'] ?></div>
-                                <small class="text-muted">In Bearbeitung</small>
-                            </div>
+                        <div class="intra__tile p-3 text-center">
+                            <div class="text-3xl font-bold text-warning"><?= (int)$stats['in_progress_count'] ?></div>
+                            <small class="text-gray-400">In Bearbeitung</small>
                         </div>
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center">
-                                <div class="fs-2 fw-bold text-primary"><?= (int)$stats['deferred_count'] ?></div>
-                                <small class="text-muted">Aufgeschoben</small>
-                            </div>
+                        <div class="intra__tile p-3 text-center">
+                            <div class="text-3xl font-bold text-primary"><?= (int)$stats['deferred_count'] ?></div>
+                            <small class="text-gray-400">Aufgeschoben</small>
                         </div>
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center">
-                                <div class="fs-2 fw-bold text-success"><?= (int)$stats['resolved_count'] ?></div>
-                                <small class="text-muted">Gelöst</small>
-                            </div>
+                        <div class="intra__tile p-3 text-center">
+                            <div class="text-3xl font-bold text-success"><?= (int)$stats['resolved_count'] ?></div>
+                            <small class="text-gray-400">Gelöst</small>
                         </div>
-                        <div class="col-6 col-md">
-                            <div class="intra__tile p-3 text-center">
-                                <div class="fs-2 fw-bold" style="color:#ff4444;"><?= (int)$stats['not_operable_open'] ?></div>
-                                <small class="text-muted">Nicht einsatzfähig</small>
-                            </div>
+                        <div class="intra__tile p-3 text-center">
+                            <div class="text-3xl font-bold" style="color:#ff4444;"><?= (int)$stats['not_operable_open'] ?></div>
+                            <small class="text-gray-400">Nicht einsatzfähig</small>
                         </div>
                     </div>
 
                     <!-- Filter -->
-                    <div class="intra__tile p-3 mb-4">
-                        <form method="GET" class="row g-2 align-items-end">
-                            <div class="col-auto">
+                    <div class="intra__tile mb-4 p-3">
+                        <form method="GET" class="flex flex-wrap items-end gap-2">
+                            <div>
                                 <label class="form-label mb-1">Fahrzeug</label>
                                 <select name="vehicle" class="form-select form-select-sm">
                                     <option value="">Alle</option>
@@ -195,7 +184,7 @@ $statusLabels = [
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-auto">
+                            <div>
                                 <label class="form-label mb-1">Status</label>
                                 <select name="status" class="form-select form-select-sm">
                                     <option value="">Alle</option>
@@ -205,9 +194,9 @@ $statusLabels = [
                                     <option value="resolved" <?= $filterStatus === 'resolved' ? 'selected' : '' ?>>Gelöst</option>
                                 </select>
                             </div>
-                            <div class="col-auto">
+                            <div class="flex gap-2">
                                 <button type="submit" class="btn btn-sm btn-soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
-                                <a href="?" class="btn btn-sm btn-ghost">Zurücksetzen</a>
+                                <a href="?" class="btn btn-sm btn-ghost no-underline hover:no-underline">Zurücksetzen</a>
                             </div>
                         </form>
                     </div>
@@ -222,12 +211,12 @@ $statusLabels = [
                                 </div>
                             </div>
                         <?php endif; ?>
-                        <div id="defectNoResults" class="p-4 text-center text-muted" style="display:none;">
+                        <div id="defectNoResults" class="p-4 text-center text-gray-400" style="display:none;">
                             <i class="fa-solid fa-search fa-2x mb-2" style="opacity:0.4;"></i>
                             <div>Keine Treffer</div>
                         </div>
                         <?php if (empty($defects)): ?>
-                            <div class="p-4 text-center text-muted">
+                            <div class="p-4 text-center text-gray-400">
                                 <i class="fa-solid fa-check-circle fa-2x mb-2" style="opacity:0.4;"></i>
                                 <div>Keine Defekte gefunden</div>
                             </div>
@@ -255,7 +244,7 @@ $statusLabels = [
                                             <div class="defect-vehicle">
                                                 <i class="fa-solid fa-truck"></i>
                                                 <?= htmlspecialchars($d['vehicle_name']) ?>
-                                                <span class="text-muted">(<?= htmlspecialchars($d['vehicle_identifier']) ?>)</span>
+                                                <span class="text-gray-400">(<?= htmlspecialchars($d['vehicle_identifier']) ?>)</span>
                                             </div>
                                         </div>
                                         <?php if ($d['description']): ?>
@@ -316,7 +305,6 @@ $statusLabels = [
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
-                </div>
             </div>
         </div>
     </div>
@@ -361,7 +349,7 @@ $statusLabels = [
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Fahrzeug noch einsatzfähig?</label>
-                            <div class="d-flex gap-3">
+                            <div class="flex gap-3">
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" name="vehicle_operable" id="operable-yes" value="1" checked>
                                     <label class="form-check-label" for="operable-yes">Ja</label>
@@ -371,7 +359,7 @@ $statusLabels = [
                                     <label class="form-check-label" for="operable-no">Nein</label>
                                 </div>
                             </div>
-                            <small class="text-muted">Bei "Nein" wird das Fahrzeug automatisch als nicht einsatzfähig markiert.</small>
+                            <small class="text-gray-400">Bei "Nein" wird das Fahrzeug automatisch als nicht einsatzfähig markiert.</small>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -396,7 +384,7 @@ $statusLabels = [
                     <div class="modal-body">
                         <p class="mb-3">Defekt <strong id="resolve-defect-title"></strong> als gelöst markieren?</p>
                         <div class="mb-3">
-                            <label class="form-label">Lösungsnotiz <small class="text-muted">(optional)</small></label>
+                            <label class="form-label">Lösungsnotiz <small class="text-gray-400">(optional)</small></label>
                             <textarea name="resolution_note" class="form-control" rows="3" placeholder="Was wurde gemacht?"></textarea>
                         </div>
                     </div>
@@ -421,9 +409,9 @@ $statusLabels = [
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <p class="mb-3">Defekt <strong id="status-change-defect-title"></strong> auf <span id="status-change-label" class="fw-bold"></span> setzen?</p>
+                        <p class="mb-3">Defekt <strong id="status-change-defect-title"></strong> auf <span id="status-change-label" class="font-bold"></span> setzen?</p>
                         <div class="mb-3">
-                            <label class="form-label">Notiz <small class="text-muted">(optional)</small></label>
+                            <label class="form-label">Notiz <small class="text-gray-400">(optional)</small></label>
                             <textarea name="status_note" class="form-control" rows="3" placeholder="z.B. Ersatzteil bestellt, wird nächste Woche geliefert..."></textarea>
                         </div>
                     </div>
@@ -445,40 +433,40 @@ $statusLabels = [
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <small class="text-muted">Fahrzeug</small>
-                            <div id="detail-vehicle" class="fw-bold"></div>
+                    <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-12">
+                        <div class="md:col-span-6">
+                            <small class="text-gray-400">Fahrzeug</small>
+                            <div id="detail-vehicle" class="font-bold"></div>
                         </div>
-                        <div class="col-md-3">
-                            <small class="text-muted">Kategorie</small>
+                        <div class="md:col-span-3">
+                            <small class="text-gray-400">Kategorie</small>
                             <div id="detail-category"></div>
                         </div>
-                        <div class="col-md-3">
-                            <small class="text-muted">Status</small>
+                        <div class="md:col-span-3">
+                            <small class="text-gray-400">Status</small>
                             <div id="detail-status"></div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <small class="text-muted">Beschreibung</small>
+                        <small class="text-gray-400">Beschreibung</small>
                         <div id="detail-description"></div>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <small class="text-muted">Gemeldet von</small>
+                    <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-3">
+                        <div>
+                            <small class="text-gray-400">Gemeldet von</small>
                             <div id="detail-reporter"></div>
                         </div>
-                        <div class="col-md-4">
-                            <small class="text-muted">Zugewiesen an</small>
+                        <div>
+                            <small class="text-gray-400">Zugewiesen an</small>
                             <div id="detail-assigned"></div>
                         </div>
-                        <div class="col-md-4">
-                            <small class="text-muted">Einsatzfähig?</small>
+                        <div>
+                            <small class="text-gray-400">Einsatzfähig?</small>
                             <div id="detail-operable"></div>
                         </div>
                     </div>
                     <div id="detail-resolution-wrap" class="mb-3" style="display:none;">
-                        <small class="text-muted">Lösung</small>
+                        <small class="text-gray-400">Lösung</small>
                         <div class="defect-resolution p-2" id="detail-resolution"></div>
                     </div>
 
@@ -488,7 +476,7 @@ $statusLabels = [
                 </div>
                 <div class="modal-footer">
                     <?php if ($canManage): ?>
-                        <div class="d-flex gap-2 me-auto">
+                        <div class="me-auto flex gap-2">
                             <select id="detail-assign-select" class="form-select form-select-sm" style="width:auto;">
                                 <option value="">Zuweisen an...</option>
                                 <?php foreach ($users as $u): ?>
@@ -743,7 +731,7 @@ $statusLabels = [
                                 logHtml += '</div>';
                             });
                         } else {
-                            logHtml = '<div class="text-muted">Kein Verlauf vorhanden</div>';
+                            logHtml = '<div class="text-gray-400">Kein Verlauf vorhanden</div>';
                         }
                         document.getElementById('detail-log').innerHTML = logHtml;
 

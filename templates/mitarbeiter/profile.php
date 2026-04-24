@@ -53,7 +53,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                 <div class="col mb-5">
                     <h1 class="mb-3">Mitarbeiterprofil</h1>
 
-                    <div class="d-flex align-items-center gap-2 mb-3 px-3 py-2 rounded-2" style="background: var(--card-bg); border: 1px solid var(--border-color);">
+                    <div class="mb-3 flex flex-wrap items-center gap-2 rounded px-3 py-2" style="background: var(--card-bg); border: 1px solid var(--border-color);">
                         <span class="fw-semibold" style="font-size: var(--font-size-sm);">Konto-Status:</span>
                         <?php if ($accountStatus === 'active'): ?>
                             <span class="badge text-bg-success"><i class="fa-solid fa-circle-check me-1"></i>Konto aktiv</span>
@@ -116,7 +116,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                             <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="col text-end" style="color:var(--tag-color)">Akten-ID: <?= (int) $row['id'] ?></div>
+                                    <div class="col text-right" style="color:var(--tag-color)">Akten-ID: <?= (int) $row['id'] ?></div>
                                 </div>
 
                                 <?php
@@ -164,7 +164,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                         <tbody class="text-start">
                                             <?php if ($canEdit): ?>
                                             <tr>
-                                                <td class="fw-bold">Vor- und Zuname</td>
+                                                <td class="font-bold">Vor- und Zuname</td>
                                                 <td class="inline-edit-cell" data-field="fullname" data-type="text"><?= htmlspecialchars($row['fullname']) ?></td>
                                             </tr>
                                             <?php endif; ?>
