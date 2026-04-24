@@ -39,7 +39,7 @@ use App\Helpers\Flash;
                         <div class="header-actions">
                             <?php if (Gate::allows('mitarbeiter.create') && !$showArchive): ?>
                                 <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalCreateMitarbeiter">
-                                    <i class="fa-solid fa-plus me-1"></i>Neuer Mitarbeiter
+                                    <i class="fa-solid fa-plus mr-1"></i>Neuer Mitarbeiter
                                 </button>
                             <?php endif; ?>
                             <?php if ($showArchive): ?>
@@ -53,7 +53,7 @@ use App\Helpers\Flash;
 
                     <!-- Filter-Leiste -->
                     <div class="intra__tile py-2 px-3 mb-3">
-                        <div class="row g-2 align-items-end">
+                        <div class="row g-2 items-end">
                             <div class="col-auto">
                                 <label for="filterDienstgrad" class="form-label small mb-1">Dienstgrad</label>
                                 <select class="form-select form-select-sm" id="filterDienstgrad" style="min-width: 180px;">
@@ -170,27 +170,27 @@ use App\Helpers\Flash;
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalCreateMitarbeiterLabel"><i class="fa-solid fa-user-plus me-2"></i>Neuer Mitarbeiter</h5>
+                    <h5 class="modal-title" id="modalCreateMitarbeiterLabel"><i class="fa-solid fa-user-plus mr-2"></i>Neuer Mitarbeiter</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
                 <form id="createMitarbeiterForm" novalidate>
                     <div class="modal-body">
-                        <div class="row g-3">
-                            <div class="col-md-6">
+                        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+                            <div>
                                 <div class="form-floating">
                                     <input class="form-control" type="text" name="fullname" id="cm_fullname" placeholder="Vor- und Zuname" required>
                                     <label for="cm_fullname">Vor- und Zuname</label>
                                     <div class="invalid-feedback">Pflichtfeld</div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div>
                                 <div class="form-floating">
                                     <input class="form-control" type="date" name="gebdatum" id="cm_gebdatum" min="1900-01-01" placeholder="Geburtsdatum" required>
                                     <label for="cm_gebdatum">Geburtsdatum</label>
                                     <div class="invalid-feedback">Pflichtfeld</div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div>
                                 <div class="form-floating">
                                     <select class="form-select" name="dienstgrad" id="cm_dienstgrad" required>
                                         <option value="" selected hidden>Bitte wählen</option>
@@ -202,7 +202,7 @@ use App\Helpers\Flash;
                                     <div class="invalid-feedback">Pflichtfeld</div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div>
                                 <div class="form-floating">
                                     <select name="geschlecht" id="cm_geschlecht" class="form-select" required>
                                         <option value="" selected hidden>Bitte wählen</option>
@@ -215,7 +215,7 @@ use App\Helpers\Flash;
                                 </div>
                             </div>
                             <?php if (defined('CHAR_ID') && CHAR_ID): ?>
-                                <div class="col-md-6">
+                                <div>
                                     <div class="form-floating">
                                         <input class="form-control" type="text" name="charakterid" id="cm_charakterid" placeholder="ABC12345" pattern="[a-zA-Z]{3}[0-9]{5}" required>
                                         <label for="cm_charakterid">Charakter-ID</label>
@@ -223,20 +223,20 @@ use App\Helpers\Flash;
                                     </div>
                                 </div>
                             <?php endif; ?>
-                            <div class="col-md-6">
+                            <div>
                                 <div class="form-floating">
                                     <input class="form-control" type="text" inputmode="numeric" name="discordtag" id="cm_discordtag" pattern="[0-9]{17,20}" maxlength="20" placeholder="Discord-ID" required>
                                     <label for="cm_discordtag">Discord-ID</label>
                                     <div class="invalid-feedback">17-20 Ziffern</div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div>
                                 <div class="form-floating">
                                     <input class="form-control" type="text" name="telefonnr" id="cm_telefonnr" placeholder="Telefonnummer" value="0176 00 00 00 0">
                                     <label for="cm_telefonnr">Telefonnummer</label>
                                 </div>
                             </div>
-                            <div class="col-md-6 dienstnr-container">
+                            <div class="dienstnr-container">
                                 <div class="form-floating">
                                     <input class="form-control" type="text" name="dienstnr" id="dienstnr"
                                         pattern="^(?=.*[0-9])[A-Za-z0-9\-]+$" title="z.B. RD-001, BF01" placeholder="Dienstnummer" required>
@@ -246,7 +246,7 @@ use App\Helpers\Flash;
                                     <div id="dienstnr-feedback" class="text-danger small" style="display: none;"></div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div>
                                 <div class="form-floating">
                                     <input class="form-control" type="date" name="einstdatum" id="cm_einstdatum" min="2022-01-01" placeholder="Einstellungsdatum" required>
                                     <label for="cm_einstdatum">Einstellungsdatum</label>
@@ -258,7 +258,7 @@ use App\Helpers\Flash;
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost btn-sm" data-bs-dismiss="modal">Abbrechen</button>
                         <button type="submit" class="btn btn-success btn-sm" id="cm_submit">
-                            <i class="fa-solid fa-plus me-1"></i>Mitarbeiter erstellen
+                            <i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen
                         </button>
                     </div>
                 </form>
@@ -374,7 +374,7 @@ use App\Helpers\Flash;
 
             var submitBtn = document.getElementById('cm_submit');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Wird erstellt...';
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Wird erstellt...';
 
             var formData = new FormData(form);
 
@@ -392,13 +392,13 @@ use App\Helpers\Flash;
                 } else {
                     showToast(data.message || 'Fehler beim Erstellen', 'danger');
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fa-solid fa-plus me-1"></i>Mitarbeiter erstellen';
+                    submitBtn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen';
                 }
             })
             .catch(function() {
                 showToast('Verbindungsfehler', 'danger');
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-plus me-1"></i>Mitarbeiter erstellen';
+                submitBtn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen';
             });
         });
 
@@ -420,7 +420,7 @@ use App\Helpers\Flash;
             var submitBtn = document.getElementById('cm_submit');
             if (submitBtn) {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-plus me-1"></i>Mitarbeiter erstellen';
+                submitBtn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen';
             }
         });
     });

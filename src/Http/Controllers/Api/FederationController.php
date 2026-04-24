@@ -45,7 +45,7 @@ final class FederationController
 
         $instanceId   = FederationMiddleware::config('FEDERATION_INSTANCE_ID');
         $instanceName = FederationMiddleware::config('FEDERATION_INSTANCE_NAME')
-            ?: FederationMiddleware::config('SYSTEM_NAME', 'intraRP');
+            ?: FederationMiddleware::config('SYSTEM_NAME', 'ıgnıs');
 
         $capabilities = [];
         if ($link['provide_personnel']) $capabilities[] = 'personnel';
@@ -111,7 +111,7 @@ final class FederationController
 
             $instanceId   = $service->ensureInstanceId();
             $instanceName = FederationMiddleware::config('FEDERATION_INSTANCE_NAME')
-                ?: FederationMiddleware::config('SYSTEM_NAME', 'intraRP');
+                ?: FederationMiddleware::config('SYSTEM_NAME', 'ıgnıs');
 
             ApiResponse::success([
                 'instance_id'     => $instanceId,

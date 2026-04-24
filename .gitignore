@@ -12,11 +12,17 @@ node_modules/
 storage/cache/
 support_errors.log
 storage/last_emd_sync.txt
+storage/cron-lock.txt
+skills-lock.json
 *.backup
 .vscode
 .idea
 .qodo
 .claude
+.agents
+.augment
+.codebuddy
+.commandcode
 system/updates/*.zip
 system/updates/temp/
 intrap

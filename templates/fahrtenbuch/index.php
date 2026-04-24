@@ -92,7 +92,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                         ?>
 
                         <div class="mt-4 flex gap-2">
-                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Speichern</button>
+                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
                             <button type="button" class="btn btn-sm btn-ghost" id="cancelCreateForm">Abbrechen</button>
                         </div>
                     </form>
@@ -113,7 +113,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                         ?>
 
                         <div class="mt-4 flex gap-2">
-                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Aktualisieren</button>
+                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
                             <button type="button" class="btn btn-sm btn-ghost" id="cancelEditForm">Abbrechen</button>
                         </div>
                     </form>
@@ -206,9 +206,9 @@ $SITE_TITLE = 'Fahrtenbuch';
                                                 $e['fahrer_name'] . ' ' . $typLabel . ' ' .
                                                 ($e['stationierungsort'] ?? '') . ' ' . ($e['grund'] ?? '')
                                             )) ?>">
-                                                <td><?= date('d.m.Y', strtotime($e['datum'])) ?></td>
-                                                <td><?= date('H:i', strtotime($e['abfahrt'])) ?></td>
-                                                <td><?= $e['ankunft'] ? date('H:i', strtotime($e['ankunft'])) : '<span class="text-gray-400">—</span>' ?></td>
+                                                <td><?= \App\Helpers\DateTimeHelper::formatDateLocal($e['datum']) ?></td>
+                                                <td><?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?></td>
+                                                <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-gray-400">—</span>' ?></td>
                                                 <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
                                                 <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
                                                 <td><span class="badge text-bg-<?= htmlspecialchars($typBadge) ?>"><?= htmlspecialchars($typLabel) ?></span></td>
@@ -225,8 +225,8 @@ $SITE_TITLE = 'Fahrtenbuch';
                                                         <button type="button" class="btn btn-sm btn-ghost fb-edit-btn"
                                                                 data-id="<?= (int) $e['id'] ?>"
                                                                 data-datum="<?= htmlspecialchars($e['datum']) ?>"
-                                                                data-abfahrt="<?= date('H:i', strtotime($e['abfahrt'])) ?>"
-                                                                data-ankunft="<?= $e['ankunft'] ? date('H:i', strtotime($e['ankunft'])) : '' ?>"
+                                                                data-abfahrt="<?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?>"
+                                                                data-ankunft="<?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '' ?>"
                                                                 data-vehicle-id="<?= (int) ($e['vehicle_id'] ?? 0) ?>"
                                                                 data-vehicle-identifier="<?= htmlspecialchars($e['vehicle_identifier']) ?>"
                                                                 data-fahrer-name="<?= htmlspecialchars($e['fahrer_name']) ?>"

@@ -59,7 +59,7 @@ use App\Helpers\Flash;
                     </div>
 
                     <button type="submit" name="update_typ" class="btn btn-soft-primary">
-                        <i class="fa-solid fa-save me-2"></i>Speichern
+                        <i class="fa-solid fa-save mr-2"></i>Speichern
                     </button>
                 </form>
             </div>
@@ -67,15 +67,15 @@ use App\Helpers\Flash;
             <!-- Felder Verwaltung -->
             <div class="intra__tile mb-4 p-4">
                 <div class="mb-4 flex items-center justify-between">
-                    <h4><i class="fa-solid fa-list me-2"></i>Formularfelder (<?= count($felder) ?>)</h4>
+                    <h4><i class="fa-solid fa-list mr-2"></i>Formularfelder (<?= count($felder) ?>)</h4>
                     <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addFeldModal">
-                        <i class="fa-solid fa-plus me-1"></i>Feld hinzufügen
+                        <i class="fa-solid fa-plus mr-1"></i>Feld hinzufügen
                     </button>
                 </div>
 
                 <?php if (empty($felder)): ?>
                     <div class="alert alert-info">
-                        <i class="fa-solid fa-info-circle me-2"></i>
+                        <i class="fa-solid fa-info-circle mr-2"></i>
                         Noch keine Felder definiert. Fügen Sie jetzt Ihr erstes Feld hinzu!
                     </div>
                 <?php else: ?>
@@ -138,14 +138,14 @@ use App\Helpers\Flash;
                             </table>
                         </div>
                         <button type="submit" name="update_felder_sortierung" class="btn btn-soft-primary mt-2">
-                            <i class="fa-solid fa-save me-2"></i>Sortierung speichern
+                            <i class="fa-solid fa-save mr-2"></i>Sortierung speichern
                         </button>
                     </form>
                 <?php endif; ?>
             </div>
 
             <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-ghost mb-6 no-underline hover:no-underline">
-                <i class="fa-solid fa-arrow-left me-2"></i>Zurück zur Übersicht
+                <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Übersicht
             </a>
         </div>
     </div>
@@ -156,7 +156,7 @@ use App\Helpers\Flash;
             <div class="modal-content bg-dark">
                 <form method="post">
                     <div class="modal-header">
-                        <h5 class="modal-title"><i class="fa-solid fa-plus me-2"></i>Neues Feld hinzufügen</h5>
+                        <h5 class="modal-title"><i class="fa-solid fa-plus mr-2"></i>Neues Feld hinzufügen</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -242,7 +242,7 @@ use App\Helpers\Flash;
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                         <button type="submit" name="add_feld" class="btn btn-success">
-                            <i class="fa-solid fa-plus me-2"></i>Feld hinzufügen
+                            <i class="fa-solid fa-plus mr-2"></i>Feld hinzufügen
                         </button>
                     </div>
                 </form>

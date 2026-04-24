@@ -1,6 +1,6 @@
 <?php
 /**
- * Error page matching the intraRP design system.
+ * Error page matching the ignis design system.
  *
  * Available variables from ErrorHandler:
  * - $exception: ?Throwable - the exception (null for fatal errors)
@@ -16,8 +16,15 @@ $trace = $exception ? $exception->getTrace() : [];
 $phpVersion = PHP_VERSION;
 
 // Read version info
-$versionFile = dirname(__DIR__, 2) . '/system/updates/version.json';
-$versionInfo = file_exists($versionFile) ? json_decode(file_get_contents($versionFile), true) : null;
+$versionFile = dirname(__DIR__, 2) . '/storage/version.json';
+if (!is_file($versionFile)) {
+    // Legacy-Fallback falls Migration noch nicht durchgelaufen ist
+    $legacy = dirname(__DIR__, 2) . '/system/updates/version.json';
+    if (is_file($legacy)) {
+        $versionFile = $legacy;
+    }
+}
+$versionInfo = is_file($versionFile) ? json_decode(file_get_contents($versionFile), true) : null;
 $appVersion = $versionInfo['version'] ?? 'unknown';
 
 // Request info
@@ -412,11 +419,11 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <div class="err-header">
         <div class="container">
             <?php if ($isDev): ?>
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
                     <span class="err-badge err-badge-danger">500</span>
                     <span class="err-badge err-badge-primary"><?= htmlspecialchars($requestMethod) ?></span>
                     <span class="err-badge err-badge-warning">UNHANDLED</span>
-                    <span class="err-badge err-badge-dark">intraRP <?= htmlspecialchars($appVersion) ?></span>
+                    <span class="err-badge err-badge-dark">ıgnıs <?= htmlspecialchars($appVersion) ?></span>
                     <span class="err-badge err-badge-secondary">PHP <?= htmlspecialchars($phpVersion) ?></span>
                     <?php if ($exceptionCode): ?>
                         <span class="err-badge err-badge-danger">CODE <?= htmlspecialchars((string)$exceptionCode) ?></span>
@@ -429,7 +436,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     <span class="err-badge err-badge-danger" style="font-size:0.7em"><?= htmlspecialchars($requestMethod) ?></span>
                     <?= htmlspecialchars($requestUrl) ?>
                 </div>
-                <div class="d-flex gap-2 mt-3">
+                <div class="flex gap-2 mt-3">
                     <button type="button" class="err-btn-ghost" id="copyMarkdownBtn" onclick="copyErrorAsMarkdown()">
                         <i class="fa-brands fa-markdown"></i> Als Markdown kopieren
                     </button>
@@ -440,9 +447,9 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     <?php endif; ?>
                 </div>
             <?php else: ?>
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <div class="flex flex-wrap items-center gap-2 mb-3">
                     <span class="err-badge err-badge-danger">500</span>
-                    <span class="err-badge err-badge-dark">intraRP <?= htmlspecialchars($appVersion) ?></span>
+                    <span class="err-badge err-badge-dark">ıgnıs <?= htmlspecialchars($appVersion) ?></span>
                 </div>
                 <div class="err-exception-name">Serverfehler</div>
                 <div class="err-message">Es ist ein interner Fehler aufgetreten.</div>
@@ -485,7 +492,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     </div>
                 </div>
 
-                <div class="d-flex gap-2 justify-content-center">
+                <div class="flex gap-2 justify-center">
                     <a href="javascript:history.back()" class="err-btn err-btn-main">
                         <i class="fa-solid fa-arrow-left"></i> Zurück
                     </a>
@@ -499,9 +506,9 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <?php else: ?>
         <!-- ========== DEVELOPMENT ========== -->
         <div class="err-tabs">
-            <button class="err-tab active" data-tab="trace"><i class="fa-solid fa-layer-group me-1"></i> Stack Trace</button>
-            <button class="err-tab" data-tab="request"><i class="fa-solid fa-arrow-right-arrow-left me-1"></i> Request</button>
-            <button class="err-tab" data-tab="app"><i class="fa-solid fa-gear me-1"></i> App</button>
+            <button class="err-tab active" data-tab="trace"><i class="fa-solid fa-layer-group mr-1"></i> Stack Trace</button>
+            <button class="err-tab" data-tab="request"><i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> Request</button>
+            <button class="err-tab" data-tab="app"><i class="fa-solid fa-gear mr-1"></i> App</button>
         </div>
 
         <!-- Stack Trace -->
@@ -592,10 +599,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
 
         <!-- Request -->
         <div class="err-tab-content" id="tab-request">
-            <div class="row g-3">
-                <div class="col-lg-6">
+            <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                <div>
                     <div class="err-tile mb-3">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-arrow-down-short-wide me-1"></i> Headers</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-arrow-down-short-wide mr-1"></i> Headers</h6>
                         <table class="err-info-table">
                             <?php foreach ($requestHeaders as $name => $value): ?>
                                 <tr><td class="k"><?= htmlspecialchars($name) ?></td><td class="v"><?= htmlspecialchars($value) ?></td></tr>
@@ -607,7 +614,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     </div>
 
                     <div class="err-tile">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-file-lines me-1"></i> Body</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-file-lines mr-1"></i> Body</h6>
                         <?php $body = file_get_contents('php://input');
                         if ($body): ?>
                             <pre style="font-family:var(--font-mono);font-size:0.78rem;white-space:pre-wrap;margin:0;color:var(--text-normal)"><?= htmlspecialchars($body) ?></pre>
@@ -617,10 +624,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     </div>
                 </div>
 
-                <div class="col-lg-6">
+                <div>
                     <?php if (!empty($_GET)): ?>
                         <div class="err-tile mb-3">
-                            <h6 class="text-white mb-3"><i class="fa-solid fa-question me-1"></i> Query Parameters</h6>
+                            <h6 class="text-white mb-3"><i class="fa-solid fa-question mr-1"></i> Query Parameters</h6>
                             <table class="err-info-table">
                                 <?php foreach ($_GET as $key => $value): ?>
                                     <tr><td class="k"><?= htmlspecialchars($key) ?></td><td class="v"><?= htmlspecialchars(is_array($value) ? json_encode($value) : $value) ?></td></tr>
@@ -631,7 +638,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
 
                     <?php if (!empty($_POST)): ?>
                         <div class="err-tile mb-3">
-                            <h6 class="text-white mb-3"><i class="fa-solid fa-paper-plane me-1"></i> POST Data</h6>
+                            <h6 class="text-white mb-3"><i class="fa-solid fa-paper-plane mr-1"></i> POST Data</h6>
                             <table class="err-info-table">
                                 <?php foreach ($_POST as $key => $value): ?>
                                     <tr><td class="k"><?= htmlspecialchars($key) ?></td><td class="v"><?= htmlspecialchars(is_array($value) ? json_encode($value) : $value) ?></td></tr>
@@ -642,7 +649,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
 
                     <?php if (!empty($_COOKIE)): ?>
                         <div class="err-tile mb-3">
-                            <h6 class="text-white mb-3"><i class="fa-solid fa-cookie-bite me-1"></i> Cookies</h6>
+                            <h6 class="text-white mb-3"><i class="fa-solid fa-cookie-bite mr-1"></i> Cookies</h6>
                             <table class="err-info-table">
                                 <?php foreach ($_COOKIE as $key => $value): ?>
                                     <tr><td class="k"><?= htmlspecialchars($key) ?></td><td class="v"><?= htmlspecialchars(is_string($value) ? $value : json_encode($value)) ?></td></tr>
@@ -652,7 +659,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     <?php endif; ?>
 
                     <div class="err-tile">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-key me-1"></i> Session</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-key mr-1"></i> Session</h6>
                         <table class="err-info-table">
                             <?php if (isset($_SESSION) && !empty($_SESSION)): ?>
                                 <?php foreach ($_SESSION as $key => $value): ?>
@@ -669,10 +676,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
 
         <!-- App -->
         <div class="err-tab-content" id="tab-app">
-            <div class="row g-3">
-                <div class="col-lg-6">
+            <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                <div>
                     <div class="err-tile mb-3">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-route me-1"></i> Routing</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-route mr-1"></i> Routing</h6>
                         <table class="err-info-table">
                             <tr><td class="k">Script</td><td class="v"><?= htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '-') ?></td></tr>
                             <tr><td class="k">Request URI</td><td class="v"><?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '-') ?></td></tr>
@@ -681,20 +688,20 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     </div>
 
                     <div class="err-tile">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-server me-1"></i> Environment</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-server mr-1"></i> Environment</h6>
                         <table class="err-info-table">
                             <tr><td class="k">APP_ENV</td><td class="v"><?= htmlspecialchars($_ENV['APP_ENV'] ?? 'not set') ?></td></tr>
                             <tr><td class="k">PHP</td><td class="v"><?= htmlspecialchars($phpVersion) ?></td></tr>
-                            <tr><td class="k">intraRP</td><td class="v"><?= htmlspecialchars($appVersion) ?></td></tr>
+                            <tr><td class="k">ıgnıs</td><td class="v"><?= htmlspecialchars($appVersion) ?></td></tr>
                             <tr><td class="k">Server</td><td class="v"><?= htmlspecialchars($_SERVER['SERVER_SOFTWARE'] ?? '-') ?></td></tr>
                             <tr><td class="k">Doc Root</td><td class="v"><?= htmlspecialchars($_SERVER['DOCUMENT_ROOT'] ?? '-') ?></td></tr>
                         </table>
                     </div>
                 </div>
 
-                <div class="col-lg-6">
+                <div>
                     <div class="err-tile">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-puzzle-piece me-1"></i> PHP Extensions</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-puzzle-piece mr-1"></i> PHP Extensions</h6>
                         <div style="font-family:var(--font-mono);font-size:0.78rem;color:var(--text-dimmed);column-count:2;column-gap:1.5rem">
                             <?php foreach (get_loaded_extensions() as $ext): ?>
                                 <div style="padding:0.1rem 0"><?= htmlspecialchars($ext) ?></div>
@@ -748,7 +755,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     $_metaRows[] = '| Method | `' . $requestMethod . '` |';
     $_metaRows[] = '| URL | `' . $requestUrl . '` |';
     $_metaRows[] = '| PHP | ' . $phpVersion . ' |';
-    $_metaRows[] = '| intraRP | ' . $appVersion . ' |';
+    $_metaRows[] = '| ıgnıs | ' . $appVersion . ' |';
     if (!empty($_ENV['APP_ENV'])) {
         $_metaRows[] = '| APP_ENV | `' . $_ENV['APP_ENV'] . '` |';
     }

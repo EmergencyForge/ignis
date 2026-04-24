@@ -30,30 +30,30 @@ $val = function (string $field, string $default = '') use ($entry) {
 };
 ?>
 
-<div class="row g-3">
+<div class="grid grid-cols-1 gap-3 md:grid-cols-12">
     <!-- Datum -->
-    <div class="col-md-4">
+    <div class="md:col-span-4">
         <label for="fb_datum" class="form-label">Datum <span class="text-danger">*</span></label>
         <input type="date" class="form-control form-control-sm" id="fb_datum" name="datum"
                value="<?= $isEdit ? $val('datum') : date('Y-m-d') ?>" required>
     </div>
 
     <!-- Abfahrt -->
-    <div class="col-md-4">
+    <div class="md:col-span-4">
         <label for="fb_abfahrt" class="form-label">Abfahrt <span class="text-danger">*</span></label>
         <input type="time" class="form-control form-control-sm" id="fb_abfahrt" name="abfahrt"
                value="<?= $isEdit ? $val('abfahrt') : date('H:i') ?>" required>
     </div>
 
     <!-- Ankunft -->
-    <div class="col-md-4">
+    <div class="md:col-span-4">
         <label for="fb_ankunft" class="form-label">Ankunft</label>
         <input type="time" class="form-control form-control-sm" id="fb_ankunft" name="ankunft"
                value="<?= $val('ankunft') ?>">
     </div>
 
     <!-- Fahrzeug -->
-    <div class="col-md-6">
+    <div class="md:col-span-6">
         <label for="fb_fahrzeug" class="form-label">Fahrzeug <span class="text-danger">*</span></label>
         <?php if ($isReadonly): ?>
             <input type="text" class="form-control form-control-sm" value="<?= htmlspecialchars($vehicleName ?: $vehicleIdentifier) ?>" readonly>
@@ -76,7 +76,7 @@ $val = function (string $field, string $default = '') use ($entry) {
     </div>
 
     <!-- Fahrer -->
-    <div class="col-md-6">
+    <div class="md:col-span-6">
         <label for="fb_fahrer" class="form-label">Fahrer <span class="text-danger">*</span></label>
         <?php if ($isReadonly): ?>
             <input type="text" class="form-control form-control-sm" value="<?= htmlspecialchars($fahrerName) ?>" readonly>
@@ -88,7 +88,7 @@ $val = function (string $field, string $default = '') use ($entry) {
     </div>
 
     <!-- Fahrttyp -->
-    <div class="col-md-6">
+    <div class="md:col-span-6">
         <label for="fb_fahrttyp" class="form-label">Fahrttyp <span class="text-danger">*</span></label>
         <select class="form-select form-select-sm" id="fb_fahrttyp" name="fahrttyp" required>
             <option value="">Bitte auswählen...</option>
@@ -102,21 +102,21 @@ $val = function (string $field, string $default = '') use ($entry) {
     </div>
 
     <!-- Kilometer -->
-    <div class="col-md-6">
+    <div class="md:col-span-6">
         <label for="fb_kilometer" class="form-label">Kilometer</label>
         <input type="number" class="form-control form-control-sm" id="fb_kilometer" name="kilometer"
                step="0.1" min="0" value="<?= $val('kilometer') ?>">
     </div>
 
     <!-- Stationierungsort -->
-    <div class="col-12">
+    <div class="md:col-span-12">
         <label for="fb_stationierungsort" class="form-label">Stationierungsort</label>
         <input type="text" class="form-control form-control-sm" id="fb_stationierungsort" name="stationierungsort"
                value="<?= $val('stationierungsort') ?>" placeholder="z.B. Feuerwehr Gerätehaus">
     </div>
 
     <!-- Grund -->
-    <div class="col-12">
+    <div class="md:col-span-12">
         <label for="fb_grund" class="form-label">Grund der Fahrt</label>
         <textarea class="form-control form-control-sm" id="fb_grund" name="grund" rows="2"
                   placeholder="Freitext..."><?= $val('grund') ?></textarea>

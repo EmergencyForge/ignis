@@ -23,12 +23,52 @@ class SystemUpdater
     public function __construct()
     {
         $appRoot = dirname(dirname(__DIR__));
-        $this->versionFile = $appRoot . '/system/updates/version.json';
-        $this->composerPendingFile = $appRoot . '/system/updates/composer_pending.json';
-        $this->diagnosticFile = $appRoot . '/system/updates/diagnostic.log';
+        $this->versionFile = $appRoot . '/storage/version.json';
+        $this->composerPendingFile = $appRoot . '/storage/composer_pending.json';
+        $this->diagnosticFile = $appRoot . '/storage/logs/updater-diagnostic.log';
         $this->githubApiUrl = "https://api.github.com/repos/{$this->githubRepo}";
+        $this->migrateLegacySystemDirectory($appRoot);
         $this->loadCurrentVersion();
         $this->cleanupOldTempDirectories();
+    }
+
+    /**
+     * Einmalige Migration: /system/updates/* → /storage/*.
+     * Das alte Verzeichnis wird anschließend entfernt, damit es nicht als
+     * Stolperstein zurückbleibt.
+     */
+    private function migrateLegacySystemDirectory(string $appRoot): void
+    {
+        $legacyDir = $appRoot . '/system/updates';
+        if (!is_dir($legacyDir)) {
+            return;
+        }
+
+        $moves = [
+            '/version.json'          => $this->versionFile,
+            '/composer_pending.json' => $this->composerPendingFile,
+            '/diagnostic.log'        => $this->diagnosticFile,
+        ];
+
+        foreach ($moves as $legacyName => $newPath) {
+            $legacyPath = $legacyDir . $legacyName;
+            if (!file_exists($legacyPath)) {
+                continue;
+            }
+            $targetDir = dirname($newPath);
+            if (!is_dir($targetDir)) {
+                @mkdir($targetDir, 0755, true);
+            }
+            if (!file_exists($newPath)) {
+                @copy($legacyPath, $newPath);
+            }
+            @unlink($legacyPath);
+        }
+
+        // Alle weiteren Dateien im Legacy-Ordner ignorieren — sie waren
+        // temporäre Artefakte. Ordner entfernen falls leer.
+        @rmdir($legacyDir);
+        @rmdir($appRoot . '/system');
     }
 
     /**
@@ -91,16 +131,28 @@ class SystemUpdater
             $isNewer = $this->compareVersions($latestVersion, $currentVersion);
             $isLatestPreRelease = $latestRelease['prerelease'] ?? false;
 
-            // Prefer release asset ZIP (includes vendor/) over zipball (raw source)
+            // Prefer release asset ZIP (includes vendor/) over zipball (raw source).
+            // Reihenfolge: ignis-*.zip > intraRP-*.zip (Legacy) > irgendein *.zip.
             $downloadUrl = $latestRelease['zipball_url'] ?? null;
             $hasReleaseAsset = false;
             if (!empty($latestRelease['assets'])) {
+                $pickedAsset = null;
                 foreach ($latestRelease['assets'] as $asset) {
-                    if (str_ends_with($asset['name'] ?? '', '.zip')) {
-                        $downloadUrl = $asset['browser_download_url'];
-                        $hasReleaseAsset = true;
+                    $name = $asset['name'] ?? '';
+                    if (!str_ends_with($name, '.zip')) {
+                        continue;
+                    }
+                    if (str_starts_with($name, 'ignis-')) {
+                        $pickedAsset = $asset;
                         break;
                     }
+                    if ($pickedAsset === null) {
+                        $pickedAsset = $asset;
+                    }
+                }
+                if ($pickedAsset !== null) {
+                    $downloadUrl = $pickedAsset['browser_download_url'];
+                    $hasReleaseAsset = true;
                 }
             }
 
@@ -199,7 +251,7 @@ class SystemUpdater
                 'http' => [
                     'method' => 'GET',
                     'header' => [
-                        'User-Agent: intraRP-Updater',
+                        'User-Agent: ignis-Updater',
                         'Accept: application/vnd.github+json'
                     ],
                     'timeout' => $timeout
@@ -216,7 +268,7 @@ class SystemUpdater
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_TIMEOUT => $timeout,
-                CURLOPT_USERAGENT => 'intraRP-Updater',
+                CURLOPT_USERAGENT => 'ignis-Updater',
                 CURLOPT_HTTPHEADER => ['Accept: application/vnd.github+json'],
                 CURLOPT_SSL_VERIFYPEER => true,
             ]);
@@ -242,7 +294,7 @@ class SystemUpdater
                 'http' => [
                     'method' => 'GET',
                     'header' => [
-                        'User-Agent: intraRP-Updater',
+                        'User-Agent: ignis-Updater',
                         'Accept: application/zip, application/octet-stream'
                     ],
                     'timeout' => 300,
@@ -266,7 +318,7 @@ class SystemUpdater
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_MAXREDIRS => 5,
                 CURLOPT_TIMEOUT => 300,
-                CURLOPT_USERAGENT => 'intraRP-Updater',
+                CURLOPT_USERAGENT => 'ignis-Updater',
                 CURLOPT_HTTPHEADER => ['Accept: application/zip, application/octet-stream'],
                 CURLOPT_SSL_VERIFYPEER => true,
             ]);
@@ -1331,7 +1383,7 @@ class SystemUpdater
                 'http' => [
                     'method' => 'GET',
                     'header' => [
-                        'User-Agent: intraRP-Updater',
+                        'User-Agent: ignis-Updater',
                         'Accept: application/vnd.github+json'
                     ],
                     'timeout' => 10
@@ -1613,7 +1665,7 @@ class SystemUpdater
                 'http' => [
                     'method' => 'GET',
                     'header' => [
-                        'User-Agent: intraRP-Updater',
+                        'User-Agent: ignis-Updater',
                         'Accept: application/vnd.github+json'
                     ],
                     'timeout' => 10
@@ -1653,7 +1705,7 @@ class SystemUpdater
                 'http' => [
                     'method' => 'GET',
                     'header' => [
-                        'User-Agent: intraRP-Updater',
+                        'User-Agent: ignis-Updater',
                         'Accept: application/vnd.github+json'
                     ],
                     'timeout' => 10
@@ -1974,7 +2026,7 @@ class SystemUpdater
             'http' => [
                 'method' => 'GET',
                 'header' => [
-                    'User-Agent: intraRP-Updater-Diagnostic',
+                    'User-Agent: ignis-Updater-Diagnostic',
                     'Accept: application/vnd.github+json'
                 ],
                 'timeout' => 10
@@ -2794,7 +2846,7 @@ class SystemUpdater
     {
         $lines = [];
         $lines[] = "========================================";
-        $lines[] = "intraRP System-Diagnose";
+        $lines[] = "ıgnıs System-Diagnose";
         $lines[] = "========================================";
         $lines[] = "";
         $lines[] = "Zeitpunkt: " . $diagnostics['timestamp'];

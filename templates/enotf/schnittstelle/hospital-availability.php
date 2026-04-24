@@ -330,7 +330,7 @@ $status_config = [
 
                 <?php if ($error): ?>
                     <div class="alert alert-danger">
-                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>
                         <?= htmlspecialchars($error) ?>
                     </div>
                 <?php endif; ?>
@@ -360,7 +360,7 @@ $status_config = [
         <?php else: ?>
             <!-- Availability Management -->
             <div class="hospital-card">
-                <div class="d-flex justify-content-between align-items-start mb-4">
+                <div class="flex justify-between items-start mb-4">
                     <div class="hospital-header flex-grow-1 mb-0 pb-0 border-0">
                         <h2><?= htmlspecialchars($hospital['name']) ?></h2>
                         <p><?= htmlspecialchars($hospital['ort']) ?><?= $hospital['ortsteil'] ? ', ' . htmlspecialchars($hospital['ortsteil']) : '' ?></p>
@@ -374,21 +374,21 @@ $status_config = [
 
                 <?php if ($error): ?>
                     <div class="alert alert-danger">
-                        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>
                         <?= htmlspecialchars($error) ?>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($success_message): ?>
                     <div class="alert alert-success">
-                        <i class="fa-solid fa-circle-check me-2"></i>
+                        <i class="fa-solid fa-circle-check mr-2"></i>
                         <?= htmlspecialchars($success_message) ?>
                     </div>
                 <?php endif; ?>
 
                 <?php if (empty($departments)): ?>
                     <div class="alert alert-danger">
-                        <i class="fa-solid fa-info-circle me-2"></i>
+                        <i class="fa-solid fa-info-circle mr-2"></i>
                         Für dieses Krankenhaus sind noch keine Fachrichtungen konfiguriert. Bitte kontaktieren Sie den Administrator.
                     </div>
                 <?php else: ?>
@@ -398,7 +398,7 @@ $status_config = [
                         <?php foreach ($departments as $dept): ?>
                             <div class="department-item">
                                 <div class="department-name">
-                                    <i class="fa-solid fa-bed-pulse me-2"></i>
+                                    <i class="fa-solid fa-bed-pulse mr-2"></i>
                                     <?= htmlspecialchars($dept['name']) ?>
                                 </div>
 
@@ -418,7 +418,7 @@ $status_config = [
 
                                 <?php if ($dept['updated_at']): ?>
                                     <div class="last-update">
-                                        Letzte Aktualisierung: <?= date('d.m.Y H:i', strtotime($dept['updated_at'])) ?> Uhr
+                                        Letzte Aktualisierung: <?= \App\Helpers\DateTimeHelper::formatShortLocal($dept['updated_at']) ?> Uhr
                                     </div>
                                 <?php endif; ?>
                             </div>

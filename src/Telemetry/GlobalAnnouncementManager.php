@@ -208,7 +208,7 @@ class GlobalAnnouncementManager
                 'method' => 'GET',
                 'header' => [
                     'Accept: application/json',
-                    'User-Agent: intraRP-Client/1.0',
+                    'User-Agent: ignis-Client/1.0',
                     'X-Installation-ID: ' . $installationId,
                 ],
                 'timeout' => 3,

@@ -23,4 +23,9 @@ return [
     \App\Console\Commands\MigrateCommand::class,
     \App\Console\Commands\TelemetrySendCommand::class,
     \App\Console\Commands\AnnouncementsRefreshCommand::class,
+    \App\Console\Commands\CronTickCommand::class,
+    \App\Console\Commands\CronListCommand::class,
+    \App\Console\Commands\FederationSyncCommand::class,
+    \App\Console\Commands\StorageCleanupCommand::class,
+    \App\Console\Commands\UpdatesCheckCommand::class,
 ];

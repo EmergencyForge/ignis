@@ -15,7 +15,7 @@ use App\Helpers\EnotfUrl;
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="qmActionsContent">
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>
@@ -34,7 +34,7 @@ use App\Helpers\EnotfUrl;
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="qmLogContent">
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>
@@ -53,7 +53,7 @@ use App\Helpers\EnotfUrl;
 
                 // Reset content
                 document.getElementById('qmActionsContent').innerHTML = `
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>
@@ -86,7 +86,7 @@ use App\Helpers\EnotfUrl;
 
                 // Reset content
                 document.getElementById('qmLogContent').innerHTML = `
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>

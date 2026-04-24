@@ -39,7 +39,7 @@ class Logger
      */
     private static function createLogger(): MonologLogger
     {
-        $logger = new MonologLogger('intrarp');
+        $logger = new MonologLogger('ignis');
 
         $logPath = self::getLogPath();
         $level = self::getLogLevel();

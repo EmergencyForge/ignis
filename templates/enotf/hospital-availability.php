@@ -206,13 +206,13 @@ $defaultUrl = EnotfUrl::page('overview');
         <div class="row h-100">
             <div class="col" id="edivi__content">
                 <h2 class="text-center my-3">
-                    <i class="fa-solid fa-hospital me-2"></i>
+                    <i class="fa-solid fa-hospital mr-2"></i>
                     Krankenhaus-Verfügbarkeit
                 </h2>
 
             <div class="refresh-info">
                 <i class="fa-solid fa-info-circle"></i>
-                <div class="flex-grow-1">
+                <div class="flex-1">
                     <strong>Live-Übersicht</strong><br>
                     <small>Die Verfügbarkeiten werden von den Krankenhäusern selbst aktualisiert. Letzte Aktualisierung dieser Seite: <?= date('d.m.Y H:i:s') ?> Uhr</small>
                 </div>
@@ -232,7 +232,7 @@ $defaultUrl = EnotfUrl::page('overview');
                         <div class="hospital-header">
                             <div>
                                 <div class="hospital-name">
-                                    <i class="fa-solid fa-hospital me-2"></i>
+                                    <i class="fa-solid fa-hospital mr-2"></i>
                                     <?= htmlspecialchars($hospital['name']) ?>
                                 </div>
                                 <div class="hospital-address">
@@ -252,7 +252,7 @@ $defaultUrl = EnotfUrl::page('overview');
 
                         <?php if (empty($hospital['departments'])): ?>
                             <div class="no-departments">
-                                <i class="fa-solid fa-circle-info me-2"></i>
+                                <i class="fa-solid fa-circle-info mr-2"></i>
                                 Keine Fachrichtungen konfiguriert
                             </div>
                         <?php else: ?>
@@ -261,7 +261,7 @@ $defaultUrl = EnotfUrl::page('overview');
                                     <?php $status_info = $status_config[$dept['status']]; ?>
                                     <div class="department-item">
                                         <div class="department-name">
-                                            <i class="fa-solid fa-bed-pulse me-2"></i>
+                                            <i class="fa-solid fa-bed-pulse mr-2"></i>
                                             <?= htmlspecialchars($dept['name']) ?>
                                         </div>
 
@@ -272,10 +272,10 @@ $defaultUrl = EnotfUrl::page('overview');
 
                                         <?php if ($dept['updated_at']): ?>
                                             <div class="department-footer">
-                                                <i class="fa-solid fa-clock me-1"></i>
-                                                Aktualisiert: <?= date('d.m.Y H:i', strtotime($dept['updated_at'])) ?> Uhr
+                                                <i class="fa-solid fa-clock mr-1"></i>
+                                                Aktualisiert: <?= \App\Helpers\DateTimeHelper::formatShortLocal($dept['updated_at']) ?> Uhr
                                                 <?php if ($dept['updated_by']): ?>
-                                                    <br><i class="fa-solid fa-user me-1"></i> <?= htmlspecialchars($dept['updated_by']) ?>
+                                                    <br><i class="fa-solid fa-user mr-1"></i> <?= htmlspecialchars($dept['updated_by']) ?>
                                                 <?php endif; ?>
                                             </div>
                                         <?php endif; ?>

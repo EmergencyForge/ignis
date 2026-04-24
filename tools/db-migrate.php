@@ -48,7 +48,7 @@ try {
     exit(1);
 }
 
-echo "intraRP Migration\n";
+echo "ıgnıs Migration\n";
 echo "  Host:     {$_ENV['DB_HOST']}\n";
 echo "  Database: {$_ENV['DB_NAME']}\n";
 echo "  Driver:   Phinx (mit Legacy-Bridge)\n\n";

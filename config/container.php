@@ -179,6 +179,7 @@ return [
     \App\Http\Controllers\Api\EmdSyncController::class           => \DI\autowire(),
     \App\Http\Controllers\Api\NotificationController::class      => \DI\autowire(),
     \App\Http\Controllers\Api\VersionController::class             => \DI\autowire(),
+    \App\Http\Controllers\Api\HealthController::class              => \DI\autowire(),
     \App\Http\Controllers\Api\PoiDepartmentsController::class      => \DI\autowire(),
     \App\Http\Controllers\Api\KlinikCodeController::class          => \DI\autowire(),
     \App\Http\Controllers\Api\PersonnelProfileController::class    => \DI\autowire(),
@@ -320,9 +321,27 @@ return [
     \App\Console\Commands\QueueFailedClearCommand::class  => \DI\autowire(),
     \App\Console\Commands\MigrateCommand::class           => \DI\autowire(),
     \App\Console\Commands\TelemetrySendCommand::class     => \DI\autowire(),
+    \App\Console\Commands\CronTickCommand::class          => \DI\autowire(),
+    \App\Console\Commands\CronListCommand::class          => \DI\autowire(),
+    \App\Console\Commands\FederationSyncCommand::class    => \DI\autowire(),
+    \App\Console\Commands\StorageCleanupCommand::class    => \DI\autowire(),
+    \App\Console\Commands\UpdatesCheckCommand::class      => \DI\autowire(),
 
     // Service-Klassen für Commands
     \App\Jobs\FailedJobsReader::class     => \DI\autowire(),
     \App\Telemetry\TelemetryManager::class => \DI\autowire(),
+
+    // -----------------------------------------------------------------------
+    //  Cron-System
+    // -----------------------------------------------------------------------
+
+    \App\Cron\CronScheduler::class                   => \DI\autowire(),
+    \App\Cron\JobHandler\ConsoleHandler::class       => \DI\autowire(),
+    \App\Cron\JobHandler\WebhookHandler::class       => \DI\autowire(),
+    \App\Cron\JobHandler\JobDispatchHandler::class   => \DI\autowire(),
+
+    \App\Http\Controllers\Settings\CronController::class => \DI\autowire(),
+
+    \App\Federation\FederationSyncService::class     => \DI\autowire(),
 
 ];

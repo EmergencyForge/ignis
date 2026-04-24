@@ -47,7 +47,7 @@ $currentDate = date('d.m.Y');
 
                 <div>
                     <div class="mb-3 flex items-center justify-between">
-                        <h4 class="text-light mb-0"><i class="fa-solid fa-book me-2"></i>Fahrtenbuch</h4>
+                        <h4 class="text-light mb-0"><i class="fa-solid fa-book mr-2"></i>Fahrtenbuch</h4>
                         <button type="button" class="edivi__nidabutton" id="toggleCreateForm">
                             <i class="fa-solid fa-plus"></i>
                         </button>
@@ -67,7 +67,7 @@ $currentDate = date('d.m.Y');
                                 ?>
 
                                 <div class="mt-3 flex gap-2">
-                                    <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Speichern</button>
+                                    <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
                                     <button type="button" class="btn btn-sm btn-outline-light" id="cancelCreateForm">Abbrechen</button>
                                 </div>
                             </form>
@@ -90,7 +90,7 @@ $currentDate = date('d.m.Y');
                                 ?>
 
                                 <div class="mt-3 flex gap-2">
-                                    <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Aktualisieren</button>
+                                    <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
                                     <button type="button" class="btn btn-sm btn-outline-light" id="cancelEditForm">Abbrechen</button>
                                 </div>
                             </form>

@@ -70,7 +70,7 @@ a:hover {
   color: var(--link-hover);
 }
 
-a:not(.btn):not(.sidebar-link):not(.nav-link):not(.no-underline):not(.gsr-item):hover {
+a:not([class*="btn"]):not(.sidebar-link):not(.nav-link):not(.no-underline):not(.gsr-item):not(.rail-item):not(.flyout-item):not(.rail-logo):not(.setup-step):hover {
   text-decoration: underline;
 }
 
@@ -2372,4 +2372,363 @@ td.dt-empty {
 .admin-breadcrumb {
   overflow: hidden;
   flex-wrap: wrap;
+}
+
+// =====================================================
+// Sidebar — Icon-Rail + Flyout + Content-Shift
+// Aktiv unter body.new-navbar
+// =====================================================
+
+body.new-navbar {
+  --a16-rail-width: 110px;
+  --a16-flyout-width: 340px;
+  --a16-divider: rgba(255, 255, 255, 0.06);
+  --a16-surface-raised: #161616;
+
+  --sidebar-width: var(--a16-rail-width);
+
+  &.is-flyout-open {
+    --sidebar-width: calc(var(--a16-rail-width) + var(--a16-flyout-width));
+  }
+}
+
+.intra-sidebar--a16 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: calc(var(--a16-rail-width) + var(--a16-flyout-width));
+  display: flex;
+  flex-direction: row;
+  z-index: 1040;
+  pointer-events: none;
+
+  & > * {
+    pointer-events: auto;
+  }
+
+  .rail {
+    width: var(--a16-rail-width);
+    background: var(--sidebar-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex-shrink: 0;
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .rail-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.95rem 0.5rem 0.75rem;
+    flex-shrink: 0;
+    color: var(--sidebar-link-color);
+    transition: color 0.15s ease;
+
+    &:hover,
+    &:focus {
+      color: var(--main-color);
+    }
+
+    svg {
+      display: block;
+      width: 82px;
+      height: auto;
+      max-height: 34px;
+    }
+  }
+
+  .rail-nav {
+    display: flex;
+    flex-direction: column;
+    padding: 0.35rem 0;
+    gap: 2px;
+  }
+
+  .rail-item-wrap {
+    position: relative;
+  }
+
+  .rail-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 0.5rem;
+    gap: 0.45rem;
+    color: var(--sidebar-icon-color);
+    text-decoration: none;
+    border-radius: 0;
+    cursor: pointer;
+    position: relative;
+
+    i {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .rail-item-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    &:hover,
+    &:focus {
+      color: var(--sidebar-link-color);
+      background: var(--sidebar-hover-bg);
+      text-decoration: none;
+    }
+
+    &.is-open {
+      color: var(--sidebar-link-color);
+    }
+
+    &.is-active {
+      color: var(--sidebar-link-color);
+      background: var(--a16-surface-raised);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 14%;
+        bottom: 14%;
+        width: 3px;
+        background: var(--main-color);
+        border-radius: 0 2px 2px 0;
+      }
+
+      i {
+        color: var(--main-color);
+      }
+    }
+  }
+
+  .rail-quick-action {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: none;
+    background: var(--main-color);
+    color: #fff;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    cursor: pointer;
+
+    .rail-item-wrap:hover & {
+      display: flex;
+    }
+  }
+
+  .flyout {
+    width: var(--a16-flyout-width);
+    background: var(--a16-surface-raised);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    position: absolute;
+    left: var(--a16-rail-width);
+    top: 0;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .flyout-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.1rem 1.1rem 0.9rem;
+    border-bottom: 1px solid var(--a16-divider);
+    flex-shrink: 0;
+  }
+
+  .flyout-title {
+    font-weight: 600;
+    font-size: var(--fs-md);
+    color: var(--sidebar-link-color);
+    letter-spacing: 0.2px;
+  }
+
+  .flyout-pin {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    color: var(--sidebar-icon-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+
+    &:hover {
+      color: var(--sidebar-link-color);
+      background: var(--sidebar-hover-bg);
+    }
+
+    &.is-pinned {
+      color: var(--main-color);
+      transform: rotate(-45deg);
+    }
+  }
+
+  .flyout-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 0.6rem 0.6rem 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--darkgray) transparent;
+  }
+
+  .flyout-section {
+    padding: 0.35rem 0 0.5rem;
+
+    & + .flyout-section {
+      margin-top: 0.35rem;
+    }
+  }
+
+  .flyout-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    color: rgba(255, 255, 255, 0.45);
+    padding: 0.4rem 0.85rem;
+    font-weight: 600;
+
+    &::after {
+      content: '';
+      flex: 1 1 auto;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .flyout-item-wrap {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .flyout-item {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.85rem;
+    border-radius: var(--radius-md);
+    color: var(--sidebar-icon-color);
+    text-decoration: none;
+    font-size: var(--fs-sm);
+
+    &:hover,
+    &:focus {
+      color: var(--sidebar-link-color);
+      background: var(--sidebar-hover-bg);
+      text-decoration: none;
+    }
+
+    &.is-active {
+      color: var(--sidebar-link-color);
+      background: var(--a16-surface-raised);
+
+      .flyout-item-label {
+        font-weight: 500;
+      }
+    }
+  }
+
+  .flyout-item-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .flyout-item-external {
+    font-size: 0.6rem;
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+
+  .flyout-quick-action {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: transparent;
+    color: var(--sidebar-icon-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    margin-left: 2px;
+    align-self: center;
+
+    &:hover {
+      color: #fff;
+      background: var(--main-color);
+    }
+  }
+}
+
+.intra-sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 1038;
+
+  &[hidden] {
+    display: none;
+  }
+
+  @media (min-width: 992px) {
+    display: none;
+  }
+}
+
+// Mobile: Rail wird Drawer
+@media (max-width: 991.98px) {
+  body.new-navbar {
+    --sidebar-width: 0px;
+
+    .intra-sidebar--a16 {
+      transform: translateX(-100%);
+
+      &.is-mobile-open {
+        transform: translateX(0);
+      }
+    }
+
+    &.is-flyout-open {
+      --sidebar-width: 0px;
+    }
+  }
 }

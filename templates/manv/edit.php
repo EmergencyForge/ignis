@@ -34,14 +34,14 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
 
             <?php if (!empty($success)): ?>
                 <div class="alert alert-success alert-dismissible fade show">
-                    <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($success) ?>
+                    <i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($success) ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($error)): ?>
                 <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="fas fa-exclamation-triangle me-2"></i><?= htmlspecialchars($error) ?>
+                    <i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($error) ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
@@ -138,10 +138,10 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
 
                 <div class="mb-4 flex items-center justify-between">
                     <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost no-underline hover:no-underline">
-                        <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
+                        <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
                     <button type="submit" class="btn btn-soft-primary btn-lg">
-                        <i class="fas fa-save me-2"></i>Änderungen speichern
+                        <i class="fas fa-save mr-2"></i>Änderungen speichern
                     </button>
                 </div>
             </form>

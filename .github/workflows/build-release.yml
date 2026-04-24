@@ -34,7 +34,8 @@ jobs:
       - name: Update version.json and push to main
         run: |
           TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S')
-          cat > system/updates/version.json << EOF
+          mkdir -p storage
+          cat > storage/version.json << EOF
           {
             "version": "${{ env.version }}",
             "updated_at": "$TIMESTAMP",
@@ -45,7 +46,7 @@ jobs:
 
           git config user.name "ef-sparky[bot]"
           git config user.email "${{ secrets.BOT_APP_ID }}+ef-sparky[bot]@users.noreply.github.com"
-          git add system/updates/version.json
+          git add storage/version.json
           if ! git diff --staged --quiet; then
             git commit -m "Auto-update version.json to ${{ env.version }}"
             git push origin HEAD:main
@@ -74,7 +75,8 @@ jobs:
 
       - name: Build release ZIP
         run: |
-          ARCHIVE_NAME="intraRP-${{ env.version }}.zip"
+          ARCHIVE_NAME="ignis-${{ env.version }}.zip"
+          ARCHIVE_LEGACY="intraRP-${{ env.version }}.zip"
 
           # Exclude-Liste — kategorisiert.
           #
@@ -150,7 +152,11 @@ jobs:
             -x "vendor/mockery/*" \
             -x "vendor/nikic/php-parser/test/*"
 
+          # Legacy-Alias für Installationen, die noch das alte Asset-Namensschema erwarten.
+          cp "$ARCHIVE_NAME" "$ARCHIVE_LEGACY"
+
           echo "archive_name=$ARCHIVE_NAME" >> $GITHUB_ENV
+          echo "archive_legacy=$ARCHIVE_LEGACY" >> $GITHUB_ENV
           echo "archive_size=$(du -h "$ARCHIVE_NAME" | cut -f1)" >> $GITHUB_ENV
 
       - name: Integrity check (SHA256)
@@ -158,8 +164,10 @@ jobs:
           CHECKSUM=$(sha256sum "${{ env.archive_name }}" | cut -d' ' -f1)
           echo "checksum=$CHECKSUM" >> $GITHUB_ENV
           echo "$CHECKSUM  ${{ env.archive_name }}" > "${{ env.archive_name }}.sha256"
+          echo "$CHECKSUM  ${{ env.archive_legacy }}" > "${{ env.archive_legacy }}.sha256"
 
           sha256sum -c "${{ env.archive_name }}.sha256"
+          sha256sum -c "${{ env.archive_legacy }}.sha256"
           echo "Integrity OK: $CHECKSUM"
 
           FILE_COUNT=$(unzip -l "${{ env.archive_name }}" | tail -1 | awk '{print $2}')
@@ -171,6 +179,8 @@ jobs:
           files: |
             ${{ env.archive_name }}
             ${{ env.archive_name }}.sha256
+            ${{ env.archive_legacy }}
+            ${{ env.archive_legacy }}.sha256
         env:
           GITHUB_TOKEN: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
 
@@ -207,7 +217,7 @@ jobs:
                 {name: "Build", value: $build, inline: true},
                 {name: "SHA256", value: ("`" + $checksum + "…`"), inline: true}
               ],
-              footer: {text: "intraRP Release Build — Integrität verifiziert ✓"},
+              footer: {text: "ıgnıs Release Build — Integrität verifiziert ✓"},
               timestamp: $ts
             }]}' | curl -s -H "Content-Type: application/json" -d @- "$DISCORD_WEBHOOK"
 
@@ -227,6 +237,6 @@ jobs:
               title: "Release Build fehlgeschlagen",
               description: ("Der Build für **" + (if $version != "" then $version else $ref end) + "** ist fehlgeschlagen.\n\n[Build-Log ansehen](" + $url + ")"),
               color: 15158332,
-              footer: {text: "intraRP Release Build"},
+              footer: {text: "ıgnıs Release Build"},
               timestamp: $ts
             }]}' | curl -s -H "Content-Type: application/json" -d @- "$DISCORD_WEBHOOK"

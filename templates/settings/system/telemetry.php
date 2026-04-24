@@ -166,7 +166,7 @@ $cacheInfo = $announcements->getCacheInfo();
                             <div class="flex-1" style="min-width: 240px;">
                                 <div class="uuid-label mb-1">Support &amp; Telemetrie — Deine Installations-UUID</div>
                                 <div class="text-gray-400" style="font-size: 0.78rem; line-height: 1.45;">
-                                    Für schnellen Support: Im intraRP-Discord <code style="font-size: 0.75rem;">/telemetry connect &lt;UUID&gt; [label]</code> nutzen — damit kann unser Support-Team direkt auf die unten beschriebenen Daten zugreifen und dir ggf. schneller mit deinem Anliegen helfen.
+                                    Für schnellen Support: Im ıgnıs-Discord <code style="font-size: 0.75rem;">/telemetry connect &lt;UUID&gt; [label]</code> nutzen — damit kann unser Support-Team direkt auf die unten beschriebenen Daten zugreifen und dir ggf. schneller mit deinem Anliegen helfen.
                                 </div>
                             </div>
                             <div class="flex shrink-0 items-center gap-2" id="uuidBannerControls">
@@ -174,7 +174,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <?= htmlspecialchars($installationId) ?>
                                 </code>
                                 <button type="button" class="btn btn-sm btn-soft-primary" id="toggleUuidBtn" onclick="toggleInstallationUuid()">
-                                    <i class="fa-regular fa-eye me-1"></i>Einblenden
+                                    <i class="fa-regular fa-eye mr-1"></i>Einblenden
                                 </button>
                                 <button type="button" class="btn btn-sm btn-ghost" id="copyUuidBtn" onclick="copyInstallationUuid()" title="UUID kopieren">
                                     <i class="fa-regular fa-copy"></i>
@@ -191,10 +191,10 @@ $cacheInfo = $announcements->getCacheInfo();
                                 const visible = uuidEl.style.display !== 'none';
                                 if (visible) {
                                     uuidEl.style.display = 'none';
-                                    toggleBtn.innerHTML = '<i class="fa-regular fa-eye me-1"></i>Einblenden';
+                                    toggleBtn.innerHTML = '<i class="fa-regular fa-eye mr-1"></i>Einblenden';
                                 } else {
                                     uuidEl.style.display = '';
-                                    toggleBtn.innerHTML = '<i class="fa-regular fa-eye-slash me-1"></i>Verbergen';
+                                    toggleBtn.innerHTML = '<i class="fa-regular fa-eye-slash mr-1"></i>Verbergen';
                                 }
                             };
 
@@ -242,14 +242,14 @@ $cacheInfo = $announcements->getCacheInfo();
                         <div>
                             <div class="card h-100">
                                 <div class="card-header flex items-center justify-between">
-                                    <span><i class="fas fa-chart-line me-2"></i>Telemetrie</span>
+                                    <span><i class="fas fa-chart-line mr-2"></i>Telemetrie</span>
                                     <span class="badge bg-<?= $telemetryEnabled ? 'success' : 'secondary' ?>">
                                         <?= $telemetryEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
                                 </div>
                                 <div class="card-body">
                                     <p class="text-gray-400">
-                                        Telemetrie hilft uns, intraRP weiterzuentwickeln.
+                                        Telemetrie hilft uns, ıgnıs weiterzuentwickeln.
                                         Es werden nur <strong>anonymisierte</strong> Statistiken übermittelt -
                                         keine persönlichen Daten, Namen oder IP-Adressen.
                                         Du kannst die Telemetrie jederzeit deaktivieren.
@@ -259,20 +259,20 @@ $cacheInfo = $announcements->getCacheInfo();
                                         <form method="POST" class="inline">
                                             <input type="hidden" name="action" value="toggle_telemetry">
                                             <button type="submit" class="btn btn-<?= $telemetryEnabled ? 'warning' : 'success' ?>">
-                                                <i class="fas fa-<?= $telemetryEnabled ? 'toggle-off' : 'toggle-on' ?> me-1"></i>
+                                                <i class="fas fa-<?= $telemetryEnabled ? 'toggle-off' : 'toggle-on' ?> mr-1"></i>
                                                 <?= $telemetryEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                                             </button>
                                         </form>
 
                                         <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#datenschutzModal">
-                                            <i class="fas fa-shield-alt me-1"></i> Datenschutz
+                                            <i class="fas fa-shield-alt mr-1"></i> Datenschutz
                                         </button>
 
                                         <?php if ($telemetryEnabled): ?>
                                             <form method="POST" class="inline">
                                                 <input type="hidden" name="action" value="send_heartbeat">
                                                 <button type="submit" class="btn btn-outline-primary">
-                                                    <i class="fas fa-paper-plane me-1"></i> Jetzt senden
+                                                    <i class="fas fa-paper-plane mr-1"></i> Jetzt senden
                                                 </button>
                                             </form>
                                         <?php endif; ?>
@@ -290,7 +290,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                         </tr>
                                         <tr>
                                             <td class="text-gray-400">Letzter Heartbeat:</td>
-                                            <td><?= $lastHeartbeat ? date('d.m.Y H:i', strtotime($lastHeartbeat)) : '<span class="text-gray-400">Noch nie</span>' ?></td>
+                                            <td><?= $lastHeartbeat ? \App\Helpers\DateTimeHelper::formatShortLocal($lastHeartbeat) : '<span class="text-gray-400">Noch nie</span>' ?></td>
                                         </tr>
                                         <tr>
                                             <td class="text-gray-400">Hub-Server:</td>
@@ -312,7 +312,7 @@ $cacheInfo = $announcements->getCacheInfo();
                         <div>
                             <div class="card h-100">
                                 <div class="card-header flex items-center justify-between">
-                                    <span><i class="fas fa-bullhorn me-2"></i>Globale Ankündigungen</span>
+                                    <span><i class="fas fa-bullhorn mr-2"></i>Globale Ankündigungen</span>
                                     <span class="badge bg-<?= $announcementsEnabled ? 'success' : 'secondary' ?>">
                                         <?= $announcementsEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
@@ -320,14 +320,14 @@ $cacheInfo = $announcements->getCacheInfo();
                                 <div class="card-body">
                                     <p class="text-gray-400">
                                         Globale Ankündigungen informieren dich über wichtige Updates,
-                                        Sicherheitshinweise und News vom intraRP-Team.
+                                        Sicherheitshinweise und News vom ıgnıs-Team.
                                     </p>
 
                                     <div class="mb-3 flex gap-2">
                                         <form method="POST" class="inline">
                                             <input type="hidden" name="action" value="toggle_announcements">
                                             <button type="submit" class="btn btn-<?= $announcementsEnabled ? 'warning' : 'success' ?>">
-                                                <i class="fas fa-<?= $announcementsEnabled ? 'toggle-off' : 'toggle-on' ?> me-1"></i>
+                                                <i class="fas fa-<?= $announcementsEnabled ? 'toggle-off' : 'toggle-on' ?> mr-1"></i>
                                                 <?= $announcementsEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                                             </button>
                                         </form>
@@ -336,7 +336,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                             <form method="POST" class="inline">
                                                 <input type="hidden" name="action" value="refresh_announcements">
                                                 <button type="submit" class="btn btn-outline-primary">
-                                                    <i class="fas fa-sync me-1"></i> Cache aktualisieren
+                                                    <i class="fas fa-sync mr-1"></i> Cache aktualisieren
                                                 </button>
                                             </form>
                                         <?php endif; ?>
@@ -352,7 +352,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                         </tr>
                                         <tr>
                                             <td class="text-gray-400">Letzter Abruf:</td>
-                                            <td><?= $cacheInfo['last_fetch'] ? date('d.m.Y H:i', strtotime($cacheInfo['last_fetch'])) : '<span class="text-gray-400">Noch nie</span>' ?></td>
+                                            <td><?= $cacheInfo['last_fetch'] ? \App\Helpers\DateTimeHelper::formatShortLocal($cacheInfo['last_fetch']) : '<span class="text-gray-400">Noch nie</span>' ?></td>
                                         </tr>
                                     </table>
 
@@ -428,7 +428,7 @@ $cacheInfo = $announcements->getCacheInfo();
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="datenschutzModalLabel">
-                        <i class="fas fa-shield-alt me-2 text-info"></i>Datenschutz
+                        <i class="fas fa-shield-alt mr-2 text-info"></i>Datenschutz
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
@@ -438,18 +438,18 @@ $cacheInfo = $announcements->getCacheInfo();
                     </p>
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div>
-                            <h6 class="text-success"><i class="fas fa-check me-1"></i> Was wir sammeln:</h6>
+                            <h6 class="text-success"><i class="fas fa-check mr-1"></i> Was wir sammeln:</h6>
                             <ul class="small mb-0">
                                 <li>Anonyme Installation-ID (UUID)</li>
                                 <li>Server- und Systemname</li>
-                                <li>intraRP- und PHP-Version</li>
+                                <li>ıgnıs- und PHP-Version</li>
                                 <li>Anzahl Mitarbeiter, User, Fahrzeuge</li>
                                 <li>Aktivitätsstatistiken (eNOTF, Einsätze)</li>
                                 <li>Aktive Module</li>
                             </ul>
                         </div>
                         <div>
-                            <h6 class="text-danger"><i class="fas fa-times me-1"></i> Was wir NICHT sammeln:</h6>
+                            <h6 class="text-danger"><i class="fas fa-times mr-1"></i> Was wir NICHT sammeln:</h6>
                             <ul class="small mb-0">
                                 <li>Namen, E-Mails, Discord-IDs</li>
                                 <li>IP-Adressen der Nutzer</li>

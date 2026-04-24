@@ -146,7 +146,7 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
+                        <div class="modal-footer flex justify-between">
                             <button type="button" class="btn btn-ghost-danger" id="delete-role-btn">Löschen</button>
                             <div>
                                 <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>

@@ -10,20 +10,20 @@ use App\Security\CsrfProtection;
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <!-- Akte-Header: Metadaten als kompakte Zeile -->
-            <div class="modal-header flex-column align-items-stretch p-0 border-0">
+            <div class="modal-header flex-col items-stretch p-0 border-0">
                 <!-- Titel-Zeile -->
-                <div class="d-flex align-items-center justify-content-between px-3 py-2" style="border-bottom:1px solid var(--bs-border-color);">
-                    <div class="d-flex align-items-center gap-2 min-w-0">
+                <div class="flex items-center justify-between px-3 py-2" style="border-bottom:1px solid var(--bs-border-color);">
+                    <div class="flex items-center gap-2 min-w-0">
                         <span class="badge text-bg-secondary" id="docViewer-badge">Dokument</span>
                         <h6 class="mb-0 text-truncate" id="docViewer-title" style="font-size:0.88rem;"></h6>
                     </div>
-                    <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                    <div class="flex items-center gap-1 flex-shrink-0">
                         <a href="#" id="docViewer-detailLink" class="btn btn-sm btn-ghost" title="Detailseite"><i class="fa-solid fa-up-right-from-square"></i></a>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                 </div>
                 <!-- Meta-Chips -->
-                <div class="px-3 py-2 d-flex flex-wrap gap-2 align-items-center" id="docViewer-chips" style="font-size:0.78rem;background:var(--bs-tertiary-bg);border-bottom:1px solid var(--bs-border-color);">
+                <div class="px-3 py-2 flex flex-wrap gap-2 items-center" id="docViewer-chips" style="font-size:0.78rem;background:var(--bs-tertiary-bg);border-bottom:1px solid var(--bs-border-color);">
                     <div class="text-center py-2 w-100"><i class="fa-solid fa-spinner fa-spin"></i></div>
                 </div>
             </div>
@@ -34,9 +34,9 @@ use App\Security\CsrfProtection;
             </div>
 
             <!-- Aktions-Leiste -->
-            <div class="modal-footer justify-content-between py-2 px-3" id="docViewer-actions">
+            <div class="modal-footer justify-between py-2 px-3" id="docViewer-actions">
                 <div id="docViewer-status"></div>
-                <div class="d-flex gap-1" id="docViewer-buttons"></div>
+                <div class="flex gap-1" id="docViewer-buttons"></div>
             </div>
         </div>
     </div>
@@ -77,7 +77,7 @@ function openDocumentViewer(docid) {
             detailLink.href = '<?= BASE_PATH ?>mitarbeiter/dokument-view.php?docid=' + doc.docid;
 
             // Meta-Chips (kompakte Zeile)
-            const chip = (icon, text) => '<span class="d-inline-flex align-items-center gap-1"><i class="fa-solid ' + icon + '" style="opacity:0.5;font-size:0.7rem;"></i>' + esc(text) + '</span>';
+            const chip = (icon, text) => '<span class="inline-flex items-center gap-1"><i class="fa-solid ' + icon + '" style="opacity:0.5;font-size:0.7rem;"></i>' + esc(text) + '</span>';
             const sep = '<span style="opacity:0.2;">|</span>';
 
             let chips = chip('fa-hashtag', doc.docid) + sep;
@@ -95,8 +95,8 @@ function openDocumentViewer(docid) {
 
             // Status (links im Footer)
             statusEl.innerHTML = doc.is_archived
-                ? '<span class="badge text-bg-secondary"><i class="fa-solid fa-box-archive me-1"></i>Archiviert</span>'
-                : '<span class="badge text-bg-success" style="opacity:0.8;"><i class="fa-solid fa-circle-check me-1"></i>Aktiv</span>';
+                ? '<span class="badge text-bg-secondary"><i class="fa-solid fa-box-archive mr-1"></i>Archiviert</span>'
+                : '<span class="badge text-bg-success" style="opacity:0.8;"><i class="fa-solid fa-circle-check mr-1"></i>Aktiv</span>';
 
             // Aktions-Buttons (rechts im Footer, als Icon-Buttons)
             let btns = '';
@@ -278,7 +278,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                     <div class="modal-footer">
                         <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                         <button type="button" class="btn btn-outline-info" id="btn-preview-doc" title="PDF-Vorschau mit den aktuell eingegebenen Daten">
-                            <i class="fa-solid fa-eye me-1"></i>Vorschau
+                            <i class="fa-solid fa-eye mr-1"></i>Vorschau
                         </button>
                         <button type="submit" class="btn btn-success" id="fdq-save">Erstellen</button>
                     </div>
@@ -576,7 +576,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
             sampleData['geehrte'] = formData.get('anrede') === '1' ? 'geehrte' : 'geehrter';
 
             this.disabled = true;
-            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Vorschau...';
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Vorschau...';
 
             try {
                 const response = await fetch(BASE_PATH + 'api/documents/layout-preview.php', {
@@ -608,7 +608,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 showAlert('Vorschau fehlgeschlagen: ' + err.message, { type: 'error' });
             } finally {
                 this.disabled = false;
-                this.innerHTML = '<i class="fa-solid fa-eye me-1"></i>Vorschau';
+                this.innerHTML = '<i class="fa-solid fa-eye mr-1"></i>Vorschau';
             }
         });
     </script>

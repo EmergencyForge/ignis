@@ -173,25 +173,25 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             <?php Flash::render(); ?>
 
             <!-- Header mit Titel + Aktionen -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="flex justify-between items-center mb-4">
                 <h1 class="mb-0">Dokumenten-Templates</h1>
-                <div class="d-flex gap-2">
+                <div class="flex gap-2">
                     <button class="btn btn-outline-info btn-sm" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
-                        <i class="fa-solid fa-arrows-rotate me-1"></i> Aus Vorlagen neu generieren
+                        <i class="fa-solid fa-arrows-rotate mr-1"></i> Aus Vorlagen neu generieren
                     </button>
                     <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>
                         <button class="btn btn-outline-warning btn-sm" id="btn-regenerate-all" title="Alle Twig-Dateien neu generieren (Dev)">
-                            <i class="fa-solid fa-flask me-1"></i> Twig regenerieren
+                            <i class="fa-solid fa-flask mr-1"></i> Twig regenerieren
                         </button>
                     <?php endif; ?>
                     <button class="btn btn-soft-primary btn-sm" id="btn-new-template">
-                        <i class="fa-solid fa-plus me-1"></i> Neues Template
+                        <i class="fa-solid fa-plus mr-1"></i> Neues Template
                     </button>
                 </div>
             </div>
 
             <!-- Template-Liste als Karten-Grid -->
-            <div id="templateGrid" class="row g-3 mb-4">
+            <div id="templateGrid" class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 <!-- Wird dynamisch befüllt -->
             </div>
             <div id="templateGridEmpty" class="text-center text-muted py-5" style="display:none;">
@@ -214,14 +214,14 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     <form id="templateForm">
                         <input type="hidden" id="templateId" name="templateId">
 
-                        <div class="row">
-                            <div class="col-md-6">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
+                            <div class="md:col-span-6">
                                 <div class="mb-3">
                                     <label for="templateName" class="form-label">Template-Name <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="templateName" name="name" required>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="md:col-span-3">
                                 <div class="mb-3">
                                     <label for="templateCategory" class="form-label">Kategorie <span class="text-danger">*</span></label>
                                     <select class="form-select" id="templateCategory" name="category_id" required>
@@ -235,7 +235,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="md:col-span-3">
                                 <div class="mb-3">
                                     <label for="templateFile" class="form-label">Dateiname</label>
                                     <input type="text" class="form-control" id="templateFile" name="template_file"
@@ -253,10 +253,10 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <hr class="my-3">
 
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="flex justify-between items-center mb-3">
                             <h6 class="mb-0">Formularfelder</h6>
                             <button type="button" class="btn btn-outline-secondary btn-sm" id="addFieldBtn">
-                                <i class="fa-solid fa-plus me-1"></i> Feld hinzufügen
+                                <i class="fa-solid fa-plus mr-1"></i> Feld hinzufügen
                             </button>
                         </div>
 
@@ -267,7 +267,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     <button type="button" class="btn btn-outline-secondary" id="previewBtn">Vorschau</button>
                     <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
                     <button type="button" class="btn btn-soft-primary" id="saveTemplateBtn">
-                        <i class="fa-solid fa-floppy-disk me-1"></i> Template speichern
+                        <i class="fa-solid fa-floppy-disk mr-1"></i> Template speichern
                     </button>
                 </div>
             </div>
@@ -459,7 +459,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             const optionDiv = document.createElement('div');
             optionDiv.className = 'option-item mb-3';
             optionDiv.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="flex justify-between items-center mb-2">
                     <strong>Option</strong>
                     <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.option-item').remove()">Löschen</button>
                 </div>
@@ -699,7 +699,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                         </select>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="flex items-center gap-3 mb-2">
                     <label class="form-check mb-0" style="font-size:0.78rem;">
                         <input class="form-check-input" type="checkbox" data-edit="required"${field.is_required ? ' checked' : ''}>
                         <span class="form-check-label">Pflichtfeld</span>
@@ -714,8 +714,8 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     <div data-edit="options-list"></div>
                     <button type="button" class="btn btn-sm btn-outline-secondary mt-1" data-edit="add-option" style="font-size:0.72rem;">+ Option</button>
                 </div>
-                <div class="d-flex gap-2 mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.06);">
-                    <button type="button" class="btn btn-sm btn-soft-primary" data-edit="save"><i class="fa-solid fa-check me-1"></i>Übernehmen</button>
+                <div class="flex gap-2 mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.06);">
+                    <button type="button" class="btn btn-sm btn-soft-primary" data-edit="save"><i class="fa-solid fa-check mr-1"></i>Übernehmen</button>
                     <button type="button" class="btn btn-sm btn-ghost" data-edit="cancel">Abbrechen</button>
                 </div>
             `;
@@ -786,7 +786,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
         function addInlineOption(container, value, label) {
             const row = document.createElement('div');
-            row.className = 'inline-option d-flex gap-2 mb-1';
+            row.className = 'inline-option flex gap-2 mb-1';
             row.innerHTML = `
                 <input type="text" class="form-control form-control-sm" data-opt="value" value="${value}" placeholder="Wert" style="width:80px;flex:0 0 80px;">
                 <input type="text" class="form-control form-control-sm" data-opt="label" value="${label}" placeholder="Label">
@@ -919,20 +919,19 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                 items.forEach(template => {
                     const isVisual = template.editor_type === 'visual';
                     const col = document.createElement('div');
-                    col.className = 'col-md-6 col-lg-4 col-xl-3';
                     col.innerHTML = `
-                        <div class="card h-100 template-card" style="cursor:pointer;transition:border-color 0.15s;" data-template-id="${template.id}">
-                            <div class="card-body p-3">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div class="card h-full template-card" style="cursor:pointer;transition:border-color 0.15s;" data-template-id="${template.id}">
+                            <div class="p-3">
+                                <div class="flex justify-between items-start mb-2">
                                     <div>
                                         <h6 class="mb-1" style="font-size:0.88rem;">${template.name}</h6>
                                         <span class="badge ${template.category_color || 'text-bg-secondary'}" style="font-size:0.65rem;">${category}</span>
-                                        ${isVisual ? '<span class="badge bg-info ms-1" style="font-size:0.6rem;">Visual</span>' : ''}
+                                        ${isVisual ? '<span class="badge bg-info ml-1" style="font-size:0.6rem;">Visual</span>' : ''}
                                     </div>
                                 </div>
                                 ${template.description ? '<p class="text-muted mb-0" style="font-size:0.75rem;line-height:1.3;">' + template.description + '</p>' : ''}
                             </div>
-                            <div class="card-footer bg-transparent border-top p-2 d-flex gap-1 justify-content-end">
+                            <div class="border-t p-2 flex gap-1 justify-end" style="background:transparent;">
                                 <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
                                     <i class="fa-solid fa-paintbrush"></i>
                                 </a>
@@ -1632,19 +1631,19 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title"><i class="fa-solid fa-arrows-rotate me-2"></i>Aus Vorlagen neu generieren</h5>
+                                    <h5 class="modal-title"><i class="fa-solid fa-arrows-rotate mr-2"></i>Aus Vorlagen neu generieren</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                 </div>
                                 <div class="modal-body">
                                     <p class="mb-3">Wie sollen die visuellen Editor-Layouts aus den Twig-Vorlagen generiert werden?</p>
                                     <div class="d-grid gap-2">
                                         <button class="btn btn-outline-primary text-start px-3 py-2" data-choice="missing">
-                                            <i class="fa-solid fa-plus-circle me-2"></i>
+                                            <i class="fa-solid fa-plus-circle mr-2"></i>
                                             <strong>Nur fehlende generieren</strong>
                                             <br><small style="opacity:0.7;">Nur Templates ohne visuelles Layout werden neu erstellt. Bestehende Layouts bleiben unverändert.</small>
                                         </button>
                                         <button class="btn btn-outline-danger text-start px-3 py-2" data-choice="all">
-                                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                                            <i class="fa-solid fa-triangle-exclamation mr-2"></i>
                                             <strong>Alle überschreiben</strong>
                                             <br><small style="opacity:0.7;">Alle Layouts werden aus den Twig-Vorlagen komplett neu generiert. Manuelle Änderungen im Editor gehen verloren!</small>
                                         </button>

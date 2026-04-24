@@ -27,7 +27,7 @@ class VersionControllerTest extends TestCase
         // Entweder 200 mit valider Version oder 404 (falls version.json fehlt).
         // Auf dem Dev-System existiert das File, also erwarten wir 200.
         if ($response->status === 404) {
-            $this->markTestSkipped('system/updates/version.json nicht vorhanden');
+            $this->markTestSkipped('storage/version.json nicht vorhanden');
         }
 
         $this->assertSame(200, $response->status);
@@ -35,7 +35,7 @@ class VersionControllerTest extends TestCase
 
         $data = json_decode($response->body, true);
         $this->assertIsArray($data);
-        $this->assertSame('intraRP', $data['system']);
+        $this->assertSame('ignis', $data['system']);
         $this->assertArrayHasKey('version', $data);
     }
 }

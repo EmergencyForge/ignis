@@ -26,7 +26,7 @@ use App\Helpers\Flash;
                 .then(function(data) {
                     if (data.session_id) {
                         var target = (window.parent !== window) ? window.parent : window;
-                        target.postMessage({ type: 'intraRP_session', session_id: data.session_id }, '*');
+                        target.postMessage({ type: 'ignis_session', session_id: data.session_id }, '*');
                     }
                 })
                 .catch(function() {});
@@ -63,7 +63,7 @@ use App\Helpers\Flash;
                 <div class="card">
                     <div class="card-body text-center">
                         <h3 class="mb-4">
-                            <i class="fa-solid fa-truck text-primary me-2"></i>
+                            <i class="fa-solid fa-truck text-primary mr-2"></i>
                             Angemeldet
                         </h3>
                         <div class="alert alert-success">
@@ -72,10 +72,10 @@ use App\Helpers\Flash;
                         </div>
                         <div class="flex flex-col gap-2">
                             <a href="<?= BASE_PATH ?>einsatz/list.php" class="btn btn-primary btn-lg">
-                                <i class="fa-solid fa-list me-2"></i>Zur Einsatzliste
+                                <i class="fa-solid fa-list mr-2"></i>Zur Einsatzliste
                             </a>
                             <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug.php?logout=1" class="btn btn-outline-secondary">
-                                <i class="fa-solid fa-sign-out-alt me-2"></i>Abmelden
+                                <i class="fa-solid fa-sign-out-alt mr-2"></i>Abmelden
                             </a>
                         </div>
                     </div>
@@ -85,7 +85,7 @@ use App\Helpers\Flash;
                 <div class="card">
                     <div class="card-body">
                         <h3 class="mb-4 text-center">
-                            <i class="fa-solid fa-truck me-2"></i>
+                            <i class="fa-solid fa-truck mr-2"></i>
                             Fahrzeug-Anmeldung
                         </h3>
                         <p class="mb-4 text-center text-gray-400">
@@ -96,19 +96,19 @@ use App\Helpers\Flash;
 
                         <?php if (empty($vehicles)): ?>
                             <div class="alert alert-warning">
-                                <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                                <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                                 Keine Einsatzfahrzeuge verfügbar.
                             </div>
                         <?php elseif (empty($personnel)): ?>
                             <div class="alert alert-warning">
-                                <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                                <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                                 Keine Mitarbeiter hinterlegt.
                             </div>
                         <?php else: ?>
                             <form method="post">
                                 <div class="mb-4">
                                     <label class="form-label">
-                                        <i class="fa-solid fa-truck me-1"></i>
+                                        <i class="fa-solid fa-truck mr-1"></i>
                                         Fahrzeug auswählen *
                                     </label>
                                     <select name="vehicle_id" id="vehicleSelect" class="form-select form-select-lg" required data-custom-dropdown="true" data-search-threshold="5">
@@ -126,13 +126,13 @@ use App\Helpers\Flash;
 
                                 <div class="mb-4">
                                     <label class="form-label">
-                                        <i class="fa-solid fa-user me-1"></i>
+                                        <i class="fa-solid fa-user mr-1"></i>
                                         Besatzung / Name *
                                     </label>
                                     <?php if ($charLocked && $lockedOperator): ?>
                                         <input type="hidden" name="operator_id" value="<?= (int) $lockedOperator['id'] ?>">
                                         <input type="text" class="form-select form-select-lg" value="<?= htmlspecialchars($lockedOperator['fullname']) ?>" readonly>
-                                        <small class="text-gray-400"><i class="fa-solid fa-lock me-1"></i>Charakter-Sperre aktiv</small>
+                                        <small class="text-gray-400"><i class="fa-solid fa-lock mr-1"></i>Charakter-Sperre aktiv</small>
                                     <?php else: ?>
                                         <select name="operator_id" id="operatorSelect" class="form-select form-select-lg" required data-custom-dropdown="true" data-search-threshold="5">
                                             <option value="">-- Bitte Mitarbeiter wählen --</option>
@@ -148,7 +148,7 @@ use App\Helpers\Flash;
 
                                 <div class="flex flex-col gap-2">
                                     <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="fa-solid fa-sign-in-alt me-2"></i>
+                                        <i class="fa-solid fa-sign-in-alt mr-2"></i>
                                         Anmelden
                                     </button>
                                 </div>

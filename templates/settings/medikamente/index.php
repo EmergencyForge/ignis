@@ -119,7 +119,7 @@ use App\Helpers\Flash;
                                 <label class="form-check-label" for="medikament-active">Aktiv?</label>
                             </div>
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
+                        <div class="modal-footer flex justify-between">
                             <button type="button" class="btn btn-ghost-danger" id="delete-medikament-btn">Löschen</button>
                             <div>
                                 <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>

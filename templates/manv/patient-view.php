@@ -60,14 +60,14 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
 
             <?php if (!empty($success)): ?>
                 <div class="alert alert-success alert-dismissible fade show">
-                    <i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($success) ?>
+                    <i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($success) ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($error)): ?>
                 <div class="alert alert-danger alert-dismissible fade show">
-                    <i class="fas fa-exclamation-triangle me-2"></i><?= htmlspecialchars($error) ?>
+                    <i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($error) ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
@@ -91,7 +91,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                         </h2>
                         <small class="text-gray-400">
                             <?php if (!empty($patient['sichtungskategorie_zeit'])): ?>
-                                Gesichtet: <?= date('d.m.Y H:i', strtotime($patient['sichtungskategorie_zeit'])) ?>
+                                Gesichtet: <?= \App\Helpers\DateTimeHelper::formatShortLocal($patient['sichtungskategorie_zeit']) ?>
                             <?php endif; ?>
                         </small>
                     </div>
@@ -104,22 +104,22 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                 </div>
                 <div class="card-body text-center">
                     <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="btn btn-danger quick-action-btn">
-                        <i class="fas fa-circle me-1"></i>SK1 - Rot
+                        <i class="fas fa-circle mr-1"></i>SK1 - Rot
                     </a>
                     <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="btn btn-warning quick-action-btn">
-                        <i class="fas fa-circle me-1"></i>SK2 - Gelb
+                        <i class="fas fa-circle mr-1"></i>SK2 - Gelb
                     </a>
                     <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="btn btn-success quick-action-btn">
-                        <i class="fas fa-circle me-1"></i>SK3 - Grün
+                        <i class="fas fa-circle mr-1"></i>SK3 - Grün
                     </a>
                     <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="btn btn-info quick-action-btn">
-                        <i class="fas fa-circle me-1"></i>SK4 - Blau
+                        <i class="fas fa-circle mr-1"></i>SK4 - Blau
                     </a>
                     <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="btn quick-action-btn" style="background-color: #000; color: #fff; border-color: #fff;">
-                        <i class="fas fa-circle me-1"></i>SK5 - Schwarz
+                        <i class="fas fa-circle mr-1"></i>SK5 - Schwarz
                     </a>
                     <a href="?id=<?= $patientId ?>&quick_sk=SK6" class="btn quick-action-btn" style="background-color: #9b59b6; color: #fff;">
-                        <i class="fas fa-circle me-1"></i>SK6 - Lila
+                        <i class="fas fa-circle mr-1"></i>SK6 - Lila
                     </a>
                 </div>
             </div>
@@ -229,8 +229,8 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                                 <?php if ($canTransport && !empty($patient['transport_abfahrt'])): ?>
                                     <div class="info-box">
                                         <small class="text-gray-400">
-                                            <i class="fas fa-clock me-1"></i>
-                                            Abfahrt: <?= date('d.m.Y H:i', strtotime($patient['transport_abfahrt'])) ?>
+                                            <i class="fas fa-clock mr-1"></i>
+                                            Abfahrt: <?= \App\Helpers\DateTimeHelper::formatShortLocal($patient['transport_abfahrt']) ?>
                                         </small>
                                     </div>
                                 <?php endif; ?>
@@ -257,10 +257,10 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
 
                 <div class="mb-4 flex items-center justify-between">
                     <a href="<?= BASE_PATH ?>manv/board.php?id=<?= (int) $patient['manv_lage_id'] ?>" class="btn btn-ghost no-underline hover:no-underline">
-                        <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
+                        <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
                     <button type="submit" class="btn btn-soft-primary btn-lg">
-                        <i class="fas fa-save me-2"></i>Änderungen speichern
+                        <i class="fas fa-save mr-2"></i>Änderungen speichern
                     </button>
                 </div>
             </form>

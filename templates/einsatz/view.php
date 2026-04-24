@@ -155,7 +155,7 @@ function fmt_elapsed(int|string $seconds): string
                         <input type="hidden" name="incident_id" value="<?= $id ?>">
                         <input type="hidden" name="return_tab" value="abschluss">
                         <button type="submit" class="btn btn-success">
-                            <i class="fa-solid fa-check-circle me-1"></i>Jetzt abschließen
+                            <i class="fa-solid fa-check-circle mr-1"></i>Jetzt abschließen
                         </button>
                     </form>
                 </div>

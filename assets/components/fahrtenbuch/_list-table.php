@@ -55,9 +55,9 @@ $fahrttypBadges = [
                     $typBadge = $fahrttypBadges[$typSlug] ?? 'secondary';
                 ?>
                     <tr>
-                        <td><?= date('d.m.Y', strtotime($e['datum'])) ?></td>
-                        <td><?= date('H:i', strtotime($e['abfahrt'])) ?></td>
-                        <td><?= $e['ankunft'] ? date('H:i', strtotime($e['ankunft'])) : '<span class="text-muted">—</span>' ?></td>
+                        <td><?= \App\Helpers\DateTimeHelper::formatDateLocal($e['datum']) ?></td>
+                        <td><?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?></td>
+                        <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-muted">—</span>' ?></td>
                         <?php if ($context === 'admin'): ?>
                             <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
                         <?php endif; ?>
@@ -73,8 +73,8 @@ $fahrttypBadges = [
                                     <button type="button" class="btn btn-sm btn-ghost fb-edit-btn"
                                             data-id="<?= $e['id'] ?>"
                                             data-datum="<?= htmlspecialchars($e['datum']) ?>"
-                                            data-abfahrt="<?= date('H:i', strtotime($e['abfahrt'])) ?>"
-                                            data-ankunft="<?= $e['ankunft'] ? date('H:i', strtotime($e['ankunft'])) : '' ?>"
+                                            data-abfahrt="<?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?>"
+                                            data-ankunft="<?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '' ?>"
                                             data-vehicle-id="<?= (int)($e['vehicle_id'] ?? 0) ?>"
                                             data-vehicle-identifier="<?= htmlspecialchars($e['vehicle_identifier']) ?>"
                                             data-fahrer-name="<?= htmlspecialchars($e['fahrer_name']) ?>"

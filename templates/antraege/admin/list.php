@@ -23,19 +23,18 @@ $SITE_TITLE = 'Antragsübersicht';
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
 
     <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h1 class="mb-0">
-                            <i class="fa-solid fa-clipboard-list me-2"></i>Antragsübersicht
-                        </h1>
-                        <?php if (Gate::allows('antrag.decide')): ?>
-                            <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-soft-primary">
-                                <i class="fa-solid fa-gear me-2"></i>Antragstypen verwalten
-                            </a>
-                        <?php endif; ?>
-                    </div>
+        <div class="container mx-auto">
+            <div class="mb-5">
+                <div class="mb-4 flex items-center justify-between">
+                    <h1 class="mb-0">
+                        <i class="fa-solid fa-clipboard-list mr-2"></i>Antragsübersicht
+                    </h1>
+                    <?php if (Gate::allows('antrag.decide')): ?>
+                        <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-soft-primary">
+                            <i class="fa-solid fa-gear mr-2"></i>Antragstypen verwalten
+                        </a>
+                    <?php endif; ?>
+                </div>
 
                     <?php Flash::render(); ?>
 
@@ -66,7 +65,7 @@ $SITE_TITLE = 'Antragsübersicht';
                                     <tr <?= $rowStyle ?>>
                                         <td><strong><?= htmlspecialchars($antrag->uniqueid) ?></strong></td>
                                         <td>
-                                            <i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?> me-1"></i>
+                                            <i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?> mr-1"></i>
                                             <span class="small"><?= htmlspecialchars($antrag->typ->name ?? '') ?></span>
                                         </td>
                                         <td><?= htmlspecialchars($antrag->name_dn) ?></td>
@@ -79,7 +78,7 @@ $SITE_TITLE = 'Antragsübersicht';
                                         </td>
                                         <td>
                                             <a class="btn btn-soft-primary btn-sm" href="<?= $viewUrl ?>">
-                                                <i class="fa-solid fa-eye me-1"></i>Öffnen
+                                                <i class="fa-solid fa-eye mr-1"></i>Öffnen
                                             </a>
                                         </td>
                                     </tr>
@@ -87,7 +86,6 @@ $SITE_TITLE = 'Antragsübersicht';
                             </tbody>
                         </table>
                     </div>
-                </div>
             </div>
         </div>
     </div>

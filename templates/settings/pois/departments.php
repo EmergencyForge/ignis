@@ -24,13 +24,13 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="flex justify-between items-center mb-3">
                         <div>
                             <h1 class="mb-0">Krankenhaus-Fachrichtungen</h1>
                             <p class="text-muted mb-0"><?= htmlspecialchars($poi['name']) ?></p>
                         </div>
                         <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
-                            <div class="d-flex gap-2">
+                            <div class="flex gap-2">
                                 <button type="button" class="btn btn-soft-warning" id="reset-availability-btn">
                                     <i class="fa-solid fa-rotate-left"></i> Alle auf "Nicht besetzt"
                                 </button>
@@ -63,10 +63,10 @@ use App\Helpers\Flash;
                                         <tr>
                                             <td><?= (int)$dept['sort_order'] ?></td>
                                             <td><?= htmlspecialchars($dept['name']) ?></td>
-                                            <td><?= date('d.m.Y H:i', strtotime($dept['created_at'])) ?></td>
+                                            <td><?= \App\Helpers\DateTimeHelper::formatShortLocal($dept['created_at']) ?></td>
                                             <td>
                                                 <?php if (Permissions::check(['admin', 'pois.manage'])): ?>
-                                                    <button class="btn btn-sm btn-soft-primary btn-icon me-1 edit-dept-btn"
+                                                    <button class="btn btn-sm btn-soft-primary btn-icon mr-1 edit-dept-btn"
                                                             data-id="<?= (int)$dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>"
                                                             data-sort-order="<?= (int)$dept['sort_order'] ?>">

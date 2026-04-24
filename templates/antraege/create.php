@@ -124,10 +124,10 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
 
                     <div class="flex justify-between">
                         <a href="<?= BASE_PATH ?>index.php" class="btn btn-ghost">
-                            <i class="fa-solid fa-xmark me-2"></i>Abbrechen
+                            <i class="fa-solid fa-xmark mr-2"></i>Abbrechen
                         </a>
                         <button type="submit" name="submit_antrag" class="btn btn-success">
-                            <i class="fa-solid fa-paper-plane me-2"></i>Antrag absenden
+                            <i class="fa-solid fa-paper-plane mr-2"></i>Antrag absenden
                         </button>
                     </div>
                 </form>

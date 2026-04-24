@@ -26,7 +26,7 @@
                     <i class="fa-solid fa-info-circle"></i>
                     Das ausgewählte Fahrzeug erhält eine Anfrage und kann entscheiden, ob es die Daten in ein bestehendes Protokoll übernehmen oder ein neues Protokoll erstellen möchte.
                 </div>
-                <div id="shareErrorMessage" class="alert alert-danger d-none"></div>
+                <div id="shareErrorMessage" class="alert alert-danger hidden"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
@@ -85,7 +85,7 @@
                         <small class="text-muted">Wähle ein vorhandenes Protokoll aus. Die Daten werden übernommen, ohne deine Fahrzeugzuweisungen zu überschreiben.</small>
                     </label>
                 </div>
-                <div id="existingProtocolsContainer" class="ms-4 mb-3 d-none">
+                <div id="existingProtocolsContainer" class="ml-4 mb-3 hidden">
                     <select class="form-select" id="existingProtocolSelect" data-custom-dropdown="true" data-search-threshold="8">
                         <option value="">Protokoll auswählen...</option>
                     </select>
@@ -253,7 +253,7 @@
         }
 
         this.disabled = true;
-        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wird gesendet...';
+        this.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Wird gesendet...';
 
         // Sende Share-Request
         fetch('<?= BASE_PATH ?>api/enotf/share/send-request.php', {
@@ -292,13 +292,13 @@
     function showShareError(message) {
         const errorDiv = document.getElementById('shareErrorMessage');
         errorDiv.textContent = message;
-        errorDiv.classList.remove('d-none');
+        errorDiv.classList.remove('hidden');
     }
 
     // Radio button handlers für Share-Anfrage
     document.getElementById('shareActionMerge')?.addEventListener('change', function() {
         if (this.checked) {
-            document.getElementById('existingProtocolsContainer').classList.remove('d-none');
+            document.getElementById('existingProtocolsContainer').classList.remove('hidden');
             loadExistingProtocols();
         }
         updateAcceptButton();
@@ -306,7 +306,7 @@
 
     document.getElementById('shareActionNew')?.addEventListener('change', function() {
         if (this.checked) {
-            document.getElementById('existingProtocolsContainer').classList.add('d-none');
+            document.getElementById('existingProtocolsContainer').classList.add('hidden');
         }
         updateAcceptButton();
     });
@@ -362,7 +362,7 @@
         const targetEnr = action === 'merge' ? document.getElementById('existingProtocolSelect').value : null;
 
         this.disabled = true;
-        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wird verarbeitet...';
+        this.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Wird verarbeitet...';
 
         fetch('<?= BASE_PATH ?>api/enotf/share/accept-request.php', {
                 method: 'POST',

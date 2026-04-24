@@ -22,7 +22,7 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div class="flex justify-between items-center mb-5">
                         <h1 class="mb-0">FW Qualifikationen verwalten</h1>
                         <?php if (Permissions::check('admin')) : ?>
                             <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
@@ -110,7 +110,7 @@ use App\Helpers\Flash;
                                 <label class="form-check-label" for="dienstgrad-none">Leer?</label>
                             </div>
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
+                        <div class="modal-footer flex justify-between">
                             <button type="button" class="btn btn-ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
                             <div>
                                 <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>

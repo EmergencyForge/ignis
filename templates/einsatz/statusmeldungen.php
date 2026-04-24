@@ -107,7 +107,7 @@ use App\Helpers\Flash;
         <div class="flex-1 overflow-y-auto">
             <div class="container mx-auto my-4">
                 <div class="mb-4 flex items-center justify-between">
-                    <h1><i class="fa-solid fa-signal me-2"></i>Statusmeldungen</h1>
+                    <h1><i class="fa-solid fa-signal mr-2"></i>Statusmeldungen</h1>
                 </div>
 
                 <?php Flash::render(); ?>
@@ -144,7 +144,7 @@ use App\Helpers\Flash;
 
                     <?php if (!$activeIncidentId): ?>
                         <div class="alert alert-warning">
-                            <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                            <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                             Ihr Fahrzeug ist keinem aktiven Einsatz zugeordnet. Statusmeldungen können erst gesendet werden, wenn ein Einsatz zugeordnet ist.
                         </div>
                     <?php else: ?>

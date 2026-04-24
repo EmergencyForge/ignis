@@ -45,7 +45,7 @@ function einsatz_fmt_dt(?string $ts): string
         <div class="flex-1 overflow-y-auto">
             <div class="container mx-auto my-4">
                 <h1 class="mb-4">
-                    <i class="fa-solid fa-list me-2"></i>
+                    <i class="fa-solid fa-list mr-2"></i>
                     Meine Einsätze
                 </h1>
 
@@ -53,7 +53,7 @@ function einsatz_fmt_dt(?string $ts): string
 
                 <?php if (empty($incidents)): ?>
                     <div class="alert alert-info">
-                        <i class="fa-solid fa-info-circle me-2"></i>
+                        <i class="fa-solid fa-info-circle mr-2"></i>
                         Noch keine Einsätze für Ihr Fahrzeug vorhanden. Erstellen Sie einen neuen Einsatz über den Button in der Navigation.
                     </div>
                 <?php else: ?>
@@ -89,20 +89,20 @@ function einsatz_fmt_dt(?string $ts): string
                                     </div>
 
                                     <h6 class="mb-3 text-gray-400">
-                                        <i class="fa-solid fa-fire me-1"></i>
+                                        <i class="fa-solid fa-fire mr-1"></i>
                                         <?= htmlspecialchars($inc['keyword']) ?>
                                     </h6>
 
                                     <div class="grid grid-cols-2 gap-2">
                                         <div class="mb-2">
                                             <small class="text-gray-400">
-                                                <i class="fa-solid fa-map-marker-alt me-1"></i>
+                                                <i class="fa-solid fa-map-marker-alt mr-1"></i>
                                                 <?= htmlspecialchars($inc['location']) ?>
                                             </small>
                                         </div>
                                         <div class="mb-2">
                                             <small class="text-gray-400">
-                                                <i class="fa-solid fa-clock me-1"></i>
+                                                <i class="fa-solid fa-clock mr-1"></i>
                                                 <?= einsatz_fmt_dt($inc['started_at']) ?>
                                             </small>
                                         </div>
@@ -111,7 +111,7 @@ function einsatz_fmt_dt(?string $ts): string
                                     <?php if (!empty($inc['leader_name'])): ?>
                                         <div class="mb-2">
                                             <small class="text-gray-400">
-                                                <i class="fa-solid fa-user-tie me-1"></i>
+                                                <i class="fa-solid fa-user-tie mr-1"></i>
                                                 <?= htmlspecialchars($inc['leader_name']) ?>
                                             </small>
                                         </div>
@@ -121,17 +121,17 @@ function einsatz_fmt_dt(?string $ts): string
 
                                     <div class="mb-3 flex justify-between text-xs text-gray-400">
                                         <span>
-                                            <i class="fa-solid fa-truck me-1"></i>
+                                            <i class="fa-solid fa-truck mr-1"></i>
                                             <?= (int) $inc['vehicle_count'] ?> Bet. EM
                                         </span>
                                         <span>
-                                            <i class="fa-solid fa-comment me-1"></i>
+                                            <i class="fa-solid fa-comment mr-1"></i>
                                             <?= (int) $inc['sitrep_count'] ?> Lagemeldung(en)
                                         </span>
                                     </div>
 
                                     <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int) $inc['id'] ?>" class="btn btn-main-color w-full no-underline hover:no-underline">
-                                        <i class="fa-solid fa-eye me-1"></i>
+                                        <i class="fa-solid fa-eye mr-1"></i>
                                         Einsatz öffnen
                                     </a>
                                 </div>

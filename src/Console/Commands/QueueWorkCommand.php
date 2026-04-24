@@ -63,7 +63,7 @@ final class QueueWorkCommand extends Command
             'pid'      => getmypid(),
         ]);
 
-        $output->writeln("<info>intraRP Queue Worker</info>");
+        $output->writeln("<info>ıgnıs Queue Worker</info>");
         $output->writeln("Queue: <comment>$queueName</comment>  Max-Time: <comment>{$maxTime}s</comment>  Max-Jobs: <comment>$maxJobs</comment>  Daemon: <comment>" . ($daemon ? 'yes' : 'no') . "</comment>");
 
         $connection = $this->queueManager->connection();

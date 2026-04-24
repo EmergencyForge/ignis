@@ -56,7 +56,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                     <div class="mb-3 flex flex-wrap items-center gap-2 rounded px-3 py-2" style="background: var(--card-bg); border: 1px solid var(--border-color);">
                         <span class="fw-semibold" style="font-size: var(--font-size-sm);">Konto-Status:</span>
                         <?php if ($accountStatus === 'active'): ?>
-                            <span class="badge text-bg-success"><i class="fa-solid fa-circle-check me-1"></i>Konto aktiv</span>
+                            <span class="badge text-bg-success"><i class="fa-solid fa-circle-check mr-1"></i>Konto aktiv</span>
                             <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
                                 <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $panelakte['id'] ?>" class="text-decoration-none" style="font-size: var(--font-size-sm);">
                                     <?= htmlspecialchars($panelakte['fullname']) ?> (<?= htmlspecialchars($panelakte['username']) ?>)
@@ -65,22 +65,22 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                 <span style="font-size: var(--font-size-sm);"><?= htmlspecialchars($panelakte['fullname']) ?> (<?= htmlspecialchars($panelakte['username']) ?>)</span>
                             <?php endif; ?>
                         <?php elseif ($accountStatus === 'inactive'): ?>
-                            <span class="badge text-bg-secondary"><i class="fa-solid fa-circle-minus me-1"></i>Konto deaktiviert</span>
+                            <span class="badge text-bg-secondary"><i class="fa-solid fa-circle-minus mr-1"></i>Konto deaktiviert</span>
                             <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
                                 <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $panelakte['id'] ?>" class="text-decoration-none" style="font-size: var(--font-size-sm);">
                                     <?= htmlspecialchars($panelakte['username']) ?>
                                 </a>
                             <?php endif; ?>
                         <?php elseif ($accountStatus === 'pending'): ?>
-                            <span class="badge text-bg-warning"><i class="fa-solid fa-clock me-1"></i>Einladung ausstehend</span>
+                            <span class="badge text-bg-warning"><i class="fa-solid fa-clock mr-1"></i>Einladung ausstehend</span>
                             <?php if ($pendingInvite && !empty($pendingInvite['expires_at'])): ?>
                                 <span style="font-size: var(--font-size-xs); opacity: 0.7;">Läuft ab: <?= (new DateTime($pendingInvite['expires_at']))->format('d.m.Y H:i') ?></span>
                             <?php endif; ?>
                         <?php else: ?>
-                            <span class="badge text-bg-dark" style="opacity: 0.6;"><i class="fa-solid fa-circle-xmark me-1"></i>Kein Konto</span>
+                            <span class="badge text-bg-dark" style="opacity: 0.6;"><i class="fa-solid fa-circle-xmark mr-1"></i>Kein Konto</span>
                             <?php if (Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code'): ?>
                                 <button type="button" class="btn btn-soft-primary btn-sm" id="generateInviteBtn" style="font-size: var(--font-size-xs);" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
-                                    <i class="fa-solid fa-paper-plane me-1"></i>Einladen
+                                    <i class="fa-solid fa-paper-plane mr-1"></i>Einladen
                                 </button>
                                 <span id="inviteResult" style="font-size: var(--font-size-xs);"></span>
                             <?php endif; ?>
@@ -89,10 +89,10 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
 
                     <?php if (isset($_GET['new_created']) && $accountStatus === 'none' && Permissions::check(['admin', 'users.create']) && defined('REGISTRATION_MODE') && REGISTRATION_MODE === 'code'): ?>
                         <div class="alert alert-success alert-dismissible fade show mb-3" role="alert" id="newCreatedBanner">
-                            <i class="fa-solid fa-circle-check me-2"></i>
+                            <i class="fa-solid fa-circle-check mr-2"></i>
                             <strong>Mitarbeiter erfolgreich erstellt.</strong> Soll direkt ein Einladungslink für das Intranet generiert werden?
-                            <button type="button" class="btn btn-sm btn-success ms-2" id="bannerInviteBtn" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
-                                <i class="fa-solid fa-paper-plane me-1"></i>Einladungslink erstellen
+                            <button type="button" class="btn btn-sm btn-success ml-2" id="bannerInviteBtn" data-fullname="<?= htmlspecialchars($row['fullname']) ?>">
+                                <i class="fa-solid fa-paper-plane mr-1"></i>Einladungslink erstellen
                             </button>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Schließen"></button>
                         </div>
@@ -128,12 +128,12 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
 
                                 <div class="w-100 text-center">
                                     <?php if ($canEdit): ?>
-                                        <div class="mb-3 position-relative d-inline-block">
+                                        <div class="mb-3 position-relative inline-block">
                                             <img src="<?= htmlspecialchars($profileImage) ?>" alt="Profilbild" id="pfp-preview" class="border" style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;" title="Klicken zum Ändern">
                                             <label for="pfp-upload" class="position-absolute bottom-0 end-0 btn btn-sm btn-soft-primary btn-icon" style="width: 28px; height: 28px; font-size: 0.7rem; cursor: pointer;" title="Bild hochladen">
                                                 <i class="fa-solid fa-camera"></i>
                                             </label>
-                                            <input type="file" id="pfp-upload" accept="image/png,image/jpeg,image/webp" class="d-none">
+                                            <input type="file" id="pfp-upload" accept="image/png,image/jpeg,image/webp" class="hidden">
                                         </div>
                                     <?php else: ?>
                                         <img src="<?= htmlspecialchars($profileImage) ?>" alt="Profilbild" class="border" style="width: 120px; height: 120px; object-fit: cover;">
@@ -155,7 +155,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
 
                                     <?php if ($canEdit): ?>
                                         <button type="button" class="btn btn-sm btn-soft-primary mt-2" data-bs-toggle="modal" data-bs-target="#modalQualiEdit">
-                                            <i class="fa-solid fa-sliders me-1"></i>Rang &amp; Qualifikationen
+                                            <i class="fa-solid fa-sliders mr-1"></i>Rang &amp; Qualifikationen
                                         </button>
                                     <?php endif; ?>
 
@@ -214,7 +214,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                 </div>
                             </form>
                         </div>
-                        <div class="col ms-4">
+                        <div class="col ml-4">
                             <div class="p-3 shadow-sm border ma-comments mb-3">
                                 <div class="comment-settings mb-3">
                                     <h4>Kommentare/Notizen</h4>
@@ -254,7 +254,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalQualiEditLabel"><i class="fa-solid fa-sliders me-2"></i>Rang &amp; Qualifikationen</h5>
+                    <h5 class="modal-title" id="modalQualiEditLabel"><i class="fa-solid fa-sliders mr-2"></i>Rang &amp; Qualifikationen</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body">
@@ -269,7 +269,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                 <div class="modal-footer">
                     <button type="button" class="btn btn-ghost btn-sm" data-bs-dismiss="modal">Abbrechen</button>
                     <button type="button" class="btn btn-success btn-sm" id="qualiSaveBtn">
-                        <i class="fa-solid fa-check me-1"></i>Speichern
+                        <i class="fa-solid fa-check mr-1"></i>Speichern
                     </button>
                 </div>
             </div>
@@ -293,7 +293,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
         function handleInviteClick(btn) {
             var fullname = btn.dataset.fullname;
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Wird erstellt...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Wird erstellt...';
 
             fetch('<?= BASE_PATH ?>api/personnel/generate-invite.php', {
                 method: 'POST',
@@ -303,25 +303,25 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.success) {
-                    btn.outerHTML = '<span style="font-size: var(--font-size-sm);"><i class="fa-solid fa-check text-success me-1"></i>' +
+                    btn.outerHTML = '<span style="font-size: var(--font-size-sm);"><i class="fa-solid fa-check text-success mr-1"></i>' +
                         '<code class="user-select-all">' + data.inviteUrl + '</code></span>';
                     var resultEl = document.getElementById('inviteResult');
                     if (resultEl) resultEl.innerHTML = '';
                     var banner = document.getElementById('newCreatedBanner');
                     if (banner) {
                         banner.className = 'alert alert-success mb-3';
-                        banner.innerHTML = '<i class="fa-solid fa-check me-2"></i><strong>Einladungslink erstellt!</strong> ' +
+                        banner.innerHTML = '<i class="fa-solid fa-check mr-2"></i><strong>Einladungslink erstellt!</strong> ' +
                             '<code class="user-select-all">' + data.inviteUrl + '</code>';
                     }
                 } else {
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i>Einladen';
+                    btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i>Einladen';
                     if (typeof showToast === 'function') showToast(data.message || 'Fehler beim Erstellen', 'danger');
                 }
             })
             .catch(function() {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i>Einladen';
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-1"></i>Einladen';
                 if (typeof showToast === 'function') showToast('Fehler beim Erstellen des Einladungslinks', 'danger');
             });
         }
@@ -575,7 +575,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                 };
 
                 qualiSaveBtn.disabled = true;
-                qualiSaveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Speichern...';
+                qualiSaveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Speichern...';
 
                 fetch(basePath + 'api/personnel/update-profile.php', {
                     method: 'POST',
@@ -585,7 +585,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     qualiSaveBtn.disabled = false;
-                    qualiSaveBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Speichern';
+                    qualiSaveBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>Speichern';
                     if (data.success && data.display) {
                         var dgt = document.getElementById('display-dgtext');
                         if (dgt) dgt.textContent = data.display.dgText;
@@ -602,7 +602,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                 })
                 .catch(function() {
                     qualiSaveBtn.disabled = false;
-                    qualiSaveBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Speichern';
+                    qualiSaveBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>Speichern';
                     showToast('Verbindungsfehler', 'danger');
                 });
             });

@@ -45,8 +45,7 @@ $currentDate = date('d.m.Y');
 
                 <div class="hr my-2" style="color:transparent"></div>
 
-                <div class="row">
-                    <div class="col-12">
+                <div>
                         <h4 class="text-light mb-4">
 
                         </h4>
@@ -71,13 +70,13 @@ $currentDate = date('d.m.Y');
                                                     <?php
                                                     switch ($vehicle['rd_type']) {
                                                         case 1:
-                                                            echo '<span class="badge text-bg-danger ms-2 badge-vehicle-type">Notarztbesetzt</span>';
+                                                            echo '<span class="badge text-bg-danger ml-2 badge-vehicle-type">Notarztbesetzt</span>';
                                                             break;
                                                         case 2:
-                                                            echo '<span class="badge text-bg-warning ms-2 badge-vehicle-type">Transportmittel</span>';
+                                                            echo '<span class="badge text-bg-warning ml-2 badge-vehicle-type">Transportmittel</span>';
                                                             break;
                                                         default:
-                                                            echo '<span class="badge text-bg-primary ms-2 badge-vehicle-type">Standard</span>';
+                                                            echo '<span class="badge text-bg-primary ml-2 badge-vehicle-type">Standard</span>';
                                                     }
                                                     ?>
                                                 </td>
@@ -101,7 +100,7 @@ $currentDate = date('d.m.Y');
 
                             <!-- Defekt melden -->
                             <div class="vehicle-info-card p-4 mb-4">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="mb-3 flex items-center justify-between">
                                     <h5 class="text-light mb-0">Defekt-Meldungen</h5>
                                     <button type="button" class="btn btn-sm btn-outline-warning" id="toggleDefectForm">
                                         <i class="fa-solid fa-triangle-exclamation"></i> Defekt melden
@@ -157,7 +156,7 @@ $currentDate = date('d.m.Y');
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label text-light">Fahrzeug noch einsatzfähig?</label>
-                                            <div class="d-flex gap-3">
+                                            <div class="flex gap-3">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="vehicle_operable" id="enotf-operable-yes" value="1" checked>
                                                     <label class="form-check-label text-light" for="enotf-operable-yes">Ja</label>
@@ -168,7 +167,7 @@ $currentDate = date('d.m.Y');
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="d-flex gap-2">
+                                        <div class="flex gap-2">
                                             <button type="submit" class="btn btn-sm btn-warning"><i class="fa-solid fa-paper-plane"></i> Absenden</button>
                                             <button type="button" class="btn btn-sm btn-outline-light" id="cancelDefectForm">Abbrechen</button>
                                         </div>
@@ -220,7 +219,7 @@ $currentDate = date('d.m.Y');
                                     ?>
 
                                     <?php if (empty($openDefects)): ?>
-                                        <div class="text-muted text-center py-3">
+                                        <div class="text-gray-400 text-center py-3">
                                             <i class="fa-solid fa-check-circle" style="font-size:1.5rem;opacity:0.4;"></i>
                                             <div class="mt-1">Keine offenen Defekte</div>
                                         </div>
@@ -230,9 +229,9 @@ $currentDate = date('d.m.Y');
                                             $operable = (int)$def['vehicle_operable'];
                                             $catLabel = $enotfCategoryLabels[$def['category']] ?? $def['category'];
                                         ?>
-                                            <div class="d-flex align-items-start gap-2 mb-2 p-2" style="background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid var(--bs-<?= $operable ? 'warning' : 'danger' ?>);">
-                                                <div class="flex-grow-1">
-                                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                            <div class="mb-2 flex items-start gap-2 p-2" style="background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid var(--bs-<?= $operable ? 'warning' : 'danger' ?>);">
+                                                <div class="flex-1">
+                                                    <div class="flex flex-wrap items-center gap-2">
                                                         <strong class="text-light" style="font-size:0.9rem;"><?= htmlspecialchars($def['title']) ?></strong>
                                                         <span class="badge text-bg-secondary" style="font-size:0.6rem;"><?= htmlspecialchars($catLabel) ?></span>
                                                         <span class="badge text-bg-<?= $stat[1] ?>" style="font-size:0.6rem;"><?= $stat[0] ?></span>
@@ -241,16 +240,16 @@ $currentDate = date('d.m.Y');
                                                         <?php endif; ?>
                                                     </div>
                                                     <?php if ($def['description']): ?>
-                                                        <div class="text-muted" style="font-size:0.8rem;"><?= htmlspecialchars($def['description']) ?></div>
+                                                        <div class="text-gray-400" style="font-size:0.8rem;"><?= htmlspecialchars($def['description']) ?></div>
                                                     <?php endif; ?>
-                                                    <div class="text-muted" style="font-size:0.7rem;">
-                                                        <?= htmlspecialchars($def['reporter_name'] ?? 'Unbekannt') ?> — <?= date('d.m.Y H:i', strtotime($def['created_at'])) ?>
+                                                    <div class="text-gray-400" style="font-size:0.7rem;">
+                                                        <?= htmlspecialchars($def['reporter_name'] ?? 'Unbekannt') ?> — <?= \App\Helpers\DateTimeHelper::formatShortLocal($def['created_at']) ?>
                                                     </div>
                                                     <?php if (!empty($def['last_status_user'])): ?>
                                                         <div class="mt-1 p-2" style="font-size:0.75rem;background:rgba(255,255,255,0.03);border-radius:4px;border-left:2px solid var(--bs-<?= $statStyles[$def['status']][1] ?? 'secondary' ?>);">
                                                             <i class="fa-solid fa-pen" style="font-size:0.65rem;"></i>
                                                             <?= htmlspecialchars($def['last_status_details']) ?>
-                                                            <span class="text-muted">— <?= htmlspecialchars($def['last_status_user']) ?>, <?= date('d.m.Y H:i', strtotime($def['last_status_at'])) ?></span>
+                                                            <span class="text-gray-400">— <?= htmlspecialchars($def['last_status_user']) ?>, <?= \App\Helpers\DateTimeHelper::formatShortLocal($def['last_status_at']) ?></span>
                                                         </div>
                                                     <?php endif; ?>
                                                 </div>
@@ -267,7 +266,7 @@ $currentDate = date('d.m.Y');
                                 </h5>
 
                                 <?php if (count($categories) > 0): ?>
-                                    <div class="row">
+                                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                                         <?php foreach ($categories as $category): ?>
                                             <?php
                                             // Typ-Styling
@@ -290,11 +289,11 @@ $currentDate = date('d.m.Y');
                                             }
                                             ?>
 
-                                            <div class="col-md-6 col-lg-4 mb-3">
+                                            <div>
                                                 <div class="category-card p-3">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div class="mb-2 flex items-center justify-between">
                                                         <h6 class="text-light mb-0">
-                                                            <span class="badge bg-secondary me-2"><?= $category['priority'] ?></span>
+                                                            <span class="badge bg-secondary mr-2"><?= $category['priority'] ?></span>
                                                             <?= htmlspecialchars($category['title']) ?>
                                                         </h6>
                                                         <span class="badge bg-<?= $typeClass ?>"><?= $typeText ?></span>
@@ -316,7 +315,7 @@ $currentDate = date('d.m.Y');
                                                     <?php if (count($tiles) > 0): ?>
                                                         <div class="tiles-container">
                                                             <?php foreach ($tiles as $tile): ?>
-                                                                <div class="tile-item d-flex justify-content-between align-items-center">
+                                                                <div class="tile-item flex items-center justify-between">
                                                                     <span class="text-light">
                                                                         <?= htmlspecialchars($tile['title']) ?>
                                                                     </span>
@@ -327,7 +326,7 @@ $currentDate = date('d.m.Y');
                                                             <?php endforeach; ?>
                                                         </div>
                                                     <?php else: ?>
-                                                        <div class="text-muted">
+                                                        <div class="text-gray-400">
                                                             <em>Keine Gegenstände in dieser Kategorie</em>
                                                         </div>
                                                     <?php endif; ?>
@@ -336,7 +335,7 @@ $currentDate = date('d.m.Y');
                                         <?php endforeach; ?>
                                     </div>
                                 <?php else: ?>
-                                    <div class="text-muted text-center py-4">
+                                    <div class="text-gray-400 text-center py-4">
                                         <i class="fa-solid fa-exclamation-triangle" style="font-size: 2rem;"></i>
                                         <p class="mt-2">Keine Beladelisten für diesen Fahrzeugtyp vorhanden.</p>
                                     </div>
@@ -349,7 +348,7 @@ $currentDate = date('d.m.Y');
                                 <div class="text-center py-4">
                                     <i class="fa-solid fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
                                     <h5 class="text-light mt-3">Fahrzeug nicht gefunden</h5>
-                                    <p class="text-muted">
+                                    <p class="text-gray-400">
                                         Das Fahrzeug mit der ID "<?= htmlspecialchars($currentVehicleId) ?>" konnte nicht gefunden werden.
                                     </p>
 
@@ -381,7 +380,6 @@ $currentDate = date('d.m.Y');
                                 </div>
                             </div>
                         <?php endif; ?>
-                    </div>
                 </div>
             </div>
         </div>

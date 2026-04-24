@@ -137,7 +137,7 @@ use App\Helpers\Flash;
                             </div>
 
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
+                        <div class="modal-footer flex justify-between">
                             <button type="button" class="btn btn-ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
 
                             <div>

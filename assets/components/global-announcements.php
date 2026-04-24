@@ -124,7 +124,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         <div class="modal-content ef-modal-content">
             <!-- Header -->
             <div class="ef-modal-header <?= $headerAccent ?>">
-                <div class="d-flex align-items-center gap-3">
+                <div class="flex items-center gap-3">
                     <div class="ef-logo-container <?= $headerAccent ?>">
                         <i class="fa-solid fa-fire-flame-curved"></i>
                     </div>
@@ -147,7 +147,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                 ?>
                     <div class="announcement-item <?= $index > 0 ? 'border-top' : '' ?>"
                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
-                        <div class="d-flex gap-3">
+                        <div class="flex gap-3">
                             <!-- Icon -->
                             <div class="ef-announcement-icon" style="background: <?= $iconColors['bg'] ?>;">
                                 <i class="fa-solid <?= $config['icon'] ?>" style="color: <?= $iconColors['color'] ?>;"></i>
@@ -155,17 +155,17 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
                             <!-- Content -->
                             <div class="announcement-content flex-grow-1">
-                                <div class="d-flex align-items-center flex-wrap gap-2 mb-2">
+                                <div class="flex items-center flex-wrap gap-2 mb-2">
                                     <span class="badge bg-<?= $config['badge'] ?>"><?= $config['label'] ?></span>
                                     <?php if ($isAdminOnly): ?>
                                         <span class="badge ef-badge-admin">
-                                            <i class="fa-solid fa-shield-halved me-1"></i>Nur für Admins
+                                            <i class="fa-solid fa-shield-halved mr-1"></i>Nur für Admins
                                         </span>
                                     <?php endif; ?>
                                     <?php if (!empty($ann['valid_until'])): ?>
                                         <small class="ef-meta-text">
-                                            <i class="fa-regular fa-clock me-1"></i>
-                                            Gültig bis <?= date('d.m.Y', strtotime($ann['valid_until'])) ?>
+                                            <i class="fa-regular fa-clock mr-1"></i>
+                                            Gültig bis <?= \App\Helpers\DateTimeHelper::formatDateLocal($ann['valid_until']) ?>
                                         </small>
                                     <?php endif; ?>
                                 </div>
@@ -176,15 +176,15 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                                     <div class="announcement-message"><?= $parsedown->text($ann['message']) ?></div>
                                 <?php endif; ?>
 
-                                <div class="d-flex align-items-center gap-2 flex-wrap mt-3">
+                                <div class="flex items-center gap-2 flex-wrap mt-3">
                                     <?php if (!empty($ann['link'])): ?>
                                         <a href="<?= htmlspecialchars($ann['link']) ?>" class="btn btn-<?= $config['badge'] ?> btn-sm" target="_blank">
-                                            <i class="fa-solid fa-external-link me-1"></i> Mehr erfahren
+                                            <i class="fa-solid fa-external-link mr-1"></i> Mehr erfahren
                                         </a>
                                     <?php endif; ?>
                                     <button type="button" class="btn btn-ghost btn-sm dismiss-single-btn"
                                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
-                                        <i class="fa-solid fa-eye-slash me-1"></i> Ausblenden
+                                        <i class="fa-solid fa-eye-slash mr-1"></i> Ausblenden
                                     </button>
                                 </div>
                             </div>
@@ -196,11 +196,11 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
             <!-- Footer -->
             <div class="ef-modal-footer">
                 <small class="ef-meta-text">
-                    <i class="fa-solid fa-shield-halved me-1"></i>
+                    <i class="fa-solid fa-shield-halved mr-1"></i>
                     Diese Nachricht stammt von EmergencyForge
                 </small>
                 <button type="button" class="btn btn-soft-primary btn-sm" id="efDismissAllBtn">
-                    <i class="fa-solid fa-check me-1"></i> Verstanden
+                    <i class="fa-solid fa-check mr-1"></i> Verstanden
                 </button>
             </div>
         </div>
@@ -211,8 +211,8 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 <div id="efAnnouncementsTrigger" class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1040; display: none;">
     <button type="button" class="btn btn-<?= $hasCritical ? 'danger' : ($hasWarning ? 'warning' : 'primary') ?> rounded-pill shadow-lg position-relative"
         data-bs-toggle="modal" data-bs-target="#efAnnouncementsModal">
-        <i class="fa-solid fa-bullhorn me-2"></i>
-        <span class="d-none d-sm-inline"><?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?></span>
+        <i class="fa-solid fa-bullhorn mr-2"></i>
+        <span class="hidden d-sm-inline"><?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?></span>
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-sm-none">
             <?= count($announcements) ?>
         </span>
@@ -483,7 +483,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         if (dismissAllBtn) {
             dismissAllBtn.addEventListener('click', function() {
                 dismissAllBtn.disabled = true;
-                dismissAllBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Wird gespeichert...';
+                dismissAllBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Wird gespeichert...';
 
                 // Alle Announcements nacheinander dismissan
                 Promise.all(allAnnouncementIds.map(id =>
@@ -504,7 +504,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                     .catch(err => {
                         console.error('Dismiss all failed:', err);
                         dismissAllBtn.disabled = false;
-                        dismissAllBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Verstanden';
+                        dismissAllBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Verstanden';
                     });
             });
         }
@@ -550,7 +550,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                     .catch(err => {
                         console.error('Dismiss failed:', err);
                         this.disabled = false;
-                        this.innerHTML = '<i class="fa-solid fa-eye-slash me-1"></i> Ausblenden';
+                        this.innerHTML = '<i class="fa-solid fa-eye-slash mr-1"></i> Ausblenden';
                     });
             });
         });

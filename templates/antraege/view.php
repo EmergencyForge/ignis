@@ -127,7 +127,7 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                                 <label class="form-label text-xs text-gray-400">Status</label>
                                 <div class="form-control-plaintext">
                                     <span class="badge text-bg-<?= $currentStatus['class'] ?>">
-                                        <i class="<?= $currentStatus['icon'] ?> me-1"></i>
+                                        <i class="<?= $currentStatus['icon'] ?> mr-1"></i>
                                         <?= $currentStatus['text'] ?>
                                     </span>
                                 </div>
@@ -172,7 +172,7 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                             <div class="flex justify-between py-2">
                                 <span class="text-gray-400">Status:</span>
                                 <span class="badge text-bg-<?= $currentStatus['class'] ?>">
-                                    <i class="<?= $currentStatus['icon'] ?> me-1"></i>
+                                    <i class="<?= $currentStatus['icon'] ?> mr-1"></i>
                                     <?= $currentStatus['text'] ?>
                                 </span>
                             </div>
@@ -181,14 +181,14 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
 
                     <!-- Aktionen -->
                     <div class="intra__tile p-3">
-                        <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Aktionen</h6>
+                        <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Aktionen</h6>
                         <div class="flex flex-col gap-2">
                             <a href="<?= BASE_PATH ?>index.php" class="btn btn-ghost no-underline hover:no-underline">
-                                <i class="fas fa-arrow-left me-2"></i>Zurück zum Dashboard
+                                <i class="fas fa-arrow-left mr-2"></i>Zurück zum Dashboard
                             </a>
                             <?php if (Gate::allows('antrag.decide', $antrag)): ?>
                                 <a href="<?= BASE_PATH ?>antrag/admin/view.php?antrag=<?= htmlspecialchars($caseId) ?>" class="btn btn-soft-primary no-underline hover:no-underline">
-                                    <i class="fas fa-edit me-2"></i>Bearbeiten
+                                    <i class="fas fa-edit mr-2"></i>Bearbeiten
                                 </a>
                             <?php endif; ?>
                         </div>

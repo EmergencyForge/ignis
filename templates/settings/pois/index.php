@@ -33,7 +33,7 @@ use App\Helpers\Flash;
                         <h1>POI-Verwaltung</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
-                                <div class="d-flex gap-2">
+                                <div class="flex gap-2">
                                     <a href="<?= BASE_PATH ?>settings/pois/access-codes.php" class="btn btn-soft-warning">
                                         <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
                                     </a>
@@ -83,7 +83,7 @@ use App\Helpers\Flash;
                                     $actions = '';
                                     if (Permissions::check(['admin', 'pois.manage'])) {
                                         if ($row['typ'] === 'Krankenhaus' || $row['typ'] === 'Klinik') {
-                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments.php?poi_id={$row['id']}' class='btn btn-sm btn-outline-secondary btn-icon me-1'><i class='fa-solid fa-hospital'></i></a>";
+                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments.php?poi_id={$row['id']}' class='btn btn-sm btn-outline-secondary btn-icon mr-1'><i class='fa-solid fa-hospital'></i></a>";
                                         }
                                         $actions .= "<a title='POI bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editPoiModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>";
                                     }
@@ -140,7 +140,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="form-check"><input class="form-check-input" type="checkbox" name="active" id="poi-active"><label class="form-check-label" for="poi-active">Aktiv?</label></div>
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
+                        <div class="modal-footer flex justify-between">
                             <button type="button" class="btn btn-ghost-danger" id="delete-poi-btn">Löschen</button>
                             <div>
                                 <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>

@@ -58,7 +58,7 @@ class FederationPairingService
         $payload = [
             'url' => rtrim($instanceUrl, '/'),
             'instance_id' => $instanceId,
-            'instance_name' => $instanceName ?: (defined('SYSTEM_NAME') ? SYSTEM_NAME : 'intraRP'),
+            'instance_name' => $instanceName ?: (defined('SYSTEM_NAME') ? SYSTEM_NAME : 'ıgnıs'),
             'api_key' => $apiKey,
         ];
 

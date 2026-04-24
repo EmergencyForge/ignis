@@ -1,11 +1,13 @@
 <?php
 
 use App\Auth\Permissions;
+use App\Config\ConfigManager;
 use App\Helpers\EnotfUrl;
 use App\Notifications\NotificationManager;
 
 $unreadCount = 0;
 $recentNotifications = [];
+$useNewNavbar = false;
 try {
     if (!isset($pdo)) {
         require_once __DIR__ . '/../config/database.php';
@@ -14,6 +16,10 @@ try {
         $notificationManager = new NotificationManager($pdo);
         $unreadCount = $notificationManager->getUnreadCount($_SESSION['userid']);
         $recentNotifications = $notificationManager->getAll($_SESSION['userid'], 5);
+
+        $configManager = new ConfigManager($pdo);
+        $flagValue = $configManager->get('UI_NEW_NAVBAR_ENABLED');
+        $useNewNavbar = in_array(strtolower((string) $flagValue), ['1', 'true', 'yes', 'on'], true);
     }
 } catch (Exception $e) {
     error_log("Notification count error: " . $e->getMessage());
@@ -1310,6 +1316,11 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     }
 </style>
 
+<?php if ($useNewNavbar): ?>
+    <script>document.body.classList.add('new-navbar');</script>
+    <?php include __DIR__ . '/navbar-sidebar.php'; ?>
+    <script defer src="<?= BASE_PATH ?>assets/js/navbar/sidebar-flyout.js"></script>
+<?php else: ?>
 <!-- ===================== -->
 <!-- SIDEBAR (Desktop)     -->
 <!-- ===================== -->
@@ -1459,6 +1470,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     </nav>
 
 </aside>
+<?php endif; ?>
 
 <?php include __DIR__ . '/global-announcements.php'; ?>
 

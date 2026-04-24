@@ -252,15 +252,15 @@ $statusLabels = [
                                         <?php endif; ?>
                                         <div class="defect-meta">
                                             <span><i class="fa-solid fa-user"></i> <?= htmlspecialchars($d['reporter_name'] ?? 'Unbekannt') ?></span>
-                                            <span><i class="fa-solid fa-clock"></i> <?= date('d.m.Y H:i', strtotime($d['created_at'])) ?></span>
+                                            <span><i class="fa-solid fa-clock"></i> <?= \App\Helpers\DateTimeHelper::formatShortLocal($d['created_at']) ?></span>
                                             <?php if ($d['assigned_name']): ?>
                                                 <span><i class="fa-solid fa-user-check"></i> <?= htmlspecialchars($d['assigned_name']) ?></span>
                                             <?php endif; ?>
                                             <?php if ($d['last_status_user'] && !$d['resolved_at']): ?>
-                                                <span><i class="fa-solid fa-pen"></i> <?= htmlspecialchars($d['last_status_details']) ?> — <?= htmlspecialchars($d['last_status_user']) ?>, <?= date('d.m.Y H:i', strtotime($d['last_status_at'])) ?></span>
+                                                <span><i class="fa-solid fa-pen"></i> <?= htmlspecialchars($d['last_status_details']) ?> — <?= htmlspecialchars($d['last_status_user']) ?>, <?= \App\Helpers\DateTimeHelper::formatShortLocal($d['last_status_at']) ?></span>
                                             <?php endif; ?>
                                             <?php if ($d['resolved_at']): ?>
-                                                <span><i class="fa-solid fa-check"></i> Gelöst am <?= date('d.m.Y', strtotime($d['resolved_at'])) ?> von <?= htmlspecialchars($d['resolver_name'] ?? 'Unbekannt') ?></span>
+                                                <span><i class="fa-solid fa-check"></i> Gelöst am <?= \App\Helpers\DateTimeHelper::formatDateLocal($d['resolved_at']) ?> von <?= htmlspecialchars($d['resolver_name'] ?? 'Unbekannt') ?></span>
                                             <?php endif; ?>
                                         </div>
                                         <?php if ($d['resolution_note']): ?>

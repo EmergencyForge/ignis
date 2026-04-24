@@ -232,7 +232,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
 
                     <?php if ($error): ?>
                         <div class="alert alert-danger" role="alert">
-                            <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                            <i class="fa-solid fa-triangle-exclamation mr-2"></i>
                             <?= htmlspecialchars($error) ?>
                         </div>
                     <?php endif; ?>
@@ -254,7 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
                                 autofocus
                                 autocomplete="off">
                             <div class="form-text mt-3">
-                                <i class="fa-solid fa-info-circle me-1"></i>
+                                <i class="fa-solid fa-info-circle mr-1"></i>
                                 Der Code wurde Ihnen vom Rettungsdienst zur Verfügung gestellt.
                             </div>
                         </div>

@@ -31,9 +31,9 @@ use App\Helpers\Flash;
         <div class="flex-1 overflow-y-auto">
             <div class="container mx-auto my-4">
                 <div class="mb-3 flex items-center justify-between">
-                    <h1><i class="fa-solid fa-book me-2"></i>Fahrtenbuch</h1>
+                    <h1><i class="fa-solid fa-book mr-2"></i>Fahrtenbuch</h1>
                     <button type="button" class="btn btn-success btn-sm" id="toggleCreateForm">
-                        <i class="fa-solid fa-plus me-1"></i>Neuer Eintrag
+                        <i class="fa-solid fa-plus mr-1"></i>Neuer Eintrag
                     </button>
                 </div>
 
@@ -54,7 +54,7 @@ use App\Helpers\Flash;
                         ?>
 
                         <div class="mt-3 flex gap-2">
-                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Speichern</button>
+                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
                             <button type="button" class="btn btn-sm btn-ghost" id="cancelCreateForm">Abbrechen</button>
                         </div>
                     </form>
@@ -76,7 +76,7 @@ use App\Helpers\Flash;
                         ?>
 
                         <div class="mt-3 flex gap-2">
-                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save me-1"></i>Aktualisieren</button>
+                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
                             <button type="button" class="btn btn-sm btn-ghost" id="cancelEditForm">Abbrechen</button>
                         </div>
                     </form>

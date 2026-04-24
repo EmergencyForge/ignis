@@ -127,9 +127,9 @@ $SITE_TITLE = htmlspecialchars($typLabel);
             <h1 class="doc-title"><?= htmlspecialchars($typLabel) ?></h1>
 
             <?php if ($isArchived): ?>
-                <span class="badge text-bg-secondary" style="font-size:0.65rem;"><i class="fa-solid fa-box-archive me-1"></i>Archiviert</span>
+                <span class="badge text-bg-secondary" style="font-size:0.65rem;"><i class="fa-solid fa-box-archive mr-1"></i>Archiviert</span>
             <?php else: ?>
-                <span class="badge text-bg-success" style="font-size:0.65rem;opacity:0.8;"><i class="fa-solid fa-circle-check me-1"></i>Aktiv</span>
+                <span class="badge text-bg-success" style="font-size:0.65rem;opacity:0.8;"><i class="fa-solid fa-circle-check mr-1"></i>Aktiv</span>
             <?php endif; ?>
 
             <div class="doc-actions ms-auto flex gap-1">

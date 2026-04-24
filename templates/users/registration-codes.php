@@ -125,7 +125,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <div class="d-flex gap-1">
+                                            <div class="flex gap-1">
                                                 <?php if (!$code->is_used && !$isExpired): ?>
                                                     <button type="button" class="btn btn-sm btn-soft-primary btn-icon" data-tooltip="Link kopieren" onclick="copyInviteLink('<?= htmlspecialchars($inviteUrl, ENT_QUOTES) ?>')">
                                                         <i class="fa-solid fa-copy"></i>

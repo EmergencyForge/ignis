@@ -36,7 +36,7 @@ use App\Helpers\Flash;
             <div class="page-header mb-4">
                 <h1>Protokollübersicht</h1>
                 <div class="header-actions">
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="flex items-center gap-3">
                         <div class="btn-toolbar-group">
                             <a href="?view=0" class="btn <?= (!isset($_GET['view']) || $_GET['view'] != 1) ? 'active' : '' ?>">Alle</a>
                             <a href="?view=1" class="btn <?= (isset($_GET['view']) && $_GET['view'] == 1) ? 'active' : '' ?>">Unbearbeitet</a>
@@ -187,7 +187,7 @@ use App\Helpers\Flash;
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="qmActionsContent">
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>
@@ -206,7 +206,7 @@ use App\Helpers\Flash;
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="qmLogContent">
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>
@@ -225,7 +225,7 @@ use App\Helpers\Flash;
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="bulkDeleteContent">
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>
@@ -289,7 +289,7 @@ use App\Helpers\Flash;
 
                 // Reset content
                 document.getElementById('qmActionsContent').innerHTML = `
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>
@@ -320,7 +320,7 @@ use App\Helpers\Flash;
 
                 // Reset content
                 document.getElementById('qmLogContent').innerHTML = `
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>
@@ -391,7 +391,7 @@ use App\Helpers\Flash;
 
             // Reset content and hide footer
             document.getElementById('bulkDeleteContent').innerHTML = `
-                <div class="d-flex justify-content-center">
+                <div class="flex justify-center">
                     <div class="spinner-border" role="status">
                         <span class="visually-hidden">Laden...</span>
                     </div>
@@ -427,7 +427,7 @@ use App\Helpers\Flash;
                             </div>
                             <form id="bulkDeleteFieldsForm">
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Zeitraum:</label>
+                                    <label class="form-label font-bold">Zeitraum:</label>
                                     <select class="form-select" id="timePeriod">
                                         <option value="7">Letzte 7 Tage</option>
                                         <option value="30" selected>Letzte 30 Tage</option>
@@ -437,7 +437,7 @@ use App\Helpers\Flash;
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
+                                    <label class="form-label font-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
                                 <button type="button" class="btn btn-soft-primary" onclick="previewBulkDelete()">
@@ -475,7 +475,7 @@ use App\Helpers\Flash;
             }
 
             document.getElementById('bulkDeleteContent').innerHTML = `
-                <div class="d-flex justify-content-center">
+                <div class="flex justify-center">
                     <div class="spinner-border" role="status">
                         <span class="visually-hidden">Lade Vorschau...</span>
                     </div>

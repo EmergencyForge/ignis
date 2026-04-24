@@ -1,15 +1,15 @@
 <!-- Footer für das Intranet-System -->
 <footer class="footer mt-auto py-3 text-light">
-    <div class="container">
-        <div class="row d-flex align-items-end justify-content-between">
-            <div class="col-md-4">
+    <div class="container mx-auto">
+        <div class="grid grid-cols-1 gap-3 items-end md:grid-cols-3">
+            <div>
                 <img src="/assets/img/defaultLogo.webp" alt="Logo" height="48px" width="auto">
                 <p class="small">Verwaltungsportal der <?php echo RP_ORGTYPE . " " . SERVER_CITY ?></p>
             </div>
-            <div class="col-md-4 text-center">
-                <p class="small">&copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
+            <div class="text-center">
+                <p class="small">&copy; 2024-<?php echo date("Y") ?> <em><strong>ıgnıs</strong></em> by <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
             </div>
-            <div class="col-md-4 text-end">
+            <div class="md:text-right">
                 <?php
                 $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? LEGAL_IMPRESSUM_URL : '';
                 $datenschutzUrl = defined('LEGAL_DATENSCHUTZ_URL') ? LEGAL_DATENSCHUTZ_URL : '';

@@ -28,10 +28,9 @@ use App\Helpers\Flash;
 <body data-bs-theme="dark" data-page="antragstyp-create">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <h1><i class="fa-solid fa-circle-plus me-2"></i>Neuen Antragstyp erstellen</h1>
+        <div class="container mx-auto">
+            <div class="max-w-4xl mx-auto">
+                    <h1><i class="fa-solid fa-circle-plus mr-2"></i>Neuen Antragstyp erstellen</h1>
 
                     <?php Flash::render(); ?>
 
@@ -63,8 +62,8 @@ use App\Helpers\Flash;
                                 <small class="text-muted">Optional: Hilft Benutzern zu verstehen, wann sie diesen Antrag nutzen sollten</small>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="mb-4">
                                     <label for="icon" class="form-label fw-bold">Icon</label>
                                     <div class="input-group">
                                         <span class="input-group-text">
@@ -85,7 +84,7 @@ use App\Helpers\Flash;
                                     </small>
                                 </div>
 
-                                <div class="col-md-6 mb-4">
+                                <div class="mb-4">
                                     <label for="sortierung" class="form-label fw-bold">Sortierung</label>
                                     <input type="number"
                                         class="form-control"
@@ -115,16 +114,16 @@ use App\Helpers\Flash;
                             <hr class="text-light my-4">
 
                             <div class="alert alert-info">
-                                <i class="fa-solid fa-circle-info me-2"></i>
+                                <i class="fa-solid fa-circle-info mr-2"></i>
                                 <strong>Hinweis:</strong> Nach dem Erstellen können Sie Formularfelder für diesen Antragstyp hinzufügen.
                             </div>
 
-                            <div class="d-flex justify-content-between">
+                            <div class="flex justify-between">
                                 <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-ghost">
-                                    <i class="fa-solid fa-xmark me-2"></i>Abbrechen
+                                    <i class="fa-solid fa-xmark mr-2"></i>Abbrechen
                                 </a>
                                 <button type="submit" name="submit" class="btn btn-success">
-                                    <i class="fa-solid fa-floppy-disk me-2"></i>Antragstyp erstellen
+                                    <i class="fa-solid fa-floppy-disk mr-2"></i>Antragstyp erstellen
                                 </button>
                             </div>
                         </form>

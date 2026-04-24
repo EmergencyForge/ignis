@@ -35,7 +35,7 @@ final class MigrateCommand extends Command
         $host = $_ENV['DB_HOST'] ?? 'localhost';
         $db   = $_ENV['DB_NAME'] ?? '(unbekannt)';
 
-        $output->writeln("<info>intraRP Datenbank-Migration</info>");
+        $output->writeln("<info>ıgnıs Datenbank-Migration</info>");
         $output->writeln("  Host:     $host");
         $output->writeln("  Database: $db");
         $output->writeln('');

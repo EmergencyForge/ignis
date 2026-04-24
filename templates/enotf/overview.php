@@ -57,10 +57,10 @@ $currentDate = date('d.m.Y');
                     <div class="row">
                         <div class="col-8">
                             <div class="row">
-                                <div class="col d-flex justify-content-start align-items-center">
+                                <div class="col flex justify-start items-center">
                                     <h4 class="fw-bold">Einsatzprotokolle</h4>
                                 </div>
-                                <div class="col d-flex justify-content-end align-items-center gap-2">
+                                <div class="col flex justify-end items-center gap-2">
                                     <button type="button" class="edivi__nidabutton" style="display:inline-block" onclick="window.location.reload();" title="Seite neu laden"><i class="fa-solid fa-rotate-right"></i></button>
                                     <a href="create.php" class="edivi__nidabutton" style="display:inline-block"><i class="fa-solid fa-plus" title="Neuen Einsatz erstellen"></i></a>
                                 </div>

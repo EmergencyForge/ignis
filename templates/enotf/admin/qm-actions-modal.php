@@ -139,40 +139,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Generate form HTML for modal
 ?>
-<div class="row edivi__box">
-    <div class="col">
-        <form id="qmActionsForm" action="<?= BASE_PATH ?>enotf/admin/qm-actions-modal.php?id=<?= $_GET['id'] ?>" method="post">
-            <div class="row mt-2 mb-1">
-                <div class="col-3 fw-bold">Gesichtet von</div>
-                <div class="col">
-                    <input type="text" name="bearbeiter" id="bearbeiter" class="w-100 form-control" value="<?= htmlspecialchars($userHelper->getCurrentUserFullnameForAction()) ?>" readonly>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-3 fw-bold">Status</div>
-                <div class="col">
-                    <select name="protokoll_status" id="protokoll_status" class="form-select w-100" data-custom-dropdown="true">
-                        <option value="0" <?php echo ($row['protokoll_status'] == 0 ? 'selected' : '') ?>>Ungesehen</option>
-                        <option value="1" <?php echo ($row['protokoll_status'] == 1 ? 'selected' : '') ?>>in Prüfung</option>
-                        <option value="2" <?php echo ($row['protokoll_status'] == 2 ? 'selected' : '') ?>>Freigegeben</option>
-                        <option value="3" <?php echo ($row['protokoll_status'] == 3 ? 'selected' : '') ?>>Ungenügend</option>
-                        <option value="4" <?php echo ($row['protokoll_status'] == 4 ? 'selected' : '') ?>>Ausgeblendet</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-3 fw-bold">Bemerkung</div>
-                <div class="col">
-                    <textarea name="qmkommentar" id="qmkommentar" rows="8" class="w-100 form-control" style="resize: none;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
-                </div>
-            </div>
-            <div class="row mt-4 mb-2">
-                <div class="col text-center">
-                    <input class="btn btn-success" name="submit" type="submit" value="Speichern" />
-                </div>
-            </div>
-        </form>
-    </div>
+<div class="edivi__box">
+    <form id="qmActionsForm" action="<?= BASE_PATH ?>enotf/admin/qm-actions-modal.php?id=<?= $_GET['id'] ?>" method="post">
+        <div class="mb-1 mt-2 grid grid-cols-[120px_1fr] items-center gap-3">
+            <div class="font-bold">Gesichtet von</div>
+            <input type="text" name="bearbeiter" id="bearbeiter" class="form-control w-full" value="<?= htmlspecialchars($userHelper->getCurrentUserFullnameForAction()) ?>" readonly>
+        </div>
+        <div class="mt-3 grid grid-cols-[120px_1fr] items-center gap-3">
+            <div class="font-bold">Status</div>
+            <select name="protokoll_status" id="protokoll_status" class="form-select w-full" data-custom-dropdown="true">
+                <option value="0" <?php echo ($row['protokoll_status'] == 0 ? 'selected' : '') ?>>Ungesehen</option>
+                <option value="1" <?php echo ($row['protokoll_status'] == 1 ? 'selected' : '') ?>>in Prüfung</option>
+                <option value="2" <?php echo ($row['protokoll_status'] == 2 ? 'selected' : '') ?>>Freigegeben</option>
+                <option value="3" <?php echo ($row['protokoll_status'] == 3 ? 'selected' : '') ?>>Ungenügend</option>
+                <option value="4" <?php echo ($row['protokoll_status'] == 4 ? 'selected' : '') ?>>Ausgeblendet</option>
+            </select>
+        </div>
+        <div class="mt-3 grid grid-cols-[120px_1fr] items-start gap-3">
+            <div class="pt-2 font-bold">Bemerkung</div>
+            <textarea name="qmkommentar" id="qmkommentar" rows="8" class="form-control w-full" style="resize: none;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
+        </div>
+        <div class="mb-2 mt-4 text-center">
+            <input class="btn btn-success" name="submit" type="submit" value="Speichern" />
+        </div>
+    </form>
 </div>
 
 <?php if (!Permissions::check(['admin', 'edivi.edit'])) : ?>

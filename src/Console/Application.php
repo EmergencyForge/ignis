@@ -23,7 +23,7 @@ final class Application extends SymfonyApplication
     public function __construct(
         private readonly ContainerInterface $container,
     ) {
-        parent::__construct('intraRP', $this->appVersion());
+        parent::__construct('ıgnıs', $this->appVersion());
         $this->registerCommands();
     }
 

@@ -74,7 +74,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <td>
                                         <?php if (!empty($kat['icon'])): ?>
                                             <i class="<?= htmlspecialchars($kat['icon']) ?>"></i>
-                                            <small class="text-gray-400 ms-1"><?= htmlspecialchars($kat['icon']) ?></small>
+                                            <small class="text-gray-400 ml-1"><?= htmlspecialchars($kat['icon']) ?></small>
                                         <?php else: ?>
                                             <span class="text-gray-400">-</span>
                                         <?php endif; ?>
@@ -147,7 +147,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="mb-3">
                         <label for="catIcon" class="form-label">Icon <span class="text-gray-400 small">(optional)</span></label>
                         <input type="text" class="form-control" id="catIcon" placeholder="z.B. fa-solid fa-scroll">
-                        <div class="form-text">Font Awesome Klasse. Vorschau: <i id="iconPreview" class="ms-1"></i></div>
+                        <div class="form-text">Font Awesome Klasse. Vorschau: <i id="iconPreview" class="ml-1"></i></div>
                     </div>
                     <div class="mb-3">
                         <label for="catSortOrder" class="form-label">Reihenfolge</label>
@@ -172,7 +172,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
         // Live preview
         document.getElementById('catColor').addEventListener('change', updateColorPreview);
         document.getElementById('catIcon').addEventListener('input', function() {
-            document.getElementById('iconPreview').className = this.value + ' ms-1';
+            document.getElementById('iconPreview').className = this.value + ' ml-1';
         });
 
         function updateColorPreview() {
@@ -191,7 +191,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
             document.getElementById('catIcon').value = '';
             document.getElementById('catSortOrder').value = '0';
             document.getElementById('categoryModalLabel').textContent = 'Kategorie erstellen';
-            document.getElementById('iconPreview').className = 'ms-1';
+            document.getElementById('iconPreview').className = 'ml-1';
             updateColorPreview();
         }
 
@@ -202,7 +202,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
             document.getElementById('catIcon').value = cat.icon || '';
             document.getElementById('catSortOrder').value = cat.sort_order;
             document.getElementById('categoryModalLabel').textContent = 'Kategorie bearbeiten';
-            document.getElementById('iconPreview').className = (cat.icon || '') + ' ms-1';
+            document.getElementById('iconPreview').className = (cat.icon || '') + ' ml-1';
             updateColorPreview();
             categoryModal.show();
         }
