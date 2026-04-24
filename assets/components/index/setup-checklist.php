@@ -59,7 +59,7 @@ if ($completedRequired >= $requiredSteps) return;
 $stepNum = 1;
 ?>
 <div class="intra__setup-checklist" id="setupChecklist">
-    <div class="d-flex align-items-center justify-content-between mb-2">
+    <div class="flex items-center justify-between mb-2">
         <h6 class="mb-0" style="color:var(--text-title);font-weight:600;">
             <i class="fa-solid fa-rocket" style="color:var(--main-color);margin-right:0.4rem"></i>
             System einrichten

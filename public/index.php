@@ -47,6 +47,18 @@ try {
     $request  = Request::fromGlobals();
     $response = $router->dispatch($request);
     $response->send();
+
+    // Piggyback-Cron — Response ist bereits geflusht, jetzt fällige Jobs
+    // abarbeiten. Eligibility-Check + 60s-Lock sind in der Middleware gekapselt.
+    if (App\Http\Middleware\CronTickMiddleware::isEligible($request)) {
+        if (function_exists('fastcgi_finish_request')) {
+            fastcgi_finish_request();
+        }
+        App\Http\Middleware\CronTickMiddleware::runIfDue(
+            $request,
+            app(App\Cron\CronScheduler::class)
+        );
+    }
 } catch (ValidationException $e) {
     // Declarative Validation aus einem FormRequest — immer als
     // 422-JSON mit Feld → Fehler-Map.

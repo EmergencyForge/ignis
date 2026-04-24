@@ -25,10 +25,9 @@ use App\Helpers\Flash;
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div class="container mx-auto">
+            <div class="mb-6">
+                    <div class="mb-6 flex items-center justify-between">
                         <h1 class="mb-0">Zielverwaltung</h1>
 
                         <?php if (Permissions::check('admin')) : ?>
@@ -40,7 +39,7 @@ use App\Helpers\Flash;
                     <?php
                     Flash::render();
                     ?>
-                    <div class="intra__tile py-2 px-3">
+                    <div class="intra__tile px-3 py-2">
                         <table class="table table-striped" id="table-ziele">
                             <thead>
                                 <th scope="col">Priorität</th>
@@ -89,7 +88,6 @@ use App\Helpers\Flash;
                             </tbody>
                         </table>
                     </div>
-                </div>
             </div>
         </div>
     </div>
@@ -133,7 +131,7 @@ use App\Helpers\Flash;
                             </div>
 
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
+                        <div class="modal-footer flex justify-between">
                             <button type="button" class="btn btn-ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
 
                             <div>

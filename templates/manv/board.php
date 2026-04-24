@@ -43,15 +43,15 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                 <div>
                     <h1><?= htmlspecialchars($lage['einsatznummer']) ?></h1>
                     <p class="mb-0 text-gray-400">
-                        <i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($lage['einsatzort']) ?>
+                        <i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($lage['einsatzort']) ?>
                     </p>
                     <small class="text-gray-400">
-                        Beginn: <?= !empty($lage['einsatzbeginn']) ? date('d.m.Y H:i', strtotime($lage['einsatzbeginn'])) : 'Nicht angegeben' ?>
+                        Beginn: <?= !empty($lage['einsatzbeginn']) ? \App\Helpers\DateTimeHelper::formatShortLocal($lage['einsatzbeginn']) : 'Nicht angegeben' ?>
                     </small>
                 </div>
                 <div class="md:text-right">
                     <a href="<?= BASE_PATH ?>manv/edit.php?id=<?= $lageId ?>" class="btn btn-soft-primary no-underline hover:no-underline">
-                        <i class="fas fa-edit me-2"></i>Bearbeiten
+                        <i class="fas fa-edit mr-2"></i>Bearbeiten
                     </a>
                 </div>
             </div>
@@ -108,13 +108,13 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
 
             <div class="card mb-4">
                 <div class="card-header flex flex-wrap items-center justify-between gap-2">
-                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Patienten</h5>
+                    <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Patienten</h5>
                     <div class="flex flex-wrap gap-2">
                         <a href="ressourcen.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-outline-secondary no-underline hover:no-underline">
-                            <i class="fas fa-truck me-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
+                            <i class="fas fa-truck mr-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
                         </a>
                         <a href="<?= BASE_PATH ?>manv/patient-create.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-soft-primary no-underline hover:no-underline">
-                            <i class="fas fa-user-plus me-2"></i>Neuer Patient
+                            <i class="fas fa-user-plus mr-2"></i>Neuer Patient
                         </a>
                     </div>
                 </div>
@@ -161,7 +161,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                         </td>
                                         <td>
                                             <?php if (!empty($patient['transportmittel_rufname'])): ?>
-                                                <i class="fas fa-ambulance me-1"></i><?= htmlspecialchars($patient['fahrzeug_rufname'] ?? $patient['transportmittel_rufname']) ?>
+                                                <i class="fas fa-ambulance mr-1"></i><?= htmlspecialchars($patient['fahrzeug_rufname'] ?? $patient['transportmittel_rufname']) ?>
                                             <?php else: ?>
                                                 <span class="text-gray-400">Nicht zugewiesen</span>
                                             <?php endif; ?>
@@ -177,14 +177,14 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <a href="<?= BASE_PATH ?>manv/patient-view.php?id=<?= (int) $patient['id'] ?>" class="btn btn-sm btn-soft-primary btn-icon me-1">
+                                            <a href="<?= BASE_PATH ?>manv/patient-view.php?id=<?= (int) $patient['id'] ?>" class="btn btn-sm btn-soft-primary btn-icon mr-1">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <?php if ($canTransport && $isTransportVehicle && empty($patient['transport_abfahrt']) && !empty($patient['transportziel']) && $patient['transportziel'] !== 'Kein Transport'): ?>
                                                 <button class="btn btn-sm btn-success transport-btn"
                                                     data-patient-id="<?= (int) $patient['id'] ?>"
                                                     data-patient-nr="<?= htmlspecialchars($patient['patienten_nummer']) ?>">
-                                                    <i class="fas fa-truck-loading me-1"></i>Abfahrt
+                                                    <i class="fas fa-truck-loading mr-1"></i>Abfahrt
                                                 </button>
                                             <?php endif; ?>
                                         </td>
@@ -200,10 +200,10 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                 <div class="card">
                     <div class="card-body flex flex-wrap gap-2">
                         <a href="index.php" class="btn btn-ghost no-underline hover:no-underline">
-                            <i class="fas fa-arrow-left me-2"></i>Zurück zur Übersicht
+                            <i class="fas fa-arrow-left mr-2"></i>Zurück zur Übersicht
                         </a>
                         <a href="log.php?id=<?= $lageId ?>" class="btn btn-outline-secondary no-underline hover:no-underline">
-                            <i class="fas fa-history me-2"></i>Aktionslog
+                            <i class="fas fa-history mr-2"></i>Aktionslog
                         </a>
                     </div>
                 </div>
@@ -217,23 +217,23 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
             <div class="modal-content bg-dark">
                 <div class="modal-header">
                     <h5 class="modal-title" id="transportModalLabel">
-                        <i class="fas fa-truck-loading me-2"></i>Patient als abgefahren markieren
+                        <i class="fas fa-truck-loading mr-2"></i>Patient als abgefahren markieren
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body">
                     <p>Möchten Sie Patient <strong id="modal-patient-nr"></strong> wirklich als abgefahren markieren?</p>
                     <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
+                        <i class="fas fa-info-circle mr-2"></i>
                         Der Patient wird nicht mehr an der Einsatzstelle angezeigt.
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-2"></i>Abbrechen
+                        <i class="fas fa-times mr-2"></i>Abbrechen
                     </button>
                     <button type="button" class="btn btn-success" id="confirmTransportBtn">
-                        <i class="fas fa-check me-2"></i>Bestätigen
+                        <i class="fas fa-check mr-2"></i>Bestätigen
                     </button>
                 </div>
             </div>

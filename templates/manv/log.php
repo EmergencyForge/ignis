@@ -28,7 +28,7 @@ $SITE_TITLE = 'Aktionslog - ' . htmlspecialchars($lage['einsatznummer']);
                 </div>
                 <div class="md:text-right">
                     <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost no-underline hover:no-underline">
-                        <i class="fas fa-arrow-left me-2"></i>Zurück
+                        <i class="fas fa-arrow-left mr-2"></i>Zurück
                     </a>
                 </div>
             </div>

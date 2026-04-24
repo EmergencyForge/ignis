@@ -162,7 +162,7 @@ $hasPrefill = !empty($prefill);
                                     </div>
                                 </div>
                                 <div class="text-muted mb-2" style="font-size:0.85rem;">
-                                    <i class="fa-solid fa-lock me-1"></i>Anmeldung als: <strong><?= htmlspecialchars($charName) ?></strong>
+                                    <i class="fa-solid fa-lock mr-1"></i>Anmeldung als: <strong><?= htmlspecialchars($charName) ?></strong>
                                 </div>
                                 <!-- Hidden fields: werden per JS befüllt -->
                                 <input type="hidden" name="fahrername" id="fahrername" value="" />
@@ -258,11 +258,11 @@ $hasPrefill = !empty($prefill);
                             <!-- Session-Info: wird per JS eingeblendet wenn Fahrzeug aktive Session hat -->
                             <div id="session-info-container" style="display:none;">
                                 <div class="session-info-box">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="flex justify-between items-center mb-2">
                                         <strong style="color:#e0a800;">Es ist bereits eine Besatzung auf diesem Fahrzeug angemeldet</strong>
                                     </div>
                                     <div id="session-crew-list"></div>
-                                    <div class="mt-3 d-flex gap-2">
+                                    <div class="mt-3 flex gap-2">
                                         <button type="button" class="edivi__nidabutton flex-grow-1" id="btn-join-session">Beitreten</button>
                                         <button type="button" class="edivi__nidabutton flex-grow-1" id="btn-new-session">Neue Besatzung</button>
                                         <button type="button" class="edivi__nidabutton" id="btn-delete-session" style="background-color:#dc3545;border-color:#dc3545;aspect-ratio:1;padding:0;width:42px;min-width:42px;" title="Session löschen"><i class="fa-solid fa-trash"></i></button>

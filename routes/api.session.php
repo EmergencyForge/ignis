@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\PoiDepartmentsController;
 use App\Http\Controllers\Api\SystemController as SystemApiController;
 use App\Http\Controllers\Api\TelemetryApiController;
 use App\Http\Controllers\Api\VehicleTzTemplatesController;
+use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\VersionController;
 use App\Http\Middleware\ApiKeyMiddleware;
 use App\Http\Middleware\AuthMiddleware;
@@ -366,3 +367,10 @@ $router->match(['GET', 'POST'], '/api/vehicles/tz-templates.php', [VehicleTzTemp
 // ============================================================================
 $router->get('/api/version',     [VersionController::class, 'index']);
 $router->get('/api/version.php', [VersionController::class, 'index']);
+
+// ============================================================================
+//  Health-Check (Public — für externe Monitoring-Tools)
+// ============================================================================
+$router->get('/healthz',        [HealthController::class, 'index']);
+$router->get('/api/health',     [HealthController::class, 'index']);
+$router->get('/api/health.php', [HealthController::class, 'index']);

@@ -142,22 +142,22 @@ use App\Helpers\Flash;
         <!-- Übersicht-Karten -->
         <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div class="perf-card">
-                <h6><i class="fa-solid fa-database me-1"></i> Datenbank-Größe</h6>
+                <h6><i class="fa-solid fa-database mr-1"></i> Datenbank-Größe</h6>
                 <div class="perf-stat" id="dbSize">--</div>
                 <div class="perf-label" id="dbSizeDetail">Lade...</div>
             </div>
             <div class="perf-card">
-                <h6><i class="fa-solid fa-table me-1"></i> Tabellen / Zeilen</h6>
+                <h6><i class="fa-solid fa-table mr-1"></i> Tabellen / Zeilen</h6>
                 <div class="perf-stat" id="dbTables">--</div>
                 <div class="perf-label" id="dbRows">--</div>
             </div>
             <div class="perf-card">
-                <h6><i class="fa-solid fa-users me-1"></i> Aktive Benutzer</h6>
+                <h6><i class="fa-solid fa-users mr-1"></i> Aktive Benutzer</h6>
                 <div class="perf-stat" id="activeUsers">--</div>
                 <div class="perf-label" id="activeUsersDetail">Lade...</div>
             </div>
             <div class="perf-card">
-                <h6><i class="fa-solid fa-server me-1"></i> Server-Uptime</h6>
+                <h6><i class="fa-solid fa-server mr-1"></i> Server-Uptime</h6>
                 <div class="perf-stat" id="uptime">--</div>
                 <div class="perf-label" id="uptimeDetail">Lade...</div>
             </div>
@@ -165,7 +165,7 @@ use App\Helpers\Flash;
 
         <div class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
             <div class="perf-card">
-                <h6><i class="fa-solid fa-chart-pie me-1"></i> Content-Statistiken</h6>
+                <h6><i class="fa-solid fa-chart-pie mr-1"></i> Content-Statistiken</h6>
                 <div id="contentStats">
                     <div class="loading-placeholder mb-2"></div>
                     <div class="loading-placeholder mb-2"></div>
@@ -173,7 +173,7 @@ use App\Helpers\Flash;
                 </div>
             </div>
             <div class="perf-card">
-                <h6><i class="fa-solid fa-microchip me-1"></i> Server-Umgebung</h6>
+                <h6><i class="fa-solid fa-microchip mr-1"></i> Server-Umgebung</h6>
                 <div id="serverInfo">
                     <div class="loading-placeholder mb-2"></div>
                     <div class="loading-placeholder mb-2"></div>
@@ -181,7 +181,7 @@ use App\Helpers\Flash;
                 </div>
             </div>
             <div class="perf-card">
-                <h6><i class="fa-brands fa-php me-1"></i> PHP-Konfiguration</h6>
+                <h6><i class="fa-brands fa-php mr-1"></i> PHP-Konfiguration</h6>
                 <div id="phpInfo">
                     <div class="loading-placeholder mb-2"></div>
                     <div class="loading-placeholder mb-2"></div>
@@ -192,7 +192,7 @@ use App\Helpers\Flash;
 
         <!-- Tabellen-Details -->
         <div class="perf-card mb-4">
-            <h6><i class="fa-solid fa-list me-1"></i> Top 10 Tabellen nach Größe</h6>
+            <h6><i class="fa-solid fa-list mr-1"></i> Top 10 Tabellen nach Größe</h6>
             <div class="table-responsive">
                 <table class="table table-sm perf-table mb-0">
                     <thead>
@@ -213,14 +213,14 @@ use App\Helpers\Flash;
         <!-- Verbindungen & System-Status -->
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
             <div class="perf-card">
-                <h6><i class="fa-solid fa-plug me-1"></i> Verbindungen</h6>
+                <h6><i class="fa-solid fa-plug mr-1"></i> Verbindungen</h6>
                 <div id="connectionInfo">
                     <div class="loading-placeholder mb-2"></div>
                     <div class="loading-placeholder"></div>
                 </div>
             </div>
             <div class="perf-card">
-                <h6><i class="fa-solid fa-code-branch me-1"></i> System-Status</h6>
+                <h6><i class="fa-solid fa-code-branch mr-1"></i> System-Status</h6>
                 <div id="systemStatus">
                     <div class="loading-placeholder mb-2"></div>
                     <div class="loading-placeholder"></div>
@@ -328,8 +328,8 @@ use App\Helpers\Flash;
             for (const [key, value] of Object.entries(content)) {
                 const info = CONTENT_LABELS[key] || { label: key, icon: 'fa-circle' };
                 html += `
-                    <div class="d-flex justify-content-between align-items-center py-2 ${html ? 'border-top border-secondary border-opacity-25' : ''}">
-                        <span><i class="fa-solid ${info.icon} me-2 text-muted"></i>${info.label}</span>
+                    <div class="flex justify-between items-center py-2 ${html ? 'border-top border-secondary border-opacity-25' : ''}">
+                        <span><i class="fa-solid ${info.icon} mr-2 text-muted"></i>${info.label}</span>
                         <span class="perf-stat-sm">${formatNumber(value)}</span>
                     </div>`;
             }
@@ -399,7 +399,7 @@ use App\Helpers\Flash;
                         <td class="text-end">${formatNumber(table.row_count || 0)}</td>
                         <td class="text-end">${table.size_mb} MB</td>
                         <td>
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="flex items-center gap-2">
                                 <div class="perf-bar-bg flex-grow-1">
                                     <div class="perf-bar" style="width: ${pct}%; background: ${barColor};"></div>
                                 </div>
@@ -421,7 +421,7 @@ use App\Helpers\Flash;
 
             container.innerHTML = `
                 <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
+                    <div class="flex justify-between mb-1">
                         <span class="small">Aktive Verbindungen</span>
                         <span class="small fw-bold">${used} / ${max}</span>
                     </div>
@@ -454,8 +454,8 @@ use App\Helpers\Flash;
             let html = '';
             items.forEach(item => {
                 html += `
-                    <div class="d-flex justify-content-between align-items-center py-2 ${html ? 'border-top border-secondary border-opacity-25' : ''}">
-                        <span><i class="fa-solid ${item.icon} me-2 text-${item.color}"></i>${item.label}</span>
+                    <div class="flex justify-between items-center py-2 ${html ? 'border-top border-secondary border-opacity-25' : ''}">
+                        <span><i class="fa-solid ${item.icon} mr-2 text-${item.color}"></i>${item.label}</span>
                         <span class="perf-badge bg-${item.color} bg-opacity-25 text-${item.color}">${item.value}</span>
                     </div>`;
             });

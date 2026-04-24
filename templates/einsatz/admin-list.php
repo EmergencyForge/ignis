@@ -29,7 +29,7 @@ use App\Helpers\Flash;
         <div class="page-header mb-4">
             <h1>Einsatzprotokolle (QM)</h1>
             <div class="header-actions">
-                <div class="d-flex align-items-center gap-3">
+                <div class="flex items-center gap-3">
                     <div class="btn-toolbar-group">
                         <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="btn <?= !$showArchived ? 'active' : '' ?>">Aktiv</a>
                         <a href="<?= BASE_PATH ?>einsatz/admin/list.php?show_archived=1" class="btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
@@ -45,7 +45,7 @@ use App\Helpers\Flash;
 
         <?php if ($showArchived): ?>
             <div class="alert alert-info mb-3">
-                <i class="fa-solid fa-archive me-2"></i>
+                <i class="fa-solid fa-archive mr-2"></i>
                 Sie sehen archivierte Einsätze. Diese sind aus den normalen Listen ausgeblendet.
             </div>
         <?php endif; ?>
@@ -140,7 +140,7 @@ use App\Helpers\Flash;
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="bulkDeleteContent">
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>
@@ -186,7 +186,7 @@ use App\Helpers\Flash;
         window.showBulkDeleteModal = function() {
             const modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
             document.getElementById('bulkDeleteContent').innerHTML = `
-                <div class="d-flex justify-content-center">
+                <div class="flex justify-center">
                     <div class="spinner-border" role="status"><span class="visually-hidden">Laden...</span></div>
                 </div>`;
             document.getElementById('bulkDeleteFooter').style.display = 'none';
@@ -212,8 +212,8 @@ use App\Helpers\Flash;
                                 <p class="mb-0 mt-2">Wählen Sie die Felder aus, die leer sein müssen, damit ein Protokoll gelöscht wird. Alle ausgewählten Bedingungen müssen zutreffen.</p>
                             </div>
                             <form id="bulkDeleteFieldsForm">
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-6">
+                                <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+                                    <div>
                                         <label class="form-label fw-bold">Zeitraum:</label>
                                         <select class="form-select" id="timePeriod">
                                             <option value="7">Letzte 7 Tage</option>
@@ -223,7 +223,7 @@ use App\Helpers\Flash;
                                             <option value="all">Insgesamt (alle Protokolle)</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div>
                                         <label class="form-label fw-bold">Status:</label>
                                         <select class="form-select" id="statusFilter">
                                             <option value="all" selected>Alle</option>
@@ -260,7 +260,7 @@ use App\Helpers\Flash;
                 return;
             }
 
-            document.getElementById('bulkDeleteContent').innerHTML = `<div class="d-flex justify-content-center"><div class="spinner-border" role="status"><span class="visually-hidden">Lade Vorschau...</span></div></div>`;
+            document.getElementById('bulkDeleteContent').innerHTML = `<div class="flex justify-center"><div class="spinner-border" role="status"><span class="visually-hidden">Lade Vorschau...</span></div></div>`;
 
             const formData = new FormData();
             selectedFields.forEach(field => formData.append('fields[]', field));

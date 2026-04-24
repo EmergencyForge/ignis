@@ -22,7 +22,7 @@ use App\Helpers\Flash;
             <div class="mb-4 flex items-center justify-between">
                 <h1>Antragstypen verwalten</h1>
                 <a href="<?= BASE_PATH ?>settings/antrag/create.php" class="btn btn-success no-underline hover:no-underline">
-                    <i class="fa-solid fa-plus me-2"></i>Neuer Antragstyp
+                    <i class="fa-solid fa-plus mr-2"></i>Neuer Antragstyp
                 </a>
             </div>
 
@@ -30,7 +30,7 @@ use App\Helpers\Flash;
 
             <?php if (empty($typen)): ?>
                 <div class="alert alert-info">
-                    <i class="fa-solid fa-info-circle me-2"></i>
+                    <i class="fa-solid fa-info-circle mr-2"></i>
                     Noch keine Antragstypen vorhanden. Erstellen Sie jetzt Ihren ersten Antragstyp!
                 </div>
             <?php else: ?>
@@ -109,7 +109,7 @@ use App\Helpers\Flash;
 
                         <div class="mt-4">
                             <button type="submit" name="update_sortierung" class="btn btn-soft-primary">
-                                <i class="fa-solid fa-save me-2"></i>Sortierung speichern
+                                <i class="fa-solid fa-save mr-2"></i>Sortierung speichern
                             </button>
                         </div>
                     </div>
@@ -118,7 +118,7 @@ use App\Helpers\Flash;
 
             <div class="mt-4">
                 <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="btn btn-ghost no-underline hover:no-underline">
-                    <i class="fa-solid fa-arrow-left me-2"></i>Zurück zur Antragsübersicht
+                    <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Antragsübersicht
                 </a>
             </div>
         </div>

@@ -243,7 +243,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <?php else : ?>
                             <h1 class="print__heading-main">Notarztprotokoll</h1>
                         <?php endif; ?>
-                        <p class="print__text-small">Automatisch erstellt mit intraRP</p>
+                        <p class="print__text-small">Automatisch erstellt mit ıgnıs</p>
                     </div>
                 </div>
                 <div class="row border border-dark border-top-0">
@@ -1447,7 +1447,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 </div>
                 <div class="row border border-dark border-top-0 border-start-0">
                     <div class="col text-end fw-bold print__text-small">
-                        erstellt mit intraRP von EmergencyForge
+                        erstellt mit ıgnıs von EmergencyForge
                     </div>
                 </div>
             </div>
@@ -2297,7 +2297,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 </div>
                 <div class="row border border-dark border-top-0">
                     <div class="col text-end fw-bold print__text-small">
-                        erstellt mit intraRP von EmergencyForge
+                        erstellt mit ıgnıs von EmergencyForge
                     </div>
                 </div>
             </div>

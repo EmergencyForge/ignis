@@ -28,7 +28,7 @@ $einsatzExtraNav = $einsatzExtraNav ?? '';
                 <span class="einsatz-sidebar-vehicle-name"><?= htmlspecialchars($_SESSION['einsatz_vehicle_name']) ?></span>
                 <?php if (isset($_SESSION['einsatz_operator_name'])): ?>
                     <span class="einsatz-sidebar-operator">
-                        <i class="fas fa-user me-1"></i><?= htmlspecialchars($_SESSION['einsatz_operator_name']) ?>
+                        <i class="fas fa-user mr-1"></i><?= htmlspecialchars($_SESSION['einsatz_operator_name']) ?>
                     </span>
                 <?php endif; ?>
             </div>

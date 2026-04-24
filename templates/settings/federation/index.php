@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $endpoint = rtrim($remoteInfo['url'], '/') . '/api/federation/pair.php';
                 $payload = json_encode([
                     'instance_id' => $pairingService->ensureInstanceId(),
-                    'instance_name' => $instanceName ?: (\App\Federation\FederationMiddleware::config('SYSTEM_NAME', 'intraRP')),
+                    'instance_name' => $instanceName ?: (\App\Federation\FederationMiddleware::config('SYSTEM_NAME', 'ıgnıs')),
                     'instance_url' => \App\Federation\FederationMiddleware::config('SYSTEM_URL'),
                     'api_key_for_you' => $ourKeyForThem,
                     'your_token_key' => $remoteInfo['api_key'],
@@ -281,7 +281,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                         </div>
                         <div class="card-body">
                             <p style="color:var(--text-dimmed);font-size:var(--fs-sm);margin-bottom:0.75rem;">
-                                Verbinde diese Instanz mit anderen intraRP-Installationen, um Personal, eNOTF-Protokolle und Einsätze instanzübergreifend zu nutzen.
+                                Verbinde diese Instanz mit anderen ıgnıs-Installationen, um Personal, eNOTF-Protokolle und Einsätze instanzübergreifend zu nutzen.
                             </p>
                             <?php if ($federationEnabled): ?>
                                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -408,7 +408,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         </div>
                                         <?php if ($link['last_sync_at']): ?>
                                             <div style="font-size:var(--fs-xs);color:var(--text-dimmed);margin-top:0.2rem;">
-                                                Letzter Sync: <?= date('d.m.Y H:i', strtotime($link['last_sync_at'])) ?>
+                                                Letzter Sync: <?= \App\Helpers\DateTimeHelper::formatShortLocal($link['last_sync_at']) ?>
                                                 <?php if ($link['last_sync_error']): ?>
                                                     &middot; <span style="color:var(--bs-danger);"><?= htmlspecialchars($link['last_sync_error']) ?></span>
                                                 <?php endif; ?>

@@ -55,7 +55,7 @@ if ($totalPages > 1):
     if (isset($_GET['page'])) $baseParams['page'] = $_GET['page'];
 ?>
     <nav aria-label="Systemprotokoll-Seiten" class="mt-3">
-        <ul class="pagination pagination-sm justify-content-center mb-0">
+        <ul class="pagination pagination-sm justify-center mb-0">
             <?php for ($i = 1; $i <= $totalPages; $i++):
                 $baseParams['logpage'] = $i;
                 $url = '?' . http_build_query($baseParams);

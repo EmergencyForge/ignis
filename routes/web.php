@@ -634,6 +634,15 @@ $router->post('/settings/system/telemetry.php', [\App\Http\Controllers\Settings\
 $router->get('/settings/system/logs',     [\App\Http\Controllers\Settings\LogsController::class, 'index'], $settingsAuth);
 $router->get('/settings/system/logs.php', [\App\Http\Controllers\Settings\LogsController::class, 'index'], $settingsAuth);
 
+// Cron-Verwaltung
+$router->get('/settings/system/cron',          [\App\Http\Controllers\Settings\CronController::class, 'index'],   $settingsAuth);
+$router->get('/settings/system/cron.php',      [\App\Http\Controllers\Settings\CronController::class, 'index'],   $settingsAuth);
+$router->get('/settings/system/cron/history',  [\App\Http\Controllers\Settings\CronController::class, 'history'], $settingsAuth);
+$router->post('/settings/system/cron/toggle',  [\App\Http\Controllers\Settings\CronController::class, 'toggle'],  $settingsAuth);
+$router->post('/settings/system/cron/run',     [\App\Http\Controllers\Settings\CronController::class, 'runNow'],  $settingsAuth);
+$router->post('/settings/system/cron/delete',  [\App\Http\Controllers\Settings\CronController::class, 'delete'],  $settingsAuth);
+$router->post('/settings/system/cron/create',  [\App\Http\Controllers\Settings\CronController::class, 'store'],   $settingsAuth);
+
 // 308-Redirects für Legacy-API-URLs (JS-Callsites nutzen noch alte Pfade)
 $settingsApiRedirect = function (string $target): \Closure {
     return function (\App\Http\Request $request) use ($target): \App\Http\Response {

@@ -34,7 +34,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         <i class="fas fa-bolt"></i>
                     </button>
                     <button type="button" class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#createModal">
-                        <i class="fas fa-plus me-1"></i> Fahrzeug hinzufügen
+                        <i class="fas fa-plus mr-1"></i> Fahrzeug hinzufügen
                     </button>
                 </div>
             </div>
@@ -66,7 +66,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                             <td><?= htmlspecialchars($fzg['fahrzeugtyp'] ?? '-') ?></td>
                                             <td><?= htmlspecialchars($fzg['lokalisation'] ?? '-') ?></td>
                                             <td>
-                                                <button class="btn btn-sm btn-soft-primary btn-icon me-1 edit-ressource-btn"
+                                                <button class="btn btn-sm btn-soft-primary btn-icon mr-1 edit-ressource-btn"
                                                     data-id="<?= (int) $fzg['id'] ?>"
                                                     data-typ="<?= htmlspecialchars($fzg['typ']) ?>"
                                                     data-bezeichnung="<?= htmlspecialchars($fzg['bezeichnung']) ?>"
@@ -93,7 +93,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
 
             <div class="mb-4">
                 <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost no-underline hover:no-underline">
-                    <i class="fas fa-arrow-left me-2"></i>Zurück zum Board
+                    <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                 </a>
             </div>
         </div>
@@ -147,7 +147,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="create">
                         <div class="modal-header">
-                            <h5 class="modal-title"><i class="fas fa-ambulance me-2"></i>Fahrzeug hinzufügen</h5>
+                            <h5 class="modal-title"><i class="fas fa-ambulance mr-2"></i>Fahrzeug hinzufügen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
@@ -208,7 +208,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-soft-primary btn-lg"><i class="fas fa-plus me-2"></i>Fahrzeug hinzufügen</button>
+                            <button type="submit" class="btn btn-soft-primary btn-lg"><i class="fas fa-plus mr-2"></i>Fahrzeug hinzufügen</button>
                         </div>
                     </form>
                 </div>
@@ -223,7 +223,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         <input type="hidden" name="action" value="create">
                         <input type="hidden" name="typ" value="fahrzeug">
                         <div class="modal-header">
-                            <h5 class="modal-title"><i class="fas fa-bolt me-2"></i>Schnell hinzufügen</h5>
+                            <h5 class="modal-title"><i class="fas fa-bolt mr-2"></i>Schnell hinzufügen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
@@ -254,7 +254,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-success"><i class="fas fa-bolt me-2"></i>Schnell hinzufügen</button>
+                            <button type="submit" class="btn btn-success"><i class="fas fa-bolt mr-2"></i>Schnell hinzufügen</button>
                         </div>
                     </form>
                 </div>
@@ -294,7 +294,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             const matches = fahrzeugData.filter(fzg => fzg.search.includes(searchTerm)).slice(0, 10);
 
             if (matches.length === 0) {
-                searchResults.innerHTML = '<div class="list-group-item text-center py-3" style="background-color: #2a2a2a; border-color: #444;"><i class="fas fa-info-circle me-2"></i>Keine Fahrzeuge gefunden</div>';
+                searchResults.innerHTML = '<div class="list-group-item text-center py-3" style="background-color: #2a2a2a; border-color: #444;"><i class="fas fa-info-circle mr-2"></i>Keine Fahrzeuge gefunden</div>';
                 searchResults.style.display = 'block';
                 return;
             }
@@ -305,14 +305,14 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         data-name="${escapeHtml(fzg.name)}"
                         data-type="${escapeHtml(fzg.veh_type)}"
                         style="background-color: #2a2a2a; border-color: #444; color: #fff; padding: 14px 16px; transition: all 0.2s; overflow: hidden;">
-                    <div class="d-flex justify-content-between align-items-center gap-2" style="flex-wrap: nowrap; overflow: hidden;">
+                    <div class="flex justify-between items-center gap-2" style="flex-wrap: nowrap; overflow: hidden;">
                         <div style="min-width: 0; flex: 1; overflow: hidden;">
-                            <i class="fas fa-ambulance me-2" style="color: #0d6efd;"></i>
+                            <i class="fas fa-ambulance mr-2" style="color: #0d6efd;"></i>
                             <strong style="font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 100%;">${escapeHtml(fzg.name)}</strong>
                         </div>
                         <span class="badge" style="background-color: #495057; font-size: 0.85rem; padding: 6px 10px; flex-shrink: 0; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(fzg.veh_type)}</span>
                     </div>
-                    ${fzg.identifier ? `<small class="d-block mt-1 ms-4" style="color: #adb5bd; font-size: 0.875rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(fzg.identifier)}</small>` : ''}
+                    ${fzg.identifier ? `<small class="d-block mt-1 ml-4" style="color: #adb5bd; font-size: 0.875rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(fzg.identifier)}</small>` : ''}
                 </button>
             `).join('');
 

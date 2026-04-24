@@ -23,7 +23,7 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-4">
-                <h1><i class="fas fa-plus-circle me-2"></i>Neue MANV-Lage anlegen</h1>
+                <h1><i class="fas fa-plus-circle mr-2"></i>Neue MANV-Lage anlegen</h1>
                 <p class="text-gray-400">Erfassung einer neuen MANV-Lage (Massenanfall von Verletzten)</p>
             </div>
 
@@ -31,7 +31,7 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
 
             <?php if (!empty($error)): ?>
                 <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle me-2"></i><?= htmlspecialchars($error) ?>
+                    <i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($error) ?>
                 </div>
             <?php endif; ?>
 
@@ -114,10 +114,10 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
 
                 <div class="mb-4 flex items-center justify-between">
                     <a href="<?= BASE_PATH ?>manv/index.php" class="btn btn-ghost no-underline hover:no-underline">
-                        <i class="fas fa-arrow-left me-2"></i>Zurück
+                        <i class="fas fa-arrow-left mr-2"></i>Zurück
                     </a>
                     <button type="submit" class="btn btn-soft-primary btn-lg">
-                        <i class="fas fa-save me-2"></i>MANV-Lage anlegen
+                        <i class="fas fa-save mr-2"></i>MANV-Lage anlegen
                     </button>
                 </div>
             </form>

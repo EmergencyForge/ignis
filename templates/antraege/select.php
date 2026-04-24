@@ -52,7 +52,7 @@ $SITE_TITLE = "Antrag einreichen";
 
             <?php if ($typen->isEmpty()): ?>
                 <div class="rounded-lg border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-400">
-                    <i class="fa-solid fa-circle-info me-2"></i>
+                    <i class="fa-solid fa-circle-info mr-2"></i>
                     Aktuell sind keine Antragstypen verfügbar.
                 </div>
             <?php else: ?>
@@ -71,7 +71,7 @@ $SITE_TITLE = "Antrag einreichen";
 
                                 <div class="mt-4">
                                     <button class="btn btn-soft-primary btn-sm">
-                                        <i class="fa-solid fa-arrow-right me-1"></i>
+                                        <i class="fa-solid fa-arrow-right mr-1"></i>
                                         Antrag stellen
                                     </button>
                                 </div>
@@ -83,7 +83,7 @@ $SITE_TITLE = "Antrag einreichen";
 
             <div class="mt-6">
                 <a href="<?= BASE_PATH ?>index.php" class="btn btn-ghost">
-                    <i class="fas fa-arrow-left me-2"></i>Zurück zum Dashboard
+                    <i class="fas fa-arrow-left mr-2"></i>Zurück zum Dashboard
                 </a>
             </div>
         </div>

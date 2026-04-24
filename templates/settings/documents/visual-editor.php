@@ -69,7 +69,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             $templateConfig = json_decode($template['config'] ?? '{}', true) ?: [];
             $isDraft = !empty($templateConfig['is_draft']);
         ?>
-        <label class="form-check form-check-inline mb-0 ms-2" style="font-size:0.72rem;" title="Entwurfs-Wasserzeichen auf PDFs anzeigen">
+        <label class="form-check form-check-inline mb-0 ml-2" style="font-size:0.72rem;" title="Entwurfs-Wasserzeichen auf PDFs anzeigen">
             <input class="form-check-input" type="checkbox" id="chk-draft" style="width:0.85em;height:0.85em;"<?= $isDraft ? ' checked' : '' ?>>
             <span class="form-check-label text-warning">Entwurf</span>
         </label>
@@ -118,26 +118,26 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             </button>
             <ul class="dropdown-menu dropdown-menu-dark" style="min-width:180px;">
                 <li class="dropdown-header" style="font-size:0.7rem;">Horizontal</li>
-                <li><a class="dropdown-item" href="#" data-align="left"><i class="fa-solid fa-align-left me-2"></i>Links</a></li>
-                <li><a class="dropdown-item" href="#" data-align="center-h"><i class="fa-solid fa-arrows-left-right me-2"></i>Mitte</a></li>
-                <li><a class="dropdown-item" href="#" data-align="right"><i class="fa-solid fa-align-right me-2"></i>Rechts</a></li>
+                <li><a class="dropdown-item" href="#" data-align="left"><i class="fa-solid fa-align-left mr-2"></i>Links</a></li>
+                <li><a class="dropdown-item" href="#" data-align="center-h"><i class="fa-solid fa-arrows-left-right mr-2"></i>Mitte</a></li>
+                <li><a class="dropdown-item" href="#" data-align="right"><i class="fa-solid fa-align-right mr-2"></i>Rechts</a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
                 <li class="dropdown-header" style="font-size:0.7rem;">Vertikal</li>
-                <li><a class="dropdown-item" href="#" data-align="top"><i class="fa-solid fa-arrow-up me-2"></i>Oben</a></li>
-                <li><a class="dropdown-item" href="#" data-align="center-v"><i class="fa-solid fa-arrows-up-down me-2"></i>Mitte</a></li>
-                <li><a class="dropdown-item" href="#" data-align="bottom"><i class="fa-solid fa-arrow-down me-2"></i>Unten</a></li>
+                <li><a class="dropdown-item" href="#" data-align="top"><i class="fa-solid fa-arrow-up mr-2"></i>Oben</a></li>
+                <li><a class="dropdown-item" href="#" data-align="center-v"><i class="fa-solid fa-arrows-up-down mr-2"></i>Mitte</a></li>
+                <li><a class="dropdown-item" href="#" data-align="bottom"><i class="fa-solid fa-arrow-down mr-2"></i>Unten</a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" href="#" data-align="page-center"><i class="fa-solid fa-crosshairs me-2"></i>Seitenmitte</a></li>
+                <li><a class="dropdown-item" href="#" data-align="page-center"><i class="fa-solid fa-crosshairs mr-2"></i>Seitenmitte</a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
                 <li class="dropdown-header" style="font-size:0.7rem;">Verteilen (3+ Elemente)</li>
-                <li><a class="dropdown-item" href="#" data-align="distribute-h"><i class="fa-solid fa-arrows-left-right me-2"></i>Horizontal verteilen</a></li>
-                <li><a class="dropdown-item" href="#" data-align="distribute-v"><i class="fa-solid fa-arrows-up-down me-2"></i>Vertikal verteilen</a></li>
+                <li><a class="dropdown-item" href="#" data-align="distribute-h"><i class="fa-solid fa-arrows-left-right mr-2"></i>Horizontal verteilen</a></li>
+                <li><a class="dropdown-item" href="#" data-align="distribute-v"><i class="fa-solid fa-arrows-up-down mr-2"></i>Vertikal verteilen</a></li>
             </ul>
         </div>
 
@@ -263,7 +263,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                     <a class="nav-link active" data-sidebar-tab="elements" href="#"><i class="fa-solid fa-puzzle-piece"></i> Elemente</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-sidebar-tab="layers" href="#"><i class="fa-solid fa-layer-group"></i> Ebenen <span class="badge bg-secondary ms-1" id="layer-count" style="font-size:0.6rem;">0</span></a>
+                    <a class="nav-link" data-sidebar-tab="layers" href="#"><i class="fa-solid fa-layer-group"></i> Ebenen <span class="badge bg-secondary ml-1" id="layer-count" style="font-size:0.6rem;">0</span></a>
                 </li>
             </ul>
 
@@ -378,7 +378,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fa-solid fa-clock-rotate-left me-2"></i>Versionsverlauf</h5>
+                    <h5 class="modal-title"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Versionsverlauf</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0" id="versions-list" style="max-height:400px;overflow-y:auto;">
@@ -487,7 +487,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header py-2">
-                    <h6 class="modal-title"><i class="fa-solid fa-keyboard me-2"></i>Tastenkürzel</h6>
+                    <h6 class="modal-title"><i class="fa-solid fa-keyboard mr-2"></i>Tastenkürzel</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-0" style="font-size:0.82rem;">

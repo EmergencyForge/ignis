@@ -35,7 +35,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                             <?php if ($target->is_active): ?>
                                 <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#deactivateModal"><i class="fa-solid fa-user-slash"></i> Benutzer deaktivieren</button>
                             <?php else: ?>
-                                <span class="badge text-bg-secondary me-2">Deaktiviert</span>
+                                <span class="badge text-bg-secondary mr-2">Deaktiviert</span>
                                 <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#reactivateModal"><i class="fa-solid fa-user-check"></i> Benutzer reaktivieren</button>
                             <?php endif; ?>
                             <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteUserModal"><i class="fa-solid fa-trash"></i> Endgültig löschen</button>
@@ -46,7 +46,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                         <input type="hidden" name="new" value="1" />
                         <input name="id" type="hidden" value="<?= (int) $target->id ?>" />
                         <div class="row">
-                            <div class="col me-2">
+                            <div class="col mr-2">
                                 <div class="intra__tile py-2 px-3">
                                     <div class="row">
                                         <div class="col mb-3">

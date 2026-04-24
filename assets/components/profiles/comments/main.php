@@ -56,7 +56,7 @@ if ($totalPages > 1):
     if (isset($_GET['logpage'])) $baseParams['logpage'] = $_GET['logpage'];
 ?>
     <nav aria-label="Kommentar-Seiten" class="mt-3">
-        <ul class="pagination pagination-sm justify-content-center mb-0">
+        <ul class="pagination pagination-sm justify-center mb-0">
             <?php for ($i = 1; $i <= $totalPages; $i++):
                 $baseParams['page'] = $i;
                 $url = '?' . http_build_query($baseParams);

@@ -88,7 +88,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <h2>Beladelisten</h2>
                         <div>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-                                <button class="btn btn-success me-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                                     <i class="fa-solid fa-plus"></i> Neue Kategorie
                                 </button>
                                 <button class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#addTileModal">
@@ -156,23 +156,23 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     $typeText = 'Unbekannt';
                             }
 
-                            $vehTypeBadge = $category['veh_type'] ? "<span class='badge bg-secondary ms-1'>" . htmlspecialchars($category['veh_type']) . "</span>" : '';
+                            $vehTypeBadge = $category['veh_type'] ? "<span class='badge bg-secondary ml-1'>" . htmlspecialchars($category['veh_type']) . "</span>" : '';
 
                             echo "<div class='category-item mb-4' data-veh-type='" . ($category['veh_type'] ?: 'null') . "' data-category-type='{$category['type']}' data-tile-count='{$category['tile_count']}'>";
                             echo "<div class='card category-card'>";
                             echo "<div class='card-header flex items-center justify-between gap-3'>";
                             echo "<div>";
                             echo "<h5 class='mb-1'>";
-                            echo "<span class='badge bg-main-color priority-badge me-2'>{$category['priority']}</span>";
+                            echo "<span class='badge bg-main-color priority-badge mr-2'>{$category['priority']}</span>";
                             echo htmlspecialchars($category['title']);
                             echo "</h5>";
                             echo "<span class='badge bg-{$typeClass} badge-type'>{$typeText}</span>";
                             echo $vehTypeBadge;
                             echo "</div>";
                             echo "<div>";
-                            echo "<span class='badge bg-secondary me-2'>{$category['tile_count']} Positionen</span>";
+                            echo "<span class='badge bg-secondary mr-2'>{$category['tile_count']} Positionen</span>";
                             if (Permissions::check(['admin', 'vehicles.manage'])) :
-                                echo "<button class='btn btn-sm btn-soft-primary btn-icon me-1 edit-category-btn' data-id='{$category['id']}' data-title='" . htmlspecialchars($category['title']) . "' data-type='{$category['type']}' data-priority='{$category['priority']}' data-veh_type='" . htmlspecialchars($category['veh_type'] ?? '') . "'>";
+                                echo "<button class='btn btn-sm btn-soft-primary btn-icon mr-1 edit-category-btn' data-id='{$category['id']}' data-title='" . htmlspecialchars($category['title']) . "' data-type='{$category['type']}' data-priority='{$category['priority']}' data-veh_type='" . htmlspecialchars($category['veh_type'] ?? '') . "'>";
                                 echo "<i class='fa-solid fa-edit'></i>";
                                 echo "</button>";
                                 echo "<button class='btn btn-sm btn-outline-danger btn-icon delete-category-btn' data-id='{$category['id']}'>";
@@ -196,9 +196,9 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     echo "<strong>" . htmlspecialchars($tile['title']) . "</strong>";
                                     echo "</div>";
                                     echo "<div class='tile-actions'>";
-                                    echo "<span class='badge bg-primary me-2'>{$tile['amount']}x</span>";
+                                    echo "<span class='badge bg-primary mr-2'>{$tile['amount']}x</span>";
                                     if (Permissions::check(['admin', 'vehicles.manage'])) :
-                                        echo "<button class='btn btn-sm btn-outline-primary me-1 edit-tile-btn' data-id='{$tile['id']}' data-category='{$tile['category']}' data-title='" . htmlspecialchars($tile['title']) . "' data-amount='{$tile['amount']}'>";
+                                        echo "<button class='btn btn-sm btn-outline-primary mr-1 edit-tile-btn' data-id='{$tile['id']}' data-category='{$tile['category']}' data-title='" . htmlspecialchars($tile['title']) . "' data-amount='{$tile['amount']}'>";
                                         echo "<i class='fa-solid fa-edit'></i>";
                                         echo "</button>";
                                         echo "<button class='btn btn-sm btn-outline-danger delete-tile-btn' data-id='{$tile['id']}'>";

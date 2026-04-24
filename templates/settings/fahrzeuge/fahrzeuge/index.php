@@ -46,7 +46,7 @@ use App\Helpers\Flash;
                                 </button>
                                 <button type="button" class="btn btn-soft-primary" onclick="openVehicleImport()">
                                     <i class="fa-solid fa-satellite-dish"></i> EMD-Import
-                                    <span class="badge text-bg-danger ms-1 d-none" id="importBadge">0</span>
+                                    <span class="badge text-bg-danger ml-1 hidden" id="importBadge">0</span>
                                 </button>
                                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
                                     <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
@@ -241,7 +241,7 @@ use App\Helpers\Flash;
                             ?>
 
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
+                        <div class="modal-footer flex justify-between">
                             <button type="button" class="btn btn-ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
 
                             <div>
@@ -343,12 +343,12 @@ use App\Helpers\Flash;
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="tzTemplateModalLabel">
-                        <i class="fa-solid fa-shapes me-2"></i>TZ-Vorlagen verwalten
+                        <i class="fa-solid fa-shapes mr-2"></i>TZ-Vorlagen verwalten
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body" id="tzTemplateModalBody">
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status"></div>
                     </div>
                 </div>
@@ -364,12 +364,12 @@ use App\Helpers\Flash;
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="vehicleImportModalLabel">
-                        <i class="fa-solid fa-satellite-dish me-2"></i>Fahrzeuge aus EMD importieren
+                        <i class="fa-solid fa-satellite-dish mr-2"></i>Fahrzeuge aus EMD importieren
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body" id="importModalBody">
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
                             <span class="visually-hidden">Laden...</span>
                         </div>
@@ -513,7 +513,7 @@ use App\Helpers\Flash;
         window.openTzTemplateManager = function() {
             const modal = new bootstrap.Modal(document.getElementById('tzTemplateModal'));
             const body = document.getElementById('tzTemplateModalBody');
-            body.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-border" role="status"></div></div>';
+            body.innerHTML = '<div class="flex justify-center py-4"><div class="spinner-border" role="status"></div></div>';
             modal.show();
             loadTzTemplateList();
         };
@@ -555,17 +555,17 @@ use App\Helpers\Flash;
                             : '<span class="text-muted">Keine Felder</span>';
 
                         html += `
-                            <div class="intra__tile p-3 mb-2 d-flex align-items-center justify-content-between gap-3" id="tz-tpl-${t.id}">
+                            <div class="intra__tile p-3 mb-2 flex items-center justify-between gap-3" id="tz-tpl-${t.id}">
                                 <div class="flex-grow-1" style="min-width:0;">
-                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                    <div class="flex items-center gap-2 mb-1">
                                         <strong>${escHtml(t.name)}</strong>
                                         ${t.typ ? `<span class="text-muted" style="font-size:var(--fs-sm);">Typ: ${escHtml(t.typ)}</span>` : ''}
                                     </div>
-                                    <div class="d-flex flex-wrap gap-1">${fieldSummary}</div>
+                                    <div class="flex flex-wrap gap-1">${fieldSummary}</div>
                                 </div>
-                                <div class="d-flex gap-1 flex-shrink-0">
+                                <div class="flex gap-1 flex-shrink-0">
                                     <button class="btn btn-soft-primary btn-sm" onclick="applyTzTemplateToType(${t.id}, '${escAttr(t.name)}')" title="Auf alle Fahrzeuge eines Typs anwenden">
-                                        <i class="fa-solid fa-layer-group me-1"></i>Anwenden
+                                        <i class="fa-solid fa-layer-group mr-1"></i>Anwenden
                                     </button>
                                     <button class="btn btn-ghost-danger btn-sm" onclick="deleteTzTemplate(${t.id})" title="Vorlage löschen">
                                         <i class="fa-solid fa-trash"></i>
@@ -657,7 +657,7 @@ use App\Helpers\Flash;
                         const badge = document.getElementById('importBadge');
                         if (badge) {
                             badge.textContent = data.import_queue_count;
-                            badge.classList.remove('d-none');
+                            badge.classList.remove('hidden');
                         }
                     }
                 })
@@ -675,7 +675,7 @@ use App\Helpers\Flash;
             importDidChange = false;
             const modal = new bootstrap.Modal(document.getElementById('vehicleImportModal'));
             const body = document.getElementById('importModalBody');
-            body.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-border" role="status"></div></div>';
+            body.innerHTML = '<div class="flex justify-center py-4"><div class="spinner-border" role="status"></div></div>';
             modal.show();
 
             fetch(IMPORT_API + '?action=status')
@@ -705,7 +705,7 @@ use App\Helpers\Flash;
                         Sobald die Daten eingetroffen sind, können Sie hier jedes Fahrzeug prüfen und importieren.
                     </p>
                     <button class="btn btn-soft-primary btn-lg" onclick="requestVehicleImport()">
-                        <i class="fa-solid fa-tower-broadcast me-2"></i>Jetzt anfordern
+                        <i class="fa-solid fa-tower-broadcast mr-2"></i>Jetzt anfordern
                     </button>
                 </div>
             `;
@@ -726,7 +726,7 @@ use App\Helpers\Flash;
                         <small>Dies kann 5–10 Sekunden dauern. Die Ansicht aktualisiert sich automatisch.</small>
                     </p>
                     <button class="btn btn-ghost btn-sm" onclick="openVehicleImport()">
-                        <i class="fa-solid fa-rotate me-1"></i>Erneut prüfen
+                        <i class="fa-solid fa-rotate mr-1"></i>Erneut prüfen
                     </button>
                 </div>
             `;
@@ -754,7 +754,7 @@ use App\Helpers\Flash;
 
         window.requestVehicleImport = function() {
             const body = document.getElementById('importModalBody');
-            body.innerHTML = '<div class="d-flex justify-content-center py-4"><div class="spinner-border" role="status"></div></div>';
+            body.innerHTML = '<div class="flex justify-center py-4"><div class="spinner-border" role="status"></div></div>';
             const fd = new FormData();
             fd.append('action', 'request');
             fetch(IMPORT_API, { method: 'POST', body: fd })
@@ -783,19 +783,19 @@ use App\Helpers\Flash;
             const newVehicles = vehicles.filter(v => !v.existing);
             const existingVehicles = vehicles.filter(v => v.existing);
 
-            let html = `<div class="d-flex align-items-center justify-content-between mb-3">
+            let html = `<div class="flex items-center justify-between mb-3">
                 <span class="text-muted">${vehicles.length} Fahrzeuge empfangen</span>
-                <div class="d-flex align-items-center gap-2">
+                <div class="flex items-center gap-2">
                     <span class="text-muted" id="importProgress"></span>
                     <button class="btn btn-ghost btn-sm" onclick="ignoreAllRemaining()" title="Alle verbleibenden Fahrzeuge ignorieren">
-                        <i class="fa-solid fa-forward-fast me-1"></i>Alle ignorieren
+                        <i class="fa-solid fa-forward-fast mr-1"></i>Alle ignorieren
                     </button>
                 </div>
             </div>`;
 
             // Neue Fahrzeuge
             if (newVehicles.length > 0) {
-                html += `<h6 class="mb-2" style="color:var(--green);"><i class="fa-solid fa-plus me-1"></i>Neue Fahrzeuge (${newVehicles.length})</h6>`;
+                html += `<h6 class="mb-2" style="color:var(--green);"><i class="fa-solid fa-plus mr-1"></i>Neue Fahrzeuge (${newVehicles.length})</h6>`;
                 html += '<div class="import-vehicle-list mb-4">';
                 newVehicles.forEach((v, i) => {
                     html += renderVehicleRow(v, i * 40, false);
@@ -805,7 +805,7 @@ use App\Helpers\Flash;
 
             // Existierende Fahrzeuge
             if (existingVehicles.length > 0) {
-                html += `<h6 class="mb-2" style="color:var(--warning-text);"><i class="fa-solid fa-exclamation-triangle me-1"></i>Bereits vorhanden (${existingVehicles.length})</h6>`;
+                html += `<h6 class="mb-2" style="color:var(--warning-text);"><i class="fa-solid fa-exclamation-triangle mr-1"></i>Bereits vorhanden (${existingVehicles.length})</h6>`;
                 html += '<div class="import-vehicle-list">';
                 existingVehicles.forEach((v, i) => {
                     html += renderVehicleRow(v, (newVehicles.length + i) * 40, true);
@@ -830,7 +830,7 @@ use App\Helpers\Flash;
         function renderVehicleRow(v, delay, hasExisting) {
             const e = v.existing;
             const rdBadge = `<span class="badge text-bg-${rdTypeBadges[v.rd_type] || 'dark'}" style="font-size:var(--fs-xs);">${rdTypeLabels[v.rd_type] || 'Andere'}</span>`;
-            const deptInfo = v.department ? `<span style="font-size:var(--fs-xs);color:var(--text-dimmed);"><i class="fa-solid fa-building me-1"></i>${escHtml(v.department)}</span>` : '';
+            const deptInfo = v.department ? `<span style="font-size:var(--fs-xs);color:var(--text-dimmed);"><i class="fa-solid fa-building mr-1"></i>${escHtml(v.department)}</span>` : '';
 
             let existingInfo = '';
             if (hasExisting && e) {
@@ -847,7 +847,7 @@ use App\Helpers\Flash;
             let actions = '';
             if (hasExisting && e) {
                 actions = `
-                    <div class="d-flex gap-1 flex-shrink-0">
+                    <div class="flex gap-1 flex-shrink-0">
                         <button class="btn btn-ghost btn-sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
@@ -861,7 +861,7 @@ use App\Helpers\Flash;
                 `;
             } else {
                 actions = `
-                    <div class="d-flex gap-1 flex-shrink-0">
+                    <div class="flex gap-1 flex-shrink-0">
                         <button class="btn btn-ghost btn-sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
@@ -875,13 +875,13 @@ use App\Helpers\Flash;
             return `
                 <div class="import-row intra__tile p-3 mb-2" id="import-row-${v.id}" data-delay="${delay}"
                      style="opacity:0;transform:translateY(10px);transition:all 0.3s ease ${delay}ms;">
-                    <div class="d-flex align-items-start justify-content-between gap-3">
+                    <div class="flex items-start justify-between gap-3">
                         <div class="flex-grow-1" style="min-width:0;">
-                            <div class="d-flex align-items-center gap-2 mb-1">
+                            <div class="flex items-center gap-2 mb-1">
                                 <strong style="font-size:var(--fs-md);">${escHtml(v.name)}</strong>
                                 ${rdBadge}
                             </div>
-                            <div class="d-flex flex-wrap gap-3 mb-1" style="font-size:var(--fs-sm);color:var(--text-dimmed);">
+                            <div class="flex flex-wrap gap-3 mb-1" style="font-size:var(--fs-sm);color:var(--text-dimmed);">
                                 <span>${escHtml(v.valuelong || '-')}</span>
                                 <span>Typ: <strong>${escHtml(v.veh_type || '-')}</strong></span>
                                 <span>ID: ${escHtml(v.identifier || '-')}</span>
@@ -892,7 +892,7 @@ use App\Helpers\Flash;
                         </div>
                         ${actions}
                     </div>
-                    <div class="import-row-edit d-none mt-2 pt-2" id="import-edit-${v.id}" style="border-top:1px solid rgba(255,255,255,0.06);">
+                    <div class="import-row-edit hidden mt-2 pt-2" id="import-edit-${v.id}" style="border-top:1px solid rgba(255,255,255,0.06);">
                         <div class="row g-2" style="font-size:var(--fs-sm);">
                             <div class="col-4">
                                 <label class="form-label mb-0 text-muted">Typ</label>
@@ -929,8 +929,8 @@ use App\Helpers\Flash;
 
             // Edit-Felder aufklappen
             const editArea = document.getElementById('import-edit-' + queueId);
-            if (editArea.classList.contains('d-none')) {
-                editArea.classList.remove('d-none');
+            if (editArea.classList.contains('hidden')) {
+                editArea.classList.remove('hidden');
             }
 
             const activeAction = row.dataset.activeAction;
@@ -959,7 +959,7 @@ use App\Helpers\Flash;
             const activeBtn = row.querySelector(`[data-import-action="${action}"]`);
             if (activeBtn) {
                 activeBtn.className = `btn ${styles[action]} btn-sm`;
-                activeBtn.innerHTML = `<i class="fa-solid fa-check me-1"></i>${labels[action]}`;
+                activeBtn.innerHTML = `<i class="fa-solid fa-check mr-1"></i>${labels[action]}`;
             }
         };
 
@@ -1035,7 +1035,7 @@ use App\Helpers\Flash;
                     </div>
                 `;
                 const badge = document.getElementById('importBadge');
-                if (badge) badge.classList.add('d-none');
+                if (badge) badge.classList.add('hidden');
             }
         }
 

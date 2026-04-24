@@ -25,7 +25,7 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
+                    <div class="flex justify-between items-center mb-5">
                         <h1 class="mb-0">Audit Log</h1>
                     </div>
                     <?php Flash::render(); ?>

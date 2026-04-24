@@ -55,7 +55,7 @@ use App\Helpers\Flash;
                                         </td>
                                         <td>
                                             <?php if ($hospital['code']): ?>
-                                                <div class="d-flex align-items-center gap-2">
+                                                <div class="flex items-center gap-2">
                                                     <code class="text-success"><?= htmlspecialchars($hospital['code']) ?></code>
                                                     <button class="btn btn-sm btn-outline-secondary copy-code-btn"
                                                             data-code="<?= htmlspecialchars($hospital['code']) ?>"
@@ -64,7 +64,7 @@ use App\Helpers\Flash;
                                                     </button>
                                                 </div>
                                                 <small class="text-muted d-block mt-1">
-                                                    Aktualisiert: <?= date('d.m.Y H:i', strtotime($hospital['code_updated'])) ?>
+                                                    Aktualisiert: <?= \App\Helpers\DateTimeHelper::formatShortLocal($hospital['code_updated']) ?>
                                                 </small>
                                             <?php else: ?>
                                                 <span class="badge text-bg-secondary">Nicht konfiguriert</span>
@@ -90,7 +90,7 @@ use App\Helpers\Flash;
                     </div>
 
                     <div class="alert alert-info mt-3">
-                        <i class="fa-solid fa-info-circle me-2"></i>
+                        <i class="fa-solid fa-info-circle mr-2"></i>
                         <strong>Hinweis:</strong> Die generierten Zugangscodes ermöglichen es Krankenhäusern, ihre Verfügbarkeiten über das externe Portal zu melden.
                         Der Link zum Portal ist: <code><?= BASE_PATH ?>enotf/schnittstelle/hospital-availability.php</code>
                     </div>
@@ -123,7 +123,7 @@ use App\Helpers\Flash;
                             <div class="form-text">Der Code wird im Klartext gespeichert und kann jederzeit eingesehen werden.</div>
                         </div>
                         <div class="alert alert-info">
-                            <i class="fa-solid fa-info-circle me-2"></i>
+                            <i class="fa-solid fa-info-circle mr-2"></i>
                             <strong>Hinweis:</strong> Geben Sie diesen Code an das Krankenhaus weiter. Der Code kann jederzeit neu generiert werden.
                         </div>
                     </div>

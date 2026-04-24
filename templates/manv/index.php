@@ -48,28 +48,28 @@ $SITE_TITLE = 'MANV-Übersicht';
                 <div>
                     <?php if ($statusFilter !== 'aktiv'): ?>
                         <a href="<?= BASE_PATH ?>manv/index.php" class="btn btn-ghost mb-3 no-underline hover:no-underline">
-                            <i class="fas fa-arrow-left me-2"></i>Zurück zu aktiven Lagen
+                            <i class="fas fa-arrow-left mr-2"></i>Zurück zu aktiven Lagen
                         </a>
                     <?php endif; ?>
                     <h1>MANV-Übersicht
                         <?php if ($statusFilter === 'abgeschlossen'): ?>
-                            <small class="ms-2 text-gray-400">(Abgeschlossene Lagen)</small>
+                            <small class="ml-2 text-gray-400">(Abgeschlossene Lagen)</small>
                         <?php elseif ($statusFilter === 'archiviert'): ?>
-                            <small class="ms-2 text-gray-400">(Archivierte Lagen)</small>
+                            <small class="ml-2 text-gray-400">(Archivierte Lagen)</small>
                         <?php endif; ?>
                     </h1>
                     <p class="text-gray-400">Massenanfall von Verletzten - Lagenverwaltung</p>
                 </div>
                 <div class="md:text-right">
                     <a href="<?= BASE_PATH ?>manv/create.php" class="btn btn-soft-primary btn-lg no-underline hover:no-underline">
-                        <i class="fas fa-plus me-2"></i>Neue MANV-Lage anlegen
+                        <i class="fas fa-plus mr-2"></i>Neue MANV-Lage anlegen
                     </a>
                 </div>
             </div>
 
             <?php if (empty($lagen)): ?>
                 <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
+                    <i class="fas fa-info-circle mr-2"></i>
                     <?php
                     if ($statusFilter === 'abgeschlossen') {
                         echo 'Derzeit sind keine abgeschlossenen MANV-Lagen vorhanden.';
@@ -101,7 +101,7 @@ $SITE_TITLE = 'MANV-Übersicht';
                         <div class="card manv-card h-full" onclick="window.location.href='<?= BASE_PATH ?>manv/board.php?id=<?= (int) $lage['id'] ?>'">
                             <div class="card-header flex items-center justify-between">
                                 <h5 class="mb-0">
-                                    <i class="fas fa-map-marker-alt me-2"></i><?= htmlspecialchars($lage['einsatznummer']) ?>
+                                    <i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($lage['einsatznummer']) ?>
                                 </h5>
                                 <span class="badge <?= $statusClass ?> status-badge"><?= $statusText ?></span>
                             </div>
@@ -144,8 +144,8 @@ $SITE_TITLE = 'MANV-Übersicht';
                                 </div>
 
                                 <div class="mt-3 text-xs text-gray-400">
-                                    <i class="fas fa-clock me-1"></i>
-                                    Beginn: <?= !empty($lage['einsatzbeginn']) ? date('d.m.Y H:i', strtotime($lage['einsatzbeginn'])) : 'Nicht angegeben' ?>
+                                    <i class="fas fa-clock mr-1"></i>
+                                    Beginn: <?= !empty($lage['einsatzbeginn']) ? \App\Helpers\DateTimeHelper::formatShortLocal($lage['einsatzbeginn']) : 'Nicht angegeben' ?>
                                 </div>
                             </div>
                         </div>
@@ -160,10 +160,10 @@ $SITE_TITLE = 'MANV-Übersicht';
                     </div>
                     <div class="card-body flex flex-wrap gap-2">
                         <a href="<?= BASE_PATH ?>manv/index.php?status=abgeschlossen" class="btn btn-outline-secondary no-underline hover:no-underline">
-                            <i class="fas fa-archive me-2"></i>Abgeschlossene Lagen anzeigen
+                            <i class="fas fa-archive mr-2"></i>Abgeschlossene Lagen anzeigen
                         </a>
                         <a href="<?= BASE_PATH ?>manv/index.php?status=archiviert" class="btn btn-outline-secondary no-underline hover:no-underline">
-                            <i class="fas fa-archive me-2"></i>Archivierte Lagen anzeigen
+                            <i class="fas fa-archive mr-2"></i>Archivierte Lagen anzeigen
                         </a>
                     </div>
                 </div>

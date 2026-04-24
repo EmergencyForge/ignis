@@ -291,32 +291,32 @@ if ($isDevMode) {
                                 </div>
                             <?php endif; ?>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <dl class="row mb-0">
-                                        <dt class="col-sm-4">Version:</dt>
-                                        <dd class="col-sm-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <dl class="mb-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+                                        <dt>Version:</dt>
+                                        <dd>
                                             <strong><?= htmlspecialchars($currentVersion['version']) ?></strong>
                                             <?php if ($isPreRelease): ?>
-                                                <span class="badge bg-warning text-dark ms-1">Pre-Release</span>
+                                                <span class="badge bg-warning text-dark ml-1">Pre-Release</span>
                                             <?php endif; ?>
                                         </dd>
 
-                                        <dt class="col-sm-4">Aktualisiert am:</dt>
-                                        <dd class="col-sm-8">
+                                        <dt>Aktualisiert am:</dt>
+                                        <dd>
                                             <?= htmlspecialchars($currentVersion['updated_at']) ?>
                                             <small class="text-gray-400">(vor <?= $versionAge ?> Tagen)</small>
                                         </dd>
 
-                                        <dt class="col-sm-4">Build-Nummer:</dt>
-                                        <dd class="col-sm-8"><?= htmlspecialchars($currentVersion['build_number']) ?></dd>
+                                        <dt>Build-Nummer:</dt>
+                                        <dd><?= htmlspecialchars($currentVersion['build_number']) ?></dd>
 
-                                        <dt class="col-sm-4">Commit-Hash:</dt>
-                                        <dd class="col-sm-8"><code><?= htmlspecialchars(substr($currentVersion['commit_hash'], 0, 8)) ?></code></dd>
+                                        <dt>Commit-Hash:</dt>
+                                        <dd><code><?= htmlspecialchars(substr($currentVersion['commit_hash'], 0, 8)) ?></code></dd>
                                     </dl>
                                 </div>
-                                <div class="col-md-6 flex items-center">
-                                    <div class="w-100">
+                                <div class="flex items-center">
+                                    <div class="w-full">
                                         <form method="post" id="check-updates-form" class="mb-2">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                                             <input type="hidden" name="check_updates" value="1">
@@ -411,11 +411,11 @@ if ($isDevMode) {
                                         <p class="mb-0">
                                             Eine neue Version ist verfügbar: <strong><?= htmlspecialchars($updateInfo['latest_version']) ?></strong>
                                             <?php if (isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease']): ?>
-                                                <span class="badge bg-warning text-dark ms-1"><i class="fa-solid fa-flask"></i> Pre-Release</span>
+                                                <span class="badge bg-warning text-dark ml-1"><i class="fa-solid fa-flask"></i> Pre-Release</span>
                                             <?php endif; ?>
-                                            <span class="badge bg-<?= $alertClass ?> ms-2"><?= $urgencyLabels[$urgency] ?? 'Update verfügbar' ?></span>
+                                            <span class="badge bg-<?= $alertClass ?> ml-2"><?= $urgencyLabels[$urgency] ?? 'Update verfügbar' ?></span>
                                             <?php if (isset($updateInfo['cached']) && $updateInfo['cached']): ?>
-                                                <span class="badge bg-secondary ms-1" title="Gecachte Daten"><i class="fa-solid fa-clock"></i> Gecacht</span>
+                                                <span class="badge bg-secondary ml-1" title="Gecachte Daten"><i class="fa-solid fa-clock"></i> Gecacht</span>
                                             <?php endif; ?>
                                         </p>
                                     </div>
@@ -435,26 +435,26 @@ if ($isDevMode) {
                                         </div>
                                     <?php endif; ?>
 
-                                    <div class="row">
-                                        <div class="col-md-6">
+                                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                        <div>
                                             <h6>Version Details:</h6>
-                                            <dl class="row">
-                                                <dt class="col-sm-5">Aktuelle Version:</dt>
-                                                <dd class="col-sm-7"><?= htmlspecialchars($updateInfo['current_version']) ?></dd>
+                                            <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+                                                <dt>Aktuelle Version:</dt>
+                                                <dd><?= htmlspecialchars($updateInfo['current_version']) ?></dd>
 
-                                                <dt class="col-sm-5">Neue Version:</dt>
-                                                <dd class="col-sm-7"><strong><?= htmlspecialchars($updateInfo['latest_version']) ?></strong></dd>
+                                                <dt>Neue Version:</dt>
+                                                <dd><strong><?= htmlspecialchars($updateInfo['latest_version']) ?></strong></dd>
 
-                                                <dt class="col-sm-5">Release-Name:</dt>
-                                                <dd class="col-sm-7"><?= htmlspecialchars($updateInfo['release_name']) ?></dd>
+                                                <dt>Release-Name:</dt>
+                                                <dd><?= htmlspecialchars($updateInfo['release_name']) ?></dd>
 
                                                 <?php if (isset($updateInfo['published_at'])): ?>
-                                                    <dt class="col-sm-5">Veröffentlicht:</dt>
-                                                    <dd class="col-sm-7"><?= date('d.m.Y H:i', strtotime($updateInfo['published_at'])) ?></dd>
+                                                    <dt>Veröffentlicht:</dt>
+                                                    <dd><?= \App\Helpers\DateTimeHelper::formatShortLocal($updateInfo['published_at']) ?></dd>
                                                 <?php endif; ?>
                                             </dl>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div>
                                             <h6>Aktionen:</h6>
 
                                             <!-- Install Update Button -->
@@ -476,7 +476,7 @@ if ($isDevMode) {
                                                     <div class="modal-content">
                                                         <div class="modal-header">
                                                             <h5 class="modal-title">
-                                                                <i class="fa-solid fa-download me-2"></i>
+                                                                <i class="fa-solid fa-download mr-2"></i>
                                                                 Update wird installiert
                                                             </h5>
                                                         </div>
@@ -499,7 +499,7 @@ if ($isDevMode) {
                                                             </div>
                                                             <div class="alert alert-info mt-3 mb-0">
                                                                 <small>
-                                                                    <i class="fa-solid fa-info-circle me-1"></i>
+                                                                    <i class="fa-solid fa-info-circle mr-1"></i>
                                                                     <strong>Hinweis:</strong> Bitte schließen Sie dieses Fenster nicht.
                                                                     Der Vorgang kann mehrere Minuten dauern.
                                                                 </small>
@@ -629,12 +629,12 @@ if ($isDevMode) {
                                                                 setTimeout(() => {
                                                                     modalElement.querySelector('.modal-header').innerHTML = `
                                                                 <h5 class="modal-title text-danger">
-                                                                    <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                                                                    <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                                                                     Update fehlgeschlagen
                                                                 </h5>
                                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                             `;
-                                                                    modalElement.querySelector('.modal-body .alert-info').classList.add('d-none');
+                                                                    modalElement.querySelector('.modal-body .alert-info').classList.add('hidden');
                                                                 }, 1000);
                                                             }
 
@@ -650,12 +650,12 @@ if ($isDevMode) {
                                                             setTimeout(() => {
                                                                 modalElement.querySelector('.modal-header').innerHTML = `
                                                             <h5 class="modal-title text-danger">
-                                                                <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                                                                <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                                                                 Update fehlgeschlagen
                                                             </h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                                         `;
-                                                                modalElement.querySelector('.modal-body .alert-info').classList.add('d-none');
+                                                                modalElement.querySelector('.modal-body .alert-info').classList.add('hidden');
                                                             }, 1000);
                                                         }
                                                     }
@@ -707,7 +707,7 @@ if ($isDevMode) {
                         <!-- Dev Mode: Branch Update -->
                         <div class="card mb-4 border-warning">
                             <div class="card-header bg-warning bg-opacity-10">
-                                <h5 class="mb-0"><i class="fa-solid fa-code-branch me-2"></i>Entwickler-Modus: Branch-Update</h5>
+                                <h5 class="mb-0"><i class="fa-solid fa-code-branch mr-2"></i>Entwickler-Modus: Branch-Update</h5>
                             </div>
                             <div class="card-body">
                                 <div class="alert alert-warning mb-3">
@@ -742,22 +742,22 @@ if ($isDevMode) {
                                     <?php if ($devBranchInfo): ?>
                                         <div class="card bg-dark mb-3">
                                             <div class="card-body">
-                                                <h6><i class="fa-solid fa-code-commit me-2"></i>Neuester Commit auf <code><?= htmlspecialchars($selectedBranch) ?></code></h6>
-                                                <dl class="row mb-0">
-                                                    <dt class="col-sm-3">SHA:</dt>
-                                                    <dd class="col-sm-9"><code><?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?></code> <small class="text-gray-400">(<?= htmlspecialchars($devBranchInfo['sha']) ?>)</small></dd>
+                                                <h6><i class="fa-solid fa-code-commit mr-2"></i>Neuester Commit auf <code><?= htmlspecialchars($selectedBranch) ?></code></h6>
+                                                <dl class="mb-0 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
+                                                    <dt>SHA:</dt>
+                                                    <dd><code><?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?></code> <small class="text-gray-400">(<?= htmlspecialchars($devBranchInfo['sha']) ?>)</small></dd>
 
-                                                    <dt class="col-sm-3">Nachricht:</dt>
-                                                    <dd class="col-sm-9"><?= htmlspecialchars($devBranchInfo['commit']['message'] ?? '') ?></dd>
+                                                    <dt>Nachricht:</dt>
+                                                    <dd><?= htmlspecialchars($devBranchInfo['commit']['message'] ?? '') ?></dd>
 
-                                                    <dt class="col-sm-3">Autor:</dt>
-                                                    <dd class="col-sm-9"><?= htmlspecialchars($devBranchInfo['commit']['author']['name'] ?? '') ?></dd>
+                                                    <dt>Autor:</dt>
+                                                    <dd><?= htmlspecialchars($devBranchInfo['commit']['author']['name'] ?? '') ?></dd>
 
-                                                    <dt class="col-sm-3">Datum:</dt>
-                                                    <dd class="col-sm-9">
+                                                    <dt>Datum:</dt>
+                                                    <dd>
                                                         <?php
                                                         $commitDate = $devBranchInfo['commit']['author']['date'] ?? null;
-                                                        echo $commitDate ? date('d.m.Y H:i', strtotime($commitDate)) : '-';
+                                                        echo $commitDate ? \App\Helpers\DateTimeHelper::formatShortLocal($commitDate) : '-';
                                                         ?>
                                                     </dd>
                                                 </dl>
@@ -863,9 +863,9 @@ if ($isDevMode) {
 
                                                                         setTimeout(() => {
                                                                             modalElement.querySelector('.modal-header').innerHTML =
-                                                                                '<h5 class="modal-title text-danger"><i class="fa-solid fa-exclamation-triangle me-2"></i>Update fehlgeschlagen</h5>' +
+                                                                                '<h5 class="modal-title text-danger"><i class="fa-solid fa-exclamation-triangle mr-2"></i>Update fehlgeschlagen</h5>' +
                                                                                 '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>';
-                                                                            modalElement.querySelector('.modal-body .alert-info').classList.add('d-none');
+                                                                            modalElement.querySelector('.modal-body .alert-info').classList.add('hidden');
                                                                         }, 1000);
                                                                     }
                                                                 } catch (error) {
@@ -877,9 +877,9 @@ if ($isDevMode) {
 
                                                                     setTimeout(() => {
                                                                         modalElement.querySelector('.modal-header').innerHTML =
-                                                                            '<h5 class="modal-title text-danger"><i class="fa-solid fa-exclamation-triangle me-2"></i>Update fehlgeschlagen</h5>' +
+                                                                            '<h5 class="modal-title text-danger"><i class="fa-solid fa-exclamation-triangle mr-2"></i>Update fehlgeschlagen</h5>' +
                                                                             '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>';
-                                                                        modalElement.querySelector('.modal-body .alert-info').classList.add('d-none');
+                                                                        modalElement.querySelector('.modal-body .alert-info').classList.add('hidden');
                                                                     }, 1000);
                                                                 }
                                                             }
@@ -905,7 +905,7 @@ if ($isDevMode) {
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">
-                                                <i class="fa-solid fa-download me-2"></i>
+                                                <i class="fa-solid fa-download mr-2"></i>
                                                 Update wird installiert
                                             </h5>
                                         </div>
@@ -928,7 +928,7 @@ if ($isDevMode) {
                                             </div>
                                             <div class="alert alert-info mt-3 mb-0">
                                                 <small>
-                                                    <i class="fa-solid fa-info-circle me-1"></i>
+                                                    <i class="fa-solid fa-info-circle mr-1"></i>
                                                     <strong>Hinweis:</strong> Bitte schließen Sie dieses Fenster nicht.
                                                     Der Vorgang kann mehrere Minuten dauern.
                                                 </small>
@@ -949,7 +949,7 @@ if ($isDevMode) {
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="fa-solid fa-box-open me-2"></i>
+                        <i class="fa-solid fa-box-open mr-2"></i>
                         Composer-Abhängigkeiten werden installiert
                     </h5>
                 </div>
@@ -968,18 +968,18 @@ if ($isDevMode) {
 
                     <div id="composer-success-content" style="display: none;">
                         <div class="alert alert-success mb-3">
-                            <i class="fa-solid fa-check-circle me-2"></i>
+                            <i class="fa-solid fa-check-circle mr-2"></i>
                             <strong>Erfolg!</strong> Composer-Abhängigkeiten wurden erfolgreich installiert.
                         </div>
                         <p class="mb-3">Das Update ist vollständig abgeschlossen. Bitte laden Sie die Seite neu, um die Änderungen zu übernehmen.</p>
                         <button type="button" id="reload-page-btn" class="btn btn-soft-primary w-100">
-                            <i class="fa-solid fa-sync me-2"></i>Seite neu laden
+                            <i class="fa-solid fa-sync mr-2"></i>Seite neu laden
                         </button>
                     </div>
 
                     <div id="composer-error-content" style="display: none;">
                         <div class="alert alert-danger mb-3">
-                            <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                            <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                             <strong>Fehler!</strong> Composer-Installation fehlgeschlagen.
                         </div>
                         <p id="composer-error-message" class="mb-3"></p>
@@ -989,10 +989,10 @@ if ($isDevMode) {
                             <code>composer install --no-dev --optimize-autoloader</code>
                         </p>
                         <button type="button" id="retry-composer-btn" class="btn btn-outline-secondary w-100 mb-2">
-                            <i class="fa-solid fa-rotate-right me-2"></i>Erneut versuchen
+                            <i class="fa-solid fa-rotate-right mr-2"></i>Erneut versuchen
                         </button>
                         <button type="button" id="dismiss-composer-btn" class="btn btn-outline-secondary w-100">
-                            <i class="fa-solid fa-times me-2"></i>Schließen (Update manuell abschließen)
+                            <i class="fa-solid fa-times mr-2"></i>Schließen (Update manuell abschließen)
                         </button>
                     </div>
                 </div>

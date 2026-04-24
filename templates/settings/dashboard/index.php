@@ -309,8 +309,8 @@ use App\Helpers\Flash;
                     matches.forEach(icon => {
                         const btn = document.createElement('button');
                         btn.type = 'button';
-                        btn.className = 'btn btn-light btn-sm me-2 mb-2';
-                        btn.innerHTML = `<i class="${icon} me-2"></i> ${icon}`;
+                        btn.className = 'btn btn-light btn-sm mr-2 mb-2';
+                        btn.innerHTML = `<i class="${icon} mr-2"></i> ${icon}`;
                         btn.onclick = () => {
                             input.value = icon;
                             preview.className = icon;

@@ -20,9 +20,9 @@ if (!isset($showPreview)) {
 
 <div class="tactical-symbol-fields">
     <hr>
-    <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="flex items-center justify-between mb-3">
         <h6 class="mb-0">Taktisches Zeichen</h6>
-        <div class="d-flex gap-2">
+        <div class="flex gap-2">
             <select class="form-select form-select-sm" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
                 <option value="">Vorlage laden...</option>
             </select>
@@ -41,7 +41,7 @@ if (!isset($showPreview)) {
                 </div>
             </div>
             <button type="button" class="btn btn-sm btn-outline-secondary mt-2 w-100" id="<?= $prefix ?>preview-btn">
-                <i class="fa-solid fa-eye me-1"></i>Vorschau aktualisieren
+                <i class="fa-solid fa-eye mr-1"></i>Vorschau aktualisieren
             </button>
         </div>
     <?php endif; ?>

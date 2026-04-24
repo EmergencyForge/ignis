@@ -8,7 +8,7 @@ use App\Http\Request;
 use App\Http\Response;
 
 /**
- * Liefert die aktuelle System-Version aus `system/updates/version.json`.
+ * Liefert die aktuelle System-Version aus `storage/version.json`.
  *
  * Public Endpoint — kein Auth, kein CSRF. Wird z.B. von externem
  * Monitoring oder dem Update-Checker genutzt, um den Release-Stand
@@ -18,7 +18,14 @@ final class VersionController
 {
     public function index(Request $request): Response
     {
-        $versionFile = dirname(__DIR__, 4) . '/system/updates/version.json';
+        $appRoot = dirname(__DIR__, 4);
+        $versionFile = $appRoot . '/storage/version.json';
+        if (!is_file($versionFile)) {
+            $legacy = $appRoot . '/system/updates/version.json';
+            if (is_file($legacy)) {
+                $versionFile = $legacy;
+            }
+        }
 
         if (!is_file($versionFile)) {
             return Response::json([
@@ -37,7 +44,7 @@ final class VersionController
             ], 500);
         }
 
-        $version['system'] = 'intraRP';
+        $version['system'] = 'ignis';
         return Response::json($version);
     }
 }

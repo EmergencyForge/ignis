@@ -222,7 +222,7 @@ function logs_level_badge(string $level): string
                         <h1>Fehlerprotokoll</h1>
                         <div class="header-actions">
                             <button type="button" class="btn btn-ghost" id="refreshBtn">
-                                <i class="fa-solid fa-rotate me-1"></i>Aktualisieren
+                                <i class="fa-solid fa-rotate mr-1"></i>Aktualisieren
                             </button>
                         </div>
                     </div>
@@ -232,7 +232,7 @@ function logs_level_badge(string $level): string
                     <div class="intra__tile logs-lookup-hero mb-3 p-3">
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="shrink-0">
-                                <div class="font-semibold"><i class="fa-solid fa-key me-2 text-primary"></i>Error-ID Lookup</div>
+                                <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-primary"></i>Error-ID Lookup</div>
                                 <div class="text-gray-400" style="font-size: 0.72rem;">
                                     8-stellige ID aus der Production-Fehlerseite &mdash; z.B. <code>0B29305D</code>
                                 </div>
@@ -248,7 +248,7 @@ function logs_level_badge(string $level): string
                                            pattern="[A-Fa-f0-9]{8}"
                                            autofocus>
                                     <button type="button" class="btn btn-soft-primary" id="errorIdLookupBtn">
-                                        <i class="fa-solid fa-magnifying-glass me-1"></i>Suchen
+                                        <i class="fa-solid fa-magnifying-glass mr-1"></i>Suchen
                                     </button>
                                 </div>
                             </div>
@@ -283,7 +283,7 @@ function logs_level_badge(string $level): string
                     <div class="intra__tile p-3">
                         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                             <div>
-                                <h5 class="mb-0"><i class="fa-solid fa-inbox me-2"></i>Letzte Fehler</h5>
+                                <h5 class="mb-0"><i class="fa-solid fa-inbox mr-2"></i>Letzte Fehler</h5>
                                 <small class="text-gray-400">Gruppiert nach Exception &amp; Datei. Klick zum Aufklappen.</small>
                             </div>
                             <div class="btn-toolbar-group" id="inboxScopeFilter">
@@ -294,15 +294,15 @@ function logs_level_badge(string $level): string
                             </div>
                         </div>
 
-                        <div class="row g-2 mb-3">
-                            <div class="col-md">
+                        <div class="mb-3 flex flex-col gap-2 md:flex-row md:items-center">
+                            <div class="flex-1">
                                 <input type="text"
                                        id="searchQuery"
                                        class="form-control"
                                        placeholder="Volltext-Suche (Datei, Klasse, Message…)"
                                        autocomplete="off">
                             </div>
-                            <div class="col-md-3">
+                            <div class="md:w-56">
                                 <select id="searchFile" class="form-select">
                                     <option value="">Alle Dateien</option>
                                     <?php foreach ($files as $f): ?>
@@ -312,9 +312,9 @@ function logs_level_badge(string $level): string
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-md-auto">
+                            <div class="flex gap-1">
                                 <button type="button" class="btn btn-soft-primary" id="searchBtn">
-                                    <i class="fa-solid fa-magnifying-glass me-1"></i>Suchen
+                                    <i class="fa-solid fa-magnifying-glass mr-1"></i>Suchen
                                 </button>
                                 <button type="button" class="btn btn-ghost" id="resetBtn" title="Zurück zur Inbox">
                                     <i class="fa-solid fa-rotate-left"></i>
@@ -341,8 +341,8 @@ function logs_level_badge(string $level): string
                     $failed24h   = $failedJobsStats['last_24h'] ?? 0;
                     ?>
                     <div class="intra__tile p-3 mt-3">
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                            <div class="d-flex align-items-center gap-2">
+                        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+                            <div class="flex items-center gap-2">
                                 <i class="fa-solid fa-hexagon-exclamation text-warning"></i>
                                 <h6 class="mb-0 fw-semibold">Fehlgeschlagene Hintergrund-Jobs</h6>
                                 <?php if ($failedTotal > 0): ?>
@@ -362,10 +362,10 @@ function logs_level_badge(string $level): string
                                 </button>
                                 <?php if ($failedTotal > 0): ?>
                                     <button type="button" class="btn btn-sm btn-soft-primary" id="retryAllFailedJobsBtn">
-                                        <i class="fa-solid fa-arrows-rotate me-1"></i>Alle erneut versuchen
+                                        <i class="fa-solid fa-arrows-rotate mr-1"></i>Alle erneut versuchen
                                     </button>
                                     <button type="button" class="btn btn-sm btn-ghost text-danger" id="deleteAllFailedJobsBtn">
-                                        <i class="fa-solid fa-trash me-1"></i>Alle löschen
+                                        <i class="fa-solid fa-trash mr-1"></i>Alle löschen
                                     </button>
                                 <?php endif; ?>
                             </div>
@@ -398,10 +398,10 @@ function logs_level_badge(string $level): string
                                         <div class="logs-detail" data-rendered="1">
                                             <div class="logs-detail-actions">
                                                 <button type="button" class="btn btn-soft-primary btn-sm failed-retry-btn" data-id="<?= (int) $fj['id'] ?>">
-                                                    <i class="fa-solid fa-arrows-rotate me-1"></i>Erneut versuchen
+                                                    <i class="fa-solid fa-arrows-rotate mr-1"></i>Erneut versuchen
                                                 </button>
                                                 <button type="button" class="btn btn-ghost btn-sm text-danger failed-delete-btn" data-id="<?= (int) $fj['id'] ?>">
-                                                    <i class="fa-solid fa-trash me-1"></i>Löschen
+                                                    <i class="fa-solid fa-trash mr-1"></i>Löschen
                                                 </button>
                                                 <button type="button" class="btn btn-ghost btn-sm copy-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
                                                     <i class="fa-regular fa-copy"></i> UUID
@@ -443,7 +443,7 @@ function logs_level_badge(string $level): string
                     <!-- ───────────── Files (collapsed) ───────────── -->
                     <details class="intra__tile p-3 mt-3">
                         <summary class="fw-bold" style="cursor:pointer;">
-                            <i class="fa-solid fa-folder-tree me-2"></i>Verfügbare Log-Dateien (<?= count($files) ?>)
+                            <i class="fa-solid fa-folder-tree mr-2"></i>Verfügbare Log-Dateien (<?= count($files) ?>)
                         </summary>
                         <table class="table table-striped table-sm mt-3 mb-0">
                             <thead>
@@ -470,7 +470,7 @@ function logs_level_badge(string $level): string
                                         <td><?= date('d.m.Y H:i', $f['mtime']) ?></td>
                                         <td class="text-end">
                                             <button type="button" class="btn btn-sm btn-soft-primary tail-btn" data-file="<?= htmlspecialchars($f['name']) ?>">
-                                                <i class="fa-solid fa-eye me-1"></i>Letzte 100
+                                                <i class="fa-solid fa-eye mr-1"></i>Letzte 100
                                             </button>
                                         </td>
                                     </tr>
@@ -585,14 +585,14 @@ function logs_level_badge(string $level): string
             // Action bar: Kopier-Buttons
             html += '<div class="logs-detail-actions">';
             html += '<button type="button" class="btn btn-soft-primary btn-sm copy-btn" data-copy-text="' + escapeAttr(reportText) + '">';
-            html += '<i class="fa-solid fa-copy me-1"></i>Kompletten Report kopieren</button>';
+            html += '<i class="fa-solid fa-copy mr-1"></i>Kompletten Report kopieren</button>';
             if (entry.error_id) {
                 html += '<button type="button" class="btn btn-ghost btn-sm copy-btn" data-copy="' + escapeAttr(entry.error_id) + '">';
-                html += '<i class="fa-solid fa-hashtag me-1"></i>' + escapeHtml(entry.error_id) + '</button>';
+                html += '<i class="fa-solid fa-hashtag mr-1"></i>' + escapeHtml(entry.error_id) + '</button>';
             }
             if (trace) {
                 html += '<button type="button" class="btn btn-ghost btn-sm copy-btn" data-copy-text="' + escapeAttr(trace) + '">';
-                html += '<i class="fa-solid fa-list-ul me-1"></i>Nur Trace kopieren</button>';
+                html += '<i class="fa-solid fa-list-ul mr-1"></i>Nur Trace kopieren</button>';
             }
             html += '</div>';
 
@@ -738,7 +738,7 @@ function logs_level_badge(string $level): string
                 const origHtml = btn.innerHTML;
                 const origClass = btn.className;
                 if (btn.tagName === 'BUTTON') {
-                    btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Kopiert';
+                    btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>Kopiert';
                     btn.classList.add('btn-success');
                     btn.classList.remove('btn-soft-primary', 'btn-ghost');
                 } else {
@@ -759,7 +759,7 @@ function logs_level_badge(string $level): string
         document.getElementById('refreshBtn').addEventListener('click', async function () {
             this.disabled = true;
             const orig = this.innerHTML;
-            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Lade…';
+            this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Lade…';
             try {
                 const res = await fetch(apiUrl + '?recent=1&grouped=1&limit=200');
                 const data = await res.json();
@@ -1018,15 +1018,15 @@ function logs_level_badge(string $level): string
 
             const orig = btn.innerHTML;
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Re-queue…';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Re-queue…';
 
             try {
                 const data = await postAction('retry', id);
                 if (data.success) {
-                    btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>In Queue';
+                    btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>In Queue';
                     setTimeout(() => refreshFailedJobs(), 700);
                 } else {
-                    btn.innerHTML = '<i class="fa-solid fa-xmark me-1"></i>Fehler';
+                    btn.innerHTML = '<i class="fa-solid fa-xmark mr-1"></i>Fehler';
                     setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 1800);
                 }
             } catch (err) {
@@ -1069,11 +1069,11 @@ function logs_level_badge(string $level): string
                 if (!confirm('Alle fehlgeschlagenen Jobs erneut in die Queue legen?')) return;
                 const orig = this.innerHTML;
                 this.disabled = true;
-                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Re-queue…';
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Re-queue…';
                 try {
                     const data = await postAction('retry_all', null);
                     if (data.success) {
-                        this.innerHTML = '<i class="fa-solid fa-check me-1"></i>' + data.count + ' queued';
+                        this.innerHTML = '<i class="fa-solid fa-check mr-1"></i>' + data.count + ' queued';
                         setTimeout(() => refreshFailedJobs(), 700);
                     }
                 } catch (err) {
@@ -1091,7 +1091,7 @@ function logs_level_badge(string $level): string
                 if (!confirm('Wirklich ALLE fehlgeschlagenen Jobs löschen? Das kann nicht rückgängig gemacht werden.')) return;
                 const orig = this.innerHTML;
                 this.disabled = true;
-                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Lösche…';
+                this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Lösche…';
                 try {
                     const data = await postAction('delete_all', null);
                     if (data.success) {

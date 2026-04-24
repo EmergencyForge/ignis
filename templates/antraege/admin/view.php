@@ -44,7 +44,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <h1>
-                <i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?> me-2"></i>
+                <i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?> mr-2"></i>
                 <?= htmlspecialchars($antrag->typ->name) ?> bearbeiten #<?= htmlspecialchars($caseId) ?>
             </h1>
 
@@ -56,7 +56,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                     <div class="lg:col-span-2">
                         <!-- Antragsteller -->
                         <div class="intra__tile mb-4 p-3">
-                            <h5 class="mb-4"><i class="fa-solid fa-user me-2"></i>Antragsteller</h5>
+                            <h5 class="mb-4"><i class="fa-solid fa-user mr-2"></i>Antragsteller</h5>
                             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div>
                                     <div class="field-label">Name und Dienstnummer</div>
@@ -71,7 +71,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
 
                         <!-- Antragsinhalt -->
                         <div class="intra__tile mb-4 p-3">
-                            <h5 class="mb-4"><i class="fa-solid fa-file-lines me-2"></i>Antragsinhalt</h5>
+                            <h5 class="mb-4"><i class="fa-solid fa-file-lines mr-2"></i>Antragsinhalt</h5>
 
                             <?php if (!empty($felderMitWerten)): ?>
                                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -102,7 +102,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
 
                         <!-- Bearbeitung -->
                         <div class="intra__tile mb-6 p-3">
-                            <h5 class="mb-4"><i class="fa-solid fa-clipboard-check me-2"></i>Bearbeitung</h5>
+                            <h5 class="mb-4"><i class="fa-solid fa-clipboard-check mr-2"></i>Bearbeitung</h5>
 
                             <div class="mb-4">
                                 <label class="form-label text-xs text-gray-400">Aktueller Bearbeiter</label>
@@ -140,7 +140,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                     <div class="lg:col-span-1">
                         <!-- Antragsdetails -->
                         <div class="intra__tile mb-4 p-3">
-                            <h6 class="mb-4"><i class="fa-solid fa-circle-info me-2"></i>Antragsdetails</h6>
+                            <h6 class="mb-4"><i class="fa-solid fa-circle-info mr-2"></i>Antragsdetails</h6>
                             <div class="text-sm">
                                 <div class="flex justify-between border-b border-white/10 py-2">
                                     <span class="text-gray-400">Antragsnummer:</span>
@@ -167,7 +167,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                                 <div class="flex justify-between py-2">
                                     <span class="text-gray-400">Status:</span>
                                     <span class="badge text-bg-<?= $currentStatus['class'] ?>">
-                                        <i class="<?= $currentStatus['icon'] ?> me-1"></i>
+                                        <i class="<?= $currentStatus['icon'] ?> mr-1"></i>
                                         <?= $currentStatus['text'] ?>
                                     </span>
                                 </div>
@@ -176,13 +176,13 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
 
                         <!-- Aktionen -->
                         <div class="intra__tile p-3">
-                            <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Aktionen</h6>
+                            <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Aktionen</h6>
                             <div class="flex flex-col gap-2">
                                 <button type="submit" name="save" class="btn btn-success">
-                                    <i class="fa-solid fa-floppy-disk me-2"></i>Änderungen speichern
+                                    <i class="fa-solid fa-floppy-disk mr-2"></i>Änderungen speichern
                                 </button>
                                 <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="btn btn-ghost no-underline hover:no-underline">
-                                    <i class="fa-solid fa-arrow-left me-2"></i>Zurück zur Übersicht
+                                    <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Übersicht
                                 </a>
                             </div>
                         </div>

@@ -90,10 +90,10 @@ try {
 
     // BASIS DATEN - Fallback defaults
     if (!defined('API_KEY')) define('API_KEY', 'CHANGE_ME');
-    if (!defined('SYSTEM_NAME')) define('SYSTEM_NAME', 'intraRP');
-    if (!defined('SYSTEM_COLOR')) define('SYSTEM_COLOR', '#d10000');
+    if (!defined('SYSTEM_NAME')) define('SYSTEM_NAME', 'ıgnıs');
+    if (!defined('SYSTEM_COLOR')) define('SYSTEM_COLOR', '#FF4D00');
     if (!defined('SYSTEM_URL')) define('SYSTEM_URL', 'CHANGE_ME');
-    if (!defined('SYSTEM_LOGO')) define('SYSTEM_LOGO', '/assets/img/defaultLogo.webp');
+    if (!defined('SYSTEM_LOGO')) define('SYSTEM_LOGO', '/assets/img/ignis-wordmark.svg');
     if (!defined('META_IMAGE_URL')) define('META_IMAGE_URL', '');
 
     // SERVER DATEN
