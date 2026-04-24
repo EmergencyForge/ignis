@@ -77,6 +77,13 @@ export default {
     corePlugins: {
         preflight: false,
     },
+    // Tailwind generiert `.collapse { visibility: collapse }` (CSS Table-
+    // Utility), Bootstrap nutzt dieselbe `.collapse`-Klasse aber als
+    // `display`-basiertes Akkordeon-State-System. Klassen-Kollision:
+    // Tailwinds Utility würde Bootstrap-Collapse-Inhalte unsichtbar machen,
+    // auch wenn Bootstrap `.show` setzt. Deshalb die Utility blockieren
+    // — Bootstrap-Akkordeons funktionieren damit wieder normal.
+    blocklist: ['collapse'],
     plugins: [
         require('@tailwindcss/forms'),
         require('@tailwindcss/typography'),
