@@ -187,12 +187,12 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <option value="mittel">Mittel (1,91cm)</option>
         </select>
 
-        <div class="ms-auto d-flex gap-1 align-items-center">
+        <div class="ms-auto flex items-center gap-1">
             <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;" title="Automatisches Speichern aktivieren/deaktivieren">
                 <input class="form-check-input" type="checkbox" id="chk-autosave" style="width:0.85em;height:0.85em;" checked>
                 <span class="form-check-label">Auto-Save</span>
             </label>
-            <span id="autosave-indicator" class="text-muted" style="font-size:0.68rem;white-space:nowrap;"></span>
+            <span id="autosave-indicator" class="text-gray-400" style="font-size:0.68rem;white-space:nowrap;"></span>
             <button class="btn btn-sm btn-outline-info" id="btn-preview" title="Vorschau">
                 <i class="fa-solid fa-eye"></i>
             </button>
@@ -350,7 +350,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                     </div>
                     <hr>
                     <div class="sidebar-section-title">Vorhandene Bilder</div>
-                    <div class="row g-2" id="asset-gallery">
+                    <div class="grid grid-cols-2 gap-2" id="asset-gallery">
                         <!-- Wird dynamisch befüllt -->
                     </div>
                 </div>

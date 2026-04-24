@@ -27,7 +27,7 @@
   flex: 1;
   overflow: auto;
   padding: 20px;
-  background: #1e1c24;
+  background: #17161c radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.025), transparent 60%);
   text-align: center;
 }
 

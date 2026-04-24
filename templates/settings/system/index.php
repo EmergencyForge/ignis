@@ -263,11 +263,10 @@ if ($isDevMode) {
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-5">
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="container mx-auto">
+            <div class="mb-6">
+                    <div class="mb-6 flex items-center justify-between">
                         <h1 class="mb-0">System-Updates</h1>
                     </div>
                     <?php Flash::render(); ?>
@@ -306,7 +305,7 @@ if ($isDevMode) {
                                         <dt class="col-sm-4">Aktualisiert am:</dt>
                                         <dd class="col-sm-8">
                                             <?= htmlspecialchars($currentVersion['updated_at']) ?>
-                                            <small class="text-muted">(vor <?= $versionAge ?> Tagen)</small>
+                                            <small class="text-gray-400">(vor <?= $versionAge ?> Tagen)</small>
                                         </dd>
 
                                         <dt class="col-sm-4">Build-Nummer:</dt>
@@ -316,7 +315,7 @@ if ($isDevMode) {
                                         <dd class="col-sm-8"><code><?= htmlspecialchars(substr($currentVersion['commit_hash'], 0, 8)) ?></code></dd>
                                     </dl>
                                 </div>
-                                <div class="col-md-6 d-flex align-items-center">
+                                <div class="col-md-6 flex items-center">
                                     <div class="w-100">
                                         <form method="post" id="check-updates-form" class="mb-2">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
@@ -336,7 +335,7 @@ if ($isDevMode) {
                                             </div>
                                         <?php endif; ?>
 
-                                        <div class="d-flex gap-2">
+                                        <div class="flex gap-2">
                                             <form method="post" class="flex-fill" id="force-refresh-form">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                                                 <input type="hidden" name="check_updates" value="1">
@@ -496,7 +495,7 @@ if ($isDevMode) {
                                                                 </div>
                                                             </div>
                                                             <div id="update-status-text" class="text-center">
-                                                                <small class="text-muted">Update wird vorbereitet...</small>
+                                                                <small class="text-gray-400">Update wird vorbereitet...</small>
                                                             </div>
                                                             <div class="alert alert-info mt-3 mb-0">
                                                                 <small>
@@ -576,7 +575,7 @@ if ($isDevMode) {
                                                                 const step = steps[currentStep];
                                                                 progressBar.style.width = step.percent + '%';
                                                                 progressText.textContent = step.percent + '%';
-                                                                statusText.innerHTML = '<small class="text-muted">' + step.text + '</small>';
+                                                                statusText.innerHTML = '<small class="text-gray-400">' + step.text + '</small>';
                                                                 currentStep++;
                                                             }
                                                         };
@@ -746,7 +745,7 @@ if ($isDevMode) {
                                                 <h6><i class="fa-solid fa-code-commit me-2"></i>Neuester Commit auf <code><?= htmlspecialchars($selectedBranch) ?></code></h6>
                                                 <dl class="row mb-0">
                                                     <dt class="col-sm-3">SHA:</dt>
-                                                    <dd class="col-sm-9"><code><?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?></code> <small class="text-muted">(<?= htmlspecialchars($devBranchInfo['sha']) ?>)</small></dd>
+                                                    <dd class="col-sm-9"><code><?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?></code> <small class="text-gray-400">(<?= htmlspecialchars($devBranchInfo['sha']) ?>)</small></dd>
 
                                                     <dt class="col-sm-3">Nachricht:</dt>
                                                     <dd class="col-sm-9"><?= htmlspecialchars($devBranchInfo['commit']['message'] ?? '') ?></dd>
@@ -825,7 +824,7 @@ if ($isDevMode) {
                                                                         const step = steps[currentStep];
                                                                         progressBar.style.width = step.percent + '%';
                                                                         progressText.textContent = step.percent + '%';
-                                                                        statusText.innerHTML = '<small class="text-muted">' + step.text + '</small>';
+                                                                        statusText.innerHTML = '<small class="text-gray-400">' + step.text + '</small>';
                                                                         currentStep++;
                                                                     }
                                                                 };
@@ -925,7 +924,7 @@ if ($isDevMode) {
                                                 </div>
                                             </div>
                                             <div id="update-status-text" class="text-center">
-                                                <small class="text-muted">Update wird vorbereitet...</small>
+                                                <small class="text-gray-400">Update wird vorbereitet...</small>
                                             </div>
                                             <div class="alert alert-info mt-3 mb-0">
                                                 <small>
@@ -940,7 +939,6 @@ if ($isDevMode) {
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
-                </div>
             </div>
         </div>
     </div>
@@ -964,7 +962,7 @@ if ($isDevMode) {
                         </div>
                         <div id="composer-status-text" class="text-center">
                             <p class="mb-2">Composer-Abhängigkeiten werden installiert...</p>
-                            <small class="text-muted">Dies kann einige Minuten dauern. Bitte warten Sie.</small>
+                            <small class="text-gray-400">Dies kann einige Minuten dauern. Bitte warten Sie.</small>
                         </div>
                     </div>
 

@@ -70,12 +70,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             text-align: center;
         }
 
-        .tiles-row .col-md-6.col-lg-4 {
-            display: flex;
-            margin-bottom: 8px;
-        }
-
-        .tiles-row .tile-item {
+        .tiles-grid .tile-item {
             width: 100%;
         }
     </style>
@@ -83,14 +78,13 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <body data-bs-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . "/../../../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
-            <div class="row">
-                <div class="col">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="container mx-auto">
+            <div>
+                    <div class="mb-4 flex items-center justify-between">
                         <h2>Beladelisten</h2>
                         <div>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
@@ -107,8 +101,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <!-- Filter-Bereich -->
                     <div class="card mb-4">
                         <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-4">
+                            <div class="grid grid-cols-1 items-end gap-3 md:grid-cols-3">
+                                <div>
                                     <label for="fahrzeugtyp-filter" class="form-label mb-2">Fahrzeugtyp filtern:</label>
                                     <select class="form-control" id="fahrzeugtyp-filter">
                                         <option value="">Alle anzeigen</option>
@@ -119,7 +113,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         ?>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div>
                                     <label for="kategorie-filter" class="form-label mb-2">Kategorietyp filtern:</label>
                                     <select class="form-control" id="kategorie-filter">
                                         <option value="">Alle Typen</option>
@@ -128,9 +122,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <option value="2">Nur Außenfach</option>
                                     </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label mb-2">Aktionen:</label><br>
-                                    <button class="btn btn-outline-secondary btn-sm me-2" id="reset-filter">
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="btn btn-outline-secondary btn-sm" id="reset-filter">
                                         <i class="fa-solid fa-undo"></i> Filter zurücksetzen
                                     </button>
                                     <button class="btn btn-outline-info btn-sm" id="toggle-empty" title="Kategorien ohne Gegenstände ein-/ausblenden">
@@ -140,11 +133,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="row intra__tile py-2 px-3 mb-5">
-                <div class="col">
+            <div class="intra__tile mb-6 px-3 py-2">
                     <div id="categories-container">
                         <?php
                         foreach ($categories as $category) {
@@ -168,9 +158,9 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             $vehTypeBadge = $category['veh_type'] ? "<span class='badge bg-secondary ms-1'>" . htmlspecialchars($category['veh_type']) . "</span>" : '';
 
-                            echo "<div class='col-12 mb-4 category-item' data-veh-type='" . ($category['veh_type'] ?: 'null') . "' data-category-type='{$category['type']}' data-tile-count='{$category['tile_count']}'>";
+                            echo "<div class='category-item mb-4' data-veh-type='" . ($category['veh_type'] ?: 'null') . "' data-category-type='{$category['type']}' data-tile-count='{$category['tile_count']}'>";
                             echo "<div class='card category-card'>";
-                            echo "<div class='card-header d-flex justify-content-between align-items-center'>";
+                            echo "<div class='card-header flex items-center justify-between gap-3'>";
                             echo "<div>";
                             echo "<h5 class='mb-1'>";
                             echo "<span class='badge bg-main-color priority-badge me-2'>{$category['priority']}</span>";
@@ -198,10 +188,10 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                             echo "<div class='card-body'>";
                             if (count($tiles) > 0) {
-                                echo "<div class='row tiles-row'>";
+                                echo "<div class='tiles-grid grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3'>";
                                 foreach ($tiles as $tile) {
-                                    echo "<div class='col-md-6 col-lg-4'>";
-                                    echo "<div class='tile-item d-flex justify-content-between align-items-center'>";
+                                    echo "<div>";
+                                    echo "<div class='tile-item flex h-full items-center justify-between'>";
                                     echo "<div class='tile-title'>";
                                     echo "<strong>" . htmlspecialchars($tile['title']) . "</strong>";
                                     echo "</div>";
@@ -221,7 +211,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 }
                                 echo "</div>";
                             } else {
-                                echo "<p class='text-muted mb-0'>Keine Gegenstände in dieser Kategorie.</p>";
+                                echo "<p class='text-gray-400 mb-0'>Keine Gegenstände in dieser Kategorie.</p>";
                             }
                             echo "</div>";
                             echo "</div>";
@@ -468,13 +458,13 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     if (!noResultsMsg) {
                         noResultsMsg = document.createElement('div');
                         noResultsMsg.id = 'no-results-message';
-                        noResultsMsg.className = 'col-12';
+                        noResultsMsg.className = '';
                         noResultsMsg.innerHTML = `
                             <div class="card">
                                 <div class="card-body text-center py-5">
-                                    <i class="fa-solid fa-magnifying-glass text-muted" style="font-size: 3rem;"></i>
-                                    <h5 class="text-muted mt-3">Keine Kategorien gefunden</h5>
-                                    <p class="text-muted">Passen Sie Ihre Filter an oder erstellen Sie eine neue Kategorie.</p>
+                                    <i class="fa-solid fa-magnifying-glass text-gray-400" style="font-size: 3rem;"></i>
+                                    <h5 class="text-gray-400 mt-3">Keine Kategorien gefunden</h5>
+                                    <p class="text-gray-400">Passen Sie Ihre Filter an oder erstellen Sie eine neue Kategorie.</p>
                                 </div>
                             </div>
                         `;
