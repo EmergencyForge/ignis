@@ -121,15 +121,15 @@ $hasPrefill = !empty($prefill);
         <input type="hidden" name="login_mode" value="new" />
         <input type="hidden" name="new" value="1" />
         <div class="w-full" id="edivi__container">
-            <div class="row h-full">
-                <div class="col" id="edivi__content">
-                    <div class="row my-2 border-b border-light" id="edivi__login-title">
-                        <div class="col">
+            <div class="flex flex-wrap -mx-3 h-full">
+                <div class="flex-1 px-3" id="edivi__content">
+                    <div class="flex flex-wrap -mx-3 my-2 border-b border-light" id="edivi__login-title">
+                        <div class="flex-1 px-3">
                             <h5 class="font-bold">Anmeldung</h5>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col">
+                    <div class="flex flex-wrap -mx-3">
+                        <div class="flex-1 px-3">
                             <?php
                             // Char-Lock + Prefill: Bestimme eigene Position
                             $charLockOwnPosition = null;
@@ -142,8 +142,8 @@ $hasPrefill = !empty($prefill);
                             ?>
                             <?php if ($charLocked && !$hasPrefill): ?>
                                 <!-- Char-Lock ohne Prefill: Positions-Wähler -->
-                                <div class="row mb-3">
-                                    <div class="col">
+                                <div class="flex flex-wrap -mx-3 mb-3">
+                                    <div class="flex-1 px-3">
                                         <select class="form-select my-2" id="charlock-position" data-custom-dropdown="true" data-placeholder="Position wählen">
                                             <option value="fahrer" selected>Fahrer</option>
                                             <option value="beifahrer">Beifahrer</option>
@@ -151,7 +151,7 @@ $hasPrefill = !empty($prefill);
                                         </select>
                                         <label>Meine Position</label>
                                     </div>
-                                    <div class="col-3">
+                                    <div class="w-3/12 px-3">
                                         <select class="form-select my-2" id="charlock-quali" data-custom-dropdown="true" data-placeholder="Qualifikation">
                                             <option value=""></option>
                                             <?php foreach ($qualifikationen as $quali): ?>
@@ -181,15 +181,15 @@ $hasPrefill = !empty($prefill);
                                         // Praktikant ist IMMER frei editierbar
                                     }
                                 ?>
-                                <div class="row mb-2">
-                                    <div class="col">
+                                <div class="flex flex-wrap -mx-3 mb-2">
+                                    <div class="flex-1 px-3">
                                         <div class="name-autocomplete-wrapper">
                                             <input type="text" class="form-control my-2" name="fahrername" id="fahrername" autocomplete="off" required value="<?= htmlspecialchars($prefill['fahrername'] ?? '') ?>" <?= $fahrerRo ?> />
                                             <div class="name-dropdown" id="fahrername-dropdown"></div>
                                         </div>
                                         <label for="fahrername">Fahrer-Name</label>
                                     </div>
-                                    <div class="col-3">
+                                    <div class="w-3/12 px-3">
                                         <select class="form-select my-2" name="fahrerquali" id="fahrerquali" required data-custom-dropdown="true" data-placeholder="Qualifikation">
                                             <option value="" <?= empty($prefill['fahrerquali'] ?? '') ? 'selected' : '' ?>></option>
                                             <?php foreach ($qualifikationen as $quali): ?>
@@ -199,15 +199,15 @@ $hasPrefill = !empty($prefill);
                                         <label for="fahrerquali">Qualifikation</label>
                                     </div>
                                 </div>
-                                <div class="row mb-2">
-                                    <div class="col">
+                                <div class="flex flex-wrap -mx-3 mb-2">
+                                    <div class="flex-1 px-3">
                                         <div class="name-autocomplete-wrapper">
                                             <input type="text" class="form-control my-2" name="beifahrername" id="beifahrername" autocomplete="off" value="<?= htmlspecialchars($prefill['beifahrername'] ?? '') ?>" <?= $beifahrerRo ?> />
                                             <div class="name-dropdown" id="beifahrername-dropdown"></div>
                                         </div>
                                         <label for="beifahrername">Beifahrer-Name</label>
                                     </div>
-                                    <div class="col-3">
+                                    <div class="w-3/12 px-3">
                                         <select class="form-select my-2" name="beifahrerquali" id="beifahrerquali" data-custom-dropdown="true" data-placeholder="Qualifikation">
                                             <option value="" <?= empty($prefill['beifahrerquali'] ?? '') ? 'selected' : '' ?>></option>
                                             <?php foreach ($qualifikationen as $quali): ?>
@@ -217,15 +217,15 @@ $hasPrefill = !empty($prefill);
                                         <label for="beifahrerquali">Qualifikation</label>
                                     </div>
                                 </div>
-                                <div class="row mb-2">
-                                    <div class="col">
+                                <div class="flex flex-wrap -mx-3 mb-2">
+                                    <div class="flex-1 px-3">
                                         <div class="name-autocomplete-wrapper">
                                             <input type="text" class="form-control my-2" name="praktikantname" id="praktikantname" autocomplete="off" value="<?= htmlspecialchars($prefill['praktikantname'] ?? '') ?>" />
                                             <div class="name-dropdown" id="praktikantname-dropdown"></div>
                                         </div>
                                         <label for="praktikantname">Praktikant-Name</label>
                                     </div>
-                                    <div class="col-3">
+                                    <div class="w-3/12 px-3">
                                         <select class="form-select my-2" name="praktikantquali" id="praktikantquali" data-custom-dropdown="true" data-placeholder="Qualifikation">
                                             <option value="" <?= empty($prefill['praktikantquali'] ?? '') ? 'selected' : '' ?>></option>
                                             <?php foreach ($qualifikationen as $quali): ?>
@@ -235,15 +235,15 @@ $hasPrefill = !empty($prefill);
                                         <label for="praktikantquali">Qualifikation</label>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col"><button type="button" class="edivi__nidabutton w-full" id="crew__delete" name="crew__delete">Besatzung löschen</button></div>
-                                    <div class="col"><button type="button" class="edivi__nidabutton w-full" id="crew__switch" name="crew__switch">Fahrer / Beifahrer tauschen</button></div>
+                                <div class="flex flex-wrap -mx-3">
+                                    <div class="flex-1 px-3"><button type="button" class="edivi__nidabutton w-full" id="crew__delete" name="crew__delete">Besatzung löschen</button></div>
+                                    <div class="flex-1 px-3"><button type="button" class="edivi__nidabutton w-full" id="crew__switch" name="crew__switch">Fahrer / Beifahrer tauschen</button></div>
                                 </div>
                             <?php endif; ?>
                         </div>
-                        <div class="col">
-                            <div class="row">
-                                <div class="col">
+                        <div class="flex-1 px-3">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 px-3">
                                     <select name="protfzg" id="protfzg" class="form-select my-2" required data-custom-dropdown="true" data-search-threshold="5">
                                         <option value="" disabled <?= empty($prefill['protfzg'] ?? '') ? 'selected' : '' ?>>Fahrzeug wählen</option>
                                         <?php
@@ -275,14 +275,14 @@ $hasPrefill = !empty($prefill);
                                     <strong class="block mb-2">Position wählen:</strong>
                                     <select id="join-position-select" class="form-select mb-2">
                                     </select>
-                                    <div class="row mb-2">
-                                        <div class="col">
+                                    <div class="flex flex-wrap -mx-3 mb-2">
+                                        <div class="flex-1 px-3">
                                             <div class="name-autocomplete-wrapper">
                                                 <input type="text" class="ignis-input" id="join-name" placeholder="Name" autocomplete="off" value="<?= $charLocked ? htmlspecialchars($charName) : '' ?>" <?= $charLocked ? 'readonly' : '' ?> />
                                                 <div class="name-dropdown" id="join-name-dropdown"></div>
                                             </div>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="w-4/12 px-3">
                                             <select id="join-quali" class="form-select" data-custom-dropdown="true" data-placeholder="Qualifikation">
                                                 <option value=""></option>
                                                 <?php foreach ($qualifikationen as $quali): ?>
@@ -298,8 +298,8 @@ $hasPrefill = !empty($prefill);
                                 <hr class="my-5" style="color: transparent">
                                 <hr class="my-5" style="color: transparent">
                             </div>
-                            <div class="row">
-                                <div class="col text-right">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 text-right px-3">
                                     <button type="submit" class="edivi__nidabutton" style="padding: 20px 40px" id="data__set" name="data__set">OK</button>
                                 </div>
                             </div>

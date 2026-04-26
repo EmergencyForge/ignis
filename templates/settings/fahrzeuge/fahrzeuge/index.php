@@ -25,8 +25,8 @@ use App\Helpers\Flash;
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
         <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+            <div class="flex flex-wrap -mx-3">
+                <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Fahrzeuge</span></nav>
                     <div class="page-header mb-4">
                         <h1>Fahrzeugverwaltung</h1>
@@ -881,12 +881,12 @@ use App\Helpers\Flash;
                         ${actions}
                     </div>
                     <div class="import-row-edit hidden mt-2 pt-2" id="import-edit-${v.id}" style="border-top:1px solid rgba(255,255,255,0.06);">
-                        <div class="row g-2" style="font-size:var(--fs-sm);">
-                            <div class="col-4">
+                        <div class="flex flex-wrap -mx-3 g-2" style="font-size:var(--fs-sm);">
+                            <div class="w-4/12 px-3">
                                 <label class="ignis-field__label mb-0 text-[var(--text-dimmed,#818189)]">Typ</label>
                                 <input type="text" class="ignis-input ignis-input--sm" id="imp-veh_type-${v.id}" value="${escAttr(v.veh_type || '')}">
                             </div>
-                            <div class="col-4">
+                            <div class="w-4/12 px-3">
                                 <label class="ignis-field__label mb-0 text-[var(--text-dimmed,#818189)]">RD-Typ</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="imp-rd_type-${v.id}">
                                     <option value="0" ${v.rd_type==0?'selected':''}>Andere</option>
@@ -895,7 +895,7 @@ use App\Helpers\Flash;
                                     <option value="3" ${v.rd_type==3?'selected':''}>Feuerwehr</option>
                                 </select>
                             </div>
-                            <div class="col-4">
+                            <div class="w-4/12 px-3">
                                 <label class="ignis-field__label mb-0 text-[var(--text-dimmed,#818189)]">Erlaubte Jobs</label>
                                 <input type="text" class="ignis-input ignis-input--sm" id="imp-allowed_jobs-${v.id}" value="${escAttr(v.job || '')}">
                             </div>

@@ -40,8 +40,8 @@ $currentDate = date('d.m.Y');
     include __DIR__ . '/../../assets/components/enotf/topbar.php';
     ?>
     <div class="w-full" id="edivi__container">
-        <div class="row h-full">
-            <div class="col" id="edivi__content">
+        <div class="flex flex-wrap -mx-3 h-full">
+            <div class="flex-1 px-3" id="edivi__content">
 
                 <div class="hr my-2" style="color:transparent"></div>
 

@@ -194,12 +194,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="w-full" id="edivi__container">
-            <div class="row h-full">
+            <div class="flex flex-wrap -mx-3 h-full">
                 <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
-                <div class="col" id="edivi__content" style="padding-left: 0">
-                    <div class="row" style="margin-left: 0">
+                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
+                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
                         <?php if (!$ist_freigegeben) : ?>
-                            <div class="col-2 flex flex-col edivi__interactbutton-more">
+                            <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
                                 <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '1') ?>" data-requires="ebesonderheiten">
                                     <span>Einsatzverlauf Besonderheiten</span>
                                 </a>
@@ -216,14 +216,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </a>
                             </div>
                         <?php endif; ?>
-                        <div class="col edivi__overview-container">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="row edivi__box">
+                        <div class="flex-1 edivi__overview-container px-3">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 px-3">
+                                    <div class="flex flex-wrap -mx-3 edivi__box">
                                         <h5 class="text-white px-2 py-1">Transportdaten</h5>
-                                        <div class="col">
-                                            <div class="row mt-2" id="fzg_transp_row">
-                                                <div class="col-5">
+                                        <div class="flex-1 px-3">
+                                            <div class="flex flex-wrap -mx-3 mt-2" id="fzg_transp_row">
+                                                <div class="w-5/12 px-3">
                                                     <label for="fzg_transp" class="edivi__description">Fahrzeug Transport</label>
                                                     <?php if ($daten['fzg_transp'] === NULL) : ?>
                                                         <select name="fzg_transp" id="fzg_transp" class="w-full form-select" data-custom-dropdown="true" data-search-threshold="5">
@@ -264,27 +264,27 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                         </select>
                                                     <?php endif; ?>
                                                 </div>
-                                                <div class="col">
+                                                <div class="flex-1 px-3">
                                                     <label for="fzg_transp_perso" class="edivi__description">Besatzung Transpormittel</label>
                                                     <input type="text" name="fzg_transp_perso" id="fzg_transp_perso" class="w-full form-control" placeholder="Transportführer RTW/KTW" value="<?= $daten['fzg_transp_perso'] ?>">
                                                 </div>
                                             </div>
-                                            <div class="row mb-2" id="fzg_transp_row_2">
-                                                <div class="col-5">
+                                            <div class="flex flex-wrap -mx-3 mb-2" id="fzg_transp_row_2">
+                                                <div class="w-5/12 px-3">
                                                 </div>
-                                                <div class="col">
+                                                <div class="flex-1 px-3">
                                                     <input type="text" name="fzg_transp_perso_2" id="fzg_transp_perso_2" class="w-full form-control" placeholder="Fahrzeugführer RTW/KTW" value="<?= $daten['fzg_transp_perso_2'] ?>">
                                                 </div>
                                             </div>
-                                            <div class="row mb-2" id="fzg_transp_row_3">
-                                                <div class="col-5">
+                                            <div class="flex flex-wrap -mx-3 mb-2" id="fzg_transp_row_3">
+                                                <div class="w-5/12 px-3">
                                                 </div>
-                                                <div class="col">
+                                                <div class="flex-1 px-3">
                                                     <input type="text" name="fzg_transp_perso_3" id="fzg_transp_perso_3" class="w-full form-control" placeholder="Praktikant RTW/KTW" value="<?= $daten['fzg_transp_perso_3'] ?>">
                                                 </div>
                                             </div>
-                                            <div class="row mt-2" id="fzg_na_row">
-                                                <div class="col-5">
+                                            <div class="flex flex-wrap -mx-3 mt-2" id="fzg_na_row">
+                                                <div class="w-5/12 px-3">
                                                     <label for="fzg_na" class="edivi__description">Fahrzeug Notarzt</label>
                                                     <?php if ($daten['fzg_na'] === NULL) : ?>
                                                         <select name="fzg_na" id="fzg_na" class="w-full form-select" data-custom-dropdown="true" data-search-threshold="5">
@@ -325,27 +325,27 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                         </select>
                                                     <?php endif; ?>
                                                 </div>
-                                                <div class="col">
+                                                <div class="flex-1 px-3">
                                                     <label for="fzg_na_perso" class="edivi__description">Besatzung Notarztzubringer</label>
                                                     <input type="text" name="fzg_na_perso" id="fzg_na_perso" class="w-full form-control" placeholder="Notarzt" value="<?= $daten['fzg_na_perso'] ?>">
                                                 </div>
                                             </div>
-                                            <div class="row mb-2" id="fzg_na_row_2">
-                                                <div class="col-5">
+                                            <div class="flex flex-wrap -mx-3 mb-2" id="fzg_na_row_2">
+                                                <div class="w-5/12 px-3">
                                                 </div>
-                                                <div class="col">
+                                                <div class="flex-1 px-3">
                                                     <input type="text" name="fzg_na_perso_2" id="fzg_na_perso_2" class="w-full form-control" placeholder="Fahrzeugführer NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_2'] ?>">
                                                 </div>
                                             </div>
-                                            <div class="row mb-2" id="fzg_na_row_3">
-                                                <div class="col-5">
+                                            <div class="flex flex-wrap -mx-3 mb-2" id="fzg_na_row_3">
+                                                <div class="w-5/12 px-3">
                                                 </div>
-                                                <div class="col">
+                                                <div class="flex-1 px-3">
                                                     <input type="text" name="fzg_na_perso_3" id="fzg_na_perso_3" class="w-full form-control" placeholder="Praktikant NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_3'] ?>">
                                                 </div>
                                             </div>
-                                            <div class="row my-2">
-                                                <div class="col">
+                                            <div class="flex flex-wrap -mx-3 my-2">
+                                                <div class="flex-1 px-3">
                                                     <label for="fzg_sonst" class="edivi__description">Sonstige Fahrzeuge</label>
                                                     <input type="text" name="fzg_sonst" id="fzg_sonst" class="w-full form-control" placeholder="Weitere Rettungsmittel" value="<?= $daten['fzg_sonst'] ?>">
                                                 </div>
@@ -353,17 +353,17 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col">
-                                    <div class="row edivi__box">
+                                <div class="flex-1 px-3">
+                                    <div class="flex flex-wrap -mx-3 edivi__box">
                                         <h5 class="text-white px-2 py-1 edivi__group-check">Protokolldaten</h5>
-                                        <div class="col">
+                                        <div class="flex-1 px-3">
                                             <?php
                                             $stmtfn = $pdo->query("SELECT fullname FROM intra_mitarbeiter ORDER BY fullname ASC");
                                             $fullnames = $stmtfn->fetchAll(PDO::FETCH_COLUMN);
                                             $currentValue = $daten['pfname'] ?? '';
                                             ?>
-                                            <div class="row my-2">
-                                                <div class="col">
+                                            <div class="flex flex-wrap -mx-3 my-2">
+                                                <div class="flex-1 px-3">
                                                     <label for="pfname" class="edivi__description">Protokollant</label>
                                                     <div class="name-autocomplete-wrapper" style="position: relative;">
                                                         <input type="text" class="w-full form-control edivi__input-check" name="pfname" id="pfname" value="<?= htmlspecialchars($currentValue) ?>" required autocomplete="off" />
@@ -371,8 +371,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="row my-2">
-                                                <div class="col">
+                                            <div class="flex flex-wrap -mx-3 my-2">
+                                                <div class="flex-1 px-3">
                                                     <label for="prot_by" class="edivi__description">Protokoll durch</label>
                                                     <select name="prot_by" id="prot_by" class="w-full form-select edivi__input-check" readonly required autocomplete="off">
                                                         <option disabled hidden <?php echo (empty($daten['prot_by']) && $daten['prot_by'] !== 0 ? 'selected' : '') ?>>---</option>
@@ -383,32 +383,32 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '3') ?>" style="cursor:pointer">
+                                    <div class="flex flex-wrap -mx-3 edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '3') ?>" style="cursor:pointer">
                                         <h5 class="text-white px-2 py-1">Übergabe</h5>
-                                        <div class="col">
+                                        <div class="flex-1 px-3">
                                             <?php
                                             $stmtfn = $pdo->query("SELECT fullname FROM intra_mitarbeiter ORDER BY fullname ASC");
                                             $fullnames = $stmtfn->fetchAll(PDO::FETCH_COLUMN);
                                             ?>
-                                            <div class="row my-2">
-                                                <div class="col">
+                                            <div class="flex flex-wrap -mx-3 my-2">
+                                                <div class="flex-1 px-3">
                                                     <label for="uebergabeort" class="edivi__description">Übergabe-Ort</label>
                                                     <input type="text" name="uebergabeort" id="uebergabeort" class="w-full form-control" value="<?= $uebergabeortLabels[$daten['uebergabe_ort'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
-                                            <div class="row my-2">
-                                                <div class="col">
+                                            <div class="flex flex-wrap -mx-3 my-2">
+                                                <div class="flex-1 px-3">
                                                     <label for="uebergabean" class="edivi__description">Übergabe an</label>
                                                     <input type="text" name="uebergabean" id="uebergabean" class="w-full form-control" value="<?= $uebergabeanLabels[$daten['uebergabe_an'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '1') ?>" style="cursor:pointer">
+                                    <div class="flex flex-wrap -mx-3 edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '1') ?>" style="cursor:pointer">
                                         <h5 class="text-white px-2 py-1 edivi__group-check">Einsatzverlauf</h5>
-                                        <div class="col">
-                                            <div class="row my-2">
-                                                <div class="col">
+                                        <div class="flex-1 px-3">
+                                            <div class="flex flex-wrap -mx-3 my-2">
+                                                <div class="flex-1 px-3">
                                                     <label for="einsatzverlauf_besonderheiten" class="edivi__description">Besonderheiten</label>
                                                     <input type="text" name="einsatzverlauf_besonderheiten" id="einsatzverlauf_besonderheiten" class="w-full form-control edivi__input-check" value="<?= !empty($ebesonderheitenDisplay) ? htmlspecialchars($ebesonderheitenDisplay) : '' ?>" readonly>
                                                 </div>

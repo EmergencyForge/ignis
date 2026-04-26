@@ -261,11 +261,11 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="w-full" id="edivi__container">
-            <div class="row h-full">
+            <div class="flex flex-wrap -mx-3 h-full">
                 <?php include __DIR__ . '/../../../../../assets/components/enotf/nav.php'; ?>
-                <div class="col" id="edivi__content" style="padding-left: 0">
-                    <div class="row" style="margin-left: 0">
-                        <div class="col-2 flex flex-col edivi__interactbutton-more">
+                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
+                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
+                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'atemwege') ?>" data-requires="awfrei_1,zyanose_1"><span>Atemwege</span></a>
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'atmung') ?>" data-requires="b_symptome,b_auskult"><span>Atmung</span></a>
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'kreislauf') ?>" data-requires="c_kreislauf,c_puls_rad,c_puls_reg"><span>Kreislauf</span></a>
@@ -275,7 +275,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'psychisch') ?>" data-requires="psych"><span>psych. Zustand</span></a>
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'messwerte') ?>" data-requires="spo2,atemfreq,rrsys,herzfreq,bz"><span>Messwerte</span></a>
                         </div>
-                        <div class="col-2 flex flex-col edivi__interactbutton-more">
+                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
                             <input type="checkbox" class="btn-check" id="erweitern-ohne-path"
                                 data-quickfill='{"v_muster_k": 1, "v_muster_w": 1, "v_muster_t": 1, "v_muster_a": 1, "v_muster_al": 1, "v_muster_bl": 1}'
                                 autocomplete="off">
@@ -285,7 +285,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
                         </div>
 
                         <!-- Body Map -->
-                        <div class="col flex" style="padding: 0;">
+                        <div class="flex-1 flex px-3" style="padding: 0;">
                             <div class="bodymap-container">
                                 <div class="bodymap-views">
                                     <!-- Front view -->

@@ -27,8 +27,8 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
         <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+            <div class="flex flex-wrap -mx-3">
+                <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
@@ -119,9 +119,9 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                                 <?php foreach ($permissionGroups as $groupName => $group): ?>
                                     <div class="mb-3 border-b pb-2">
                                         <h6 class="mb-2"><span class="ignis-field__hint" style="text-transform:none;letter-spacing:0;font-size:.8rem;"><?= htmlspecialchars($groupName) ?></span></h6>
-                                        <div class="row">
+                                        <div class="flex flex-wrap -mx-3">
                                             <?php foreach ($group as $perm => $desc): ?>
-                                                <div class="col-6 mb-1">
+                                                <div class="w-6/12 mb-1 px-3">
                                                     <label class="ignis-checkbox">
                                                         <input type="checkbox" name="permissions[]" value="<?= htmlspecialchars($perm) ?>" id="perm-<?= htmlspecialchars($perm) ?>">
                                                         <span><?= $desc ?></span>
@@ -135,11 +135,11 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
 
                             <div class="mb-3">
                                 <div class="ignis-field__label mb-2">Badge</div>
-                                <div class="row">
+                                <div class="flex flex-wrap -mx-3">
                                     <?php foreach ($badgeColors as $color):
                                         $previewChipMod = in_array($color, $chipMappable, true) ? ' ignis-chip--' . $color : '';
                                     ?>
-                                        <div class="col-6 mb-2">
+                                        <div class="w-6/12 mb-2 px-3">
                                             <label class="ignis-radio w-full">
                                                 <input type="radio" name="color" id="role-color-<?= $color ?>" value="<?= $color ?>" required>
                                                 <span class="ignis-chip<?= $previewChipMod ?>" style="display:inline-block;text-align:center;min-width:6rem;"><?= ucfirst($color) ?></span>
@@ -192,9 +192,9 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                                 <?php foreach ($permissionGroups as $groupName => $group): ?>
                                     <div class="mb-2 border-b pb-2">
                                         <h6 class="mb-2"><span class="ignis-field__hint" style="text-transform:none;letter-spacing:0;font-size:.8rem;"><?= htmlspecialchars($groupName) ?></span></h6>
-                                        <div class="row">
+                                        <div class="flex flex-wrap -mx-3">
                                             <?php foreach ($group as $perm => $desc): ?>
-                                                <div class="col-6 mb-1">
+                                                <div class="w-6/12 mb-1 px-3">
                                                     <label class="ignis-checkbox">
                                                         <input type="checkbox" name="permissions[]" value="<?= htmlspecialchars($perm) ?>" id="perm-create-<?= htmlspecialchars($perm) ?>">
                                                         <span><?= $desc ?></span>
@@ -208,11 +208,11 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
 
                             <div class="mb-3">
                                 <div class="ignis-field__label mb-2">Badge</div>
-                                <div class="row">
+                                <div class="flex flex-wrap -mx-3">
                                     <?php foreach ($badgeColors as $color):
                                         $previewChipMod = in_array($color, $chipMappable, true) ? ' ignis-chip--' . $color : '';
                                     ?>
-                                        <div class="col-6 mb-2">
+                                        <div class="w-6/12 mb-2 px-3">
                                             <label class="ignis-radio w-full">
                                                 <input type="radio" name="color" id="new-role-color-<?= $color ?>" value="<?= $color ?>" required>
                                                 <span class="ignis-chip<?= $previewChipMod ?>" style="display:inline-block;text-align:center;min-width:6rem;"><?= ucfirst($color) ?></span>

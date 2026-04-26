@@ -23,8 +23,8 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
 ?>
 
 <div class="w-full" id="edivi__topbar">
-    <div class="row">
-        <div class="col flex items-center">
+    <div class="flex flex-wrap -mx-3">
+        <div class="flex-1 flex items-center px-3">
             <?php if (isset($topbar_left_html)): ?>
                 <?= $topbar_left_html ?>
             <?php else: ?>
@@ -91,7 +91,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                 <?php endif; ?>
             <?php endif; ?>
         </div>
-        <div class="col text-right flex justify-end items-center">
+        <div class="flex-1 text-right flex justify-end items-center px-3">
             <a href="<?= EnotfUrl::page('login') ?>?prefill=1" class="flex flex-col items-center no-underline text-reset self-stretch justify-between" id="topbar-crew-display" style="font-size: 0.85rem; line-height: 1.2; padding: 5px 15px;">
                 <div class="flex items-start">
                     <div class="flex flex-col items-end justify-start">
@@ -224,9 +224,9 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
 <?php if ($topbar_show_notices && isset($daten)): ?>
     <?php if ($daten['freigegeben'] == 1 && $daten['hidden_user'] != 1) : ?>
         <div class="container-full edivi__notice edivi__notice-freigeber">
-            <div class="row">
-                <div class="col-1 text-right"><i class="fa-solid fa-info"></i></div>
-                <div class="col">
+            <div class="flex flex-wrap -mx-3">
+                <div class="w-1/12 text-right px-3"><i class="fa-solid fa-info"></i></div>
+                <div class="flex-1 px-3">
                     Das Protokoll wurde durch <strong><?= $daten['freigeber_name'] ?></strong> am <strong><?= $daten['last_edit'] ?></strong> Uhr freigegeben. Es kann nicht mehr bearbeitet werden.
                 </div>
             </div>
@@ -234,9 +234,9 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
     <?php endif; ?>
     <?php if ($daten['hidden_user'] == 1) : ?>
         <div class="container-full edivi__notice edivi__notice-freigeber">
-            <div class="row">
-                <div class="col-1 text-right"><i class="fa-solid fa-info"></i></div>
-                <div class="col">
+            <div class="flex flex-wrap -mx-3">
+                <div class="w-1/12 text-right px-3"><i class="fa-solid fa-info"></i></div>
+                <div class="flex-1 px-3">
                     Das Protokoll wurde durch <strong><?= $daten['freigeber_name'] ?></strong> am <strong><?= $daten['last_edit'] ?></strong> Uhr gelöscht. Es kann nicht mehr bearbeitet werden.
                 </div>
             </div>

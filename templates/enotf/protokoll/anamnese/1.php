@@ -60,14 +60,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="w-full" id="edivi__container">
-            <div class="row h-full">
-                <div class="col flex flex-col" id="edivi__content">
-                    <div class="row" style="flex-grow: 1;">
-                        <div class="col-10 edivi__box  py-1" style="margin: 10px">
+            <div class="flex flex-wrap -mx-3 h-full">
+                <div class="flex-1 flex flex-col px-3" id="edivi__content">
+                    <div class="flex flex-wrap -mx-3" style="flex-grow: 1;">
+                        <div class="w-10/12 edivi__box py-1 px-3" style="margin: 10px">
                             <textarea name="anmerkungen" id="anmerkungen" class="w-full form-control" style="resize: none; height: 100%; border-radius: 0;" rows="12" data-ignore-autosave><?= $daten['anmerkungen'] ?></textarea>
                         </div>
                         <?php if (!$ist_freigegeben) : ?>
-                            <div class="col">
+                            <div class="flex-1 px-3">
                                 <div class="flex justify-center items-center" style="margin: 10px 0; height: 80px;">
                                     <button type="button" id="save-anamnese-btn" class="ignis-btn ignis-btn--success px-4 w-full h-full" style="font-size:1.4rem">OK</button>
                                 </div>

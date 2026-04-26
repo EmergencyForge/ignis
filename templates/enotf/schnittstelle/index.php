@@ -46,8 +46,8 @@ if ($ziel) {
 
 <body data-bs-theme="dark" style="overflow-x:hidden; display: flex; flex-direction: column; min-height: 100vh;" id="edivi__arrivalboard">
     <div class="w-full" style="flex: 1;">
-        <div class="row h-full">
-            <div class="col" id="edivi__content">
+        <div class="flex flex-wrap -mx-3 h-full">
+            <div class="flex-1 px-3" id="edivi__content">
                 <table class="w-full">
                     <thead>
                         <tr>

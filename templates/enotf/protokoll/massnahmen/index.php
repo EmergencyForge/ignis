@@ -334,12 +334,12 @@ if (!empty($daten['rettungstechnik'])) {
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="w-full" id="edivi__container">
-            <div class="row h-full">
+            <div class="flex flex-wrap -mx-3 h-full">
                 <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
-                <div class="col" id="edivi__content" style="padding-left: 0">
-                    <div class="row" style="margin-left: 0">
+                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
+                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
                         <?php if (!$ist_freigegeben) : ?>
-                            <div class="col-2 flex flex-col edivi__interactbutton-more">
+                            <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
                                 <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atemwege') ?>" data-requires="awsicherung_neu">
                                     <span>Atemwege</span>
                                 </a>
@@ -421,14 +421,14 @@ if (!empty($daten['rettungstechnik'])) {
 
                         $rettungstechnikDisplay = !empty($rettungstechnikDisplayTexts) ? implode(', ', $rettungstechnikDisplayTexts) : '';
                         ?>
-                        <div class="col edivi__overview-container">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atemwege') ?>" style="cursor:pointer">
+                        <div class="flex-1 edivi__overview-container px-3">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 px-3">
+                                    <div class="flex flex-wrap -mx-3 edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atemwege') ?>" style="cursor:pointer">
                                         <h5 class="text-white px-2 py-1 edivi__group-check">Atemwege</h5>
-                                        <div class="col">
-                                            <div class="row my-2">
-                                                <div class="col">
+                                        <div class="flex-1 px-3">
+                                            <div class="flex flex-wrap -mx-3 my-2">
+                                                <div class="flex-1 px-3">
                                                     <label for="atemwegssicherung" class="edivi__description">Atemwegssicherung</label>
                                                     <input type="text" name="atemwegssicherung" id="atemwegssicherung" class="w-full form-control edivi__input-check" value="<?= $awsicherung_neu_labels[$daten['awsicherung_neu'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
@@ -436,22 +436,22 @@ if (!empty($daten['rettungstechnik'])) {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atmung') ?>" style="cursor:pointer">
+                                <div class="flex-1 px-3">
+                                    <div class="flex flex-wrap -mx-3 edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atmung') ?>" style="cursor:pointer">
                                         <h5 class="text-white px-2 py-1">Atmung</h5>
-                                        <div class="col">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="row my-2">
-                                                        <div class="col">
+                                        <div class="flex-1 px-3">
+                                            <div class="flex flex-wrap -mx-3">
+                                                <div class="flex-1 px-3">
+                                                    <div class="flex flex-wrap -mx-3 my-2">
+                                                        <div class="flex-1 px-3">
                                                             <label for="beatmung" class="edivi__description">Beatmung</label>
                                                             <input type="text" name="beatmung" id="beatmung" class="w-full form-control edivi__input-check" value="<?= $b_beatmung_labels[$daten['b_beatmung'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="row my-2">
-                                                        <div class="col">
+                                                <div class="flex-1 px-3">
+                                                    <div class="flex flex-wrap -mx-3 my-2">
+                                                        <div class="flex-1 px-3">
                                                             <label for="o2gabe" class="edivi__description">O2-Gabe</label>
                                                             <input type="text" name="o2gabe" id="o2gabe" class="w-full form-control" value="<?= $o2gabe_labels[$daten['o2gabe'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
@@ -462,24 +462,24 @@ if (!empty($daten['rettungstechnik'])) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang') ?>" style="cursor:pointer">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 px-3">
+                                    <div class="flex flex-wrap -mx-3 edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang') ?>" style="cursor:pointer">
                                         <h5 class="text-white px-2 py-1">Zugänge <i id="icon-zugang_display" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
                                         <input type="hidden" name="zugang_display" class="edivi__input-check" value="<?= $daten['c_zugang'] !== null ? $daten['c_zugang'] : '' ?>">
-                                        <div class="col">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="row my-2">
-                                                        <div class="col">
+                                        <div class="flex-1 px-3">
+                                            <div class="flex flex-wrap -mx-3">
+                                                <div class="flex-1 px-3">
+                                                    <div class="flex flex-wrap -mx-3 my-2">
+                                                        <div class="flex-1 px-3">
                                                             <label for="pvk" class="edivi__description">PVK</label>
                                                             <textarea name="pvk" id="pvk" class="w-full form-control" style="height: 200px; overflow-y: auto; resize: vertical;" readonly><?= displayZugaengeByArtText($daten['c_zugang'] ?? '', 'pvk') ?></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="row my-2">
-                                                        <div class="col">
+                                                <div class="flex-1 px-3">
+                                                    <div class="flex flex-wrap -mx-3 my-2">
+                                                        <div class="flex-1 px-3">
                                                             <label for="io" class="edivi__description">intraossär</label>
                                                             <textarea name="io" id="io" class="w-full form-control" style="height: 200px; overflow-y: auto; resize: vertical;" readonly><?= displayZugaengeByArtText($daten['c_zugang'] ?? '', 'io') ?></textarea>
                                                         </div>
@@ -490,15 +490,15 @@ if (!empty($daten['rettungstechnik'])) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'medikamente') ?>" style="cursor:pointer">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 px-3">
+                                    <div class="flex flex-wrap -mx-3 edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'medikamente') ?>" style="cursor:pointer">
                                         <h5 class="text-white px-2 py-1 edivi__group-check">Medikamente <i id="icon-medikamente" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
-                                        <div class="col">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="row my-2">
-                                                        <div class="col">
+                                        <div class="flex-1 px-3">
+                                            <div class="flex flex-wrap -mx-3">
+                                                <div class="flex-1 px-3">
+                                                    <div class="flex flex-wrap -mx-3 my-2">
+                                                        <div class="flex-1 px-3">
                                                             <label for="medikamente" class="edivi__description" style="display: none;">Medikamente</label>
                                                             <textarea name="medikamente" id="medikamente" class="w-full form-control edivi__input-check" style="height: 36vh; overflow-y: auto; resize: vertical;" readonly><?= displayAllMedikamente($daten['medis'] ?? '') ?></textarea>
                                                         </div>
@@ -509,23 +509,23 @@ if (!empty($daten['rettungstechnik'])) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col">
-                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'weitere') ?>" style="cursor:pointer">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 px-3">
+                                    <div class="flex flex-wrap -mx-3 edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'weitere') ?>" style="cursor:pointer">
                                         <h5 class="text-white px-2 py-1">Weitere</h5>
-                                        <div class="col">
-                                            <div class="row">
-                                                <div class="col">
-                                                    <div class="row my-2">
-                                                        <div class="col">
+                                        <div class="flex-1 px-3">
+                                            <div class="flex flex-wrap -mx-3">
+                                                <div class="flex-1 px-3">
+                                                    <div class="flex flex-wrap -mx-3 my-2">
+                                                        <div class="flex-1 px-3">
                                                             <label for="lagerung" class="edivi__description">Lagerung</label>
                                                             <input type="text" name="lagerung" id="lagerung" class="w-full form-control" value="<?= $lagerung_labels[$daten['lagerung'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="col">
-                                                    <div class="row my-2">
-                                                        <div class="col">
+                                                <div class="flex-1 px-3">
+                                                    <div class="flex flex-wrap -mx-3 my-2">
+                                                        <div class="flex-1 px-3">
                                                             <label for="rettungstechnik" class="edivi__description">Rettungstechnik</label>
                                                             <input type="text" name="rettungstechnik" id="rettungstechnik" class="w-full form-control" value="<?= $rettungstechnikDisplay ?>" readonly>
                                                         </div>

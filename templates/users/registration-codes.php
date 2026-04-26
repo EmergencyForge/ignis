@@ -26,19 +26,19 @@ $SITE_TITLE = 'Einladungen verwalten';
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
         <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+            <div class="flex flex-wrap -mx-3">
+                <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active">Einladungen</span>
                     </nav>
-                    <div class="row mb-3">
-                        <div class="col">
+                    <div class="flex flex-wrap -mx-3 mb-3">
+                        <div class="flex-1 px-3">
                             <h1>Einladungen verwalten</h1>
                         </div>
                         <?php if ($registrationMode === 'code'): ?>
-                            <div class="col text-right">
+                            <div class="flex-1 text-right px-3">
                                 <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createInviteModal">
                                     <i class="fa-solid fa-plus"></i> Einladung erstellen
                                 </button>
