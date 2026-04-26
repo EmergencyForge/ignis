@@ -30,17 +30,25 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <h1 class="mb-3">Benutzer bearbeiten <span class="mx-3"></span>
+                    <nav class="ignis-breadcrumb">
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
+                        <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($target->username) ?></span>
+                    </nav>
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <h1 class="m-0">Benutzer bearbeiten</h1>
                         <?php if (Gate::allows('user.delete', $target)): ?>
-                            <?php if ($target->is_active): ?>
-                                <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#deactivateModal"><i class="fa-solid fa-user-slash"></i> Benutzer deaktivieren</button>
-                            <?php else: ?>
-                                <span class="badge text-bg-secondary mr-2">Deaktiviert</span>
-                                <button class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#reactivateModal"><i class="fa-solid fa-user-check"></i> Benutzer reaktivieren</button>
-                            <?php endif; ?>
-                            <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteUserModal"><i class="fa-solid fa-trash"></i> Endgültig löschen</button>
+                            <div class="ms-auto d-flex flex-wrap gap-2">
+                                <?php if ($target->is_active): ?>
+                                    <button class="ignis-btn ignis-btn--outline-warning ignis-btn--sm" id="btnDeactivate"><i class="fa-solid fa-user-slash"></i> Deaktivieren</button>
+                                <?php else: ?>
+                                    <span class="ignis-chip">Deaktiviert</span>
+                                    <button class="ignis-btn ignis-btn--outline-success ignis-btn--sm" id="btnReactivate"><i class="fa-solid fa-user-check"></i> Reaktivieren</button>
+                                <?php endif; ?>
+                                <button class="ignis-btn ignis-btn--outline-danger ignis-btn--sm" id="btnDeleteUser"><i class="fa-solid fa-trash"></i> Endgültig löschen</button>
+                            </div>
                         <?php endif; ?>
-                    </h1>
+                    </div>
                     <?php Flash::render(); ?>
                     <form name="form" method="post" action="">
                         <input type="hidden" name="new" value="1" />
@@ -50,8 +58,10 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                                 <div class="intra__tile py-2 px-3">
                                     <div class="row">
                                         <div class="col mb-3">
-                                            <label for="username" class="form-label fw-bold">Benutzername <span class="text-main-color">*</span></label>
-                                            <input type="text" class="form-control" id="username" name="username" value="<?= htmlspecialchars($target->username) ?>" required>
+                                            <div class="ignis-field">
+                                                <label for="username" class="ignis-field__label">Benutzername <span class="ignis-field__required">*</span></label>
+                                                <input type="text" class="ignis-input" id="username" name="username" value="<?= htmlspecialchars($target->username) ?>" required>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -60,14 +70,16 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                                 <div class="intra__tile py-2 px-3">
                                     <div class="row">
                                         <div class="col mb-3">
-                                            <label for="role" class="form-label fw-bold">Rolle/Gruppe <span class="text-main-color">*</span></label>
-                                            <select name="role" id="role" class="form-select" required>
-                                                <?php foreach ($availableRoles as $role): ?>
-                                                    <option value="<?= (int) $role->id ?>" <?= ((int) $role->id === (int) $target->role) ? 'selected="selected"' : '' ?>>
-                                                        <?= htmlspecialchars($role->name) ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            </select>
+                                            <div class="ignis-field">
+                                                <label for="role" class="ignis-field__label">Rolle/Gruppe <span class="ignis-field__required">*</span></label>
+                                                <select name="role" id="role" data-custom-dropdown="true" required>
+                                                    <?php foreach ($availableRoles as $role): ?>
+                                                        <option value="<?= (int) $role->id ?>" <?= ((int) $role->id === (int) $target->role) ? 'selected="selected"' : '' ?>>
+                                                            <?= htmlspecialchars($role->name) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -75,7 +87,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                         </div>
                         <div class="row">
                             <div class="col mb-3 mx-auto">
-                                <input class="mt-4 btn btn-success btn-sm" name="submit" type="submit" value="Änderungen speichern" />
+                                <button type="submit" name="submit" class="mt-4 ignis-btn ignis-btn--success ignis-btn--sm">Änderungen speichern</button>
                             </div>
                         </div>
                     </form>
@@ -117,74 +129,6 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
         </div>
     </div>
 
-    <!-- MODALS BEGIN -->
-    <?php if (Gate::allows('user.delete', $target)): ?>
-
-        <?php if ($target->is_active): ?>
-            <!-- Deaktivieren Modal -->
-            <div class="modal fade" id="deactivateModal" tabindex="-1" aria-labelledby="deactivateModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="deactivateModalLabel">Benutzer deaktivieren</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            Möchtest du den Benutzer <span class="fw-bold"><?= htmlspecialchars($target->username) ?></span> deaktivieren?
-                            <div class="mt-2 text-muted small">Der Benutzer kann sich nicht mehr einloggen, kann aber jederzeit reaktiviert werden. Alle Daten bleiben erhalten.</div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="button" class="btn btn-warning" onclick="window.location.href='toggle-active.php?id=<?= (int) $target->id ?>&action=deactivate';">Deaktivieren</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php else: ?>
-            <!-- Reaktivieren Modal -->
-            <div class="modal fade" id="reactivateModal" tabindex="-1" aria-labelledby="reactivateModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="reactivateModalLabel">Benutzer reaktivieren</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            Möchtest du den Benutzer <span class="fw-bold"><?= htmlspecialchars($target->username) ?></span> wieder aktivieren?
-                            <div class="mt-2 text-muted small">Der Benutzer kann sich danach wieder einloggen.</div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="button" class="btn btn-success" onclick="window.location.href='toggle-active.php?id=<?= (int) $target->id ?>&action=reactivate';">Reaktivieren</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
-
-        <!-- Endgültig löschen Modal -->
-        <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="deleteUserModalLabel">Benutzer endgültig löschen</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="text-danger fw-bold mb-2">Achtung: Diese Aktion ist unwiderruflich!</div>
-                        Willst du wirklich den Benutzer <span class="fw-bold"><?= htmlspecialchars($target->username) ?></span> endgültig löschen?
-                        <div class="mt-2 text-muted small">Alle zugehörigen Audit-Logs und Benachrichtigungen werden ebenfalls gelöscht. Erwäge stattdessen eine Deaktivierung.</div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="button" class="btn btn-ghost-danger" onclick="window.location.href='delete.php?id=<?= (int) $target->id ?>';">Endgültig löschen</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-    <!-- MODALS END -->
-
     <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
     <script>
@@ -223,6 +167,49 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
             });
         });
     </script>
+
+    <?php if (Gate::allows('user.delete', $target)): ?>
+    <script>
+        const userId = <?= (int) $target->id ?>;
+        const username = <?= json_encode($target->username, JSON_UNESCAPED_UNICODE) ?>;
+
+        const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) =>
+            ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        const safeName = escapeHtml(username);
+
+        document.getElementById('btnDeactivate')?.addEventListener('click', async () => {
+            const ok = await window.intraConfirm('', {
+                title: 'Benutzer deaktivieren',
+                body: `<p class="ignis-dialog__text">Möchtest du den Benutzer <strong>${safeName}</strong> deaktivieren?</p>
+                       <p class="ignis-dialog__text" style="opacity:.7;font-size:.82rem;">Der Benutzer kann sich nicht mehr einloggen, kann aber jederzeit reaktiviert werden. Alle Daten bleiben erhalten.</p>`,
+                confirmText: 'Deaktivieren',
+            });
+            if (ok) window.location.href = 'toggle-active.php?id=' + userId + '&action=deactivate';
+        });
+
+        document.getElementById('btnReactivate')?.addEventListener('click', async () => {
+            const ok = await window.intraConfirm('', {
+                title: 'Benutzer reaktivieren',
+                body: `<p class="ignis-dialog__text">Möchtest du den Benutzer <strong>${safeName}</strong> wieder aktivieren?</p>
+                       <p class="ignis-dialog__text" style="opacity:.7;font-size:.82rem;">Der Benutzer kann sich danach wieder einloggen.</p>`,
+                confirmText: 'Reaktivieren',
+            });
+            if (ok) window.location.href = 'toggle-active.php?id=' + userId + '&action=reactivate';
+        });
+
+        document.getElementById('btnDeleteUser')?.addEventListener('click', async () => {
+            const ok = await window.intraConfirm('', {
+                title: 'Benutzer endgültig löschen',
+                body: `<p class="ignis-dialog__text" style="color:#d46b6b;font-weight:600;">Achtung: Diese Aktion ist unwiderruflich!</p>
+                       <p class="ignis-dialog__text">Willst du wirklich den Benutzer <strong>${safeName}</strong> endgültig löschen?</p>
+                       <p class="ignis-dialog__text" style="opacity:.7;font-size:.82rem;">Alle zugehörigen Audit-Logs und Benachrichtigungen werden ebenfalls gelöscht. Erwäge stattdessen eine Deaktivierung.</p>`,
+                confirmText: 'Endgültig löschen',
+                danger: true,
+            });
+            if (ok) window.location.href = 'delete.php?id=' + userId;
+        });
+    </script>
+    <?php endif; ?>
 </body>
 
 </html>

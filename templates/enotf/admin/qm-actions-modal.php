@@ -48,19 +48,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
         case 1:
             $status_klar = "in Prüfung";
-            $statusstring = '<span class="badge text-bg-warning">in Prüfung</span>';
+            $statusstring = '<span class="ignis-chip ignis-chip--warning">in Prüfung</span>';
             break;
         case 2:
             $status_klar = "Freigegeben";
-            $statusstring = '<span class="badge text-bg-success">Freigegeben</span>';
+            $statusstring = '<span class="ignis-chip ignis-chip--success">Freigegeben</span>';
             break;
         case 3:
             $status_klar = "Ungenügend";
-            $statusstring = '<span class="badge text-bg-danger">Ungenügend</span>';
+            $statusstring = '<span class="ignis-chip ignis-chip--danger">Ungenügend</span>';
             break;
         case 4:
             $status_klar = "Ausgeblendet";
-            $statusstring = '<span class="badge text-bg-dark">Ausgeblendet</span>';
+            $statusstring = '<span class="ignis-chip ignis-chip--dark">Ausgeblendet</span>';
             break;
     }
 
@@ -160,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <textarea name="qmkommentar" id="qmkommentar" rows="8" class="form-control w-full" style="resize: none;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
         </div>
         <div class="mb-2 mt-4 text-center">
-            <input class="btn btn-success" name="submit" type="submit" value="Speichern" />
+            <input class="ignis-btn ignis-btn--success" name="submit" type="submit" value="Speichern" />
         </div>
     </form>
 </div>

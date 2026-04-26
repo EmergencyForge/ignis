@@ -47,7 +47,7 @@ $SITE_TITLE = 'MANV-Übersicht';
             <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div>
                     <?php if ($statusFilter !== 'aktiv'): ?>
-                        <a href="<?= BASE_PATH ?>manv/index.php" class="btn btn-ghost mb-3 no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>manv/index.php" class="ignis-btn ignis-btn--ghost mb-3 no-underline hover:no-underline">
                             <i class="fas fa-arrow-left mr-2"></i>Zurück zu aktiven Lagen
                         </a>
                     <?php endif; ?>
@@ -61,14 +61,14 @@ $SITE_TITLE = 'MANV-Übersicht';
                     <p class="text-gray-400">Massenanfall von Verletzten - Lagenverwaltung</p>
                 </div>
                 <div class="md:text-right">
-                    <a href="<?= BASE_PATH ?>manv/create.php" class="btn btn-soft-primary btn-lg no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/create.php" class="ignis-btn ignis-btn--soft-primary btn-lg no-underline hover:no-underline">
                         <i class="fas fa-plus mr-2"></i>Neue MANV-Lage anlegen
                     </a>
                 </div>
             </div>
 
             <?php if (empty($lagen)): ?>
-                <div class="alert alert-info">
+                <div class="ignis-alert ignis-alert--info">
                     <i class="fas fa-info-circle mr-2"></i>
                     <?php
                     if ($statusFilter === 'abgeschlossen') {
@@ -130,13 +130,13 @@ $SITE_TITLE = 'MANV-Übersicht';
                                 <div class="stat-box">
                                     <div class="mb-2 flex items-center justify-between">
                                         <span class="text-gray-400">Patienten gesamt:</span>
-                                        <span class="badge bg-primary"><?= (int) $stats['total_patienten'] ?></span>
+                                        <span class="ignis-chip ignis-chip--primary"><?= (int) $stats['total_patienten'] ?></span>
                                     </div>
                                     <div class="grid grid-cols-4 gap-1 text-center">
-                                        <div class="badge bg-danger w-full">SK1: <?= (int) $stats['sk1'] ?></div>
-                                        <div class="badge bg-warning w-full">SK2: <?= (int) $stats['sk2'] ?></div>
-                                        <div class="badge bg-success w-full">SK3: <?= (int) $stats['sk3'] ?></div>
-                                        <div class="badge bg-info w-full">SK4: <?= (int) $stats['sk4'] ?></div>
+                                        <div class="ignis-chip ignis-chip--danger w-full">SK1: <?= (int) $stats['sk1'] ?></div>
+                                        <div class="ignis-chip ignis-chip--warning w-full">SK2: <?= (int) $stats['sk2'] ?></div>
+                                        <div class="ignis-chip ignis-chip--success w-full">SK3: <?= (int) $stats['sk3'] ?></div>
+                                        <div class="ignis-chip ignis-chip--info w-full">SK4: <?= (int) $stats['sk4'] ?></div>
                                     </div>
                                     <div class="mt-2 text-xs text-gray-400">
                                         Transportiert: <?= (int) $stats['transportiert'] ?> | Wartend: <?= (int) $stats['wartend'] ?>
@@ -159,10 +159,10 @@ $SITE_TITLE = 'MANV-Übersicht';
                         <h5 class="mb-0">Archivierte Lagen</h5>
                     </div>
                     <div class="card-body flex flex-wrap gap-2">
-                        <a href="<?= BASE_PATH ?>manv/index.php?status=abgeschlossen" class="btn btn-outline-secondary no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>manv/index.php?status=abgeschlossen" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-archive mr-2"></i>Abgeschlossene Lagen anzeigen
                         </a>
-                        <a href="<?= BASE_PATH ?>manv/index.php?status=archiviert" class="btn btn-outline-secondary no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>manv/index.php?status=archiviert" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-archive mr-2"></i>Archivierte Lagen anzeigen
                         </a>
                     </div>

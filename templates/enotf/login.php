@@ -278,7 +278,7 @@ $hasPrefill = !empty($prefill);
                                     <div class="row mb-2">
                                         <div class="col">
                                             <div class="name-autocomplete-wrapper">
-                                                <input type="text" class="form-control" id="join-name" placeholder="Name" autocomplete="off" value="<?= $charLocked ? htmlspecialchars($charName) : '' ?>" <?= $charLocked ? 'readonly' : '' ?> />
+                                                <input type="text" class="ignis-input" id="join-name" placeholder="Name" autocomplete="off" value="<?= $charLocked ? htmlspecialchars($charName) : '' ?>" <?= $charLocked ? 'readonly' : '' ?> />
                                                 <div class="name-dropdown" id="join-name-dropdown"></div>
                                             </div>
                                         </div>

@@ -59,14 +59,14 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
             <?php Flash::render(); ?>
 
             <?php if (!empty($success)): ?>
-                <div class="alert alert-success alert-dismissible fade show">
+                <div class="ignis-alert ignis-alert--success alert-dismissible fade show">
                     <i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($success) ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($error)): ?>
-                <div class="alert alert-danger alert-dismissible fade show">
+                <div class="ignis-alert ignis-alert--danger alert-dismissible fade show">
                     <i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($error) ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -103,16 +103,16 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                     <h5 class="mb-0">Schnell-Sichtung</h5>
                 </div>
                 <div class="card-body text-center">
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="btn btn-danger quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--danger quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK1 - Rot
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="btn btn-warning quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--warning quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK2 - Gelb
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="btn btn-success quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--success quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK3 - Grün
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="btn btn-info quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--info quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK4 - Blau
                     </a>
                     <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="btn quick-action-btn" style="background-color: #000; color: #fff; border-color: #fff;">
@@ -134,19 +134,19 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($patient['name'] ?? '') ?>">
+                                    <input type="text" class="ignis-input" id="name" name="name" value="<?= htmlspecialchars($patient['name'] ?? '') ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="vorname" class="form-label">Vorname</label>
-                                    <input type="text" class="form-control" id="vorname" name="vorname" value="<?= htmlspecialchars($patient['vorname'] ?? '') ?>">
+                                    <input type="text" class="ignis-input" id="vorname" name="vorname" value="<?= htmlspecialchars($patient['vorname'] ?? '') ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="geburtsdatum" class="form-label">Geburtsdatum</label>
-                                    <input type="date" class="form-control" id="geburtsdatum" name="geburtsdatum" value="<?= htmlspecialchars($patient['geburtsdatum'] ?? '') ?>">
+                                    <input type="date" class="ignis-input" id="geburtsdatum" name="geburtsdatum" value="<?= htmlspecialchars($patient['geburtsdatum'] ?? '') ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label for="geschlecht" class="form-label">Geschlecht</label>
-                                    <select class="form-control" id="geschlecht" name="geschlecht">
+                                    <select class="ignis-input" id="geschlecht" name="geschlecht">
                                         <option value="unbekannt" <?= ($patient['geschlecht'] ?? '') === 'unbekannt' ? 'selected' : '' ?>>Unbekannt</option>
                                         <option value="m" <?= ($patient['geschlecht'] ?? '') === 'm' ? 'selected' : '' ?>>Männlich</option>
                                         <option value="w" <?= ($patient['geschlecht'] ?? '') === 'w' ? 'selected' : '' ?>>Weiblich</option>
@@ -184,7 +184,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="transportmittel_id" class="form-label">Zugewiesenes Fahrzeug</label>
-                                    <select class="form-control" id="transportmittel_id" name="transportmittel_id">
+                                    <select class="ignis-input" id="transportmittel_id" name="transportmittel_id">
                                         <option value="" data-rdtype="">Noch nicht zugewiesen</option>
                                         <?php foreach ($verfuegbareFahrzeuge as $fzg):
                                             $selected = (($patient['transportmittel_rufname'] ?? '') === $fzg['bezeichnung']) ? 'selected' : '';
@@ -201,20 +201,20 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                                 </div>
                                 <div class="mb-3">
                                     <label for="display_fahrzeugtyp" class="form-label">Art</label>
-                                    <input type="text" class="form-control" id="display_fahrzeugtyp" value="<?= htmlspecialchars($patient['transportmittel'] ?? '') ?>" readonly>
+                                    <input type="text" class="ignis-input" id="display_fahrzeugtyp" value="<?= htmlspecialchars($patient['transportmittel'] ?? '') ?>" readonly>
                                 </div>
                                 <div class="mb-3">
                                     <label for="display_rufname" class="form-label">Rufname / Kennung</label>
-                                    <input type="text" class="form-control" id="display_rufname" value="<?= htmlspecialchars($patient['transportmittel_rufname'] ?? '') ?>" readonly>
+                                    <input type="text" class="ignis-input" id="display_rufname" value="<?= htmlspecialchars($patient['transportmittel_rufname'] ?? '') ?>" readonly>
                                 </div>
                                 <div class="mb-3">
                                     <label for="display_lokalisation" class="form-label">Fahrzeug-Lokalisation</label>
-                                    <input type="text" class="form-control" id="display_lokalisation" value="<?= htmlspecialchars($patient['fahrzeug_lokalisation'] ?? '') ?>" readonly>
+                                    <input type="text" class="ignis-input" id="display_lokalisation" value="<?= htmlspecialchars($patient['fahrzeug_lokalisation'] ?? '') ?>" readonly>
                                 </div>
                                 <?php if ($canTransport): ?>
                                     <div class="mb-3">
                                         <label for="transportziel" class="form-label">Transportziel</label>
-                                        <select class="form-control" id="transportziel" name="transportziel">
+                                        <select class="ignis-input" id="transportziel" name="transportziel">
                                             <option value="">Bitte wählen...</option>
                                             <option value="Kein Transport" <?= (($patient['transportziel'] ?? '') === 'Kein Transport') ? 'selected' : '' ?>>Kein Transport</option>
                                             <?php foreach ($krankenhaeuser as $kh): ?>
@@ -244,11 +244,11 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="verletzungen" class="form-label">Verletzungen</label>
-                                    <textarea class="form-control" id="verletzungen" name="verletzungen" rows="3"><?= htmlspecialchars($patient['verletzungen'] ?? '') ?></textarea>
+                                    <textarea class="ignis-input" id="verletzungen" name="verletzungen" rows="3"><?= htmlspecialchars($patient['verletzungen'] ?? '') ?></textarea>
                                 </div>
                                 <div class="mb-3">
                                     <label for="notizen" class="form-label">Notizen</label>
-                                    <textarea class="form-control" id="notizen" name="notizen" rows="2"><?= htmlspecialchars($patient['notizen'] ?? '') ?></textarea>
+                                    <textarea class="ignis-input" id="notizen" name="notizen" rows="2"><?= htmlspecialchars($patient['notizen'] ?? '') ?></textarea>
                                 </div>
                             </div>
                         </div>
@@ -256,10 +256,10 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= (int) $patient['manv_lage_id'] ?>" class="btn btn-ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= (int) $patient['manv_lage_id'] ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="btn btn-soft-primary btn-lg">
+                    <button type="submit" class="ignis-btn ignis-btn--soft-primary btn-lg">
                         <i class="fas fa-save mr-2"></i>Änderungen speichern
                     </button>
                 </div>

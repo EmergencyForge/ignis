@@ -182,7 +182,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                                             <i class="fa-solid fa-external-link mr-1"></i> Mehr erfahren
                                         </a>
                                     <?php endif; ?>
-                                    <button type="button" class="btn btn-ghost btn-sm dismiss-single-btn"
+                                    <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm dismiss-single-btn"
                                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
                                         <i class="fa-solid fa-eye-slash mr-1"></i> Ausblenden
                                     </button>
@@ -199,7 +199,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                     <i class="fa-solid fa-shield-halved mr-1"></i>
                     Diese Nachricht stammt von EmergencyForge
                 </small>
-                <button type="button" class="btn btn-soft-primary btn-sm" id="efDismissAllBtn">
+                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="efDismissAllBtn">
                     <i class="fa-solid fa-check mr-1"></i> Verstanden
                 </button>
             </div>

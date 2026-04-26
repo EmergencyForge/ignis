@@ -33,14 +33,14 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
             <?php Flash::render(); ?>
 
             <?php if (!empty($success)): ?>
-                <div class="alert alert-success alert-dismissible fade show">
+                <div class="ignis-alert ignis-alert--success alert-dismissible fade show">
                     <i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($success) ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($error)): ?>
-                <div class="alert alert-danger alert-dismissible fade show">
+                <div class="ignis-alert ignis-alert--danger alert-dismissible fade show">
                     <i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($error) ?>
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -55,29 +55,29 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label for="einsatznummer" class="form-label">Einsatznummer *</label>
-                                <input type="text" class="form-control" id="einsatznummer" name="einsatznummer" value="<?= htmlspecialchars($lage['einsatznummer']) ?>" required>
+                                <input type="text" class="ignis-input" id="einsatznummer" name="einsatznummer" value="<?= htmlspecialchars($lage['einsatznummer']) ?>" required>
                                 <small class="mt-1 block text-xs text-gray-400">z.B. 2025-12345</small>
                             </div>
                             <div>
                                 <label for="einsatzbeginn" class="form-label">Einsatzbeginn</label>
-                                <input type="datetime-local" class="form-control" id="einsatzbeginn" name="einsatzbeginn" value="<?= !empty($lage['einsatzbeginn']) ? date('Y-m-d\TH:i', strtotime($lage['einsatzbeginn'])) : '' ?>">
+                                <input type="datetime-local" class="ignis-input" id="einsatzbeginn" name="einsatzbeginn" value="<?= !empty($lage['einsatzbeginn']) ? date('Y-m-d\TH:i', strtotime($lage['einsatzbeginn'])) : '' ?>">
                             </div>
                         </div>
 
                         <div class="mt-4">
                             <label for="einsatzort" class="form-label">Einsatzort *</label>
-                            <input type="text" class="form-control" id="einsatzort" name="einsatzort" value="<?= htmlspecialchars($lage['einsatzort']) ?>" required>
+                            <input type="text" class="ignis-input" id="einsatzort" name="einsatzort" value="<?= htmlspecialchars($lage['einsatzort']) ?>" required>
                             <small class="mt-1 block text-xs text-gray-400">z.B. Hauptstraße 123, Musterstadt</small>
                         </div>
 
                         <div class="mt-4">
                             <label for="einsatzanlass" class="form-label">Einsatzanlass / Szenario</label>
-                            <textarea class="form-control" id="einsatzanlass" name="einsatzanlass" rows="3"><?= htmlspecialchars($lage['einsatzanlass'] ?? '') ?></textarea>
+                            <textarea class="ignis-input" id="einsatzanlass" name="einsatzanlass" rows="3"><?= htmlspecialchars($lage['einsatzanlass'] ?? '') ?></textarea>
                         </div>
 
                         <div class="mt-4">
                             <label for="status" class="form-label">Status</label>
-                            <select class="form-control" id="status" name="status">
+                            <select class="ignis-input" id="status" name="status">
                                 <option value="aktiv" <?= $lage['status'] === 'aktiv' ? 'selected' : '' ?>>Aktiv</option>
                                 <option value="abgeschlossen" <?= $lage['status'] === 'abgeschlossen' ? 'selected' : '' ?>>Abgeschlossen</option>
                                 <option value="archiviert" <?= $lage['status'] === 'archiviert' ? 'selected' : '' ?>>Archiviert</option>
@@ -94,7 +94,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label for="lna_mitarbeiter_id" class="form-label">Leitender Notarzt (LNA)</label>
-                                <select class="form-control" id="lna_mitarbeiter_id" name="lna_mitarbeiter_id">
+                                <select class="ignis-input" id="lna_mitarbeiter_id" name="lna_mitarbeiter_id">
                                     <option value="">Bitte wählen...</option>
                                     <?php foreach ($users as $user): ?>
                                         <option value="<?= (int) $user['id'] ?>"
@@ -108,7 +108,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                             </div>
                             <div>
                                 <label for="orgl_mitarbeiter_id" class="form-label">Organisatorischer Leiter (OrgL)</label>
-                                <select class="form-control" id="orgl_mitarbeiter_id" name="orgl_mitarbeiter_id">
+                                <select class="ignis-input" id="orgl_mitarbeiter_id" name="orgl_mitarbeiter_id">
                                     <option value="">Bitte wählen...</option>
                                     <?php foreach ($users as $user): ?>
                                         <option value="<?= (int) $user['id'] ?>"
@@ -131,16 +131,16 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                     <div class="card-body">
                         <div>
                             <label for="notizen" class="form-label">Allgemeine Notizen</label>
-                            <textarea class="form-control" id="notizen" name="notizen" rows="4"><?= htmlspecialchars($lage['notizen'] ?? '') ?></textarea>
+                            <textarea class="ignis-input" id="notizen" name="notizen" rows="4"><?= htmlspecialchars($lage['notizen'] ?? '') ?></textarea>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="btn btn-soft-primary btn-lg">
+                    <button type="submit" class="ignis-btn ignis-btn--soft-primary btn-lg">
                         <i class="fas fa-save mr-2"></i>Änderungen speichern
                     </button>
                 </div>

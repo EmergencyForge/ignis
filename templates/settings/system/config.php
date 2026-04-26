@@ -184,13 +184,13 @@ $configByCategory = $configManager->getConfigByCategory();
                                                     <div class="input-group">
                                                         <input
                                                             type="password"
-                                                            class="form-control"
+                                                            class="ignis-input"
                                                             id="<?= htmlspecialchars($config['config_key']) ?>"
                                                             value="<?= htmlspecialchars($config['config_value']) ?>"
                                                             readonly>
                                                         <button
                                                             type="button"
-                                                            class="btn btn-outline-secondary btn-icon"
+                                                            class="ignis-btn ignis-btn--outline-secondary ignis-btn--icon"
                                                             onclick="toggleApiKeyVisibility()"
                                                             title="API-Schlüssel anzeigen/verbergen"
                                                             id="toggleApiKeyBtn">
@@ -198,14 +198,14 @@ $configByCategory = $configManager->getConfigByCategory();
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            class="btn btn-outline-primary btn-icon"
+                                                            class="ignis-btn ignis-btn--outline-primary ignis-btn--icon"
                                                             onclick="copyApiKey()"
                                                             title="API-Schlüssel kopieren">
                                                             <i class="fa-solid fa-copy"></i>
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            class="btn btn-soft-warning btn-icon"
+                                                            class="ignis-btn ignis-btn--soft-warning btn-icon"
                                                             onclick="regenerateApiKey(event)"
                                                             title="API-Schlüssel neu generieren">
                                                             <i class="fa-solid fa-rotate"></i>
@@ -233,7 +233,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                             onchange="updateColorValue('<?= htmlspecialchars($config['config_key']) ?>', this.value)">
                                                         <input
                                                             type="text"
-                                                            class="form-control"
+                                                            class="ignis-input"
                                                             id="<?= htmlspecialchars($config['config_key']) ?>"
                                                             name="<?= htmlspecialchars($config['config_key']) ?>"
                                                             value="<?= htmlspecialchars($config['config_value']) ?>"
@@ -306,7 +306,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                 <?php elseif ($config['is_editable']): ?>
                                                     <input
                                                         type="text"
-                                                        class="form-control"
+                                                        class="ignis-input"
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>"
                                                         value="<?= htmlspecialchars($config['config_value']) ?>">
@@ -319,7 +319,7 @@ $configByCategory = $configManager->getConfigByCategory();
                         <?php endforeach; ?>
 
                         <div class="mb-6 flex flex-col gap-2 md:flex-row md:justify-end">
-                            <button type="submit" name="save_config" class="btn btn-soft-primary btn-lg">
+                            <button type="submit" name="save_config" class="ignis-btn ignis-btn--soft-primary btn-lg">
                                 <i class="fa-solid fa-save"></i> Änderungen speichern
                             </button>
                         </div>

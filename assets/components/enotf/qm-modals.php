@@ -70,7 +70,7 @@ use App\Helpers\EnotfUrl;
                     })
                     .catch(error => {
                         document.getElementById('qmActionsContent').innerHTML = `
-                            <div class="alert alert-danger">
+                            <div class="ignis-alert ignis-alert--danger">
                                 Fehler beim Laden der QM-Aktionen: ${error.message}
                             </div>
                         `;
@@ -103,7 +103,7 @@ use App\Helpers\EnotfUrl;
                     })
                     .catch(error => {
                         document.getElementById('qmLogContent').innerHTML = `
-                            <div class="alert alert-danger">
+                            <div class="ignis-alert ignis-alert--danger">
                                 Fehler beim Laden des QM-Logs: ${error.message}
                             </div>
                         `;

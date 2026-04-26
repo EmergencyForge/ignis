@@ -390,13 +390,13 @@ try {
                 <h4>Lagekarte</h4>
             </div>
             <div class="col text-end">
-                <button type="button" class="btn btn-sm btn-outline-light" id="toggleMarkerMode">
+                <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="toggleMarkerMode">
                     <i class="fa-solid fa-plus me-1"></i>Marker hinzufügen
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-info" id="toggleZoneMode">
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" id="toggleZoneMode">
                     <i class="fa-solid fa-draw-polygon me-1"></i>Zone zeichnen
                 </button>
-                <button type="button" class="btn btn-sm btn-outline-light" id="refreshMap">
+                <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="refreshMap">
                     <i class="fa-solid fa-sync-alt me-1"></i>Aktualisieren
                 </button>
             </div>
@@ -404,7 +404,7 @@ try {
     </div>
     <div class="intra__tile-content">
         <?php if ($incident['finalized']): ?>
-            <div class="alert alert-warning">
+            <div class="ignis-alert ignis-alert--warning">
                 <i class="fa-solid fa-lock me-2"></i>
                 Dieser Einsatz ist abgeschlossen. Die Lagekarte kann nicht mehr bearbeitet werden.
             </div>
@@ -520,7 +520,7 @@ try {
                                     <td><?= fmt_dt($marker['created_at']) ?></td>
                                     <td>
                                         <?php if (!$incident['finalized']): ?>
-                                            <button class="btn btn-sm btn-outline-danger delete-marker-btn"
+                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-marker-btn"
                                                 data-marker-id="<?= $marker['id'] ?>">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
@@ -574,7 +574,7 @@ try {
                                     <td><?= fmt_dt($zone['created_at']) ?></td>
                                     <td>
                                         <?php if (!$incident['finalized']): ?>
-                                            <button class="btn btn-sm btn-outline-danger delete-zone-btn"
+                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-zone-btn"
                                                 data-zone-id="<?= $zone['id'] ?>">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
@@ -616,14 +616,14 @@ try {
 
                     <div class="mb-3">
                         <label for="markerDescription" class="form-label">Beschreibung</label>
-                        <textarea class="form-control" id="markerDescription" name="description" rows="3"
+                        <textarea class="ignis-input" id="markerDescription" name="description" rows="3"
                             placeholder="Optionale Beschreibung..."></textarea>
                     </div>
 
                     <!-- Text field for tactical symbols -->
                     <div class="mb-3" id="textFieldContainer" style="display: none;">
                         <label for="markerText" class="form-label">Text-Beschriftung</label>
-                        <input type="text" class="form-control" id="markerText" name="text"
+                        <input type="text" class="ignis-input" id="markerText" name="text"
                             placeholder="z.B. LF20, RTW 1/82-1">
                         <small class="text-muted">Wird auf dem taktischen Zeichen angezeigt</small>
                     </div>
@@ -631,7 +631,7 @@ try {
                     <!-- Name field for tactical symbols -->
                     <div class="mb-3" id="nameFieldContainer" style="display: none;">
                         <label for="markerName" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="markerName" name="name"
+                        <input type="text" class="ignis-input" id="markerName" name="name"
                             placeholder="z.B. Einsatzabschnitt Nord">
                         <small class="text-muted">Name des taktischen Zeichens</small>
                     </div>
@@ -639,7 +639,7 @@ try {
                     <!-- Typ field for tactical symbols -->
                     <div class="mb-3" id="typFieldContainer" style="display: none;">
                         <label for="markerTyp" class="form-label">Typ</label>
-                        <input type="text" class="form-control" id="markerTyp" name="typ"
+                        <input type="text" class="ignis-input" id="markerTyp" name="typ"
                             placeholder="z.B. HLF20, RTW, DLK23/12">
                         <small class="text-muted">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
                     </div>
@@ -801,13 +801,13 @@ try {
 
                         <div class="mb-3">
                             <label for="customTyp" class="form-label">Typ</label>
-                            <input type="text" class="form-control" id="customTyp"
+                            <input type="text" class="ignis-input" id="customTyp"
                                 placeholder="z.B. HLF20, RTW, DLK23/12">
                             <small class="form-text text-muted">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
                         </div>
 
                         <div class="text-center mb-3">
-                            <button type="button" class="btn btn-sm btn-outline-info" id="previewCustomSymbol">
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" id="previewCustomSymbol">
                                 <i class="fa-solid fa-eye me-1"></i>Vorschau
                             </button>
                         </div>
@@ -815,8 +815,8 @@ try {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-primary" id="saveMarkerBtn">
+                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="ignis-btn ignis-btn--primary" id="saveMarkerBtn">
                     <i class="fa-solid fa-save me-1"></i>Marker speichern
                 </button>
             </div>
@@ -839,13 +839,13 @@ try {
 
                     <div class="mb-3">
                         <label for="zoneName" class="form-label">Zonenname <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="zoneName" name="name"
+                        <input type="text" class="ignis-input" id="zoneName" name="name"
                             placeholder="z.B. Sperrzone, Gefahrenbereich" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="zoneDescription" class="form-label">Beschreibung</label>
-                        <textarea class="form-control" id="zoneDescription" name="description" rows="3"
+                        <textarea class="ignis-input" id="zoneDescription" name="description" rows="3"
                             placeholder="Optionale Beschreibung der Zone..."></textarea>
                     </div>
 
@@ -866,8 +866,8 @@ try {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-primary" id="saveZoneBtn">
+                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="ignis-btn ignis-btn--primary" id="saveZoneBtn">
                     <i class="fa-solid fa-save me-1"></i>Speichern
                 </button>
             </div>

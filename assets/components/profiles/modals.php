@@ -14,11 +14,11 @@ use App\Security\CsrfProtection;
                 <!-- Titel-Zeile -->
                 <div class="flex items-center justify-between px-3 py-2" style="border-bottom:1px solid var(--bs-border-color);">
                     <div class="flex items-center gap-2 min-w-0">
-                        <span class="badge text-bg-secondary" id="docViewer-badge">Dokument</span>
+                        <span class="ignis-chip" id="docViewer-badge">Dokument</span>
                         <h6 class="mb-0 text-truncate" id="docViewer-title" style="font-size:0.88rem;"></h6>
                     </div>
                     <div class="flex items-center gap-1 flex-shrink-0">
-                        <a href="#" id="docViewer-detailLink" class="btn btn-sm btn-ghost" title="Detailseite"><i class="fa-solid fa-up-right-from-square"></i></a>
+                        <a href="#" id="docViewer-detailLink" class="ignis-btn ignis-btn--sm ignis-btn--ghost" title="Detailseite"><i class="fa-solid fa-up-right-from-square"></i></a>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                 </div>
@@ -95,21 +95,21 @@ function openDocumentViewer(docid) {
 
             // Status (links im Footer)
             statusEl.innerHTML = doc.is_archived
-                ? '<span class="badge text-bg-secondary"><i class="fa-solid fa-box-archive mr-1"></i>Archiviert</span>'
-                : '<span class="badge text-bg-success" style="opacity:0.8;"><i class="fa-solid fa-circle-check mr-1"></i>Aktiv</span>';
+                ? '<span class="ignis-chip"><i class="fa-solid fa-box-archive mr-1"></i>Archiviert</span>'
+                : '<span class="ignis-chip ignis-chip--success" style="opacity:0.8;"><i class="fa-solid fa-circle-check mr-1"></i>Aktiv</span>';
 
             // Aktions-Buttons (rechts im Footer, als Icon-Buttons)
             let btns = '';
             if (doc.pdf_exists) {
-                btns += '<a href="' + esc(doc.pdf_url) + '" download class="btn btn-sm btn-outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>';
-                btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="btn btn-sm btn-outline-light" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>';
+                btns += '<a href="' + esc(doc.pdf_url) + '" download class="ignis-btn ignis-btn--sm ignis-btn--outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>';
+                btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="ignis-btn ignis-btn--sm btn-outline-light" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>';
             }
-            btns += '<a href="<?= BASE_PATH ?>mitarbeiter/dokument-view.php?docid=' + doc.docid + '" class="btn btn-sm btn-outline-light" title="Detailseite"><i class="fa-solid fa-file-lines"></i></a>';
+            btns += '<a href="<?= BASE_PATH ?>mitarbeiter/dokument-view.php?docid=' + doc.docid + '" class="ignis-btn ignis-btn--sm btn-outline-light" title="Detailseite"><i class="fa-solid fa-file-lines"></i></a>';
 
             <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
             const archIcon = doc.is_archived ? 'fa-box-open' : 'fa-box-archive';
             const archTitle = doc.is_archived ? 'Wiederherstellen' : 'Archivieren';
-            btns += '<button class="btn btn-sm btn-outline-secondary" title="' + archTitle + '" onclick="toggleArchiveFromViewer(\'' + doc.docid + '\', ' + !doc.is_archived + ')"><i class="fa-solid ' + archIcon + '"></i></button>';
+            btns += '<button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="' + archTitle + '" onclick="toggleArchiveFromViewer(\'' + doc.docid + '\', ' + !doc.is_archived + ')"><i class="fa-solid ' + archIcon + '"></i></button>';
             <?php endif; ?>
 
             buttonsEl.innerHTML = btns;
@@ -185,9 +185,9 @@ async function toggleArchiveFromViewer(docid, archive) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                     <?php if (Permissions::check(['admin', 'personnel.edit'])) { ?>
-                        <button type="button" class="btn btn-success" id="fdq-save" onclick="document.getElementById('fdqualiForm').submit()">Speichern</button>
+                        <button type="button" class="ignis-btn ignis-btn--success" id="fdq-save" onclick="document.getElementById('fdqualiForm').submit()">Speichern</button>
                     <?php } ?>
                 </div>
             </form>
@@ -213,13 +213,13 @@ async function toggleArchiveFromViewer(docid, archive) {
                             <option value="1">Positiv</option>
                             <option value="2">Negativ</option>
                         </select>
-                        <textarea class="form-control" name="content" id="content" rows="3" placeholder="Notiztext" style="resize:none"></textarea>
+                        <textarea class="ignis-input" name="content" id="content" rows="3" placeholder="Notiztext" style="resize:none"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                     <?php if (Permissions::check(['admin', 'personnel.view'])) { ?>
-                        <button type="button" class="btn btn-success" id="fdq-save" onclick="document.getElementById('newNoteForm').submit()">Speichern</button>
+                        <button type="button" class="ignis-btn ignis-btn--success" id="fdq-save" onclick="document.getElementById('newNoteForm').submit()">Speichern</button>
                     <?php } ?>
                 </div>
             </form>
@@ -243,7 +243,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 <form id="newDocForm" method="post">
                     <div class="modal-body">
                         <?php if (!$editdg) { ?>
-                            <div class="alert alert-danger" role="alert">
+                            <div class="ignis-alert ignis-alert--danger" role="alert">
                                 <h4 class="fw-bold">Achtung!</h4> Es sind keine Profildaten hinterlegt. Dokumente können fehlerhaft sein.<br>Bitte erstelle erst ein <a href="<?= BASE_PATH ?>mitarbeiter/list.php">eigenes Mitarbeiterprofil</a> (mit deiner Discord-ID).
                             </div>
                         <?php } ?>
@@ -276,11 +276,11 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="button" class="btn btn-outline-info" id="btn-preview-doc" title="PDF-Vorschau mit den aktuell eingegebenen Daten">
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="ignis-btn ignis-btn--outline-info" id="btn-preview-doc" title="PDF-Vorschau mit den aktuell eingegebenen Daten">
                             <i class="fa-solid fa-eye mr-1"></i>Vorschau
                         </button>
-                        <button type="submit" class="btn btn-success" id="fdq-save">Erstellen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success" id="fdq-save">Erstellen</button>
                     </div>
                 </form>
             </div>
@@ -330,14 +330,14 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 const template = await response.json();
 
                 if (template.error) {
-                    formContainer.innerHTML = `<div class="alert alert-danger">${template.error}</div>`;
+                    formContainer.innerHTML = `<div class="ignis-alert ignis-alert--danger">${template.error}</div>`;
                     return;
                 }
 
                 currentTemplate = template;
                 await renderTemplateForm(template);
             } catch (error) {
-                formContainer.innerHTML = `<div class="alert alert-danger">Fehler beim Laden: ${error.message}</div>`;
+                formContainer.innerHTML = `<div class="ignis-alert ignis-alert--danger">Fehler beim Laden: ${error.message}</div>`;
             }
         });
 
@@ -371,11 +371,11 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
 
             switch (field.field_type) {
                 case 'text':
-                    html += `<input type="text" class="form-control" id="field_${fieldName}" name="${fieldName}" ${required}>`;
+                    html += `<input type="text" class="ignis-input" id="field_${fieldName}" name="${fieldName}" ${required}>`;
                     break;
 
                 case 'textarea':
-                    html += `<textarea class="form-control" id="field_${fieldName}" name="${fieldName}" rows="4" ${required}></textarea>`;
+                    html += `<textarea class="ignis-input" id="field_${fieldName}" name="${fieldName}" rows="4" ${required}></textarea>`;
                     break;
 
                 case 'richtext':
@@ -383,11 +383,11 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                     break;
 
                 case 'date':
-                    html += `<input type="date" class="form-control" id="field_${fieldName}" name="${fieldName}" ${required}>`;
+                    html += `<input type="date" class="ignis-input" id="field_${fieldName}" name="${fieldName}" ${required}>`;
                     break;
 
                 case 'number':
-                    html += `<input type="number" class="form-control" id="field_${fieldName}" name="${fieldName}" ${required}>`;
+                    html += `<input type="number" class="ignis-input" id="field_${fieldName}" name="${fieldName}" ${required}>`;
                     break;
 
                 case 'select':
@@ -627,8 +627,8 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 <p>Möchtest du diesen Mitarbeiter wirklich unwiderruflich löschen?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <a href="<?= BASE_PATH ?>mitarbeiter/delete.php?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>" class="btn btn-danger">Löschen</a>
+                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                <a href="<?= BASE_PATH ?>mitarbeiter/delete.php?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>" class="ignis-btn ignis-btn--danger">Löschen</a>
             </div>
         </div>
     </div>

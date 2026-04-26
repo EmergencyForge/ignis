@@ -26,7 +26,7 @@ use App\Helpers\Flash;
                         <p class="text-muted mb-0">Verwalten Sie die Zugangscodes für das Verfügbarkeits-Portal</p>
                     </div>
 
-                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="btn btn-sm btn-ghost mb-3">
+                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="ignis-btn ignis-btn--sm ignis-btn--ghost mb-3">
                         <i class="fa-solid fa-arrow-left"></i> Zurück zur POI-Verwaltung
                     </a>
 
@@ -57,7 +57,7 @@ use App\Helpers\Flash;
                                             <?php if ($hospital['code']): ?>
                                                 <div class="flex items-center gap-2">
                                                     <code class="text-success"><?= htmlspecialchars($hospital['code']) ?></code>
-                                                    <button class="btn btn-sm btn-outline-secondary copy-code-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary copy-code-btn"
                                                             data-code="<?= htmlspecialchars($hospital['code']) ?>"
                                                             title="Code kopieren">
                                                         <i class="fa-solid fa-copy"></i>
@@ -67,11 +67,11 @@ use App\Helpers\Flash;
                                                     Aktualisiert: <?= \App\Helpers\DateTimeHelper::formatShortLocal($hospital['code_updated']) ?>
                                                 </small>
                                             <?php else: ?>
-                                                <span class="badge text-bg-secondary">Nicht konfiguriert</span>
+                                                <span class="ignis-chip">Nicht konfiguriert</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-soft-primary generate-code-btn"
+                                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary generate-code-btn"
                                                     data-id="<?= (int)$hospital['id'] ?>"
                                                     data-name="<?= htmlspecialchars($hospital['name']) ?>">
                                                 <i class="fa-solid fa-key"></i>
@@ -89,7 +89,7 @@ use App\Helpers\Flash;
                         </table>
                     </div>
 
-                    <div class="alert alert-info mt-3">
+                    <div class="ignis-alert ignis-alert--info mt-3">
                         <i class="fa-solid fa-info-circle mr-2"></i>
                         <strong>Hinweis:</strong> Die generierten Zugangscodes ermöglichen es Krankenhäusern, ihre Verfügbarkeiten über das externe Portal zu melden.
                         Der Link zum Portal ist: <code><?= BASE_PATH ?>enotf/schnittstelle/hospital-availability.php</code>
@@ -115,21 +115,21 @@ use App\Helpers\Flash;
                         <div class="mb-3">
                             <label for="new-code" class="form-label">Zugangscode</label>
                             <div class="input-group">
-                                <input type="text" class="form-control" name="new_code" id="new-code" required readonly>
-                                <button type="button" class="btn btn-outline-secondary" id="regenerate-btn">
+                                <input type="text" class="ignis-input" name="new_code" id="new-code" required readonly>
+                                <button type="button" class="ignis-btn ignis-btn--outline-secondary" id="regenerate-btn">
                                     <i class="fa-solid fa-rotate"></i> Neu generieren
                                 </button>
                             </div>
                             <div class="form-text">Der Code wird im Klartext gespeichert und kann jederzeit eingesehen werden.</div>
                         </div>
-                        <div class="alert alert-info">
+                        <div class="ignis-alert ignis-alert--info">
                             <i class="fa-solid fa-info-circle mr-2"></i>
                             <strong>Hinweis:</strong> Geben Sie diesen Code an das Krankenhaus weiter. Der Code kann jederzeit neu generiert werden.
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="btn btn-soft-primary">
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--soft-primary">
                             <i class="fa-solid fa-floppy-disk"></i> Speichern
                         </button>
                     </div>

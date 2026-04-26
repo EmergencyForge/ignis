@@ -540,8 +540,8 @@ $currentDate = date('d.m.Y');
                     Wie möchten Sie sich abmelden?
                 </div>
                 <div class="modal-footer">
-                    <a href="loggedout.php?mode=self" class="btn btn-light">Mich abmelden</a>
-                    <a href="loggedout.php?mode=all" class="btn btn-danger">Alle abmelden</a>
+                    <a href="loggedout.php?mode=self" class="ignis-btn">Mich abmelden</a>
+                    <a href="loggedout.php?mode=all" class="ignis-btn ignis-btn--danger">Alle abmelden</a>
                 </div>
             </div>
         </div>

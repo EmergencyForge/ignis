@@ -31,7 +31,7 @@ use App\Helpers\Flash;
                         <h1 class="mb-0">Zielverwaltung</h1>
 
                         <?php if (Permissions::check('admin')) : ?>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
                                 <i class="fa-solid fa-plus"></i> Ziel erstellen
                             </button>
                         <?php endif; ?>
@@ -107,17 +107,17 @@ use App\Helpers\Flash;
 
                             <div class="mb-3">
                                 <label for="fahrzeug-name" class="form-label">Bezeichnung</label>
-                                <input type="text" class="form-control" name="name" id="fahrzeug-name" required>
+                                <input type="text" class="ignis-input" name="name" id="fahrzeug-name" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
-                                <input type="text" class="form-control" name="identifier" id="fahrzeug-identifier" required>
+                                <input type="text" class="ignis-input" name="identifier" id="fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="priority" id="fahrzeug-priority" required>
+                                <input type="number" class="ignis-input" name="priority" id="fahrzeug-priority" required>
                             </div>
 
                             <div class="form-check mb-2">
@@ -132,11 +132,11 @@ use App\Helpers\Flash;
 
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="btn btn-ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -164,17 +164,17 @@ use App\Helpers\Flash;
 
                             <div class="mb-3">
                                 <label for="new-fahrzeug-name" class="form-label">Bezeichnung</label>
-                                <input type="text" class="form-control" name="name" id="new-fahrzeug-name" required>
+                                <input type="text" class="ignis-input" name="name" id="new-fahrzeug-name" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="new-fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
-                                <input type="text" class="form-control" name="identifier" id="new-fahrzeug-identifier" required>
+                                <input type="text" class="ignis-input" name="identifier" id="new-fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="new-fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="priority" id="new-fahrzeug-priority" required>
+                                <input type="number" class="ignis-input" name="priority" id="new-fahrzeug-priority" required>
                             </div>
 
                             <div class="form-check mb-2">
@@ -189,8 +189,8 @@ use App\Helpers\Flash;
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

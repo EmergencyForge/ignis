@@ -274,7 +274,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                             <form method="post" class="d-inline">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="action" value="toggle_federation">
-                                <button type="submit" class="btn btn-sm <?= $federationEnabled ? 'btn-outline-danger' : 'btn-outline-success' ?>">
+                                <button type="submit" class="ignis-btn ignis-btn--sm <?= $federationEnabled ? 'btn-outline-danger' : 'btn-outline-success' ?>">
                                     <?= $federationEnabled ? '<i class="fa-solid fa-power-off"></i> Deaktivieren' : '<i class="fa-solid fa-power-off"></i> Aktivieren' ?>
                                 </button>
                             </form>
@@ -287,7 +287,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                                     <div>
                                         <label class="form-label" style="font-size:var(--fs-sm);">Instanz-ID</label>
-                                        <input type="text" class="form-control form-control-sm" value="<?= htmlspecialchars($instanceId) ?>" readonly style="font-family:var(--font-mono);font-size:var(--fs-xs);">
+                                        <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($instanceId) ?>" readonly style="font-family:var(--font-mono);font-size:var(--fs-xs);">
                                     </div>
                                     <div>
                                         <form method="post" class="flex items-end gap-2">
@@ -295,11 +295,11 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                             <input type="hidden" name="action" value="update_name">
                                             <div class="flex-1">
                                                 <label class="form-label" style="font-size:var(--fs-sm);">Instanzname</label>
-                                                <input type="text" name="instance_name" class="form-control form-control-sm"
+                                                <input type="text" name="instance_name" class="ignis-input ignis-input--sm"
                                                        value="<?= htmlspecialchars($instanceName) ?>"
                                                        placeholder="z.B. Berufsfeuerwehr Berlin">
                                             </div>
-                                            <button type="submit" class="btn btn-sm btn-outline-primary whitespace-nowrap">Speichern</button>
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary whitespace-nowrap">Speichern</button>
                                         </form>
                                     </div>
                                 </div>
@@ -328,11 +328,11 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                     </p>
                                     <?php if ($generatedToken): ?>
                                         <div class="mb-2">
-                                            <textarea class="form-control form-control-sm" rows="3" readonly
+                                            <textarea class="ignis-input ignis-input--sm" rows="3" readonly
                                                       style="font-family:var(--font-mono);font-size:var(--fs-xs);word-break:break-all;"
                                                       onclick="this.select()"><?= htmlspecialchars($generatedToken) ?></textarea>
                                         </div>
-                                        <div class="alert alert-warning" style="font-size:var(--fs-xs);padding:0.5rem 0.75rem;">
+                                        <div class="ignis-alert ignis-alert--warning" style="font-size:var(--fs-xs);padding:0.5rem 0.75rem;">
                                             <i class="fa-solid fa-triangle-exclamation"></i>
                                             Dieser Schlüssel wird nur einmal angezeigt. Kopiere ihn jetzt.
                                         </div>
@@ -340,7 +340,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         <form method="post">
                                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                             <input type="hidden" name="action" value="generate_token">
-                                            <button type="submit" class="btn btn-sm btn-outline-primary">
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
                                                 <i class="fa-solid fa-wand-magic-sparkles"></i> Schlüssel generieren
                                             </button>
                                         </form>
@@ -354,7 +354,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         Füge einen Verbindungsschlüssel einer anderen Instanz ein.
                                     </p>
                                     <?php if ($pairError): ?>
-                                        <div class="alert alert-danger" style="font-size:var(--fs-xs);padding:0.5rem 0.75rem;">
+                                        <div class="ignis-alert ignis-alert--danger" style="font-size:var(--fs-xs);padding:0.5rem 0.75rem;">
                                             <i class="fa-solid fa-circle-xmark"></i> <?= htmlspecialchars($pairError) ?>
                                         </div>
                                     <?php endif; ?>
@@ -364,7 +364,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         <textarea name="connection_token" class="form-control form-control-sm mb-2" rows="3"
                                                   placeholder="Verbindungsschlüssel einfügen..."
                                                   style="font-family:var(--font-mono);font-size:var(--fs-xs);"></textarea>
-                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-success">
                                             <i class="fa-solid fa-handshake"></i> Verbinden
                                         </button>
                                     </form>
@@ -376,7 +376,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                     <!-- Connected Instances -->
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5 class="mb-0">Verbundene Instanzen <span class="badge bg-secondary"><?= count($links) ?></span></h5>
+                            <h5 class="mb-0">Verbundene Instanzen <span class="ignis-chip"><?= count($links) ?></span></h5>
                         </div>
                         <?php if (empty($links)): ?>
                             <div class="card-body flex flex-col items-center justify-center" style="color:var(--text-dimmed);font-size:var(--fs-sm);padding:2rem;">
@@ -392,14 +392,14 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                             <?= htmlspecialchars($link['instance_name']) ?>
                                             <?php if ($link['is_active']): ?>
                                                 <?php if ($link['last_sync_status'] === 'success'): ?>
-                                                    <span class="badge bg-success" style="font-size:0.65rem;">Online</span>
+                                                    <span class="ignis-chip ignis-chip--success" style="font-size:0.65rem;">Online</span>
                                                 <?php elseif ($link['last_sync_status'] === 'error'): ?>
-                                                    <span class="badge bg-danger" style="font-size:0.65rem;">Fehler</span>
+                                                    <span class="ignis-chip ignis-chip--danger" style="font-size:0.65rem;">Fehler</span>
                                                 <?php else: ?>
-                                                    <span class="badge bg-secondary" style="font-size:0.65rem;">Ausstehend</span>
+                                                    <span class="ignis-chip" style="font-size:0.65rem;">Ausstehend</span>
                                                 <?php endif; ?>
                                             <?php else: ?>
-                                                <span class="badge bg-secondary" style="font-size:0.65rem;">Deaktiviert</span>
+                                                <span class="ignis-chip" style="font-size:0.65rem;">Deaktiviert</span>
                                             <?php endif; ?>
                                         </h6>
                                         <div style="font-size:var(--fs-xs);color:var(--text-dimmed);">
@@ -466,14 +466,14 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                     <div class="flex flex-wrap items-end gap-3">
                                         <div>
                                             <label class="form-label" style="font-size:var(--fs-xs);">Sync-Intervall (Min.)</label>
-                                            <input type="number" name="sync_interval_minutes" class="form-control form-control-sm" style="width:80px;"
+                                            <input type="number" name="sync_interval_minutes" class="ignis-input ignis-input--sm" style="width:80px;"
                                                    value="<?= (int)$link['sync_interval_minutes'] ?>" min="5" max="1440">
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="checkbox" name="is_active" id="is_active_<?= $link['id'] ?>" <?= $link['is_active'] ? 'checked' : '' ?>>
                                             <label class="form-check-label" for="is_active_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Aktiv</label>
                                         </div>
-                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
                                             <i class="fa-solid fa-floppy-disk"></i> Speichern
                                         </button>
                                     </div>
@@ -485,7 +485,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="action" value="sync_now">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
-                                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
                                             <i class="fa-solid fa-arrows-rotate"></i> Jetzt synchronisieren
                                         </button>
                                     </form>
@@ -494,7 +494,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="action" value="delete_link">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger"
                                                 onclick="showConfirm('Verbindung und alle gecachten Daten dieser Instanz wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Verbindung löschen'}).then(r => { if(r) this.closest('form').submit(); });">
                                             <i class="fa-solid fa-trash"></i> Verbindung löschen
                                         </button>

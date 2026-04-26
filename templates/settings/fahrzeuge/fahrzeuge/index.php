@@ -37,18 +37,18 @@ use App\Helpers\Flash;
                     <div class="page-header mb-4">
                         <h1>Fahrzeugverwaltung</h1>
                         <div class="header-actions">
-                            <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index.php" class="btn btn-outline-warning">
+                            <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index.php" class="ignis-btn ignis-btn--outline-warning">
                                 <i class="fa-solid fa-triangle-exclamation"></i> Defekt-Meldungen
                             </a>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-                                <button type="button" class="btn btn-ghost" onclick="openTzTemplateManager()">
+                                <button type="button" class="ignis-btn ignis-btn--ghost" onclick="openTzTemplateManager()">
                                     <i class="fa-solid fa-shapes"></i> TZ-Vorlagen
                                 </button>
-                                <button type="button" class="btn btn-soft-primary" onclick="openVehicleImport()">
+                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="openVehicleImport()">
                                     <i class="fa-solid fa-satellite-dish"></i> EMD-Import
-                                    <span class="badge text-bg-danger ml-1 hidden" id="importBadge">0</span>
+                                    <span class="ignis-chip ignis-chip--danger ml-1 hidden" id="importBadge">0</span>
                                 </button>
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
+                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
                                     <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
                                 </button>
                             <?php endif; ?>
@@ -191,32 +191,32 @@ use App\Helpers\Flash;
 
                             <div class="mb-3">
                                 <label for="fahrzeug-name" class="form-label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
-                                <input type="text" class="form-control" name="name" id="fahrzeug-name" required>
+                                <input type="text" class="ignis-input" name="name" id="fahrzeug-name" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="fahrzeug-kennzeichen" class="form-label">Kennzeichen</label>
-                                <input type="text" class="form-control" name="kennzeichen" id="fahrzeug-kennzeichen" required>
+                                <input type="text" class="ignis-input" name="kennzeichen" id="fahrzeug-kennzeichen" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
-                                <input type="text" class="form-control" name="identifier" id="fahrzeug-identifier" required>
+                                <input type="text" class="ignis-input" name="identifier" id="fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="fahrzeug-veh_typ" class="form-label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
-                                <input type="text" class="form-control" name="veh_type" id="fahrzeug-veh_typ" required>
+                                <input type="text" class="ignis-input" name="veh_type" id="fahrzeug-veh_typ" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="priority" id="fahrzeug-priority" required>
+                                <input type="number" class="ignis-input" name="priority" id="fahrzeug-priority" required>
                             </div>
 
                             <div class="form-group mb-3">
                                 <label for="fahrzeug-rd_type">Typ (Rettungsdienstlich)</label>
-                                <select class="form-control" name="rd_type" id="fahrzeug-rd_type">
+                                <select class="ignis-input" name="rd_type" id="fahrzeug-rd_type">
                                     <option value="0">Andere</option>
                                     <option value="1">Rettungsdienst mit NA</option>
                                     <option value="2">Rettungsdienst ohne NA</option>
@@ -231,7 +231,7 @@ use App\Helpers\Flash;
 
                             <div class="mb-3">
                                 <label for="fahrzeug-allowed_jobs" class="form-label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
-                                <input type="text" class="form-control" name="allowed_jobs" id="fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
+                                <input type="text" class="ignis-input" name="allowed_jobs" id="fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
                             </div>
 
                             <?php
@@ -242,11 +242,11 @@ use App\Helpers\Flash;
 
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="btn btn-ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -274,32 +274,32 @@ use App\Helpers\Flash;
 
                             <div class="mb-3">
                                 <label for="new-fahrzeug-name" class="form-label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
-                                <input type="text" class="form-control" name="name" id="new-fahrzeug-name" required>
+                                <input type="text" class="ignis-input" name="name" id="new-fahrzeug-name" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="new-fahrzeug-kennzeichen" class="form-label">Kennzeichen</label>
-                                <input type="text" class="form-control" name="kennzeichen" id="new-fahrzeug-kennzeichen" required>
+                                <input type="text" class="ignis-input" name="kennzeichen" id="new-fahrzeug-kennzeichen" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="new-fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
-                                <input type="text" class="form-control" name="identifier" id="new-fahrzeug-identifier" required>
+                                <input type="text" class="ignis-input" name="identifier" id="new-fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="new-fahrzeug-veh_typ" class="form-label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
-                                <input type="text" class="form-control" name="veh_type" id="new-fahrzeug-veh_typ" required>
+                                <input type="text" class="ignis-input" name="veh_type" id="new-fahrzeug-veh_typ" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="new-fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="priority" id="new-fahrzeug-priority" required>
+                                <input type="number" class="ignis-input" name="priority" id="new-fahrzeug-priority" required>
                             </div>
 
                             <div class="form-group mb-3">
                                 <label for="new-fahrzeug-rd_type">Typ (Rettungsdienstlich)</label>
-                                <select class="form-control" name="rd_type" id="new-fahrzeug-rd_type">
+                                <select class="ignis-input" name="rd_type" id="new-fahrzeug-rd_type">
                                     <option value="0">Andere</option>
                                     <option value="1">Rettungsdienst mit NA</option>
                                     <option value="2">Rettungsdienst ohne NA</option>
@@ -314,7 +314,7 @@ use App\Helpers\Flash;
 
                             <div class="mb-3">
                                 <label for="new-fahrzeug-allowed_jobs" class="form-label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
-                                <input type="text" class="form-control" name="allowed_jobs" id="new-fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
+                                <input type="text" class="ignis-input" name="allowed_jobs" id="new-fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
                             </div>
 
                             <?php
@@ -325,8 +325,8 @@ use App\Helpers\Flash;
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>
@@ -551,7 +551,7 @@ use App\Helpers\Flash;
                             t.grundzeichen, t.organisation, t.fachaufgabe, t.einheit, t.symbol
                         ].filter(Boolean);
                         const fieldSummary = fields.length > 0
-                            ? fields.map(f => `<span class="badge text-bg-dark" style="font-size:0.65rem;">${escHtml(f)}</span>`).join(' ')
+                            ? fields.map(f => `<span class="ignis-chip ignis-chip--dark" style="font-size:0.65rem;">${escHtml(f)}</span>`).join(' ')
                             : '<span class="text-muted">Keine Felder</span>';
 
                         html += `
@@ -564,10 +564,10 @@ use App\Helpers\Flash;
                                     <div class="flex flex-wrap gap-1">${fieldSummary}</div>
                                 </div>
                                 <div class="flex gap-1 flex-shrink-0">
-                                    <button class="btn btn-soft-primary btn-sm" onclick="applyTzTemplateToType(${t.id}, '${escAttr(t.name)}')" title="Auf alle Fahrzeuge eines Typs anwenden">
+                                    <button class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" onclick="applyTzTemplateToType(${t.id}, '${escAttr(t.name)}')" title="Auf alle Fahrzeuge eines Typs anwenden">
                                         <i class="fa-solid fa-layer-group mr-1"></i>Anwenden
                                     </button>
-                                    <button class="btn btn-ghost-danger btn-sm" onclick="deleteTzTemplate(${t.id})" title="Vorlage löschen">
+                                    <button class="ignis-btn ignis-btn--ghost-danger btn-sm" onclick="deleteTzTemplate(${t.id})" title="Vorlage löschen">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
@@ -579,7 +579,7 @@ use App\Helpers\Flash;
                     body.innerHTML = html;
                 })
                 .catch(err => {
-                    body.innerHTML = `<div class="alert alert-danger">${escHtml(err.message)}</div>`;
+                    body.innerHTML = `<div class="ignis-alert ignis-alert--danger">${escHtml(err.message)}</div>`;
                 });
         }
 
@@ -690,7 +690,7 @@ use App\Helpers\Flash;
                         showRequestState();
                     }
                 })
-                .catch(err => { body.innerHTML = `<div class="alert alert-danger">${escHtml(err.message)}</div>`; });
+                .catch(err => { body.innerHTML = `<div class="ignis-alert ignis-alert--danger">${escHtml(err.message)}</div>`; });
         };
 
         function showRequestState() {
@@ -704,7 +704,7 @@ use App\Helpers\Flash;
                         Beim nächsten EMD-Sync werden die Fahrzeugdaten der Leitstelle angefordert.<br>
                         Sobald die Daten eingetroffen sind, können Sie hier jedes Fahrzeug prüfen und importieren.
                     </p>
-                    <button class="btn btn-soft-primary btn-lg" onclick="requestVehicleImport()">
+                    <button class="ignis-btn ignis-btn--soft-primary btn-lg" onclick="requestVehicleImport()">
                         <i class="fa-solid fa-tower-broadcast mr-2"></i>Jetzt anfordern
                     </button>
                 </div>
@@ -725,7 +725,7 @@ use App\Helpers\Flash;
                         Die Anforderung wurde gesendet. Die Fahrzeugdaten werden beim nächsten Sync übermittelt.<br>
                         <small>Dies kann 5–10 Sekunden dauern. Die Ansicht aktualisiert sich automatisch.</small>
                     </p>
-                    <button class="btn btn-ghost btn-sm" onclick="openVehicleImport()">
+                    <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="openVehicleImport()">
                         <i class="fa-solid fa-rotate mr-1"></i>Erneut prüfen
                     </button>
                 </div>
@@ -761,9 +761,9 @@ use App\Helpers\Flash;
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) { showWaitingState(); showToast(data.message, 'success'); }
-                    else { body.innerHTML = `<div class="alert alert-danger">${escHtml(data.message)}</div>`; }
+                    else { body.innerHTML = `<div class="ignis-alert ignis-alert--danger">${escHtml(data.message)}</div>`; }
                 })
-                .catch(err => { body.innerHTML = `<div class="alert alert-danger">${escHtml(err.message)}</div>`; });
+                .catch(err => { body.innerHTML = `<div class="ignis-alert ignis-alert--danger">${escHtml(err.message)}</div>`; });
         };
 
         function loadImportQueue() {
@@ -775,7 +775,7 @@ use App\Helpers\Flash;
                     renderVehicleList(data.vehicles);
                 })
                 .catch(err => {
-                    document.getElementById('importModalBody').innerHTML = `<div class="alert alert-danger">${escHtml(err.message)}</div>`;
+                    document.getElementById('importModalBody').innerHTML = `<div class="ignis-alert ignis-alert--danger">${escHtml(err.message)}</div>`;
                 });
         }
 
@@ -787,7 +787,7 @@ use App\Helpers\Flash;
                 <span class="text-muted">${vehicles.length} Fahrzeuge empfangen</span>
                 <div class="flex items-center gap-2">
                     <span class="text-muted" id="importProgress"></span>
-                    <button class="btn btn-ghost btn-sm" onclick="ignoreAllRemaining()" title="Alle verbleibenden Fahrzeuge ignorieren">
+                    <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="ignoreAllRemaining()" title="Alle verbleibenden Fahrzeuge ignorieren">
                         <i class="fa-solid fa-forward-fast mr-1"></i>Alle ignorieren
                     </button>
                 </div>
@@ -848,13 +848,13 @@ use App\Helpers\Flash;
             if (hasExisting && e) {
                 actions = `
                     <div class="flex gap-1 flex-shrink-0">
-                        <button class="btn btn-ghost btn-sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
+                        <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
-                        <button class="btn btn-soft-warning btn-sm" data-import-action="merge" onclick="importAction(${v.id}, 'merge', ${e.id})" title="Zusammenführen (nur leere Felder füllen)">
+                        <button class="ignis-btn ignis-btn--soft-warning ignis-btn--sm" data-import-action="merge" onclick="importAction(${v.id}, 'merge', ${e.id})" title="Zusammenführen (nur leere Felder füllen)">
                             <i class="fa-solid fa-code-merge"></i>
                         </button>
-                        <button class="btn btn-soft-danger btn-sm" data-import-action="overwrite" onclick="importAction(${v.id}, 'overwrite', ${e.id})" title="Überschreiben">
+                        <button class="ignis-btn ignis-btn--soft-danger ignis-btn--sm" data-import-action="overwrite" onclick="importAction(${v.id}, 'overwrite', ${e.id})" title="Überschreiben">
                             <i class="fa-solid fa-rotate"></i>
                         </button>
                     </div>
@@ -862,10 +862,10 @@ use App\Helpers\Flash;
             } else {
                 actions = `
                     <div class="flex gap-1 flex-shrink-0">
-                        <button class="btn btn-ghost btn-sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
+                        <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
-                        <button class="btn btn-success btn-sm" data-import-action="import" onclick="importAction(${v.id}, 'import')" title="Importieren">
+                        <button class="ignis-btn ignis-btn--success ignis-btn--sm" data-import-action="import" onclick="importAction(${v.id}, 'import')" title="Importieren">
                             <i class="fa-solid fa-check"></i> Import
                         </button>
                     </div>
@@ -896,11 +896,11 @@ use App\Helpers\Flash;
                         <div class="row g-2" style="font-size:var(--fs-sm);">
                             <div class="col-4">
                                 <label class="form-label mb-0 text-muted">Typ</label>
-                                <input type="text" class="form-control form-control-sm" id="imp-veh_type-${v.id}" value="${escAttr(v.veh_type || '')}">
+                                <input type="text" class="ignis-input ignis-input--sm" id="imp-veh_type-${v.id}" value="${escAttr(v.veh_type || '')}">
                             </div>
                             <div class="col-4">
                                 <label class="form-label mb-0 text-muted">RD-Typ</label>
-                                <select class="form-select form-select-sm" id="imp-rd_type-${v.id}">
+                                <select class="form-select form-select-sm" data-custom-dropdown="true" id="imp-rd_type-${v.id}">
                                     <option value="0" ${v.rd_type==0?'selected':''}>Andere</option>
                                     <option value="1" ${v.rd_type==1?'selected':''}>RD - Mit NA</option>
                                     <option value="2" ${v.rd_type==2?'selected':''}>RD - Ohne NA</option>
@@ -909,7 +909,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="col-4">
                                 <label class="form-label mb-0 text-muted">Erlaubte Jobs</label>
-                                <input type="text" class="form-control form-control-sm" id="imp-allowed_jobs-${v.id}" value="${escAttr(v.job || '')}">
+                                <input type="text" class="ignis-input ignis-input--sm" id="imp-allowed_jobs-${v.id}" value="${escAttr(v.job || '')}">
                             </div>
                         </div>
                     </div>
@@ -1031,7 +1031,7 @@ use App\Helpers\Flash;
                         </div>
                         <h5>Import abgeschlossen</h5>
                         <p class="text-muted">Alle Fahrzeuge wurden verarbeitet.</p>
-                        <button class="btn btn-soft-primary" onclick="location.reload()">Seite neu laden</button>
+                        <button class="ignis-btn ignis-btn--soft-primary" onclick="location.reload()">Seite neu laden</button>
                     </div>
                 `;
                 const badge = document.getElementById('importBadge');

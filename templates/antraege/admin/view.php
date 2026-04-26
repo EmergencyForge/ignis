@@ -129,7 +129,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
 
                             <div class="mb-4">
                                 <label for="cirs_text" class="form-label font-bold">Bemerkung durch Bearbeiter</label>
-                                <textarea class="form-control" id="cirs_text" name="cirs_text" rows="5"
+                                <textarea class="ignis-input" id="cirs_text" name="cirs_text" rows="5"
                                     placeholder="Fügen Sie hier Ihre Bemerkungen zum Antrag hinzu..."><?= htmlspecialchars($antrag->cirs_text ?? '') ?></textarea>
                                 <small class="mt-1 block text-xs text-gray-400">Diese Bemerkung wird dem Antragsteller angezeigt</small>
                             </div>
@@ -178,10 +178,10 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                         <div class="intra__tile p-3">
                             <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Aktionen</h6>
                             <div class="flex flex-col gap-2">
-                                <button type="submit" name="save" class="btn btn-success">
+                                <button type="submit" name="save" class="ignis-btn ignis-btn--success">
                                     <i class="fa-solid fa-floppy-disk mr-2"></i>Änderungen speichern
                                 </button>
-                                <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="btn btn-ghost no-underline hover:no-underline">
+                                <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                                     <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Übersicht
                                 </a>
                             </div>

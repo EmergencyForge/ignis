@@ -65,15 +65,15 @@ use App\Helpers\Flash;
                             <i class="fa-solid fa-truck text-primary mr-2"></i>
                             Angemeldet
                         </h3>
-                        <div class="alert alert-success">
+                        <div class="ignis-alert ignis-alert--success">
                             <strong>Fahrzeug:</strong> <?= htmlspecialchars($_SESSION['einsatz_vehicle_name']) ?><br>
                             <strong>Besatzung:</strong> <?= htmlspecialchars($_SESSION['einsatz_operator_name']) ?>
                         </div>
                         <div class="flex flex-col gap-2">
-                            <a href="<?= BASE_PATH ?>einsatz/list.php" class="btn btn-primary btn-lg">
+                            <a href="<?= BASE_PATH ?>einsatz/list.php" class="ignis-btn ignis-btn--primary btn-lg">
                                 <i class="fa-solid fa-list mr-2"></i>Zur Einsatzliste
                             </a>
-                            <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug.php?logout=1" class="btn btn-outline-secondary">
+                            <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug.php?logout=1" class="ignis-btn ignis-btn--outline-secondary">
                                 <i class="fa-solid fa-sign-out-alt mr-2"></i>Abmelden
                             </a>
                         </div>
@@ -94,12 +94,12 @@ use App\Helpers\Flash;
                         <?php Flash::render(); ?>
 
                         <?php if (empty($vehicles)): ?>
-                            <div class="alert alert-warning">
+                            <div class="ignis-alert ignis-alert--warning">
                                 <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                                 Keine Einsatzfahrzeuge verfügbar.
                             </div>
                         <?php elseif (empty($personnel)): ?>
-                            <div class="alert alert-warning">
+                            <div class="ignis-alert ignis-alert--warning">
                                 <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                                 Keine Mitarbeiter hinterlegt.
                             </div>
@@ -146,7 +146,7 @@ use App\Helpers\Flash;
                                 </div>
 
                                 <div class="flex flex-col gap-2">
-                                    <button type="submit" class="btn btn-primary btn-lg">
+                                    <button type="submit" class="ignis-btn ignis-btn--primary btn-lg">
                                         <i class="fa-solid fa-sign-in-alt mr-2"></i>
                                         Anmelden
                                     </button>

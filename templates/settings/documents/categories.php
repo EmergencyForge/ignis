@@ -37,10 +37,10 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="page-header mb-4">
                 <h1>Dokumenten-Kategorien</h1>
                 <div class="header-actions">
-                    <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="btn btn-outline-secondary">
+                    <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="ignis-btn ignis-btn--outline-secondary">
                         <i class="fa-solid fa-file-lines"></i> Templates verwalten
                     </a>
-                    <button type="button" class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="resetForm()">
+                    <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="resetForm()">
                         <i class="fa-solid fa-plus"></i> Kategorie erstellen
                     </button>
                 </div>
@@ -81,19 +81,19 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </td>
                                     <td>
                                         <?php if ($kat['template_count'] > 0): ?>
-                                            <span class="badge text-bg-secondary"><?= (int)$kat['template_count'] ?></span>
+                                            <span class="ignis-chip"><?= (int)$kat['template_count'] ?></span>
                                         <?php else: ?>
                                             <span class="text-gray-400">0</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
                                         <div class="flex justify-end gap-1">
-                                            <button type="button" class="btn btn-sm btn-soft-primary btn-icon" data-tooltip="Bearbeiten"
+                                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Bearbeiten"
                                                 onclick="editCategory(<?= htmlspecialchars(json_encode($kat)) ?>)">
                                                 <i class="fa-solid fa-pen"></i>
                                             </button>
                                             <?php if ($kat['template_count'] == 0): ?>
-                                                <button type="button" class="btn btn-sm btn-outline-danger btn-icon" data-tooltip="Löschen"
+                                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" data-ignis-tooltip="Löschen"
                                                     onclick="deleteCategory(<?= (int)$kat['id'] ?>, '<?= htmlspecialchars($kat['name'], ENT_QUOTES) ?>')">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
@@ -127,7 +127,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <input type="hidden" id="catId">
                     <div class="mb-3">
                         <label for="catName" class="form-label">Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="catName" required placeholder="z.B. Bescheinigung">
+                        <input type="text" class="ignis-input" id="catName" required placeholder="z.B. Bescheinigung">
                     </div>
                     <div class="mb-3">
                         <label for="catColor" class="form-label">Badge-Farbe</label>
@@ -146,18 +146,18 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     <div class="mb-3">
                         <label for="catIcon" class="form-label">Icon <span class="text-gray-400 small">(optional)</span></label>
-                        <input type="text" class="form-control" id="catIcon" placeholder="z.B. fa-solid fa-scroll">
+                        <input type="text" class="ignis-input" id="catIcon" placeholder="z.B. fa-solid fa-scroll">
                         <div class="form-text">Font Awesome Klasse. Vorschau: <i id="iconPreview" class="ml-1"></i></div>
                     </div>
                     <div class="mb-3">
                         <label for="catSortOrder" class="form-label">Reihenfolge</label>
-                        <input type="number" class="form-control" id="catSortOrder" value="0" min="0">
+                        <input type="number" class="ignis-input" id="catSortOrder" value="0" min="0">
                         <div class="form-text">Niedrigere Zahlen werden zuerst angezeigt.</div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" onclick="saveCategory()">
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--primary" onclick="saveCategory()">
                         <i class="fa-solid fa-save"></i> Speichern
                     </button>
                 </div>

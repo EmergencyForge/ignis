@@ -19,7 +19,7 @@ if ($incident) {
     <h4 class="mb-4">Einsatz abschließen</h4>
 
     <?php if ($incident['finalized']): ?>
-        <div class="alert alert-success">
+        <div class="ignis-alert ignis-alert--success">
             <i class="fa-solid fa-check-circle me-2"></i>
             <strong>Dieser Einsatz wurde bereits abgeschlossen</strong>
         </div>
@@ -62,7 +62,7 @@ if ($incident) {
             </div>
         </div>
 
-        <div class="alert alert-info mt-4">
+        <div class="ignis-alert ignis-alert--info mt-4">
             <i class="fa-solid fa-info-circle me-2"></i>
             Das Protokoll ist zur QM-Sichtung markiert und kann nicht mehr bearbeitet werden.
         </div>
@@ -71,7 +71,7 @@ if ($incident) {
         <!-- Not finalized yet -->
 
         <?php if (!$canFinalize): ?>
-            <div class="alert alert-warning">
+            <div class="ignis-alert ignis-alert--warning">
                 <h5 class="alert-heading">
                     <i class="fa-solid fa-exclamation-triangle me-2"></i>
                     Abschluss nicht möglich
@@ -84,7 +84,7 @@ if ($incident) {
                 </ul>
             </div>
         <?php else: ?>
-            <div class="alert alert-info">
+            <div class="ignis-alert ignis-alert--info">
                 <i class="fa-solid fa-info-circle me-2"></i>
                 Sie können diesen Einsatz nun abschließen.
             </div>
@@ -103,7 +103,7 @@ if ($incident) {
         </div>
 
         <div class="mt-4 flex justify-center">
-            <button type="button" class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#finalizeConfirmModal" <?= $canFinalize ? '' : 'disabled' ?>>
+            <button type="button" class="ignis-btn ignis-btn--success btn-lg" data-bs-toggle="modal" data-bs-target="#finalizeConfirmModal" <?= $canFinalize ? '' : 'disabled' ?>>
                 <i class="fa-solid fa-check-circle me-2"></i>
                 Einsatz jetzt abschließen
             </button>

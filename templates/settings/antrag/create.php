@@ -41,7 +41,7 @@ use App\Helpers\Flash;
                                     Name des Antragstyps <span class="text-danger">*</span>
                                 </label>
                                 <input type="text"
-                                    class="form-control"
+                                    class="ignis-input"
                                     id="name"
                                     name="name"
                                     placeholder="z.B. Urlaubsantrag, Versetzungsantrag, ..."
@@ -54,7 +54,7 @@ use App\Helpers\Flash;
                                 <label for="beschreibung" class="form-label fw-bold">
                                     Beschreibung
                                 </label>
-                                <textarea class="form-control"
+                                <textarea class="ignis-input"
                                     id="beschreibung"
                                     name="beschreibung"
                                     rows="3"
@@ -70,7 +70,7 @@ use App\Helpers\Flash;
                                             <i id="icon-preview" class="<?= htmlspecialchars($old['icon'] ?? 'fa-solid fa-file-lines') ?> fs-4"></i>
                                         </span>
                                         <input type="text"
-                                            class="form-control"
+                                            class="ignis-input"
                                             id="icon"
                                             name="icon"
                                             placeholder="fa-solid fa-file-lines"
@@ -87,7 +87,7 @@ use App\Helpers\Flash;
                                 <div class="mb-4">
                                     <label for="sortierung" class="form-label fw-bold">Sortierung</label>
                                     <input type="number"
-                                        class="form-control"
+                                        class="ignis-input"
                                         id="sortierung"
                                         name="sortierung"
                                         value="<?= htmlspecialchars($old['sortierung'] ?? (string) $defaultSort) ?>"
@@ -113,16 +113,16 @@ use App\Helpers\Flash;
 
                             <hr class="text-light my-4">
 
-                            <div class="alert alert-info">
+                            <div class="ignis-alert ignis-alert--info">
                                 <i class="fa-solid fa-circle-info mr-2"></i>
                                 <strong>Hinweis:</strong> Nach dem Erstellen können Sie Formularfelder für diesen Antragstyp hinzufügen.
                             </div>
 
                             <div class="flex justify-between">
-                                <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-ghost">
+                                <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-xmark mr-2"></i>Abbrechen
                                 </a>
-                                <button type="submit" name="submit" class="btn btn-success">
+                                <button type="submit" name="submit" class="ignis-btn ignis-btn--success">
                                     <i class="fa-solid fa-floppy-disk mr-2"></i>Antragstyp erstellen
                                 </button>
                             </div>

@@ -35,10 +35,10 @@ use App\Helpers\Flash;
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
                                 <div class="flex gap-2">
-                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index.php" class="btn btn-outline-secondary no-underline hover:no-underline">
+                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index.php" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                                         <i class="fa-solid fa-folder"></i> Kategorien verwalten
                                     </a>
-                                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
+                                    <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
                                         <i class="fa-solid fa-plus"></i> Link erstellen
                                     </button>
                                 </div>
@@ -117,16 +117,16 @@ use App\Helpers\Flash;
                             <input type="hidden" name="id" id="quicklink-id">
                             <div class="mb-3">
                                 <label for="quicklink-title" class="form-label">Titel</label>
-                                <input type="text" class="form-control" name="title" id="quicklink-title" required>
+                                <input type="text" class="ignis-input" name="title" id="quicklink-title" required>
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-url" class="form-label">URL</label>
-                                <input type="text" class="form-control" name="url" id="quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
+                                <input type="text" class="ignis-input" name="url" id="quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
                                 <small class="form-text text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-icon" class="form-label">Icon (Font Awesome Klasse)</label>
-                                <input type="text" class="form-control" name="icon" id="quicklink-icon" placeholder="fa-solid fa-link" required>
+                                <input type="text" class="ignis-input" name="icon" id="quicklink-icon" placeholder="fa-solid fa-link" required>
                                 <small class="form-text text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
                             </div>
                             <div class="mb-3">
@@ -149,7 +149,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="mb-3">
                                 <label for="quicklink-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="sort_order" id="quicklink-sort-order" required>
+                                <input type="number" class="ignis-input" name="sort_order" id="quicklink-sort-order" required>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="active" id="quicklink-active">
@@ -157,10 +157,10 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="btn btn-ghost-danger" id="delete-quicklink-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-quicklink-btn">Löschen</button>
                             <div>
-                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -180,16 +180,16 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="create-quicklink-title" class="form-label">Titel</label>
-                                <input type="text" class="form-control" name="title" id="create-quicklink-title" required>
+                                <input type="text" class="ignis-input" name="title" id="create-quicklink-title" required>
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-url" class="form-label">URL</label>
-                                <input type="text" class="form-control" name="url" id="create-quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
+                                <input type="text" class="ignis-input" name="url" id="create-quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
                                 <small class="form-text text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-icon" class="form-label">Icon (Font Awesome Klasse)</label>
-                                <input type="text" class="form-control" name="icon" id="create-quicklink-icon" placeholder="fa-solid fa-link" value="fa-solid fa-link" required>
+                                <input type="text" class="ignis-input" name="icon" id="create-quicklink-icon" placeholder="fa-solid fa-link" value="fa-solid fa-link" required>
                                 <small class="form-text text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
                             </div>
                             <div class="mb-3">
@@ -212,7 +212,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="mb-3">
                                 <label for="create-quicklink-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="sort_order" id="create-quicklink-sort-order" value="0" required>
+                                <input type="number" class="ignis-input" name="sort_order" id="create-quicklink-sort-order" value="0" required>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="active" id="create-quicklink-active" checked>
@@ -220,8 +220,8 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

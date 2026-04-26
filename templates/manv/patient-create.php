@@ -33,7 +33,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
             <?php Flash::render(); ?>
 
             <?php if (!empty($error)): ?>
-                <div class="alert alert-danger">
+                <div class="ignis-alert ignis-alert--danger">
                     <i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($error) ?>
                 </div>
             <?php endif; ?>
@@ -47,19 +47,19 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label for="name" class="form-label">Name</label>
-                                <input type="text" class="form-control" id="name" name="name">
+                                <input type="text" class="ignis-input" id="name" name="name">
                             </div>
                             <div>
                                 <label for="vorname" class="form-label">Vorname</label>
-                                <input type="text" class="form-control" id="vorname" name="vorname">
+                                <input type="text" class="ignis-input" id="vorname" name="vorname">
                             </div>
                             <div>
                                 <label for="geburtsdatum" class="form-label">Geburtsdatum</label>
-                                <input type="date" class="form-control" id="geburtsdatum" name="geburtsdatum">
+                                <input type="date" class="ignis-input" id="geburtsdatum" name="geburtsdatum">
                             </div>
                             <div>
                                 <label for="geschlecht" class="form-label">Geschlecht</label>
-                                <select class="form-control" id="geschlecht" name="geschlecht">
+                                <select class="ignis-input" id="geschlecht" name="geschlecht">
                                     <option value="unbekannt">Unbekannt</option>
                                     <option value="m">Männlich</option>
                                     <option value="w">Weiblich</option>
@@ -87,7 +87,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                                 <option value="SK6" style="color: #9b59b6;">SK6 - Lila (Beteiligter ohne Verletzung)</option>
                             </select>
                         </div>
-                        <div class="alert alert-info">
+                        <div class="ignis-alert ignis-alert--info">
                             <small>
                                 <strong>SK1 (Rot):</strong> Akute Lebensgefahr - Sofortbehandlung und sofortiger Transport nach Stabilisierung, wenn keine Transportkapazität vorhanden dann → SK4<br>
                                 <strong>SK2 (Gelb):</strong> Nicht auszuschließende schwere Folgeschäden oder akutes, nicht lebensbedrohliches Problem - Behandlung und Transport nach individueller Dringlichkeit<br>
@@ -107,7 +107,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     <div class="card-body space-y-4">
                         <div>
                             <label for="transportmittel_id" class="form-label">Zugewiesenes Fahrzeug</label>
-                            <select class="form-control" id="transportmittel_id" name="transportmittel_id">
+                            <select class="ignis-input" id="transportmittel_id" name="transportmittel_id">
                                 <option value="">Noch nicht zugewiesen</option>
                                 <?php foreach ($fahrzeuge as $fzg): ?>
                                     <option value="<?= (int) $fzg['id'] ?>"
@@ -122,20 +122,20 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
                                 <label for="display_fahrzeugtyp" class="form-label">Art</label>
-                                <input type="text" class="form-control" id="display_fahrzeugtyp" readonly>
+                                <input type="text" class="ignis-input" id="display_fahrzeugtyp" readonly>
                             </div>
                             <div>
                                 <label for="display_rufname" class="form-label">Rufname / Kennung</label>
-                                <input type="text" class="form-control" id="display_rufname" readonly>
+                                <input type="text" class="ignis-input" id="display_rufname" readonly>
                             </div>
                             <div>
                                 <label for="display_lokalisation" class="form-label">Fahrzeug-Lokalisation</label>
-                                <input type="text" class="form-control" id="display_lokalisation" readonly>
+                                <input type="text" class="ignis-input" id="display_lokalisation" readonly>
                             </div>
                         </div>
                         <div>
                             <label for="transportziel" class="form-label">Transportziel</label>
-                            <select class="form-control" id="transportziel" name="transportziel">
+                            <select class="ignis-input" id="transportziel" name="transportziel">
                                 <option value="">Bitte wählen...</option>
                                 <option value="Kein Transport">Kein Transport</option>
                                 <?php foreach ($krankenhaeuser as $kh): ?>
@@ -155,20 +155,20 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     <div class="card-body space-y-4">
                         <div>
                             <label for="verletzungen" class="form-label">Verletzungen / Diagnose</label>
-                            <textarea class="form-control" id="verletzungen" name="verletzungen" rows="3" placeholder="Beschreibung der Verletzungen..."></textarea>
+                            <textarea class="ignis-input" id="verletzungen" name="verletzungen" rows="3" placeholder="Beschreibung der Verletzungen..."></textarea>
                         </div>
                         <div>
                             <label for="notizen" class="form-label">Notizen</label>
-                            <textarea class="form-control" id="notizen" name="notizen" rows="2" placeholder="Zusätzliche Notizen..."></textarea>
+                            <textarea class="ignis-input" id="notizen" name="notizen" rows="2" placeholder="Zusätzliche Notizen..."></textarea>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="btn btn-soft-primary btn-lg">
+                    <button type="submit" class="ignis-btn ignis-btn--soft-primary btn-lg">
                         <i class="fas fa-save mr-2"></i>Patient anlegen
                     </button>
                 </div>

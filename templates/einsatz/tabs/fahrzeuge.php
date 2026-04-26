@@ -8,7 +8,7 @@
     <h4>Eingesetzte Mittel</h4>
 
     <?php if (empty($attachedVehicles)): ?>
-        <div class="alert alert-secondary">
+        <div class="ignis-alert">
             <i class="fa-solid fa-info-circle me-2"></i>
             Noch keine Fahrzeuge hinzugefügt
         </div>
@@ -73,7 +73,7 @@
                                         <input type="hidden" name="incident_id" value="<?= $id ?>">
                                         <input type="hidden" name="return_tab" value="fahrzeuge">
                                         <input type="hidden" name="vehicle_row_id" value="<?= (int)$av['id'] ?>">
-                                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich entfernen?', {danger: true, confirmText: 'Entfernen', title: 'Fahrzeug entfernen'}).then(result => { if(result) this.closest('form').submit(); });">
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich entfernen?', {danger: true, confirmText: 'Entfernen', title: 'Fahrzeug entfernen'}).then(result => { if(result) this.closest('form').submit(); });">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
@@ -112,25 +112,25 @@
                 </div>
                 <div>
                     <label class="form-label">Freitext Funkrufname</label>
-                    <input type="text" name="radio_name" class="form-control" placeholder="z.B. Florian Musterhausen 1/44/1">
+                    <input type="text" name="radio_name" class="ignis-input" placeholder="z.B. Florian Musterhausen 1/44/1">
                 </div>
                 <div>
                     <label class="form-label">Freitext Art</label>
-                    <input type="text" name="vehicle_name" class="form-control" placeholder="z.B. HLF, TLF, DLK">
+                    <input type="text" name="vehicle_name" class="ignis-input" placeholder="z.B. HLF, TLF, DLK">
                 </div>
                 <div>
                     <label class="form-label">Freitext Identifier</label>
-                    <input type="text" name="vehicle_identifier" class="form-control" placeholder="Kennzeichen oder ID">
+                    <input type="text" name="vehicle_identifier" class="ignis-input" placeholder="Kennzeichen oder ID">
                 </div>
                 <div class="flex justify-end md:col-span-2">
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="ignis-btn ignis-btn--primary">
                         <i class="fa-solid fa-plus me-1"></i>Fahrzeug hinzufügen
                     </button>
                 </div>
             </div>
         </form>
     <?php else: ?>
-        <div class="alert alert-info mt-3 mb-0">
+        <div class="ignis-alert ignis-alert--info mt-3 mb-0">
             <i class="fa-solid fa-lock me-2"></i>
             <?php if ($incident['finalized']): ?>
                 Einsatz ist abgeschlossen - keine Änderungen möglich.

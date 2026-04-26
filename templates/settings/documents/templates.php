@@ -176,15 +176,15 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="flex justify-between items-center mb-4">
                 <h1 class="mb-0">Dokumenten-Templates</h1>
                 <div class="flex gap-2">
-                    <button class="btn btn-outline-info btn-sm" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
+                    <button class="ignis-btn ignis-btn--outline-info ignis-btn--sm" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
                         <i class="fa-solid fa-arrows-rotate mr-1"></i> Aus Vorlagen neu generieren
                     </button>
                     <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>
-                        <button class="btn btn-outline-warning btn-sm" id="btn-regenerate-all" title="Alle Twig-Dateien neu generieren (Dev)">
+                        <button class="ignis-btn ignis-btn--outline-warning ignis-btn--sm" id="btn-regenerate-all" title="Alle Twig-Dateien neu generieren (Dev)">
                             <i class="fa-solid fa-flask mr-1"></i> Twig regenerieren
                         </button>
                     <?php endif; ?>
-                    <button class="btn btn-soft-primary btn-sm" id="btn-new-template">
+                    <button class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="btn-new-template">
                         <i class="fa-solid fa-plus mr-1"></i> Neues Template
                     </button>
                 </div>
@@ -218,7 +218,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="md:col-span-6">
                                 <div class="mb-3">
                                     <label for="templateName" class="form-label">Template-Name <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="templateName" name="name" required>
+                                    <input type="text" class="ignis-input" id="templateName" name="name" required>
                                 </div>
                             </div>
                             <div class="md:col-span-3">
@@ -238,7 +238,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                             <div class="md:col-span-3">
                                 <div class="mb-3">
                                     <label for="templateFile" class="form-label">Dateiname</label>
-                                    <input type="text" class="form-control" id="templateFile" name="template_file"
+                                    <input type="text" class="ignis-input" id="templateFile" name="template_file"
                                         pattern="[a-z_]+\.html\.twig"
                                         placeholder="auto">
                                     <small class="text-muted">Automatisch wenn leer</small>
@@ -248,14 +248,14 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="mb-3">
                             <label for="templateDescription" class="form-label">Beschreibung</label>
-                            <textarea class="form-control" id="templateDescription" name="description" rows="1"></textarea>
+                            <textarea class="ignis-input" id="templateDescription" name="description" rows="1"></textarea>
                         </div>
 
                         <hr class="my-3">
 
                         <div class="flex justify-between items-center mb-3">
                             <h6 class="mb-0">Formularfelder</h6>
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="addFieldBtn">
+                            <button type="button" class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="addFieldBtn">
                                 <i class="fa-solid fa-plus mr-1"></i> Feld hinzufügen
                             </button>
                         </div>
@@ -264,9 +264,9 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" id="previewBtn">Vorschau</button>
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-soft-primary" id="saveTemplateBtn">
+                    <button type="button" class="ignis-btn ignis-btn--outline-secondary" id="previewBtn">Vorschau</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--soft-primary" id="saveTemplateBtn">
                         <i class="fa-solid fa-floppy-disk mr-1"></i> Template speichern
                     </button>
                 </div>
@@ -303,12 +303,12 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="mb-3">
                             <label for="fieldLabel" class="form-label">Feld-Label <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="fieldLabel" required>
+                            <input type="text" class="ignis-input" id="fieldLabel" required>
                         </div>
 
                         <div class="mb-3">
                             <label for="fieldName" class="form-label">Feld-Name (technisch) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="fieldName" required
+                            <input type="text" class="ignis-input" id="fieldName" required
                                 pattern="[a-z_]+" title="Nur Kleinbuchstaben und Unterstriche">
                             <small class="text-muted">Nur Kleinbuchstaben und Unterstriche erlaubt</small>
                         </div>
@@ -342,12 +342,12 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                         <div id="optionsContainer" class="mb-3" style="display: none;">
                             <label class="form-label">Auswahloptionen</label>
                             <div id="optionsList"></div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="addOptionBtn">
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2" id="addOptionBtn">
                                 + Option hinzufügen
                             </button>
                         </div>
 
-                        <div class="alert alert-info" id="dbFieldInfo" style="display: none;">
+                        <div class="ignis-alert ignis-alert--info" id="dbFieldInfo" style="display: none;">
                             <strong>Hinweis:</strong> Dieses Feld wird automatisch mit Daten aus der Datenbank befüllt.
                             Die geschlechtsspezifischen Varianten werden automatisch berücksichtigt.
                         </div>
@@ -361,8 +361,8 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-soft-primary" id="saveFieldBtn">Feld speichern</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--soft-primary" id="saveFieldBtn">Feld speichern</button>
                 </div>
             </div>
         </div>
@@ -461,25 +461,25 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             optionDiv.innerHTML = `
                 <div class="flex justify-between items-center mb-2">
                     <strong>Option</strong>
-                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.option-item').remove()">Löschen</button>
+                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger" onclick="this.closest('.option-item').remove()">Löschen</button>
                 </div>
                 <div class="mb-2">
                     <label class="form-label small">Wert (z.B. 0, 1, 2)</label>
-                    <input type="text" class="form-control form-control-sm" value="${value}" data-option-value required>
+                    <input type="text" class="ignis-input ignis-input--sm" value="${value}" data-option-value required>
                 </div>
                 <div class="mb-2">
                     <label class="form-label small">Label ${isGenderSpecific ? '(Neutral/Allgemein)' : ''}</label>
-                    <input type="text" class="form-control form-control-sm" placeholder="z.B. Brandmeister${isGenderSpecific ? '/-in' : ''}" value="${label}" data-option-label required>
+                    <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeister${isGenderSpecific ? '/-in' : ''}" value="${label}" data-option-label required>
                 </div>
                 <div class="gender-inputs" style="display: ${isGenderSpecific ? 'block' : 'none'}">
                     <div class="row">
                         <div class="col-6 mb-2">
                             <label class="form-label small">Label Männlich <span class="gender-badge badge bg-primary">♂</span></label>
-                            <input type="text" class="form-control form-control-sm" placeholder="z.B. Brandmeister" value="${label_m}" data-option-label-m>
+                            <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeister" value="${label_m}" data-option-label-m>
                         </div>
                         <div class="col-6 mb-2">
                             <label class="form-label small">Label Weiblich <span class="gender-badge badge bg-danger">♀</span></label>
-                            <input type="text" class="form-control form-control-sm" placeholder="z.B. Brandmeisterin" value="${label_w}" data-option-label-w>
+                            <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeisterin" value="${label_w}" data-option-label-w>
                         </div>
                     </div>
                     <small class="text-muted">Wenn leer, wird das allgemeine Label verwendet</small>
@@ -590,9 +590,9 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                 const icon = typeIcons[field.field_type] || 'fa-solid fa-i-cursor';
 
                 let badges = '';
-                if (field.is_required) badges += '<span class="badge bg-danger">Pflicht</span>';
-                if (field.gender_specific) badges += '<span class="badge bg-info">m/w</span>';
-                if (field.field_type === 'db_dg' || field.field_type === 'db_rdq') badges += '<span class="badge bg-success">DB</span>';
+                if (field.is_required) badges += '<span class="ignis-chip ignis-chip--danger">Pflicht</span>';
+                if (field.gender_specific) badges += '<span class="ignis-chip ignis-chip--info">m/w</span>';
+                if (field.field_type === 'db_dg' || field.field_type === 'db_rdq') badges += '<span class="ignis-chip ignis-chip--success">DB</span>';
 
                 // Kompakte Zeile
                 const row = document.createElement('div');
@@ -604,8 +604,8 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     <span class="field-meta">${field.field_name}</span>
                     <span class="field-badges">${badges}</span>
                     <span class="field-actions">
-                        <button type="button" class="btn btn-sm btn-ghost btn-toggle-edit" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Bearbeiten"><i class="fa-solid fa-pen"></i></button>
-                        <button type="button" class="btn btn-sm btn-ghost text-danger btn-remove-field" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Löschen"><i class="fa-solid fa-xmark"></i></button>
+                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost btn-toggle-edit" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Bearbeiten"><i class="fa-solid fa-pen"></i></button>
+                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-danger btn-remove-field" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Löschen"><i class="fa-solid fa-xmark"></i></button>
                     </span>
                 `;
                 wrapper.appendChild(row);
@@ -679,15 +679,15 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="row g-2 mb-2">
                     <div class="col-5">
                         <label class="form-label" style="font-size:0.72rem;">Label</label>
-                        <input type="text" class="form-control form-control-sm" data-edit="label" value="${field.field_label}">
+                        <input type="text" class="ignis-input ignis-input--sm" data-edit="label" value="${field.field_label}">
                     </div>
                     <div class="col-4">
                         <label class="form-label" style="font-size:0.72rem;">Name (technisch)</label>
-                        <input type="text" class="form-control form-control-sm" data-edit="name" value="${field.field_name}" pattern="[a-z_]+">
+                        <input type="text" class="ignis-input ignis-input--sm" data-edit="name" value="${field.field_name}" pattern="[a-z_]+">
                     </div>
                     <div class="col-3">
                         <label class="form-label" style="font-size:0.72rem;">Typ</label>
-                        <select class="form-select form-select-sm" data-edit="type">
+                        <select class="form-select form-select-sm" data-custom-dropdown="true" data-edit="type">
                             <option value="text"${field.field_type === 'text' ? ' selected' : ''}>Text</option>
                             <option value="textarea"${field.field_type === 'textarea' ? ' selected' : ''}>Mehrzeilig</option>
                             <option value="richtext"${field.field_type === 'richtext' ? ' selected' : ''}>Rich-Text</option>
@@ -708,15 +708,15 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                         <input class="form-check-input" type="checkbox" data-edit="gender"${field.gender_specific ? ' checked' : ''}>
                         <span class="form-check-label">Geschlechtsspezifisch</span>
                     </label>
-                    ${isDb ? '<span class="badge bg-info" style="font-size:0.65rem;">Daten aus DB — automatisch geschlechtsspezifisch</span>' : ''}
+                    ${isDb ? '<span class="ignis-chip ignis-chip--info" style="font-size:0.65rem;">Daten aus DB — automatisch geschlechtsspezifisch</span>' : ''}
                 </div>
                 <div data-edit="options-area" style="${showOptions ? '' : 'display:none;'}">
                     <div data-edit="options-list"></div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary mt-1" data-edit="add-option" style="font-size:0.72rem;">+ Option</button>
+                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-1" data-edit="add-option" style="font-size:0.72rem;">+ Option</button>
                 </div>
                 <div class="flex gap-2 mt-2 pt-2" style="border-top:1px solid rgba(255,255,255,0.06);">
-                    <button type="button" class="btn btn-sm btn-soft-primary" data-edit="save"><i class="fa-solid fa-check mr-1"></i>Übernehmen</button>
-                    <button type="button" class="btn btn-sm btn-ghost" data-edit="cancel">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" data-edit="save"><i class="fa-solid fa-check mr-1"></i>Übernehmen</button>
+                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" data-edit="cancel">Abbrechen</button>
                 </div>
             `;
         }
@@ -788,9 +788,9 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             const row = document.createElement('div');
             row.className = 'inline-option flex gap-2 mb-1';
             row.innerHTML = `
-                <input type="text" class="form-control form-control-sm" data-opt="value" value="${value}" placeholder="Wert" style="width:80px;flex:0 0 80px;">
-                <input type="text" class="form-control form-control-sm" data-opt="label" value="${label}" placeholder="Label">
-                <button type="button" class="btn btn-sm btn-ghost text-danger" style="padding:0.1rem 0.3rem;" onclick="this.closest('.inline-option').remove()"><i class="fa-solid fa-xmark"></i></button>
+                <input type="text" class="ignis-input ignis-input--sm" data-opt="value" value="${value}" placeholder="Wert" style="width:80px;flex:0 0 80px;">
+                <input type="text" class="ignis-input ignis-input--sm" data-opt="label" value="${label}" placeholder="Label">
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-danger" style="padding:0.1rem 0.3rem;" onclick="this.closest('.inline-option').remove()"><i class="fa-solid fa-xmark"></i></button>
             `;
             container.appendChild(row);
         }
@@ -926,22 +926,22 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                     <div>
                                         <h6 class="mb-1" style="font-size:0.88rem;">${template.name}</h6>
                                         <span class="badge ${template.category_color || 'text-bg-secondary'}" style="font-size:0.65rem;">${category}</span>
-                                        ${isVisual ? '<span class="badge bg-info ml-1" style="font-size:0.6rem;">Visual</span>' : ''}
+                                        ${isVisual ? '<span class="ignis-chip ignis-chip--info ml-1" style="font-size:0.6rem;">Visual</span>' : ''}
                                     </div>
                                 </div>
                                 ${template.description ? '<p class="text-muted mb-0" style="font-size:0.75rem;line-height:1.3;">' + template.description + '</p>' : ''}
                             </div>
                             <div class="border-t p-2 flex gap-1 justify-end" style="background:transparent;">
-                                <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
+                                <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
                                     <i class="fa-solid fa-paintbrush"></i>
                                 </a>
-                                <button class="btn btn-sm btn-outline-secondary btn-edit-template" data-id="${template.id}" title="Felder bearbeiten">
+                                <button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary btn-edit-template" data-id="${template.id}" title="Felder bearbeiten">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="duplicateTemplate(${template.id}, event)" title="Duplizieren">
+                                <button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" onclick="duplicateTemplate(${template.id}, event)" title="Duplizieren">
                                     <i class="fa-solid fa-copy"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteTemplate(${template.id}, event)" title="Löschen">
+                                <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger" onclick="deleteTemplate(${template.id}, event)" title="Löschen">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
@@ -1072,27 +1072,27 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
         function renderFieldPreview(field) {
             const required = field.is_required ? '<span class="text-danger">*</span>' : '';
-            const genderBadge = field.gender_specific ? ' <span class="badge bg-info">Geschlechtsspezifisch</span>' : '';
+            const genderBadge = field.gender_specific ? ' <span class="ignis-chip ignis-chip--info">Geschlechtsspezifisch</span>' : '';
 
             let html = `<div class="mb-3">
                 <label class="form-label">${field.field_label} ${required}${genderBadge}</label>`;
 
             switch (field.field_type) {
                 case 'text':
-                    html += `<input type="text" class="form-control" ${field.is_required ? 'required' : ''}>`;
+                    html += `<input type="text" class="ignis-input" ${field.is_required ? 'required' : ''}>`;
                     break;
                 case 'textarea':
-                    html += `<textarea class="form-control" rows="3" ${field.is_required ? 'required' : ''}></textarea>`;
+                    html += `<textarea class="ignis-input" rows="3" ${field.is_required ? 'required' : ''}></textarea>`;
                     break;
                 case 'richtext':
-                    html += `<textarea class="form-control" rows="5" ${field.is_required ? 'required' : ''}></textarea>
+                    html += `<textarea class="ignis-input" rows="5" ${field.is_required ? 'required' : ''}></textarea>
                              <small class="text-muted">Rich-Text Editor würde hier angezeigt</small>`;
                     break;
                 case 'date':
-                    html += `<input type="date" class="form-control" ${field.is_required ? 'required' : ''}>`;
+                    html += `<input type="date" class="ignis-input" ${field.is_required ? 'required' : ''}>`;
                     break;
                 case 'number':
-                    html += `<input type="number" class="form-control" ${field.is_required ? 'required' : ''}>`;
+                    html += `<input type="number" class="ignis-input" ${field.is_required ? 'required' : ''}>`;
                     break;
                 case 'select':
                 case 'db_dg':
@@ -1637,12 +1637,12 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                 <div class="modal-body">
                                     <p class="mb-3">Wie sollen die visuellen Editor-Layouts aus den Twig-Vorlagen generiert werden?</p>
                                     <div class="d-grid gap-2">
-                                        <button class="btn btn-outline-primary text-start px-3 py-2" data-choice="missing">
+                                        <button class="ignis-btn ignis-btn--outline-primary text-start px-3 py-2" data-choice="missing">
                                             <i class="fa-solid fa-plus-circle mr-2"></i>
                                             <strong>Nur fehlende generieren</strong>
                                             <br><small style="opacity:0.7;">Nur Templates ohne visuelles Layout werden neu erstellt. Bestehende Layouts bleiben unverändert.</small>
                                         </button>
-                                        <button class="btn btn-outline-danger text-start px-3 py-2" data-choice="all">
+                                        <button class="ignis-btn ignis-btn--outline-danger text-start px-3 py-2" data-choice="all">
                                             <i class="fa-solid fa-triangle-exclamation mr-2"></i>
                                             <strong>Alle überschreiben</strong>
                                             <br><small style="opacity:0.7;">Alle Layouts werden aus den Twig-Vorlagen komplett neu generiert. Manuelle Änderungen im Editor gehen verloren!</small>
@@ -1650,7 +1650,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
                                 </div>
                             </div>
                         </div>

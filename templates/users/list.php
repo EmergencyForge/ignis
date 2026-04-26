@@ -26,10 +26,9 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">Benutzer</span>
+                    <nav class="ignis-breadcrumb">
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
+                        <span class="ignis-breadcrumb__item is-active">Benutzer</span>
                     </nav>
                     <div class="page-header mb-4">
                         <h1>Benutzerübersicht</h1>
@@ -97,8 +96,8 @@ use App\Helpers\Flash;
                                             <td>
                                                 <div class="col-actions">
                                                     <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $user->id ?>"
-                                                       class="btn btn-sm btn-soft-primary btn-icon"
-                                                       data-tooltip="Bearbeiten">
+                                                       class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
+                                                       data-ignis-tooltip="Bearbeiten">
                                                         <i class="fa-solid fa-pen-to-square"></i>
                                                     </a>
                                                 </div>

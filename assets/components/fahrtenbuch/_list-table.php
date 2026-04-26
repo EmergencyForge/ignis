@@ -70,7 +70,7 @@ $fahrttypBadges = [
                         <?php if ($canEdit || $canDelete): ?>
                             <td class="text-end text-nowrap">
                                 <?php if ($canEdit): ?>
-                                    <button type="button" class="btn btn-sm btn-ghost fb-edit-btn"
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost fb-edit-btn"
                                             data-id="<?= $e['id'] ?>"
                                             data-datum="<?= htmlspecialchars($e['datum']) ?>"
                                             data-abfahrt="<?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?>"
@@ -92,7 +92,7 @@ $fahrttypBadges = [
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?= $e['id'] ?>">
                                         <input type="hidden" name="return_to" value="<?= htmlspecialchars($context) ?>">
-                                        <button type="submit" class="btn btn-sm btn-ghost text-danger" title="Löschen">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-danger" title="Löschen">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>

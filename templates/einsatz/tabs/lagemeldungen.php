@@ -8,7 +8,7 @@
     <h4>Lagemeldungen</h4>
 
     <?php if (empty($sitreps)): ?>
-        <div class="alert alert-secondary">
+        <div class="ignis-alert">
             <i class="fa-solid fa-info-circle me-2"></i>
             Noch keine Lagemeldungen vorhanden
         </div>
@@ -25,7 +25,7 @@
                                     <span class="badge <?= $badgeClass ?> ms-2"><?= htmlspecialchars($sr['vehicle_radio_name']) ?></span>
                                 <?php endif; ?>
                                 <?php if ($sr['sys_name']): ?>
-                                    <span class="badge bg-info ms-2"><?= htmlspecialchars($sr['sys_name']) ?></span>
+                                    <span class="ignis-chip ignis-chip--info ms-2"><?= htmlspecialchars($sr['sys_name']) ?></span>
                                 <?php endif; ?>
                             </div>
                             <div class="break-words"><?= nl2br(htmlspecialchars($sr['text'])) ?></div>
@@ -47,11 +47,11 @@
             <div class="grid grid-cols-1 gap-3 md:grid-cols-12">
                 <div class="md:col-span-3">
                     <label class="form-label">Datum *</label>
-                    <input type="date" name="rt_date" class="form-control" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') ?>" required>
+                    <input type="date" name="rt_date" class="ignis-input" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') ?>" required>
                 </div>
                 <div class="md:col-span-3">
                     <label class="form-label">Uhrzeit *</label>
-                    <input type="time" name="rt_time" class="form-control" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('H:i') ?>" required>
+                    <input type="time" name="rt_time" class="ignis-input" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('H:i') ?>" required>
                 </div>
                 <div class="md:col-span-6">
                     <label class="form-label">Gemeldet durch (Fahrzeug) *</label>
@@ -74,17 +74,17 @@
                 </div>
                 <div class="md:col-span-12">
                     <label class="form-label">Meldungstext *</label>
-                    <textarea name="text" class="form-control" rows="4" required placeholder="Text der Lagemeldung..."></textarea>
+                    <textarea name="text" class="ignis-input" rows="4" required placeholder="Text der Lagemeldung..."></textarea>
                 </div>
                 <div class="flex justify-end md:col-span-12">
-                    <button type="submit" class="btn btn-primary" <?= empty($attachedVehicles) ? 'disabled' : '' ?>>
+                    <button type="submit" class="ignis-btn ignis-btn--primary" <?= empty($attachedVehicles) ? 'disabled' : '' ?>>
                         <i class="fa-solid fa-plus me-1"></i>Lagemeldung speichern
                     </button>
                 </div>
             </div>
         </form>
     <?php else: ?>
-        <div class="alert alert-info mb-0 mt-3">
+        <div class="ignis-alert ignis-alert--info mb-0 mt-3">
             <i class="fa-solid fa-lock me-2"></i>
             <?php if ($incident['finalized']): ?>
                 Einsatz ist abgeschlossen - keine Änderungen möglich.

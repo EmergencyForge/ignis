@@ -30,7 +30,7 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
             <?php Flash::render(); ?>
 
             <?php if (!empty($error)): ?>
-                <div class="alert alert-danger">
+                <div class="ignis-alert ignis-alert--danger">
                     <i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($error) ?>
                 </div>
             <?php endif; ?>
@@ -44,24 +44,24 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label for="einsatznummer" class="form-label">Einsatznummer *</label>
-                                <input type="text" class="form-control" id="einsatznummer" name="einsatznummer" required>
+                                <input type="text" class="ignis-input" id="einsatznummer" name="einsatznummer" required>
                                 <small class="mt-1 block text-xs text-gray-400">z.B. 2025-12345</small>
                             </div>
                             <div>
                                 <label for="einsatzbeginn" class="form-label">Einsatzbeginn</label>
-                                <input type="datetime-local" class="form-control" id="einsatzbeginn" name="einsatzbeginn" value="<?= date('Y-m-d\TH:i') ?>">
+                                <input type="datetime-local" class="ignis-input" id="einsatzbeginn" name="einsatzbeginn" value="<?= date('Y-m-d\TH:i') ?>">
                             </div>
                         </div>
 
                         <div class="mt-4">
                             <label for="einsatzort" class="form-label">Einsatzort *</label>
-                            <input type="text" class="form-control" id="einsatzort" name="einsatzort" required>
+                            <input type="text" class="ignis-input" id="einsatzort" name="einsatzort" required>
                             <small class="mt-1 block text-xs text-gray-400">z.B. Hauptstraße 123, Musterstadt</small>
                         </div>
 
                         <div class="mt-4">
                             <label for="einsatzanlass" class="form-label">Einsatzanlass / Szenario</label>
-                            <textarea class="form-control" id="einsatzanlass" name="einsatzanlass" rows="3"></textarea>
+                            <textarea class="ignis-input" id="einsatzanlass" name="einsatzanlass" rows="3"></textarea>
                         </div>
                     </div>
                 </div>
@@ -74,7 +74,7 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label for="lna_mitarbeiter_id" class="form-label">Leitender Notarzt (LNA)</label>
-                                <select class="form-control" id="lna_mitarbeiter_id" name="lna_mitarbeiter_id">
+                                <select class="ignis-input" id="lna_mitarbeiter_id" name="lna_mitarbeiter_id">
                                     <option value="">Bitte wählen...</option>
                                     <?php foreach ($users as $user): ?>
                                         <option value="<?= (int) $user['id'] ?>" data-name="<?= htmlspecialchars($user['fullname']) ?>">
@@ -86,7 +86,7 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
                             </div>
                             <div>
                                 <label for="orgl_mitarbeiter_id" class="form-label">Organisatorischer Leiter (OrgL)</label>
-                                <select class="form-control" id="orgl_mitarbeiter_id" name="orgl_mitarbeiter_id">
+                                <select class="ignis-input" id="orgl_mitarbeiter_id" name="orgl_mitarbeiter_id">
                                     <option value="">Bitte wählen...</option>
                                     <?php foreach ($users as $user): ?>
                                         <option value="<?= (int) $user['id'] ?>" data-name="<?= htmlspecialchars($user['fullname']) ?>">
@@ -107,16 +107,16 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
                     <div class="card-body">
                         <div>
                             <label for="notizen" class="form-label">Allgemeine Notizen</label>
-                            <textarea class="form-control" id="notizen" name="notizen" rows="4"></textarea>
+                            <textarea class="ignis-input" id="notizen" name="notizen" rows="4"></textarea>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="<?= BASE_PATH ?>manv/index.php" class="btn btn-ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/index.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück
                     </a>
-                    <button type="submit" class="btn btn-soft-primary btn-lg">
+                    <button type="submit" class="ignis-btn ignis-btn--soft-primary btn-lg">
                         <i class="fas fa-save mr-2"></i>MANV-Lage anlegen
                     </button>
                 </div>

@@ -221,7 +221,7 @@ function logs_level_badge(string $level): string
                     <div class="page-header mb-4">
                         <h1>Fehlerprotokoll</h1>
                         <div class="header-actions">
-                            <button type="button" class="btn btn-ghost" id="refreshBtn">
+                            <button type="button" class="ignis-btn ignis-btn--ghost" id="refreshBtn">
                                 <i class="fa-solid fa-rotate mr-1"></i>Aktualisieren
                             </button>
                         </div>
@@ -247,7 +247,7 @@ function logs_level_badge(string $level): string
                                            autocomplete="off"
                                            pattern="[A-Fa-f0-9]{8}"
                                            autofocus>
-                                    <button type="button" class="btn btn-soft-primary" id="errorIdLookupBtn">
+                                    <button type="button" class="ignis-btn ignis-btn--soft-primary" id="errorIdLookupBtn">
                                         <i class="fa-solid fa-magnifying-glass mr-1"></i>Suchen
                                     </button>
                                 </div>
@@ -298,7 +298,7 @@ function logs_level_badge(string $level): string
                             <div class="flex-1">
                                 <input type="text"
                                        id="searchQuery"
-                                       class="form-control"
+                                       class="ignis-input"
                                        placeholder="Volltext-Suche (Datei, Klasse, Message…)"
                                        autocomplete="off">
                             </div>
@@ -313,10 +313,10 @@ function logs_level_badge(string $level): string
                                 </select>
                             </div>
                             <div class="flex gap-1">
-                                <button type="button" class="btn btn-soft-primary" id="searchBtn">
+                                <button type="button" class="ignis-btn ignis-btn--soft-primary" id="searchBtn">
                                     <i class="fa-solid fa-magnifying-glass mr-1"></i>Suchen
                                 </button>
-                                <button type="button" class="btn btn-ghost" id="resetBtn" title="Zurück zur Inbox">
+                                <button type="button" class="ignis-btn ignis-btn--ghost" id="resetBtn" title="Zurück zur Inbox">
                                     <i class="fa-solid fa-rotate-left"></i>
                                 </button>
                             </div>
@@ -346,25 +346,23 @@ function logs_level_badge(string $level): string
                                 <i class="fa-solid fa-hexagon-exclamation text-warning"></i>
                                 <h6 class="mb-0 fw-semibold">Fehlgeschlagene Hintergrund-Jobs</h6>
                                 <?php if ($failedTotal > 0): ?>
-                                    <span class="badge-status status-danger">
-                                        <span class="status-dot"></span><?= (int) $failedTotal ?>
+                                    <span class="ignis-chip ignis-chip--status ignis-chip--danger"><?= (int) $failedTotal ?>
                                     </span>
                                 <?php endif; ?>
                                 <?php if ($failed24h > 0): ?>
-                                    <span class="badge-status status-warning">
-                                        <span class="status-dot"></span><?= (int) $failed24h ?> in 24h
+                                    <span class="ignis-chip ignis-chip--status ignis-chip--warning"><?= (int) $failed24h ?> in 24h
                                     </span>
                                 <?php endif; ?>
                             </div>
                             <div class="btn-toolbar-group">
-                                <button type="button" class="btn btn-sm btn-ghost" id="refreshFailedJobsBtn" title="Liste neu laden">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="refreshFailedJobsBtn" title="Liste neu laden">
                                     <i class="fa-solid fa-rotate"></i>
                                 </button>
                                 <?php if ($failedTotal > 0): ?>
-                                    <button type="button" class="btn btn-sm btn-soft-primary" id="retryAllFailedJobsBtn">
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="retryAllFailedJobsBtn">
                                         <i class="fa-solid fa-arrows-rotate mr-1"></i>Alle erneut versuchen
                                     </button>
-                                    <button type="button" class="btn btn-sm btn-ghost text-danger" id="deleteAllFailedJobsBtn">
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-danger" id="deleteAllFailedJobsBtn">
                                         <i class="fa-solid fa-trash mr-1"></i>Alle löschen
                                     </button>
                                 <?php endif; ?>
@@ -385,7 +383,7 @@ function logs_level_badge(string $level): string
                                 <?php foreach ($failedJobs as $fj): ?>
                                     <div class="logs-group" data-failed-id="<?= (int) $fj['id'] ?>">
                                         <div class="logs-group-row">
-                                            <div><span class="badge-status status-danger"><span class="status-dot"></span>FAILED</span></div>
+                                            <div><span class="ignis-chip ignis-chip--status ignis-chip--danger">FAILED</span></div>
                                             <div class="info">
                                                 <span class="exception"><?= htmlspecialchars($fj['job_class'] ?? 'Unbekannter Job') ?></span>
                                                 <div class="message"><?= htmlspecialchars($fj['short_message'] ?? '–') ?></div>
@@ -397,13 +395,13 @@ function logs_level_badge(string $level): string
                                         </div>
                                         <div class="logs-detail" data-rendered="1">
                                             <div class="logs-detail-actions">
-                                                <button type="button" class="btn btn-soft-primary btn-sm failed-retry-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm failed-retry-btn" data-id="<?= (int) $fj['id'] ?>">
                                                     <i class="fa-solid fa-arrows-rotate mr-1"></i>Erneut versuchen
                                                 </button>
-                                                <button type="button" class="btn btn-ghost btn-sm text-danger failed-delete-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm text-danger failed-delete-btn" data-id="<?= (int) $fj['id'] ?>">
                                                     <i class="fa-solid fa-trash mr-1"></i>Löschen
                                                 </button>
-                                                <button type="button" class="btn btn-ghost btn-sm copy-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
+                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
                                                     <i class="fa-regular fa-copy"></i> UUID
                                                 </button>
                                             </div>
@@ -462,14 +460,14 @@ function logs_level_badge(string $level): string
                                         <td class="text-end"><?= number_format($f['size'] / 1024, 1) ?> KB</td>
                                         <td>
                                             <?php if ($f['type'] === 'error'): ?>
-                                                <span class="badge-status status-danger"><span class="status-dot"></span>error</span>
+                                                <span class="ignis-chip ignis-chip--status ignis-chip--danger">error</span>
                                             <?php else: ?>
-                                                <span class="badge-status status-muted"><span class="status-dot"></span>app</span>
+                                                <span class="ignis-chip ignis-chip--status ignis-chip--dark">app</span>
                                             <?php endif; ?>
                                         </td>
                                         <td><?= date('d.m.Y H:i', $f['mtime']) ?></td>
                                         <td class="text-end">
-                                            <button type="button" class="btn btn-sm btn-soft-primary tail-btn" data-file="<?= htmlspecialchars($f['name']) ?>">
+                                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary tail-btn" data-file="<?= htmlspecialchars($f['name']) ?>">
                                                 <i class="fa-solid fa-eye mr-1"></i>Letzte 100
                                             </button>
                                         </td>
@@ -584,14 +582,14 @@ function logs_level_badge(string $level): string
 
             // Action bar: Kopier-Buttons
             html += '<div class="logs-detail-actions">';
-            html += '<button type="button" class="btn btn-soft-primary btn-sm copy-btn" data-copy-text="' + escapeAttr(reportText) + '">';
+            html += '<button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm copy-btn" data-copy-text="' + escapeAttr(reportText) + '">';
             html += '<i class="fa-solid fa-copy mr-1"></i>Kompletten Report kopieren</button>';
             if (entry.error_id) {
-                html += '<button type="button" class="btn btn-ghost btn-sm copy-btn" data-copy="' + escapeAttr(entry.error_id) + '">';
+                html += '<button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-btn" data-copy="' + escapeAttr(entry.error_id) + '">';
                 html += '<i class="fa-solid fa-hashtag mr-1"></i>' + escapeHtml(entry.error_id) + '</button>';
             }
             if (trace) {
-                html += '<button type="button" class="btn btn-ghost btn-sm copy-btn" data-copy-text="' + escapeAttr(trace) + '">';
+                html += '<button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-btn" data-copy-text="' + escapeAttr(trace) + '">';
                 html += '<i class="fa-solid fa-list-ul mr-1"></i>Nur Trace kopieren</button>';
             }
             html += '</div>';
@@ -671,7 +669,7 @@ function logs_level_badge(string $level): string
                             <div class="file">${escapeHtml((sample.file || '–') + (sample.line ? ':' + sample.line : ''))}</div>
                         </div>
                         <div class="count-cell">
-                            ${group.count > 1 ? '<span class="badge-status status-warning"><span class="status-dot"></span>×' + group.count + '</span>' : ''}
+                            ${group.count > 1 ? '<span class="ignis-chip ignis-chip--status ignis-chip--warning">×' + group.count + '</span>' : ''}
                         </div>
                         <div class="time-cell">${escapeHtml(timeAgo(group.last_seen))}</div>
                         <div class="chevron"><i class="fa-solid fa-chevron-right"></i></div>

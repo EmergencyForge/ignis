@@ -575,7 +575,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 $gcs_total = $gcs_augen + $gcs_verbal + $gcs_motorik;
                                             }
                                             ?>
-                                            <input type="text" class="form-control" id="_GCS_" name="_GCS_" placeholder="--" value="<?= $gcs_total ?>" readonly>
+                                            <input type="text" class="ignis-input" id="_GCS_" name="_GCS_" placeholder="--" value="<?= $gcs_total ?>" readonly>
                                         </div>
                                     </div>
                                     <div class="row mt-2">
@@ -607,13 +607,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             ?>
                                             <label for="arrival_date" class="edivi__description">Ankunftsdatum</label>
                                             <div class="input-group mb-2">
-                                                <input type="date" name="arrival_date" id="arrival_date" class="form-control" value="<?= $currentDate ?>" required>
+                                                <input type="date" name="arrival_date" id="arrival_date" class="ignis-input" value="<?= $currentDate ?>" required>
                                             </div>
                                         </div>
                                         <div class="col">
                                             <label for="arrival_time" class="edivi__description">Ankunftszeit</label>
                                             <div class="input-group">
-                                                <input type="time" name="arrival_time" id="arrival_time" class="form-control" required>
+                                                <input type="time" name="arrival_time" id="arrival_time" class="ignis-input" required>
                                             </div>
                                         </div>
                                     </div>

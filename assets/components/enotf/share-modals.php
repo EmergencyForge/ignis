@@ -13,7 +13,7 @@
                 <div class="mb-3 position-relative">
                     <label for="targetVehicleSearch" class="form-label">Zielfahrzeug</label>
                     <input type="text"
-                        class="form-control"
+                        class="ignis-input"
                         id="targetVehicleSearch"
                         placeholder="Rufname, Kennzeichen oder ID eingeben..."
                         autocomplete="off">
@@ -22,15 +22,15 @@
                         <!-- Dropdown items werden hier dynamisch eingefügt -->
                     </div>
                 </div>
-                <div class="alert alert-info">
+                <div class="ignis-alert ignis-alert--info">
                     <i class="fa-solid fa-info-circle"></i>
                     Das ausgewählte Fahrzeug erhält eine Anfrage und kann entscheiden, ob es die Daten in ein bestehendes Protokoll übernehmen oder ein neues Protokoll erstellen möchte.
                 </div>
-                <div id="shareErrorMessage" class="alert alert-danger hidden"></div>
+                <div id="shareErrorMessage" class="ignis-alert ignis-alert--danger hidden"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-soft-primary" id="confirmShareBtn" disabled>Teilen</button>
+                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="ignis-btn ignis-btn--soft-primary" id="confirmShareBtn" disabled>Teilen</button>
             </div>
         </div>
     </div>
@@ -47,7 +47,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-info">
+                <div class="ignis-alert ignis-alert--info">
                     <strong id="shareSourceVehicle"></strong> möchte folgendes Protokoll mit dir teilen:
                 </div>
                 <div class="card mb-3">
@@ -99,8 +99,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost-danger" id="rejectShareBtn">Ablehnen</button>
-                <button type="button" class="btn btn-soft-primary" id="acceptShareBtn" disabled>Annehmen</button>
+                <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="rejectShareBtn">Ablehnen</button>
+                <button type="button" class="ignis-btn ignis-btn--soft-primary" id="acceptShareBtn" disabled>Annehmen</button>
             </div>
         </div>
     </div>
@@ -163,7 +163,7 @@
 
             const typeLabel = vehicle.rd_type == 1 ? 'NA' : 'RD';
             const kennzeichenText = vehicle.kennzeichen ? ` <small class="text-muted">[${vehicle.kennzeichen}]</small>` : '';
-            item.innerHTML = `${vehicle.name || vehicle.identifier} <span class="badge bg-secondary">${typeLabel}</span>${kennzeichenText}`;
+            item.innerHTML = `${vehicle.name || vehicle.identifier} <span class="ignis-chip">${typeLabel}</span>${kennzeichenText}`;
 
             item.dataset.identifier = vehicle.identifier;
             item.dataset.name = vehicle.name || vehicle.identifier;

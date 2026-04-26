@@ -25,6 +25,11 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
+                    <nav class="ignis-breadcrumb">
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
+                        <span class="ignis-breadcrumb__item is-active">Audit Log</span>
+                    </nav>
                     <div class="flex justify-between items-center mb-5">
                         <h1 class="mb-0">Audit Log</h1>
                     </div>

@@ -329,7 +329,7 @@ $status_config = [
                 </div>
 
                 <?php if ($error): ?>
-                    <div class="alert alert-danger">
+                    <div class="ignis-alert ignis-alert--danger">
                         <i class="fa-solid fa-triangle-exclamation mr-2"></i>
                         <?= htmlspecialchars($error) ?>
                     </div>
@@ -373,21 +373,21 @@ $status_config = [
                 <hr style="border-color: #444; margin: 1.5rem 0;">
 
                 <?php if ($error): ?>
-                    <div class="alert alert-danger">
+                    <div class="ignis-alert ignis-alert--danger">
                         <i class="fa-solid fa-triangle-exclamation mr-2"></i>
                         <?= htmlspecialchars($error) ?>
                     </div>
                 <?php endif; ?>
 
                 <?php if ($success_message): ?>
-                    <div class="alert alert-success">
+                    <div class="ignis-alert ignis-alert--success">
                         <i class="fa-solid fa-circle-check mr-2"></i>
                         <?= htmlspecialchars($success_message) ?>
                     </div>
                 <?php endif; ?>
 
                 <?php if (empty($departments)): ?>
-                    <div class="alert alert-danger">
+                    <div class="ignis-alert ignis-alert--danger">
                         <i class="fa-solid fa-info-circle mr-2"></i>
                         Für dieses Krankenhaus sind noch keine Fachrichtungen konfiguriert. Bitte kontaktieren Sie den Administrator.
                     </div>

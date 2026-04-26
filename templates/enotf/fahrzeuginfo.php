@@ -70,13 +70,13 @@ $currentDate = date('d.m.Y');
                                                     <?php
                                                     switch ($vehicle['rd_type']) {
                                                         case 1:
-                                                            echo '<span class="badge text-bg-danger ml-2 badge-vehicle-type">Notarztbesetzt</span>';
+                                                            echo '<span class="ignis-chip ignis-chip--danger ml-2 badge-vehicle-type">Notarztbesetzt</span>';
                                                             break;
                                                         case 2:
-                                                            echo '<span class="badge text-bg-warning ml-2 badge-vehicle-type">Transportmittel</span>';
+                                                            echo '<span class="ignis-chip ignis-chip--warning ml-2 badge-vehicle-type">Transportmittel</span>';
                                                             break;
                                                         default:
-                                                            echo '<span class="badge text-bg-primary ml-2 badge-vehicle-type">Standard</span>';
+                                                            echo '<span class="ignis-chip ignis-chip--primary ml-2 badge-vehicle-type">Standard</span>';
                                                     }
                                                     ?>
                                                 </td>
@@ -102,7 +102,7 @@ $currentDate = date('d.m.Y');
                             <div class="vehicle-info-card p-4 mb-4">
                                 <div class="mb-3 flex items-center justify-between">
                                     <h5 class="text-light mb-0">Defekt-Meldungen</h5>
-                                    <button type="button" class="btn btn-sm btn-outline-warning" id="toggleDefectForm">
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-warning" id="toggleDefectForm">
                                         <i class="fa-solid fa-triangle-exclamation"></i> Defekt melden
                                     </button>
                                 </div>
@@ -114,7 +114,7 @@ $currentDate = date('d.m.Y');
                                         <input type="hidden" name="action" value="create">
                                         <div class="mb-2">
                                             <label class="form-label text-light">Meldung durch</label>
-                                            <select name="reported_by_name" class="form-select form-select-sm">
+                                            <select name="reported_by_name" class="form-select form-select-sm" data-custom-dropdown="true">
                                                 <?php if (!empty($_SESSION['fahrername'])): ?>
                                                     <option value="<?= htmlspecialchars($_SESSION['fahrername']) ?>">Fahrer — <?= htmlspecialchars($_SESSION['fahrername']) ?></option>
                                                 <?php endif; ?>
@@ -128,15 +128,15 @@ $currentDate = date('d.m.Y');
                                         </div>
                                         <div class="mb-2">
                                             <label class="form-label text-light">Titel</label>
-                                            <input type="text" name="title" class="form-control form-control-sm" placeholder="Kurze Beschreibung des Defekts" required>
+                                            <input type="text" name="title" class="ignis-input ignis-input--sm" placeholder="Kurze Beschreibung des Defekts" required>
                                         </div>
                                         <div class="mb-2">
                                             <label class="form-label text-light">Beschreibung</label>
-                                            <textarea name="description" class="form-control form-control-sm" rows="2" placeholder="Details..."></textarea>
+                                            <textarea name="description" class="ignis-input ignis-input--sm" rows="2" placeholder="Details..."></textarea>
                                         </div>
                                         <div class="mb-2">
                                             <label class="form-label text-light">Kategorie</label>
-                                            <select name="category" class="form-select form-select-sm" required>
+                                            <select name="category" class="form-select form-select-sm" data-custom-dropdown="true" required>
                                                 <option value="" disabled selected>Bitte auswählen...</option>
                                                 <option value="aufbau_karosserie">Aufbau / Karosserie</option>
                                                 <option value="ausbau">Ausbau</option>
@@ -168,8 +168,8 @@ $currentDate = date('d.m.Y');
                                             </div>
                                         </div>
                                         <div class="flex gap-2">
-                                            <button type="submit" class="btn btn-sm btn-warning"><i class="fa-solid fa-paper-plane"></i> Absenden</button>
-                                            <button type="button" class="btn btn-sm btn-outline-light" id="cancelDefectForm">Abbrechen</button>
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--warning"><i class="fa-solid fa-paper-plane"></i> Absenden</button>
+                                            <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="cancelDefectForm">Abbrechen</button>
                                         </div>
                                     </form>
                                 </div>
@@ -233,10 +233,10 @@ $currentDate = date('d.m.Y');
                                                 <div class="flex-1">
                                                     <div class="flex flex-wrap items-center gap-2">
                                                         <strong class="text-light" style="font-size:0.9rem;"><?= htmlspecialchars($def['title']) ?></strong>
-                                                        <span class="badge text-bg-secondary" style="font-size:0.6rem;"><?= htmlspecialchars($catLabel) ?></span>
+                                                        <span class="ignis-chip" style="font-size:0.6rem;"><?= htmlspecialchars($catLabel) ?></span>
                                                         <span class="badge text-bg-<?= $stat[1] ?>" style="font-size:0.6rem;"><?= $stat[0] ?></span>
                                                         <?php if (!$operable): ?>
-                                                            <span class="badge text-bg-danger" style="font-size:0.6rem;"><i class="fa-solid fa-ban"></i> Nicht einsatzfähig</span>
+                                                            <span class="ignis-chip ignis-chip--danger" style="font-size:0.6rem;"><i class="fa-solid fa-ban"></i> Nicht einsatzfähig</span>
                                                         <?php endif; ?>
                                                     </div>
                                                     <?php if ($def['description']): ?>
@@ -293,7 +293,7 @@ $currentDate = date('d.m.Y');
                                                 <div class="category-card p-3">
                                                     <div class="mb-2 flex items-center justify-between">
                                                         <h6 class="text-light mb-0">
-                                                            <span class="badge bg-secondary mr-2"><?= $category['priority'] ?></span>
+                                                            <span class="ignis-chip mr-2"><?= $category['priority'] ?></span>
                                                             <?= htmlspecialchars($category['title']) ?>
                                                         </h6>
                                                         <span class="badge bg-<?= $typeClass ?>"><?= $typeText ?></span>
@@ -319,7 +319,7 @@ $currentDate = date('d.m.Y');
                                                                     <span class="text-light">
                                                                         <?= htmlspecialchars($tile['title']) ?>
                                                                     </span>
-                                                                    <span class="badge bg-primary">
+                                                                    <span class="ignis-chip ignis-chip--primary">
                                                                         <?= $tile['amount'] ?>x
                                                                     </span>
                                                                 </div>
@@ -439,8 +439,8 @@ $currentDate = date('d.m.Y');
                     Wie möchten Sie sich abmelden?
                 </div>
                 <div class="modal-footer">
-                    <a href="loggedout.php?mode=self" class="btn btn-light">Mich abmelden</a>
-                    <a href="loggedout.php?mode=all" class="btn btn-danger">Alle abmelden</a>
+                    <a href="loggedout.php?mode=self" class="ignis-btn">Mich abmelden</a>
+                    <a href="loggedout.php?mode=all" class="ignis-btn ignis-btn--danger">Alle abmelden</a>
                 </div>
             </div>
         </div>
