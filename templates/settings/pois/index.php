@@ -195,16 +195,7 @@ use App\Helpers\Flash;
             var table = $('#table-pois').DataTable({
                 stateSave: true, paging: true, lengthMenu: [10, 20, 50], pageLength: 20,
                 order: [[0, 'asc']], columnDefs: [{ orderable: false, targets: -1 }],
-                language: {
-                    "emptyTable": "Keine Daten vorhanden",
-                    "info": "Zeige _START_ bis _END_  | Gesamt: _TOTAL_",
-                    "infoEmpty": "Keine Daten verfügbar",
-                    "infoFiltered": "| Gefiltert von _MAX_ POIs",
-                    "lengthMenu": "_MENU_ POIs pro Seite anzeigen",
-                    "search": "POI suchen:",
-                    "zeroRecords": "Keine Einträge gefunden",
-                    "paginate": { "first": "Erste", "last": "Letzte", "next": "Nächste", "previous": "Vorherige" }
-                }
+                language: window.IgnisDataTableLang('POIs')
             });
 
             document.querySelectorAll('#statusFilter .btn').forEach(function(btn) {

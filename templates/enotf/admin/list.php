@@ -250,30 +250,7 @@ use App\Helpers\Flash;
                     orderable: false,
                     targets: -1
                 }],
-                language: {
-                    "decimal": "",
-                    "emptyTable": "Keine Daten vorhanden",
-                    "info": "Zeige _START_ bis _END_  | Gesamt: _TOTAL_",
-                    "infoEmpty": "Keine Daten verfügbar",
-                    "infoFiltered": "| Gefiltert von _MAX_ Protokollen",
-                    "infoPostFix": "",
-                    "thousands": ",",
-                    "lengthMenu": "_MENU_ Protokolle pro Seite anzeigen",
-                    "loadingRecords": "Lade...",
-                    "processing": "Verarbeite...",
-                    "search": "Protokoll suchen:",
-                    "zeroRecords": "Keine Einträge gefunden",
-                    "paginate": {
-                        "first": "Erste",
-                        "last": "Letzte",
-                        "next": "Nächste",
-                        "previous": "Vorherige"
-                    },
-                    "aria": {
-                        "sortAscending": ": aktivieren, um Spalte aufsteigend zu sortieren",
-                        "sortDescending": ": aktivieren, um Spalte absteigend zu sortieren"
-                    }
-                }
+                language: window.IgnisDataTableLang('Protokolle')
             });
 
             // QM Actions Modal Functions

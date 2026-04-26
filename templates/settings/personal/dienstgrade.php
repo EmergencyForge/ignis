@@ -208,18 +208,7 @@ use App\Helpers\Flash;
                 pageLength: 20,
                 order: [[0, 'asc']],
                 columnDefs: [{ orderable: false, targets: -1 }],
-                language: {
-                    "emptyTable": "Keine Daten vorhanden",
-                    "info": "Zeige _START_ bis _END_  | Gesamt: _TOTAL_",
-                    "infoEmpty": "Keine Daten verfügbar",
-                    "infoFiltered": "| Gefiltert von _MAX_ Dienstgraden",
-                    "lengthMenu": "_MENU_ Dienstgrade pro Seite anzeigen",
-                    "loadingRecords": "Lade...",
-                    "processing": "Verarbeite...",
-                    "search": "Dienstgrad suchen:",
-                    "zeroRecords": "Keine Einträge gefunden",
-                    "paginate": { "first": "Erste", "last": "Letzte", "next": "Nächste", "previous": "Vorherige" }
-                }
+                language: window.IgnisDataTableLang('Dienstgrade')
             });
         });
 

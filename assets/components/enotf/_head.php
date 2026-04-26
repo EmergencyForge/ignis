@@ -36,6 +36,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/alert.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/file.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/modules/datatables-config.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-german-date.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/enotf-session-sync.js?v=<?= filemtime(__DIR__ . '/../../js/enotf-session-sync.js') ?>"></script>

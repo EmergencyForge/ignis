@@ -145,18 +145,7 @@ use App\Helpers\Flash;
                 pageLength: 10,
                 order: [[0, 'asc']],
                 columnDefs: [{ orderable: false, targets: -1 }],
-                language: {
-                    "emptyTable": "Keine Daten vorhanden",
-                    "info": "Zeige _START_ bis _END_  | Gesamt: _TOTAL_",
-                    "infoEmpty": "Keine Daten verfügbar",
-                    "infoFiltered": "| Gefiltert von _MAX_ Fachdiensten",
-                    "lengthMenu": "_MENU_ Fachdienste pro Seite anzeigen",
-                    "loadingRecords": "Lade...",
-                    "processing": "Verarbeite...",
-                    "search": "Fachdienst suchen:",
-                    "zeroRecords": "Keine Einträge gefunden",
-                    "paginate": { "first": "Erste", "last": "Letzte", "next": "Nächste", "previous": "Vorherige" }
-                }
+                language: window.IgnisDataTableLang('Fachdienste')
             });
         });
 
