@@ -27,11 +27,11 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Fahrzeuge</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Fahrzeuge</span></nav>
                     <div class="page-header mb-4">
                         <h1>Fahrzeugverwaltung</h1>
                         <div class="header-actions">
-                            <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index.php" class="ignis-btn ignis-btn--outline-warning">
+                            <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index" class="ignis-btn ignis-btn--outline-warning">
                                 <i class="fa-solid fa-triangle-exclamation"></i> Defekt-Meldungen
                             </a>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
@@ -175,7 +175,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="editFahrzeugModal" tabindex="-1" aria-labelledby="editFahrzeugModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/update.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/update" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editFahrzeugModalLabel">Fahrzeug bearbeiten</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -242,7 +242,7 @@ use App\Helpers\Flash;
                         </div>
                     </form>
 
-                    <form id="delete-fahrzeug-form" action="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/delete.php" method="POST" style="display:none;">
+                    <form id="delete-fahrzeug-form" action="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/delete" method="POST" style="display:none;">
                         <input type="hidden" name="id" id="fahrzeug-delete-id">
                     </form>
 
@@ -256,7 +256,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="createFahrzeugModal" tabindex="-1" aria-labelledby="createFahrzeugModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/create.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/create" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createFahrzeugModalLabel">Neues Fahrzeug anlegen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>

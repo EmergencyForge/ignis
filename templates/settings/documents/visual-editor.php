@@ -58,7 +58,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 <body data-bs-theme="dark">
     <!-- Einzeilige Toolbar -->
     <div class="editor-toolbar">
-        <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="btn-back"
+        <a href="<?= BASE_PATH ?>settings/documents/templates" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="btn-back"
             onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();var href=this.href;showConfirm('Ungespeicherte Änderungen verwerfen?',{title:'Seite verlassen',danger:true,confirmText:'Verwerfen'}).then(function(ok){if(ok)window.location=href;});}">
             <i class="fa-solid fa-arrow-left"></i>
         </a>

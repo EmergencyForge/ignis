@@ -26,7 +26,7 @@ $currentDate = date('d.m.Y');
 </head>
 
 <body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
-    <form name="form" method="post" action="<?= BASE_PATH ?>assets/functions/enotf/enrbridge.php" id="enrForm">
+    <form name="form" method="post" action="<?= BASE_PATH ?>assets/functions/enotf/enrbridge" id="enrForm">
         <input type="hidden" name="new" value="1" />
         <input type="hidden" name="action" value="openOrCreate" />
         <input type="hidden" name="prot_by" id="prot_by" value="" />
@@ -45,7 +45,7 @@ $currentDate = date('d.m.Y');
                         <button class="edivi__nidabutton flex w-full items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="naprot" name="naprot" onclick="setProtBy(1)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NA</span> Notarztprotokoll</button>
                     </div>
                     <div class="mx-5 my-6 text-center">
-                        <a href="overview.php" class="edivi__nidabutton-secondary inline-block w-full">zurück</a>
+                        <a href="overview" class="edivi__nidabutton-secondary inline-block w-full">zurück</a>
                     </div>
                 </div>
             </div>
@@ -78,7 +78,7 @@ $currentDate = date('d.m.Y');
         }
 
         function checkForConflict(enr, protBy) {
-            return fetch('<?= BASE_PATH ?>api/enotf/check-conflict.php', {
+            return fetch('<?= BASE_PATH ?>api/enotf/check-conflict', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',

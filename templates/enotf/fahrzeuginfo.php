@@ -408,7 +408,7 @@ $currentDate = date('d.m.Y');
                 e.preventDefault();
                 var fd = new FormData(form);
 
-                fetch('<?= BASE_PATH ?>api/vehicles/defects-handler.php', {
+                fetch('<?= BASE_PATH ?>api/vehicles/defects-handler', {
                     method: 'POST',
                     body: fd
                 })
@@ -439,8 +439,8 @@ $currentDate = date('d.m.Y');
                     Wie möchten Sie sich abmelden?
                 </div>
                 <div class="modal-footer">
-                    <a href="loggedout.php?mode=self" class="ignis-btn">Mich abmelden</a>
-                    <a href="loggedout.php?mode=all" class="ignis-btn ignis-btn--danger">Alle abmelden</a>
+                    <a href="loggedout?mode=self" class="ignis-btn">Mich abmelden</a>
+                    <a href="loggedout?mode=all" class="ignis-btn ignis-btn--danger">Alle abmelden</a>
                 </div>
             </div>
         </div>

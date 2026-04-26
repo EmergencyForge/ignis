@@ -12,7 +12,7 @@ $startTime = $dtStart ? $dtStart->format('H:i') : '';
 
 <div class="intra__tile mb-3 p-3">
     <h4 class="mb-3">Stammdaten des Einsatzes</h4>
-    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" id="coreUpdateForm">
+    <form method="post" action="<?= BASE_PATH ?>einsatz/actions" id="coreUpdateForm">
         <input type="hidden" name="action" value="update_core">
         <input type="hidden" name="incident_id" value="<?= $id ?>">
         <input type="hidden" name="return_tab" value="stammdaten">

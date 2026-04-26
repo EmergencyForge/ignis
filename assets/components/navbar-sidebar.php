@@ -60,7 +60,7 @@ $rail = $filterNavigation($navigationConfig['rail'] ?? []);
 
     <!-- Rail (Icons) -->
     <div class="rail">
-        <a href="<?= BASE_PATH ?>index.php" class="rail-logo" aria-label="<?= htmlspecialchars(SYSTEM_NAME) ?>">
+        <a href="<?= BASE_PATH ?>index" class="rail-logo" aria-label="<?= htmlspecialchars(SYSTEM_NAME) ?>">
             <svg viewBox="0 0 160 56" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="<?= htmlspecialchars(SYSTEM_NAME) ?>">
                 <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="Poppins, system-ui, sans-serif" font-weight="700" font-style="italic" font-size="42" letter-spacing="-0.02em" fill="currentColor">ıgnıs</text>
             </svg>

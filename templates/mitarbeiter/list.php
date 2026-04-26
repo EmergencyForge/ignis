@@ -29,7 +29,7 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item is-active">Mitarbeiter</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item is-active">Mitarbeiter</span></nav>
                     <div class="page-header mb-4">
                         <h1>Mitarbeiterübersicht</h1>
                         <div class="header-actions">
@@ -39,9 +39,9 @@ use App\Helpers\Flash;
                                 </button>
                             <?php endif; ?>
                             <?php if ($showArchive): ?>
-                                <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="ignis-btn ignis-btn--outline-success">Aktive Mitarbeiter</a>
+                                <a href="<?= BASE_PATH ?>mitarbeiter/list" class="ignis-btn ignis-btn--outline-success">Aktive Mitarbeiter</a>
                             <?php else: ?>
-                                <a href="<?= BASE_PATH ?>mitarbeiter/list.php?archiv" class="ignis-btn ignis-btn--outline-secondary">Archiv</a>
+                                <a href="<?= BASE_PATH ?>mitarbeiter/list?archiv" class="ignis-btn ignis-btn--outline-secondary">Archiv</a>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -145,7 +145,7 @@ use App\Helpers\Flash;
                                         </td>
                                         <td>
                                             <div class="col-actions">
-                                                <a href="<?= BASE_PATH ?>mitarbeiter/profile.php?id=<?= (int) $m->id ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Profil ansehen">
+                                                <a href="<?= BASE_PATH ?>mitarbeiter/profile?id=<?= (int) $m->id ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Profil ansehen">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
                                             </div>
@@ -374,7 +374,7 @@ use App\Helpers\Flash;
 
             var formData = new FormData(form);
 
-            fetch('<?= BASE_PATH ?>mitarbeiter/create.php', {
+            fetch('<?= BASE_PATH ?>mitarbeiter/create', {
                 method: 'POST',
                 body: formData
             })

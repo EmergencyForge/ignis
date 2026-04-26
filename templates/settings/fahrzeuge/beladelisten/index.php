@@ -577,7 +577,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 const formData = new FormData(this);
                 formData.append('action', 'add_category');
 
-                fetch('beladung_handler.php', {
+                fetch('beladung_handler', {
                         method: 'POST',
                         body: formData
                     })
@@ -601,7 +601,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 const formData = new FormData(this);
                 formData.append('action', 'edit_category');
 
-                fetch('beladung_handler.php', {
+                fetch('beladung_handler', {
                         method: 'POST',
                         body: formData
                     })
@@ -625,7 +625,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 const formData = new FormData(this);
                 formData.append('action', 'add_tile');
 
-                fetch('beladung_handler.php', {
+                fetch('beladung_handler', {
                         method: 'POST',
                         body: formData
                     })
@@ -649,7 +649,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 const formData = new FormData(this);
                 formData.append('action', 'edit_tile');
 
-                fetch('beladung_handler.php', {
+                fetch('beladung_handler', {
                         method: 'POST',
                         body: formData
                     })
@@ -674,7 +674,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             formData.append('action', 'delete_category');
             formData.append('id', id);
 
-            fetch('beladung_handler.php', {
+            fetch('beladung_handler', {
                     method: 'POST',
                     body: formData
                 })
@@ -697,7 +697,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             formData.append('action', 'delete_tile');
             formData.append('id', id);
 
-            fetch('beladung_handler.php', {
+            fetch('beladung_handler', {
                     method: 'POST',
                     body: formData
                 })

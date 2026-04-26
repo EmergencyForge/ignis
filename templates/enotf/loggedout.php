@@ -37,7 +37,7 @@ $currentDate = date('d.m.Y');
                                 Sie sind nicht angemeldet!
                             </div>
                             <div class="w-3/12 px-3">
-                                <a href="login.php">anmelden</a>
+                                <a href="login">anmelden</a>
                             </div>
                         </div>
                     </div>

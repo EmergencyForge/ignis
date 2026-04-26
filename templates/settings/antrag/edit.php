@@ -139,7 +139,7 @@ use App\Helpers\Flash;
                 <?php endif; ?>
             </div>
 
-            <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="ignis-btn ignis-btn--ghost mb-6 no-underline hover:no-underline">
+            <a href="<?= BASE_PATH ?>settings/antrag/list" class="ignis-btn ignis-btn--ghost mb-6 no-underline hover:no-underline">
                 <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Übersicht
             </a>
         </div>

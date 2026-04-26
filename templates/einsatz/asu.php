@@ -36,7 +36,7 @@
         $einsatzActivePage = 'asu';
         $einsatzExtraNav = '';
         if ($prefillIncidentId) {
-            $einsatzExtraNav = '<a href="' . BASE_PATH . 'einsatz/view.php?id=' . (int)$prefillIncidentId . '&tab=bericht" class="sidebar-link"><i class="fa-solid fa-arrow-left"></i><span>Zurück zum Einsatz</span></a>';
+            $einsatzExtraNav = '<a href="' . BASE_PATH . 'einsatz/view?id=' . (int)$prefillIncidentId . '&tab=bericht" class="sidebar-link"><i class="fa-solid fa-arrow-left"></i><span>Zurück zum Einsatz</span></a>';
         }
         include __DIR__ . '/../../assets/components/einsatz-sidebar.php';
         ?>

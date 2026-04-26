@@ -23,13 +23,13 @@ use App\Helpers\Flash;
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6">
-                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">eNOTF</span></nav>
+                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">eNOTF</span></nav>
                     <div class="page-header mb-4">
                         <h1>Schnellzugriff-Verwaltung</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
                                 <div class="flex gap-2">
-                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index.php" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
+                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                                         <i class="fa-solid fa-folder"></i> Kategorien verwalten
                                     </a>
                                     <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
@@ -102,7 +102,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="editQuicklinkModal" tabindex="-1" aria-labelledby="editQuicklinkModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/enotf/update.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/enotf/update" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editQuicklinkModalLabel">Link bearbeiten</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -163,7 +163,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="createQuicklinkModal" tabindex="-1" aria-labelledby="createQuicklinkModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/enotf/create.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/enotf/create" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createQuicklinkModalLabel">Neuen Link erstellen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -235,7 +235,7 @@ use App\Helpers\Flash;
                 deleteBtn.addEventListener('click', function() {
                     const id = document.getElementById('quicklink-id').value;
                     if (confirm('Möchten Sie diesen Link wirklich löschen?')) {
-                        window.location.href = '<?= BASE_PATH ?>settings/enotf/delete.php?id=' + id;
+                        window.location.href = '<?= BASE_PATH ?>settings/enotf/delete?id=' + id;
                     }
                 });
             }

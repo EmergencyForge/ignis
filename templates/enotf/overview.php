@@ -62,7 +62,7 @@ $currentDate = date('d.m.Y');
                                 </div>
                                 <div class="flex-1 flex justify-end items-center gap-2 px-3">
                                     <button type="button" class="edivi__nidabutton" style="display:inline-block" onclick="window.location.reload();" title="Seite neu laden"><i class="fa-solid fa-rotate-right"></i></button>
-                                    <a href="create.php" class="edivi__nidabutton" style="display:inline-block"><i class="fa-solid fa-plus" title="Neuen Einsatz erstellen"></i></a>
+                                    <a href="create" class="edivi__nidabutton" style="display:inline-block"><i class="fa-solid fa-plus" title="Neuen Einsatz erstellen"></i></a>
                                 </div>
                             </div>
                             <div class="flex flex-wrap -mx-3 pl-3">
@@ -477,7 +477,7 @@ $currentDate = date('d.m.Y');
                     }
 
                     try {
-                        const response = await fetch('<?= BASE_PATH ?>api/enotf/delete-protocol.php', {
+                        const response = await fetch('<?= BASE_PATH ?>api/enotf/delete-protocol', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -540,8 +540,8 @@ $currentDate = date('d.m.Y');
                     Wie möchten Sie sich abmelden?
                 </div>
                 <div class="modal-footer">
-                    <a href="loggedout.php?mode=self" class="ignis-btn">Mich abmelden</a>
-                    <a href="loggedout.php?mode=all" class="ignis-btn ignis-btn--danger">Alle abmelden</a>
+                    <a href="loggedout?mode=self" class="ignis-btn">Mich abmelden</a>
+                    <a href="loggedout?mode=all" class="ignis-btn ignis-btn--danger">Alle abmelden</a>
                 </div>
             </div>
         </div>

@@ -22,13 +22,13 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">POIs</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">POIs</span></nav>
                     <div class="page-header mb-4">
                         <h1>POI-Verwaltung</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                                 <div class="flex gap-2">
-                                    <a href="<?= BASE_PATH ?>settings/pois/access-codes.php" class="ignis-btn ignis-btn--soft-warning">
+                                    <a href="<?= BASE_PATH ?>settings/pois/access-codes" class="ignis-btn ignis-btn--soft-warning">
                                         <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
                                     </a>
                                     <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
@@ -106,7 +106,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="editPoiModal" tabindex="-1" aria-labelledby="editPoiModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/pois/update.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/pois/update" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editPoiModalLabel">POI bearbeiten <small class="text-[var(--text-dimmed,#818189)]" id="poi-id-display"></small></h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -142,7 +142,7 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                     </form>
-                    <form id="delete-poi-form" action="<?= BASE_PATH ?>settings/pois/delete.php" method="POST" style="display:none;">
+                    <form id="delete-poi-form" action="<?= BASE_PATH ?>settings/pois/delete" method="POST" style="display:none;">
                         <input type="hidden" name="id" id="poi-delete-id">
                     </form>
                 </div>
@@ -153,7 +153,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="createPoiModal" tabindex="-1" aria-labelledby="createPoiModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/pois/create.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/pois/create" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createPoiModalLabel">Neuen POI anlegen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>

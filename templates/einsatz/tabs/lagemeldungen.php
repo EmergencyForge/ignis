@@ -39,7 +39,7 @@
     <?php if (!$incident['finalized']): ?>
         <hr class="my-4">
         <h5>Neue Lagemeldung hinzufügen</h5>
-        <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="mt-3">
+        <form method="post" action="<?= BASE_PATH ?>einsatz/actions" class="mt-3">
             <input type="hidden" name="action" value="add_sitrep">
             <input type="hidden" name="incident_id" value="<?= $id ?>">
             <input type="hidden" name="return_tab" value="lagemeldungen">

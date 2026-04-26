@@ -255,7 +255,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             const syncIcon = document.getElementById('pat-sync-icon');
             const syncIconEl = syncIcon ? syncIcon.querySelector('i') : null;
             if (syncIconEl) syncIconEl.style.color = '#f0ad4e';
-            fetch('<?= BASE_PATH ?>api/enotf/patient-sync.php', {
+            fetch('<?= BASE_PATH ?>api/enotf/patient-sync', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ enr: '<?= $enr ?>' })

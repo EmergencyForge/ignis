@@ -22,7 +22,7 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Medikamente</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Medikamente</span></nav>
                     <div class="page-header mb-4">
                         <h1>Medikamentenverwaltung</h1>
                         <div class="header-actions">
@@ -85,7 +85,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="editMedikamentModal" tabindex="-1" aria-labelledby="editMedikamentModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/medikamente/update.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/medikamente/update" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editMedikamentModalLabel">Medikament bearbeiten</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -118,7 +118,7 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                     </form>
-                    <form id="delete-medikament-form" action="<?= BASE_PATH ?>settings/medikamente/delete.php" method="POST" style="display:none;">
+                    <form id="delete-medikament-form" action="<?= BASE_PATH ?>settings/medikamente/delete" method="POST" style="display:none;">
                         <input type="hidden" name="id" id="medikament-delete-id">
                     </form>
                 </div>
@@ -129,7 +129,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="createMedikamentModal" tabindex="-1" aria-labelledby="createMedikamentModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/medikamente/create.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/medikamente/create" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createMedikamentModalLabel">Neues Medikament anlegen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>

@@ -26,7 +26,7 @@ use App\Helpers\Flash;
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
         <div class="container my-4">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">eNOTF QM</span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">eNOTF QM</span></nav>
             <div class="page-header mb-4">
                 <h1>Protokollübersicht</h1>
                 <div class="header-actions">
@@ -396,7 +396,7 @@ use App\Helpers\Flash;
             modal.show();
 
             // Load preview via AJAX
-            fetch('<?= BASE_PATH ?>api/enotf/bulk-delete-empty.php')
+            fetch('<?= BASE_PATH ?>api/enotf/bulk-delete-empty')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.fields) {
@@ -481,7 +481,7 @@ use App\Helpers\Flash;
             formData.append('preview', '1');
             formData.append('timePeriod', timePeriod);
 
-            fetch('<?= BASE_PATH ?>api/enotf/bulk-delete-empty.php', {
+            fetch('<?= BASE_PATH ?>api/enotf/bulk-delete-empty', {
                     method: 'POST',
                     body: formData
                 })
@@ -587,7 +587,7 @@ use App\Helpers\Flash;
             formData.append('timePeriod', window.bulkDeleteTimePeriod || '30');
             formData.append('timePeriod', window.bulkDeleteTimePeriod || '30');
 
-            fetch('<?= BASE_PATH ?>api/enotf/bulk-delete-empty.php', {
+            fetch('<?= BASE_PATH ?>api/enotf/bulk-delete-empty', {
                     method: 'POST',
                     body: formData
                 })

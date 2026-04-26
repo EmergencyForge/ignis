@@ -21,7 +21,7 @@ use App\Helpers\Flash;
         <div class="container mx-auto">
             <div class="mb-4 flex items-center justify-between">
                 <h1>Antragstypen verwalten</h1>
-                <a href="<?= BASE_PATH ?>settings/antrag/create.php" class="ignis-btn ignis-btn--success no-underline hover:no-underline">
+                <a href="<?= BASE_PATH ?>settings/antrag/create" class="ignis-btn ignis-btn--success no-underline hover:no-underline">
                     <i class="fa-solid fa-plus mr-2"></i>Neuer Antragstyp
                 </a>
             </div>
@@ -87,7 +87,7 @@ use App\Helpers\Flash;
                                             </td>
                                             <td class="text-right">
                                                 <div class="btn-group btn-group-sm">
-                                                    <a href="<?= BASE_PATH ?>settings/antrag/edit.php?id=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--icon mx-1 no-underline hover:no-underline" title="Bearbeiten">
+                                                    <a href="<?= BASE_PATH ?>settings/antrag/edit?id=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--icon mx-1 no-underline hover:no-underline" title="Bearbeiten">
                                                         <i class="fa-solid fa-edit"></i>
                                                     </a>
                                                     <a href="?toggle=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--soft-warning btn-icon mx-1 no-underline hover:no-underline" title="<?= $typ['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>">
@@ -117,7 +117,7 @@ use App\Helpers\Flash;
             <?php endif; ?>
 
             <div class="mt-4">
-                <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                <a href="<?= BASE_PATH ?>antrag/admin/list" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                     <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Antragsübersicht
                 </a>
             </div>

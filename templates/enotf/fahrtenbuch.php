@@ -56,7 +56,7 @@ $currentDate = date('d.m.Y');
                         <!-- Create Form -->
                         <div id="createFormWrap" style="display:none;" class="vehicle-info-card p-4 mb-4">
                             <h5 class="text-white mb-3">Neuer Eintrag</h5>
-                            <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php">
+                            <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions">
                                 <input type="hidden" name="action" value="create">
                                 <input type="hidden" name="return_to" value="enotf">
                                 <input type="hidden" name="source" value="enotf">
@@ -76,7 +76,7 @@ $currentDate = date('d.m.Y');
                         <!-- Edit Form (hidden by default) -->
                         <div id="editFormWrap" style="display:none;" class="vehicle-info-card p-4 mb-4">
                             <h5 class="text-white mb-3">Eintrag bearbeiten</h5>
-                            <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php" id="editForm">
+                            <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions" id="editForm">
                                 <input type="hidden" name="action" value="update">
                                 <input type="hidden" name="id" id="edit_id" value="">
                                 <input type="hidden" name="return_to" value="enotf">

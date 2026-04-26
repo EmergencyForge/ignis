@@ -60,7 +60,7 @@ function openDocumentViewer(docid) {
     buttonsEl.innerHTML = '';
     modal.show();
 
-    fetch('<?= BASE_PATH ?>api/documents/get-document.php?docid=' + encodeURIComponent(docid))
+    fetch('<?= BASE_PATH ?>api/documents/get-document?docid=' + encodeURIComponent(docid))
         .then(r => r.json())
         .then(data => {
             if (!data.success) {
@@ -104,7 +104,7 @@ function openDocumentViewer(docid) {
                 btns += '<a href="' + esc(doc.pdf_url) + '" download class="ignis-btn ignis-btn--sm ignis-btn--outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>';
                 btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="ignis-btn ignis-btn--sm btn-outline-light" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>';
             }
-            btns += '<a href="<?= BASE_PATH ?>mitarbeiter/dokument-view.php?docid=' + doc.docid + '" class="ignis-btn ignis-btn--sm btn-outline-light" title="Detailseite"><i class="fa-solid fa-file-lines"></i></a>';
+            btns += '<a href="<?= BASE_PATH ?>mitarbeiter/dokument-view?docid=' + doc.docid + '" class="ignis-btn ignis-btn--sm btn-outline-light" title="Detailseite"><i class="fa-solid fa-file-lines"></i></a>';
 
             <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
             const archIcon = doc.is_archived ? 'fa-box-open' : 'fa-box-archive';
@@ -125,7 +125,7 @@ async function toggleArchiveFromViewer(docid, archive) {
     const confirmed = await showConfirm('Dokument wirklich ' + action + '?', { title: 'Dokument ' + action, confirmText: archive ? 'Archivieren' : 'Wiederherstellen' });
     if (!confirmed) return;
 
-    fetch('<?= BASE_PATH ?>api/documents/archive.php', {
+    fetch('<?= BASE_PATH ?>api/documents/archive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -244,7 +244,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                     <div class="modal-body">
                         <?php if (!$editdg) { ?>
                             <div class="ignis-alert ignis-alert--danger" role="alert">
-                                <h4 class="font-bold">Achtung!</h4> Es sind keine Profildaten hinterlegt. Dokumente können fehlerhaft sein.<br>Bitte erstelle erst ein <a href="<?= BASE_PATH ?>mitarbeiter/list.php">eigenes Mitarbeiterprofil</a> (mit deiner Discord-ID).
+                                <h4 class="font-bold">Achtung!</h4> Es sind keine Profildaten hinterlegt. Dokumente können fehlerhaft sein.<br>Bitte erstelle erst ein <a href="<?= BASE_PATH ?>mitarbeiter/list">eigenes Mitarbeiterprofil</a> (mit deiner Discord-ID).
                             </div>
                         <?php } ?>
 
@@ -628,7 +628,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
             </div>
             <div class="modal-footer">
                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <a href="<?= BASE_PATH ?>mitarbeiter/delete.php?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>" class="ignis-btn ignis-btn--danger">Löschen</a>
+                <a href="<?= BASE_PATH ?>mitarbeiter/delete?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>" class="ignis-btn ignis-btn--danger">Löschen</a>
             </div>
         </div>
     </div>

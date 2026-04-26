@@ -437,7 +437,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             saveButton.textContent = 'Speichert...';
             saveButton.style.pointerEvents = 'none';
 
-            fetch('./save_medikament.php', {
+            fetch('./save_medikament', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -481,7 +481,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             const listContainer = document.getElementById('medis-list');
             listContainer.innerHTML = '<div class="text-center text-[var(--text-dimmed,#818189)] p-4"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2em;"></i><div class="mt-2">Medikamente werden geladen...</div></div>';
 
-            fetch('./load_medikamente.php', {
+            fetch('./load_medikamente', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -506,7 +506,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         function loadMedikamente() {
             const enr = new URLSearchParams(window.location.search).get('enr');
 
-            fetch('./load_medikamente.php', {
+            fetch('./load_medikamente', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -597,7 +597,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             const timestamp = selectedItem.dataset.timestamp;
             const enr = new URLSearchParams(window.location.search).get('enr');
 
-            fetch('./save_medikament.php', {
+            fetch('./save_medikament', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',

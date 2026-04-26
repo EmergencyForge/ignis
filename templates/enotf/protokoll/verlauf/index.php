@@ -235,7 +235,7 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
                     <div class="flex-1 px-3">
                         <div class="flex justify-between items-center">
                             <div class="flex gap-2">
-                                <a href="list.php?enr=<?= $enr ?>&action=manage" class="ignis-btn ignis-btn--ghost">
+                                <a href="list?enr=<?= $enr ?>&action=manage" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-list"></i> Verlauf bearbeiten
                                 </a>
                             </div>
@@ -731,7 +731,7 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
 
         function addValues() {
             <?php if (!$ist_freigegeben): ?>
-                window.location.href = 'add.php?enr=<?= $enr ?>';
+                window.location.href = 'add?enr=<?= $enr ?>';
             <?php else: ?>
                 showAlert('Diese Dokumentation ist bereits freigegeben und kann nicht mehr bearbeitet werden.', {
                     type: 'warning',

@@ -124,7 +124,7 @@ use App\Helpers\Flash;
 
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="<?= BASE_PATH ?>index">Dashboard</a></li>
                 <li class="breadcrumb-item">Einstellungen</li>
                 <li class="breadcrumb-item active">Performance</li>
             </ol>

@@ -415,7 +415,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             formData.append('ziel_poi', poi);
             formData.append('ziel_adresse', JSON.stringify(adressData));
 
-            fetch('<?= BASE_PATH ?>api/enotf/poi/save-field.php', {
+            fetch('<?= BASE_PATH ?>api/enotf/poi/save-field', {
                     method: 'POST',
                     body: formData
                 })
@@ -497,7 +497,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 formData.append('enr', <?= json_encode($enr) ?>);
                 formData.append('field', 'sonderrechte_transport');
                 formData.append('value', currentValue || '');
-                fetch('<?= BASE_PATH ?>api/enotf/save-fields.php', { method: 'POST', body: formData });
+                fetch('<?= BASE_PATH ?>api/enotf/save-fields', { method: 'POST', body: formData });
             }
         })();
     </script>

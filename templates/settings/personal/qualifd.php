@@ -74,7 +74,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="editDienstgradModal" tabindex="-1" aria-labelledby="editDienstgradModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/personal/qualifd/update.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/personal/qualifd/update" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editDienstgradModalLabel">Fachdienst bearbeiten</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -99,7 +99,7 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                     </form>
-                    <form id="delete-dienstgrad-form" action="<?= BASE_PATH ?>settings/personal/qualifd/delete.php" method="POST" style="display:none;">
+                    <form id="delete-dienstgrad-form" action="<?= BASE_PATH ?>settings/personal/qualifd/delete" method="POST" style="display:none;">
                         <input type="hidden" name="id" id="dienstgrad-delete-id">
                     </form>
                 </div>
@@ -110,7 +110,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="createDienstgradModal" tabindex="-1" aria-labelledby="createDienstgradModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/personal/qualifd/create.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/personal/qualifd/create" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createDienstgradModalLabel">Fachdienst anlegen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>

@@ -231,7 +231,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                         <?php endforeach; ?>
                                     </select>
                                     <div class="ignis-field__hint">
-                                        <a href="<?= BASE_PATH ?>settings/documents/categories.php">Kategorien verwalten</a>
+                                        <a href="<?= BASE_PATH ?>settings/documents/categories">Kategorien verwalten</a>
                                     </div>
                                 </div>
                             </div>
@@ -932,7 +932,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                 ${template.description ? '<p class="text-[var(--text-dimmed,#818189)] mb-0" style="font-size:0.75rem;line-height:1.3;">' + template.description + '</p>' : ''}
                             </div>
                             <div class="border-t p-2 flex gap-1 justify-end" style="background:transparent;">
-                                <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
+                                <a href="${BASE_PATH}settings/documents/visual-editor?id=${template.id}" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
                                     <i class="fa-solid fa-paintbrush"></i>
                                 </a>
                                 <button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary btn-edit-template" data-id="${template.id}" title="Felder bearbeiten">

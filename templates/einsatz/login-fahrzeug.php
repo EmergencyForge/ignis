@@ -20,7 +20,7 @@ use App\Helpers\Flash;
     <script>
     (function() {
         if (navigator.userAgent.includes('CitizenFX')) {
-            fetch('<?= BASE_PATH ?>api/character/get-session-id.php')
+            fetch('<?= BASE_PATH ?>api/character/get-session-id')
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
                     if (data.session_id) {
@@ -70,10 +70,10 @@ use App\Helpers\Flash;
                             <strong>Besatzung:</strong> <?= htmlspecialchars($_SESSION['einsatz_operator_name']) ?>
                         </div>
                         <div class="flex flex-col gap-2">
-                            <a href="<?= BASE_PATH ?>einsatz/list.php" class="ignis-btn ignis-btn--primary btn-lg">
+                            <a href="<?= BASE_PATH ?>einsatz/list" class="ignis-btn ignis-btn--primary btn-lg">
                                 <i class="fa-solid fa-list mr-2"></i>Zur Einsatzliste
                             </a>
-                            <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug.php?logout=1" class="ignis-btn ignis-btn--outline-secondary">
+                            <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug?logout=1" class="ignis-btn ignis-btn--outline-secondary">
                                 <i class="fa-solid fa-sign-out-alt mr-2"></i>Abmelden
                             </a>
                         </div>

@@ -130,7 +130,7 @@ function einsatz_fmt_dt(?string $ts): string
                                         </span>
                                     </div>
 
-                                    <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int) $inc['id'] ?>" class="btn btn-main-color w-full no-underline hover:no-underline">
+                                    <a href="<?= BASE_PATH ?>einsatz/view?id=<?= (int) $inc['id'] ?>" class="btn btn-main-color w-full no-underline hover:no-underline">
                                         <i class="fa-solid fa-eye mr-1"></i>
                                         Einsatz öffnen
                                     </a>
