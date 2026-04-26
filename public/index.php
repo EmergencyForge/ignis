@@ -62,11 +62,47 @@ if (preg_match('#\.php$#', $rawPath) && !str_ends_with($rawPath, 'index.php')) {
     }
     // Non-idempotente Methoden behalten ihren Body — wir rewriten intern.
     $_SERVER['REQUEST_URI'] = $cleanUri;
+    $rawPath = $cleanPath;
+}
+
+// API-Versionierung. Canonical ab jetzt: `/api/v1/...`. Eingehende
+// Anfragen auf `/api/v1/X` werden für die Route-Dispatch intern auf
+// `/api/X` zurückgeschrieben (alle Routen bleiben am alten Pfad
+// registriert). Anfragen auf `/api/X` ohne v1-Prefix laufen weiter,
+// bekommen aber Deprecation-Header in der Response.
+$apiDeprecated = false;
+$apiSuccessor  = null;
+if (preg_match('#^/api/v1(/.*)?$#', $rawPath, $m)) {
+    $rest = $m[1] ?? '';
+    if ($rest === '') $rest = '/';
+    $cleanPath = '/api' . $rest;
+    $query = parse_url($rawUri, PHP_URL_QUERY);
+    $_SERVER['REQUEST_URI'] = $cleanPath . ($query !== null ? '?' . $query : '');
+} elseif (preg_match('#^/api/(?!_router/)([^/?#].*)?$#', $rawPath, $m)) {
+    $apiDeprecated = true;
+    $apiSuccessor  = '/api/v1/' . ($m[1] ?? '');
 }
 
 try {
     $request  = Request::fromGlobals();
     $response = $router->dispatch($request);
+
+    // Deprecation-Header für unversionierte API-Aufrufe (RFC 8594, RFC 9745).
+    // Sunset 6 Monate ab heute, damit externe Clients Zeit zum Migrieren haben.
+    if ($apiDeprecated && $apiSuccessor !== null) {
+        $sunset = (new DateTimeImmutable('+6 months'))->format(DateTimeInterface::RFC7231);
+        $response = new Response(
+            status: $response->status,
+            body:   $response->body,
+            headers: array_merge($response->headers, [
+                'Deprecation' => 'true',
+                'Sunset'      => $sunset,
+                'Link'        => '<' . $apiSuccessor . '>; rel="successor-version"',
+            ]),
+            emitted: $response->emitted,
+        );
+    }
+
     $response->send();
 
     // Piggyback-Cron — Response ist bereits geflusht, jetzt fällige Jobs
