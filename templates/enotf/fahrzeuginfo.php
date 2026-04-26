@@ -261,78 +261,45 @@ $currentDate = date('d.m.Y');
 
                             <!-- Beladelisten -->
                             <div class="vehicle-info-card p-4">
-                                <h5 class="text-white mb-3">
-                                    Beladeliste
-                                </h5>
+                                <h5 class="text-white mb-3">Beladeliste</h5>
 
                                 <?php if (count($categories) > 0): ?>
-                                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+                                    <?php
+                                    // Tiles in einem Query laden und nach Kategorie gruppieren (statt N+1).
+                                    $catIds = array_column($categories, 'id');
+                                    $placeholders = implode(',', array_fill(0, count($catIds), '?'));
+                                    $tilesByCategory = [];
+                                    if ($catIds) {
+                                        $tilesStmt = $pdo->prepare(
+                                            "SELECT * FROM intra_fahrzeuge_beladung_tiles
+                                             WHERE category IN ($placeholders)
+                                             ORDER BY title ASC"
+                                        );
+                                        $tilesStmt->execute($catIds);
+                                        foreach ($tilesStmt->fetchAll(PDO::FETCH_ASSOC) as $t) {
+                                            $tilesByCategory[(int) $t['category']][] = $t;
+                                        }
+                                    }
+                                    ?>
+
+                                    <div class="beladung-search">
+                                        <input type="search" class="ignis-input" data-beladung-search
+                                               placeholder="Wo liegt … ? (z. B. Intubationsbesteck)"
+                                               autocomplete="off">
+                                    </div>
+
+                                    <div data-beladung-results class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                                         <?php foreach ($categories as $category): ?>
                                             <?php
-                                            // Typ-Styling
-                                            switch ($category['type']) {
-                                                case 0:
-                                                    $typeClass = 'primary';
-                                                    $typeText = 'Notfallrucksack';
-                                                    break;
-                                                case 1:
-                                                    $typeClass = 'danger';
-                                                    $typeText = 'Innenfach';
-                                                    break;
-                                                case 2:
-                                                    $typeClass = 'warning';
-                                                    $typeText = 'Außenfach';
-                                                    break;
-                                                default:
-                                                    $typeClass = 'secondary';
-                                                    $typeText = 'Unbekannt';
-                                            }
+                                            $tiles = $tilesByCategory[(int) $category['id']] ?? [];
+                                            $mode  = 'user';
+                                            include __DIR__ . '/../../assets/components/beladung/_category-card.php';
                                             ?>
-
-                                            <div>
-                                                <div class="category-card p-3">
-                                                    <div class="mb-2 flex items-center justify-between">
-                                                        <h6 class="text-white mb-0">
-                                                            <span class="ignis-chip mr-2"><?= $category['priority'] ?></span>
-                                                            <?= htmlspecialchars($category['title']) ?>
-                                                        </h6>
-                                                        <span class="badge bg-<?= $typeClass ?>"><?= $typeText ?></span>
-                                                    </div>
-
-                                                    <div class="mb-2">
-                                                        <small class="text-white">
-                                                            <?= $category['tile_count'] ?> Positionen |
-                                                            <?= $category['total_items'] ?: 0 ?> Gegenstände gesamt
-                                                        </small>
-                                                    </div>
-
-                                                    <?php
-                                                    $tilesStmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge_beladung_tiles WHERE category = ? ORDER BY title ASC");
-                                                    $tilesStmt->execute([$category['id']]);
-                                                    $tiles = $tilesStmt->fetchAll(PDO::FETCH_ASSOC);
-                                                    ?>
-
-                                                    <?php if (count($tiles) > 0): ?>
-                                                        <div class="tiles-container">
-                                                            <?php foreach ($tiles as $tile): ?>
-                                                                <div class="tile-item flex items-center justify-between">
-                                                                    <span class="text-white">
-                                                                        <?= htmlspecialchars($tile['title']) ?>
-                                                                    </span>
-                                                                    <span class="ignis-chip ignis-chip--primary">
-                                                                        <?= $tile['amount'] ?>x
-                                                                    </span>
-                                                                </div>
-                                                            <?php endforeach; ?>
-                                                        </div>
-                                                    <?php else: ?>
-                                                        <div class="text-gray-400">
-                                                            <em>Keine Gegenstände in dieser Kategorie</em>
-                                                        </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
                                         <?php endforeach; ?>
+                                    </div>
+                                    <div data-beladung-empty class="beladung-no-results" style="display:none;">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                        <p>Kein Treffer für deine Suche.</p>
                                     </div>
                                 <?php else: ?>
                                     <div class="text-gray-400 text-center py-4">

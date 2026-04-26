@@ -1010,6 +1010,148 @@ select.form-select option {
 }
 
 // =====================================================
+// Beladelisten — gemeinsame Styles für Admin + eNOTF-User-View.
+// Werden von assets/components/beladung/_category-card.php genutzt.
+// =====================================================
+.beladung-search {
+    position: sticky;
+    top: 56px;
+    z-index: 8;
+    background: var(--body-bg);
+    padding: 0.6rem 0;
+    margin-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+
+    .ignis-input {
+        width: 100%;
+    }
+}
+
+.beladung-no-results {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--text-dimmed);
+
+    i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+}
+
+.beladung-category-card {
+    background: var(--body-bg-lighter);
+    border: 1px solid var(--darkgray);
+    border-left: 4px solid var(--main-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: opacity 0.15s ease;
+
+    &.is-filtered-out {
+        display: none;
+    }
+
+    &__header {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: var(--body-bg-lighter);
+        border-bottom: 1px solid var(--darkgray);
+    }
+
+    &__title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__name {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-title);
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+    }
+
+    &__body {
+        padding: 0.5rem 0.75rem 0.75rem;
+    }
+
+    &__empty {
+        margin: 0;
+        padding: 1rem;
+        text-align: center;
+        color: var(--text-dimmed);
+        font-style: italic;
+        font-size: 0.85rem;
+    }
+}
+
+.beladung-tiles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+}
+
+.beladung-tile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-sm);
+    transition: background 0.1s ease;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    &.is-filtered-out {
+        display: none;
+    }
+
+    &.is-search-match {
+        background: rgba(var(--main-color-rgb, 255, 77, 0), 0.08);
+        outline: 1px solid rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+    }
+
+    &__title {
+        flex: 1;
+        min-width: 0;
+        font-weight: 500;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    &__amount {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        flex-shrink: 0;
+    }
+}
+
+// =====================================================
 // DataTables — ıgnıs-Restyling
 // Ersetzt das Bootstrap-5-Theme von datatables.net-bs5 durch eigene
 // Tokens. Wird auf alle `.dataTables_wrapper`-Containers angewendet.

@@ -135,93 +135,47 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
             <div class="intra__tile mb-6 px-3 py-2">
-                    <div id="categories-container">
+                <?php
+                // Tiles für alle Kategorien in einem Query laden (statt N+1).
+                $catIds = array_column($categories, 'id');
+                $tilesByCategory = [];
+                if ($catIds) {
+                    $placeholders = implode(',', array_fill(0, count($catIds), '?'));
+                    $tilesStmt = $pdo->prepare(
+                        "SELECT * FROM intra_fahrzeuge_beladung_tiles
+                         WHERE category IN ($placeholders)
+                         ORDER BY title ASC"
+                    );
+                    $tilesStmt->execute($catIds);
+                    foreach ($tilesStmt->fetchAll(PDO::FETCH_ASSOC) as $t) {
+                        $tilesByCategory[(int) $t['category']][] = $t;
+                    }
+                }
+                $canEdit = Permissions::check(['admin', 'vehicles.manage']);
+                ?>
+
+                <div class="beladung-search">
+                    <input type="search" class="ignis-input" data-beladung-search
+                           placeholder="Suchen — über Kategorien und Gegenstände …"
+                           autocomplete="off">
+                </div>
+
+                <div id="categories-container" data-beladung-results>
+                    <?php foreach ($categories as $category): ?>
                         <?php
-                        foreach ($categories as $category) {
-                            switch ($category['type']) {
-                                case 0:
-                                    $typeClass = 'primary';
-                                    $typeText = 'Notfallrucksack';
-                                    break;
-                                case 1:
-                                    $typeClass = 'danger';
-                                    $typeText = 'Innenfach';
-                                    break;
-                                case 2:
-                                    $typeClass = 'warning';
-                                    $typeText = 'Außenfach';
-                                    break;
-                                default:
-                                    $typeClass = 'secondary';
-                                    $typeText = 'Unbekannt';
-                            }
-
-                            $vehTypeBadge = $category['veh_type'] ? "<span class='badge bg-secondary ml-1'>" . htmlspecialchars($category['veh_type']) . "</span>" : '';
-
-                            echo "<div class='category-item mb-4' data-veh-type='" . ($category['veh_type'] ?: 'null') . "' data-category-type='{$category['type']}' data-tile-count='{$category['tile_count']}'>";
-                            echo "<div class='card category-card'>";
-                            echo "<div class='card-header flex items-center justify-between gap-3'>";
-                            echo "<div>";
-                            echo "<h5 class='mb-1'>";
-                            echo "<span class='badge bg-main-color priority-badge mr-2'>{$category['priority']}</span>";
-                            echo htmlspecialchars($category['title']);
-                            echo "</h5>";
-                            echo "<span class='badge bg-{$typeClass} badge-type'>{$typeText}</span>";
-                            echo $vehTypeBadge;
-                            echo "</div>";
-                            echo "<div>";
-                            echo "<span class='badge bg-secondary mr-2'>{$category['tile_count']} Positionen</span>";
-                            if (Permissions::check(['admin', 'vehicles.manage'])) :
-                                echo "<button class='btn btn-sm btn-soft-primary btn-icon mr-1 edit-category-btn' data-id='{$category['id']}' data-title='" . htmlspecialchars($category['title']) . "' data-type='{$category['type']}' data-priority='{$category['priority']}' data-veh_type='" . htmlspecialchars($category['veh_type'] ?? '') . "'>";
-                                echo "<i class='fa-solid fa-edit'></i>";
-                                echo "</button>";
-                                echo "<button class='btn btn-sm btn-outline-danger btn-icon delete-category-btn' data-id='{$category['id']}'>";
-                                echo "<i class='fa-solid fa-trash'></i>";
-                                echo "</button>";
-                            endif;
-                            echo "</div>";
-                            echo "</div>";
-
-                            $tileStmt = $pdo->prepare("SELECT * FROM intra_fahrzeuge_beladung_tiles WHERE category = ? ORDER BY title ASC");
-                            $tileStmt->execute([$category['id']]);
-                            $tiles = $tileStmt->fetchAll(PDO::FETCH_ASSOC);
-
-                            echo "<div class='card-body'>";
-                            if (count($tiles) > 0) {
-                                echo "<div class='tiles-grid grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-3'>";
-                                foreach ($tiles as $tile) {
-                                    echo "<div>";
-                                    echo "<div class='tile-item flex h-full items-center justify-between'>";
-                                    echo "<div class='tile-title'>";
-                                    echo "<strong>" . htmlspecialchars($tile['title']) . "</strong>";
-                                    echo "</div>";
-                                    echo "<div class='tile-actions'>";
-                                    echo "<span class='badge bg-primary mr-2'>{$tile['amount']}x</span>";
-                                    if (Permissions::check(['admin', 'vehicles.manage'])) :
-                                        echo "<button class='btn btn-sm btn-outline-primary mr-1 edit-tile-btn' data-id='{$tile['id']}' data-category='{$tile['category']}' data-title='" . htmlspecialchars($tile['title']) . "' data-amount='{$tile['amount']}'>";
-                                        echo "<i class='fa-solid fa-edit'></i>";
-                                        echo "</button>";
-                                        echo "<button class='btn btn-sm btn-outline-danger delete-tile-btn' data-id='{$tile['id']}'>";
-                                        echo "<i class='fa-solid fa-trash'></i>";
-                                        echo "</button>";
-                                    endif;
-                                    echo "</div>";
-                                    echo "</div>";
-                                    echo "</div>";
-                                }
-                                echo "</div>";
-                            } else {
-                                echo "<p class='text-gray-400 mb-0'>Keine Gegenstände in dieser Kategorie.</p>";
-                            }
-                            echo "</div>";
-                            echo "</div>";
-                            echo "</div>";
-                        }
+                        $tiles = $tilesByCategory[(int) $category['id']] ?? [];
+                        $mode  = 'admin';
+                        include __DIR__ . '/../../../../assets/components/beladung/_category-card.php';
                         ?>
-                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <div data-beladung-empty class="beladung-no-results" style="display:none;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <p>Kein Treffer für deine Suche.</p>
                 </div>
             </div>
         </div>
+    </div>
 
         <!-- Kategorie hinzufügen Modal -->
         <div class="modal fade" id="addCategoryModal" tabindex="-1">
