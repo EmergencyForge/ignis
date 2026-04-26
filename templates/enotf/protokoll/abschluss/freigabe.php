@@ -28,9 +28,21 @@ if (isset($_GET['enr'])) {
     exit();
 }
 
-$stmto = $pdo->prepare("SELECT name FROM intra_edivi_ziele WHERE identifier = :ziel");
-$stmto->execute(['ziel' => $daten['transportziel']]);
-$ziel = $stmto->fetchColumn();
+// Transportziel über POIs auflösen. Neue Protokolle setzen `poi_<id>`,
+// alte Protokolle haben den Legacy-Identifier — beide finden sich nach
+// der Konsolidierungs-Migration über `intra_edivi_pois`.
+$transportziel = $daten['transportziel'] ?? '';
+$ziel = '';
+if ($transportziel !== '') {
+    if (str_starts_with($transportziel, 'poi_')) {
+        $stmto = $pdo->prepare("SELECT name FROM intra_edivi_pois WHERE id = :id");
+        $stmto->execute(['id' => substr($transportziel, 4)]);
+    } else {
+        $stmto = $pdo->prepare("SELECT name FROM intra_edivi_pois WHERE legacy_identifier = :ident");
+        $stmto->execute(['ident' => $transportziel]);
+    }
+    $ziel = (string) ($stmto->fetchColumn() ?: '');
+}
 
 $stmtNa = $pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE identifier = :fzg_na");
 $stmtNa->execute(['fzg_na' => $daten['fzg_na']]);

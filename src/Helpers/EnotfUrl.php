@@ -139,24 +139,14 @@ class EnotfUrl
         return self::appendParams($url, $params);
     }
 
+    /**
+     * @deprecated Zielverwaltung wurde in POIs konsolidiert. Diese Helper-
+     * Methode liefert dauerhaft die POI-URL — wer noch darauf verweist,
+     * erreicht das gleiche Ziel im neuen System.
+     */
     public static function adminZielverwaltung(string $action = '', array $params = []): string
     {
-        $base = self::basePath();
-
-        if (self::useCleanUrls()) {
-            $url = $base . 'enotf/admin/zielverwaltung';
-            if ($action !== '') {
-                $url .= '/' . $action;
-            }
-        } else {
-            if ($action !== '') {
-                $url = $base . 'enotf/admin/zielverwaltung/' . $action . '.php';
-            } else {
-                $url = $base . 'enotf/admin/zielverwaltung/index.php';
-            }
-        }
-
-        return self::appendParams($url, $params);
+        return self::appendParams(self::basePath() . 'settings/pois', $params);
     }
 
     // ---------------------------------------------------------------
