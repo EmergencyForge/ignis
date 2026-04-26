@@ -143,16 +143,7 @@ use App\Helpers\Flash;
             $('#table-access-codes').DataTable({
                 paging: true, lengthMenu: [10, 25, 50], pageLength: 10,
                 order: [[0, 'asc']], columnDefs: [{ orderable: false, targets: -1 }],
-                language: {
-                    "emptyTable": "Keine Krankenhäuser vorhanden",
-                    "info": "Zeige _START_ bis _END_ | Gesamt: _TOTAL_",
-                    "infoEmpty": "Keine Daten verfügbar",
-                    "infoFiltered": "| Gefiltert von _MAX_",
-                    "lengthMenu": "_MENU_ pro Seite",
-                    "search": "Suchen:",
-                    "zeroRecords": "Keine Einträge gefunden",
-                    "paginate": { "first": "Erste", "last": "Letzte", "next": "Nächste", "previous": "Vorherige" }
-                }
+                language: window.IgnisDataTableLang('Einträge')
             });
 
             function generateRandomCode(length = 12) {

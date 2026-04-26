@@ -168,16 +168,7 @@ use App\Helpers\Flash;
             $('#table-medikamente').DataTable({
                 stateSave: true, paging: true, lengthMenu: [10, 25, 50], pageLength: 25,
                 order: [[1, 'asc']], columnDefs: [{ orderable: false, targets: -1 }],
-                language: {
-                    "emptyTable": "Keine Daten vorhanden",
-                    "info": "Zeige _START_ bis _END_  | Gesamt: _TOTAL_",
-                    "infoEmpty": "Keine Daten verfügbar",
-                    "infoFiltered": "| Gefiltert von _MAX_ Medikamenten",
-                    "lengthMenu": "_MENU_ Medikamente pro Seite anzeigen",
-                    "search": "Medikamente suchen:",
-                    "zeroRecords": "Keine Einträge gefunden",
-                    "paginate": { "first": "Erste", "last": "Letzte", "next": "Nächste", "previous": "Vorherige" }
-                }
+                language: window.IgnisDataTableLang('Medikamente')
             });
         });
 
