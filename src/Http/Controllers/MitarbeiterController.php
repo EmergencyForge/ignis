@@ -76,6 +76,37 @@ class MitarbeiterController extends Controller
      * diesen Scope-Vertrag explizit auf, damit die Partials weiter funktionieren
      * ohne sie selbst migrieren zu müssen.
      */
+    /**
+     * Liefert das Hover-Card-Fragment (HTML) für einen Mitarbeiter.
+     * Wird vom JS-Modul user-hover-card.js per fetch geholt und in eine
+     * ignis-popover-Instanz geschoben. Auth: gleiche Sicht-Permission
+     * wie die Mitarbeiter-Liste.
+     */
+    public function card(int $id): \App\Http\Response
+    {
+        $this->requireAuth();
+        \App\Auth\Gate::authorize('mitarbeiter.viewList');
+
+        if ($id <= 0) {
+            return \App\Http\Response::html('Ungültige ID.', 400);
+        }
+
+        /** @var Mitarbeiter|null $mitarbeiter */
+        $mitarbeiter = Mitarbeiter::query()
+            ->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel'])
+            ->find($id);
+
+        if ($mitarbeiter === null) {
+            return \App\Http\Response::html('Mitarbeiter nicht gefunden.', 404);
+        }
+
+        $profileUrl = (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id;
+
+        ob_start();
+        include __DIR__ . '/../../../assets/components/profiles/_hover-card.php';
+        return \App\Http\Response::html((string) ob_get_clean());
+    }
+
     public function show(): void
     {
 

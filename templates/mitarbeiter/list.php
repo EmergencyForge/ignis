@@ -118,7 +118,13 @@ use App\Helpers\Flash;
                                 ?>
                                     <tr data-dg="<?= htmlspecialchars($dgNeutral) ?>" data-rd="<?= htmlspecialchars($rdNeutral) ?>" data-fw="<?= htmlspecialchars($fwShort) ?>">
                                         <td><?= htmlspecialchars($m->dienstnr) ?></td>
-                                        <td><?= htmlspecialchars($m->fullname) ?></td>
+                                        <td>
+                                            <a href="<?= BASE_PATH ?>mitarbeiter/profile?id=<?= (int) $m->id ?>"
+                                               data-user-card="<?= (int) $m->id ?>"
+                                               class="text-reset no-underline">
+                                                <?= htmlspecialchars($m->fullname) ?>
+                                            </a>
+                                        </td>
                                         <td>
                                             <?php if (!empty($badgeImg)): ?>
                                                 <img src="<?= htmlspecialchars($badgeImg) ?>" height="16" width="auto" style="padding-right:5px" alt="Dienstgrad" loading="lazy" />
