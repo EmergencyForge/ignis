@@ -50,7 +50,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                     </small>
                 </div>
                 <div class="md:text-right">
-                    <a href="<?= BASE_PATH ?>manv/edit.php?id=<?= $lageId ?>" class="btn btn-soft-primary no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/edit.php?id=<?= $lageId ?>" class="ignis-btn ignis-btn--soft-primary no-underline hover:no-underline">
                         <i class="fas fa-edit mr-2"></i>Bearbeiten
                     </a>
                 </div>
@@ -110,10 +110,10 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                 <div class="card-header flex flex-wrap items-center justify-between gap-2">
                     <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Patienten</h5>
                     <div class="flex flex-wrap gap-2">
-                        <a href="ressourcen.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-outline-secondary no-underline hover:no-underline">
+                        <a href="ressourcen.php?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-truck mr-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
                         </a>
-                        <a href="<?= BASE_PATH ?>manv/patient-create.php?lage_id=<?= $lageId ?>" class="btn btn-sm btn-soft-primary no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>manv/patient-create.php?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary no-underline hover:no-underline">
                             <i class="fas fa-user-plus mr-2"></i>Neuer Patient
                         </a>
                     </div>
@@ -169,19 +169,19 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                         <td><?= !empty($patient['transportziel']) ? htmlspecialchars($patient['transportziel']) : '-' ?></td>
                                         <td>
                                             <?php if (!empty($patient['transport_abfahrt'])): ?>
-                                                <span class="badge-status status-muted"><span class="status-dot"></span>Abgefahren</span>
+                                                <span class="ignis-chip ignis-chip--status ignis-chip--dark">Abgefahren</span>
                                             <?php elseif (!empty($patient['transportziel'])): ?>
-                                                <span class="badge-status status-success"><span class="status-dot"></span>Bereit</span>
+                                                <span class="ignis-chip ignis-chip--status ignis-chip--success">Bereit</span>
                                             <?php else: ?>
-                                                <span class="badge-status status-warning"><span class="status-dot"></span>Wartend</span>
+                                                <span class="ignis-chip ignis-chip--status ignis-chip--warning">Wartend</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <a href="<?= BASE_PATH ?>manv/patient-view.php?id=<?= (int) $patient['id'] ?>" class="btn btn-sm btn-soft-primary btn-icon mr-1">
+                                            <a href="<?= BASE_PATH ?>manv/patient-view.php?id=<?= (int) $patient['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <?php if ($canTransport && $isTransportVehicle && empty($patient['transport_abfahrt']) && !empty($patient['transportziel']) && $patient['transportziel'] !== 'Kein Transport'): ?>
-                                                <button class="btn btn-sm btn-success transport-btn"
+                                                <button class="ignis-btn ignis-btn--sm ignis-btn--success transport-btn"
                                                     data-patient-id="<?= (int) $patient['id'] ?>"
                                                     data-patient-nr="<?= htmlspecialchars($patient['patienten_nummer']) ?>">
                                                     <i class="fas fa-truck-loading mr-1"></i>Abfahrt
@@ -199,10 +199,10 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
             <div class="mb-4 mt-4">
                 <div class="card">
                     <div class="card-body flex flex-wrap gap-2">
-                        <a href="index.php" class="btn btn-ghost no-underline hover:no-underline">
+                        <a href="index.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                             <i class="fas fa-arrow-left mr-2"></i>Zurück zur Übersicht
                         </a>
-                        <a href="log.php?id=<?= $lageId ?>" class="btn btn-outline-secondary no-underline hover:no-underline">
+                        <a href="log.php?id=<?= $lageId ?>" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-history mr-2"></i>Aktionslog
                         </a>
                     </div>
@@ -223,16 +223,16 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                 </div>
                 <div class="modal-body">
                     <p>Möchten Sie Patient <strong id="modal-patient-nr"></strong> wirklich als abgefahren markieren?</p>
-                    <div class="alert alert-info">
+                    <div class="ignis-alert ignis-alert--info">
                         <i class="fas fa-info-circle mr-2"></i>
                         Der Patient wird nicht mehr an der Einsatzstelle angezeigt.
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">
                         <i class="fas fa-times mr-2"></i>Abbrechen
                     </button>
-                    <button type="button" class="btn btn-success" id="confirmTransportBtn">
+                    <button type="button" class="ignis-btn ignis-btn--success" id="confirmTransportBtn">
                         <i class="fas fa-check mr-2"></i>Bestätigen
                     </button>
                 </div>

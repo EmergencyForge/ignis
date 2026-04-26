@@ -235,7 +235,7 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
                     <div class="col">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="d-flex gap-2">
-                                <a href="list.php?enr=<?= $enr ?>&action=manage" class="btn btn-outline-light">
+                                <a href="list.php?enr=<?= $enr ?>&action=manage" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-list"></i> Verlauf bearbeiten
                                 </a>
                             </div>
@@ -284,7 +284,7 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
                 <?php if (empty($vitals)): ?>
                     <div class="row mt-3">
                         <div class="col text-center">
-                            <div class="alert alert-info">
+                            <div class="ignis-alert ignis-alert--info">
                                 <h5><i class="fa-solid fa-circle-info"></i> Noch keine Vitalparameter dokumentiert</h5>
                                 <p>Klicken Sie auf "Werte hinzufügen" oder auf den Chart-Bereich, um die ersten Vitalparameter zu erfassen.</p>
                             </div>

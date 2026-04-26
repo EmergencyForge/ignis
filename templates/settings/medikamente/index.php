@@ -33,7 +33,7 @@ use App\Helpers\Flash;
                         <h1>Medikamentenverwaltung</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createMedikamentModal">
+                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createMedikamentModal">
                                     <i class="fa-solid fa-plus"></i> Medikament erstellen
                                 </button>
                             <?php endif; ?>
@@ -100,19 +100,19 @@ use App\Helpers\Flash;
                             <input type="hidden" name="id" id="medikament-id">
                             <div class="mb-3">
                                 <label for="medikament-wirkstoff" class="form-label">Wirkstoff</label>
-                                <input type="text" class="form-control" name="wirkstoff" id="medikament-wirkstoff" required>
+                                <input type="text" class="ignis-input" name="wirkstoff" id="medikament-wirkstoff" required>
                             </div>
                             <div class="mb-3">
                                 <label for="medikament-herstellername" class="form-label">Herstellername <small class="form-hint">(optional, z.B. "ASS" für Acetylsalicylsäure)</small></label>
-                                <input type="text" class="form-control" name="herstellername" id="medikament-herstellername">
+                                <input type="text" class="ignis-input" name="herstellername" id="medikament-herstellername">
                             </div>
                             <div class="mb-3">
                                 <label for="medikament-dosierungen" class="form-label">Vordefinierte Dosierungen <small class="form-hint">(kommagetrennt, z.B. "100 mg,250 mg,500 mg")</small></label>
-                                <input type="text" class="form-control" name="dosierungen" id="medikament-dosierungen" placeholder="100 mg,250 mg,500 mg">
+                                <input type="text" class="ignis-input" name="dosierungen" id="medikament-dosierungen" placeholder="100 mg,250 mg,500 mg">
                             </div>
                             <div class="mb-3">
                                 <label for="medikament-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="priority" id="medikament-priority" required>
+                                <input type="number" class="ignis-input" name="priority" id="medikament-priority" required>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="active" id="medikament-active">
@@ -120,10 +120,10 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="btn btn-ghost-danger" id="delete-medikament-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-medikament-btn">Löschen</button>
                             <div>
-                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -146,19 +146,19 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="new-medikament-wirkstoff" class="form-label">Wirkstoff</label>
-                                <input type="text" class="form-control" name="wirkstoff" id="new-medikament-wirkstoff" required>
+                                <input type="text" class="ignis-input" name="wirkstoff" id="new-medikament-wirkstoff" required>
                             </div>
                             <div class="mb-3">
                                 <label for="new-medikament-herstellername" class="form-label">Herstellername <small class="form-hint">(optional, z.B. "ASS" für Acetylsalicylsäure)</small></label>
-                                <input type="text" class="form-control" name="herstellername" id="new-medikament-herstellername">
+                                <input type="text" class="ignis-input" name="herstellername" id="new-medikament-herstellername">
                             </div>
                             <div class="mb-3">
                                 <label for="new-medikament-dosierungen" class="form-label">Vordefinierte Dosierungen <small class="form-hint">(kommagetrennt, z.B. "100 mg,250 mg,500 mg")</small></label>
-                                <input type="text" class="form-control" name="dosierungen" id="new-medikament-dosierungen" placeholder="100 mg,250 mg,500 mg">
+                                <input type="text" class="ignis-input" name="dosierungen" id="new-medikament-dosierungen" placeholder="100 mg,250 mg,500 mg">
                             </div>
                             <div class="mb-3">
                                 <label for="new-medikament-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="priority" id="new-medikament-priority" required>
+                                <input type="number" class="ignis-input" name="priority" id="new-medikament-priority" required>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="active" id="new-medikament-active" checked>
@@ -166,8 +166,8 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

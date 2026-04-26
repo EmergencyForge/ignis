@@ -143,7 +143,7 @@ use App\Helpers\Flash;
                     </div>
 
                     <?php if (!$activeIncidentId): ?>
-                        <div class="alert alert-warning">
+                        <div class="ignis-alert ignis-alert--warning">
                             <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                             Ihr Fahrzeug ist keinem aktiven Einsatz zugeordnet. Statusmeldungen können erst gesendet werden, wenn ein Einsatz zugeordnet ist.
                         </div>

@@ -30,10 +30,10 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                     <p class="text-gray-400">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
                 </div>
                 <div class="flex flex-col gap-2 lg:flex-row lg:justify-end">
-                    <button type="button" class="btn btn-success btn-icon" data-bs-toggle="modal" data-bs-target="#quickAddModal" title="Schnell hinzufügen">
+                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--icon" data-bs-toggle="modal" data-bs-target="#quickAddModal" title="Schnell hinzufügen">
                         <i class="fas fa-bolt"></i>
                     </button>
-                    <button type="button" class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                    <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createModal">
                         <i class="fas fa-plus mr-1"></i> Fahrzeug hinzufügen
                     </button>
                 </div>
@@ -66,7 +66,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                             <td><?= htmlspecialchars($fzg['fahrzeugtyp'] ?? '-') ?></td>
                                             <td><?= htmlspecialchars($fzg['lokalisation'] ?? '-') ?></td>
                                             <td>
-                                                <button class="btn btn-sm btn-soft-primary btn-icon mr-1 edit-ressource-btn"
+                                                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-ressource-btn"
                                                     data-id="<?= (int) $fzg['id'] ?>"
                                                     data-typ="<?= htmlspecialchars($fzg['typ']) ?>"
                                                     data-bezeichnung="<?= htmlspecialchars($fzg['bezeichnung']) ?>"
@@ -78,7 +78,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                                     data-bs-target="#editModal">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= (int) $fzg['id'] ?>" class="btn btn-sm btn-outline-danger btn-icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
+                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= (int) $fzg['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </td>
@@ -92,7 +92,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             </div>
 
             <div class="mb-4">
-                <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="btn btn-ghost no-underline hover:no-underline">
+                <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                     <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                 </a>
             </div>
@@ -112,28 +112,28 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="edit_typ" class="form-label">Typ</label>
-                                <input type="text" class="form-control" id="edit_typ" name="typ" readonly>
+                                <input type="text" class="ignis-input" id="edit_typ" name="typ" readonly>
                             </div>
                             <div class="mb-3">
                                 <label for="edit_bezeichnung" class="form-label">Bezeichnung *</label>
-                                <input type="text" class="form-control" id="edit_bezeichnung" name="bezeichnung" required>
+                                <input type="text" class="ignis-input" id="edit_bezeichnung" name="bezeichnung" required>
                             </div>
                             <div class="mb-3" id="edit_fahrzeugtyp_group">
                                 <label for="edit_fahrzeugtyp" class="form-label">Art</label>
-                                <input type="text" class="form-control" id="edit_fahrzeugtyp" name="fahrzeugtyp">
+                                <input type="text" class="ignis-input" id="edit_fahrzeugtyp" name="fahrzeugtyp">
                             </div>
                             <div class="mb-3">
                                 <label for="edit_lokalisation" class="form-label">Lokalisation an Einsatzstelle</label>
-                                <input type="text" class="form-control" id="edit_lokalisation" name="lokalisation">
+                                <input type="text" class="ignis-input" id="edit_lokalisation" name="lokalisation">
                             </div>
                             <div class="mb-3">
                                 <label for="edit_notizen" class="form-label">Notizen</label>
-                                <textarea class="form-control" id="edit_notizen" name="notizen" rows="2"></textarea>
+                                <textarea class="ignis-input" id="edit_notizen" name="notizen" rows="2"></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -160,7 +160,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                 <label for="fahrzeug_search" class="form-label">Fahrzeug suchen und auswählen *</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    <input type="text" class="form-control" id="fahrzeug_search"
+                                    <input type="text" class="ignis-input" id="fahrzeug_search"
                                         placeholder="Suchen nach Funkrufname, Kennzeichen oder Fahrzeugtyp..."
                                         autocomplete="off" required>
                                 </div>
@@ -186,29 +186,29 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                             <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                                 <div>
                                     <label for="bezeichnung" class="form-label">Rufname / Kennung *</label>
-                                    <input type="text" class="form-control" id="bezeichnung" name="bezeichnung" required readonly>
+                                    <input type="text" class="ignis-input" id="bezeichnung" name="bezeichnung" required readonly>
                                     <small class="text-gray-400">Eindeutiger Rufname zur Identifikation</small>
                                 </div>
                                 <div>
                                     <label for="fahrzeugtyp" class="form-label">Fahrzeugtyp</label>
-                                    <input type="text" class="form-control" id="fahrzeugtyp" name="fahrzeugtyp" readonly>
+                                    <input type="text" class="ignis-input" id="fahrzeugtyp" name="fahrzeugtyp" readonly>
                                     <small class="text-gray-400">Art des Fahrzeugs</small>
                                 </div>
                             </div>
 
                             <div class="mt-3 mb-3">
                                 <label for="lokalisation" class="form-label">Lokalisation / Position</label>
-                                <input type="text" class="form-control" id="lokalisation" name="lokalisation" placeholder="z.B. Verletztensammelstelle, Haltepunkt Nord...">
+                                <input type="text" class="ignis-input" id="lokalisation" name="lokalisation" placeholder="z.B. Verletztensammelstelle, Haltepunkt Nord...">
                                 <small class="text-gray-400">Optional: Wo befindet sich das Fahrzeug an der Einsatzstelle?</small>
                             </div>
                             <div class="mb-3">
                                 <label for="notizen" class="form-label">Notizen</label>
-                                <textarea class="form-control" id="notizen" name="notizen" rows="2" placeholder="Zusätzliche Informationen..."></textarea>
+                                <textarea class="ignis-input" id="notizen" name="notizen" rows="2" placeholder="Zusätzliche Informationen..."></textarea>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-soft-primary btn-lg"><i class="fas fa-plus mr-2"></i>Fahrzeug hinzufügen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--soft-primary btn-lg"><i class="fas fa-plus mr-2"></i>Fahrzeug hinzufügen</button>
                         </div>
                     </form>
                 </div>
@@ -230,11 +230,11 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                             <p class="text-gray-400 mb-3">Für schnelles Hinzufügen ohne Systemfahrzeug</p>
                             <div class="mb-3">
                                 <label for="quick_bezeichnung" class="form-label">Rufname / Kennung *</label>
-                                <input type="text" class="form-control" id="quick_bezeichnung" name="bezeichnung" placeholder="z.B. RTW 1/83-1" required>
+                                <input type="text" class="ignis-input" id="quick_bezeichnung" name="bezeichnung" placeholder="z.B. RTW 1/83-1" required>
                             </div>
                             <div class="mb-3">
                                 <label for="quick_fahrzeugtyp" class="form-label">Fahrzeugtyp *</label>
-                                <select class="form-control" id="quick_fahrzeugtyp" name="fahrzeugtyp" required>
+                                <select class="ignis-input" id="quick_fahrzeugtyp" name="fahrzeugtyp" required>
                                     <option value="">Bitte wählen...</option>
                                     <option value="RTW">RTW - Rettungswagen</option>
                                     <option value="NAW">NAW - Notarztwagen</option>
@@ -249,12 +249,12 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                             </div>
                             <div class="mb-3">
                                 <label for="quick_lokalisation" class="form-label">Lokalisation</label>
-                                <input type="text" class="form-control" id="quick_lokalisation" name="lokalisation" placeholder="Position an der Einsatzstelle">
+                                <input type="text" class="ignis-input" id="quick_lokalisation" name="lokalisation" placeholder="Position an der Einsatzstelle">
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-success"><i class="fas fa-bolt mr-2"></i>Schnell hinzufügen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success"><i class="fas fa-bolt mr-2"></i>Schnell hinzufügen</button>
                         </div>
                     </form>
                 </div>

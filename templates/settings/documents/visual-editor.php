@@ -58,7 +58,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 <body data-bs-theme="dark">
     <!-- Einzeilige Toolbar -->
     <div class="editor-toolbar">
-        <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="btn btn-sm btn-outline-secondary" id="btn-back"
+        <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="btn-back"
             onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();var href=this.href;showConfirm('Ungespeicherte Änderungen verwerfen?',{title:'Seite verlassen',danger:true,confirmText:'Verwerfen'}).then(function(ok){if(ok)window.location=href;});}">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
@@ -76,44 +76,44 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
         <div class="separator"></div>
 
-        <button class="btn btn-sm btn-outline-light" id="btn-add-text" title="Text hinzufügen">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-add-text" title="Text hinzufügen">
             <i class="fa-solid fa-font"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-add-field" title="Feld hinzufügen">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-add-field" title="Feld hinzufügen">
             <i class="fa-solid fa-i-cursor"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-add-image" title="Bild hinzufügen">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-add-image" title="Bild hinzufügen">
             <i class="fa-solid fa-image"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-set-background" title="Hintergrundbild setzen">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-set-background" title="Hintergrundbild setzen">
             <i class="fa-solid fa-panorama"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-remove-background" title="Hintergrundbild entfernen" style="display:none;">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-remove-background" title="Hintergrundbild entfernen" style="display:none;">
             <i class="fa-solid fa-panorama" style="position:relative;"></i><i class="fa-solid fa-xmark" style="font-size:0.5rem;margin-left:-4px;color:var(--bs-danger);"></i>
         </button>
 
         <div class="separator"></div>
 
-        <button class="btn btn-sm btn-outline-light" id="btn-style-painter" title="Format übertragen (Klick: einmalig, Doppelklick: mehrfach)">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-style-painter" title="Format übertragen (Klick: einmalig, Doppelklick: mehrfach)">
             <i class="fa-solid fa-paintbrush"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-duplicate" title="Duplizieren (Ctrl+D)">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-duplicate" title="Duplizieren (Ctrl+D)">
             <i class="fa-solid fa-copy"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-delete" title="Löschen (Entf)">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-delete" title="Löschen (Entf)">
             <i class="fa-solid fa-trash"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-bring-front" title="Nach vorne">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-bring-front" title="Nach vorne">
             <i class="fa-solid fa-layer-group"></i><i class="fa-solid fa-arrow-up" style="font-size:0.55rem;margin-left:1px;"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-send-back" title="Nach hinten">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-send-back" title="Nach hinten">
             <i class="fa-solid fa-layer-group"></i><i class="fa-solid fa-arrow-down" style="font-size:0.55rem;margin-left:1px;"></i>
         </button>
 
         <div class="separator"></div>
 
         <div class="dropdown">
-            <button class="btn btn-sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Ausrichten">
+            <button class="ignis-btn ignis-btn--sm btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Ausrichten">
                 <i class="fa-solid fa-align-center"></i>
             </button>
             <ul class="dropdown-menu dropdown-menu-dark" style="min-width:180px;">
@@ -141,24 +141,24 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             </ul>
         </div>
 
-        <button class="btn btn-sm btn-outline-light" id="btn-undo" title="Rückgängig (Ctrl+Z)">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-undo" title="Rückgängig (Ctrl+Z)">
             <i class="fa-solid fa-undo"></i>
         </button>
-        <button class="btn btn-sm btn-outline-light" id="btn-redo" title="Wiederholen (Ctrl+Y)">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-redo" title="Wiederholen (Ctrl+Y)">
             <i class="fa-solid fa-redo"></i>
         </button>
 
-        <button class="btn btn-sm btn-outline-light" id="btn-versions" title="Versionsverlauf">
+        <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-versions" title="Versionsverlauf">
             <i class="fa-solid fa-clock-rotate-left"></i>
         </button>
 
         <div class="separator"></div>
 
         <div class="zoom-controls">
-            <button class="btn btn-sm btn-outline-light" id="btn-zoom-out"><i class="fa-solid fa-minus"></i></button>
+            <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-zoom-out"><i class="fa-solid fa-minus"></i></button>
             <span id="zoom-level">100%</span>
-            <button class="btn btn-sm btn-outline-light" id="btn-zoom-in"><i class="fa-solid fa-plus"></i></button>
-            <button class="btn btn-sm btn-outline-light" id="btn-zoom-fit" title="Einpassen"><i class="fa-solid fa-expand"></i></button>
+            <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-zoom-in"><i class="fa-solid fa-plus"></i></button>
+            <button class="ignis-btn ignis-btn--sm btn-outline-light" id="btn-zoom-fit" title="Einpassen"><i class="fa-solid fa-expand"></i></button>
         </div>
 
         <div class="separator"></div>
@@ -181,7 +181,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <span class="form-check-label">Vorschau</span>
         </label>
 
-        <select class="form-select form-select-sm" id="sel-margins" style="width:auto;font-size:0.75rem;padding:0.25rem 2rem 0.25rem 0.5rem;">
+        <select class="form-select form-select-sm" data-custom-dropdown="true" id="sel-margins" style="width:auto;font-size:0.75rem;padding:0.25rem 2rem 0.25rem 0.5rem;">
             <option value="schmal" selected>Schmal (1,27cm)</option>
             <option value="normal">Normal (2,5cm)</option>
             <option value="mittel">Mittel (1,91cm)</option>
@@ -193,10 +193,10 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 <span class="form-check-label">Auto-Save</span>
             </label>
             <span id="autosave-indicator" class="text-gray-400" style="font-size:0.68rem;white-space:nowrap;"></span>
-            <button class="btn btn-sm btn-outline-info" id="btn-preview" title="Vorschau">
+            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-info" id="btn-preview" title="Vorschau">
                 <i class="fa-solid fa-eye"></i>
             </button>
-            <button class="btn btn-sm btn-success" id="btn-save" title="Speichern (Ctrl+S)">
+            <button class="ignis-btn ignis-btn--sm ignis-btn--success" id="btn-save" title="Speichern (Ctrl+S)">
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
         </div>
@@ -263,7 +263,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                     <a class="nav-link active" data-sidebar-tab="elements" href="#"><i class="fa-solid fa-puzzle-piece"></i> Elemente</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-sidebar-tab="layers" href="#"><i class="fa-solid fa-layer-group"></i> Ebenen <span class="badge bg-secondary ml-1" id="layer-count" style="font-size:0.6rem;">0</span></a>
+                    <a class="nav-link" data-sidebar-tab="layers" href="#"><i class="fa-solid fa-layer-group"></i> Ebenen <span class="ignis-chip ml-1" id="layer-count" style="font-size:0.6rem;">0</span></a>
                 </li>
             </ul>
 
@@ -346,7 +346,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Neues Bild hochladen</label>
-                        <input type="file" class="form-control" id="asset-upload-input" accept="image/png,image/jpeg,image/gif,image/svg+xml">
+                        <input type="file" class="ignis-input" id="asset-upload-input" accept="image/png,image/jpeg,image/gif,image/svg+xml">
                     </div>
                     <hr>
                     <div class="sidebar-section-title">Vorhandene Bilder</div>

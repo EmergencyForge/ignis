@@ -26,7 +26,7 @@ if (!empty($currentFd)) {
             echo "<p class='abteilung mb-0'>Abteilung $groupKey</p>";
             foreach ($items as $item) {
                 $fdNameText = $fdNamen[$item] ?? "Unknown";
-                echo '<span class="badge text-bg-secondary">' . htmlspecialchars($fdNameText) . '</span>';
+                echo '<span class="ignis-chip">' . htmlspecialchars($fdNameText) . '</span>';
             }
             echo "</div>";
         }

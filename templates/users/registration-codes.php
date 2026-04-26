@@ -28,12 +28,10 @@ $SITE_TITLE = 'Einladungen verwalten';
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">Einladungen</span>
+                    <nav class="ignis-breadcrumb">
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
+                        <span class="ignis-breadcrumb__item is-active">Einladungen</span>
                     </nav>
                     <div class="row mb-3">
                         <div class="col">
@@ -41,7 +39,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                         </div>
                         <?php if ($registrationMode === 'code'): ?>
                             <div class="col text-end">
-                                <button type="button" class="btn btn-soft-primary" data-bs-toggle="modal" data-bs-target="#createInviteModal">
+                                <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createInviteModal">
                                     <i class="fa-solid fa-plus"></i> Einladung erstellen
                                 </button>
                             </div>
@@ -49,21 +47,24 @@ $SITE_TITLE = 'Einladungen verwalten';
                     </div>
                     <?php Flash::render(); ?>
 
-                    <div class="alert alert-info mb-4">
-                        <strong>Aktueller Registrierungsmodus:</strong>
-                        <?php
-                        switch ($registrationMode) {
-                            case 'open':
-                                echo '<span class="badge bg-dark">Offen - Registrierung für jeden möglich</span>';
-                                break;
-                            case 'code':
-                                echo '<span class="badge bg-dark">Code - Registrierung nur mit Einladungslink</span>';
-                                break;
-                            case 'closed':
-                                echo '<span class="badge bg-danger">Geschlossen - Keine Registrierung möglich</span>';
-                                break;
-                        }
-                        ?>
+                    <div class="ignis-alert ignis-alert--info mb-4">
+                        <i class="fa-solid fa-circle-info ignis-alert__icon"></i>
+                        <div class="ignis-alert__body">
+                            <strong>Aktueller Registrierungsmodus:</strong>
+                            <?php
+                            switch ($registrationMode) {
+                                case 'open':
+                                    echo '<span class="ignis-chip ignis-chip--dark">Offen - Registrierung für jeden möglich</span>';
+                                    break;
+                                case 'code':
+                                    echo '<span class="ignis-chip ignis-chip--dark">Code - Registrierung nur mit Einladungslink</span>';
+                                    break;
+                                case 'closed':
+                                    echo '<span class="ignis-chip ignis-chip--danger">Geschlossen - Keine Registrierung möglich</span>';
+                                    break;
+                            }
+                            ?>
+                        </div>
                     </div>
 
                     <div class="intra__tile py-2 px-3">
@@ -109,11 +110,11 @@ $SITE_TITLE = 'Einladungen verwalten';
                                         </td>
                                         <td>
                                             <?php if ($code->is_used): ?>
-                                                <span class="badge-status status-muted"><span class="status-dot"></span>Verwendet</span>
+                                                <span class="ignis-chip ignis-chip--status ignis-chip--dark">Verwendet</span>
                                             <?php elseif ($isExpired): ?>
-                                                <span class="badge-status status-danger"><span class="status-dot"></span>Abgelaufen</span>
+                                                <span class="ignis-chip ignis-chip--status ignis-chip--danger">Abgelaufen</span>
                                             <?php else: ?>
-                                                <span class="badge-status status-success"><span class="status-dot"></span>Verfügbar</span>
+                                                <span class="ignis-chip ignis-chip--status ignis-chip--success">Verfügbar</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
@@ -127,7 +128,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                                         <td>
                                             <div class="flex gap-1">
                                                 <?php if (!$code->is_used && !$isExpired): ?>
-                                                    <button type="button" class="btn btn-sm btn-soft-primary btn-icon" data-tooltip="Link kopieren" onclick="copyInviteLink('<?= htmlspecialchars($inviteUrl, ENT_QUOTES) ?>')">
+                                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Link kopieren" onclick="copyInviteLink('<?= htmlspecialchars($inviteUrl, ENT_QUOTES) ?>')">
                                                         <i class="fa-solid fa-copy"></i>
                                                     </button>
                                                 <?php endif; ?>
@@ -135,7 +136,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                                                     <form method="POST" class="d-inline" onsubmit="event.preventDefault(); showConfirm('Diese Einladung wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Einladung löschen'}).then(result => { if(result) this.submit(); });">
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="code_id" value="<?= (int) $code->id ?>">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-icon" data-tooltip="Löschen">
+                                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" data-ignis-tooltip="Löschen">
                                                             <i class="fa-solid fa-trash"></i>
                                                         </button>
                                                     </form>
@@ -163,20 +164,20 @@ $SITE_TITLE = 'Einladungen verwalten';
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="label" class="form-label">Bezeichnung <span class="text-muted small">(optional)</span></label>
-                            <input type="text" class="form-control" id="label" name="label" placeholder="z.B. Einladung für Max Mustermann">
-                            <div class="form-text">Hilft dir zu erkennen, für wen die Einladung erstellt wurde.</div>
+                        <div class="ignis-field mb-3">
+                            <label for="label" class="ignis-field__label">Bezeichnung <span class="ignis-field__hint" style="display:inline;">(optional)</span></label>
+                            <input type="text" class="ignis-input" id="label" name="label" placeholder="z.B. Einladung für Max Mustermann">
+                            <span class="ignis-field__hint">Hilft dir zu erkennen, für wen die Einladung erstellt wurde.</span>
                         </div>
-                        <div class="mb-3">
-                            <label for="expires_at" class="form-label">Gültig bis <span class="text-muted small">(optional)</span></label>
-                            <input type="datetime-local" class="form-control" id="expires_at" name="expires_at">
-                            <div class="form-text">Leer lassen für unbegrenzte Gültigkeit.</div>
+                        <div class="ignis-field mb-3">
+                            <label for="expires_at" class="ignis-field__label">Gültig bis <span class="ignis-field__hint" style="display:inline;">(optional)</span></label>
+                            <input type="datetime-local" class="ignis-input" id="expires_at" name="expires_at">
+                            <span class="ignis-field__hint">Leer lassen für unbegrenzte Gültigkeit.</span>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-link"></i> Einladungslink erstellen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-link"></i> Einladungslink erstellen</button>
                     </div>
                 </form>
             </div>

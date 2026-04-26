@@ -113,7 +113,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <label for="symptombeginn_nf_1">nicht feststellbar</label>
                         </div>
                         <div class="col-2 d-flex flex-column edivi__interactbutton justify-content-center">
-                            <button type="button" id="save-symptombeginn-btn" class="btn btn-success w-100">
+                            <button type="button" id="save-symptombeginn-btn" class="ignis-btn ignis-btn--success w-100">
                                 <i class="fa-solid fa-floppy-disk"></i> Speichern
                             </button>
                         </div>

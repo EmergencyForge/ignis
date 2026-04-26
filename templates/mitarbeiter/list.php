@@ -38,14 +38,14 @@ use App\Helpers\Flash;
                         <h1>Mitarbeiterübersicht</h1>
                         <div class="header-actions">
                             <?php if (Gate::allows('mitarbeiter.create') && !$showArchive): ?>
-                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalCreateMitarbeiter">
+                                <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#modalCreateMitarbeiter">
                                     <i class="fa-solid fa-plus mr-1"></i>Neuer Mitarbeiter
                                 </button>
                             <?php endif; ?>
                             <?php if ($showArchive): ?>
-                                <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="btn btn-outline-success">Aktive Mitarbeiter</a>
+                                <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="ignis-btn ignis-btn--outline-success">Aktive Mitarbeiter</a>
                             <?php else: ?>
-                                <a href="<?= BASE_PATH ?>mitarbeiter/list.php?archiv" class="btn btn-outline-secondary">Archiv</a>
+                                <a href="<?= BASE_PATH ?>mitarbeiter/list.php?archiv" class="ignis-btn ignis-btn--outline-secondary">Archiv</a>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -56,7 +56,7 @@ use App\Helpers\Flash;
                         <div class="row g-2 items-end">
                             <div class="col-auto">
                                 <label for="filterDienstgrad" class="form-label small mb-1">Dienstgrad</label>
-                                <select class="form-select form-select-sm" id="filterDienstgrad" style="min-width: 180px;">
+                                <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterDienstgrad" style="min-width: 180px;">
                                     <option value="">Alle</option>
                                     <?php foreach ($dienstgrade as $dg): ?>
                                         <option value="<?= htmlspecialchars($dg->name) ?>"><?= htmlspecialchars($dg->name) ?></option>
@@ -65,7 +65,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="col-auto">
                                 <label for="filterRDQuali" class="form-label small mb-1">RD-Qualifikation</label>
-                                <select class="form-select form-select-sm" id="filterRDQuali" style="min-width: 200px;">
+                                <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterRDQuali" style="min-width: 200px;">
                                     <option value="">Alle</option>
                                     <?php foreach ($rdQualis as $rd): ?>
                                         <?php if (!$rd->none): ?>
@@ -76,7 +76,7 @@ use App\Helpers\Flash;
                             </div>
                             <div class="col-auto">
                                 <label for="filterFWQuali" class="form-label small mb-1">FW-Qualifikation</label>
-                                <select class="form-select form-select-sm" id="filterFWQuali" style="min-width: 180px;">
+                                <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterFWQuali" style="min-width: 180px;">
                                     <option value="">Alle</option>
                                     <?php foreach ($fwQualis as $fw): ?>
                                         <?php if (!$fw->none): ?>
@@ -86,12 +86,12 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="col-auto">
-                                <button type="button" class="btn btn-sm btn-outline-secondary" id="resetFilters">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="resetFilters">
                                     <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
                                 </button>
                             </div>
                             <div class="col-auto ms-auto">
-                                <button type="button" class="btn btn-sm btn-outline-success" id="exportCSV" data-tooltip="Gefilterte Liste als CSV exportieren">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-success" id="exportCSV" data-ignis-tooltip="Gefilterte Liste als CSV exportieren">
                                     <i class="fa-solid fa-file-csv"></i> CSV-Export
                                 </button>
                             </div>
@@ -131,14 +131,14 @@ use App\Helpers\Flash;
                                         </td>
                                         <td>
                                             <?php if (!$isRdNone): ?>
-                                                <span class="badge text-bg-warning" style="color:var(--black)"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
+                                                <span class="ignis-chip ignis-chip--warning" style="color:var(--black)"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
                                             <?php else: ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php if (!$isFwNone): ?>
-                                                <span class="badge text-bg-danger"><?= htmlspecialchars($fwShort) ?></span> <small><?= htmlspecialchars($fwName) ?></small>
+                                                <span class="ignis-chip ignis-chip--danger"><?= htmlspecialchars($fwShort) ?></span> <small><?= htmlspecialchars($fwName) ?></small>
                                             <?php else: ?>
                                                 <span class="text-muted">-</span>
                                             <?php endif; ?>
@@ -149,7 +149,7 @@ use App\Helpers\Flash;
                                         </td>
                                         <td>
                                             <div class="col-actions">
-                                                <a href="<?= BASE_PATH ?>mitarbeiter/profile.php?id=<?= (int) $m->id ?>" class="btn btn-sm btn-soft-primary btn-icon" data-tooltip="Profil ansehen">
+                                                <a href="<?= BASE_PATH ?>mitarbeiter/profile.php?id=<?= (int) $m->id ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Profil ansehen">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
                                             </div>
@@ -178,14 +178,14 @@ use App\Helpers\Flash;
                         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                             <div>
                                 <div class="form-floating">
-                                    <input class="form-control" type="text" name="fullname" id="cm_fullname" placeholder="Vor- und Zuname" required>
+                                    <input class="ignis-input" type="text" name="fullname" id="cm_fullname" placeholder="Vor- und Zuname" required>
                                     <label for="cm_fullname">Vor- und Zuname</label>
                                     <div class="invalid-feedback">Pflichtfeld</div>
                                 </div>
                             </div>
                             <div>
                                 <div class="form-floating">
-                                    <input class="form-control" type="date" name="gebdatum" id="cm_gebdatum" min="1900-01-01" placeholder="Geburtsdatum" required>
+                                    <input class="ignis-input" type="date" name="gebdatum" id="cm_gebdatum" min="1900-01-01" placeholder="Geburtsdatum" required>
                                     <label for="cm_gebdatum">Geburtsdatum</label>
                                     <div class="invalid-feedback">Pflichtfeld</div>
                                 </div>
@@ -217,7 +217,7 @@ use App\Helpers\Flash;
                             <?php if (defined('CHAR_ID') && CHAR_ID): ?>
                                 <div>
                                     <div class="form-floating">
-                                        <input class="form-control" type="text" name="charakterid" id="cm_charakterid" placeholder="ABC12345" pattern="[a-zA-Z]{3}[0-9]{5}" required>
+                                        <input class="ignis-input" type="text" name="charakterid" id="cm_charakterid" placeholder="ABC12345" pattern="[a-zA-Z]{3}[0-9]{5}" required>
                                         <label for="cm_charakterid">Charakter-ID</label>
                                         <div class="invalid-feedback">Format: ABC12345</div>
                                     </div>
@@ -225,20 +225,20 @@ use App\Helpers\Flash;
                             <?php endif; ?>
                             <div>
                                 <div class="form-floating">
-                                    <input class="form-control" type="text" inputmode="numeric" name="discordtag" id="cm_discordtag" pattern="[0-9]{17,20}" maxlength="20" placeholder="Discord-ID" required>
+                                    <input class="ignis-input" type="text" inputmode="numeric" name="discordtag" id="cm_discordtag" pattern="[0-9]{17,20}" maxlength="20" placeholder="Discord-ID" required>
                                     <label for="cm_discordtag">Discord-ID</label>
                                     <div class="invalid-feedback">17-20 Ziffern</div>
                                 </div>
                             </div>
                             <div>
                                 <div class="form-floating">
-                                    <input class="form-control" type="text" name="telefonnr" id="cm_telefonnr" placeholder="Telefonnummer" value="0176 00 00 00 0">
+                                    <input class="ignis-input" type="text" name="telefonnr" id="cm_telefonnr" placeholder="Telefonnummer" value="0176 00 00 00 0">
                                     <label for="cm_telefonnr">Telefonnummer</label>
                                 </div>
                             </div>
                             <div class="dienstnr-container">
                                 <div class="form-floating">
-                                    <input class="form-control" type="text" name="dienstnr" id="dienstnr"
+                                    <input class="ignis-input" type="text" name="dienstnr" id="dienstnr"
                                         pattern="^(?=.*[0-9])[A-Za-z0-9\-]+$" title="z.B. RD-001, BF01" placeholder="Dienstnummer" required>
                                     <label for="dienstnr">Dienstnummer</label>
                                     <div id="dienstnr-status" class="dienstnr-status"></div>
@@ -248,7 +248,7 @@ use App\Helpers\Flash;
                             </div>
                             <div>
                                 <div class="form-floating">
-                                    <input class="form-control" type="date" name="einstdatum" id="cm_einstdatum" min="2022-01-01" placeholder="Einstellungsdatum" required>
+                                    <input class="ignis-input" type="date" name="einstdatum" id="cm_einstdatum" min="2022-01-01" placeholder="Einstellungsdatum" required>
                                     <label for="cm_einstdatum">Einstellungsdatum</label>
                                     <div class="invalid-feedback">Pflichtfeld</div>
                                 </div>
@@ -256,8 +256,8 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost btn-sm" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="btn btn-success btn-sm" id="cm_submit">
+                        <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success ignis-btn--sm" id="cm_submit">
                             <i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen
                         </button>
                     </div>

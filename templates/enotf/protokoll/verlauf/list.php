@@ -325,7 +325,7 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
                 <?php if ($ist_freigegeben): ?>
                     <div class="row mb-3">
                         <div class="col">
-                            <div class="alert alert-warning">
+                            <div class="ignis-alert ignis-alert--warning">
                                 <i class="fa-solid fa-lock"></i> <strong>Hinweis:</strong> Diese Dokumentation ist freigegeben und kann nicht mehr bearbeitet werden.
                             </div>
                         </div>

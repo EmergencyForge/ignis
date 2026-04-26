@@ -23,8 +23,8 @@ use App\Helpers\Flash;
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="mb-0">Dashboard-Konfiguration</h1>
                 <div class="flex gap-2">
-                    <a href="<?= BASE_PATH ?>dashboard.php" class="btn btn-outline-light no-underline hover:no-underline" target="_blank"><i class="fa-solid fa-external-link-alt"></i> Dashboard aufrufen</a>
-                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                    <a href="<?= BASE_PATH ?>dashboard.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline" target="_blank"><i class="fa-solid fa-external-link-alt"></i> Dashboard aufrufen</a>
+                    <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
                         <i class="fa-solid fa-plus"></i> Kategorie erstellen
                     </button>
                 </div>
@@ -32,7 +32,7 @@ use App\Helpers\Flash;
             <?php Flash::render(); ?>
             <div class="intra__tile px-3 py-2">
                 <?php if (empty($categories)): ?>
-                    <div class="alert alert-warning" role="alert">Es wurde noch kein Dashboard konfiguriert.</div>
+                    <div class="ignis-alert ignis-alert--warning" role="alert">Es wurde noch kein Dashboard konfiguriert.</div>
                 <?php else: ?>
                     <?php foreach ($categories as $row):
                         $tiles = $tilesByCategory[(int)$row['id']] ?? [];
@@ -42,7 +42,7 @@ use App\Helpers\Flash;
                                 <h2><?= htmlspecialchars($row['title']) ?></h2>
                                 <div class="flex gap-2">
                                     <button type="button"
-                                        class="edit-category-btn btn btn-sm btn-soft-primary btn-icon"
+                                        class="edit-category-btn ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
                                         data-id="<?= (int)$row['id'] ?>"
                                         data-title="<?= htmlspecialchars($row['title']) ?>"
                                         data-priority="<?= (int)$row['priority'] ?>"
@@ -50,7 +50,7 @@ use App\Helpers\Flash;
                                         data-bs-target="#editCategoryModal">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <button type="button" class="create-tile-btn btn btn-sm btn-success"
+                                    <button type="button" class="create-tile-btn ignis-btn ignis-btn--sm ignis-btn--success"
                                         data-bs-toggle="modal"
                                         data-bs-target="#createTileModal"
                                         data-category="<?= (int)$row['id'] ?>">
@@ -63,7 +63,7 @@ use App\Helpers\Flash;
                                     <li class="mb-4 flex items-center justify-between">
                                         <h4><i class="<?= htmlspecialchars($tile['icon']) ?>"></i> <?= htmlspecialchars($tile['title']) ?></h4>
                                         <button type="button"
-                                            class="edit-tile-btn btn btn-sm btn-soft-primary whitespace-nowrap"
+                                            class="edit-tile-btn ignis-btn ignis-btn--sm ignis-btn--soft-primary whitespace-nowrap"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editTileModal"
                                             data-id="<?= (int)$tile['id'] ?>"
@@ -98,16 +98,16 @@ use App\Helpers\Flash;
                         <input type="hidden" name="category" id="tile-category">
                         <div class="mb-3">
                             <label for="tile-title" class="form-label">Titel</label>
-                            <input type="text" class="form-control" name="title" id="tile-title" required>
+                            <input type="text" class="ignis-input" name="title" id="tile-title" required>
                         </div>
                         <div class="mb-3">
                             <label for="tile-url" class="form-label">URL</label>
-                            <input type="text" class="form-control" name="url" id="tile-url" required>
+                            <input type="text" class="ignis-input" name="url" id="tile-url" required>
                         </div>
                         <div class="mb-3">
                             <label for="tile-icon" class="form-label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
                             <div class="input-group">
-                                <input type="text" class="form-control" name="icon" id="tile-icon" placeholder="z.B. fa-solid fa-home">
+                                <input type="text" class="ignis-input" name="icon" id="tile-icon" placeholder="z.B. fa-solid fa-home">
                                 <span class="input-group-text"><i id="tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
                             </div>
                             <small class="form-text text-muted"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
@@ -115,14 +115,14 @@ use App\Helpers\Flash;
                         </div>
                         <div class="mb-3">
                             <label for="tile-priority" class="form-label">Priorität</label>
-                            <input type="number" class="form-control" name="priority" id="tile-priority" required>
+                            <input type="number" class="ignis-input" name="priority" id="tile-priority" required>
                         </div>
                     </div>
                     <div class="modal-footer flex justify-between">
-                        <button type="button" class="btn btn-ghost-danger" id="delete-tile-btn">Löschen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-tile-btn">Löschen</button>
                         <div>
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </div>
                 </form>
@@ -146,16 +146,16 @@ use App\Helpers\Flash;
                         <input type="hidden" name="category" id="new-tile-category">
                         <div class="mb-3">
                             <label for="new-tile-title" class="form-label">Titel</label>
-                            <input type="text" class="form-control" name="title" id="new-tile-title" required>
+                            <input type="text" class="ignis-input" name="title" id="new-tile-title" required>
                         </div>
                         <div class="mb-3">
                             <label for="new-tile-url" class="form-label">URL</label>
-                            <input type="text" class="form-control" name="url" id="new-tile-url" required>
+                            <input type="text" class="ignis-input" name="url" id="new-tile-url" required>
                         </div>
                         <div class="mb-3">
                             <label for="new-tile-icon" class="form-label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
                             <div class="input-group">
-                                <input type="text" class="form-control" name="icon" id="new-tile-icon" placeholder="z.B. fa-solid fa-external-link-alt">
+                                <input type="text" class="ignis-input" name="icon" id="new-tile-icon" placeholder="z.B. fa-solid fa-external-link-alt">
                                 <span class="input-group-text"><i id="new-tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
                             </div>
                             <small class="form-text text-muted"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
@@ -163,12 +163,12 @@ use App\Helpers\Flash;
                         </div>
                         <div class="mb-3">
                             <label for="new-tile-priority" class="form-label">Priorität</label>
-                            <input type="number" class="form-control" name="priority" id="new-tile-priority" value="0" required>
+                            <input type="number" class="ignis-input" name="priority" id="new-tile-priority" value="0" required>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                        <button type="submit" class="btn btn-success">Erstellen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                     </div>
                 </form>
             </div>
@@ -188,18 +188,18 @@ use App\Helpers\Flash;
                         <input type="hidden" name="id" id="category-id">
                         <div class="mb-3">
                             <label for="category-title" class="form-label">Titel</label>
-                            <input type="text" class="form-control" name="title" id="category-title" required>
+                            <input type="text" class="ignis-input" name="title" id="category-title" required>
                         </div>
                         <div class="mb-3">
                             <label for="category-priority" class="form-label">Priorität</label>
-                            <input type="number" class="form-control" name="priority" id="category-priority" required>
+                            <input type="number" class="ignis-input" name="priority" id="category-priority" required>
                         </div>
                     </div>
                     <div class="modal-footer flex justify-between">
-                        <button type="button" class="btn btn-ghost-danger" id="delete-category-btn">Löschen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-category-btn">Löschen</button>
                         <div>
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </div>
                 </form>
@@ -222,16 +222,16 @@ use App\Helpers\Flash;
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="new-category-title" class="form-label">Titel</label>
-                            <input type="text" class="form-control" name="title" id="new-category-title" required>
+                            <input type="text" class="ignis-input" name="title" id="new-category-title" required>
                         </div>
                         <div class="mb-3">
                             <label for="new-category-priority" class="form-label">Priorität</label>
-                            <input type="number" class="form-control" name="priority" id="new-category-priority" required>
+                            <input type="number" class="ignis-input" name="priority" id="new-category-priority" required>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                        <button type="submit" class="btn btn-success">Erstellen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                     </div>
                 </form>
             </div>

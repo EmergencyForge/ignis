@@ -23,10 +23,10 @@ if (!isset($showPreview)) {
     <div class="flex items-center justify-between mb-3">
         <h6 class="mb-0">Taktisches Zeichen</h6>
         <div class="flex gap-2">
-            <select class="form-select form-select-sm" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
+            <select class="form-select form-select-sm" data-custom-dropdown="true" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
                 <option value="">Vorlage laden...</option>
             </select>
-            <button type="button" class="btn btn-ghost btn-sm" id="<?= $prefix ?>tz-save-template-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
+            <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="<?= $prefix ?>tz-save-template-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
         </div>
@@ -40,7 +40,7 @@ if (!isset($showPreview)) {
                     <span style="font-size: 48px; color: #999;">Kein Symbol</span>
                 </div>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary mt-2 w-100" id="<?= $prefix ?>preview-btn">
+            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2 w-100" id="<?= $prefix ?>preview-btn">
                 <i class="fa-solid fa-eye mr-1"></i>Vorschau aktualisieren
             </button>
         </div>
@@ -177,21 +177,21 @@ if (!isset($showPreview)) {
 
     <div class="mb-3">
         <label for="<?= $prefix ?>typ" class="form-label">Typ</label>
-        <input type="text" class="form-control" name="typ" id="<?= $prefix ?>typ"
+        <input type="text" class="ignis-input" name="typ" id="<?= $prefix ?>typ"
             placeholder="z.B. HLF20, RTW, DLK23/12">
         <small class="text-muted">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
     </div>
 
     <div class="mb-3">
         <label for="<?= $prefix ?>text" class="form-label">Text</label>
-        <input type="text" class="form-control" name="text" id="<?= $prefix ?>text"
+        <input type="text" class="ignis-input" name="text" id="<?= $prefix ?>text"
             placeholder="z.B. LF20, RTW 1/82-1">
         <small class="text-muted">Wird auf dem taktischen Zeichen angezeigt</small>
     </div>
 
     <div class="mb-3">
         <label for="<?= $prefix ?>tz_name" class="form-label">Name</label>
-        <input type="text" class="form-control" name="tz_name" id="<?= $prefix ?>tz_name"
+        <input type="text" class="ignis-input" name="tz_name" id="<?= $prefix ?>tz_name"
             placeholder="z.B. Einsatzabschnitt Nord">
         <small class="text-muted">Name des taktischen Zeichens</small>
     </div>

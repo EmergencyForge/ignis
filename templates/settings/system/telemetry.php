@@ -173,10 +173,10 @@ $cacheInfo = $announcements->getCacheInfo();
                                 <code id="installationUuidValue" class="uuid-value" style="display: none;">
                                     <?= htmlspecialchars($installationId) ?>
                                 </code>
-                                <button type="button" class="btn btn-sm btn-soft-primary" id="toggleUuidBtn" onclick="toggleInstallationUuid()">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="toggleUuidBtn" onclick="toggleInstallationUuid()">
                                     <i class="fa-regular fa-eye mr-1"></i>Einblenden
                                 </button>
-                                <button type="button" class="btn btn-sm btn-ghost" id="copyUuidBtn" onclick="copyInstallationUuid()" title="UUID kopieren">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="copyUuidBtn" onclick="copyInstallationUuid()" title="UUID kopieren">
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
                             </div>
@@ -264,14 +264,14 @@ $cacheInfo = $announcements->getCacheInfo();
                                             </button>
                                         </form>
 
-                                        <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#datenschutzModal">
+                                        <button type="button" class="ignis-btn ignis-btn--outline-info" data-bs-toggle="modal" data-bs-target="#datenschutzModal">
                                             <i class="fas fa-shield-alt mr-1"></i> Datenschutz
                                         </button>
 
                                         <?php if ($telemetryEnabled): ?>
                                             <form method="POST" class="inline">
                                                 <input type="hidden" name="action" value="send_heartbeat">
-                                                <button type="submit" class="btn btn-outline-primary">
+                                                <button type="submit" class="ignis-btn ignis-btn--outline-primary">
                                                     <i class="fas fa-paper-plane mr-1"></i> Jetzt senden
                                                 </button>
                                             </form>
@@ -335,7 +335,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                         <?php if ($announcementsEnabled): ?>
                                             <form method="POST" class="inline">
                                                 <input type="hidden" name="action" value="refresh_announcements">
-                                                <button type="submit" class="btn btn-outline-primary">
+                                                <button type="submit" class="ignis-btn ignis-btn--outline-primary">
                                                     <i class="fas fa-sync mr-1"></i> Cache aktualisieren
                                                 </button>
                                             </form>
@@ -378,7 +378,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     ?>
 
                                     <!-- Debug (kann später entfernt werden) -->
-                                    <div class="alert alert-secondary small py-1 mb-2">
+                                    <div class="ignis-alert small py-1 mb-2">
                                         Cache: <?= count($allCached) ?> | Aktiv: <?= count($currentAnnouncements) ?>
                                         <?php if ($debugError): ?> | <span class="text-danger">Error: <?= htmlspecialchars($debugError) ?></span><?php endif; ?>
                                     </div>
@@ -392,7 +392,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                                             <?= htmlspecialchars($ann['type']) ?>
                                                         </span>
                                                         <?php if (!empty($ann['admin_only'])): ?>
-                                                            <span class="badge bg-dark"><i class="fas fa-shield-halved"></i></span>
+                                                            <span class="ignis-chip ignis-chip--dark"><i class="fas fa-shield-halved"></i></span>
                                                         <?php endif; ?>
                                                         <strong><?= htmlspecialchars($ann['title']) ?></strong>
                                                     </div>
@@ -403,7 +403,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                             <?php endforeach; ?>
                                         </div>
                                     <?php elseif (!empty($allCached)): ?>
-                                        <div class="alert alert-warning small">
+                                        <div class="ignis-alert ignis-alert--warning small">
                                             <?= count($allCached) ?> im Cache, aber durch Filter ausgeblendet.
                                             <details class="mt-2">
                                                 <summary>Cache-Inhalt</summary>
@@ -461,7 +461,7 @@ $cacheInfo = $announcements->getCacheInfo();
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-btn" data-bs-dismiss="modal">Schließen</button>
                 </div>
             </div>
         </div>

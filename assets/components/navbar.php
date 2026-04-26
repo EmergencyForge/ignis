@@ -1753,11 +1753,8 @@ $topbarTimeAgo = static function (string $createdAt): string {
             $(this).removeClass("active");
         });
 
-        // Tooltips
-        var tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        tooltipTriggerList.forEach(function(el) {
-            new bootstrap.Tooltip(el);
-        });
+        // Tooltips werden über ignis-tooltip (data-ignis-tooltip) gerendert,
+        // Bootstrap-Tooltip-Init ist nicht mehr nötig.
 
         // ========================================
         // GLOBAL SEARCH MODAL

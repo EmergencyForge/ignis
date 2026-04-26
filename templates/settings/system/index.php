@@ -278,14 +278,14 @@ if ($isDevMode) {
                         </div>
                         <div class="card-body">
                             <?php if ($isPreRelease): ?>
-                                <div class="alert alert-warning mb-3">
+                                <div class="ignis-alert ignis-alert--warning mb-3">
                                     <i class="fa-solid fa-flask"></i> <strong>Pre-Release Version:</strong>
                                     Sie verwenden eine Entwickler- oder Vorschau-Version.
                                 </div>
                             <?php endif; ?>
 
                             <?php if ($isUpdateRecommended && !$checking): ?>
-                                <div class="alert alert-info mb-3">
+                                <div class="ignis-alert ignis-alert--info mb-3">
                                     <strong>Update empfohlen:</strong>
                                     Ihre Version ist <?= $versionAge ?> Tage alt. Es wird empfohlen, auf Updates zu prüfen.
                                 </div>
@@ -298,7 +298,7 @@ if ($isDevMode) {
                                         <dd>
                                             <strong><?= htmlspecialchars($currentVersion['version']) ?></strong>
                                             <?php if ($isPreRelease): ?>
-                                                <span class="badge bg-warning text-dark ml-1">Pre-Release</span>
+                                                <span class="ignis-chip ignis-chip--warning text-dark ml-1">Pre-Release</span>
                                             <?php endif; ?>
                                         </dd>
 
@@ -321,7 +321,7 @@ if ($isDevMode) {
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
                                             <input type="hidden" name="check_updates" value="1">
                                             <input type="hidden" name="include_prerelease" id="include-prerelease-hidden" value="0">
-                                            <button type="submit" class="btn btn-soft-primary w-100">
+                                            <button type="submit" class="ignis-btn ignis-btn--soft-primary w-100">
                                                 <i class="fa-solid fa-sync"></i> Auf Updates prüfen
                                             </button>
                                         </form>
@@ -341,13 +341,13 @@ if ($isDevMode) {
                                                 <input type="hidden" name="check_updates" value="1">
                                                 <input type="hidden" name="force_refresh" value="1">
                                                 <input type="hidden" name="include_prerelease" id="force-refresh-prerelease" value="0">
-                                                <button type="submit" class="btn btn-outline-primary btn-sm w-100">
+                                                <button type="submit" class="ignis-btn ignis-btn--outline-primary ignis-btn--sm w-100">
                                                     <i class="fa-solid fa-sync"></i> Neu laden
                                                 </button>
                                             </form>
                                             <form method="post" class="flex-fill">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                                <button type="submit" name="clear_cache" class="btn btn-outline-secondary btn-sm w-100">
+                                                <button type="submit" name="clear_cache" class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm w-100">
                                                     <i class="fa-solid fa-trash"></i> Cache leeren
                                                 </button>
                                             </form>
@@ -385,7 +385,7 @@ if ($isDevMode) {
                             </div>
                             <div class="card-body">
                                 <?php if (isset($updateInfo['error'])): ?>
-                                    <div class="alert alert-danger">
+                                    <div class="ignis-alert ignis-alert--danger">
                                         <i class="fa-solid fa-exclamation-triangle"></i>
                                         <?= htmlspecialchars($updateInfo['message']) ?>
                                     </div>
@@ -411,24 +411,24 @@ if ($isDevMode) {
                                         <p class="mb-0">
                                             Eine neue Version ist verfügbar: <strong><?= htmlspecialchars($updateInfo['latest_version']) ?></strong>
                                             <?php if (isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease']): ?>
-                                                <span class="badge bg-warning text-dark ml-1"><i class="fa-solid fa-flask"></i> Pre-Release</span>
+                                                <span class="ignis-chip ignis-chip--warning text-dark ml-1"><i class="fa-solid fa-flask"></i> Pre-Release</span>
                                             <?php endif; ?>
                                             <span class="badge bg-<?= $alertClass ?> ml-2"><?= $urgencyLabels[$urgency] ?? 'Update verfügbar' ?></span>
                                             <?php if (isset($updateInfo['cached']) && $updateInfo['cached']): ?>
-                                                <span class="badge bg-secondary ml-1" title="Gecachte Daten"><i class="fa-solid fa-clock"></i> Gecacht</span>
+                                                <span class="ignis-chip ml-1" title="Gecachte Daten"><i class="fa-solid fa-clock"></i> Gecacht</span>
                                             <?php endif; ?>
                                         </p>
                                     </div>
 
                                     <?php if (isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] && $isPreRelease): ?>
-                                        <div class="alert alert-warning mb-3">
+                                        <div class="ignis-alert ignis-alert--warning mb-3">
                                             <i class="fa-solid fa-exclamation-triangle"></i>
                                             <strong>Pre-Release zu Pre-Release Update:</strong>
                                             Sie wechseln von einer Pre-Release zur nächsten Pre-Release Version.
                                             Diese Versionen können instabil sein und unerwartete Fehler enthalten.
                                         </div>
                                     <?php elseif (isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] && !$isPreRelease): ?>
-                                        <div class="alert alert-warning mb-3">
+                                        <div class="ignis-alert ignis-alert--warning mb-3">
                                             <i class="fa-solid fa-exclamation-triangle"></i>
                                             <strong>Pre-Release Update:</strong>
                                             Diese Version ist eine Vorabversion und kann instabil sein oder unerwartete Fehler enthalten.
@@ -465,7 +465,7 @@ if ($isDevMode) {
                                                 <input type="hidden" name="download_url_fallback" value="<?= htmlspecialchars($updateInfo['download_url_fallback'] ?? '') ?>">
                                                 <input type="hidden" name="new_version" value="<?= htmlspecialchars($updateInfo['latest_version']) ?>">
                                                 <input type="hidden" name="is_prerelease" value="<?= isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] ? '1' : '0' ?>">
-                                                <button type="button" id="install-update-btn" class="btn btn-success w-100">
+                                                <button type="button" id="install-update-btn" class="ignis-btn ignis-btn--success w-100">
                                                     <i class="fa-solid fa-download"></i> Update jetzt installieren
                                                 </button>
                                             </form>
@@ -497,7 +497,7 @@ if ($isDevMode) {
                                                             <div id="update-status-text" class="text-center">
                                                                 <small class="text-gray-400">Update wird vorbereitet...</small>
                                                             </div>
-                                                            <div class="alert alert-info mt-3 mb-0">
+                                                            <div class="ignis-alert ignis-alert--info mt-3 mb-0">
                                                                 <small>
                                                                     <i class="fa-solid fa-info-circle mr-1"></i>
                                                                     <strong>Hinweis:</strong> Bitte schließen Sie dieses Fenster nicht.
@@ -665,14 +665,14 @@ if ($isDevMode) {
                                             <?php if (isset($updateInfo['html_url'])): ?>
                                                 <a href="<?= htmlspecialchars($updateInfo['html_url']) ?>"
                                                     target="_blank"
-                                                    class="btn btn-outline-primary w-100 mb-2">
+                                                    class="ignis-btn ignis-btn--outline-primary w-100 mb-2">
                                                     <i class="fa-solid fa-external-link-alt"></i> Release auf GitHub ansehen
                                                 </a>
                                             <?php endif; ?>
 
                                             <?php if (isset($updateInfo['download_url'])): ?>
                                                 <a href="<?= htmlspecialchars($updateInfo['download_url']) ?>"
-                                                    class="btn btn-outline-secondary w-100">
+                                                    class="ignis-btn ignis-btn--outline-secondary w-100">
                                                     <i class="fa-solid fa-file-zipper"></i> ZIP manuell herunterladen
                                                 </a>
                                             <?php endif; ?>
@@ -687,14 +687,14 @@ if ($isDevMode) {
                                         </div>
                                     <?php endif; ?>
 
-                                    <div class="alert alert-info mt-3">
+                                    <div class="ignis-alert ignis-alert--info mt-3">
                                         <strong><i class="fa-solid fa-info-circle"></i> Hinweis:</strong>
                                         Das Update wird automatisch installiert und ein Backup wird im Verzeichnis <code>system/updates/</code> erstellt.
                                         Bei Problemen können Sie das Backup manuell wiederherstellen.
                                         <br><strong>Wichtig:</strong> Erstellen Sie zusätzlich ein manuelles Backup Ihrer Datenbank!
                                     </div>
                                 <?php else: ?>
-                                    <div class="alert alert-info">
+                                    <div class="ignis-alert ignis-alert--info">
                                         <i class="fa-solid fa-check-circle"></i>
                                         Ihr System ist auf dem neuesten Stand. Es sind keine Updates verfügbar.
                                     </div>
@@ -710,7 +710,7 @@ if ($isDevMode) {
                                 <h5 class="mb-0"><i class="fa-solid fa-code-branch mr-2"></i>Entwickler-Modus: Branch-Update</h5>
                             </div>
                             <div class="card-body">
-                                <div class="alert alert-warning mb-3">
+                                <div class="ignis-alert ignis-alert--warning mb-3">
                                     <i class="fa-solid fa-exclamation-triangle"></i>
                                     <strong>Achtung:</strong> Branch-Updates installieren den neuesten Commit eines Branches.
                                     Diese Versionen sind möglicherweise instabil und nicht für den Produktiveinsatz geeignet.
@@ -769,7 +769,7 @@ if ($isDevMode) {
                                                 ?>
 
                                                 <?php if ($isSameCommit): ?>
-                                                    <div class="alert alert-info mt-3 mb-0">
+                                                    <div class="ignis-alert ignis-alert--info mt-3 mb-0">
                                                         <i class="fa-solid fa-check-circle"></i> Sie sind bereits auf diesem Commit.
                                                     </div>
                                                 <?php else: ?>
@@ -778,7 +778,7 @@ if ($isDevMode) {
                                                         <input type="hidden" name="dev_install_branch" value="1">
                                                         <input type="hidden" name="dev_branch" value="<?= htmlspecialchars($selectedBranch) ?>">
                                                         <input type="hidden" name="dev_commit_sha" value="<?= htmlspecialchars($devBranchInfo['sha']) ?>">
-                                                        <button type="button" id="dev-install-btn" class="btn btn-warning w-100">
+                                                        <button type="button" id="dev-install-btn" class="ignis-btn ignis-btn--warning w-100">
                                                             <i class="fa-solid fa-download"></i> Commit installieren (<?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?>)
                                                         </button>
                                                     </form>
@@ -890,7 +890,7 @@ if ($isDevMode) {
                                         </div>
                                     <?php endif; ?>
                                 <?php else: ?>
-                                    <div class="alert alert-danger">
+                                    <div class="ignis-alert ignis-alert--danger">
                                         <i class="fa-solid fa-exclamation-triangle"></i>
                                         Konnte Branches nicht von GitHub laden. Bitte Internetverbindung prüfen.
                                     </div>
@@ -926,7 +926,7 @@ if ($isDevMode) {
                                             <div id="update-status-text" class="text-center">
                                                 <small class="text-gray-400">Update wird vorbereitet...</small>
                                             </div>
-                                            <div class="alert alert-info mt-3 mb-0">
+                                            <div class="ignis-alert ignis-alert--info mt-3 mb-0">
                                                 <small>
                                                     <i class="fa-solid fa-info-circle mr-1"></i>
                                                     <strong>Hinweis:</strong> Bitte schließen Sie dieses Fenster nicht.
@@ -967,18 +967,18 @@ if ($isDevMode) {
                     </div>
 
                     <div id="composer-success-content" style="display: none;">
-                        <div class="alert alert-success mb-3">
+                        <div class="ignis-alert ignis-alert--success mb-3">
                             <i class="fa-solid fa-check-circle mr-2"></i>
                             <strong>Erfolg!</strong> Composer-Abhängigkeiten wurden erfolgreich installiert.
                         </div>
                         <p class="mb-3">Das Update ist vollständig abgeschlossen. Bitte laden Sie die Seite neu, um die Änderungen zu übernehmen.</p>
-                        <button type="button" id="reload-page-btn" class="btn btn-soft-primary w-100">
+                        <button type="button" id="reload-page-btn" class="ignis-btn ignis-btn--soft-primary w-100">
                             <i class="fa-solid fa-sync mr-2"></i>Seite neu laden
                         </button>
                     </div>
 
                     <div id="composer-error-content" style="display: none;">
-                        <div class="alert alert-danger mb-3">
+                        <div class="ignis-alert ignis-alert--danger mb-3">
                             <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                             <strong>Fehler!</strong> Composer-Installation fehlgeschlagen.
                         </div>
@@ -988,10 +988,10 @@ if ($isDevMode) {
                             Bitte führen Sie im Terminal im Anwendungsverzeichnis aus:<br>
                             <code>composer install --no-dev --optimize-autoloader</code>
                         </p>
-                        <button type="button" id="retry-composer-btn" class="btn btn-outline-secondary w-100 mb-2">
+                        <button type="button" id="retry-composer-btn" class="ignis-btn ignis-btn--outline-secondary w-100 mb-2">
                             <i class="fa-solid fa-rotate-right mr-2"></i>Erneut versuchen
                         </button>
-                        <button type="button" id="dismiss-composer-btn" class="btn btn-outline-secondary w-100">
+                        <button type="button" id="dismiss-composer-btn" class="ignis-btn ignis-btn--outline-secondary w-100">
                             <i class="fa-solid fa-times mr-2"></i>Schließen (Update manuell abschließen)
                         </button>
                     </div>

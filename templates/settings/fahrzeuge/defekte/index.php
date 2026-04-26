@@ -131,7 +131,7 @@ $statusLabels = [
                     <div class="page-header mb-4">
                         <h1>Defekt-Meldungen</h1>
                         <div class="header-actions">
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createDefectModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDefectModal">
                                 <i class="fa-solid fa-plus"></i> Defekt melden
                             </button>
                         </div>
@@ -140,7 +140,7 @@ $statusLabels = [
                     <?php Flash::render(); ?>
 
                     <?php if (!$tableExists): ?>
-                        <div class="alert alert-warning">
+                        <div class="ignis-alert ignis-alert--warning">
                             <i class="fa-solid fa-database"></i> Die Tabelle <code>intra_fahrzeuge_defects</code> existiert noch nicht.
                             Lade die Seite neu — die Datenbank wird automatisch migriert. Falls das Problem bestehen bleibt, führe auf der Konsole <code>composer db:migrate</code> aus.
                         </div>
@@ -175,7 +175,7 @@ $statusLabels = [
                         <form method="GET" class="flex flex-wrap items-end gap-2">
                             <div>
                                 <label class="form-label mb-1">Fahrzeug</label>
-                                <select name="vehicle" class="form-select form-select-sm">
+                                <select name="vehicle" class="form-select form-select-sm" data-custom-dropdown="true">
                                     <option value="">Alle</option>
                                     <?php foreach ($vehicles as $v): ?>
                                         <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
@@ -186,7 +186,7 @@ $statusLabels = [
                             </div>
                             <div>
                                 <label class="form-label mb-1">Status</label>
-                                <select name="status" class="form-select form-select-sm">
+                                <select name="status" class="form-select form-select-sm" data-custom-dropdown="true">
                                     <option value="">Alle</option>
                                     <option value="open" <?= $filterStatus === 'open' ? 'selected' : '' ?>>Offen</option>
                                     <option value="in_progress" <?= $filterStatus === 'in_progress' ? 'selected' : '' ?>>In Bearbeitung</option>
@@ -195,8 +195,8 @@ $statusLabels = [
                                 </select>
                             </div>
                             <div class="flex gap-2">
-                                <button type="submit" class="btn btn-sm btn-soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
-                                <a href="?" class="btn btn-sm btn-ghost no-underline hover:no-underline">Zurücksetzen</a>
+                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
+                                <a href="?" class="ignis-btn ignis-btn--sm ignis-btn--ghost no-underline hover:no-underline">Zurücksetzen</a>
                             </div>
                         </form>
                     </div>
@@ -207,7 +207,7 @@ $statusLabels = [
                             <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
                                 <div class="input-group input-group-sm">
                                     <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
-                                    <input type="text" id="defectLocalSearch" class="form-control" placeholder="Defekte durchsuchen (Titel, Fahrzeug, Kategorie, Melder...)">
+                                    <input type="text" id="defectLocalSearch" class="ignis-input" placeholder="Defekte durchsuchen (Titel, Fahrzeug, Kategorie, Melder...)">
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -234,10 +234,10 @@ $statusLabels = [
                                             <div class="defect-title-row">
                                                 <h5 class="defect-title mb-0"><?= htmlspecialchars($d['title']) ?></h5>
                                                 <div class="defect-badges">
-                                                    <span class="badge text-bg-secondary"><?= htmlspecialchars($catLabel) ?></span>
+                                                    <span class="ignis-chip"><?= htmlspecialchars($catLabel) ?></span>
                                                     <span class="badge text-bg-<?= $stat[1] ?>"><?= $stat[0] ?></span>
                                                     <?php if (!$operable): ?>
-                                                        <span class="badge text-bg-danger"><i class="fa-solid fa-ban"></i> Nicht einsatzfähig</span>
+                                                        <span class="ignis-chip ignis-chip--danger"><i class="fa-solid fa-ban"></i> Nicht einsatzfähig</span>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
@@ -271,7 +271,7 @@ $statusLabels = [
                                         <?php if ($canManage && !$isResolved): ?>
                                             <div class="defect-actions mt-2">
                                                 <?php if ($d['status'] === 'open' || $d['status'] === 'deferred'): ?>
-                                                    <button class="btn btn-sm btn-soft-warning defect-status-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-warning defect-status-btn"
                                                             data-id="<?= $d['id'] ?>"
                                                             data-title="<?= htmlspecialchars($d['title']) ?>"
                                                             data-status="in_progress"
@@ -282,7 +282,7 @@ $statusLabels = [
                                                     </button>
                                                 <?php endif; ?>
                                                 <?php if ($d['status'] === 'open' || $d['status'] === 'in_progress'): ?>
-                                                    <button class="btn btn-sm btn-soft-primary defect-status-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary defect-status-btn"
                                                             data-id="<?= $d['id'] ?>"
                                                             data-title="<?= htmlspecialchars($d['title']) ?>"
                                                             data-status="deferred"
@@ -292,7 +292,7 @@ $statusLabels = [
                                                         <i class="fa-solid fa-clock"></i> Aufschieben
                                                     </button>
                                                 <?php endif; ?>
-                                                <button class="btn btn-sm btn-soft-success defect-resolve-btn"
+                                                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-success defect-resolve-btn"
                                                         data-id="<?= $d['id'] ?>"
                                                         data-title="<?= htmlspecialchars($d['title']) ?>"
                                                         title="Als gelöst markieren">
@@ -332,11 +332,11 @@ $statusLabels = [
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Titel</label>
-                            <input type="text" name="title" class="form-control" placeholder="Kurze Beschreibung des Defekts" required>
+                            <input type="text" name="title" class="ignis-input" placeholder="Kurze Beschreibung des Defekts" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Beschreibung</label>
-                            <textarea name="description" class="form-control" rows="3" placeholder="Detaillierte Beschreibung..."></textarea>
+                            <textarea name="description" class="ignis-input" rows="3" placeholder="Detaillierte Beschreibung..."></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Kategorie</label>
@@ -363,8 +363,8 @@ $statusLabels = [
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="btn btn-success"><i class="fa-solid fa-paper-plane"></i> Melden</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-paper-plane"></i> Melden</button>
                     </div>
                 </form>
             </div>
@@ -385,12 +385,12 @@ $statusLabels = [
                         <p class="mb-3">Defekt <strong id="resolve-defect-title"></strong> als gelöst markieren?</p>
                         <div class="mb-3">
                             <label class="form-label">Lösungsnotiz <small class="text-gray-400">(optional)</small></label>
-                            <textarea name="resolution_note" class="form-control" rows="3" placeholder="Was wurde gemacht?"></textarea>
+                            <textarea name="resolution_note" class="ignis-input" rows="3" placeholder="Was wurde gemacht?"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="btn btn-success"><i class="fa-solid fa-check"></i> Als gelöst markieren</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-check"></i> Als gelöst markieren</button>
                     </div>
                 </form>
             </div>
@@ -412,11 +412,11 @@ $statusLabels = [
                         <p class="mb-3">Defekt <strong id="status-change-defect-title"></strong> auf <span id="status-change-label" class="font-bold"></span> setzen?</p>
                         <div class="mb-3">
                             <label class="form-label">Notiz <small class="text-gray-400">(optional)</small></label>
-                            <textarea name="status_note" class="form-control" rows="3" placeholder="z.B. Ersatzteil bestellt, wird nächste Woche geliefert..."></textarea>
+                            <textarea name="status_note" class="ignis-input" rows="3" placeholder="z.B. Ersatzteil bestellt, wird nächste Woche geliefert..."></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
                         <button type="submit" class="btn" id="status-change-submit">Bestätigen</button>
                     </div>
                 </form>
@@ -477,16 +477,16 @@ $statusLabels = [
                 <div class="modal-footer">
                     <?php if ($canManage): ?>
                         <div class="me-auto flex gap-2">
-                            <select id="detail-assign-select" class="form-select form-select-sm" style="width:auto;">
+                            <select id="detail-assign-select" class="form-select form-select-sm" data-custom-dropdown="true" style="width:auto;">
                                 <option value="">Zuweisen an...</option>
                                 <?php foreach ($users as $u): ?>
                                     <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['fullname']) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <button class="btn btn-sm btn-soft-primary" id="detail-assign-btn">Zuweisen</button>
+                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="detail-assign-btn">Zuweisen</button>
                         </div>
                     <?php endif; ?>
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                 </div>
             </div>
         </div>
@@ -703,7 +703,7 @@ $statusLabels = [
 
                         document.getElementById('detail-title').textContent = d.title;
                         document.getElementById('detail-vehicle').textContent = (d.vehicle_name || '') + ' (' + (d.vehicle_identifier || '') + ')';
-                        document.getElementById('detail-category').innerHTML = '<span class="badge text-bg-secondary">' + (categoryLabels[d.category] || d.category) + '</span>';
+                        document.getElementById('detail-category').innerHTML = '<span class="ignis-chip">' + (categoryLabels[d.category] || d.category) + '</span>';
                         document.getElementById('detail-status').innerHTML = '<span class="badge text-bg-' + stat[1] + '">' + stat[0] + '</span>';
                         document.getElementById('detail-description').textContent = d.description || '—';
                         document.getElementById('detail-reporter').textContent = (d.reporter_name || 'Unbekannt') + ' am ' + formatDate(d.created_at);

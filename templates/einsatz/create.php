@@ -39,7 +39,7 @@ use App\Helpers\Flash;
                 <h1>Neuen Einsatz anlegen</h1>
                 <?php Flash::render(); ?>
                 <?php if (!empty($errors)): ?>
-                    <div class="alert alert-danger">
+                    <div class="ignis-alert ignis-alert--danger">
                         <ul class="mb-0">
                             <?php foreach ($errors as $err): ?><li><?= htmlspecialchars($err) ?></li><?php endforeach; ?>
                         </ul>
@@ -50,23 +50,23 @@ use App\Helpers\Flash;
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-12">
                         <div class="md:col-span-6">
                             <label class="form-label">Einsatznummer*</label>
-                            <input type="text" name="incident_number" class="form-control" required>
+                            <input type="text" name="incident_number" class="ignis-input" required>
                         </div>
                         <div class="md:col-span-6">
                             <label class="form-label">Einsatzort*</label>
-                            <input type="text" name="location" class="form-control" required>
+                            <input type="text" name="location" class="ignis-input" required>
                         </div>
                         <div class="md:col-span-6">
                             <label class="form-label">Einsatzstichwort*</label>
-                            <input type="text" name="keyword" class="form-control" required>
+                            <input type="text" name="keyword" class="ignis-input" required>
                         </div>
                         <div class="md:col-span-3">
                             <label class="form-label">Datum*</label>
-                            <input type="date" name="date" class="form-control" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') ?>" required>
+                            <input type="date" name="date" class="ignis-input" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') ?>" required>
                         </div>
                         <div class="md:col-span-3">
                             <label class="form-label">Uhrzeit*</label>
-                            <input type="time" name="time" class="form-control" required>
+                            <input type="time" name="time" class="ignis-input" required>
                         </div>
                         <div class="md:col-span-6">
                             <label class="form-label">Einsatzleiter*</label>
@@ -82,29 +82,29 @@ use App\Helpers\Flash;
                         </div>
                         <div class="md:col-span-6">
                             <label class="form-label">Melder – Name</label>
-                            <input type="text" name="caller_name" class="form-control">
+                            <input type="text" name="caller_name" class="ignis-input">
                         </div>
                         <div class="md:col-span-6">
                             <label class="form-label">Melder – Kontakt</label>
-                            <input type="text" name="caller_contact" class="form-control">
+                            <input type="text" name="caller_contact" class="ignis-input">
                         </div>
                         <div class="md:col-span-12">
                             <hr>
                         </div>
                         <div class="md:col-span-6">
                             <label class="form-label">Geschädigter/Eigentümer/Halter – Name</label>
-                            <input type="text" name="owner_name" class="form-control">
+                            <input type="text" name="owner_name" class="ignis-input">
                         </div>
                         <div class="md:col-span-6">
                             <label class="form-label">Geschädigter/Eigentümer/Halter – Kontakt</label>
-                            <input type="text" name="owner_contact" class="form-control">
+                            <input type="text" name="owner_contact" class="ignis-input">
                         </div>
                         <div class="md:col-span-12">
                             <small class="text-gray-400">Optional: Angaben zum Geschädigten, Eigentümer oder Halter (Name/Kontakt).</small>
                         </div>
                     </div>
                     <div class="mt-4 flex justify-end">
-                        <button type="submit" class="btn btn-primary">Einsatz erstellen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--primary">Einsatz erstellen</button>
                     </div>
                 </form>
             </div>

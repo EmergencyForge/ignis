@@ -34,8 +34,8 @@ use App\Helpers\Flash;
                         <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="btn <?= !$showArchived ? 'active' : '' ?>">Aktiv</a>
                         <a href="<?= BASE_PATH ?>einsatz/admin/list.php?show_archived=1" class="btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
                     </div>
-                    <a href="<?= BASE_PATH ?>einsatz/create.php" class="btn btn-success"><i class="fa-solid fa-plus"></i> Neu</a>
-                    <button onclick="showBulkDeleteModal()" class="btn btn-outline-danger btn-sm">
+                    <a href="<?= BASE_PATH ?>einsatz/create.php" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-plus"></i> Neu</a>
+                    <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--outline-danger ignis-btn--sm">
                         <i class="fa-solid fa-trash-can"></i> Protokolle löschen
                     </button>
                 </div>
@@ -44,7 +44,7 @@ use App\Helpers\Flash;
         <?php Flash::render(); ?>
 
         <?php if ($showArchived): ?>
-            <div class="alert alert-info mb-3">
+            <div class="ignis-alert ignis-alert--info mb-3">
                 <i class="fa-solid fa-archive mr-2"></i>
                 Sie sehen archivierte Einsätze. Diese sind aus den normalen Listen ausgeblendet.
             </div>
@@ -104,12 +104,12 @@ use App\Helpers\Flash;
                                 <?php if ($isFederated): ?>
                                     <span style="font-size:var(--fs-xs);color:var(--text-dimmed);">read-only</span>
                                 <?php else: ?>
-                                <a class="btn btn-sm btn-soft-primary" href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int)$i['id'] ?>">Öffnen</a>
+                                <a class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int)$i['id'] ?>">Öffnen</a>
                                 <?php if ($showArchived): ?>
                                     <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="d-inline">
                                         <input type="hidden" name="action" value="unarchive_incident">
                                         <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
-                                        <button type="submit" class="btn btn-sm btn-success btn-icon" title="Wiederherstellen">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success btn-icon" title="Wiederherstellen">
                                             <i class="fa-solid fa-box-open"></i>
                                         </button>
                                     </form>
@@ -117,7 +117,7 @@ use App\Helpers\Flash;
                                     <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="d-inline">
                                         <input type="hidden" name="action" value="archive_incident">
                                         <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
-                                        <button type="button" class="btn btn-sm btn-soft-warning btn-icon" title="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });">
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-warning btn-icon" title="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });">
                                             <i class="fa-solid fa-archive"></i>
                                         </button>
                                     </form>
@@ -147,8 +147,8 @@ use App\Helpers\Flash;
                     </div>
                 </div>
                 <div class="modal-footer" id="bulkDeleteFooter" style="display: none;">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-ghost-danger" onclick="executeBulkDelete()">
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete()">
                         <i class="fa-solid fa-trash"></i> Jetzt löschen
                     </button>
                 </div>
@@ -206,7 +206,7 @@ use App\Helpers\Flash;
                                 </div>`;
                         }
                         document.getElementById('bulkDeleteContent').innerHTML = `
-                            <div class="alert alert-info">
+                            <div class="ignis-alert ignis-alert--info">
                                 <i class="fa-solid fa-circle-info"></i>
                                 <strong>Felder auswählen</strong>
                                 <p class="mb-0 mt-2">Wählen Sie die Felder aus, die leer sein müssen, damit ein Protokoll gelöscht wird. Alle ausgewählten Bedingungen müssen zutreffen.</p>
@@ -236,16 +236,16 @@ use App\Helpers\Flash;
                                     <label class="form-label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
-                                <button type="button" class="btn btn-soft-primary" onclick="previewBulkDelete()">
+                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
                                     <i class="fa-solid fa-search"></i> Vorschau anzeigen
                                 </button>
                             </form>`;
                     } else {
-                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="alert alert-danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div>`;
+                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div>`;
                     }
                 })
                 .catch(error => {
-                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="alert alert-danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div>`;
+                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div>`;
                 });
         };
 
@@ -274,18 +274,18 @@ use App\Helpers\Flash;
                     if (data.success) {
                         if (data.count === 0) {
                             document.getElementById('bulkDeleteContent').innerHTML = `
-                                <div class="alert alert-info"><i class="fa-solid fa-circle-info"></i> <strong>Keine passenden Protokolle gefunden</strong><p class="mb-0 mt-2">Es wurden keine Protokolle gefunden, die alle ausgewählten Kriterien erfüllen.</p></div>
-                                <button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
+                                <div class="ignis-alert ignis-alert--info"><i class="fa-solid fa-circle-info"></i> <strong>Keine passenden Protokolle gefunden</strong><p class="mb-0 mt-2">Es wurden keine Protokolle gefunden, die alle ausgewählten Kriterien erfüllen.</p></div>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
                         } else {
                             let protocolsList = data.protocols.map(p => {
                                 const date = new Date(p.created_at);
                                 const dateStr = date.toLocaleDateString('de-DE') + ' ' + date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                                const statusBadge = p.finalized == 1 ? '<span class="badge text-bg-success">Abgeschlossen</span>' : '<span class="badge text-bg-secondary">Unfertig</span>';
+                                const statusBadge = p.finalized == 1 ? '<span class="ignis-chip ignis-chip--success">Abgeschlossen</span>' : '<span class="ignis-chip">Unfertig</span>';
                                 return `<tr><td>${p.incident_number || '<em>-</em>'}</td><td>${p.location || '<em>-</em>'}</td><td>${p.keyword || '<em>-</em>'}</td><td>${p.leader_name || '<em>-</em>'}</td><td>${dateStr}</td><td>${statusBadge}</td></tr>`;
                             }).join('');
 
                             document.getElementById('bulkDeleteContent').innerHTML = `
-                                <div class="alert alert-warning"><i class="fa-solid fa-exclamation-triangle"></i> <strong>Achtung!</strong><p class="mb-0 mt-2">Es wurden <strong>${data.count} Protokoll(e)</strong> gefunden, die archiviert werden.</p><p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p></div>
+                                <div class="ignis-alert ignis-alert--warning"><i class="fa-solid fa-exclamation-triangle"></i> <strong>Achtung!</strong><p class="mb-0 mt-2">Es wurden <strong>${data.count} Protokoll(e)</strong> gefunden, die archiviert werden.</p><p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p></div>
                                 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                                     <table class="table table-sm table-striped"><thead class="sticky-top bg-dark"><tr><th>Einsatznummer</th><th>Ort</th><th>Stichwort</th><th>Leiter</th><th>Angelegt am</th><th>Status</th></tr></thead><tbody>${protocolsList}</tbody></table>
                                 </div>`;
@@ -295,11 +295,11 @@ use App\Helpers\Flash;
                             window.bulkDeleteStatusFilter = statusFilter;
                         }
                     } else {
-                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="alert alert-danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div><button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
+                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
                     }
                 })
                 .catch(error => {
-                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="alert alert-danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div><button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
+                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
                 });
         };
 
@@ -324,17 +324,17 @@ use App\Helpers\Flash;
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="alert alert-success"><i class="fa-solid fa-check-circle"></i> <strong>Erfolgreich!</strong><p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich archiviert.</p></div>`;
+                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--success"><i class="fa-solid fa-check-circle"></i> <strong>Erfolgreich!</strong><p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich archiviert.</p></div>`;
                         document.getElementById('bulkDeleteFooter').style.display = 'none';
                         setTimeout(() => { location.reload(); }, 2000);
                     } else {
-                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="alert alert-danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}</div>`;
+                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}</div>`;
                         deleteButton.innerHTML = originalText;
                         deleteButton.disabled = false;
                     }
                 })
                 .catch(error => {
-                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="alert alert-danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${error.message}</div>`;
+                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${error.message}</div>`;
                     deleteButton.innerHTML = originalText;
                     deleteButton.disabled = false;
                 });

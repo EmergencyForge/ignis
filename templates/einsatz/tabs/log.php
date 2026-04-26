@@ -47,7 +47,7 @@ $actionTypeLabels = [
     </div>
     <div class="intra__tile-content">
         <?php if (empty($logEntries)): ?>
-            <div class="alert alert-info mb-0">
+            <div class="ignis-alert ignis-alert--info mb-0">
                 <i class="fas fa-info-circle me-2"></i>
                 Noch keine Einträge vorhanden.
             </div>

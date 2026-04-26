@@ -52,7 +52,7 @@ function einsatz_fmt_dt(?string $ts): string
                 <?php Flash::render(); ?>
 
                 <?php if (empty($incidents)): ?>
-                    <div class="alert alert-info">
+                    <div class="ignis-alert ignis-alert--info">
                         <i class="fa-solid fa-info-circle mr-2"></i>
                         Noch keine Einsätze für Ihr Fahrzeug vorhanden. Erstellen Sie einen neuen Einsatz über den Button in der Navigation.
                     </div>

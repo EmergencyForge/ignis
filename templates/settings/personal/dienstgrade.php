@@ -33,7 +33,7 @@ use App\Helpers\Flash;
                         <h1>Dienstgrade verwalten</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
+                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
                                     <i class="fa-solid fa-plus"></i> Dienstgrad erstellen
                                 </button>
                             <?php endif; ?>
@@ -103,23 +103,23 @@ use App\Helpers\Flash;
 
                             <div class="mb-3">
                                 <label for="dienstgrad-name" class="form-label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
-                                <input type="text" class="form-control" name="name" id="dienstgrad-name" required>
+                                <input type="text" class="ignis-input" name="name" id="dienstgrad-name" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="dienstgrad-name_m" class="form-label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
-                                <input type="text" class="form-control" name="name_m" id="dienstgrad-name_m" required>
+                                <input type="text" class="ignis-input" name="name_m" id="dienstgrad-name_m" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="dienstgrad-name_w" class="form-label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
-                                <input type="text" class="form-control" name="name_w" id="dienstgrad-name_w" required>
+                                <input type="text" class="ignis-input" name="name_w" id="dienstgrad-name_w" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="dienstgrad-badge" class="form-label">Badge <small class="form-hint">(Pfad oder URL, optional)</small></label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" name="badge" id="dienstgrad-badge">
+                                    <input type="text" class="ignis-input" name="badge" id="dienstgrad-badge">
                                     <span class="input-group-text p-1" id="badge-preview-container">
                                         <img id="badge-preview" src="" alt="Preview" style="height:30px; display: none;">
                                     </span>
@@ -128,7 +128,7 @@ use App\Helpers\Flash;
 
                             <div class="mb-3">
                                 <label for="dienstgrad-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="priority" id="dienstgrad-priority" required>
+                                <input type="number" class="ignis-input" name="priority" id="dienstgrad-priority" required>
                             </div>
 
                             <div class="form-check">
@@ -138,11 +138,11 @@ use App\Helpers\Flash;
 
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="btn btn-ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -167,23 +167,23 @@ use App\Helpers\Flash;
 
                             <div class="mb-3">
                                 <label for="new-dienstgrad-name" class="form-label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
-                                <input type="text" class="form-control" name="name" id="new-dienstgrad-name" required>
+                                <input type="text" class="ignis-input" name="name" id="new-dienstgrad-name" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="new-dienstgrad-name_m" class="form-label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
-                                <input type="text" class="form-control" name="name_m" id="new-dienstgrad-name_m" required>
+                                <input type="text" class="ignis-input" name="name_m" id="new-dienstgrad-name_m" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="new-dienstgrad-name_w" class="form-label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
-                                <input type="text" class="form-control" name="name_w" id="new-dienstgrad-name_w" required>
+                                <input type="text" class="ignis-input" name="name_w" id="new-dienstgrad-name_w" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="new-dienstgrad-badge" class="form-label">Badge <small class="form-hint">(Pfad oder URL, optional)</small></label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" name="badge" id="new-dienstgrad-badge">
+                                    <input type="text" class="ignis-input" name="badge" id="new-dienstgrad-badge">
                                     <span class="input-group-text p-1" id="new-badge-preview-container">
                                         <img id="new-badge-preview" src="" alt="Preview" style="height:30px; display: none;">
                                     </span>
@@ -192,7 +192,7 @@ use App\Helpers\Flash;
 
                             <div class="mb-3">
                                 <label for="new-dienstgrad-priority" class="form-label">Priorität <small class="form-hint">(je niedriger, desto höher)</small></label>
-                                <input type="number" class="form-control" name="priority" id="new-dienstgrad-priority" value="0" required>
+                                <input type="number" class="ignis-input" name="priority" id="new-dienstgrad-priority" value="0" required>
                             </div>
 
                             <div class="form-check">
@@ -202,8 +202,8 @@ use App\Helpers\Flash;
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

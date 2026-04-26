@@ -25,10 +25,10 @@ use App\Helpers\Flash;
                     <h1 class="mb-0">Schnellzugriff-Kategorien Verwaltung</h1>
                     <?php if (Permissions::check('admin')) : ?>
                         <div class="flex gap-2">
-                            <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="btn btn-ghost no-underline hover:no-underline">
+                            <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                                 <i class="fa-solid fa-arrow-left"></i> Zurück
                             </a>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
                                 <i class="fa-solid fa-plus"></i> Kategorie erstellen
                             </button>
                         </div>
@@ -90,16 +90,16 @@ use App\Helpers\Flash;
                             <input type="hidden" name="id" id="category-id">
                             <div class="mb-3">
                                 <label for="category-name" class="form-label">Name</label>
-                                <input type="text" class="form-control" name="name" id="category-name" required>
+                                <input type="text" class="ignis-input" name="name" id="category-name" required>
                             </div>
                             <div class="mb-3">
                                 <label for="category-slug" class="form-label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
-                                <input type="text" class="form-control" name="slug" id="category-slug" pattern="[a-z0-9\-]+" required>
+                                <input type="text" class="ignis-input" name="slug" id="category-slug" pattern="[a-z0-9\-]+" required>
                                 <small class="form-text text-gray-400">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
                             <div class="mb-3">
                                 <label for="category-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="sort_order" id="category-sort-order" required>
+                                <input type="number" class="ignis-input" name="sort_order" id="category-sort-order" required>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="active" id="category-active">
@@ -107,10 +107,10 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="btn btn-ghost-danger" id="delete-category-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-category-btn">Löschen</button>
                             <div>
-                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -130,16 +130,16 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="create-category-name" class="form-label">Name</label>
-                                <input type="text" class="form-control" name="name" id="create-category-name" required>
+                                <input type="text" class="ignis-input" name="name" id="create-category-name" required>
                             </div>
                             <div class="mb-3">
                                 <label for="create-category-slug" class="form-label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
-                                <input type="text" class="form-control" name="slug" id="create-category-slug" pattern="[a-z0-9\-]+" required>
+                                <input type="text" class="ignis-input" name="slug" id="create-category-slug" pattern="[a-z0-9\-]+" required>
                                 <small class="form-text text-gray-400">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
                             <div class="mb-3">
                                 <label for="create-category-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="sort_order" id="create-category-sort-order" value="0" required>
+                                <input type="number" class="ignis-input" name="sort_order" id="create-category-sort-order" value="0" required>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="active" id="create-category-active" checked>
@@ -147,8 +147,8 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

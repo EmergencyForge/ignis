@@ -67,19 +67,19 @@
                                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                                     <div>
                                         <label class="form-label">Einsatznummer *</label>
-                                        <input type="text" class="form-control" id="missionNumber" value="<?= htmlspecialchars($prefillNumber) ?>" required>
+                                        <input type="text" class="ignis-input" id="missionNumber" value="<?= htmlspecialchars($prefillNumber) ?>" required>
                                     </div>
                                     <div>
                                         <label class="form-label">Einsatzort *</label>
-                                        <input type="text" class="form-control" id="missionLocation" value="<?= htmlspecialchars($prefillLocation) ?>" required>
+                                        <input type="text" class="ignis-input" id="missionLocation" value="<?= htmlspecialchars($prefillLocation) ?>" required>
                                     </div>
                                     <div>
                                         <label class="form-label">Einsatzdatum *</label>
-                                        <input type="text" class="form-control" id="missionDate" placeholder="TT.MM.JJJJ" required>
+                                        <input type="text" class="ignis-input" id="missionDate" placeholder="TT.MM.JJJJ" required>
                                     </div>
                                     <div>
                                         <label class="form-label">Überwacher *</label>
-                                        <input type="text" class="form-control" id="supervisor" placeholder="Name des Überwachenden" required>
+                                        <input type="text" class="ignis-input" id="supervisor" placeholder="Name des Überwachenden" required>
                                     </div>
                                 </div>
                             </div>
@@ -103,7 +103,7 @@
                 <div class="modal-body" id="asuProtocolView">
                 </div>
                 <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                 </div>
             </div>
         </div>

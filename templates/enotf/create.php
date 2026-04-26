@@ -65,8 +65,8 @@ $currentDate = date('d.m.Y');
                     <p class="text-gray-400 small">Das neue Protokoll wird mit einer Nummerierung versehen (z.B. _1, _2, etc.)</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" id="confirmCreate">Trotzdem erstellen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--primary" id="confirmCreate">Trotzdem erstellen</button>
                 </div>
             </div>
         </div>

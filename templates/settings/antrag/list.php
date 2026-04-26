@@ -21,7 +21,7 @@ use App\Helpers\Flash;
         <div class="container mx-auto">
             <div class="mb-4 flex items-center justify-between">
                 <h1>Antragstypen verwalten</h1>
-                <a href="<?= BASE_PATH ?>settings/antrag/create.php" class="btn btn-success no-underline hover:no-underline">
+                <a href="<?= BASE_PATH ?>settings/antrag/create.php" class="ignis-btn ignis-btn--success no-underline hover:no-underline">
                     <i class="fa-solid fa-plus mr-2"></i>Neuer Antragstyp
                 </a>
             </div>
@@ -29,7 +29,7 @@ use App\Helpers\Flash;
             <?php Flash::render(); ?>
 
             <?php if (empty($typen)): ?>
-                <div class="alert alert-info">
+                <div class="ignis-alert ignis-alert--info">
                     <i class="fa-solid fa-info-circle mr-2"></i>
                     Noch keine Antragstypen vorhanden. Erstellen Sie jetzt Ihren ersten Antragstyp!
                 </div>
@@ -57,7 +57,7 @@ use App\Helpers\Flash;
                                                 <input type="number"
                                                     name="sortierung[<?= (int)$typ['id'] ?>]"
                                                     value="<?= (int)$typ['sortierung'] ?>"
-                                                    class="form-control form-control-sm"
+                                                    class="ignis-input ignis-input--sm"
                                                     style="width: 60px;">
                                             </td>
                                             <td class="text-center">
@@ -73,28 +73,28 @@ use App\Helpers\Flash;
                                                 </small>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-info"><?= (int)$typ['anzahl_felder'] ?></span>
+                                                <span class="ignis-chip ignis-chip--info"><?= (int)$typ['anzahl_felder'] ?></span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-primary"><?= (int)$typ['anzahl_antraege'] ?></span>
+                                                <span class="ignis-chip ignis-chip--primary"><?= (int)$typ['anzahl_antraege'] ?></span>
                                             </td>
                                             <td class="text-center">
                                                 <?php if ($typ['aktiv']): ?>
-                                                    <span class="badge-status status-success"><span class="status-dot"></span>Aktiv</span>
+                                                    <span class="ignis-chip ignis-chip--status ignis-chip--success">Aktiv</span>
                                                 <?php else: ?>
-                                                    <span class="badge-status status-muted"><span class="status-dot"></span>Inaktiv</span>
+                                                    <span class="ignis-chip ignis-chip--status ignis-chip--dark">Inaktiv</span>
                                                 <?php endif; ?>
                                             </td>
                                             <td class="text-right">
                                                 <div class="btn-group btn-group-sm">
-                                                    <a href="<?= BASE_PATH ?>settings/antrag/edit.php?id=<?= (int)$typ['id'] ?>" class="btn btn-soft-primary btn-icon mx-1 no-underline hover:no-underline" title="Bearbeiten">
+                                                    <a href="<?= BASE_PATH ?>settings/antrag/edit.php?id=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--icon mx-1 no-underline hover:no-underline" title="Bearbeiten">
                                                         <i class="fa-solid fa-edit"></i>
                                                     </a>
-                                                    <a href="?toggle=<?= (int)$typ['id'] ?>" class="btn btn-soft-warning btn-icon mx-1 no-underline hover:no-underline" title="<?= $typ['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>">
+                                                    <a href="?toggle=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--soft-warning btn-icon mx-1 no-underline hover:no-underline" title="<?= $typ['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>">
                                                         <i class="fa-solid fa-power-off"></i>
                                                     </a>
                                                     <?php if ((int)$typ['anzahl_antraege'] === 0): ?>
-                                                        <a href="?delete=<?= (int)$typ['id'] ?>" class="btn btn-outline-danger mx-1 no-underline hover:no-underline" title="Löschen"
+                                                        <a href="?delete=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--outline-danger mx-1 no-underline hover:no-underline" title="Löschen"
                                                             onclick="event.preventDefault(); showConfirm('Antragstyp wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Antragstyp löschen'}).then(result => { if(result) window.location.href = this.href; });">
                                                             <i class="fa-solid fa-trash"></i>
                                                         </a>
@@ -108,7 +108,7 @@ use App\Helpers\Flash;
                         </div>
 
                         <div class="mt-4">
-                            <button type="submit" name="update_sortierung" class="btn btn-soft-primary">
+                            <button type="submit" name="update_sortierung" class="ignis-btn ignis-btn--soft-primary">
                                 <i class="fa-solid fa-save mr-2"></i>Sortierung speichern
                             </button>
                         </div>
@@ -117,7 +117,7 @@ use App\Helpers\Flash;
             <?php endif; ?>
 
             <div class="mt-4">
-                <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="btn btn-ghost no-underline hover:no-underline">
+                <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                     <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Antragsübersicht
                 </a>
             </div>

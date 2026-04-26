@@ -11,6 +11,7 @@ use App\Auth\Gate;
 use App\Helpers\Flash;
 
 $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
+$chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
 ?>
 <!DOCTYPE html>
 <html lang="de" data-bs-theme="light">
@@ -28,18 +29,16 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">Rollen</span>
+                    <nav class="ignis-breadcrumb">
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
+                        <span class="ignis-breadcrumb__item is-active">Rollen</span>
                     </nav>
                     <div class="page-header mb-4">
                         <h1>Rollenverwaltung</h1>
                         <div class="header-actions">
                             <?php if (Gate::allows('role.create')): ?>
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createRoleModal">
+                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createRoleModal">
                                     <i class="fa-solid fa-plus"></i> Rolle erstellen
                                 </button>
                             <?php endif; ?>
@@ -60,14 +59,17 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
                                 <?php foreach ($roles as $role):
                                     $editable      = Gate::allows('role.update', $role);
                                     $permissionsJs = htmlspecialchars(json_encode($role->permissions ?? []), ENT_QUOTES);
+                                    $color         = $role->color ?? 'secondary';
+                                    $chipMod       = in_array($color, $chipMappable, true) ? ' ignis-chip--' . $color : '';
                                 ?>
                                     <tr>
                                         <td><?= (int) $role->id ?></td>
                                         <td><?= (int) $role->priority ?></td>
-                                        <td><span class="badge text-bg-<?= htmlspecialchars($role->color ?? 'secondary') ?>"><?= htmlspecialchars($role->name) ?></span></td>
+                                        <td><span class="ignis-chip<?= $chipMod ?>"><?= htmlspecialchars($role->name) ?></span></td>
                                         <td>
                                             <?php if ($editable): ?>
-                                                <a title="Rolle bearbeiten" href="#" class="btn btn-sm btn-soft-primary btn-icon edit-btn"
+                                                <a href="#" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn"
+                                                   data-ignis-tooltip="Rolle bearbeiten"
                                                    data-bs-toggle="modal" data-bs-target="#editRoleModal"
                                                    data-id="<?= (int) $role->id ?>"
                                                    data-name="<?= htmlspecialchars($role->name) ?>"
@@ -101,28 +103,29 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
                         <div class="modal-body">
                             <input type="hidden" name="id" id="role-id">
 
-                            <div class="mb-3">
-                                <label for="role-name" class="form-label">Bezeichnung</label>
-                                <input type="text" class="form-control" name="name" id="role-name" required>
+                            <div class="ignis-field mb-3">
+                                <label for="role-name" class="ignis-field__label">Bezeichnung</label>
+                                <input type="text" class="ignis-input" name="name" id="role-name" required>
+                            </div>
+
+                            <div class="ignis-field mb-3">
+                                <label for="role-priority" class="ignis-field__label">Priorität</label>
+                                <input type="number" class="ignis-input" name="priority" id="role-priority" required>
+                                <span class="ignis-field__hint">Je niedriger die Zahl, desto höher sortiert.</span>
                             </div>
 
                             <div class="mb-3">
-                                <label for="role-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="form-control" name="priority" id="role-priority" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Berechtigungen</label>
+                                <div class="ignis-field__label mb-2">Berechtigungen</div>
                                 <?php foreach ($permissionGroups as $groupName => $group): ?>
                                     <div class="mb-3 border-bottom pb-2">
-                                        <h6 class="mb-2"><span class="form-hint"><?= htmlspecialchars($groupName) ?></span></h6>
+                                        <h6 class="mb-2"><span class="ignis-field__hint" style="text-transform:none;letter-spacing:0;font-size:.8rem;"><?= htmlspecialchars($groupName) ?></span></h6>
                                         <div class="row">
                                             <?php foreach ($group as $perm => $desc): ?>
                                                 <div class="col-6 mb-1">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" name="permissions[]" value="<?= htmlspecialchars($perm) ?>" id="perm-<?= htmlspecialchars($perm) ?>">
-                                                        <label class="form-check-label" for="perm-<?= htmlspecialchars($perm) ?>"><?= $desc ?></label>
-                                                    </div>
+                                                    <label class="ignis-checkbox">
+                                                        <input type="checkbox" name="permissions[]" value="<?= htmlspecialchars($perm) ?>" id="perm-<?= htmlspecialchars($perm) ?>">
+                                                        <span><?= $desc ?></span>
+                                                    </label>
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
@@ -131,26 +134,26 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Badge</label>
+                                <div class="ignis-field__label mb-2">Badge</div>
                                 <div class="row">
-                                    <?php foreach ($badgeColors as $color): ?>
+                                    <?php foreach ($badgeColors as $color):
+                                        $previewChipMod = in_array($color, $chipMappable, true) ? ' ignis-chip--' . $color : '';
+                                    ?>
                                         <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="color" id="role-color-<?= $color ?>" value="<?= $color ?>" required>
-                                                <label class="form-check-label w-100" for="role-color-<?= $color ?>">
-                                                    <span class="badge text-bg-<?= $color ?> w-100 py-2 d-block text-center"><?= ucfirst($color) ?></span>
-                                                </label>
-                                            </div>
+                                            <label class="ignis-radio w-100">
+                                                <input type="radio" name="color" id="role-color-<?= $color ?>" value="<?= $color ?>" required>
+                                                <span class="ignis-chip<?= $previewChipMod ?>" style="display:inline-block;text-align:center;min-width:6rem;"><?= ucfirst($color) ?></span>
+                                            </label>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="btn btn-ghost-danger" id="delete-role-btn">Löschen</button>
-                            <div>
-                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-role-btn">Löschen</button>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -174,56 +177,54 @@ $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="new-role-name" class="form-label">Bezeichnung</label>
-                                <input type="text" class="form-control" name="name" id="new-role-name" required>
+                            <div class="ignis-field mb-3">
+                                <label for="new-role-name" class="ignis-field__label">Bezeichnung</label>
+                                <input type="text" class="ignis-input" name="name" id="new-role-name" required>
+                            </div>
+
+                            <div class="ignis-field mb-3">
+                                <label for="new-role-priority" class="ignis-field__label">Priorität</label>
+                                <input type="number" class="ignis-input" name="priority" id="new-role-priority" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-role-priority" class="form-label">Priorität</label>
-                                <input type="number" class="form-control" name="priority" id="new-role-priority" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Berechtigungen</label>
-                                <div class="row">
-                                    <?php foreach ($permissionGroups as $groupName => $group): ?>
-                                        <div class="mb-2 border-bottom pb-2">
-                                            <h6 class="mb-2"><span class="form-hint"><?= htmlspecialchars($groupName) ?></span></h6>
-                                            <div class="row">
-                                                <?php foreach ($group as $perm => $desc): ?>
-                                                    <div class="col-6 mb-1">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" name="permissions[]" value="<?= htmlspecialchars($perm) ?>" id="perm-create-<?= htmlspecialchars($perm) ?>">
-                                                            <label class="form-check-label" for="perm-create-<?= htmlspecialchars($perm) ?>"><?= $desc ?></label>
-                                                        </div>
-                                                    </div>
-                                                <?php endforeach; ?>
-                                            </div>
+                                <div class="ignis-field__label mb-2">Berechtigungen</div>
+                                <?php foreach ($permissionGroups as $groupName => $group): ?>
+                                    <div class="mb-2 border-bottom pb-2">
+                                        <h6 class="mb-2"><span class="ignis-field__hint" style="text-transform:none;letter-spacing:0;font-size:.8rem;"><?= htmlspecialchars($groupName) ?></span></h6>
+                                        <div class="row">
+                                            <?php foreach ($group as $perm => $desc): ?>
+                                                <div class="col-6 mb-1">
+                                                    <label class="ignis-checkbox">
+                                                        <input type="checkbox" name="permissions[]" value="<?= htmlspecialchars($perm) ?>" id="perm-create-<?= htmlspecialchars($perm) ?>">
+                                                        <span><?= $desc ?></span>
+                                                    </label>
+                                                </div>
+                                            <?php endforeach; ?>
                                         </div>
-                                    <?php endforeach; ?>
-                                </div>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Badge</label>
+                                <div class="ignis-field__label mb-2">Badge</div>
                                 <div class="row">
-                                    <?php foreach ($badgeColors as $color): ?>
+                                    <?php foreach ($badgeColors as $color):
+                                        $previewChipMod = in_array($color, $chipMappable, true) ? ' ignis-chip--' . $color : '';
+                                    ?>
                                         <div class="col-6 mb-2">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="color" id="new-role-color-<?= $color ?>" value="<?= $color ?>" required>
-                                                <label class="form-check-label w-100" for="new-role-color-<?= $color ?>">
-                                                    <span class="badge text-bg-<?= $color ?> w-100 py-2 d-block text-center"><?= ucfirst($color) ?></span>
-                                                </label>
-                                            </div>
+                                            <label class="ignis-radio w-100">
+                                                <input type="radio" name="color" id="new-role-color-<?= $color ?>" value="<?= $color ?>" required>
+                                                <span class="ignis-chip<?= $previewChipMod ?>" style="display:inline-block;text-align:center;min-width:6rem;"><?= ucfirst($color) ?></span>
+                                            </label>
                                         </div>
                                     <?php endforeach; ?>
                                 </div>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

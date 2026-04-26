@@ -231,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
                     </div>
 
                     <?php if ($error): ?>
-                        <div class="alert alert-danger" role="alert">
+                        <div class="ignis-alert ignis-alert--danger" role="alert">
                             <i class="fa-solid fa-triangle-exclamation mr-2"></i>
                             <?= htmlspecialchars($error) ?>
                         </div>

@@ -32,19 +32,19 @@ use App\Helpers\Flash;
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
                             <label for="name" class="form-label font-bold">Name <span class="text-red-500">*</span></label>
-                            <input type="text" class="form-control" id="name" name="name"
+                            <input type="text" class="ignis-input" id="name" name="name"
                                 value="<?= htmlspecialchars($typ['name']) ?>" required>
                         </div>
                         <div>
                             <label for="sortierung" class="form-label font-bold">Sortierung</label>
-                            <input type="number" class="form-control" id="sortierung" name="sortierung"
+                            <input type="number" class="ignis-input" id="sortierung" name="sortierung"
                                 value="<?= (int)$typ['sortierung'] ?>" min="0">
                         </div>
                     </div>
 
                     <div class="mt-4 mb-4">
                         <label for="beschreibung" class="form-label font-bold">Beschreibung</label>
-                        <textarea class="form-control" id="beschreibung" name="beschreibung"
+                        <textarea class="ignis-input" id="beschreibung" name="beschreibung"
                             rows="2"><?= htmlspecialchars($typ['beschreibung']) ?></textarea>
                     </div>
 
@@ -58,7 +58,7 @@ use App\Helpers\Flash;
                         </div>
                     </div>
 
-                    <button type="submit" name="update_typ" class="btn btn-soft-primary">
+                    <button type="submit" name="update_typ" class="ignis-btn ignis-btn--soft-primary">
                         <i class="fa-solid fa-save mr-2"></i>Speichern
                     </button>
                 </form>
@@ -68,13 +68,13 @@ use App\Helpers\Flash;
             <div class="intra__tile mb-4 p-4">
                 <div class="mb-4 flex items-center justify-between">
                     <h4><i class="fa-solid fa-list mr-2"></i>Formularfelder (<?= count($felder) ?>)</h4>
-                    <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addFeldModal">
+                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#addFeldModal">
                         <i class="fa-solid fa-plus mr-1"></i>Feld hinzufügen
                     </button>
                 </div>
 
                 <?php if (empty($felder)): ?>
-                    <div class="alert alert-info">
+                    <div class="ignis-alert ignis-alert--info">
                         <i class="fa-solid fa-info-circle mr-2"></i>
                         Noch keine Felder definiert. Fügen Sie jetzt Ihr erstes Feld hinzu!
                     </div>
@@ -101,15 +101,15 @@ use App\Helpers\Flash;
                                                 <input type="number"
                                                     name="feld_sortierung[<?= (int)$feld['id'] ?>]"
                                                     value="<?= (int)$feld['sortierung'] ?>"
-                                                    class="form-control form-control-sm"
+                                                    class="ignis-input ignis-input--sm"
                                                     style="width: 60px;">
                                             </td>
                                             <td><code><?= htmlspecialchars($feld['feldname']) ?></code></td>
                                             <td><?= htmlspecialchars($feld['label']) ?></td>
                                             <td>
-                                                <span class="badge bg-secondary"><?= htmlspecialchars($feld['feldtyp']) ?></span>
+                                                <span class="ignis-chip"><?= htmlspecialchars($feld['feldtyp']) ?></span>
                                                 <?php if ($feld['auto_fill']): ?>
-                                                    <span class="badge bg-info" title="Auto-Fill">
+                                                    <span class="ignis-chip ignis-chip--info" title="Auto-Fill">
                                                         <i class="fa-solid fa-magic"></i>
                                                     </span>
                                                 <?php endif; ?>
@@ -127,7 +127,7 @@ use App\Helpers\Flash;
                                             </td>
                                             <td class="text-right">
                                                 <a href="?id=<?= (int)$id ?>&delete_feld=<?= (int)$feld['id'] ?>"
-                                                    class="btn btn-outline-danger btn-sm btn-icon no-underline hover:no-underline"
+                                                    class="ignis-btn ignis-btn--outline-danger ignis-btn--sm btn-icon no-underline hover:no-underline"
                                                     onclick="event.preventDefault(); showConfirm('Feld wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Feld löschen'}).then(result => { if(result) window.location.href = this.href; });">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </a>
@@ -137,14 +137,14 @@ use App\Helpers\Flash;
                                 </tbody>
                             </table>
                         </div>
-                        <button type="submit" name="update_felder_sortierung" class="btn btn-soft-primary mt-2">
+                        <button type="submit" name="update_felder_sortierung" class="ignis-btn ignis-btn--soft-primary mt-2">
                             <i class="fa-solid fa-save mr-2"></i>Sortierung speichern
                         </button>
                     </form>
                 <?php endif; ?>
             </div>
 
-            <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="btn btn-ghost mb-6 no-underline hover:no-underline">
+            <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="ignis-btn ignis-btn--ghost mb-6 no-underline hover:no-underline">
                 <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Übersicht
             </a>
         </div>
@@ -163,12 +163,12 @@ use App\Helpers\Flash;
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label for="feldname" class="form-label font-bold">Feldname (technisch) <span class="text-red-500">*</span></label>
-                                <input type="text" class="form-control" id="feldname" name="feldname" placeholder="z.B. von_datum, grund" required>
+                                <input type="text" class="ignis-input" id="feldname" name="feldname" placeholder="z.B. von_datum, grund" required>
                                 <small class="mt-1 block text-xs text-gray-400">Nur Kleinbuchstaben, Zahlen und Unterstriche</small>
                             </div>
                             <div>
                                 <label for="label" class="form-label font-bold">Label (Anzeige) <span class="text-red-500">*</span></label>
-                                <input type="text" class="form-control" id="label" name="label" placeholder="z.B. Urlaub von" required>
+                                <input type="text" class="ignis-input" id="label" name="label" placeholder="z.B. Urlaub von" required>
                             </div>
                         </div>
 
@@ -210,18 +210,18 @@ use App\Helpers\Flash;
 
                         <div class="mt-4">
                             <label for="platzhalter" class="form-label font-bold">Platzhalter-Text</label>
-                            <input type="text" class="form-control" id="platzhalter" name="platzhalter" placeholder="z.B. TT.MM.JJJJ">
+                            <input type="text" class="ignis-input" id="platzhalter" name="platzhalter" placeholder="z.B. TT.MM.JJJJ">
                         </div>
 
                         <div class="mt-4" id="optionen-container" style="display: none;">
                             <label for="optionen" class="form-label font-bold">Optionen (für Select)</label>
-                            <textarea class="form-control" id="optionen" name="optionen" rows="3" placeholder="Eine Option pro Zeile"></textarea>
+                            <textarea class="ignis-input" id="optionen" name="optionen" rows="3" placeholder="Eine Option pro Zeile"></textarea>
                             <small class="mt-1 block text-xs text-gray-400">Jede Zeile wird zu einer Auswahloption</small>
                         </div>
 
                         <div class="mt-4">
                             <label for="hinweistext" class="form-label font-bold">Hinweistext</label>
-                            <textarea class="form-control" id="hinweistext" name="hinweistext" rows="2" placeholder="Optionaler Hinweis, der unter dem Feld angezeigt wird"></textarea>
+                            <textarea class="ignis-input" id="hinweistext" name="hinweistext" rows="2" placeholder="Optionaler Hinweis, der unter dem Feld angezeigt wird"></textarea>
                         </div>
 
                         <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -240,8 +240,8 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" name="add_feld" class="btn btn-success">
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" name="add_feld" class="ignis-btn ignis-btn--success">
                             <i class="fa-solid fa-plus mr-2"></i>Feld hinzufügen
                         </button>
                     </div>

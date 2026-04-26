@@ -31,17 +31,17 @@ use App\Helpers\Flash;
                         </div>
                         <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                             <div class="flex gap-2">
-                                <button type="button" class="btn btn-soft-warning" id="reset-availability-btn">
+                                <button type="button" class="ignis-btn ignis-btn--soft-warning" id="reset-availability-btn">
                                     <i class="fa-solid fa-rotate-left"></i> Alle auf "Nicht besetzt"
                                 </button>
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createDepartmentModal">
+                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDepartmentModal">
                                     <i class="fa-solid fa-plus"></i> Fachrichtung hinzufügen
                                 </button>
                             </div>
                         <?php endif; ?>
                     </div>
 
-                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="btn btn-sm btn-ghost mb-3">
+                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="ignis-btn ignis-btn--sm ignis-btn--ghost mb-3">
                         <i class="fa-solid fa-arrow-left"></i> Zurück zur POI-Verwaltung
                     </a>
 
@@ -66,13 +66,13 @@ use App\Helpers\Flash;
                                             <td><?= \App\Helpers\DateTimeHelper::formatShortLocal($dept['created_at']) ?></td>
                                             <td>
                                                 <?php if (Permissions::check(['admin', 'pois.manage'])): ?>
-                                                    <button class="btn btn-sm btn-soft-primary btn-icon mr-1 edit-dept-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-dept-btn"
                                                             data-id="<?= (int)$dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>"
                                                             data-sort-order="<?= (int)$dept['sort_order'] ?>">
                                                         <i class="fa-solid fa-pen"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-outline-danger btn-icon delete-dept-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon delete-dept-btn"
                                                             data-id="<?= (int)$dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>">
                                                         <i class="fa-solid fa-trash"></i>
@@ -108,11 +108,11 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="dept-name" class="form-label">Fachrichtung *</label>
-                                <input type="text" class="form-control" name="name" id="dept-name" placeholder="z.B. ZNA/INA, Schockraum, Intensivstation" required>
+                                <input type="text" class="ignis-input" name="name" id="dept-name" placeholder="z.B. ZNA/INA, Schockraum, Intensivstation" required>
                             </div>
                             <div class="mb-3">
                                 <label for="dept-sort-order" class="form-label">Sortierung</label>
-                                <input type="number" class="form-control" name="sort_order" id="dept-sort-order" value="999" min="0" step="1">
+                                <input type="number" class="ignis-input" name="sort_order" id="dept-sort-order" value="999" min="0" step="1">
                                 <small class="text-muted">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
                             </div>
                             <p class="text-muted small">
@@ -120,8 +120,8 @@ use App\Helpers\Flash;
                             </p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-success">Hinzufügen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Hinzufügen</button>
                         </div>
                     </form>
                 </div>
@@ -144,17 +144,17 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="edit-dept-name" class="form-label">Fachrichtung *</label>
-                                <input type="text" class="form-control" name="name" id="edit-dept-name" required>
+                                <input type="text" class="ignis-input" name="name" id="edit-dept-name" required>
                             </div>
                             <div class="mb-3">
                                 <label for="edit-dept-sort-order" class="form-label">Sortierung</label>
-                                <input type="number" class="form-control" name="sort_order" id="edit-dept-sort-order" min="0" step="1" required>
+                                <input type="number" class="ignis-input" name="sort_order" id="edit-dept-sort-order" min="0" step="1" required>
                                 <small class="text-muted">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>

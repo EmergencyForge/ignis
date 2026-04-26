@@ -42,7 +42,7 @@ use App\Helpers\Flash;
                             <a href="?view=1" class="btn <?= (isset($_GET['view']) && $_GET['view'] == 1) ? 'active' : '' ?>">Unbearbeitet</a>
                         </div>
                         <?php if (Permissions::check(['admin', 'edivi.edit'])) { ?>
-                            <button onclick="showBulkDeleteModal()" class="btn btn-outline-danger btn-sm">
+                            <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--outline-danger ignis-btn--sm">
                                 <i class="fa-solid fa-trash-can"></i> Leere Protokolle löschen
                             </button>
                         <?php } ?>
@@ -232,8 +232,8 @@ use App\Helpers\Flash;
                     </div>
                 </div>
                 <div class="modal-footer" id="bulkDeleteFooter" style="display: none;">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-ghost-danger" onclick="executeBulkDelete()">
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete()">
                         <i class="fa-solid fa-trash"></i> Jetzt löschen
                     </button>
                 </div>
@@ -306,7 +306,7 @@ use App\Helpers\Flash;
                     })
                     .catch(error => {
                         document.getElementById('qmActionsContent').innerHTML = `
-                            <div class="alert alert-danger">
+                            <div class="ignis-alert ignis-alert--danger">
                                 Fehler beim Laden der QM-Aktionen: ${error.message}
                             </div>
                         `;
@@ -337,7 +337,7 @@ use App\Helpers\Flash;
                     })
                     .catch(error => {
                         document.getElementById('qmLogContent').innerHTML = `
-                            <div class="alert alert-danger">
+                            <div class="ignis-alert ignis-alert--danger">
                                 Fehler beim Laden des QM-Logs: ${error.message}
                             </div>
                         `;
@@ -420,7 +420,7 @@ use App\Helpers\Flash;
                         }
 
                         document.getElementById('bulkDeleteContent').innerHTML = `
-                            <div class="alert alert-info">
+                            <div class="ignis-alert ignis-alert--info">
                                 <i class="fa-solid fa-circle-info"></i> 
                                 <strong>Felder auswählen</strong>
                                 <p class="mb-0 mt-2">Wählen Sie die Felder aus, die leer sein müssen, damit ein Protokoll gelöscht wird.</p>
@@ -440,14 +440,14 @@ use App\Helpers\Flash;
                                     <label class="form-label font-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
-                                <button type="button" class="btn btn-soft-primary" onclick="previewBulkDelete()">
+                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
                                     <i class="fa-solid fa-search"></i> Vorschau anzeigen
                                 </button>
                             </form>
                         `;
                     } else {
                         document.getElementById('bulkDeleteContent').innerHTML = `
-                            <div class="alert alert-danger">
+                            <div class="ignis-alert ignis-alert--danger">
                                 <i class="fa-solid fa-exclamation-circle"></i> 
                                 Fehler: ${data.message || 'Unbekannter Fehler'}
                             </div>
@@ -456,7 +456,7 @@ use App\Helpers\Flash;
                 })
                 .catch(error => {
                     document.getElementById('bulkDeleteContent').innerHTML = `
-                        <div class="alert alert-danger">
+                        <div class="ignis-alert ignis-alert--danger">
                             <i class="fa-solid fa-exclamation-circle"></i> 
                             Fehler: ${error.message}
                         </div>
@@ -496,12 +496,12 @@ use App\Helpers\Flash;
                     if (data.success) {
                         if (data.count === 0) {
                             document.getElementById('bulkDeleteContent').innerHTML = `
-                                <div class="alert alert-info">
+                                <div class="ignis-alert ignis-alert--info">
                                     <i class="fa-solid fa-circle-info"></i> 
                                     <strong>Keine leeren Protokolle gefunden</strong>
                                     <p class="mb-0 mt-2">Es wurden keine Protokolle gefunden, die alle ausgewählten Kriterien erfüllen.</p>
                                 </div>
-                                <button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()">
+                                <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
                                     <i class="fa-solid fa-arrow-left"></i> Zurück
                                 </button>
                             `;
@@ -523,7 +523,7 @@ use App\Helpers\Flash;
                             }).join('');
 
                             document.getElementById('bulkDeleteContent').innerHTML = `
-                                <div class="alert alert-warning">
+                                <div class="ignis-alert ignis-alert--warning">
                                     <i class="fa-solid fa-exclamation-triangle"></i> 
                                     <strong>Achtung!</strong>
                                     <p class="mb-0 mt-2">Es wurden <strong>${data.count} leere Protokolle</strong> gefunden.</p>
@@ -553,11 +553,11 @@ use App\Helpers\Flash;
                         }
                     } else {
                         document.getElementById('bulkDeleteContent').innerHTML = `
-                            <div class="alert alert-danger">
+                            <div class="ignis-alert ignis-alert--danger">
                                 <i class="fa-solid fa-exclamation-circle"></i> 
                                 Fehler: ${data.message || 'Unbekannter Fehler'}
                             </div>
-                            <button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()">
+                            <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
                                 <i class="fa-solid fa-arrow-left"></i> Zurück
                             </button>
                         `;
@@ -565,11 +565,11 @@ use App\Helpers\Flash;
                 })
                 .catch(error => {
                     document.getElementById('bulkDeleteContent').innerHTML = `
-                        <div class="alert alert-danger">
+                        <div class="ignis-alert ignis-alert--danger">
                             <i class="fa-solid fa-exclamation-circle"></i> 
                             Fehler: ${error.message}
                         </div>
-                        <button type="button" class="btn btn-ghost" onclick="showBulkDeleteModal()">
+                        <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
                             <i class="fa-solid fa-arrow-left"></i> Zurück
                         </button>
                     `;
@@ -601,7 +601,7 @@ use App\Helpers\Flash;
                 .then(data => {
                     if (data.success) {
                         document.getElementById('bulkDeleteContent').innerHTML = `
-                        <div class="alert alert-success">
+                        <div class="ignis-alert ignis-alert--success">
                             <i class="fa-solid fa-check-circle"></i> 
                             <strong>Erfolgreich!</strong>
                             <p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich gelöscht.</p>
@@ -615,7 +615,7 @@ use App\Helpers\Flash;
                         }, 2000);
                     } else {
                         document.getElementById('bulkDeleteContent').innerHTML = `
-                        <div class="alert alert-danger">
+                        <div class="ignis-alert ignis-alert--danger">
                             <i class="fa-solid fa-exclamation-circle"></i> 
                             Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}
                         </div>
@@ -626,7 +626,7 @@ use App\Helpers\Flash;
                 })
                 .catch(error => {
                     document.getElementById('bulkDeleteContent').innerHTML = `
-                    <div class="alert alert-danger">
+                    <div class="ignis-alert ignis-alert--danger">
                         <i class="fa-solid fa-exclamation-circle"></i> 
                         Fehler beim Löschen: ${error.message}
                     </div>

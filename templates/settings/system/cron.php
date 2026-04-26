@@ -34,7 +34,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
         <div class="container mx-auto">
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="mb-0">Cron-Jobs</h1>
-                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createCronJobModal">
+                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCronJobModal">
                     <i class="fa-solid fa-plus"></i> Neuer Job
                 </button>
             </div>
@@ -48,11 +48,11 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                     <span class="text-gray-500">— für cron-job.org, UptimeRobot &amp; Co.</span>
                 </summary>
                 <div class="flex items-center gap-2 mt-3">
-                    <input type="password" class="form-control form-control-sm" id="cron-endpoint-url" value="<?= htmlspecialchars($cronUrl) ?>" readonly style="font-family: var(--font-mono, monospace); font-size: 0.78rem;">
-                    <button type="button" class="btn btn-sm btn-ghost" title="Anzeigen" onclick="const el=document.getElementById('cron-endpoint-url');el.type=el.type==='password'?'text':'password';this.querySelector('i').className='fa-solid '+(el.type==='text'?'fa-eye-slash':'fa-eye')">
+                    <input type="password" class="ignis-input ignis-input--sm" id="cron-endpoint-url" value="<?= htmlspecialchars($cronUrl) ?>" readonly style="font-family: var(--font-mono, monospace); font-size: 0.78rem;">
+                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" title="Anzeigen" onclick="const el=document.getElementById('cron-endpoint-url');el.type=el.type==='password'?'text':'password';this.querySelector('i').className='fa-solid '+(el.type==='text'?'fa-eye-slash':'fa-eye')">
                         <i class="fa-solid fa-eye"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-soft-primary" onclick="navigator.clipboard.writeText(document.getElementById('cron-endpoint-url').value);this.innerHTML='<i class=\'fa-solid fa-check\'></i> Kopiert';setTimeout(()=>this.innerHTML='<i class=\'fa-solid fa-copy\'></i> Kopieren',1200)">
+                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="navigator.clipboard.writeText(document.getElementById('cron-endpoint-url').value);this.innerHTML='<i class=\'fa-solid fa-check\'></i> Kopiert';setTimeout(()=>this.innerHTML='<i class=\'fa-solid fa-copy\'></i> Kopieren',1200)">
                         <i class="fa-solid fa-copy"></i> Kopieren
                     </button>
                 </div>
@@ -94,7 +94,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                                 </td>
                                 <td><code style="font-size:0.78rem;"><?= htmlspecialchars($job['schedule']) ?></code></td>
                                 <td>
-                                    <span class="badge text-bg-secondary" style="font-size:0.65rem;"><?= htmlspecialchars($job['handler_type']) ?></span>
+                                    <span class="ignis-chip" style="font-size:0.65rem;"><?= htmlspecialchars($job['handler_type']) ?></span>
                                     <div style="font-size:0.72rem;word-break:break-all;max-width:220px;"><?= htmlspecialchars($job['handler']) ?></div>
                                 </td>
                                 <td><?= $activeBadge ?></td>
@@ -110,16 +110,16 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                                 <td><?= (int) $job['fail_count'] ?></td>
                                 <td>
                                     <div class="flex gap-1">
-                                        <button type="button" class="btn btn-sm btn-soft-primary" title="History" onclick="showCronHistory(<?= $jobId ?>, '<?= htmlspecialchars($job['name'], ENT_QUOTES) ?>')">
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" title="History" onclick="showCronHistory(<?= $jobId ?>, '<?= htmlspecialchars($job['name'], ENT_QUOTES) ?>')">
                                             <i class="fa-solid fa-clock-rotate-left"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-soft-success" title="Jetzt ausführen" onclick="runCronJob(<?= $jobId ?>, this)">
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-success" title="Jetzt ausführen" onclick="runCronJob(<?= $jobId ?>, this)">
                                             <i class="fa-solid fa-play"></i>
                                         </button>
                                         <form method="POST" action="<?= $base ?>settings/system/cron/toggle" style="display:inline">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                             <input type="hidden" name="id" value="<?= $jobId ?>">
-                                            <button type="submit" class="btn btn-sm btn-soft-warning" title="Aktivieren / Pausieren">
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-warning" title="Aktivieren / Pausieren">
                                                 <i class="fa-solid <?= ((int) $job['active']) === 1 ? 'fa-pause' : 'fa-play' ?>"></i>
                                             </button>
                                         </form>
@@ -127,7 +127,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                                             <form method="POST" action="<?= $base ?>settings/system/cron/delete" style="display:inline" data-confirm="Job wirklich löschen?">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                                 <input type="hidden" name="id" value="<?= $jobId ?>">
-                                                <button type="submit" class="btn btn-sm btn-ghost-danger" title="Löschen">
+                                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger" title="Löschen">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
                                             </form>
@@ -156,16 +156,16 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                         <div class="row mb-3">
                             <div class="col">
                                 <label class="form-label">Identifier <small class="form-hint">(eindeutig, keine Leerzeichen)</small></label>
-                                <input type="text" class="form-control" name="identifier" pattern="[a-z0-9._-]+" required>
+                                <input type="text" class="ignis-input" name="identifier" pattern="[a-z0-9._-]+" required>
                             </div>
                             <div class="col">
                                 <label class="form-label">Anzeigename</label>
-                                <input type="text" class="form-control" name="name" required>
+                                <input type="text" class="ignis-input" name="name" required>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Beschreibung <small class="form-hint">(optional)</small></label>
-                            <input type="text" class="form-control" name="description">
+                            <input type="text" class="ignis-input" name="description">
                         </div>
                         <div class="row mb-3">
                             <div class="col">
@@ -178,25 +178,25 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                             </div>
                             <div class="col">
                                 <label class="form-label">Schedule <small class="form-hint">(Cron-Expression)</small></label>
-                                <input type="text" class="form-control" name="schedule" placeholder="*/5 * * * *" required style="font-family:monospace;">
+                                <input type="text" class="ignis-input" name="schedule" placeholder="*/5 * * * *" required style="font-family:monospace;">
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Handler</label>
-                            <input type="text" class="form-control" name="handler" placeholder="https://discord.com/api/webhooks/… | queue:work | App\Jobs\MyJob" required>
+                            <input type="text" class="ignis-input" name="handler" placeholder="https://discord.com/api/webhooks/… | queue:work | App\Jobs\MyJob" required>
                             <small class="form-hint">Webhook: Ziel-URL · Console: Command-Name · Queue: Job-Klassen-FQCN</small>
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Config <small class="form-hint">(JSON, optional)</small></label>
-                            <textarea class="form-control" name="config" rows="4" style="font-family:monospace;font-size:0.78rem;" placeholder='{"method":"POST","body":{"content":"Wochenstats {{DATE}}"},"timeout":30}'></textarea>
+                            <textarea class="ignis-input" name="config" rows="4" style="font-family:monospace;font-size:0.78rem;" placeholder='{"method":"POST","body":{"content":"Wochenstats {{DATE}}"},"timeout":30}'></textarea>
                             <small class="form-hint">
                                 Platzhalter (Webhook): <code>{{SERVER_NAME}}</code>, <code>{{SERVER_CITY}}</code>, <code>{{SYSTEM_NAME}}</code>, <code>{{DATE}}</code>, <code>{{TIME}}</code>, <code>{{TIMESTAMP}}</code>, <code>{{ISO8601}}</code>
                             </small>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="btn btn-success">Erstellen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                     </div>
                 </form>
             </div>

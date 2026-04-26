@@ -116,7 +116,7 @@ $SITE_TITLE = htmlspecialchars($typLabel);
     <div class="doc-topbar">
         <!-- Zeile 1: Navigation + Titel + Aktionen -->
         <div class="doc-topbar-row">
-            <a href="<?= htmlspecialchars($backUrl) ?>" class="btn btn-sm btn-ghost" title="Zurück">
+            <a href="<?= htmlspecialchars($backUrl) ?>" class="ignis-btn ignis-btn--sm ignis-btn--ghost" title="Zurück">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
 
@@ -127,21 +127,21 @@ $SITE_TITLE = htmlspecialchars($typLabel);
             <h1 class="doc-title"><?= htmlspecialchars($typLabel) ?></h1>
 
             <?php if ($isArchived): ?>
-                <span class="badge text-bg-secondary" style="font-size:0.65rem;"><i class="fa-solid fa-box-archive mr-1"></i>Archiviert</span>
+                <span class="ignis-chip" style="font-size:0.65rem;"><i class="fa-solid fa-box-archive mr-1"></i>Archiviert</span>
             <?php else: ?>
-                <span class="badge text-bg-success" style="font-size:0.65rem;opacity:0.8;"><i class="fa-solid fa-circle-check mr-1"></i>Aktiv</span>
+                <span class="ignis-chip ignis-chip--success" style="font-size:0.65rem;opacity:0.8;"><i class="fa-solid fa-circle-check mr-1"></i>Aktiv</span>
             <?php endif; ?>
 
             <div class="doc-actions ms-auto flex gap-1">
                 <?php if ($pdfExists): ?>
-                    <a href="<?= htmlspecialchars($pdfUrl) ?>" download class="btn btn-outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>
-                    <a href="<?= htmlspecialchars($pdfUrl) ?>" target="_blank" class="btn btn-outline-light" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>
+                    <a href="<?= htmlspecialchars($pdfUrl) ?>" download class="ignis-btn ignis-btn--outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>
+                    <a href="<?= htmlspecialchars($pdfUrl) ?>" target="_blank" class="ignis-btn ignis-btn--ghost" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>
                 <?php endif; ?>
                 <?php if ($canManage): ?>
-                    <button class="btn btn-outline-secondary" id="btn-toggle-archive" title="<?= $isArchived ? 'Wiederherstellen' : 'Archivieren' ?>">
+                    <button class="ignis-btn ignis-btn--outline-secondary" id="btn-toggle-archive" title="<?= $isArchived ? 'Wiederherstellen' : 'Archivieren' ?>">
                         <i class="fa-solid <?= $isArchived ? 'fa-box-open' : 'fa-box-archive' ?>"></i>
                     </button>
-                    <button class="btn btn-outline-danger" id="btn-delete-doc" title="Endgültig löschen">
+                    <button class="ignis-btn ignis-btn--outline-danger" id="btn-delete-doc" title="Endgültig löschen">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 <?php endif; ?>

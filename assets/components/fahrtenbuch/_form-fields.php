@@ -34,7 +34,7 @@ $val = function (string $field, string $default = '') use ($entry) {
     <!-- Datum -->
     <div class="md:col-span-4">
         <label for="fb_datum" class="form-label">Datum <span class="text-danger">*</span></label>
-        <input type="date" class="form-control form-control-sm" id="fb_datum" name="datum"
+        <input type="date" class="ignis-input ignis-input--sm" id="fb_datum" name="datum"
                value="<?= $isEdit ? $val('datum') : date('Y-m-d') ?>" required
                data-ignis-datepicker>
     </div>
@@ -42,14 +42,14 @@ $val = function (string $field, string $default = '') use ($entry) {
     <!-- Abfahrt -->
     <div class="md:col-span-4">
         <label for="fb_abfahrt" class="form-label">Abfahrt <span class="text-danger">*</span></label>
-        <input type="time" class="form-control form-control-sm" id="fb_abfahrt" name="abfahrt"
+        <input type="time" class="ignis-input ignis-input--sm" id="fb_abfahrt" name="abfahrt"
                value="<?= $isEdit ? $val('abfahrt') : date('H:i') ?>" required>
     </div>
 
     <!-- Ankunft -->
     <div class="md:col-span-4">
         <label for="fb_ankunft" class="form-label">Ankunft</label>
-        <input type="time" class="form-control form-control-sm" id="fb_ankunft" name="ankunft"
+        <input type="time" class="ignis-input ignis-input--sm" id="fb_ankunft" name="ankunft"
                value="<?= $val('ankunft') ?>">
     </div>
 
@@ -57,11 +57,11 @@ $val = function (string $field, string $default = '') use ($entry) {
     <div class="md:col-span-6">
         <label for="fb_fahrzeug" class="form-label">Fahrzeug <span class="text-danger">*</span></label>
         <?php if ($isReadonly): ?>
-            <input type="text" class="form-control form-control-sm" value="<?= htmlspecialchars($vehicleName ?: $vehicleIdentifier) ?>" readonly>
+            <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($vehicleName ?: $vehicleIdentifier) ?>" readonly>
             <input type="hidden" name="vehicle_id" value="<?= (int)$vehicleId ?>">
             <input type="hidden" name="vehicle_identifier" value="<?= htmlspecialchars($vehicleIdentifier) ?>">
         <?php else: ?>
-            <select class="form-select form-select-sm" id="fb_fahrzeug" name="vehicle_id" required>
+            <select class="form-select form-select-sm" data-custom-dropdown="true" id="fb_fahrzeug" name="vehicle_id" required>
                 <option value="">Bitte auswählen...</option>
                 <?php foreach ($vehicles as $v): ?>
                     <option value="<?= $v['id'] ?>"
@@ -80,10 +80,10 @@ $val = function (string $field, string $default = '') use ($entry) {
     <div class="md:col-span-6">
         <label for="fb_fahrer" class="form-label">Fahrer <span class="text-danger">*</span></label>
         <?php if ($isReadonly): ?>
-            <input type="text" class="form-control form-control-sm" value="<?= htmlspecialchars($fahrerName) ?>" readonly>
+            <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($fahrerName) ?>" readonly>
             <input type="hidden" name="fahrer_name" value="<?= htmlspecialchars($fahrerName) ?>">
         <?php else: ?>
-            <input type="text" class="form-control form-control-sm" id="fb_fahrer" name="fahrer_name"
+            <input type="text" class="ignis-input ignis-input--sm" id="fb_fahrer" name="fahrer_name"
                    value="<?= $isEdit ? $val('fahrer_name') : htmlspecialchars($fahrerName) ?>" required>
         <?php endif; ?>
     </div>
@@ -91,7 +91,7 @@ $val = function (string $field, string $default = '') use ($entry) {
     <!-- Fahrttyp -->
     <div class="md:col-span-6">
         <label for="fb_fahrttyp" class="form-label">Fahrttyp <span class="text-danger">*</span></label>
-        <select class="form-select form-select-sm" id="fb_fahrttyp" name="fahrttyp" required>
+        <select class="form-select form-select-sm" data-custom-dropdown="true" id="fb_fahrttyp" name="fahrttyp" required>
             <option value="">Bitte auswählen...</option>
             <?php foreach ($fahrttypen as $slug => $label): ?>
                 <option value="<?= htmlspecialchars($slug) ?>"
@@ -105,21 +105,21 @@ $val = function (string $field, string $default = '') use ($entry) {
     <!-- Kilometer -->
     <div class="md:col-span-6">
         <label for="fb_kilometer" class="form-label">Kilometer</label>
-        <input type="number" class="form-control form-control-sm" id="fb_kilometer" name="kilometer"
+        <input type="number" class="ignis-input ignis-input--sm" id="fb_kilometer" name="kilometer"
                step="0.1" min="0" value="<?= $val('kilometer') ?>">
     </div>
 
     <!-- Stationierungsort -->
     <div class="md:col-span-12">
         <label for="fb_stationierungsort" class="form-label">Stationierungsort</label>
-        <input type="text" class="form-control form-control-sm" id="fb_stationierungsort" name="stationierungsort"
+        <input type="text" class="ignis-input ignis-input--sm" id="fb_stationierungsort" name="stationierungsort"
                value="<?= $val('stationierungsort') ?>" placeholder="z.B. Feuerwehr Gerätehaus">
     </div>
 
     <!-- Grund -->
     <div class="md:col-span-12">
         <label for="fb_grund" class="form-label">Grund der Fahrt</label>
-        <textarea class="form-control form-control-sm" id="fb_grund" name="grund" rows="2"
+        <textarea class="ignis-input ignis-input--sm" id="fb_grund" name="grund" rows="2"
                   placeholder="Freitext..."><?= $val('grund') ?></textarea>
     </div>
 </div>

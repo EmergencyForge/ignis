@@ -25,7 +25,7 @@ use App\Helpers\Flash;
                     <div class="flex justify-between items-center mb-5">
                         <h1 class="mb-0">Fachdienste verwalten</h1>
                         <?php if (Permissions::check('admin')) : ?>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
                                 <i class="fa-solid fa-plus"></i> Fachdienst erstellen
                             </button>
                         <?php endif; ?>
@@ -83,11 +83,11 @@ use App\Helpers\Flash;
                             <input type="hidden" name="id" id="dienstgrad-id">
                             <div class="mb-3">
                                 <label for="dienstgrad-sgnr" class="form-label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
-                                <input type="number" class="form-control" name="sgnr" id="dienstgrad-sgnr" required>
+                                <input type="number" class="ignis-input" name="sgnr" id="dienstgrad-sgnr" required>
                             </div>
                             <div class="mb-3">
                                 <label for="dienstgrad-sgname" class="form-label">Bezeichnung</label>
-                                <input type="text" class="form-control" name="sgname" id="dienstgrad-sgname" required>
+                                <input type="text" class="ignis-input" name="sgname" id="dienstgrad-sgname" required>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="disabled" id="dienstgrad-disabled">
@@ -95,10 +95,10 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="btn btn-ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
                             <div>
-                                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="btn btn-soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -121,11 +121,11 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label for="new-dienstgrad-sgnr" class="form-label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
-                                <input type="number" class="form-control" name="sgnr" id="new-dienstgrad-sgnr" required>
+                                <input type="number" class="ignis-input" name="sgnr" id="new-dienstgrad-sgnr" required>
                             </div>
                             <div class="mb-3">
                                 <label for="new-dienstgrad-sgname" class="form-label">Bezeichnung</label>
-                                <input type="text" class="form-control" name="sgname" id="new-dienstgrad-sgname" required>
+                                <input type="text" class="ignis-input" name="sgname" id="new-dienstgrad-sgname" required>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="disabled" id="new-dienstgrad-disabled">
@@ -133,8 +133,8 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="btn btn-success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

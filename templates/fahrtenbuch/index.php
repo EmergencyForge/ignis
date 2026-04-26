@@ -44,7 +44,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                     <h1>Fahrtenbuch</h1>
                     <?php if ($canManage): ?>
                         <div class="header-actions">
-                            <button type="button" class="btn btn-success" id="toggleCreateForm">
+                            <button type="button" class="ignis-btn ignis-btn--success" id="toggleCreateForm">
                                 <i class="fa-solid fa-plus"></i> Neuer Eintrag
                             </button>
                         </div>
@@ -54,7 +54,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                 <?php Flash::render(); ?>
 
                 <?php if (!$tableExists): ?>
-                    <div class="alert alert-warning">
+                    <div class="ignis-alert ignis-alert--warning">
                         <i class="fa-solid fa-database"></i> Die Tabelle <code>intra_fahrtenbuch</code> existiert noch nicht.
                         Bitte führe <code>composer db:migrate</code> aus oder lade die Seite neu — die Datenbank wird automatisch migriert.
                     </div>
@@ -92,8 +92,8 @@ $SITE_TITLE = 'Fahrtenbuch';
                         ?>
 
                         <div class="mt-4 flex gap-2">
-                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
-                            <button type="button" class="btn btn-sm btn-ghost" id="cancelCreateForm">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="cancelCreateForm">Abbrechen</button>
                         </div>
                     </form>
                 </div>
@@ -113,8 +113,8 @@ $SITE_TITLE = 'Fahrtenbuch';
                         ?>
 
                         <div class="mt-4 flex gap-2">
-                            <button type="submit" class="btn btn-sm btn-success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
-                            <button type="button" class="btn btn-sm btn-ghost" id="cancelEditForm">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="cancelEditForm">Abbrechen</button>
                         </div>
                     </form>
                 </div>
@@ -125,7 +125,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                     <form method="GET" class="flex flex-wrap items-end gap-2">
                         <div>
                             <label class="form-label mb-1">Fahrzeug</label>
-                            <select name="vehicle" class="form-select form-select-sm">
+                            <select name="vehicle" class="form-select form-select-sm" data-custom-dropdown="true">
                                 <option value="">Alle</option>
                                 <?php foreach ($vehicles as $v): ?>
                                     <option value="<?= (int) $v['id'] ?>" <?= $filterVehicle === (int) $v['id'] ? 'selected' : '' ?>>
@@ -136,7 +136,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                         </div>
                         <div>
                             <label class="form-label mb-1">Fahrttyp</label>
-                            <select name="fahrttyp" class="form-select form-select-sm">
+                            <select name="fahrttyp" class="form-select form-select-sm" data-custom-dropdown="true">
                                 <option value="">Alle</option>
                                 <?php foreach ($fahrttypen as $slug => $label): ?>
                                     <option value="<?= htmlspecialchars($slug) ?>" <?= $filterFahrttyp === $slug ? 'selected' : '' ?>>
@@ -147,15 +147,15 @@ $SITE_TITLE = 'Fahrtenbuch';
                         </div>
                         <div>
                             <label class="form-label mb-1">Von</label>
-                            <input type="date" name="date_from" class="form-control form-control-sm" value="<?= htmlspecialchars($filterDateFrom) ?>">
+                            <input type="date" name="date_from" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateFrom) ?>">
                         </div>
                         <div>
                             <label class="form-label mb-1">Bis</label>
-                            <input type="date" name="date_to" class="form-control form-control-sm" value="<?= htmlspecialchars($filterDateTo) ?>">
+                            <input type="date" name="date_to" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateTo) ?>">
                         </div>
                         <div class="flex gap-2">
-                            <button type="submit" class="btn btn-sm btn-soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
-                            <a href="?" class="btn btn-sm btn-ghost no-underline hover:no-underline">Zurücksetzen</a>
+                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
+                            <a href="?" class="ignis-btn ignis-btn--sm ignis-btn--ghost no-underline hover:no-underline">Zurücksetzen</a>
                         </div>
                     </form>
                 </div>
@@ -166,7 +166,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                         <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
-                                <input type="text" id="fbLocalSearch" class="form-control" placeholder="Einträge durchsuchen...">
+                                <input type="text" id="fbLocalSearch" class="ignis-input" placeholder="Einträge durchsuchen...">
                             </div>
                         </div>
                     <?php endif; ?>
@@ -219,10 +219,10 @@ $SITE_TITLE = 'Fahrtenbuch';
                                                 <td class="truncate" style="max-width:150px;" title="<?= htmlspecialchars($e['grund'] ?? '') ?>">
                                                     <?= htmlspecialchars($e['grund'] ?? '') ?: '—' ?>
                                                 </td>
-                                                <td><span class="badge text-bg-secondary"><?= htmlspecialchars($sourceLabels[$e['source']] ?? $e['source']) ?></span></td>
+                                                <td><span class="ignis-chip"><?= htmlspecialchars($sourceLabels[$e['source']] ?? $e['source']) ?></span></td>
                                                 <?php if ($canManage): ?>
                                                     <td class="whitespace-nowrap text-right">
-                                                        <button type="button" class="btn btn-sm btn-ghost fb-edit-btn"
+                                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost fb-edit-btn"
                                                                 data-id="<?= (int) $e['id'] ?>"
                                                                 data-datum="<?= htmlspecialchars($e['datum']) ?>"
                                                                 data-abfahrt="<?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?>"
@@ -242,7 +242,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                                                             <input type="hidden" name="action" value="delete">
                                                             <input type="hidden" name="id" value="<?= (int) $e['id'] ?>">
                                                             <input type="hidden" name="return_to" value="admin">
-                                                            <button type="submit" class="btn btn-sm btn-ghost text-danger" title="Löschen">
+                                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-danger" title="Löschen">
                                                                 <i class="fa-solid fa-trash"></i>
                                                             </button>
                                                         </form>

@@ -64,7 +64,7 @@ $stepNum = 1;
             <i class="fa-solid fa-rocket" style="color:var(--main-color);margin-right:0.4rem"></i>
             System einrichten
         </h6>
-        <button class="btn-ghost btn-sm" onclick="document.getElementById('setupChecklist').style.display='none';try{localStorage.setItem('intra_setup_dismissed','1')}catch(e){}" aria-label="Schließen" style="font-size:0.8rem;padding:0.2rem 0.5rem;">
+        <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="document.getElementById('setupChecklist').style.display='none';try{localStorage.setItem('intra_setup_dismissed','1')}catch(e){}" aria-label="Schließen" style="font-size:0.8rem;padding:0.2rem 0.5rem;">
             Ausblenden
         </button>
     </div>
