@@ -43,7 +43,6 @@ function fmt_elapsed(int|string $seconds): string
 
 <head>
     <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-custom-dropdown.css">
     <style>
         .enotf-dropdown-container.form-select {
             padding: .375rem .75rem;
@@ -198,7 +197,6 @@ function fmt_elapsed(int|string $seconds): string
         </div>
     <?php endif; ?>
 
-    <script src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
     <script>
         // Move tab-generated modals to body so they escape the overflow-y:auto container
         document.querySelectorAll('.einsatz-main .modal').forEach(function(m) {

@@ -16,7 +16,6 @@ use App\Helpers\Flash;
 
 <head>
     <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-custom-dropdown.css">
     <!-- CitizenFX: Session-ID an FiveM-Client senden -->
     <script>
     (function() {
@@ -160,7 +159,6 @@ use App\Helpers\Flash;
         </div>
     </div>
 
-    <script src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
     <script>
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {

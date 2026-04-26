@@ -1,0 +1,3782 @@
+// =====================================================
+// ıgnıs UI — Dialog
+// Hauseigener Ersatz für confirm/alert/prompt und Bootstrap-Modals.
+// Slide-in-Animation von unten, Plain DOM, kein Shadow-DOM.
+// =====================================================
+
+.ignis-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s var(--ease-out-expo);
+
+  &.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.ignis-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: calc(100% - 2rem);
+  max-height: calc(100vh - 3rem);
+  background: var(--body-bg-lighter, #161616);
+  color: var(--text-normal, #bbbac1);
+  border-radius: var(--radius-xl, 10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  // Startzustand (vor .is-open): zentriert, aber leicht nach unten versetzt + transparent
+  transform: translate(-50%, calc(-50% + 24px));
+  opacity: 0;
+  transition:
+    transform 0.24s var(--spring, cubic-bezier(0.34, 1.56, 0.64, 1)),
+    opacity 0.18s ease-out;
+
+  &.is-open {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+
+  // Größenvarianten
+  &--sm { max-width: 420px; }
+  &--md { max-width: 560px; }
+  &--lg { max-width: 760px; }
+  &--xl { max-width: 960px; }
+
+  .ignis-dialog__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem 0.85rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+  }
+
+  .ignis-dialog__title {
+    margin: 0;
+    font-family: 'Poppins', system-ui, sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+
+  .ignis-dialog__close {
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-sm, 4px);
+    border: none;
+    background: transparent;
+    color: var(--text-dimmed, #818189);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: color 0.12s ease, background 0.12s ease;
+
+    &:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--main-color);
+      outline-offset: 1px;
+    }
+  }
+
+  .ignis-dialog__body {
+    padding: 1.1rem 1.25rem;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--darkgray, #3d3a44) transparent;
+  }
+
+  .ignis-dialog__text {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--text-normal, #bbbac1);
+  }
+
+  .ignis-dialog__label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-normal, #bbbac1);
+    margin-bottom: 0.4rem;
+  }
+
+  .ignis-dialog__input {
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    background: var(--input-bg, #161616);
+    border: 1px solid var(--darkgray, #2a2a2a);
+    border-radius: var(--radius-md, 6px);
+    color: #fff;
+    font-size: 0.92rem;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--main-color);
+      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+    }
+  }
+
+  .ignis-dialog__alert {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+
+    > i {
+      font-size: 1.4rem;
+      line-height: 1.2;
+      flex-shrink: 0;
+    }
+
+    &--info    > i { color: #4a9fd4; }
+    &--success > i { color: #2fbf75; }
+    &--warning > i { color: #e0a43a; }
+    &--error   > i { color: #d1484a; }
+  }
+
+  .ignis-dialog__footer {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    padding: 0.85rem 1.25rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+  }
+
+  .ignis-dialog__action {
+    padding: 0.5rem 1.1rem;
+    border-radius: var(--radius-md, 6px);
+    border: 1px solid transparent;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      background 0.12s ease,
+      border-color 0.12s ease,
+      color 0.12s ease,
+      transform 0.08s ease;
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--main-color);
+      outline-offset: 2px;
+    }
+
+    // Variants
+    &--primary {
+      background: var(--main-color);
+      color: #fff;
+
+      &:hover { filter: brightness(1.1); }
+    }
+
+    &--danger {
+      background: #c94141;
+      color: #fff;
+
+      &:hover { background: #dc4e4e; }
+    }
+
+    &--ghost {
+      background: transparent;
+      color: var(--text-normal, #bbbac1);
+      border-color: transparent;
+
+      &:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.06);
+      }
+    }
+
+    &--secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+
+      &:hover { background: rgba(255, 255, 255, 0.12); }
+    }
+  }
+}
+
+// Kein Scroll auf dem Body wenn Dialog offen
+body:has(.ignis-dialog-backdrop.is-open) {
+  overflow: hidden;
+}
+
+@media (max-width: 540px) {
+  .ignis-dialog .ignis-dialog__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+
+    .ignis-dialog__action {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Dropdown (Custom-Select)
+// Ersetzt native <select> mit data-custom-dropdown="true".
+// Das native Element bleibt als Wertspeicher erhalten (.ignis-dropdown-native).
+// =====================================================
+
+.ignis-dropdown-native {
+  // Native Select versteckt, aber nicht display:none — damit es als
+  // Formular-Value beim Submit dabei bleibt und als fallback fokussierbar.
+  // !important nötig, weil einige SCSS-Scopes (divi.scss) das
+  // native <select> mit sehr hoher Spezifität selbst stylen.
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0);
+}
+
+.ignis-dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+
+  .ignis-dropdown__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    background: var(--input-bg, #161616);
+    border: 1px solid var(--darkgray, #2a2a2a);
+    border-radius: var(--radius-md, 6px);
+    color: var(--text-normal, #bbbac1);
+    font-size: var(--fs-sm, 0.88rem);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    &:focus-visible,
+    &:focus {
+      outline: none;
+      border-color: var(--main-color);
+      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &--sm .ignis-dropdown__trigger {
+    padding: 0.35rem 0.6rem;
+    font-size: var(--fs-xs, 0.78rem);
+  }
+
+  .ignis-dropdown__label {
+    flex: 1 1 auto;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &.is-placeholder {
+      color: var(--text-dimmed, #818189);
+      font-weight: 400;
+    }
+  }
+
+  .ignis-dropdown__label-icon {
+    margin-right: 0.4rem;
+    color: var(--main-color);
+    font-size: 0.85em;
+  }
+
+  .ignis-dropdown__chevron {
+    color: var(--text-dimmed, #818189);
+    font-size: 0.7rem;
+    transition: transform 0.18s var(--spring, ease);
+    flex-shrink: 0;
+  }
+
+  &.is-open .ignis-dropdown__chevron {
+    transform: rotate(180deg);
+  }
+
+  .ignis-dropdown__panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1500;
+    max-height: 280px;
+    display: flex;
+    flex-direction: column;
+    background: var(--body-bg-lighter, #161616);
+    border: 1px solid var(--darkgray, #2a2a2a);
+    border-radius: var(--radius-md, 6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity 0.14s ease, transform 0.14s var(--ease-out-quint, ease);
+
+    &.is-above {
+      top: auto;
+      bottom: calc(100% + 4px);
+      transform: translateY(4px);
+    }
+  }
+
+  &.is-open .ignis-dropdown__panel {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .ignis-dropdown__search {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: var(--input-bg, #161616);
+    border: 0;
+    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+    color: #fff;
+    font-size: var(--fs-sm, 0.88rem);
+    outline: none;
+
+    &::placeholder {
+      color: var(--text-dimmed, #818189);
+    }
+
+    &:focus {
+      background: rgba(var(--main-color-rgb, 255, 77, 0), 0.04);
+    }
+  }
+
+  .ignis-dropdown__options {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem;
+    overflow-y: auto;
+    flex: 1 1 auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--darkgray, #2a2a2a) transparent;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.45rem 0.6rem;
+      border-radius: var(--radius-sm, 4px);
+      color: var(--text-normal, #bbbac1);
+      font-size: var(--fs-sm, 0.88rem);
+      cursor: pointer;
+      line-height: 1.3;
+      transition: background 0.1s ease, color 0.1s ease;
+
+      &:hover,
+      &:focus {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        outline: none;
+      }
+
+      &.is-selected {
+        color: #fff;
+        background: rgba(var(--main-color-rgb, 255, 77, 0), 0.12);
+      }
+
+      &[aria-disabled="true"] {
+        color: var(--text-dimmed, #818189);
+        cursor: default;
+
+        &:hover { background: transparent; }
+      }
+    }
+  }
+
+  .ignis-dropdown__option-icon {
+    color: var(--main-color);
+    width: 1em;
+    flex-shrink: 0;
+    font-size: 0.85em;
+  }
+
+  .ignis-dropdown__empty {
+    padding: 0.75rem;
+    text-align: center;
+    color: var(--text-dimmed, #818189);
+    font-size: var(--fs-sm, 0.88rem);
+    font-style: italic;
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Form-Elements
+// Hauseigene Input / Textarea / Checkbox / Radio / Switch.
+// Alle als reine CSS-Klassen anwendbar auf native Elemente —
+// keine Markup-Änderungen oder JS nötig.
+// =====================================================
+
+// ── Input / Textarea / Select-Base ─────────────────────────────────
+
+.ignis-input,
+.ignis-textarea {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 0.75rem;
+  background: var(--input-bg, #161616);
+  color: var(--input-text, #fff);
+  border: 1px solid var(--darkgray, #2a2a2a);
+  border-radius: var(--radius-md, 6px);
+  font-size: var(--fs-sm, 0.88rem);
+  line-height: 1.4;
+  font-family: inherit;
+  transition:
+    border-color 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.12s ease;
+
+  &::placeholder {
+    color: var(--text-dimmed, #818189);
+  }
+
+  &:hover:not(:disabled):not([readonly]) {
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &[readonly] {
+    background: rgba(255, 255, 255, 0.02);
+    cursor: default;
+  }
+
+  // Invalid-State (nach Browser-native Validierung oder via .is-invalid)
+  &.is-invalid,
+  &:invalid:not(:focus):not(:placeholder-shown) {
+    border-color: #d1484a;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(209, 72, 74, 0.18);
+    }
+  }
+
+  // Small-Variante (passt zur form-select-sm-Konvention)
+  &--sm {
+    padding: 0.35rem 0.6rem;
+    font-size: var(--fs-xs, 0.78rem);
+  }
+}
+
+.ignis-textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+
+// Input-Group mit Icon vorne
+.ignis-input-group {
+  position: relative;
+  display: inline-flex;
+  width: 100%;
+
+  .ignis-input-group__icon {
+    position: absolute;
+    top: 50%;
+    left: 0.75rem;
+    transform: translateY(-50%);
+    color: var(--text-dimmed, #818189);
+    pointer-events: none;
+    font-size: 0.9em;
+    z-index: 1;
+  }
+
+  .ignis-input {
+    padding-left: 2.25rem;
+  }
+
+  &:focus-within .ignis-input-group__icon {
+    color: var(--main-color);
+  }
+}
+
+// Field-Wrapper: Label + Hint/Error (kompakt, responsive)
+.ignis-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+
+  .ignis-field__label {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-normal, #bbbac1);
+
+    .ignis-field__required {
+      color: var(--main-color);
+      margin-left: 0.15rem;
+    }
+  }
+
+  .ignis-field__hint {
+    font-size: 0.72rem;
+    color: var(--text-dimmed, #818189);
+    line-height: 1.4;
+  }
+
+  .ignis-field__error {
+    font-size: 0.72rem;
+    color: #d1484a;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+  }
+
+  &.is-invalid .ignis-input,
+  &.is-invalid .ignis-textarea {
+    border-color: #d1484a;
+  }
+}
+
+// ── Checkbox ────────────────────────────────────────────────────────
+
+.ignis-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--fs-sm, 0.88rem);
+  color: var(--text-normal, #bbbac1);
+
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 1.5px solid var(--darkgray, #2a2a2a);
+    border-radius: var(--radius-sm, 4px);
+    background: var(--input-bg, #161616);
+    cursor: pointer;
+    position: relative;
+    transition:
+      background 0.14s var(--spring, ease),
+      border-color 0.14s ease;
+    flex-shrink: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -60%) rotate(45deg) scale(0);
+      width: 0.3rem;
+      height: 0.55rem;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transition: transform 0.15s var(--spring, ease);
+    }
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    &:checked {
+      background: var(--main-color);
+      border-color: var(--main-color);
+
+      &::after {
+        transform: translate(-50%, -60%) rotate(45deg) scale(1);
+      }
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+    }
+
+    &:indeterminate {
+      background: var(--main-color);
+      border-color: var(--main-color);
+
+      &::after {
+        transform: translate(-50%, -50%) scale(1);
+        width: 0.55rem;
+        height: 0;
+        border-width: 0 0 2px 0;
+      }
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &:has(input:disabled) {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// ── Radio ───────────────────────────────────────────────────────────
+
+.ignis-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--fs-sm, 0.88rem);
+  color: var(--text-normal, #bbbac1);
+
+  input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 1.5px solid var(--darkgray, #2a2a2a);
+    border-radius: 50%;
+    background: var(--input-bg, #161616);
+    cursor: pointer;
+    position: relative;
+    transition:
+      background 0.14s var(--spring, ease),
+      border-color 0.14s ease;
+    flex-shrink: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.15s var(--spring, ease);
+    }
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.35);
+    }
+
+    &:checked {
+      background: var(--main-color);
+      border-color: var(--main-color);
+
+      &::after {
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// ── Switch ──────────────────────────────────────────────────────────
+
+.ignis-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  user-select: none;
+  font-size: var(--fs-sm, 0.88rem);
+  color: var(--text-normal, #bbbac1);
+
+  input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 2.2rem;
+    height: 1.2rem;
+    background: var(--darkgray, #2a2a2a);
+    border-radius: 999px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s var(--spring, ease);
+    flex-shrink: 0;
+    border: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: calc(1.2rem - 4px);
+      height: calc(1.2rem - 4px);
+      border-radius: 50%;
+      background: #fff;
+      transition: transform 0.22s var(--spring, ease);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    }
+
+    &:checked {
+      background: var(--main-color);
+
+      &::after {
+        transform: translateX(1rem);
+      }
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+
+  &--sm input[type="checkbox"] {
+    width: 1.8rem;
+    height: 1rem;
+
+    &::after {
+      width: calc(1rem - 4px);
+      height: calc(1rem - 4px);
+    }
+
+    &:checked::after {
+      transform: translateX(0.8rem);
+    }
+  }
+}
+
+// ── Number-Stepper (native input[type=number], aber gestyled) ──────
+
+.ignis-stepper {
+  display: inline-flex;
+  align-items: stretch;
+  width: 100%;
+  max-width: 9rem;
+  border: 1px solid var(--darkgray, #2a2a2a);
+  border-radius: var(--radius-md, 6px);
+  overflow: hidden;
+  background: var(--input-bg, #161616);
+
+  &:focus-within {
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+  }
+
+  input[type="number"] {
+    flex: 1 1 auto;
+    background: transparent;
+    border: 0;
+    padding: 0.4rem 0.5rem;
+    color: #fff;
+    text-align: center;
+    font-size: var(--fs-sm, 0.88rem);
+    min-width: 0;
+    appearance: textfield;
+    -moz-appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  button {
+    flex: 0 0 auto;
+    width: 1.9rem;
+    background: transparent;
+    border: 0;
+    color: var(--text-dimmed, #818189);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    &:active {
+      background: rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+    }
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Tabs
+// =====================================================
+
+.ignis-tabs {
+  display: flex;
+  flex-direction: column;
+
+  .ignis-tabs__headers {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .ignis-tabs__header {
+    background: none;
+    border: none;
+    color: var(--text-dimmed, #818189);
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+    font-size: var(--fs-sm, 0.88rem);
+    font-family: inherit;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+    position: relative;
+
+    &:hover:not(.is-active) {
+      color: var(--text-normal, #bbbac1);
+    }
+
+    &:focus-visible {
+      outline: none;
+      color: var(--text-normal, #bbbac1);
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-sm, 4px) var(--radius-sm, 4px) 0 0;
+    }
+
+    &.is-active {
+      color: var(--text-title, #fff);
+      border-bottom-color: var(--main-color);
+    }
+  }
+
+  .ignis-tabs__panel {
+    animation: ignis-tabs-fade 0.18s var(--ease-out-expo, ease);
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  // Variant: pills (alternative style)
+  &--pills {
+    .ignis-tabs__headers {
+      border-bottom: 0;
+      gap: 0.3rem;
+    }
+
+    .ignis-tabs__header {
+      border-radius: var(--radius-md, 6px);
+      border-bottom: 0;
+      margin-bottom: 0;
+
+      &.is-active {
+        background: var(--main-color);
+        color: #fff;
+        border-bottom: 0;
+      }
+
+      &:hover:not(.is-active) {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+  }
+}
+
+@keyframes ignis-tabs-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// =====================================================
+// ıgnıs UI — Accordion
+// =====================================================
+
+.ignis-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  .ignis-accordion__item {
+    background: var(--body-bg-lighter, #161616);
+    border: 1px solid var(--darkgray, #2a2a2a);
+    border-radius: var(--radius-md, 6px);
+    overflow: hidden;
+
+    &.is-open {
+      border-color: rgba(var(--main-color-rgb, 255, 77, 0), 0.35);
+    }
+  }
+
+  .ignis-accordion__header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-normal, #bbbac1);
+    font-size: var(--fs-sm, 0.88rem);
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.12s ease, background 0.12s ease;
+
+    &::after {
+      content: '';
+      width: 0.55rem;
+      height: 0.55rem;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg);
+      transition: transform 0.22s var(--spring, ease);
+      flex-shrink: 0;
+      margin-right: 0.2rem;
+    }
+
+    &:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    &:focus-visible {
+      outline: none;
+      background: rgba(255, 255, 255, 0.04);
+    }
+  }
+
+  .ignis-accordion__item.is-open .ignis-accordion__header {
+    color: #fff;
+
+    &::after {
+      transform: rotate(225deg);
+    }
+  }
+
+  .ignis-accordion__panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.28s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+
+    > * {
+      padding: 0.25rem 1rem 1rem;
+    }
+
+    &[hidden] {
+      display: block;
+      max-height: 0;
+    }
+  }
+}
+
+// =====================================================
+// ıgnıs UI — DatePicker
+// =====================================================
+
+.ignis-datepicker-native {
+  // Native date-input versteckt, aber als Value-Träger erhalten
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0);
+}
+
+.ignis-datepicker {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+
+  .ignis-datepicker__trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    background: var(--input-bg, #161616);
+    border: 1px solid var(--darkgray, #2a2a2a);
+    border-radius: var(--radius-md, 6px);
+    color: #fff;
+    font-size: var(--fs-sm, 0.88rem);
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      border-color: var(--main-color);
+      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .ignis-datepicker__icon {
+    color: var(--main-color);
+    font-size: 0.9em;
+    flex-shrink: 0;
+  }
+
+  .ignis-datepicker__label {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &.is-placeholder {
+      color: var(--text-dimmed, #818189);
+    }
+  }
+
+  .ignis-datepicker__panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 280px;
+    z-index: 1500;
+    padding: 0.75rem;
+    background: var(--body-bg-lighter, #161616);
+    border: 1px solid var(--darkgray, #2a2a2a);
+    border-radius: var(--radius-md, 6px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity 0.16s ease, transform 0.16s var(--ease-out-quint, ease);
+
+    &.is-above {
+      top: auto;
+      bottom: calc(100% + 6px);
+      transform: translateY(4px);
+    }
+  }
+
+  &.is-open .ignis-datepicker__panel {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .ignis-datepicker__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    gap: 0.3rem;
+  }
+
+  .ignis-datepicker__nav {
+    width: 28px;
+    height: 28px;
+    border: 0;
+    background: transparent;
+    color: var(--text-dimmed, #818189);
+    border-radius: var(--radius-sm, 4px);
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: color 0.12s ease, background 0.12s ease;
+
+    &:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--main-color);
+      outline-offset: 1px;
+    }
+  }
+
+  .ignis-datepicker__title {
+    flex: 1 1 auto;
+    text-align: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #fff;
+    padding: 0.2rem 0.5rem;
+    border: 0;
+    background: transparent;
+
+    &--btn {
+      cursor: pointer;
+      border-radius: var(--radius-sm, 4px);
+      font-family: inherit;
+      transition: background 0.12s ease;
+
+      &:hover { background: rgba(255, 255, 255, 0.05); }
+      &:focus-visible { outline: 2px solid var(--main-color); outline-offset: 1px; }
+    }
+  }
+
+  .ignis-datepicker__weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 4px;
+
+    span {
+      text-align: center;
+      font-size: 0.66rem;
+      font-weight: 600;
+      color: var(--text-dimmed, #818189);
+      letter-spacing: 0.4px;
+      padding: 0.2rem 0;
+    }
+  }
+
+  .ignis-datepicker__days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+  }
+
+  .ignis-datepicker__day {
+    aspect-ratio: 1 / 1;
+    min-height: 32px;
+    border: 0;
+    border-radius: var(--radius-sm, 4px);
+    background: transparent;
+    color: var(--text-normal, #bbbac1);
+    font-size: 0.82rem;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s ease, color 0.1s ease;
+    position: relative;
+
+    &--blank { cursor: default; }
+
+    &:hover:not(.is-disabled):not(.is-selected) {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--main-color);
+      outline-offset: -2px;
+    }
+
+    &.is-today:not(.is-selected) {
+      color: var(--main-color);
+      font-weight: 600;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 3px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: var(--main-color);
+      }
+    }
+
+    &.is-selected {
+      background: var(--main-color);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    &.is-disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+  }
+
+  .ignis-datepicker__months,
+  .ignis-datepicker__years {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+
+  .ignis-datepicker__month,
+  .ignis-datepicker__year {
+    padding: 0.6rem 0.4rem;
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-sm, 4px);
+    color: var(--text-normal, #bbbac1);
+    font-size: 0.85rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.1s ease;
+
+    &:hover:not(.is-selected) {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+    }
+
+    &.is-selected {
+      background: var(--main-color);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--main-color);
+      outline-offset: -2px;
+    }
+  }
+
+  .ignis-datepicker__footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .ignis-datepicker__footer-btn {
+    flex: 1;
+    padding: 0.4rem 0.6rem;
+    border: 0;
+    border-radius: var(--radius-sm, 4px);
+    background: var(--main-color);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: filter 0.1s ease;
+
+    &:hover { filter: brightness(1.1); }
+
+    &--ghost {
+      background: transparent;
+      color: var(--text-dimmed, #818189);
+      border: 1px solid var(--darkgray, #2a2a2a);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: #fff;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--main-color);
+      outline-offset: 1px;
+    }
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Button
+// Hauseigener Ersatz für `.btn`. Farb-Tokens aus admin.scss (--btn-*-bg)
+// werden wiederverwendet, damit das Aussehen 1:1 zum bestehenden System
+// passt. Modifier matchen das Bootstrap-Pattern (--primary, --outline-*,
+// --ghost, --soft, --sm, --lg, --icon, --block) für nahtlose Migration.
+// =====================================================
+
+.ignis-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  background: var(--btn-secondary-bg, #1f1f1f);
+  color: var(--text-normal, #bbbac1);
+  font-size: var(--fs-base, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md, 6px);
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+              transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+
+  &:hover:not(:disabled):not(.is-loading) {
+    background: #2a2a2a;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  }
+
+  &:active:not(:disabled):not(.is-loading) {
+    transform: translateY(0);
+    box-shadow: none;
+    background: #161616;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.4);
+  }
+
+  &:disabled,
+  &.is-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  i,
+  .fa-solid,
+  .fas,
+  .far,
+  .fab {
+    font-size: 0.95em;
+    line-height: 1;
+  }
+
+  // ── Sizes ────────────────────────────────────────────────────────
+  &--sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.78rem;
+    gap: 0.35rem;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &--lg {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+    gap: 0.55rem;
+  }
+
+  // Icon-only (quadratisch, kein Padding)
+  &--icon {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    flex-shrink: 0;
+
+    &.ignis-btn--sm {
+      width: 28px;
+      height: 28px;
+      font-size: 0.75rem;
+    }
+
+    &.ignis-btn--lg {
+      width: 42px;
+      height: 42px;
+    }
+  }
+
+  // ── Block (full-width) ────────────────────────────────────────────
+  &--block {
+    display: flex;
+    width: 100%;
+  }
+
+  &--pill {
+    border-radius: 999px;
+  }
+
+  // ── Filled-Variants ──────────────────────────────────────────────
+  &--primary {
+    background: var(--btn-primary-bg, #4a6fa5);
+    color: #fff;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: var(--btn-primary-hover, #5680b8);
+    }
+
+    &:active:not(:disabled):not(.is-loading) {
+      background: var(--btn-primary-active, #3f6094);
+    }
+  }
+
+  &--success {
+    background: var(--btn-success-bg, #3a7d44);
+    color: #fff;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: var(--btn-success-hover, #449951);
+    }
+
+    &:active:not(:disabled):not(.is-loading) {
+      background: var(--btn-success-active, #326e3b);
+    }
+  }
+
+  &--danger {
+    background: var(--btn-danger-bg, #b03a3a);
+    color: #fff;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: var(--btn-danger-hover, #c44545);
+    }
+
+    &:active:not(:disabled):not(.is-loading) {
+      background: var(--btn-danger-active, #9c3232);
+    }
+  }
+
+  &--warning {
+    background: var(--btn-warning-bg, #c49a2a);
+    color: #fff;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: var(--btn-warning-hover, #d4a832);
+    }
+
+    &:active:not(:disabled):not(.is-loading) {
+      background: var(--btn-warning-active, #b08a24);
+    }
+  }
+
+  &--accent {
+    background: var(--main-color, #ff4d00);
+    color: #fff;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: var(--main-color-dimmed, #cc3d00);
+    }
+
+    &:active:not(:disabled):not(.is-loading) {
+      background: var(--main-color-dimmed, #cc3d00);
+      filter: brightness(0.92);
+    }
+  }
+
+  &--dark {
+    background: #0e0e0e;
+    color: var(--text-normal, #bbbac1);
+    border-color: #1f1f1f;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: #161616;
+      border-color: #2a2a2a;
+    }
+  }
+
+  // ── Outline-Variants ─────────────────────────────────────────────
+  &--outline-primary,
+  &--outline-success,
+  &--outline-danger,
+  &--outline-warning,
+  &--outline-info,
+  &--outline-secondary {
+    background: transparent;
+  }
+
+  &--outline-primary {
+    border-color: var(--btn-primary-bg, #4a6fa5);
+    color: #7ba3d4;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: var(--btn-primary-bg, #4a6fa5);
+      color: #fff;
+    }
+  }
+
+  &--outline-success {
+    border-color: var(--btn-success-bg, #3a7d44);
+    color: #6abf76;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: var(--btn-success-bg, #3a7d44);
+      color: #fff;
+    }
+  }
+
+  &--outline-danger {
+    border-color: var(--btn-danger-bg, #b03a3a);
+    color: #d46b6b;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: var(--btn-danger-bg, #b03a3a);
+      color: #fff;
+    }
+  }
+
+  &--outline-warning {
+    border-color: var(--btn-warning-bg, #c49a2a);
+    color: #ddb84a;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: var(--btn-warning-bg, #c49a2a);
+      color: #fff;
+    }
+  }
+
+  &--outline-secondary {
+    border-color: var(--darkgray, #2a2a2a);
+    color: var(--text-normal, #bbbac1);
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  // ── Ghost: Hover-Surface, sonst transparent ──────────────────────
+  &--ghost {
+    background: transparent;
+    color: var(--text-normal, #bbbac1);
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+      transform: none;
+      box-shadow: none;
+    }
+
+    &:active:not(:disabled):not(.is-loading) {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &--ghost-danger {
+    background: transparent;
+    color: #c44545;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: rgba(196, 69, 69, 0.12);
+      color: #e05555;
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  // ── Soft: dezent gefüllt mit Akzent-Farbe ────────────────────────
+  &--soft-primary {
+    background: rgba(74, 111, 165, 0.15);
+    color: #7ba3d4;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: rgba(74, 111, 165, 0.25);
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &--soft-success {
+    background: rgba(58, 125, 68, 0.15);
+    color: #6abf76;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: rgba(58, 125, 68, 0.25);
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &--soft-danger {
+    background: rgba(176, 58, 58, 0.15);
+    color: #d46b6b;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: rgba(176, 58, 58, 0.25);
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  &--soft-warning {
+    background: rgba(196, 154, 42, 0.15);
+    color: #ddb84a;
+
+    &:hover:not(:disabled):not(.is-loading) {
+      background: rgba(196, 154, 42, 0.25);
+      transform: none;
+      box-shadow: none;
+    }
+  }
+
+  // ── Loading-State: Spinner überlagert Inhalt ─────────────────────
+  &.is-loading {
+    color: transparent !important;
+    pointer-events: none;
+    position: relative;
+
+    > * {
+      visibility: hidden;
+    }
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 1em;
+      height: 1em;
+      margin: -0.5em 0 0 -0.5em;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      color: var(--text-normal, #bbbac1);
+      animation: ignis-btn-spin 0.7s linear infinite;
+    }
+
+    &.ignis-btn--primary::after,
+    &.ignis-btn--success::after,
+    &.ignis-btn--danger::after,
+    &.ignis-btn--warning::after,
+    &.ignis-btn--accent::after {
+      color: #fff;
+    }
+  }
+}
+
+@keyframes ignis-btn-spin {
+  to { transform: rotate(360deg); }
+}
+
+// Button-Group: aneinandergrenzende Buttons mit shared borders
+.ignis-btn-group {
+  display: inline-flex;
+
+  .ignis-btn {
+    border-radius: 0;
+    margin-left: -1px;
+
+    &:first-child {
+      border-top-left-radius: var(--radius-md, 6px);
+      border-bottom-left-radius: var(--radius-md, 6px);
+      margin-left: 0;
+    }
+
+    &:last-child {
+      border-top-right-radius: var(--radius-md, 6px);
+      border-bottom-right-radius: var(--radius-md, 6px);
+    }
+
+    &:hover,
+    &:focus-visible {
+      z-index: 1;
+    }
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Chip / Tag
+// Statische Chips (Status-/Filter-Marker) sowie ein Tag-Input-Container,
+// der Free-Text-Eingaben in Chips wandelt. Pure-DOM, keine Frameworks.
+// =====================================================
+
+// Default-Chip: rechteckig (~4px Radius), transparent-tonale Füllung mit
+// kräftiger Text-Farbe — matcht das existierende `.badge.text-bg-*`-System.
+.ignis-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.25em 0.55em;
+  border-radius: var(--radius-sm, 4px);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-dimmed, #818189);
+  font-size: 0.72em;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  user-select: none;
+  transition: background 0.15s ease, color 0.15s ease;
+
+  i,
+  .ignis-chip__icon {
+    font-size: 0.95em;
+    opacity: 0.85;
+  }
+
+  // ── Sizes ─────────────────────────────────────────────────────────
+  &--sm {
+    font-size: 0.62em;
+    padding: 0.2em 0.45em;
+  }
+
+  &--lg {
+    font-size: var(--fs-sm, 0.88rem);
+    padding: 0.3em 0.7em;
+  }
+
+  // ── Variants — Farb-Stack matcht admin.scss:382+ ──────────────────
+  &--primary {
+    background: rgba(74, 111, 165, 0.2);
+    color: #7ba3d4;
+  }
+
+  &--success {
+    background: rgba(58, 125, 68, 0.2);
+    color: #6abf76;
+  }
+
+  &--warning {
+    background: rgba(196, 154, 42, 0.2);
+    color: #ddb84a;
+  }
+
+  &--danger {
+    background: rgba(176, 58, 58, 0.2);
+    color: #d46b6b;
+  }
+
+  &--info {
+    background: rgba(42, 127, 143, 0.2);
+    color: #5bb8cc;
+  }
+
+  &--accent {
+    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.18);
+    color: var(--main-color, #ff4d00);
+  }
+
+  &--dark {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-dimmed, #818189);
+    border: 1px solid var(--darkgray, #2a2a2a);
+  }
+
+  // ── Status-Modifier: Dot-Prefix für Ja/Nein/online/offline ────────
+  // Spiegelt `.badge-status` aus admin.scss — gap & dot identisch.
+  &--status {
+    gap: 0.4em;
+
+    &::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    &.ignis-chip--success::before,
+    &.ignis-chip--online::before {
+      background: #3a7d44;
+      box-shadow: 0 0 4px #3a7d44;
+    }
+
+    &.ignis-chip--danger::before,
+    &.ignis-chip--offline::before {
+      background: #b03a3a;
+      box-shadow: none;
+    }
+
+    &.ignis-chip--warning::before,
+    &.ignis-chip--away::before {
+      background: #c49a2a;
+    }
+
+    &.ignis-chip--info::before {
+      background: #2a7f8f;
+    }
+  }
+
+  // online/offline/away als eigenständige Status-Aliase
+  &--online {
+    background: rgba(58, 125, 68, 0.2);
+    color: #6abf76;
+  }
+
+  &--offline {
+    background: rgba(176, 58, 58, 0.2);
+    color: #d46b6b;
+  }
+
+  &--away {
+    background: rgba(196, 154, 42, 0.2);
+    color: #ddb84a;
+  }
+
+  // ── Removable: ×-Knopf mit Hover-Hervorhebung ─────────────────────
+  &--removable {
+    padding-right: 0.3em;
+  }
+
+  .ignis-chip__remove {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: currentColor;
+    opacity: 0.55;
+    cursor: pointer;
+    width: 1em;
+    height: 1em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    font-size: 1.1em;
+    line-height: 1;
+    padding: 0;
+    margin-left: 0.1em;
+    transition: opacity 0.15s ease, background 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.12);
+      outline: none;
+    }
+  }
+}
+
+// ── Tag-Input ───────────────────────────────────────────────────────
+.ignis-tag-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.25rem;
+  padding: 0.28rem 0.5rem;
+  background: var(--input-bg, #161616);
+  color: var(--text-normal, #bbbac1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md, 6px);
+  font-size: var(--fs-sm, 0.88rem);
+  cursor: text;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover:not(.is-disabled) {
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+
+  &:focus-within {
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+  }
+
+  &.is-disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .ignis-chip {
+    flex-shrink: 0;
+  }
+
+  .ignis-tag-input__field {
+    flex: 1;
+    min-width: 8ch;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: inherit;
+    font: inherit;
+    padding: 0.15rem 0.2rem;
+
+    &::placeholder {
+      color: var(--text-dimmed, #818189);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Drawer (Offcanvas)
+// Slide-in-Panel von Seite (left/right/top/bottom). Backdrop, Focus-Trap,
+// ESC-Close. Drop-in für Bootstrap `.offcanvas`.
+// =====================================================
+
+.ignis-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1080;
+  transition: opacity 0.25s var(--ease-out-expo, ease);
+
+  &.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.ignis-drawer {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  background: var(--body-bg-lighter, #161616);
+  color: var(--text-normal, #bbbac1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 1085;
+  transition: transform 0.3s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+  box-shadow: 0 0 32px rgba(0, 0, 0, 0.5);
+
+  // ── Placement ────────────────────────────────────────────────
+  &--right {
+    top: 0; right: 0; bottom: 0;
+    width: min(420px, 100vw);
+    transform: translateX(100%);
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 0;
+  }
+
+  &--left {
+    top: 0; left: 0; bottom: 0;
+    width: min(420px, 100vw);
+    transform: translateX(-100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 0;
+  }
+
+  &--top {
+    top: 0; left: 0; right: 0;
+    height: min(360px, 80vh);
+    transform: translateY(-100%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 0;
+  }
+
+  &--bottom {
+    bottom: 0; left: 0; right: 0;
+    height: min(360px, 80vh);
+    transform: translateY(100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 0;
+  }
+
+  &.is-open {
+    transform: translate(0, 0);
+  }
+
+  // ── Slots ────────────────────────────────────────────────────
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+    flex-shrink: 0;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-title, #e8e6f3);
+  }
+
+  &__close {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: var(--text-dimmed, #818189);
+    cursor: pointer;
+    width: 1.8rem;
+    height: 1.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm, 4px);
+    font-size: 1.1rem;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+    }
+  }
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--darkgray, #2a2a2a);
+    flex-shrink: 0;
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Pagination
+// Numerische Page-Navigation. Drop-in-Ersatz für `.pagination`.
+// =====================================================
+
+.ignis-pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+
+  &__item {
+    appearance: none;
+    background: transparent;
+    color: var(--text-normal, #bbbac1);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm, 4px);
+    padding: 0.3rem 0.6rem;
+    min-width: 2rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+    &:hover:not(:disabled):not(.is-active) {
+      background: rgba(255, 255, 255, 0.06);
+      color: #fff;
+    }
+
+    &.is-active {
+      background: var(--main-color, #ff4d00);
+      color: #fff;
+      font-weight: 500;
+    }
+
+    &:disabled,
+    &.is-disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    &--ellipsis {
+      cursor: default;
+      color: var(--text-dimmed, #818189);
+
+      &:hover { background: transparent; }
+    }
+  }
+
+  &--sm .ignis-pagination__item {
+    padding: 0.2rem 0.45rem;
+    min-width: 1.6rem;
+    font-size: 0.75rem;
+  }
+}
+
+// =====================================================
+// ıgnıs UI — List Group
+// Vertikale Liste mit Hover/Active-States. Drop-in für `.list-group`.
+// =====================================================
+
+.ignis-list-group {
+  display: flex;
+  flex-direction: column;
+  background: var(--body-bg-lighter, #161616);
+  border: 1px solid var(--darkgray, #2a2a2a);
+  border-radius: var(--radius-md, 6px);
+  overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 0.85rem;
+    color: var(--text-normal, #bbbac1);
+    font-size: var(--fs-sm, 0.88rem);
+    text-decoration: none;
+    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+    transition: background 0.12s ease;
+
+    &:last-child { border-bottom: 0; }
+
+    &--interactive {
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.04);
+        color: #fff;
+      }
+    }
+
+    &.is-active {
+      background: rgba(var(--main-color-rgb, 255, 77, 0), 0.12);
+      color: var(--main-color, #ff4d00);
+    }
+
+    &.is-disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    color: var(--text-dimmed, #818189);
+    font-size: 1rem;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-weight: 500;
+    color: var(--text-title, #e8e6f3);
+  }
+
+  &__meta {
+    font-size: 0.72rem;
+    color: var(--text-dimmed, #818189);
+    margin-top: 0.1rem;
+  }
+
+  &__trailing {
+    flex-shrink: 0;
+    color: var(--text-dimmed, #818189);
+  }
+
+  // Flush-Variant: keine Borders, für eingebettete Listen
+  &--flush {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Breadcrumb
+// Pfad-Navigation mit Trennzeichen-Pseudo-Element.
+// Drop-in für `.breadcrumb` / `.breadcrumb-item`.
+// =====================================================
+
+.ignis-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+
+  &__item {
+    color: var(--text-dimmed, #818189);
+
+    a {
+      color: var(--text-dimmed, #818189);
+      text-decoration: none;
+      transition: color 0.15s ease;
+
+      &:hover {
+        color: var(--main-color, #ff4d00);
+      }
+    }
+
+    &.is-active {
+      color: var(--text-normal, #bbbac1);
+      font-weight: 500;
+    }
+
+    &:not(:last-child)::after {
+      content: '\f054'; // FontAwesome chevron-right
+      font-family: 'Font Awesome 7 Free', 'Font Awesome 6 Free';
+      font-weight: 900;
+      font-size: 0.6rem;
+      margin-left: 0.4rem;
+      color: var(--text-dimmed, #818189);
+      opacity: 0.5;
+    }
+  }
+}
+
+// =====================================================
+// ıgnıs UI — File Input + Range
+// Custom-Styling für native `<input type="file">` und `<input type="range">`.
+// =====================================================
+
+// File-Input: Wrap in label, hide native input
+.ignis-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: var(--input-bg, #161616);
+  color: var(--text-normal, #bbbac1);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md, 6px);
+  font-size: var(--fs-sm, 0.88rem);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    border-color: var(--main-color, #ff4d00);
+    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.04);
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  input[type="file"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  &__icon {
+    color: var(--text-dimmed, #818189);
+    font-size: 0.95rem;
+  }
+
+  &__label {
+    flex: 1;
+    color: var(--text-dimmed, #818189);
+  }
+
+  &.has-file .ignis-file__label {
+    color: var(--text-normal, #bbbac1);
+  }
+
+  // Drop-Zone-Variant (wider, mit zentriertem Inhalt)
+  &--dropzone {
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 1.5rem;
+    width: 100%;
+    gap: 0.3rem;
+
+    .ignis-file__icon {
+      font-size: 1.4rem;
+    }
+  }
+}
+
+// Range Slider
+.ignis-range {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--main-color, #ff4d00);
+    border: 2px solid var(--body-bg, #0a0a0a);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+
+  &::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--main-color, #ff4d00);
+    border: 2px solid var(--body-bg, #0a0a0a);
+    cursor: pointer;
+  }
+
+  &:hover::-webkit-slider-thumb,
+  &:focus-visible::-webkit-slider-thumb {
+    transform: scale(1.15);
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Skeleton (Placeholder)
+// Loading-State-Shimmer für Content. Drop-in für `.placeholder`.
+// =====================================================
+
+.ignis-skeleton {
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: ignis-skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm, 4px);
+  color: transparent !important;
+  user-select: none;
+  pointer-events: none;
+
+  // Common shapes
+  &--text {
+    height: 0.85em;
+    width: 100%;
+    border-radius: 999px;
+  }
+
+  &--title {
+    height: 1.4em;
+    width: 60%;
+    border-radius: 999px;
+  }
+
+  &--circle {
+    border-radius: 50%;
+  }
+
+  &--block {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-md, 6px);
+  }
+}
+
+@keyframes ignis-skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// =====================================================
+// ıgnıs UI — Alert
+// Inline-Hinweis mit Variant-Farbe + optional Icon + Dismiss-Knopf.
+// Pure-CSS (Dismiss via Click → einfaches `remove()` per Listener).
+// =====================================================
+
+.ignis-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.7rem 0.9rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-normal, #bbbac1);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 3px solid var(--text-dimmed, #818189);
+  border-radius: var(--radius-md, 6px);
+  font-size: var(--fs-sm, 0.88rem);
+  line-height: 1.5;
+
+  &__icon {
+    flex-shrink: 0;
+    margin-top: 0.1em;
+    font-size: 1rem;
+    line-height: 1;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-weight: 600;
+    color: var(--text-title, #e8e6f3);
+    margin-bottom: 0.15rem;
+  }
+
+  &__close {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: currentColor;
+    opacity: 0.55;
+    cursor: pointer;
+    padding: 0 0.15rem;
+    font-size: 1rem;
+    line-height: 1;
+    flex-shrink: 0;
+    margin-top: 0.05em;
+
+    &:hover { opacity: 1; }
+  }
+
+  // ── Variants — match badge palette ────────────────────────────
+  &--success {
+    background: rgba(58, 125, 68, 0.1);
+    border-left-color: var(--btn-success-bg, #3a7d44);
+    color: #6abf76;
+
+    .ignis-alert__title { color: #6abf76; }
+  }
+
+  &--danger {
+    background: rgba(176, 58, 58, 0.1);
+    border-left-color: var(--btn-danger-bg, #b03a3a);
+    color: #d46b6b;
+
+    .ignis-alert__title { color: #d46b6b; }
+  }
+
+  &--warning {
+    background: rgba(196, 154, 42, 0.1);
+    border-left-color: var(--btn-warning-bg, #c49a2a);
+    color: #ddb84a;
+
+    .ignis-alert__title { color: #ddb84a; }
+  }
+
+  &--info {
+    background: rgba(74, 111, 165, 0.1);
+    border-left-color: var(--btn-primary-bg, #4a6fa5);
+    color: #7ba3d4;
+
+    .ignis-alert__title { color: #7ba3d4; }
+  }
+
+  &--accent {
+    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.1);
+    border-left-color: var(--main-color, #ff4d00);
+    color: var(--main-color, #ff4d00);
+
+    .ignis-alert__title { color: var(--main-color, #ff4d00); }
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Spinner (standalone)
+// Page-/Block-Level Loading-Indicator. Drei Größen, optionale Variant-
+// Farbe. Nutzt dieselben Tokens wie der Button-Spinner.
+// =====================================================
+
+.ignis-spinner {
+  display: inline-block;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: ignis-spinner-spin 0.7s linear infinite;
+  color: var(--text-dimmed, #818189);
+  vertical-align: middle;
+
+  &--sm { width: 0.85rem; height: 0.85rem; border-width: 1.5px; }
+  &--lg { width: 2rem; height: 2rem; border-width: 3px; }
+
+  &--accent  { color: var(--main-color, #ff4d00); }
+  &--success { color: #6abf76; }
+  &--danger  { color: #d46b6b; }
+  &--info    { color: #7ba3d4; }
+}
+
+// Vollflächiger Overlay-Spinner für Page/Block-Loading
+.ignis-spinner-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.6rem;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  border-radius: inherit;
+
+  &--fullscreen {
+    position: fixed;
+    z-index: 1100;
+  }
+
+  .ignis-spinner-overlay__label {
+    font-size: var(--fs-sm, 0.88rem);
+    color: var(--text-normal, #bbbac1);
+  }
+}
+
+@keyframes ignis-spinner-spin {
+  to { transform: rotate(360deg); }
+}
+
+// =====================================================
+// ıgnıs UI — Progress
+// Linearer Fortschrittsbalken mit Determinate (% gefüllt) oder
+// Indeterminate (animiertes Sweep). Optional Label, Variants.
+// =====================================================
+
+.ignis-progress {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  overflow: hidden;
+
+  &--sm { height: 4px; }
+  &--lg { height: 14px; }
+
+  &__bar {
+    height: 100%;
+    background: var(--main-color, #ff4d00);
+    border-radius: inherit;
+    transition: width 0.3s var(--ease-out-quint, cubic-bezier(0.22, 1, 0.36, 1));
+    position: relative;
+  }
+
+  &--success .ignis-progress__bar { background: var(--btn-success-bg, #3a7d44); }
+  &--danger  .ignis-progress__bar { background: var(--btn-danger-bg, #b03a3a); }
+  &--warning .ignis-progress__bar { background: var(--btn-warning-bg, #c49a2a); }
+  &--info    .ignis-progress__bar { background: var(--btn-primary-bg, #4a6fa5); }
+
+  // Indeterminate: Sweep-Animation, ignoriert width
+  &--indeterminate .ignis-progress__bar {
+    width: 30% !important;
+    animation: ignis-progress-sweep 1.4s var(--ease-out-quint, ease) infinite;
+  }
+
+  // Striped Pattern (optional)
+  &--striped .ignis-progress__bar {
+    background-image: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.15) 25%,
+      transparent 25%,
+      transparent 50%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0.15) 75%,
+      transparent 75%,
+      transparent
+    );
+    background-size: 1rem 1rem;
+  }
+
+  // Mit Label oben drüber (für Upload-Fortschritte etc.)
+  &--labeled {
+    height: auto;
+    background: transparent;
+    overflow: visible;
+
+    .ignis-progress__track {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.3rem;
+    }
+
+    .ignis-progress__label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-dimmed, #818189);
+
+      strong {
+        color: var(--text-normal, #bbbac1);
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+@keyframes ignis-progress-sweep {
+  0%   { left: -30%; }
+  100% { left: 100%; }
+}
+
+// =====================================================
+// ıgnıs UI — Tooltip + Popover
+// Beide nutzen denselben Floating-Container, unterscheiden sich durch
+// Inhalt: Tooltip = Text-only, Popover = Title + reicher Body.
+// Positionierung pure JS (kein @floating-ui Dep nötig).
+// =====================================================
+
+.ignis-tooltip,
+.ignis-popover {
+  position: absolute;
+  z-index: 1090;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+
+  &.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: inherit;
+    border: inherit;
+    transform: rotate(45deg);
+  }
+
+  &[data-placement^="top"]::before {
+    bottom: -5px;
+    left: 50%;
+    margin-left: -4px;
+    border-top: 0;
+    border-left: 0;
+  }
+
+  &[data-placement^="bottom"]::before {
+    top: -5px;
+    left: 50%;
+    margin-left: -4px;
+    border-bottom: 0;
+    border-right: 0;
+  }
+
+  &[data-placement^="left"]::before {
+    right: -5px;
+    top: 50%;
+    margin-top: -4px;
+    border-bottom: 0;
+    border-left: 0;
+  }
+
+  &[data-placement^="right"]::before {
+    left: -5px;
+    top: 50%;
+    margin-top: -4px;
+    border-top: 0;
+    border-right: 0;
+  }
+}
+
+// ── Tooltip: kompakter Text-Only-Hint ────────────────────────────
+.ignis-tooltip {
+  background: rgba(15, 15, 15, 0.96);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  max-width: 240px;
+  text-align: center;
+  white-space: normal;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+// ── Popover: Title + reicher Body, klick-aktiv ───────────────────
+.ignis-popover {
+  background: var(--body-bg-lighter, #161616);
+  color: var(--text-normal, #bbbac1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md, 6px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  width: 280px;
+  pointer-events: auto;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-title, #e8e6f3);
+  }
+
+  &__close {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: var(--text-dimmed, #818189);
+    cursor: pointer;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+
+    &:hover { color: #d46b6b; }
+  }
+
+  &__body {
+    padding: 0.65rem 0.75rem;
+    font-size: var(--fs-sm, 0.88rem);
+    line-height: 1.5;
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Card
+// Pure-CSS-Container für strukturierte Inhalte. Drop-in-Ersatz für
+// Bootstrap `.card` mit ähnlichem Slot-Modell (header / body / footer)
+// und matchenden Tokens (Body-BG-Lighter, Border-Radius-XL).
+// =====================================================
+
+.ignis-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--body-bg-lighter, #161616);
+  color: var(--text-normal, #bbbac1);
+  border: 1px solid var(--darkgray, #2a2a2a);
+  border-radius: var(--radius-xl, 10px);
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-title, #e8e6f3);
+    letter-spacing: -0.005em;
+
+    .ignis-card__subtitle {
+      display: block;
+      margin-top: 0.15rem;
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--text-dimmed, #818189);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+  }
+
+  &__body {
+    padding: 1rem;
+    flex: 1;
+  }
+
+  &__text {
+    margin: 0 0 0.5rem;
+    font-size: var(--fs-sm, 0.88rem);
+    line-height: 1.55;
+    color: var(--text-normal, #bbbac1);
+
+    &:last-child { margin-bottom: 0; }
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid var(--darkgray, #2a2a2a);
+  }
+
+  // ── Sizes ───────────────────────────────────────────────────────
+  &--sm {
+    .ignis-card__header { padding: 0.5rem 0.75rem; }
+    .ignis-card__body   { padding: 0.75rem; }
+    .ignis-card__footer { padding: 0.5rem 0.75rem; }
+    .ignis-card__title  { font-size: 0.88rem; }
+  }
+
+  &--lg {
+    .ignis-card__header { padding: 1rem 1.25rem; }
+    .ignis-card__body   { padding: 1.25rem; }
+    .ignis-card__footer { padding: 0.85rem 1.25rem; }
+    .ignis-card__title  { font-size: 1.15rem; }
+  }
+
+  // ── Variants ────────────────────────────────────────────────────
+  &--bordered {
+    border-width: 1px;
+  }
+
+  &--ghost {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  &--accent {
+    border-left: 3px solid var(--main-color, #ff4d00);
+  }
+
+  &--success { border-left: 3px solid var(--btn-success-bg, #3a7d44); }
+  &--danger  { border-left: 3px solid var(--btn-danger-bg, #b03a3a); }
+  &--warning { border-left: 3px solid var(--btn-warning-bg, #c49a2a); }
+  &--info    { border-left: 3px solid var(--btn-primary-bg, #4a6fa5); }
+
+  // ── Interactive (clickable card) ────────────────────────────────
+  &--interactive {
+    cursor: pointer;
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--main-color, #ff4d00);
+      box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+    }
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Color-Picker
+// Hauseigener Ersatz für `<input type="color">` (Browser-Default ist hell
+// und out-of-system). UI: Trigger-Swatch + Popup mit SV-Plane, Hue-Slider,
+// Hex-Input und optional Preset-Swatches. Keine externen Deps.
+// =====================================================
+
+.ignis-colorpicker {
+  position: relative;
+  display: inline-block;
+
+  &__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.65rem 0.3rem 0.3rem;
+    background: var(--input-bg, #161616);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md, 6px);
+    color: var(--text-normal, #bbbac1);
+    font-size: var(--fs-sm, 0.88rem);
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--main-color);
+      box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+    }
+  }
+
+  &.is-open .ignis-colorpicker__trigger {
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+  }
+
+  &__swatch {
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: var(--radius-sm, 4px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    flex-shrink: 0;
+    background-image:
+      linear-gradient(45deg, #2a2a2a 25%, transparent 25%),
+      linear-gradient(-45deg, #2a2a2a 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #2a2a2a 75%),
+      linear-gradient(-45deg, transparent 75%, #2a2a2a 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--ignis-cp-color, #000);
+    }
+  }
+
+  &__hex-readout {
+    font-family: 'Inconsolata', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-dimmed, #818189);
+  }
+
+  &__panel {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 1050;
+    width: 240px;
+    padding: 0.75rem;
+    background: var(--body-bg-lighter, #161616);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md, 6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  &.is-open .ignis-colorpicker__panel {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  // ── SV-Plane (Saturation × Value) ───────────────────────────────
+  &__sv {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    border-radius: var(--radius-sm, 4px);
+    cursor: crosshair;
+    overflow: hidden;
+    background-image:
+      linear-gradient(to top, #000, transparent),
+      linear-gradient(to right, #fff, var(--ignis-cp-hue, #ff0000));
+  }
+
+  &__sv-pointer {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+  }
+
+  // ── Hue-Slider ──────────────────────────────────────────────────
+  &__hue {
+    position: relative;
+    width: 100%;
+    height: 12px;
+    margin-top: 0.6rem;
+    border-radius: 999px;
+    cursor: ew-resize;
+    background: linear-gradient(
+      to right,
+      #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%,
+      #00f 67%, #f0f 83%, #f00 100%
+    );
+  }
+
+  &__hue-pointer {
+    position: absolute;
+    top: 50%;
+    width: 14px;
+    height: 14px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    background: var(--ignis-cp-hue, #f00);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+  }
+
+  // ── Hex-Input ───────────────────────────────────────────────────
+  &__hex {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+
+    label {
+      font-size: 0.7rem;
+      color: var(--text-dimmed, #818189);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    input {
+      flex: 1;
+      background: var(--input-bg, #161616);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-sm, 4px);
+      color: var(--text-normal, #bbbac1);
+      font-family: 'Inconsolata', monospace;
+      font-size: 0.85rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.45rem;
+      outline: none;
+
+      &:focus {
+        border-color: var(--main-color);
+      }
+    }
+  }
+
+  // ── Preset-Swatches ─────────────────────────────────────────────
+  &__presets {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.3rem;
+    margin-top: 0.6rem;
+  }
+
+  &__preset {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm, 4px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: transform 0.1s ease, border-color 0.15s ease;
+
+    &:hover {
+      transform: scale(1.1);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    &.is-active {
+      border-color: var(--main-color);
+      box-shadow: 0 0 0 1px var(--main-color);
+    }
+  }
+}
+
+// =====================================================
+// ıgnıs UI — Combobox / Autocomplete
+// Free-Text-Input mit gefilterter Options-Liste. Drop-in für Felder, in
+// denen `<select>` zu starr ist (z. B. lange Listen mit Suche, Optional-
+// Custom-Werte). Architektur lehnt sich an `.ignis-dropdown` an, hat aber
+// eine editierbare Eingabe als Trigger statt Text-Label.
+// =====================================================
+
+.ignis-combobox {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+
+  &__field {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--input-bg, #161616);
+    color: var(--text-normal, #bbbac1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md, 6px);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover:not(.is-disabled) {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  &.is-open .ignis-combobox__field,
+  .ignis-combobox__field:focus-within {
+    border-color: var(--main-color);
+    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: inherit;
+    font: inherit;
+    font-size: var(--fs-sm, 0.88rem);
+    padding: 0.375rem 0.75rem;
+
+    &::placeholder {
+      color: var(--text-dimmed, #818189);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  &__toggle {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: var(--text-dimmed, #818189);
+    cursor: pointer;
+    padding: 0.375rem 0.6rem;
+    display: inline-flex;
+    align-items: center;
+    transition: color 0.15s ease, transform 0.2s ease;
+
+    &:hover {
+      color: var(--text-normal, #bbbac1);
+    }
+
+    &:focus-visible {
+      outline: none;
+      color: var(--main-color);
+    }
+  }
+
+  &.is-open .ignis-combobox__toggle {
+    transform: rotate(180deg);
+    color: var(--main-color);
+  }
+
+  &__clear {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: var(--text-dimmed, #818189);
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    font-size: 0.9em;
+    line-height: 1;
+
+    &:hover {
+      color: #d46b6b;
+    }
+  }
+
+  &__panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1050;
+    margin: 0;
+    padding: 0.25rem 0;
+    list-style: none;
+    background: var(--body-bg-lighter, #161616);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md, 6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    max-height: 16rem;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  &.is-open .ignis-combobox__panel {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  &__option {
+    padding: 0.4rem 0.75rem;
+    font-size: var(--fs-sm, 0.88rem);
+    cursor: pointer;
+    color: var(--text-normal, #bbbac1);
+    transition: background 0.1s ease;
+
+    &:hover,
+    &.is-active {
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    &.is-selected {
+      background: rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+      color: var(--main-color);
+    }
+
+    &--empty {
+      color: var(--text-dimmed, #818189);
+      font-style: italic;
+      cursor: default;
+
+      &:hover { background: transparent; }
+    }
+  }
+
+  // Match-Highlight innerhalb der Option-Labels
+  &__option mark {
+    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+}
+
+// =====================================================
+// eNOTF-Scope-Overrides
+// Das eNOTF-Theme ist kein Admin-Theme — es nutzt mittelgraue Box-Farben
+// (#333333), blaue Fokus-Akzente (#5783cf) und größere Typo. Die Dropdown-
+// und Dialog-Komponenten passen sich hier an, damit sie sich nicht wie
+// Fremdkörper anfühlen.
+// =====================================================
+
+#edivi__container {
+  // eNOTF-Komponenten sind durchgehend eckig (Dispatch-Terminal-Look) —
+  // Radio + Switch behalten ihre natural-round Form.
+  .ignis-input,
+  .ignis-textarea,
+  .ignis-stepper,
+  .ignis-checkbox input[type="checkbox"],
+  .ignis-dropdown__trigger,
+  .ignis-dropdown__panel,
+  .ignis-dropdown__options li {
+    border-radius: 0;
+  }
+
+  // ── Dropdown ─────────────────────────────────────────────────────
+  .ignis-dropdown {
+    .ignis-dropdown__trigger {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      color: #fff;
+      font-size: 1rem;
+      padding: 0.6rem 0.85rem;
+
+      &:hover:not(:disabled) {
+        border-color: #5783cf;
+      }
+
+      &:focus-visible,
+      &:focus {
+        border-color: #5783cf;
+        box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+      }
+    }
+
+    .ignis-dropdown__label-icon {
+      color: #5783cf;
+    }
+
+    .ignis-dropdown__panel {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+    }
+
+    .ignis-dropdown__search {
+      background: #1e1e1e;
+      border-bottom-color: #4a4a4a;
+
+      &:focus {
+        background: rgba(87, 131, 207, 0.08);
+      }
+    }
+
+    .ignis-dropdown__options li {
+      font-size: 1rem;
+      padding: 0.5rem 0.75rem;
+
+      &:hover,
+      &:focus {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      &.is-selected {
+        background: rgba(87, 131, 207, 0.18);
+        color: #fff;
+      }
+    }
+
+    .ignis-dropdown__option-icon {
+      color: #5783cf;
+    }
+  }
+
+  // ── Input / Textarea ────────────────────────────────────────────
+  .ignis-input,
+  .ignis-textarea {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    font-size: 1rem;
+    padding: 0.6rem 0.85rem;
+
+    &:hover:not(:disabled):not([readonly]) {
+      border-color: #5783cf;
+    }
+
+    &:focus,
+    &:focus-visible {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+
+    &.is-invalid,
+    &:invalid:not(:focus):not(:placeholder-shown) {
+      border-color: #d1484a;
+
+      &:focus {
+        box-shadow: 0 0 0 2px rgba(209, 72, 74, 0.25);
+      }
+    }
+  }
+
+  .ignis-input-group:focus-within .ignis-input-group__icon {
+    color: #5783cf;
+  }
+
+  .ignis-field__required {
+    color: #5783cf;
+  }
+
+  // ── Checkbox / Radio — blaue Checked-Farbe ──────────────────────
+  .ignis-checkbox input[type="checkbox"],
+  .ignis-radio input[type="radio"] {
+    border-color: #4a4a4a;
+    background: #2a2a2a;
+    width: 1.25rem;
+    height: 1.25rem;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(87, 131, 207, 0.6);
+    }
+
+    &:checked {
+      background: #5783cf;
+      border-color: #5783cf;
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 0 3px rgba(87, 131, 207, 0.3);
+    }
+  }
+
+  .ignis-checkbox input[type="checkbox"]:indeterminate {
+    background: #5783cf;
+    border-color: #5783cf;
+  }
+
+  // ── Switch — blaue On-Farbe ─────────────────────────────────────
+  .ignis-switch {
+    input[type="checkbox"] {
+      background: #4a4a4a;
+
+      &:checked {
+        background: #5783cf;
+      }
+
+      &:focus-visible {
+        box-shadow: 0 0 0 3px rgba(87, 131, 207, 0.3);
+      }
+    }
+  }
+
+  // ── Number-Stepper — blauer Focus-Ring ──────────────────────────
+  .ignis-stepper {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+
+    &:focus-within {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+
+    input[type="number"] {
+      font-size: 1rem;
+    }
+
+    button:active {
+      background: rgba(87, 131, 207, 0.2);
+    }
+  }
+
+  // ── Tabs — blauer Underline ─────────────────────────────────────
+  .ignis-tabs {
+    .ignis-tabs__headers {
+      border-bottom-color: #4a4a4a;
+    }
+
+    .ignis-tabs__header {
+      font-size: 1rem;
+
+      &.is-active {
+        border-bottom-color: #5783cf;
+      }
+    }
+
+    &--pills .ignis-tabs__header {
+      border-radius: 0;
+
+      &.is-active {
+        background: #5783cf;
+      }
+    }
+  }
+
+  // ── Accordion — eckig, blauer Active-Rand ──────────────────────
+  .ignis-accordion {
+    .ignis-accordion__item {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+
+      &.is-open {
+        border-color: rgba(87, 131, 207, 0.5);
+      }
+    }
+
+    .ignis-accordion__header {
+      font-size: 1rem;
+    }
+  }
+
+  // ── Drawer — eckig, blauer Akzent ───────────────────────────────
+  .ignis-drawer {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    border-radius: 0;
+    font-size: 1rem;
+
+    .ignis-drawer__header,
+    .ignis-drawer__footer {
+      border-color: #4a4a4a;
+    }
+  }
+
+  // ── Pagination — eckig, blau-aktiv ──────────────────────────────
+  .ignis-pagination .ignis-pagination__item {
+    border-radius: 0;
+    font-size: 0.95rem;
+
+    &.is-active {
+      background: #5783cf;
+    }
+  }
+
+  // ── List Group — eckig ──────────────────────────────────────────
+  .ignis-list-group {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    border-radius: 0;
+    font-size: 1rem;
+
+    .ignis-list-group__item {
+      border-color: #4a4a4a;
+
+      &.is-active {
+        background: rgba(87, 131, 207, 0.18);
+        color: #7ea3d9;
+      }
+    }
+  }
+
+  // ── Alert — eckig, blau-info ────────────────────────────────────
+  .ignis-alert {
+    border-radius: 0;
+    font-size: 1rem;
+
+    &--info {
+      border-left-color: #5783cf;
+      color: #7ea3d9;
+
+      .ignis-alert__title { color: #7ea3d9; }
+    }
+  }
+
+  // ── Progress — eckig ────────────────────────────────────────────
+  .ignis-progress {
+    background: #1e1e1e;
+    border-radius: 0;
+
+    .ignis-progress__bar {
+      border-radius: 0;
+      background: #5783cf;
+    }
+  }
+
+  // ── File-Input — eckig ──────────────────────────────────────────
+  .ignis-file {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    border-radius: 0;
+    font-size: 1rem;
+  }
+
+  // ── Skeleton — eckig ────────────────────────────────────────────
+  .ignis-skeleton { border-radius: 0; }
+
+  // ── Card — eckig, mittelgrau ────────────────────────────────────
+  .ignis-card {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    border-radius: 0;
+    font-size: 1rem;
+
+    .ignis-card__header,
+    .ignis-card__footer {
+      border-color: #4a4a4a;
+    }
+
+    &--accent { border-left-color: #5783cf; }
+    &--info   { border-left-color: #5783cf; }
+
+    &--interactive:focus-visible {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+  }
+
+  // ── Color-Picker — eckig, blau-Akzent ───────────────────────────
+  .ignis-colorpicker {
+    .ignis-colorpicker__trigger {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+      font-size: 1rem;
+    }
+
+    &.is-open .ignis-colorpicker__trigger {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+
+    .ignis-colorpicker__swatch {
+      border-radius: 0;
+    }
+
+    .ignis-colorpicker__panel {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+    }
+
+    .ignis-colorpicker__sv,
+    .ignis-colorpicker__hex input,
+    .ignis-colorpicker__preset {
+      border-radius: 0;
+    }
+
+    .ignis-colorpicker__preset.is-active {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 1px #5783cf;
+    }
+
+    .ignis-colorpicker__hex input:focus {
+      border-color: #5783cf;
+    }
+  }
+
+  // ── Combobox — eckig, blau-Akzent ───────────────────────────────
+  .ignis-combobox {
+    .ignis-combobox__field {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+      font-size: 1rem;
+
+      &:hover:not(.is-disabled) {
+        border-color: #5783cf;
+      }
+    }
+
+    &.is-open .ignis-combobox__field,
+    .ignis-combobox__field:focus-within {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+
+    .ignis-combobox__panel {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+    }
+
+    .ignis-combobox__option {
+      font-size: 1rem;
+      padding: 0.5rem 0.75rem;
+
+      &.is-selected {
+        background: rgba(87, 131, 207, 0.18);
+        color: #fff;
+      }
+
+      mark {
+        background: rgba(87, 131, 207, 0.3);
+      }
+    }
+  }
+
+  // ── Button — eckig, blauer Primary-Akzent ───────────────────────
+  .ignis-btn {
+    border-radius: 0;
+    font-size: 1rem;
+
+    &--sm { font-size: 0.85rem; }
+    &--lg { font-size: 1.1rem; }
+
+    &--primary,
+    &--accent {
+      background: #5783cf;
+
+      &:hover:not(:disabled):not(.is-loading) {
+        background: #6c92d8;
+      }
+
+      &:active:not(:disabled):not(.is-loading) {
+        background: #4974c0;
+      }
+    }
+
+    &--outline-primary {
+      border-color: #5783cf;
+      color: #7ea3d9;
+
+      &:hover:not(:disabled):not(.is-loading) {
+        background: #5783cf;
+      }
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.4);
+    }
+  }
+
+  .ignis-btn-group .ignis-btn {
+    border-radius: 0 !important;
+  }
+
+  // ── Chip / Tag — eckig, blau-Akzent ─────────────────────────────
+  .ignis-chip {
+    border-radius: 0;
+    font-size: 0.85rem;
+
+    &--sm { font-size: 0.75rem; }
+    &--lg { font-size: 1rem; }
+
+    &--primary {
+      background: rgba(87, 131, 207, 0.18);
+      color: #7ea3d9;
+      border-color: rgba(87, 131, 207, 0.35);
+    }
+  }
+
+  .ignis-tag-input {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    border-radius: 0;
+    font-size: 1rem;
+
+    &:hover:not(.is-disabled) {
+      border-color: #5783cf;
+    }
+
+    &:focus-within {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+  }
+
+  // ── DatePicker — blauer Accent, eckig ───────────────────────────
+  .ignis-datepicker {
+    .ignis-datepicker__trigger {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+      font-size: 1rem;
+      padding: 0.6rem 0.85rem;
+
+      &:hover:not(:disabled) {
+        border-color: #5783cf;
+      }
+
+      &:focus,
+      &:focus-visible {
+        border-color: #5783cf;
+        box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+      }
+    }
+
+    .ignis-datepicker__icon { color: #5783cf; }
+
+    .ignis-datepicker__panel {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+    }
+
+    .ignis-datepicker__day.is-selected,
+    .ignis-datepicker__month.is-selected,
+    .ignis-datepicker__year.is-selected {
+      background: #5783cf;
+    }
+
+    .ignis-datepicker__day.is-today:not(.is-selected) {
+      color: #5783cf;
+
+      &::after { background: #5783cf; }
+    }
+
+    .ignis-datepicker__footer-btn {
+      background: #5783cf;
+      border-radius: 0;
+
+      &--ghost {
+        background: transparent;
+        border-color: #4a4a4a;
+      }
+    }
+  }
+}

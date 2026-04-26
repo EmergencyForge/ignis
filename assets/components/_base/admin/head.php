@@ -14,6 +14,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/rubik/css/all.min.css" />
 <link rel="stylesheet" href="<?= asset('assets/css/style.min.css') ?>" />
 <link rel="stylesheet" href="<?= asset('assets/css/admin.min.css') ?>" />
+<link rel="stylesheet" href="<?= asset('assets/css/ui.min.css') ?>" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
 <script>
 // Akzentfarbe sofort aus localStorage anwenden (kein Flackern)
@@ -22,7 +23,19 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- Core-Bundle: jQuery + Bootstrap + DataTables (synchron, weil Inline-Scripts auf window.$ angewiesen sind) -->
 <script src="<?= asset('public/assets/dist/vendor.js') ?>"></script>
 <!-- App scripts: defer to unblock rendering -->
-<script defer src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/dropdown.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/form.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/tabs.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/accordion.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/datepicker.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/chip.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/combobox.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/colorpicker.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/tooltip.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/alert.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/file.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/toasts.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
 <!-- Favicon -->
