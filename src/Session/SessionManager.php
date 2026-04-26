@@ -238,7 +238,14 @@ class SessionManager
      *
      * @param array $crew {fahrer:{name,quali}, beifahrer:{name,quali}, praktikant?:{name,quali}}
      */
-    public static function loginEnotfCrew(string $position, string $sessionToken, array $crew, ?int $protokollFzg = null): void
+    /**
+     * @param int|string|null $protokollFzg Vehicle-Identifier (Legacy:
+     * gemischter Typ — historisch wurde der Wert direkt aus `$_SESSION
+     * ['protfzg']` durchgeschoben, was sowohl ints als auch strings
+     * erlaubte. Wir typen das hier bewusst weich, um beim Migrieren
+     * keine Behavior-Drift zu erzeugen.)
+     */
+    public static function loginEnotfCrew(string $position, string $sessionToken, array $crew, int|string|null $protokollFzg = null): void
     {
         self::start();
 
