@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Auth\Gate;
-use App\Auth\Permissions;
 use App\Federation\FederatedPersonnel;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
@@ -310,7 +309,7 @@ class EinsatzController extends Controller
                 ->exists();
         }
 
-        if (!$isAssigned && !Permissions::check(['admin', 'fire.incident.qm'])) {
+        if (!$isAssigned && !Gate::allows('fireIncident.manageQm')) {
             // Users without vehicle login need admin/QM
             if (!isset($_SESSION['einsatz_vehicle_id'])) {
                 Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
@@ -717,7 +716,7 @@ class EinsatzController extends Controller
 
     private function actionSetStatus(int $id, array $incident): void
     {
-        if (!Permissions::check(['admin', 'fire.incident.qm'])) {
+        if (!Gate::allows('fireIncident.manageQm')) {
             Flash::error('Keine Berechtigung.');
             return;
         }
@@ -953,7 +952,7 @@ class EinsatzController extends Controller
 
     private function actionArchive(int $id, array $incident): void
     {
-        if (!Permissions::check(['admin', 'fire.incident.qm'])) {
+        if (!Gate::allows('fireIncident.manageQm')) {
             Flash::error('Keine Berechtigung zum Archivieren von Einsätzen.');
             return;
         }
@@ -977,7 +976,7 @@ class EinsatzController extends Controller
 
     private function actionUnarchive(int $id, array $incident): void
     {
-        if (!Permissions::check(['admin', 'fire.incident.qm'])) {
+        if (!Gate::allows('fireIncident.manageQm')) {
             Flash::error('Keine Berechtigung zum Wiederherstellen von Einsätzen.');
             return;
         }

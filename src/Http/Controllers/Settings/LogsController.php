@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Auth\Gate;
 use App\Http\Controllers\Controller;
 use App\Jobs\FailedJobsReader;
 use App\Logging\LogReader;
@@ -287,7 +287,7 @@ class LogsController extends Controller
 
     private function ensureAdmin(): void
     {
-        if (!Permissions::check('admin')) {
+        if (!Gate::allows('system.admin')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index.php');
         }
