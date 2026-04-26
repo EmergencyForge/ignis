@@ -86,8 +86,10 @@ use App\Helpers\Flash;
                                     <tr<?= $rowClass ?> data-status="<?= $statusData ?>">
                                         <td><?= (int) $user->id ?></td>
                                         <td>
-                                            <?= htmlspecialchars($user->mitarbeiter_fullname ?? 'Kein Profil verbunden') ?>
-                                            (<strong><?= htmlspecialchars($user->username) ?></strong>)
+                                            <span data-user-card="<?= (int) $user->id ?>" style="cursor:help;">
+                                                <?= htmlspecialchars($user->mitarbeiter_fullname ?? 'Kein Profil verbunden') ?>
+                                                (<strong><?= htmlspecialchars($user->username) ?></strong>)
+                                            </span>
                                         </td>
                                         <td><span class="ignis-chip<?= $roleChipMod ?>"><?= htmlspecialchars($roleName) ?></span></td>
                                         <td><?= $statusBadge ?></td>

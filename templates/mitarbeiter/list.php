@@ -120,7 +120,7 @@ use App\Helpers\Flash;
                                         <td><?= htmlspecialchars($m->dienstnr) ?></td>
                                         <td>
                                             <a href="<?= BASE_PATH ?>mitarbeiter/profile?id=<?= (int) $m->id ?>"
-                                               data-user-card="<?= (int) $m->id ?>"
+                                               data-mitarbeiter-card="<?= (int) $m->id ?>"
                                                class="text-reset no-underline">
                                                 <?= htmlspecialchars($m->fullname) ?>
                                             </a>

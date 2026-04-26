@@ -33,6 +33,33 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 class UserController extends Controller
 {
     /**
+     * Liefert die Hover-Card für einen User. Wenn der User ein verknüpftes
+     * Mitarbeiter-Profil hat (User.aktenid → Mitarbeiter.id), wird die
+     * Mitarbeiter-Card gerendert; sonst ein Minimal-Fragment mit Username
+     * und Discord-ID.
+     */
+    public function card(int $id): \App\Http\Response
+    {
+        $this->requireAuth();
+        Gate::authorize('user.viewList');
+
+        $user = User::query()->with(['userRole', 'mitarbeiter.dienstgradModel', 'mitarbeiter.rdQualiModel', 'mitarbeiter.fwQualiModel'])->find($id);
+        if ($user === null) {
+            return \App\Http\Response::html('Benutzer nicht gefunden.', 404);
+        }
+
+        ob_start();
+        if ($user->mitarbeiter !== null) {
+            $mitarbeiter = $user->mitarbeiter;
+            $profileUrl  = (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id;
+            include __DIR__ . '/../../../assets/components/profiles/_hover-card.php';
+        } else {
+            include __DIR__ . '/../../../assets/components/profiles/_user-hover-card.php';
+        }
+        return \App\Http\Response::html((string) ob_get_clean());
+    }
+
+    /**
      * GET /benutzer — Benutzer-Liste mit DataTable.
      *
      * Schließt einen LEFT JOIN auf intra_mitarbeiter ein, um den Mitarbeiter-
