@@ -163,4 +163,15 @@ class EnotfPolicy
     {
         return Permissions::check(['admin', 'edivi.edit']);
     }
+
+    /**
+     * Generischer „kann das eNOTF-Modul ansehen" — gilt für eingeloggte
+     * User mit `enotf.view` oder `edivi.view`. Wird in der Modul-
+     * Eingangs-Gate genutzt (Nicht-Crew-Member, die das Read-only-UI
+     * bekommen) und für die globale Suche.
+     */
+    public static function viewModule(mixed $context = null): bool
+    {
+        return Permissions::check(['admin', 'enotf.view', 'edivi.view']);
+    }
 }

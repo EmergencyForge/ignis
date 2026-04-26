@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Auth\Gate;
 use App\Http\Controllers\Controller;
 use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -230,7 +230,7 @@ class DashboardController extends Controller
     private function ensureManage(string $redirect): void
     {
         $this->requireAuth();
-        if (!Permissions::check(['admin', 'dashboard.manage'])) {
+        if (!Gate::allows('system.manageDashboard')) {
             Flash::set('error', 'no-permissions');
             $this->redirect($redirect);
         }

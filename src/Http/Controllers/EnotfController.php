@@ -554,7 +554,7 @@ class EnotfController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (isset($_SESSION['userid'], $_SESSION['permissions'])) {
-            if (!\App\Auth\Permissions::check(['admin', 'enotf.view', 'edivi.view'])) {
+            if (!\App\Auth\Gate::allows('enotf.viewModule')) {
                 $this->redirect('index.php');
             }
         }

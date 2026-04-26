@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -21,7 +21,7 @@ class PoiController extends Controller
     public function index(): void
     {
         $this->requireAuth();
-        if (!Permissions::check(['admin', 'pois.view'])) {
+        if (!Gate::allows('poi.view')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index.php');
         }
@@ -136,7 +136,7 @@ class PoiController extends Controller
     public function departmentsIndex(): void
     {
         $this->requireAuth();
-        if (!Permissions::check(['admin', 'pois.view'])) {
+        if (!Gate::allows('poi.view')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index.php');
         }
@@ -349,7 +349,7 @@ class PoiController extends Controller
 
     private function ensureManage(): void
     {
-        if (!Permissions::check(['admin', 'pois.manage'])) {
+        if (!Gate::allows('poi.manage')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('settings/pois/index.php');
         }

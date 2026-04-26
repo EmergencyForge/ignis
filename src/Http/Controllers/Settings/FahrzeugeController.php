@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
 use App\Utils\AuditLogger;
@@ -143,7 +143,7 @@ class FahrzeugeController extends Controller
     public function beladungHandler(): void
     {
         $this->requireAuth();
-        if (!Permissions::check(['admin', 'vehicles.manage'])) {
+        if (!Gate::allows('vehicle.manage')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('settings/fahrzeuge/beladelisten/index.php');
         }
@@ -270,7 +270,7 @@ class FahrzeugeController extends Controller
 
     private function ensureView(string $redirect): void
     {
-        if (!Permissions::check(['admin', 'vehicles.view'])) {
+        if (!Gate::allows('vehicle.view')) {
             Flash::set('error', 'no-permissions');
             $this->redirect($redirect);
         }
@@ -278,7 +278,7 @@ class FahrzeugeController extends Controller
 
     private function ensureManage(): void
     {
-        if (!Permissions::check(['admin', 'vehicles.manage'])) {
+        if (!Gate::allows('vehicle.manage')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('settings/fahrzeuge/fahrzeuge/index.php');
         }

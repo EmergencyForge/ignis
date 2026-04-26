@@ -641,14 +641,12 @@ class MitarbeiterController extends Controller
 
         // Berechtigung: Eigenes Dokument oder personnel.documents.* Permission
         $isOwnDoc = ((string) $doc->ausstellerid === ($_SESSION['discord_id'] ?? ''));
-        if (!$isOwnDoc && !\App\Auth\Permissions::check([
-            'admin', 'personnel.documents.manage', 'personnel.documents.view', 'personnel.view'
-        ])) {
+        if (!$isOwnDoc && !\App\Auth\Gate::allows('mitarbeiter.viewDoc')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index.php');
         }
 
-        $canManage = \App\Auth\Permissions::check(['admin', 'personnel.documents.manage']);
+        $canManage = \App\Auth\Gate::allows('mitarbeiter.manageDocs');
         $typLabel  = \App\Documents\DocumentTemplateManager::getDocumentTypeLabel(
             (int) $doc->type,
             $doc->template_name ?? null

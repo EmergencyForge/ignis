@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Auth\Permissions;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
@@ -477,7 +476,7 @@ class PersonalController extends Controller
      */
     private function ensureView(): void
     {
-        if (!Permissions::check(['admin', 'personnel.view'])) {
+        if (!Gate::allows('mitarbeiter.viewList')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index.php');
         }
