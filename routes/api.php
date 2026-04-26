@@ -68,15 +68,9 @@ $router->post('/api/character/identify',
     [CharacterController::class, 'identify'],
     [ApiKeyMiddleware::class]
 );
-    [CharacterController::class, 'identify'],
-    [ApiKeyMiddleware::class]
-);
 
 // FiveM-Server: Fire-Status-Queue pollen
 $router->post('/api/emd/status-poll',
-    [FireStatusPollController::class, 'poll'],
-    [ApiKeyMiddleware::class]
-);
     [FireStatusPollController::class, 'poll'],
     [ApiKeyMiddleware::class]
 );
@@ -84,9 +78,6 @@ $router->post('/api/emd/status-poll',
 // FiveM-Server: EMD-Sync (Haupt-Endpoint für Einsatz-/Status-/Fahrzeug-Sync)
 // Business-Logik 1:1 übernommen, inkl. FW-Fix.
 $router->post('/api/emd/sync',
-    [EmdSyncController::class, 'sync'],
-    [ApiKeyMiddleware::class]
-);
     [EmdSyncController::class, 'sync'],
     [ApiKeyMiddleware::class]
 );
@@ -111,15 +102,9 @@ $router->get('/api/notifications/poll',
     [NotificationController::class, 'poll'],
     [new AuthMiddleware()]
 );
-    [NotificationController::class, 'poll'],
-    [new AuthMiddleware()]
-);
 
 // Einzelne Notification als gelesen markieren
 $router->post('/api/notifications/mark-read',
-    [NotificationController::class, 'markRead'],
-    [new AuthMiddleware()]
-);
     [NotificationController::class, 'markRead'],
     [new AuthMiddleware()]
 );
@@ -131,9 +116,6 @@ $router->post('/benachrichtigungen/mark-read.php',
 
 // Alle Notifications als gelesen markieren (Topbar-Flyout)
 $router->post('/api/notifications/mark-all-read',
-    [NotificationController::class, 'markAllRead'],
-    [new AuthMiddleware()]
-);
     [NotificationController::class, 'markAllRead'],
     [new AuthMiddleware()]
 );
