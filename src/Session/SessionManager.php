@@ -189,4 +189,220 @@ class SessionManager
             session_regenerate_id(true);
         }
     }
+
+    // ──────────────────────────────────────────────────────────────────
+    // High-Level Login-API
+    //
+    // Eine Methode pro Auth-Kontext (siehe reference_auth_contexts.md):
+    // Standard, eNOTF-Crew, Einsatz/FireTab, FiveM-Character, Klinikcode.
+    // Vorher waren die Schreibzugriffe in Controllern und Templates
+    // verstreut, was bei 5 parallelen Auth-Layern fragil war.
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Standard-User-Login (Discord-OAuth, Login-Form).
+     *
+     * @param array $user        Row aus intra_users
+     * @param array $permissions Liste der aufgelösten Permission-Strings
+     */
+    public static function loginUser(array $user, array $permissions = []): void
+    {
+        self::start();
+        self::regenerate();
+
+        $_SESSION['userid']          = $user['id'] ?? null;
+        $_SESSION['cirs_username']   = $user['username'] ?? '';
+        $_SESSION['aktenid']         = $user['aktenid'] ?? null;
+        $_SESSION['role']            = $user['role'] ?? null;
+        $_SESSION['discordtag']      = $user['discord_id'] ?? null;
+        $_SESSION['permissions']     = $permissions;
+        $_SESSION['permissions_loaded'] = true;
+    }
+
+    /**
+     * Setzt Rollen-Detail-Keys (color/name/priority) — wird von
+     * Permissions::loadRoleData() aufgerufen, sobald die Rolle aufgelöst
+     * ist. Getrennt von loginUser(), weil die Rolle erst NACH dem Login
+     * lazy aus der DB geholt wird.
+     */
+    public static function setRoleDetails(?int $id, ?string $name, ?string $color, ?int $priority): void
+    {
+        $_SESSION['role_id']       = $id;
+        $_SESSION['role_name']     = $name;
+        $_SESSION['role_color']    = $color;
+        $_SESSION['role_priority'] = $priority;
+    }
+
+    /**
+     * Login der eNOTF-Crew (Fahrer + Beifahrer + optional Praktikant).
+     *
+     * @param array $crew {fahrer:{name,quali}, beifahrer:{name,quali}, praktikant?:{name,quali}}
+     */
+    public static function loginEnotfCrew(string $position, string $sessionToken, array $crew, ?int $protokollFzg = null): void
+    {
+        self::start();
+
+        $_SESSION['enotf_position']      = $position;
+        $_SESSION['enotf_session_token'] = $sessionToken;
+        $_SESSION['fahrername']          = $crew['fahrer']['name'] ?? '';
+        $_SESSION['fahrerquali']         = $crew['fahrer']['quali'] ?? '';
+        $_SESSION['beifahrername']       = $crew['beifahrer']['name'] ?? '';
+        $_SESSION['beifahrerquali']      = $crew['beifahrer']['quali'] ?? '';
+        $_SESSION['praktikantname']      = $crew['praktikant']['name'] ?? '';
+        $_SESSION['praktikantquali']     = $crew['praktikant']['quali'] ?? '';
+
+        if ($protokollFzg !== null) {
+            $_SESSION['protfzg'] = $protokollFzg;
+        }
+    }
+
+    /**
+     * Login eines FireTab-Operators auf einem Einsatzfahrzeug.
+     */
+    public static function loginEinsatz(int $vehicleId, string $vehicleName, int $operatorId, string $operatorName): void
+    {
+        self::start();
+
+        $_SESSION['einsatz_vehicle_id']    = $vehicleId;
+        $_SESSION['einsatz_vehicle_name']  = $vehicleName;
+        $_SESSION['einsatz_operator_id']   = $operatorId;
+        $_SESSION['einsatz_operator_name'] = $operatorName;
+    }
+
+    /**
+     * Login eines FiveM-Charakters (CitizenFX-User-Agent).
+     */
+    public static function loginCharacter(string $charId, string $charJob, string $charName): void
+    {
+        self::start();
+
+        $_SESSION['char_id']   = $charId;
+        $_SESSION['char_job']  = $charJob;
+        $_SESSION['char_name'] = $charName;
+    }
+
+    /**
+     * Klinikcode-Zugang für die Hospital-Availability-Schnittstelle.
+     */
+    public static function loginKlinikcode(string $enr): void
+    {
+        self::start();
+
+        $_SESSION['klinik_access_enr']  = $enr;
+        $_SESSION['klinik_access_time'] = time();
+    }
+
+    /**
+     * Loggt nur den Standard-User aus (eNOTF / Einsatz bleibt aktiv).
+     */
+    public static function logoutUser(): void
+    {
+        $keys = [
+            'userid', 'cirs_username', 'aktenid', 'role', 'discordtag',
+            'permissions', 'permissions_loaded',
+            'role_id', 'role_name', 'role_color', 'role_priority',
+        ];
+        foreach ($keys as $k) {
+            unset($_SESSION[$k]);
+        }
+    }
+
+    /**
+     * Loggt nur die eNOTF-Crew aus.
+     */
+    public static function logoutEnotfCrew(): void
+    {
+        $keys = [
+            'enotf_position', 'enotf_session_token',
+            'fahrername', 'fahrerquali',
+            'beifahrername', 'beifahrerquali',
+            'praktikantname', 'praktikantquali',
+            'protfzg',
+        ];
+        foreach ($keys as $k) {
+            unset($_SESSION[$k]);
+        }
+    }
+
+    /**
+     * Loggt den Einsatz-Operator aus.
+     */
+    public static function logoutEinsatz(): void
+    {
+        $keys = [
+            'einsatz_vehicle_id', 'einsatz_vehicle_name',
+            'einsatz_operator_id', 'einsatz_operator_name',
+            'aktenid',
+        ];
+        foreach ($keys as $k) {
+            unset($_SESSION[$k]);
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Reader-API
+    // ──────────────────────────────────────────────────────────────────
+
+    public static function isLoggedIn(): bool
+    {
+        return !empty($_SESSION['userid']);
+    }
+
+    public static function userId(): ?int
+    {
+        $id = $_SESSION['userid'] ?? null;
+        return $id !== null ? (int) $id : null;
+    }
+
+    public static function username(): ?string
+    {
+        return $_SESSION['cirs_username'] ?? null;
+    }
+
+    /**
+     * Aktuell aufgelöste Permission-Strings für den eingeloggten User.
+     *
+     * @return string[]
+     */
+    public static function permissions(): array
+    {
+        $p = $_SESSION['permissions'] ?? [];
+        return is_array($p) ? $p : [];
+    }
+
+    public static function isEnotfActive(): bool
+    {
+        return !empty($_SESSION['enotf_session_token']);
+    }
+
+    public static function isEinsatzActive(): bool
+    {
+        return !empty($_SESSION['einsatz_vehicle_id']);
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Low-Level Convenience für Stellen, die noch direkt auf $_SESSION
+    // zugreifen — Notnagel, damit Aufrufer nicht ständig in $_SESSION
+    // greifen müssen, ohne dass wir jeden Detail-Key in der API führen.
+    // ──────────────────────────────────────────────────────────────────
+
+    public static function set(string $key, mixed $value): void
+    {
+        $_SESSION[$key] = $value;
+    }
+
+    public static function get(string $key, mixed $default = null): mixed
+    {
+        return $_SESSION[$key] ?? $default;
+    }
+
+    public static function has(string $key): bool
+    {
+        return isset($_SESSION[$key]);
+    }
+
+    public static function forget(string $key): void
+    {
+        unset($_SESSION[$key]);
+    }
 }
