@@ -32,6 +32,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php
     include __DIR__ . '/../../../../assets/components/_base/admin/head.php';
     ?>
+    <script src="<?= BASE_PATH ?>assets/_ext/sortablejs/Sortable.min.js"></script>
+    <script type="module" src="<?= BASE_PATH ?>assets/js/modules/beladung-edit.js"></script>
     <style>
         .category-card {
             transition: all 0.3s ease;
@@ -144,14 +146,14 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     $tilesStmt = $pdo->prepare(
                         "SELECT * FROM intra_fahrzeuge_beladung_tiles
                          WHERE category IN ($placeholders)
-                         ORDER BY title ASC"
+                         ORDER BY sort_order ASC, title ASC"
                     );
                     $tilesStmt->execute($catIds);
                     foreach ($tilesStmt->fetchAll(PDO::FETCH_ASSOC) as $t) {
                         $tilesByCategory[(int) $t['category']][] = $t;
                     }
                 }
-                $canEdit = Permissions::check(['admin', 'vehicles.manage']);
+                $canEdit = \App\Auth\Gate::allows('vehicle.manage');
                 ?>
 
                 <div class="beladung-search">

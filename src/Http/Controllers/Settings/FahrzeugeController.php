@@ -214,6 +214,44 @@ class FahrzeugeController extends Controller
                     echo json_encode(['success' => true, 'message' => 'Gegenstand erfolgreich gelöscht']);
                     break;
 
+                case 'update_amount':
+                    // Inline-Edit: nur amount eines Tiles aktualisieren
+                    $tileId = (int) ($_POST['id'] ?? 0);
+                    $amount = max(0, (int) ($_POST['amount'] ?? 0));
+                    if ($tileId <= 0) {
+                        echo json_encode(['success' => false, 'message' => 'Ungültige Tile-ID']);
+                        break;
+                    }
+                    Capsule::table('intra_fahrzeuge_beladung_tiles')
+                        ->where('id', $tileId)
+                        ->update(['amount' => $amount]);
+                    echo json_encode(['success' => true, 'amount' => $amount]);
+                    break;
+
+                case 'reorder_tiles':
+                    // Drag-Drop-Sort: erwartet `category` + `order` (CSV der Tile-IDs).
+                    // Wir setzen sort_order=0..N-1 entsprechend der übermittelten Reihenfolge,
+                    // optional kann der Tile in eine andere Kategorie wandern (Cross-Category).
+                    $categoryId = (int) ($_POST['category'] ?? 0);
+                    $orderRaw   = (string) ($_POST['order'] ?? '');
+                    $tileIds    = array_values(array_filter(array_map('intval', explode(',', $orderRaw))));
+                    if ($categoryId <= 0 || !$tileIds) {
+                        echo json_encode(['success' => false, 'message' => 'Ungültige Reihenfolge']);
+                        break;
+                    }
+                    Capsule::connection()->transaction(function () use ($categoryId, $tileIds) {
+                        foreach ($tileIds as $idx => $tileId) {
+                            Capsule::table('intra_fahrzeuge_beladung_tiles')
+                                ->where('id', $tileId)
+                                ->update([
+                                    'category'   => $categoryId,
+                                    'sort_order' => $idx,
+                                ]);
+                        }
+                    });
+                    echo json_encode(['success' => true, 'count' => count($tileIds)]);
+                    break;
+
                 default:
                     echo json_encode(['success' => false, 'message' => 'Unbekannte Aktion']);
             }

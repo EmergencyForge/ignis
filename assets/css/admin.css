@@ -1181,6 +1181,21 @@ select.form-select option {
   background: rgba(var(--main-color-rgb, 255, 77, 0), 0.08);
   outline: 1px solid rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
 }
+.beladung-tile__handle {
+  flex-shrink: 0;
+  cursor: grab;
+  color: var(--text-dimmed, #818189);
+  font-size: 0.8rem;
+  padding: 0.1rem 0.2rem;
+  opacity: 0.5;
+  transition: opacity 0.1s ease;
+}
+.beladung-tile__handle:hover {
+  opacity: 1;
+}
+.beladung-tile__handle:active {
+  cursor: grabbing;
+}
 .beladung-tile__title {
   flex: 1;
   min-width: 0;
@@ -1193,6 +1208,38 @@ select.form-select option {
   align-items: center;
   gap: 0.3rem;
   flex-shrink: 0;
+}
+.beladung-tile--ghost {
+  opacity: 0.3;
+  background: rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+}
+.beladung-tile--chosen {
+  background: rgba(var(--main-color-rgb, 255, 77, 0), 0.08);
+}
+.beladung-tile--drag {
+  cursor: grabbing;
+  opacity: 0.95;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.beladung-tile__amount-edit {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  transition: filter 0.1s ease;
+}
+.beladung-tile__amount-edit:hover {
+  filter: brightness(1.15);
+}
+.beladung-tile__amount-edit:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 1px;
+}
+
+.beladung-tile__amount-input {
+  width: 4.5rem;
+  text-align: center;
 }
 
 .dataTables_wrapper {
