@@ -614,18 +614,19 @@ $enotfApiRedirect = function (string $target): \Closure {
 };
 $router->match(['GET', 'POST'], '/enotf/admin/bulk-delete-empty.php', $enotfApiRedirect('/api/enotf/bulk-delete-empty'));
 
-// Zielverwaltung (Krankenhaus-Ziele) — Controller + Template neu gebaut,
-// Thin-Stubs ersetzen die alten Standalone-PHP-Files aus `enotf/admin/
-// zielverwaltung/`.
-$router->get('/enotf/admin/zielverwaltung',           [\App\Http\Controllers\EnotfZielverwaltungController::class, 'index'], $enotfAdminAuth);
-$router->get('/enotf/admin/zielverwaltung/',          [\App\Http\Controllers\EnotfZielverwaltungController::class, 'index'], $enotfAdminAuth);
-$router->get('/enotf/admin/zielverwaltung/index.php', [\App\Http\Controllers\EnotfZielverwaltungController::class, 'index'], $enotfAdminAuth);
-
-$router->post('/enotf/admin/zielverwaltung/create',     [\App\Http\Controllers\EnotfZielverwaltungController::class, 'store'], $enotfAdminAuth);
-
-$router->post('/enotf/admin/zielverwaltung/update',     [\App\Http\Controllers\EnotfZielverwaltungController::class, 'update'], $enotfAdminAuth);
-
-$router->post('/enotf/admin/zielverwaltung/delete',     [\App\Http\Controllers\EnotfZielverwaltungController::class, 'destroy'], $enotfAdminAuth);
+// Zielverwaltung — auf POI-System konsolidiert. Legacy-URLs leiten
+// dauerhaft auf `/settings/pois` um, bis externe Bookmarks aktualisiert
+// sind. Controller + Template gibt's noch im Repo, sind aber nicht mehr
+// erreichbar.
+$zielverwaltungRedirect = static function (\App\Http\Request $request) {
+    $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+    return \App\Http\Response::redirect($base . 'settings/pois', 301);
+};
+$router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung',           $zielverwaltungRedirect);
+$router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung/',          $zielverwaltungRedirect);
+$router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung/create',    $zielverwaltungRedirect);
+$router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung/update',    $zielverwaltungRedirect);
+$router->match(['GET', 'POST'], '/enotf/admin/zielverwaltung/delete',    $zielverwaltungRedirect);
 
 // ----------------------------------------------------------------------------
 //  eNOTF-Modul — Print + Schnittstelle

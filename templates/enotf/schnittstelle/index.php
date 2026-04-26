@@ -14,22 +14,19 @@ $currentDate = date('d.m.Y');
 $ziel = $_GET['klinik'] ?? NULL;
 $zielName = '';
 
-// Zielname für die Anzeige ermitteln
+// Zielname über POIs ermitteln. Beide Eingangsformen — `poi_<id>` und
+// Legacy-Identifier — werden nach der Konsolidierungs-Migration aus
+// `intra_edivi_pois` gelesen (legacy_identifier-Spalte).
 if ($ziel) {
-    if (strpos($ziel, 'poi_') === 0) {
-        // POI-basiertes Krankenhaus
-        $poiId = substr($ziel, 4);
+    if (str_starts_with($ziel, 'poi_')) {
         $stmt = $pdo->prepare("SELECT name FROM intra_edivi_pois WHERE id = :id");
-        $stmt->execute(['id' => $poiId]);
-        $poiData = $stmt->fetch(PDO::FETCH_ASSOC);
-        $zielName = $poiData ? $poiData['name'] : 'Unbekanntes Krankenhaus';
+        $stmt->execute(['id' => substr($ziel, 4)]);
     } else {
-        // Klassisches Ziel
-        $stmt = $pdo->prepare("SELECT name FROM intra_edivi_ziele WHERE identifier = :identifier");
-        $stmt->execute(['identifier' => $ziel]);
-        $zielData = $stmt->fetch(PDO::FETCH_ASSOC);
-        $zielName = $zielData ? $zielData['name'] : 'Unbekanntes Ziel';
+        $stmt = $pdo->prepare("SELECT name FROM intra_edivi_pois WHERE legacy_identifier = :ident");
+        $stmt->execute(['ident' => $ziel]);
     }
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $zielName = $row ? $row['name'] : 'Unbekanntes Ziel';
 }
 ?>
 
