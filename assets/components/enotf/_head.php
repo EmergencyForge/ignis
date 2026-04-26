@@ -22,7 +22,6 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- Core-Bundle: jQuery + Bootstrap + DataTables (synchron, wegen window.$-Nutzung in Inline-Scripts) -->
 <script src="<?= asset('public/assets/dist/vendor.js') ?>"></script>
 <!-- App scripts: defer to unblock rendering -->
-<script defer src="<?= BASE_PATH ?>assets/js/toasts.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dropdown.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/form.js"></script>
@@ -37,6 +36,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/file.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/modules/datatables-config.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-german-date.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/enotf-session-sync.js?v=<?= filemtime(__DIR__ . '/../../js/enotf-session-sync.js') ?>"></script>

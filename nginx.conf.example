@@ -119,6 +119,12 @@ server {
     # Alle Applikations-URLs (`/benutzer/...`, `/enotf/...`, `/settings/...`
     # usw.) landen über den Fallback im Front-Controller, weil keine
     # physischen Modul-Verzeichnisse mehr existieren.
+    #
+    # Legacy `*.php`-Aufrufe (z. B. `/benutzer/list.php` aus alten Bookmarks
+    # oder externen Integrationen) landen ebenfalls im Front-Controller —
+    # die dort eingebaute Bridge antwortet bei GET/HEAD mit einem 301 auf
+    # die Clean-URL und schreibt POST/PUT/DELETE intern um, damit Form-
+    # Submits ihren Body durch die Migration retten.
     location / {
         try_files $uri $uri/ $uri.php @router;
     }
