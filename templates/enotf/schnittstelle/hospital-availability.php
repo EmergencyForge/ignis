@@ -337,7 +337,7 @@ $status_config = [
 
                 <form method="POST">
                     <div class="mb-4">
-                        <label for="code" class="form-label">
+                        <label for="code" class="ignis-field__label">
                             Bitte geben Sie Ihren Zugangscode ein
                         </label>
                         <input

@@ -22,13 +22,7 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span>Einstellungen</span>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">Dienstgrade</span>
-                    </nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Dienstgrade</span></nav>
                     <div class="page-header mb-4">
                         <h1>Dienstgrade verwalten</h1>
                         <div class="header-actions">
@@ -102,22 +96,22 @@ use App\Helpers\Flash;
                             <input type="hidden" name="id" id="dienstgrad-id">
 
                             <div class="mb-3">
-                                <label for="dienstgrad-name" class="form-label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
+                                <label for="dienstgrad-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
                                 <input type="text" class="ignis-input" name="name" id="dienstgrad-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-name_m" class="form-label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
+                                <label for="dienstgrad-name_m" class="ignis-field__label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
                                 <input type="text" class="ignis-input" name="name_m" id="dienstgrad-name_m" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-name_w" class="form-label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
+                                <label for="dienstgrad-name_w" class="ignis-field__label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
                                 <input type="text" class="ignis-input" name="name_w" id="dienstgrad-name_w" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-badge" class="form-label">Badge <small class="form-hint">(Pfad oder URL, optional)</small></label>
+                                <label for="dienstgrad-badge" class="ignis-field__label">Badge <small class="form-hint">(Pfad oder URL, optional)</small></label>
                                 <div class="input-group">
                                     <input type="text" class="ignis-input" name="badge" id="dienstgrad-badge">
                                     <span class="input-group-text p-1" id="badge-preview-container">
@@ -127,14 +121,11 @@ use App\Helpers\Flash;
                             </div>
 
                             <div class="mb-3">
-                                <label for="dienstgrad-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="dienstgrad-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="priority" id="dienstgrad-priority" required>
                             </div>
 
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="archive" id="dienstgrad-archive">
-                                <label class="form-check-label" for="dienstgrad-archive">Archiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="dienstgrad-archive"><input type="checkbox" name="archive" id="dienstgrad-archive"><span>Archiv?</span></label>
 
                         </div>
                         <div class="modal-footer flex justify-between">
@@ -166,22 +157,22 @@ use App\Helpers\Flash;
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name" class="form-label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
+                                <label for="new-dienstgrad-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
                                 <input type="text" class="ignis-input" name="name" id="new-dienstgrad-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name_m" class="form-label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
+                                <label for="new-dienstgrad-name_m" class="ignis-field__label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
                                 <input type="text" class="ignis-input" name="name_m" id="new-dienstgrad-name_m" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name_w" class="form-label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
+                                <label for="new-dienstgrad-name_w" class="ignis-field__label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
                                 <input type="text" class="ignis-input" name="name_w" id="new-dienstgrad-name_w" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-badge" class="form-label">Badge <small class="form-hint">(Pfad oder URL, optional)</small></label>
+                                <label for="new-dienstgrad-badge" class="ignis-field__label">Badge <small class="form-hint">(Pfad oder URL, optional)</small></label>
                                 <div class="input-group">
                                     <input type="text" class="ignis-input" name="badge" id="new-dienstgrad-badge">
                                     <span class="input-group-text p-1" id="new-badge-preview-container">
@@ -191,14 +182,11 @@ use App\Helpers\Flash;
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-dienstgrad-priority" class="form-label">Priorität <small class="form-hint">(je niedriger, desto höher)</small></label>
+                                <label for="new-dienstgrad-priority" class="ignis-field__label">Priorität <small class="form-hint">(je niedriger, desto höher)</small></label>
                                 <input type="number" class="ignis-input" name="priority" id="new-dienstgrad-priority" value="0" required>
                             </div>
 
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="archive" id="new-dienstgrad-archive">
-                                <label class="form-check-label" for="new-dienstgrad-archive">Archiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="new-dienstgrad-archive"><input type="checkbox" name="archive" id="new-dienstgrad-archive"><span>Archiv?</span></label>
 
                         </div>
                         <div class="modal-footer">

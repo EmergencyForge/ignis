@@ -86,29 +86,26 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <input type="hidden" name="id" id="dienstgrad-id">
                             <div class="mb-3">
-                                <label for="dienstgrad-shortname" class="form-label">Kurzbezeichnung <small class="form-hint">(z.B. B1,B2 etc.)</small></label>
+                                <label for="dienstgrad-shortname" class="ignis-field__label">Kurzbezeichnung <small class="form-hint">(z.B. B1,B2 etc.)</small></label>
                                 <input type="text" class="ignis-input" name="shortname" id="dienstgrad-shortname" required>
                             </div>
                             <div class="mb-3">
-                                <label for="dienstgrad-name" class="form-label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
+                                <label for="dienstgrad-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
                                 <input type="text" class="ignis-input" name="name" id="dienstgrad-name" required>
                             </div>
                             <div class="mb-3">
-                                <label for="dienstgrad-name_m" class="form-label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
+                                <label for="dienstgrad-name_m" class="ignis-field__label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
                                 <input type="text" class="ignis-input" name="name_m" id="dienstgrad-name_m" required>
                             </div>
                             <div class="mb-3">
-                                <label for="dienstgrad-name_w" class="form-label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
+                                <label for="dienstgrad-name_w" class="ignis-field__label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
                                 <input type="text" class="ignis-input" name="name_w" id="dienstgrad-name_w" required>
                             </div>
                             <div class="mb-3">
-                                <label for="dienstgrad-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="dienstgrad-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="priority" id="dienstgrad-priority" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="none" id="dienstgrad-none">
-                                <label class="form-check-label" for="dienstgrad-none">Leer?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="dienstgrad-none"><input type="checkbox" name="none" id="dienstgrad-none"><span>Leer?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
                             <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
@@ -136,29 +133,26 @@ use App\Helpers\Flash;
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="new-dienstgrad-shortname" class="form-label">Kurzbezeichnung <small class="form-hint">(z.B. B1,B2 etc.)</small></label>
+                                <label for="new-dienstgrad-shortname" class="ignis-field__label">Kurzbezeichnung <small class="form-hint">(z.B. B1,B2 etc.)</small></label>
                                 <input type="text" class="ignis-input" name="shortname" id="new-dienstgrad-shortname" required>
                             </div>
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name" class="form-label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
+                                <label for="new-dienstgrad-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
                                 <input type="text" class="ignis-input" name="name" id="new-dienstgrad-name" required>
                             </div>
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name_m" class="form-label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
+                                <label for="new-dienstgrad-name_m" class="ignis-field__label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
                                 <input type="text" class="ignis-input" name="name_m" id="new-dienstgrad-name_m" required>
                             </div>
                             <div class="mb-3">
-                                <label for="new-dienstgrad-name_w" class="form-label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
+                                <label for="new-dienstgrad-name_w" class="ignis-field__label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
                                 <input type="text" class="ignis-input" name="name_w" id="new-dienstgrad-name_w" required>
                             </div>
                             <div class="mb-3">
-                                <label for="new-dienstgrad-priority" class="form-label">Priorität <small class="form-hint">(je niedriger, desto höher)</small></label>
+                                <label for="new-dienstgrad-priority" class="ignis-field__label">Priorität <small class="form-hint">(je niedriger, desto höher)</small></label>
                                 <input type="number" class="ignis-input" name="priority" id="new-dienstgrad-priority" value="0" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="none" id="new-dienstgrad-none">
-                                <label class="form-check-label" for="new-dienstgrad-none">Leer?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="new-dienstgrad-none"><input type="checkbox" name="none" id="new-dienstgrad-none"><span>Leer?</span></label>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>

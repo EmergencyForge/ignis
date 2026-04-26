@@ -22,13 +22,7 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span>Einstellungen</span>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">Medikamente</span>
-                    </nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Medikamente</span></nav>
                     <div class="page-header mb-4">
                         <h1>Medikamentenverwaltung</h1>
                         <div class="header-actions">
@@ -99,25 +93,22 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <input type="hidden" name="id" id="medikament-id">
                             <div class="mb-3">
-                                <label for="medikament-wirkstoff" class="form-label">Wirkstoff</label>
+                                <label for="medikament-wirkstoff" class="ignis-field__label">Wirkstoff</label>
                                 <input type="text" class="ignis-input" name="wirkstoff" id="medikament-wirkstoff" required>
                             </div>
                             <div class="mb-3">
-                                <label for="medikament-herstellername" class="form-label">Herstellername <small class="form-hint">(optional, z.B. "ASS" für Acetylsalicylsäure)</small></label>
+                                <label for="medikament-herstellername" class="ignis-field__label">Herstellername <small class="form-hint">(optional, z.B. "ASS" für Acetylsalicylsäure)</small></label>
                                 <input type="text" class="ignis-input" name="herstellername" id="medikament-herstellername">
                             </div>
                             <div class="mb-3">
-                                <label for="medikament-dosierungen" class="form-label">Vordefinierte Dosierungen <small class="form-hint">(kommagetrennt, z.B. "100 mg,250 mg,500 mg")</small></label>
+                                <label for="medikament-dosierungen" class="ignis-field__label">Vordefinierte Dosierungen <small class="form-hint">(kommagetrennt, z.B. "100 mg,250 mg,500 mg")</small></label>
                                 <input type="text" class="ignis-input" name="dosierungen" id="medikament-dosierungen" placeholder="100 mg,250 mg,500 mg">
                             </div>
                             <div class="mb-3">
-                                <label for="medikament-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="medikament-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="priority" id="medikament-priority" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="medikament-active">
-                                <label class="form-check-label" for="medikament-active">Aktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="medikament-active"><input type="checkbox" name="active" id="medikament-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
                             <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-medikament-btn">Löschen</button>
@@ -145,25 +136,22 @@ use App\Helpers\Flash;
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="new-medikament-wirkstoff" class="form-label">Wirkstoff</label>
+                                <label for="new-medikament-wirkstoff" class="ignis-field__label">Wirkstoff</label>
                                 <input type="text" class="ignis-input" name="wirkstoff" id="new-medikament-wirkstoff" required>
                             </div>
                             <div class="mb-3">
-                                <label for="new-medikament-herstellername" class="form-label">Herstellername <small class="form-hint">(optional, z.B. "ASS" für Acetylsalicylsäure)</small></label>
+                                <label for="new-medikament-herstellername" class="ignis-field__label">Herstellername <small class="form-hint">(optional, z.B. "ASS" für Acetylsalicylsäure)</small></label>
                                 <input type="text" class="ignis-input" name="herstellername" id="new-medikament-herstellername">
                             </div>
                             <div class="mb-3">
-                                <label for="new-medikament-dosierungen" class="form-label">Vordefinierte Dosierungen <small class="form-hint">(kommagetrennt, z.B. "100 mg,250 mg,500 mg")</small></label>
+                                <label for="new-medikament-dosierungen" class="ignis-field__label">Vordefinierte Dosierungen <small class="form-hint">(kommagetrennt, z.B. "100 mg,250 mg,500 mg")</small></label>
                                 <input type="text" class="ignis-input" name="dosierungen" id="new-medikament-dosierungen" placeholder="100 mg,250 mg,500 mg">
                             </div>
                             <div class="mb-3">
-                                <label for="new-medikament-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="new-medikament-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="priority" id="new-medikament-priority" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="new-medikament-active" checked>
-                                <label class="form-check-label" for="new-medikament-active">Aktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="new-medikament-active"><input type="checkbox" name="active" id="new-medikament-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>

@@ -155,21 +155,21 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                     <div class="modal-body">
                         <div class="row mb-3">
                             <div class="col">
-                                <label class="form-label">Identifier <small class="form-hint">(eindeutig, keine Leerzeichen)</small></label>
+                                <label class="ignis-field__label">Identifier <small class="form-hint">(eindeutig, keine Leerzeichen)</small></label>
                                 <input type="text" class="ignis-input" name="identifier" pattern="[a-z0-9._-]+" required>
                             </div>
                             <div class="col">
-                                <label class="form-label">Anzeigename</label>
+                                <label class="ignis-field__label">Anzeigename</label>
                                 <input type="text" class="ignis-input" name="name" required>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Beschreibung <small class="form-hint">(optional)</small></label>
+                            <label class="ignis-field__label">Beschreibung <small class="form-hint">(optional)</small></label>
                             <input type="text" class="ignis-input" name="description">
                         </div>
                         <div class="row mb-3">
                             <div class="col">
-                                <label class="form-label">Handler-Typ</label>
+                                <label class="ignis-field__label">Handler-Typ</label>
                                 <select name="handler_type" class="form-select" required>
                                     <option value="webhook">Webhook (HTTP-URL)</option>
                                     <option value="console">Console-Command (aus Allowlist)</option>
@@ -177,17 +177,17 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                                 </select>
                             </div>
                             <div class="col">
-                                <label class="form-label">Schedule <small class="form-hint">(Cron-Expression)</small></label>
+                                <label class="ignis-field__label">Schedule <small class="form-hint">(Cron-Expression)</small></label>
                                 <input type="text" class="ignis-input" name="schedule" placeholder="*/5 * * * *" required style="font-family:monospace;">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Handler</label>
+                            <label class="ignis-field__label">Handler</label>
                             <input type="text" class="ignis-input" name="handler" placeholder="https://discord.com/api/webhooks/… | queue:work | App\Jobs\MyJob" required>
                             <small class="form-hint">Webhook: Ziel-URL · Console: Command-Name · Queue: Job-Klassen-FQCN</small>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label">Config <small class="form-hint">(JSON, optional)</small></label>
+                            <label class="ignis-field__label">Config <small class="form-hint">(JSON, optional)</small></label>
                             <textarea class="ignis-input" name="config" rows="4" style="font-family:monospace;font-size:0.78rem;" placeholder='{"method":"POST","body":{"content":"Wochenstats {{DATE}}"},"timeout":30}'></textarea>
                             <small class="form-hint">
                                 Platzhalter (Webhook): <code>{{SERVER_NAME}}</code>, <code>{{SERVER_CITY}}</code>, <code>{{SYSTEM_NAME}}</code>, <code>{{DATE}}</code>, <code>{{TIME}}</code>, <code>{{TIMESTAMP}}</code>, <code>{{ISO8601}}</code>

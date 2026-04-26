@@ -113,14 +113,14 @@ use App\Helpers\Flash;
                     <div class="modal-body">
                         <p>Krankenhaus: <strong id="generate-hospital-name"></strong></p>
                         <div class="mb-3">
-                            <label for="new-code" class="form-label">Zugangscode</label>
+                            <label for="new-code" class="ignis-field__label">Zugangscode</label>
                             <div class="input-group">
                                 <input type="text" class="ignis-input" name="new_code" id="new-code" required readonly>
                                 <button type="button" class="ignis-btn ignis-btn--outline-secondary" id="regenerate-btn">
                                     <i class="fa-solid fa-rotate"></i> Neu generieren
                                 </button>
                             </div>
-                            <div class="form-text">Der Code wird im Klartext gespeichert und kann jederzeit eingesehen werden.</div>
+                            <div class="ignis-field__hint">Der Code wird im Klartext gespeichert und kann jederzeit eingesehen werden.</div>
                         </div>
                         <div class="ignis-alert ignis-alert--info">
                             <i class="fa-solid fa-info-circle mr-2"></i>

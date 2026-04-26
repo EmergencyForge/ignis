@@ -11,7 +11,7 @@
             <div class="modal-body">
                 <p>Wähle ein Fahrzeug aus, mit dem du dieses Protokoll teilen möchtest:</p>
                 <div class="mb-3 position-relative">
-                    <label for="targetVehicleSearch" class="form-label">Zielfahrzeug</label>
+                    <label for="targetVehicleSearch" class="ignis-field__label">Zielfahrzeug</label>
                     <input type="text"
                         class="ignis-input"
                         id="targetVehicleSearch"
@@ -78,25 +78,19 @@
                     </div>
                 </div>
                 <p><strong>Was möchtest du tun?</strong></p>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" name="shareAction" id="shareActionMerge" value="merge">
-                    <label class="form-check-label" for="shareActionMerge">
+                <label class="ignis-radio" for="shareActionMerge"><input type="radio" name="shareAction" id="shareActionMerge" value="merge"><span>
                         <strong>In bestehendes Protokoll übernehmen</strong><br>
                         <small class="text-muted">Wähle ein vorhandenes Protokoll aus. Die Daten werden übernommen, ohne deine Fahrzeugzuweisungen zu überschreiben.</small>
-                    </label>
-                </div>
+                    </span></label>
                 <div id="existingProtocolsContainer" class="ml-4 mb-3 hidden">
                     <select class="form-select" id="existingProtocolSelect" data-custom-dropdown="true" data-search-threshold="8">
                         <option value="">Protokoll auswählen...</option>
                     </select>
                 </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" name="shareAction" id="shareActionNew" value="new">
-                    <label class="form-check-label" for="shareActionNew">
+                <label class="ignis-radio" for="shareActionNew"><input type="radio" name="shareAction" id="shareActionNew" value="new"><span>
                         <strong>Neues Protokoll erstellen</strong><br>
                         <small class="text-muted">Erstellt ein neues Protokoll mit den geteilten Daten und deinen Fahrzeugdaten.</small>
-                    </label>
-                </div>
+                    </span></label>
             </div>
             <div class="modal-footer">
                 <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="rejectShareBtn">Ablehnen</button>

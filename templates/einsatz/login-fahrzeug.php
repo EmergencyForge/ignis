@@ -106,7 +106,7 @@ use App\Helpers\Flash;
                         <?php else: ?>
                             <form method="post">
                                 <div class="mb-4">
-                                    <label class="form-label">
+                                    <label class="ignis-field__label">
                                         <i class="fa-solid fa-truck mr-1"></i>
                                         Fahrzeug auswählen *
                                     </label>
@@ -124,7 +124,7 @@ use App\Helpers\Flash;
                                 </div>
 
                                 <div class="mb-4">
-                                    <label class="form-label">
+                                    <label class="ignis-field__label">
                                         <i class="fa-solid fa-user mr-1"></i>
                                         Besatzung / Name *
                                     </label>

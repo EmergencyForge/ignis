@@ -32,13 +32,7 @@ $SITE_TITLE = 'Fahrtenbuch';
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6">
-                <nav class="admin-breadcrumb">
-                    <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                    <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php">Fahrzeuge</a>
-                    <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                    <span class="current">Fahrtenbuch</span>
-                </nav>
+                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active">Fahrtenbuch</span></nav>
 
                 <div class="page-header mb-4">
                     <h1>Fahrtenbuch</h1>
@@ -124,7 +118,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                 <div class="intra__tile mb-4 p-3">
                     <form method="GET" class="flex flex-wrap items-end gap-2">
                         <div>
-                            <label class="form-label mb-1">Fahrzeug</label>
+                            <label class="ignis-field__label mb-1">Fahrzeug</label>
                             <select name="vehicle" class="form-select form-select-sm" data-custom-dropdown="true">
                                 <option value="">Alle</option>
                                 <?php foreach ($vehicles as $v): ?>
@@ -135,7 +129,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                             </select>
                         </div>
                         <div>
-                            <label class="form-label mb-1">Fahrttyp</label>
+                            <label class="ignis-field__label mb-1">Fahrttyp</label>
                             <select name="fahrttyp" class="form-select form-select-sm" data-custom-dropdown="true">
                                 <option value="">Alle</option>
                                 <?php foreach ($fahrttypen as $slug => $label): ?>
@@ -146,11 +140,11 @@ $SITE_TITLE = 'Fahrtenbuch';
                             </select>
                         </div>
                         <div>
-                            <label class="form-label mb-1">Von</label>
+                            <label class="ignis-field__label mb-1">Von</label>
                             <input type="date" name="date_from" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateFrom) ?>">
                         </div>
                         <div>
-                            <label class="form-label mb-1">Bis</label>
+                            <label class="ignis-field__label mb-1">Bis</label>
                             <input type="date" name="date_to" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateTo) ?>">
                         </div>
                         <div class="flex gap-2">

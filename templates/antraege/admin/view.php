@@ -105,7 +105,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                             <h5 class="mb-4"><i class="fa-solid fa-clipboard-check mr-2"></i>Bearbeitung</h5>
 
                             <div class="mb-4">
-                                <label class="form-label text-xs text-gray-400">Aktueller Bearbeiter</label>
+                                <label class="ignis-field__label text-xs text-gray-400">Aktueller Bearbeiter</label>
                                 <div class="form-control-plaintext">
                                     <?php if (!empty($antrag->cirs_manager)): ?>
                                         <span class="font-bold"><?= htmlspecialchars($antrag->cirs_manager) ?></span>
@@ -117,7 +117,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                             </div>
 
                             <div class="mb-4">
-                                <label for="cirs_status" class="form-label font-bold">Status setzen <span class="text-red-500">*</span></label>
+                                <label for="cirs_status" class="ignis-field__label font-bold">Status setzen <span class="text-red-500">*</span></label>
                                 <select class="form-select" id="cirs_status" name="cirs_status" required>
                                     <?php foreach (Antrag::STATUS_LABELS as $value => $label): ?>
                                         <option value="<?= (int) $value ?>" <?= $antrag->cirs_status === $value ? 'selected' : '' ?>>
@@ -128,7 +128,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                             </div>
 
                             <div class="mb-4">
-                                <label for="cirs_text" class="form-label font-bold">Bemerkung durch Bearbeiter</label>
+                                <label for="cirs_text" class="ignis-field__label font-bold">Bemerkung durch Bearbeiter</label>
                                 <textarea class="ignis-input" id="cirs_text" name="cirs_text" rows="5"
                                     placeholder="Fügen Sie hier Ihre Bemerkungen zum Antrag hinzu..."><?= htmlspecialchars($antrag->cirs_text ?? '') ?></textarea>
                                 <small class="mt-1 block text-xs text-gray-400">Diese Bemerkung wird dem Antragsteller angezeigt</small>

@@ -605,7 +605,7 @@ try {
                     <input type="hidden" id="markerType" name="marker_type">
 
                     <div class="mb-3">
-                        <label class="form-label">Marker-Typ</label>
+                        <label class="ignis-field__label">Marker-Typ</label>
                         <div class="text-center mb-2">
                             <span id="selectedMarkerIcon">📌</span>
                         </div>
@@ -615,14 +615,14 @@ try {
                     </div>
 
                     <div class="mb-3">
-                        <label for="markerDescription" class="form-label">Beschreibung</label>
+                        <label for="markerDescription" class="ignis-field__label">Beschreibung</label>
                         <textarea class="ignis-input" id="markerDescription" name="description" rows="3"
                             placeholder="Optionale Beschreibung..."></textarea>
                     </div>
 
                     <!-- Text field for tactical symbols -->
                     <div class="mb-3" id="textFieldContainer" style="display: none;">
-                        <label for="markerText" class="form-label">Text-Beschriftung</label>
+                        <label for="markerText" class="ignis-field__label">Text-Beschriftung</label>
                         <input type="text" class="ignis-input" id="markerText" name="text"
                             placeholder="z.B. LF20, RTW 1/82-1">
                         <small class="text-muted">Wird auf dem taktischen Zeichen angezeigt</small>
@@ -630,7 +630,7 @@ try {
 
                     <!-- Name field for tactical symbols -->
                     <div class="mb-3" id="nameFieldContainer" style="display: none;">
-                        <label for="markerName" class="form-label">Name</label>
+                        <label for="markerName" class="ignis-field__label">Name</label>
                         <input type="text" class="ignis-input" id="markerName" name="name"
                             placeholder="z.B. Einsatzabschnitt Nord">
                         <small class="text-muted">Name des taktischen Zeichens</small>
@@ -638,7 +638,7 @@ try {
 
                     <!-- Typ field for tactical symbols -->
                     <div class="mb-3" id="typFieldContainer" style="display: none;">
-                        <label for="markerTyp" class="form-label">Typ</label>
+                        <label for="markerTyp" class="ignis-field__label">Typ</label>
                         <input type="text" class="ignis-input" id="markerTyp" name="typ"
                             placeholder="z.B. HLF20, RTW, DLK23/12">
                         <small class="text-muted">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
@@ -650,7 +650,7 @@ try {
                         <h6 class="mb-3">Benutzerdefiniertes taktisches Zeichen</h6>
 
                         <div class="mb-3">
-                            <label for="customGrundzeichen" class="form-label">Grundzeichen <span class="text-danger">*</span></label>
+                            <label for="customGrundzeichen" class="ignis-field__label">Grundzeichen <span class="text-danger">*</span></label>
                             <select class="form-select" id="customGrundzeichen">
                                 <option value="">-- Bitte wählen --</option>
                                 <option value="abrollbehaelter">Abrollbehälter</option>
@@ -685,7 +685,7 @@ try {
                         </div>
 
                         <div class="mb-3">
-                            <label for="customOrganisation" class="form-label">Organisation</label>
+                            <label for="customOrganisation" class="ignis-field__label">Organisation</label>
                             <select class="form-select" id="customOrganisation">
                                 <option value="">-- Keine --</option>
                                 <option value="bundeswehr">Bundeswehr</option>
@@ -700,7 +700,7 @@ try {
                         </div>
 
                         <div class="mb-3">
-                            <label for="customFachaufgabe" class="form-label">Fachaufgabe</label>
+                            <label for="customFachaufgabe" class="ignis-field__label">Fachaufgabe</label>
                             <select class="form-select" id="customFachaufgabe">
                                 <option value="">-- Keine --</option>
                                 <option value="abwehr-wassergefahren">Abwehr von Wassergefahren</option>
@@ -749,7 +749,7 @@ try {
                         </div>
 
                         <div class="mb-3">
-                            <label for="customEinheit" class="form-label">Einheit</label>
+                            <label for="customEinheit" class="ignis-field__label">Einheit</label>
                             <select class="form-select" id="customEinheit">
                                 <option value="">-- Keine --</option>
                                 <option value="trupp">Trupp</option>
@@ -763,7 +763,7 @@ try {
                         </div>
 
                         <div class="mb-3">
-                            <label for="customSymbol" class="form-label">Symbol</label>
+                            <label for="customSymbol" class="ignis-field__label">Symbol</label>
                             <select class="form-select" id="customSymbol">
                                 <option value="">-- Kein Symbol --</option>
                                 <option value="abc">Gefährliche Stoffe (ABC)</option>
@@ -800,10 +800,10 @@ try {
                         </div>
 
                         <div class="mb-3">
-                            <label for="customTyp" class="form-label">Typ</label>
+                            <label for="customTyp" class="ignis-field__label">Typ</label>
                             <input type="text" class="ignis-input" id="customTyp"
                                 placeholder="z.B. HLF20, RTW, DLK23/12">
-                            <small class="form-text text-muted">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
+                            <small class="ignis-field__hint text-muted">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
                         </div>
 
                         <div class="text-center mb-3">
@@ -838,19 +838,19 @@ try {
                     <input type="hidden" id="zoneColor" name="color" value="#dc3545">
 
                     <div class="mb-3">
-                        <label for="zoneName" class="form-label">Zonenname <span class="text-danger">*</span></label>
+                        <label for="zoneName" class="ignis-field__label">Zonenname <span class="text-danger">*</span></label>
                         <input type="text" class="ignis-input" id="zoneName" name="name"
                             placeholder="z.B. Sperrzone, Gefahrenbereich" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="zoneDescription" class="form-label">Beschreibung</label>
+                        <label for="zoneDescription" class="ignis-field__label">Beschreibung</label>
                         <textarea class="ignis-input" id="zoneDescription" name="description" rows="3"
                             placeholder="Optionale Beschreibung der Zone..."></textarea>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Farbe wählen</label>
+                        <label class="ignis-field__label">Farbe wählen</label>
                         <div class="d-flex flex-wrap gap-2">
                             <div class="zone-color-option selected" data-color="#dc3545" style="background-color: #dc3545;" title="Rot - Gefahr"></div>
                             <div class="zone-color-option" data-color="#fd7e14" style="background-color: #fd7e14;" title="Orange - Warnung"></div>

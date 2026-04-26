@@ -145,13 +145,7 @@ $configByCategory = $configManager->getConfigByCategory();
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span>Einstellungen</span>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">System</span>
-                    </nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">System</span></nav>
                     <div class="page-header mb-4">
                         <h1>System-Konfiguration</h1>
                     </div>
@@ -176,7 +170,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                     <div class="card-body">
                                         <?php foreach ($configs as $config): ?>
                                             <div class="mb-4">
-                                                <label for="<?= htmlspecialchars($config['config_key']) ?>" class="form-label">
+                                                <label for="<?= htmlspecialchars($config['config_key']) ?>" class="ignis-field__label">
                                                     <?= htmlspecialchars($config['description']) ?>
                                                 </label>
 
@@ -211,7 +205,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                             <i class="fa-solid fa-rotate"></i>
                                                         </button>
                                                     </div>
-                                                    <div class="form-text">Dieser API-Schlüssel wird für externe Schnittstellen verwendet. Ein neuer Schlüssel macht alte Integrationen ungültig.</div>
+                                                    <div class="ignis-field__hint">Dieser API-Schlüssel wird für externe Schnittstellen verwendet. Ein neuer Schlüssel macht alte Integrationen ungültig.</div>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'boolean'): ?>
                                                     <div class="form-check form-switch">
@@ -242,7 +236,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                             title="6-stelliger Hex-Farbcode (z.B. #ff0000)"
                                                             oninput="updateColorPicker('<?= htmlspecialchars($config['config_key']) ?>', this.value)">
                                                     </div>
-                                                    <div class="form-text">Wählen Sie eine Farbe aus oder geben Sie einen Hex-Farbcode ein.</div>
+                                                    <div class="ignis-field__hint">Wählen Sie eine Farbe aus oder geben Sie einen Hex-Farbcode ein.</div>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'url' && $config['config_key'] === 'SYSTEM_LOGO'): ?>
                                                     <input
@@ -252,7 +246,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                         name="<?= htmlspecialchars($config['config_key']) ?>"
                                                         value="<?= htmlspecialchars($config['config_value']) ?>"
                                                         oninput="updateLogoPreview(this.value)">
-                                                    <div class="form-text">Relativer Pfad oder vollständige URL zum Logo.</div>
+                                                    <div class="ignis-field__hint">Relativer Pfad oder vollständige URL zum Logo.</div>
                                                     <div class="config-preview">
                                                         <strong>Vorschau:</strong><br>
                                                         <img
@@ -271,7 +265,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                         name="<?= htmlspecialchars($config['config_key']) ?>"
                                                         value="<?= htmlspecialchars($config['config_value']) ?>"
                                                         oninput="updateMetaImagePreview(this.value)">
-                                                    <div class="form-text">Vollständige URL zum Bild für Link-Vorschau.</div>
+                                                    <div class="ignis-field__hint">Vollständige URL zum Bild für Link-Vorschau.</div>
                                                     <div class="config-preview">
                                                         <strong>Vorschau:</strong><br>
                                                         <img
@@ -291,7 +285,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                         <option value="code" <?= $config['config_value'] === 'code' ? 'selected' : '' ?>>Mit Code (nur mit Registrierungscode)</option>
                                                         <option value="closed" <?= $config['config_value'] === 'closed' ? 'selected' : '' ?>>Geschlossen (keine Registrierung)</option>
                                                     </select>
-                                                    <div class="form-text"><?= htmlspecialchars($config['description']) ?></div>
+                                                    <div class="ignis-field__hint"><?= htmlspecialchars($config['description']) ?></div>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_key'] === 'ENOTF_BZ_UNIT'): ?>
                                                     <select
@@ -301,7 +295,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                         <option value="mg/dl" <?= $config['config_value'] === 'mg/dl' ? 'selected' : '' ?>>mg/dl (Milligramm pro Deziliter)</option>
                                                         <option value="mmol/l" <?= $config['config_value'] === 'mmol/l' ? 'selected' : '' ?>>mmol/l (Millimol pro Liter)</option>
                                                     </select>
-                                                    <div class="form-text">Blutzuckerwerte werden automatisch umgerechnet (1 mg/dl = 0,0555 mmol/l)</div>
+                                                    <div class="ignis-field__hint">Blutzuckerwerte werden automatisch umgerechnet (1 mg/dl = 0,0555 mmol/l)</div>
 
                                                 <?php elseif ($config['is_editable']): ?>
                                                     <input

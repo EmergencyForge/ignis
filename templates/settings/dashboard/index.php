@@ -97,24 +97,24 @@ use App\Helpers\Flash;
                         <input type="hidden" name="id" id="tile-id">
                         <input type="hidden" name="category" id="tile-category">
                         <div class="mb-3">
-                            <label for="tile-title" class="form-label">Titel</label>
+                            <label for="tile-title" class="ignis-field__label">Titel</label>
                             <input type="text" class="ignis-input" name="title" id="tile-title" required>
                         </div>
                         <div class="mb-3">
-                            <label for="tile-url" class="form-label">URL</label>
+                            <label for="tile-url" class="ignis-field__label">URL</label>
                             <input type="text" class="ignis-input" name="url" id="tile-url" required>
                         </div>
                         <div class="mb-3">
-                            <label for="tile-icon" class="form-label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
+                            <label for="tile-icon" class="ignis-field__label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
                             <div class="input-group">
                                 <input type="text" class="ignis-input" name="icon" id="tile-icon" placeholder="z.B. fa-solid fa-home">
                                 <span class="input-group-text"><i id="tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
                             </div>
-                            <small class="form-text text-muted"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
+                            <small class="ignis-field__hint text-muted"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
                             <div id="icon-suggestions" class="border mt-2 p-2 rounded" style="max-height: 200px; overflow-y: auto; display: none;"></div>
                         </div>
                         <div class="mb-3">
-                            <label for="tile-priority" class="form-label">Priorität</label>
+                            <label for="tile-priority" class="ignis-field__label">Priorität</label>
                             <input type="number" class="ignis-input" name="priority" id="tile-priority" required>
                         </div>
                     </div>
@@ -145,24 +145,24 @@ use App\Helpers\Flash;
                     <div class="modal-body">
                         <input type="hidden" name="category" id="new-tile-category">
                         <div class="mb-3">
-                            <label for="new-tile-title" class="form-label">Titel</label>
+                            <label for="new-tile-title" class="ignis-field__label">Titel</label>
                             <input type="text" class="ignis-input" name="title" id="new-tile-title" required>
                         </div>
                         <div class="mb-3">
-                            <label for="new-tile-url" class="form-label">URL</label>
+                            <label for="new-tile-url" class="ignis-field__label">URL</label>
                             <input type="text" class="ignis-input" name="url" id="new-tile-url" required>
                         </div>
                         <div class="mb-3">
-                            <label for="new-tile-icon" class="form-label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
+                            <label for="new-tile-icon" class="ignis-field__label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
                             <div class="input-group">
                                 <input type="text" class="ignis-input" name="icon" id="new-tile-icon" placeholder="z.B. fa-solid fa-external-link-alt">
                                 <span class="input-group-text"><i id="new-tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
                             </div>
-                            <small class="form-text text-muted"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
+                            <small class="ignis-field__hint text-muted"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
                             <div id="new-icon-suggestions" class="border mt-2 p-2 rounded shadow-sm" style="max-height: 220px; overflow-y: auto; display: none;"></div>
                         </div>
                         <div class="mb-3">
-                            <label for="new-tile-priority" class="form-label">Priorität</label>
+                            <label for="new-tile-priority" class="ignis-field__label">Priorität</label>
                             <input type="number" class="ignis-input" name="priority" id="new-tile-priority" value="0" required>
                         </div>
                     </div>
@@ -187,11 +187,11 @@ use App\Helpers\Flash;
                     <div class="modal-body">
                         <input type="hidden" name="id" id="category-id">
                         <div class="mb-3">
-                            <label for="category-title" class="form-label">Titel</label>
+                            <label for="category-title" class="ignis-field__label">Titel</label>
                             <input type="text" class="ignis-input" name="title" id="category-title" required>
                         </div>
                         <div class="mb-3">
-                            <label for="category-priority" class="form-label">Priorität</label>
+                            <label for="category-priority" class="ignis-field__label">Priorität</label>
                             <input type="number" class="ignis-input" name="priority" id="category-priority" required>
                         </div>
                     </div>
@@ -221,11 +221,11 @@ use App\Helpers\Flash;
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="new-category-title" class="form-label">Titel</label>
+                            <label for="new-category-title" class="ignis-field__label">Titel</label>
                             <input type="text" class="ignis-input" name="title" id="new-category-title" required>
                         </div>
                         <div class="mb-3">
-                            <label for="new-category-priority" class="form-label">Priorität</label>
+                            <label for="new-category-priority" class="ignis-field__label">Priorität</label>
                             <input type="number" class="ignis-input" name="priority" id="new-category-priority" required>
                         </div>
                     </div>

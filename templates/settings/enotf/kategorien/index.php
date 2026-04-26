@@ -89,22 +89,19 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <input type="hidden" name="id" id="category-id">
                             <div class="mb-3">
-                                <label for="category-name" class="form-label">Name</label>
+                                <label for="category-name" class="ignis-field__label">Name</label>
                                 <input type="text" class="ignis-input" name="name" id="category-name" required>
                             </div>
                             <div class="mb-3">
-                                <label for="category-slug" class="form-label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
+                                <label for="category-slug" class="ignis-field__label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
                                 <input type="text" class="ignis-input" name="slug" id="category-slug" pattern="[a-z0-9\-]+" required>
-                                <small class="form-text text-gray-400">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
+                                <small class="ignis-field__hint text-gray-400">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
                             <div class="mb-3">
-                                <label for="category-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="category-sort-order" class="ignis-field__label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="sort_order" id="category-sort-order" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="category-active">
-                                <label class="form-check-label" for="category-active">Aktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="category-active"><input type="checkbox" name="active" id="category-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
                             <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-category-btn">Löschen</button>
@@ -129,22 +126,19 @@ use App\Helpers\Flash;
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="create-category-name" class="form-label">Name</label>
+                                <label for="create-category-name" class="ignis-field__label">Name</label>
                                 <input type="text" class="ignis-input" name="name" id="create-category-name" required>
                             </div>
                             <div class="mb-3">
-                                <label for="create-category-slug" class="form-label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
+                                <label for="create-category-slug" class="ignis-field__label">Slug <small class="form-hint">(eindeutig, nur Kleinbuchstaben und Bindestriche)</small></label>
                                 <input type="text" class="ignis-input" name="slug" id="create-category-slug" pattern="[a-z0-9\-]+" required>
-                                <small class="form-text text-gray-400">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
+                                <small class="ignis-field__hint text-gray-400">Wird in der Datenbank gespeichert, z.B. "schnellzugriff"</small>
                             </div>
                             <div class="mb-3">
-                                <label for="create-category-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="create-category-sort-order" class="ignis-field__label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="sort_order" id="create-category-sort-order" value="0" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="create-category-active" checked>
-                                <label class="form-check-label" for="create-category-active">Aktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="create-category-active"><input type="checkbox" name="active" id="create-category-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>

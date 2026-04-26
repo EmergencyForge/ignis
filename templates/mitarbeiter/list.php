@@ -29,11 +29,7 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">Mitarbeiter</span>
-                    </nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item is-active">Mitarbeiter</span></nav>
                     <div class="page-header mb-4">
                         <h1>Mitarbeiterübersicht</h1>
                         <div class="header-actions">
@@ -55,7 +51,7 @@ use App\Helpers\Flash;
                     <div class="intra__tile py-2 px-3 mb-3">
                         <div class="row g-2 items-end">
                             <div class="col-auto">
-                                <label for="filterDienstgrad" class="form-label small mb-1">Dienstgrad</label>
+                                <label for="filterDienstgrad" class="ignis-field__label small mb-1">Dienstgrad</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterDienstgrad" style="min-width: 180px;">
                                     <option value="">Alle</option>
                                     <?php foreach ($dienstgrade as $dg): ?>
@@ -64,7 +60,7 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="col-auto">
-                                <label for="filterRDQuali" class="form-label small mb-1">RD-Qualifikation</label>
+                                <label for="filterRDQuali" class="ignis-field__label small mb-1">RD-Qualifikation</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterRDQuali" style="min-width: 200px;">
                                     <option value="">Alle</option>
                                     <?php foreach ($rdQualis as $rd): ?>
@@ -75,7 +71,7 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="col-auto">
-                                <label for="filterFWQuali" class="form-label small mb-1">FW-Qualifikation</label>
+                                <label for="filterFWQuali" class="ignis-field__label small mb-1">FW-Qualifikation</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterFWQuali" style="min-width: 180px;">
                                     <option value="">Alle</option>
                                     <?php foreach ($fwQualis as $fw): ?>

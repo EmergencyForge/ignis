@@ -26,13 +26,7 @@ use App\Helpers\Flash;
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
         <div class="container my-4">
-            <nav class="admin-breadcrumb">
-                <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                <span>Protokolle</span>
-                <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                <span class="current">eNOTF QM</span>
-            </nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">eNOTF QM</span></nav>
             <div class="page-header mb-4">
                 <h1>Protokollübersicht</h1>
                 <div class="header-actions">
@@ -427,7 +421,7 @@ use App\Helpers\Flash;
                             </div>
                             <form id="bulkDeleteFieldsForm">
                                 <div class="mb-3">
-                                    <label class="form-label font-bold">Zeitraum:</label>
+                                    <label class="ignis-field__label font-bold">Zeitraum:</label>
                                     <select class="form-select" id="timePeriod">
                                         <option value="7">Letzte 7 Tage</option>
                                         <option value="30" selected>Letzte 30 Tage</option>
@@ -437,7 +431,7 @@ use App\Helpers\Flash;
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label font-bold">Leere Felder (ALLE müssen leer sein):</label>
+                                    <label class="ignis-field__label font-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
                                 <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">

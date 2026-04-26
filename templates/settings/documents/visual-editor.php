@@ -345,7 +345,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Neues Bild hochladen</label>
+                        <label class="ignis-field__label">Neues Bild hochladen</label>
                         <input type="file" class="ignis-input" id="asset-upload-input" accept="image/png,image/jpeg,image/gif,image/svg+xml">
                     </div>
                     <hr>

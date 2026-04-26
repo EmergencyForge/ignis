@@ -26,13 +26,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto my-6">
-            <nav class="admin-breadcrumb">
-                <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                <a href="<?= BASE_PATH ?>settings/">Einstellungen</a>
-                <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                <span class="current">Dokumenten-Kategorien</span>
-            </nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Dokumenten-Kategorien</span></nav>
 
             <div class="page-header mb-4">
                 <h1>Dokumenten-Kategorien</h1>
@@ -126,11 +120,11 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="modal-body">
                     <input type="hidden" id="catId">
                     <div class="mb-3">
-                        <label for="catName" class="form-label">Name <span class="text-danger">*</span></label>
+                        <label for="catName" class="ignis-field__label">Name <span class="text-danger">*</span></label>
                         <input type="text" class="ignis-input" id="catName" required placeholder="z.B. Bescheinigung">
                     </div>
                     <div class="mb-3">
-                        <label for="catColor" class="form-label">Badge-Farbe</label>
+                        <label for="catColor" class="ignis-field__label">Badge-Farbe</label>
                         <select class="form-select" id="catColor">
                             <option value="text-bg-secondary">Grau (Standard)</option>
                             <option value="text-bg-primary">Blau</option>
@@ -145,14 +139,14 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="catIcon" class="form-label">Icon <span class="text-gray-400 small">(optional)</span></label>
+                        <label for="catIcon" class="ignis-field__label">Icon <span class="text-gray-400 small">(optional)</span></label>
                         <input type="text" class="ignis-input" id="catIcon" placeholder="z.B. fa-solid fa-scroll">
-                        <div class="form-text">Font Awesome Klasse. Vorschau: <i id="iconPreview" class="ml-1"></i></div>
+                        <div class="ignis-field__hint">Font Awesome Klasse. Vorschau: <i id="iconPreview" class="ml-1"></i></div>
                     </div>
                     <div class="mb-3">
-                        <label for="catSortOrder" class="form-label">Reihenfolge</label>
+                        <label for="catSortOrder" class="ignis-field__label">Reihenfolge</label>
                         <input type="number" class="ignis-input" id="catSortOrder" value="0" min="0">
-                        <div class="form-text">Niedrigere Zahlen werden zuerst angezeigt.</div>
+                        <div class="ignis-field__hint">Niedrigere Zahlen werden zuerst angezeigt.</div>
                     </div>
                 </div>
                 <div class="modal-footer">

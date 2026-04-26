@@ -106,29 +106,23 @@ use App\Helpers\Flash;
                             <input type="hidden" name="id" id="fahrzeug-id">
 
                             <div class="mb-3">
-                                <label for="fahrzeug-name" class="form-label">Bezeichnung</label>
+                                <label for="fahrzeug-name" class="ignis-field__label">Bezeichnung</label>
                                 <input type="text" class="ignis-input" name="name" id="fahrzeug-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
+                                <label for="fahrzeug-identifier" class="ignis-field__label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
                                 <input type="text" class="ignis-input" name="identifier" id="fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="fahrzeug-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="priority" id="fahrzeug-priority" required>
                             </div>
 
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="transport" id="fahrzeug-transport">
-                                <label class="form-check-label" for="fahrzeug-transport">Transport? <small class="form-hint">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></label>
-                            </div>
+                            <label class="ignis-checkbox" for="fahrzeug-transport"><input type="checkbox" name="transport" id="fahrzeug-transport"><span>Transport? <small class="form-hint">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></span></label>
 
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="fahrzeug-active">
-                                <label class="form-check-label" for="fahrzeug-active">Aktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="fahrzeug-active"><input type="checkbox" name="active" id="fahrzeug-active"><span>Aktiv?</span></label>
 
                         </div>
                         <div class="modal-footer flex justify-between">
@@ -163,29 +157,23 @@ use App\Helpers\Flash;
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-name" class="form-label">Bezeichnung</label>
+                                <label for="new-fahrzeug-name" class="ignis-field__label">Bezeichnung</label>
                                 <input type="text" class="ignis-input" name="name" id="new-fahrzeug-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
+                                <label for="new-fahrzeug-identifier" class="ignis-field__label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
                                 <input type="text" class="ignis-input" name="identifier" id="new-fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="new-fahrzeug-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="priority" id="new-fahrzeug-priority" required>
                             </div>
 
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="transport" id="new-fahrzeug-transport">
-                                <label class="form-check-label" for="new-fahrzeug-transport">Transport? <small class="form-hint">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></label>
-                            </div>
+                            <label class="ignis-checkbox" for="new-fahrzeug-transport"><input type="checkbox" name="transport" id="new-fahrzeug-transport"><span>Transport? <small class="form-hint">(Wenn nicht angewählt findet <u>KEIN</u> Transport statt)</small></span></label>
 
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="new-fahrzeug-active" checked>
-                                <label class="form-check-label" for="new-fahrzeug-active">Aktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="new-fahrzeug-active"><input type="checkbox" name="active" id="new-fahrzeug-active" checked><span>Aktiv?</span></label>
 
                         </div>
                         <div class="modal-footer">

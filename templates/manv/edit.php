@@ -54,29 +54,29 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                     <div class="card-body">
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label for="einsatznummer" class="form-label">Einsatznummer *</label>
+                                <label for="einsatznummer" class="ignis-field__label">Einsatznummer *</label>
                                 <input type="text" class="ignis-input" id="einsatznummer" name="einsatznummer" value="<?= htmlspecialchars($lage['einsatznummer']) ?>" required>
                                 <small class="mt-1 block text-xs text-gray-400">z.B. 2025-12345</small>
                             </div>
                             <div>
-                                <label for="einsatzbeginn" class="form-label">Einsatzbeginn</label>
+                                <label for="einsatzbeginn" class="ignis-field__label">Einsatzbeginn</label>
                                 <input type="datetime-local" class="ignis-input" id="einsatzbeginn" name="einsatzbeginn" value="<?= !empty($lage['einsatzbeginn']) ? date('Y-m-d\TH:i', strtotime($lage['einsatzbeginn'])) : '' ?>">
                             </div>
                         </div>
 
                         <div class="mt-4">
-                            <label for="einsatzort" class="form-label">Einsatzort *</label>
+                            <label for="einsatzort" class="ignis-field__label">Einsatzort *</label>
                             <input type="text" class="ignis-input" id="einsatzort" name="einsatzort" value="<?= htmlspecialchars($lage['einsatzort']) ?>" required>
                             <small class="mt-1 block text-xs text-gray-400">z.B. Hauptstraße 123, Musterstadt</small>
                         </div>
 
                         <div class="mt-4">
-                            <label for="einsatzanlass" class="form-label">Einsatzanlass / Szenario</label>
+                            <label for="einsatzanlass" class="ignis-field__label">Einsatzanlass / Szenario</label>
                             <textarea class="ignis-input" id="einsatzanlass" name="einsatzanlass" rows="3"><?= htmlspecialchars($lage['einsatzanlass'] ?? '') ?></textarea>
                         </div>
 
                         <div class="mt-4">
-                            <label for="status" class="form-label">Status</label>
+                            <label for="status" class="ignis-field__label">Status</label>
                             <select class="ignis-input" id="status" name="status">
                                 <option value="aktiv" <?= $lage['status'] === 'aktiv' ? 'selected' : '' ?>>Aktiv</option>
                                 <option value="abgeschlossen" <?= $lage['status'] === 'abgeschlossen' ? 'selected' : '' ?>>Abgeschlossen</option>
@@ -93,7 +93,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                     <div class="card-body">
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label for="lna_mitarbeiter_id" class="form-label">Leitender Notarzt (LNA)</label>
+                                <label for="lna_mitarbeiter_id" class="ignis-field__label">Leitender Notarzt (LNA)</label>
                                 <select class="ignis-input" id="lna_mitarbeiter_id" name="lna_mitarbeiter_id">
                                     <option value="">Bitte wählen...</option>
                                     <?php foreach ($users as $user): ?>
@@ -107,7 +107,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                                 <input type="hidden" id="lna_name" name="lna_name" value="<?= htmlspecialchars($lage['lna_name'] ?? '') ?>">
                             </div>
                             <div>
-                                <label for="orgl_mitarbeiter_id" class="form-label">Organisatorischer Leiter (OrgL)</label>
+                                <label for="orgl_mitarbeiter_id" class="ignis-field__label">Organisatorischer Leiter (OrgL)</label>
                                 <select class="ignis-input" id="orgl_mitarbeiter_id" name="orgl_mitarbeiter_id">
                                     <option value="">Bitte wählen...</option>
                                     <?php foreach ($users as $user): ?>
@@ -130,7 +130,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                     </div>
                     <div class="card-body">
                         <div>
-                            <label for="notizen" class="form-label">Allgemeine Notizen</label>
+                            <label for="notizen" class="ignis-field__label">Allgemeine Notizen</label>
                             <textarea class="ignis-input" id="notizen" name="notizen" rows="4"><?= htmlspecialchars($lage['notizen'] ?? '') ?></textarea>
                         </div>
                     </div>

@@ -23,13 +23,7 @@ use App\Helpers\Flash;
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6">
-                <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span>Einstellungen</span>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">eNOTF</span>
-                    </nav>
+                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">eNOTF</span></nav>
                     <div class="page-header mb-4">
                         <h1>Schnellzugriff-Verwaltung</h1>
                         <div class="header-actions">
@@ -116,21 +110,21 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <input type="hidden" name="id" id="quicklink-id">
                             <div class="mb-3">
-                                <label for="quicklink-title" class="form-label">Titel</label>
+                                <label for="quicklink-title" class="ignis-field__label">Titel</label>
                                 <input type="text" class="ignis-input" name="title" id="quicklink-title" required>
                             </div>
                             <div class="mb-3">
-                                <label for="quicklink-url" class="form-label">URL</label>
+                                <label for="quicklink-url" class="ignis-field__label">URL</label>
                                 <input type="text" class="ignis-input" name="url" id="quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
-                                <small class="form-text text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
+                                <small class="ignis-field__hint text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
                             </div>
                             <div class="mb-3">
-                                <label for="quicklink-icon" class="form-label">Icon (Font Awesome Klasse)</label>
+                                <label for="quicklink-icon" class="ignis-field__label">Icon (Font Awesome Klasse)</label>
                                 <input type="text" class="ignis-input" name="icon" id="quicklink-icon" placeholder="fa-solid fa-link" required>
-                                <small class="form-text text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
+                                <small class="ignis-field__hint text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
                             </div>
                             <div class="mb-3">
-                                <label for="quicklink-category" class="form-label">Kategorie</label>
+                                <label for="quicklink-category" class="ignis-field__label">Kategorie</label>
                                 <select class="form-select" name="category" id="quicklink-category" required>
                                     <?php foreach ($activeCategories as $cat): ?>
                                         <option value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
@@ -138,7 +132,7 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="quicklink-col-width" class="form-label">Spaltenbreite (Bootstrap)</label>
+                                <label for="quicklink-col-width" class="ignis-field__label">Spaltenbreite (Bootstrap)</label>
                                 <select class="form-select" name="col_width" id="quicklink-col-width" required>
                                     <option value="col">Automatisch (col)</option>
                                     <option value="col-6">Halbe Breite (col-6)</option>
@@ -148,13 +142,10 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="quicklink-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="quicklink-sort-order" class="ignis-field__label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="sort_order" id="quicklink-sort-order" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="quicklink-active">
-                                <label class="form-check-label" for="quicklink-active">Aktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="quicklink-active"><input type="checkbox" name="active" id="quicklink-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
                             <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-quicklink-btn">Löschen</button>
@@ -179,21 +170,21 @@ use App\Helpers\Flash;
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="create-quicklink-title" class="form-label">Titel</label>
+                                <label for="create-quicklink-title" class="ignis-field__label">Titel</label>
                                 <input type="text" class="ignis-input" name="title" id="create-quicklink-title" required>
                             </div>
                             <div class="mb-3">
-                                <label for="create-quicklink-url" class="form-label">URL</label>
+                                <label for="create-quicklink-url" class="ignis-field__label">URL</label>
                                 <input type="text" class="ignis-input" name="url" id="create-quicklink-url" placeholder="https://example.com oder relativer Pfad" required>
-                                <small class="form-text text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
+                                <small class="ignis-field__hint text-gray-400">Relative Pfade wie "fahrzeuginfo.php" werden relativ zur eNOTF-Übersicht interpretiert.</small>
                             </div>
                             <div class="mb-3">
-                                <label for="create-quicklink-icon" class="form-label">Icon (Font Awesome Klasse)</label>
+                                <label for="create-quicklink-icon" class="ignis-field__label">Icon (Font Awesome Klasse)</label>
                                 <input type="text" class="ignis-input" name="icon" id="create-quicklink-icon" placeholder="fa-solid fa-link" value="fa-solid fa-link" required>
-                                <small class="form-text text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
+                                <small class="ignis-field__hint text-gray-400">Z.B. "fa-solid fa-ambulance", "fa-solid fa-map", etc.</small>
                             </div>
                             <div class="mb-3">
-                                <label for="create-quicklink-category" class="form-label">Kategorie</label>
+                                <label for="create-quicklink-category" class="ignis-field__label">Kategorie</label>
                                 <select class="form-select" name="category" id="create-quicklink-category" required>
                                     <?php foreach ($activeCategories as $cat): ?>
                                         <option value="<?= htmlspecialchars($cat['slug']) ?>"><?= htmlspecialchars($cat['name']) ?></option>
@@ -201,7 +192,7 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="create-quicklink-col-width" class="form-label">Spaltenbreite (Bootstrap)</label>
+                                <label for="create-quicklink-col-width" class="ignis-field__label">Spaltenbreite (Bootstrap)</label>
                                 <select class="form-select" name="col_width" id="create-quicklink-col-width" required>
                                     <option value="col">Automatisch (col)</option>
                                     <option value="col-6" selected>Halbe Breite (col-6)</option>
@@ -211,13 +202,10 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="create-quicklink-sort-order" class="form-label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="create-quicklink-sort-order" class="ignis-field__label">Sortierung <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="sort_order" id="create-quicklink-sort-order" value="0" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="active" id="create-quicklink-active" checked>
-                                <label class="form-check-label" for="create-quicklink-active">Aktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="create-quicklink-active"><input type="checkbox" name="active" id="create-quicklink-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>

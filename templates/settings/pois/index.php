@@ -22,13 +22,7 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span>Einstellungen</span>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">POIs</span>
-                    </nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">POIs</span></nav>
                     <div class="page-header mb-4">
                         <h1>POI-Verwaltung</h1>
                         <div class="header-actions">
@@ -119,13 +113,13 @@ use App\Helpers\Flash;
                         </div>
                         <div class="modal-body">
                             <input type="hidden" name="id" id="poi-id">
-                            <div class="mb-3"><label for="poi-name" class="form-label">Name / Objekt / Einrichtung *</label><input type="text" class="ignis-input" name="name" id="poi-name" required></div>
-                            <div class="mb-3"><label for="poi-strasse" class="form-label">Straße</label><input type="text" class="ignis-input" name="strasse" id="poi-strasse"></div>
-                            <div class="mb-3"><label for="poi-hnr" class="form-label">Hausnummer / Postal</label><input type="text" class="ignis-input" name="hnr" id="poi-hnr"></div>
-                            <div class="mb-3"><label for="poi-ort" class="form-label">Ort *</label><input type="text" class="ignis-input" name="ort" id="poi-ort" required></div>
-                            <div class="mb-3"><label for="poi-ortsteil" class="form-label">Ortsteil</label><input type="text" class="ignis-input" name="ortsteil" id="poi-ortsteil"></div>
+                            <div class="mb-3"><label for="poi-name" class="ignis-field__label">Name / Objekt / Einrichtung *</label><input type="text" class="ignis-input" name="name" id="poi-name" required></div>
+                            <div class="mb-3"><label for="poi-strasse" class="ignis-field__label">Straße</label><input type="text" class="ignis-input" name="strasse" id="poi-strasse"></div>
+                            <div class="mb-3"><label for="poi-hnr" class="ignis-field__label">Hausnummer / Postal</label><input type="text" class="ignis-input" name="hnr" id="poi-hnr"></div>
+                            <div class="mb-3"><label for="poi-ort" class="ignis-field__label">Ort *</label><input type="text" class="ignis-input" name="ort" id="poi-ort" required></div>
+                            <div class="mb-3"><label for="poi-ortsteil" class="ignis-field__label">Ortsteil</label><input type="text" class="ignis-input" name="ortsteil" id="poi-ortsteil"></div>
                             <div class="mb-3">
-                                <label for="poi-typ" class="form-label">Typ</label>
+                                <label for="poi-typ" class="ignis-field__label">Typ</label>
                                 <select class="form-select" name="typ" id="poi-typ" data-custom-dropdown="true">
                                     <option value="">--- Kein Typ ---</option>
                                     <option value="Polizeiwache">Polizeiwache</option>
@@ -138,7 +132,7 @@ use App\Helpers\Flash;
                                     <option value="Sonstiges">Sonstiges</option>
                                 </select>
                             </div>
-                            <div class="form-check"><input class="form-check-input" type="checkbox" name="active" id="poi-active"><label class="form-check-label" for="poi-active">Aktiv?</label></div>
+                            <label class="ignis-checkbox" for="poi-active"><input type="checkbox" name="active" id="poi-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
                             <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-poi-btn">Löschen</button>
@@ -165,13 +159,13 @@ use App\Helpers\Flash;
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                         </div>
                         <div class="modal-body">
-                            <div class="mb-3"><label for="new-poi-name" class="form-label">Name / Objekt / Einrichtung *</label><input type="text" class="ignis-input" name="name" id="new-poi-name" required></div>
-                            <div class="mb-3"><label for="new-poi-strasse" class="form-label">Straße</label><input type="text" class="ignis-input" name="strasse" id="new-poi-strasse"></div>
-                            <div class="mb-3"><label for="new-poi-hnr" class="form-label">Hausnummer / Postal</label><input type="text" class="ignis-input" name="hnr" id="new-poi-hnr"></div>
-                            <div class="mb-3"><label for="new-poi-ort" class="form-label">Ort *</label><input type="text" class="ignis-input" name="ort" id="new-poi-ort" required></div>
-                            <div class="mb-3"><label for="new-poi-ortsteil" class="form-label">Ortsteil</label><input type="text" class="ignis-input" name="ortsteil" id="new-poi-ortsteil"></div>
+                            <div class="mb-3"><label for="new-poi-name" class="ignis-field__label">Name / Objekt / Einrichtung *</label><input type="text" class="ignis-input" name="name" id="new-poi-name" required></div>
+                            <div class="mb-3"><label for="new-poi-strasse" class="ignis-field__label">Straße</label><input type="text" class="ignis-input" name="strasse" id="new-poi-strasse"></div>
+                            <div class="mb-3"><label for="new-poi-hnr" class="ignis-field__label">Hausnummer / Postal</label><input type="text" class="ignis-input" name="hnr" id="new-poi-hnr"></div>
+                            <div class="mb-3"><label for="new-poi-ort" class="ignis-field__label">Ort *</label><input type="text" class="ignis-input" name="ort" id="new-poi-ort" required></div>
+                            <div class="mb-3"><label for="new-poi-ortsteil" class="ignis-field__label">Ortsteil</label><input type="text" class="ignis-input" name="ortsteil" id="new-poi-ortsteil"></div>
                             <div class="mb-3">
-                                <label for="new-poi-typ" class="form-label">Typ</label>
+                                <label for="new-poi-typ" class="ignis-field__label">Typ</label>
                                 <select class="form-select" name="typ" id="new-poi-typ" data-custom-dropdown="true">
                                     <option value="">--- Kein Typ ---</option>
                                     <option value="Polizeiwache">Polizeiwache</option>
@@ -184,7 +178,7 @@ use App\Helpers\Flash;
                                     <option value="Sonstiges">Sonstiges</option>
                                 </select>
                             </div>
-                            <div class="form-check"><input class="form-check-input" type="checkbox" name="active" id="new-poi-active" checked><label class="form-check-label" for="new-poi-active">Aktiv?</label></div>
+                            <label class="ignis-checkbox" for="new-poi-active"><input type="checkbox" name="active" id="new-poi-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>

@@ -111,23 +111,23 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="edit_typ" class="form-label">Typ</label>
+                                <label for="edit_typ" class="ignis-field__label">Typ</label>
                                 <input type="text" class="ignis-input" id="edit_typ" name="typ" readonly>
                             </div>
                             <div class="mb-3">
-                                <label for="edit_bezeichnung" class="form-label">Bezeichnung *</label>
+                                <label for="edit_bezeichnung" class="ignis-field__label">Bezeichnung *</label>
                                 <input type="text" class="ignis-input" id="edit_bezeichnung" name="bezeichnung" required>
                             </div>
                             <div class="mb-3" id="edit_fahrzeugtyp_group">
-                                <label for="edit_fahrzeugtyp" class="form-label">Art</label>
+                                <label for="edit_fahrzeugtyp" class="ignis-field__label">Art</label>
                                 <input type="text" class="ignis-input" id="edit_fahrzeugtyp" name="fahrzeugtyp">
                             </div>
                             <div class="mb-3">
-                                <label for="edit_lokalisation" class="form-label">Lokalisation an Einsatzstelle</label>
+                                <label for="edit_lokalisation" class="ignis-field__label">Lokalisation an Einsatzstelle</label>
                                 <input type="text" class="ignis-input" id="edit_lokalisation" name="lokalisation">
                             </div>
                             <div class="mb-3">
-                                <label for="edit_notizen" class="form-label">Notizen</label>
+                                <label for="edit_notizen" class="ignis-field__label">Notizen</label>
                                 <textarea class="ignis-input" id="edit_notizen" name="notizen" rows="2"></textarea>
                             </div>
                         </div>
@@ -152,12 +152,12 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         </div>
                         <div class="modal-body">
                             <div class="mb-3" style="display: none;">
-                                <label for="typ" class="form-label">Typ</label>
+                                <label for="typ" class="ignis-field__label">Typ</label>
                                 <input type="hidden" id="typ" name="typ" value="fahrzeug">
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug_search" class="form-label">Fahrzeug suchen und auswählen *</label>
+                                <label for="fahrzeug_search" class="ignis-field__label">Fahrzeug suchen und auswählen *</label>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-text"><i class="fas fa-search"></i></span>
                                     <input type="text" class="ignis-input" id="fahrzeug_search"
@@ -185,24 +185,24 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
 
                             <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                                 <div>
-                                    <label for="bezeichnung" class="form-label">Rufname / Kennung *</label>
+                                    <label for="bezeichnung" class="ignis-field__label">Rufname / Kennung *</label>
                                     <input type="text" class="ignis-input" id="bezeichnung" name="bezeichnung" required readonly>
                                     <small class="text-gray-400">Eindeutiger Rufname zur Identifikation</small>
                                 </div>
                                 <div>
-                                    <label for="fahrzeugtyp" class="form-label">Fahrzeugtyp</label>
+                                    <label for="fahrzeugtyp" class="ignis-field__label">Fahrzeugtyp</label>
                                     <input type="text" class="ignis-input" id="fahrzeugtyp" name="fahrzeugtyp" readonly>
                                     <small class="text-gray-400">Art des Fahrzeugs</small>
                                 </div>
                             </div>
 
                             <div class="mt-3 mb-3">
-                                <label for="lokalisation" class="form-label">Lokalisation / Position</label>
+                                <label for="lokalisation" class="ignis-field__label">Lokalisation / Position</label>
                                 <input type="text" class="ignis-input" id="lokalisation" name="lokalisation" placeholder="z.B. Verletztensammelstelle, Haltepunkt Nord...">
                                 <small class="text-gray-400">Optional: Wo befindet sich das Fahrzeug an der Einsatzstelle?</small>
                             </div>
                             <div class="mb-3">
-                                <label for="notizen" class="form-label">Notizen</label>
+                                <label for="notizen" class="ignis-field__label">Notizen</label>
                                 <textarea class="ignis-input" id="notizen" name="notizen" rows="2" placeholder="Zusätzliche Informationen..."></textarea>
                             </div>
                         </div>
@@ -229,11 +229,11 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         <div class="modal-body">
                             <p class="text-gray-400 mb-3">Für schnelles Hinzufügen ohne Systemfahrzeug</p>
                             <div class="mb-3">
-                                <label for="quick_bezeichnung" class="form-label">Rufname / Kennung *</label>
+                                <label for="quick_bezeichnung" class="ignis-field__label">Rufname / Kennung *</label>
                                 <input type="text" class="ignis-input" id="quick_bezeichnung" name="bezeichnung" placeholder="z.B. RTW 1/83-1" required>
                             </div>
                             <div class="mb-3">
-                                <label for="quick_fahrzeugtyp" class="form-label">Fahrzeugtyp *</label>
+                                <label for="quick_fahrzeugtyp" class="ignis-field__label">Fahrzeugtyp *</label>
                                 <select class="ignis-input" id="quick_fahrzeugtyp" name="fahrzeugtyp" required>
                                     <option value="">Bitte wählen...</option>
                                     <option value="RTW">RTW - Rettungswagen</option>
@@ -248,7 +248,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="quick_lokalisation" class="form-label">Lokalisation</label>
+                                <label for="quick_lokalisation" class="ignis-field__label">Lokalisation</label>
                                 <input type="text" class="ignis-input" id="quick_lokalisation" name="lokalisation" placeholder="Position an der Einsatzstelle">
                             </div>
                         </div>
