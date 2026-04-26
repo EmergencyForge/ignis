@@ -30,7 +30,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="mb-0">Cron-Jobs</h1>
@@ -90,7 +90,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                             <tr>
                                 <td>
                                     <div class="font-bold"><?= htmlspecialchars($job['name']) ?></div>
-                                    <small class="text-gray-500"><?= htmlspecialchars($job['identifier']) ?><?php if ($isBuiltin): ?> · <span class="text-warning">built-in</span><?php endif; ?></small>
+                                    <small class="text-gray-500"><?= htmlspecialchars($job['identifier']) ?><?php if ($isBuiltin): ?> · <span class="text-[#ddb84a]">built-in</span><?php endif; ?></small>
                                 </td>
                                 <td><code style="font-size:0.78rem;"><?= htmlspecialchars($job['schedule']) ?></code></td>
                                 <td>
@@ -252,7 +252,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
             fetch(<?= json_encode($base . 'settings/system/cron/history') ?> + '?id=' + id)
                 .then(r => r.json())
                 .then(data => {
-                    if (!data.ok) { body.innerHTML = '<div class="text-danger">Fehler beim Laden</div>'; return; }
+                    if (!data.ok) { body.innerHTML = '<div class="text-[#d46b6b]">Fehler beim Laden</div>'; return; }
                     if (!data.runs || data.runs.length === 0) {
                         body.innerHTML = '<div class="text-gray-500">Noch keine Läufe.</div>';
                         return;

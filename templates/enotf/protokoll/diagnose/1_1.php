@@ -62,12 +62,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="container-fluid" id="edivi__container">
-            <div class="row h-100">
+        <div class="w-full" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
-                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                        <div class="col-2 flex flex-col edivi__interactbutton-more">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1') ?>" data-requires="diagnose_haupt" class="active">
                                 <span>Diagnose (führend)</span>
                             </a>
@@ -78,7 +78,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>Diagnose Text</span>
                             </a>
                         </div>
-                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                        <div class="col-2 flex flex-col edivi__interactbutton-more">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1_1') ?>" class="active">
                                 <span>ZNS</span>
                             </a>
@@ -106,7 +106,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>Trauma</span>
                             </a>
                         </div>
-                        <div class="col-2 d-flex flex-column edivi__interactbutton">
+                        <div class="col-2 flex flex-col edivi__interactbutton">
                             <input type="radio" class="btn-check" id="diagnose_haupt-1" name="diagnose_haupt" value="1" <?php echo ($daten['diagnose_haupt'] == 1 ? 'checked' : '') ?> autocomplete="off">
                             <label for="diagnose_haupt-1">Schlaganfall / TIA / ICB</label>
 

@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "scss:expanded": "sass --no-source-map --style=expanded assets/css/admin.scss:assets/css/admin.css assets/css/style.scss:assets/css/style.css assets/css/cirs.scss:assets/css/cirs.css assets/css/divi.scss:assets/css/divi.css assets/css/dokumente.scss:assets/css/dokumente.css assets/css/personal.scss:assets/css/personal.css assets/css/print.scss:assets/css/print.css assets/css/template-editor.scss:assets/css/template-editor.css assets/css/ui.scss:assets/css/ui.css",
-    "scss:min": "sass --no-source-map --style=compressed assets/css/admin.scss:assets/css/admin.min.css assets/css/style.scss:assets/css/style.min.css assets/css/cirs.scss:assets/css/cirs.min.css assets/css/divi.scss:assets/css/divi.min.css assets/css/dokumente.scss:assets/css/dokumente.min.css assets/css/personal.scss:assets/css/personal.min.css assets/css/print.scss:assets/css/print.min.css assets/css/template-editor.scss:assets/css/template-editor.min.css assets/css/ui.scss:assets/css/ui.min.css",
+    "scss:expanded": "sass --no-source-map --style=expanded assets/css/admin.scss:assets/css/admin.css assets/css/style.scss:assets/css/style.css assets/css/cirs.scss:assets/css/cirs.css assets/css/divi.scss:assets/css/divi.css assets/css/dokumente.scss:assets/css/dokumente.css assets/css/personal.scss:assets/css/personal.css assets/css/print.scss:assets/css/print.css assets/css/template-editor.scss:assets/css/template-editor.css assets/css/ui.scss:assets/css/ui.css assets/css/bootstrap-compat.scss:assets/css/bootstrap-compat.css",
+    "scss:min": "sass --no-source-map --style=compressed assets/css/admin.scss:assets/css/admin.min.css assets/css/style.scss:assets/css/style.min.css assets/css/cirs.scss:assets/css/cirs.min.css assets/css/divi.scss:assets/css/divi.min.css assets/css/dokumente.scss:assets/css/dokumente.min.css assets/css/personal.scss:assets/css/personal.min.css assets/css/print.scss:assets/css/print.min.css assets/css/template-editor.scss:assets/css/template-editor.min.css assets/css/ui.scss:assets/css/ui.min.css assets/css/bootstrap-compat.scss:assets/css/bootstrap-compat.min.css",
     "scss": "npm run scss:expanded && npm run scss:min",
     "scss:watch": "sass --watch assets/css/admin.scss:assets/css/admin.css assets/css/style.scss:assets/css/style.css",
     "vite:build": "vite build",
@@ -24,11 +24,8 @@
     "vite": "^6.0.5"
   },
   "dependencies": {
-    "@awesome.me/webawesome": "^3.5.0",
     "@fortawesome/fontawesome-free": "^7.2.0",
-    "bootstrap": "5.3",
     "datatables.net": "^2.3.7",
-    "datatables.net-bs5": "^2.3.7",
     "jquery": "3.7"
   }
 }

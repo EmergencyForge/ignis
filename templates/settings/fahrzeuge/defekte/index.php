@@ -141,19 +141,19 @@ $statusLabels = [
                     <!-- Statistik-Karten -->
                     <div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-5">
                         <div class="intra__tile p-3 text-center">
-                            <div class="text-3xl font-bold text-danger"><?= (int)$stats['open_count'] ?></div>
+                            <div class="text-3xl font-bold text-[#d46b6b]"><?= (int)$stats['open_count'] ?></div>
                             <small class="text-gray-400">Offen</small>
                         </div>
                         <div class="intra__tile p-3 text-center">
-                            <div class="text-3xl font-bold text-warning"><?= (int)$stats['in_progress_count'] ?></div>
+                            <div class="text-3xl font-bold text-[#ddb84a]"><?= (int)$stats['in_progress_count'] ?></div>
                             <small class="text-gray-400">In Bearbeitung</small>
                         </div>
                         <div class="intra__tile p-3 text-center">
-                            <div class="text-3xl font-bold text-primary"><?= (int)$stats['deferred_count'] ?></div>
+                            <div class="text-3xl font-bold text-[#7ba3d4]"><?= (int)$stats['deferred_count'] ?></div>
                             <small class="text-gray-400">Aufgeschoben</small>
                         </div>
                         <div class="intra__tile p-3 text-center">
-                            <div class="text-3xl font-bold text-success"><?= (int)$stats['resolved_count'] ?></div>
+                            <div class="text-3xl font-bold text-[#6abf76]"><?= (int)$stats['resolved_count'] ?></div>
                             <small class="text-gray-400">Gelöst</small>
                         </div>
                         <div class="intra__tile p-3 text-center">
@@ -462,7 +462,7 @@ $statusLabels = [
                 </div>
                 <div class="modal-footer">
                     <?php if ($canManage): ?>
-                        <div class="me-auto flex gap-2">
+                        <div class="mr-auto flex gap-2">
                             <select id="detail-assign-select" class="form-select form-select-sm" data-custom-dropdown="true" style="width:auto;">
                                 <option value="">Zuweisen an...</option>
                                 <?php foreach ($users as $u): ?>
@@ -695,8 +695,8 @@ $statusLabels = [
                         document.getElementById('detail-reporter').textContent = (d.reporter_name || 'Unbekannt') + ' am ' + formatDate(d.created_at);
                         document.getElementById('detail-assigned').textContent = d.assigned_name || '—';
                         document.getElementById('detail-operable').innerHTML = d.vehicle_operable == 1
-                            ? '<span class="text-success"><i class="fa-solid fa-check"></i> Ja</span>'
-                            : '<span class="text-danger"><i class="fa-solid fa-ban"></i> Nein</span>';
+                            ? '<span class="text-[#6abf76]"><i class="fa-solid fa-check"></i> Ja</span>'
+                            : '<span class="text-[#d46b6b]"><i class="fa-solid fa-ban"></i> Nein</span>';
 
                         var resWrap = document.getElementById('detail-resolution-wrap');
                         if (d.resolution_note) {

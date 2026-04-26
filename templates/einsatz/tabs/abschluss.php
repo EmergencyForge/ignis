@@ -20,12 +20,12 @@ if ($incident) {
 
     <?php if ($incident['finalized']): ?>
         <div class="ignis-alert ignis-alert--success">
-            <i class="fa-solid fa-check-circle me-2"></i>
+            <i class="fa-solid fa-check-circle mr-2"></i>
             <strong>Dieser Einsatz wurde bereits abgeschlossen</strong>
         </div>
 
         <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div class="card bg-dark">
+            <div class="card bg-[rgba(0,0,0,0.3)]">
                 <div class="card-body">
                     <h6 class="card-title">Abgeschlossen am</h6>
                     <p class="card-text">
@@ -41,7 +41,7 @@ if ($incident) {
                     </p>
                 </div>
             </div>
-            <div class="card bg-dark">
+            <div class="card bg-[rgba(0,0,0,0.3)]">
                 <div class="card-body">
                     <h6 class="card-title">QM-Status</h6>
                     <p class="card-text">
@@ -63,7 +63,7 @@ if ($incident) {
         </div>
 
         <div class="ignis-alert ignis-alert--info mt-4">
-            <i class="fa-solid fa-info-circle me-2"></i>
+            <i class="fa-solid fa-info-circle mr-2"></i>
             Das Protokoll ist zur QM-Sichtung markiert und kann nicht mehr bearbeitet werden.
         </div>
 
@@ -73,7 +73,7 @@ if ($incident) {
         <?php if (!$canFinalize): ?>
             <div class="ignis-alert ignis-alert--warning">
                 <h5 class="alert-heading">
-                    <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                    <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                     Abschluss nicht möglich
                 </h5>
                 <p class="mb-2">Bitte ergänzen Sie folgende Pflichtangaben in den Stammdaten:</p>
@@ -85,12 +85,12 @@ if ($incident) {
             </div>
         <?php else: ?>
             <div class="ignis-alert ignis-alert--info">
-                <i class="fa-solid fa-info-circle me-2"></i>
+                <i class="fa-solid fa-info-circle mr-2"></i>
                 Sie können diesen Einsatz nun abschließen.
             </div>
         <?php endif; ?>
 
-        <div class="card bg-dark mt-4">
+        <div class="card bg-[rgba(0,0,0,0.3)] mt-4">
             <div class="card-body">
                 <h5 class="card-title mb-3">Was passiert beim Abschluss?</h5>
                 <ul class="mb-0">
@@ -104,7 +104,7 @@ if ($incident) {
 
         <div class="mt-4 flex justify-center">
             <button type="button" class="ignis-btn ignis-btn--success btn-lg" data-bs-toggle="modal" data-bs-target="#finalizeConfirmModal" <?= $canFinalize ? '' : 'disabled' ?>>
-                <i class="fa-solid fa-check-circle me-2"></i>
+                <i class="fa-solid fa-check-circle mr-2"></i>
                 Einsatz jetzt abschließen
             </button>
         </div>

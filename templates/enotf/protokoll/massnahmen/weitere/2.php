@@ -62,12 +62,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="container-fluid" id="edivi__container">
-            <div class="row h-100">
+        <div class="w-full" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../../assets/components/enotf/nav.php'; ?>
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
-                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                        <div class="col-2 flex flex-col edivi__interactbutton-more">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atemwege') ?>" data-requires="awsicherung_neu">
                                 <span>Atemwege</span>
                             </a>
@@ -84,7 +84,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>Weitere</span>
                             </a>
                         </div>
-                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                        <div class="col-2 flex flex-col edivi__interactbutton-more">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'weitere/1') ?>">
                                 <span>Lagerung</span>
                             </a>
@@ -103,7 +103,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <input type="checkbox" class="btn-check" id="e_verband-1" name="e_verband" value="1" <?php echo ($daten['e_verband'] == 1 ? 'checked' : '') ?> autocomplete="off">
                             <label for="e_verband-1">Verband</label>
                         </div>
-                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                        <div class="col-2 flex flex-col edivi__interactbutton-more">
                             <input type="checkbox" class="btn-check" id="waerme_aktiv-1" name="waerme_aktiv" value="1" <?php echo ($daten['waerme_aktiv'] == 1 ? 'checked' : '') ?> autocomplete="off">
                             <label for="waerme_aktiv-1">aktiver Wärmeerhalt</label>
 

@@ -62,12 +62,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="container-fluid" id="edivi__container">
-            <div class="row h-100">
+        <div class="w-full" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../../assets/components/enotf/nav.php'; ?>
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
-                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                        <div class="col-2 flex flex-col edivi__interactbutton-more">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'atemwege') ?>" data-requires="awfrei_1,zyanose_1">
                                 <span>Atemwege</span>
                             </a>
@@ -93,7 +93,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>Messwerte</span>
                             </a>
                         </div>
-                        <div class="col-2 d-flex flex-column edivi__interactbutton">
+                        <div class="col-2 flex flex-col edivi__interactbutton">
                             <input type="radio" class="btn-check" id="c_ekg-1" name="c_ekg" value="1" <?php echo ($daten['c_ekg'] == 1 ? 'checked' : '') ?> autocomplete="off">
                             <label for="c_ekg-1" class="edivi__unauffaellig">Sinusrhythmus</label>
 
@@ -115,7 +115,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <input type="radio" class="btn-check" id="c_ekg-6" name="c_ekg" value="6" <?php echo ($daten['c_ekg'] == 6 ? 'checked' : '') ?> autocomplete="off">
                             <label for="c_ekg-6">Asystolie</label>
                         </div>
-                        <div class="col-2 d-flex flex-column edivi__interactbutton">
+                        <div class="col-2 flex flex-col edivi__interactbutton">
                             <input type="radio" class="btn-check" id="c_ekg-21" name="c_ekg" value="21" <?php echo ($daten['c_ekg'] == 21 ? 'checked' : '') ?> autocomplete="off">
                             <label for="c_ekg-21">Schrittmacherrhythmus</label>
 

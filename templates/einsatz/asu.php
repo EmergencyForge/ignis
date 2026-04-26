@@ -59,7 +59,7 @@
                         <input type="hidden" id="asuId" value="<?= htmlspecialchars($asuId ?? '') ?>">
 
                         <!-- Einsatzinformationen -->
-                        <div class="card bg-dark mb-3">
+                        <div class="card bg-[rgba(0,0,0,0.3)] mb-3">
                             <div class="card-header">
                                 <h5 class="mb-0">Einsatzinformationen</h5>
                             </div>
@@ -95,7 +95,7 @@
     <!-- View ASU Protocol Modal -->
     <div class="modal fade" id="viewASUModal" tabindex="-1" aria-labelledby="viewASUModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
-            <div class="modal-content bg-dark">
+            <div class="modal-content bg-[rgba(0,0,0,0.3)]">
                 <div class="modal-header border-secondary">
                     <h5 class="modal-title" id="viewASUModalLabel">ASU-Protokoll Ansicht</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>

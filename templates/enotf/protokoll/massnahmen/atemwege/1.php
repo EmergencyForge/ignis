@@ -62,12 +62,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="container-fluid" id="edivi__container">
-            <div class="row h-100">
+        <div class="w-full" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../../assets/components/enotf/nav.php'; ?>
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
-                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                        <div class="col-2 flex flex-col edivi__interactbutton-more">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atemwege') ?>" data-requires="awsicherung_neu" class="active">
                                 <span>Atemwege</span>
                             </a>
@@ -84,7 +84,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>Weitere</span>
                             </a>
                         </div>
-                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                        <div class="col-2 flex flex-col edivi__interactbutton-more">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atemwege/1') ?>" data-requires="awsicherung_neu" class="active">
                                 <span>Atemwegssicherung</span>
                             </a>
@@ -101,7 +101,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <input type="checkbox" class="btn-check" id="hws_immo-1" name="hws_immo" value="1" <?php echo ($daten['hws_immo'] == 1 ? 'checked' : '') ?> autocomplete="off">
                             <label for="hws_immo-1">HWS-Immobilisation</label>
                         </div>
-                        <div class="col-2 d-flex flex-column -edivi__interactbutton">
+                        <div class="col-2 flex flex-col -edivi__interactbutton">
                             <input type="radio" class="btn-check" id="awsicherung_neu-1" name="awsicherung_neu" value="1" <?php echo ($daten['awsicherung_neu'] == 1 ? 'checked' : '') ?> autocomplete="off">
                             <label for="awsicherung_neu-1" class="edivi__unauffaellig">keine</label>
 

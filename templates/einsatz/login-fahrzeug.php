@@ -62,7 +62,7 @@ use App\Helpers\Flash;
                 <div class="card">
                     <div class="card-body text-center">
                         <h3 class="mb-4">
-                            <i class="fa-solid fa-truck text-primary mr-2"></i>
+                            <i class="fa-solid fa-truck text-[#7ba3d4] mr-2"></i>
                             Angemeldet
                         </h3>
                         <div class="ignis-alert ignis-alert--success">

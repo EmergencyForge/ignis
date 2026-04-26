@@ -202,8 +202,8 @@ $defaultUrl = EnotfUrl::page('overview');
 </head>
 
 <body data-bs-theme="dark" style="overflow-x:hidden">
-    <div class="container-fluid" id="edivi__container">
-        <div class="row h-100">
+    <div class="w-full" id="edivi__container">
+        <div class="row h-full">
             <div class="col" id="edivi__content">
                 <h2 class="text-center my-3">
                     <i class="fa-solid fa-hospital mr-2"></i>

@@ -27,7 +27,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="antragstyp-create">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="max-w-4xl mx-auto">
                     <h1><i class="fa-solid fa-circle-plus mr-2"></i>Neuen Antragstyp erstellen</h1>
@@ -37,8 +37,8 @@ use App\Helpers\Flash;
                     <div class="intra__tile p-4">
                         <form method="post" action="">
                             <div class="mb-4">
-                                <label for="name" class="ignis-field__label fw-bold">
-                                    Name des Antragstyps <span class="text-danger">*</span>
+                                <label for="name" class="ignis-field__label font-bold">
+                                    Name des Antragstyps <span class="text-[#d46b6b]">*</span>
                                 </label>
                                 <input type="text"
                                     class="ignis-input"
@@ -47,11 +47,11 @@ use App\Helpers\Flash;
                                     placeholder="z.B. Urlaubsantrag, Versetzungsantrag, ..."
                                     required
                                     value="<?= htmlspecialchars($old['name'] ?? '') ?>">
-                                <small class="text-muted">Dieser Name wird Benutzern angezeigt</small>
+                                <small class="text-[var(--text-dimmed,#818189)]">Dieser Name wird Benutzern angezeigt</small>
                             </div>
 
                             <div class="mb-4">
-                                <label for="beschreibung" class="ignis-field__label fw-bold">
+                                <label for="beschreibung" class="ignis-field__label font-bold">
                                     Beschreibung
                                 </label>
                                 <textarea class="ignis-input"
@@ -59,15 +59,15 @@ use App\Helpers\Flash;
                                     name="beschreibung"
                                     rows="3"
                                     placeholder="Kurze Erklärung, wofür dieser Antrag verwendet wird"><?= htmlspecialchars($old['beschreibung'] ?? '') ?></textarea>
-                                <small class="text-muted">Optional: Hilft Benutzern zu verstehen, wann sie diesen Antrag nutzen sollten</small>
+                                <small class="text-[var(--text-dimmed,#818189)]">Optional: Hilft Benutzern zu verstehen, wann sie diesen Antrag nutzen sollten</small>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="icon" class="ignis-field__label fw-bold">Icon</label>
+                                    <label for="icon" class="ignis-field__label font-bold">Icon</label>
                                     <div class="input-group">
                                         <span class="input-group-text">
-                                            <i id="icon-preview" class="<?= htmlspecialchars($old['icon'] ?? 'fa-solid fa-file-lines') ?> fs-4"></i>
+                                            <i id="icon-preview" class="<?= htmlspecialchars($old['icon'] ?? 'fa-solid fa-file-lines') ?> text-xl"></i>
                                         </span>
                                         <input type="text"
                                             class="ignis-input"
@@ -76,23 +76,23 @@ use App\Helpers\Flash;
                                             placeholder="fa-solid fa-file-lines"
                                             value="<?= htmlspecialchars($old['icon'] ?? 'fa-solid fa-file-lines') ?>">
                                     </div>
-                                    <small class="text-muted">
+                                    <small class="text-[var(--text-dimmed,#818189)]">
                                         Font Awesome Icon-Klasse
-                                        <a href="https://fontawesome.com/search?o=r&m=free" target="_blank" class="text-info">
+                                        <a href="https://fontawesome.com/search?o=r&m=free" target="_blank" class="text-[#5bb8cc]">
                                             (Icons durchsuchen)
                                         </a>
                                     </small>
                                 </div>
 
                                 <div class="mb-4">
-                                    <label for="sortierung" class="ignis-field__label fw-bold">Sortierung</label>
+                                    <label for="sortierung" class="ignis-field__label font-bold">Sortierung</label>
                                     <input type="number"
                                         class="ignis-input"
                                         id="sortierung"
                                         name="sortierung"
                                         value="<?= htmlspecialchars($old['sortierung'] ?? (string) $defaultSort) ?>"
                                         min="0">
-                                    <small class="text-muted">Niedrigere Zahlen erscheinen zuerst</small>
+                                    <small class="text-[var(--text-dimmed,#818189)]">Niedrigere Zahlen erscheinen zuerst</small>
                                 </div>
                             </div>
 
@@ -106,12 +106,12 @@ use App\Helpers\Flash;
                                     <label class="form-check-label" for="aktiv">
                                         <strong>Antragstyp sofort aktivieren</strong>
                                         <br>
-                                        <small class="text-muted">Wenn deaktiviert, können Benutzer diesen Antragstyp nicht sehen</small>
+                                        <small class="text-[var(--text-dimmed,#818189)]">Wenn deaktiviert, können Benutzer diesen Antragstyp nicht sehen</small>
                                     </label>
                                 </div>
                             </div>
 
-                            <hr class="text-light my-4">
+                            <hr class="text-white my-4">
 
                             <div class="ignis-alert ignis-alert--info">
                                 <i class="fa-solid fa-circle-info mr-2"></i>

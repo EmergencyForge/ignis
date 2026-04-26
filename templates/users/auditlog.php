@@ -18,7 +18,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="benutzer">
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -54,7 +54,7 @@ use App\Helpers\Flash;
                                 ?>
                                     <tr>
                                         <td><span style="display:none"><?= htmlspecialchars($entry->timestamp) ?></span><?= htmlspecialchars($date) ?></td>
-                                        <td class="fw-bold"><?= htmlspecialchars($entry->module ?? '') ?></td>
+                                        <td class="font-bold"><?= htmlspecialchars($entry->module ?? '') ?></td>
                                         <td style="overflow-wrap:anywhere"><?= htmlspecialchars($entry->action ?? '') ?></td>
                                         <td style="overflow-wrap:anywhere"><?= htmlspecialchars($entry->details ?? '') ?></td>
                                         <td>

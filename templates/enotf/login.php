@@ -120,12 +120,12 @@ $hasPrefill = !empty($prefill);
     <form name="form" method="post" action="" id="login-form-new">
         <input type="hidden" name="login_mode" value="new" />
         <input type="hidden" name="new" value="1" />
-        <div class="container-fluid" id="edivi__container">
-            <div class="row h-100">
+        <div class="w-full" id="edivi__container">
+            <div class="row h-full">
                 <div class="col" id="edivi__content">
-                    <div class="row my-2 border-bottom border-light" id="edivi__login-title">
+                    <div class="row my-2 border-b border-light" id="edivi__login-title">
                         <div class="col">
-                            <h5 class="fw-bold">Anmeldung</h5>
+                            <h5 class="font-bold">Anmeldung</h5>
                         </div>
                     </div>
                     <div class="row">
@@ -161,7 +161,7 @@ $hasPrefill = !empty($prefill);
                                         <label>Qualifikation</label>
                                     </div>
                                 </div>
-                                <div class="text-muted mb-2" style="font-size:0.85rem;">
+                                <div class="text-[var(--text-dimmed,#818189)] mb-2" style="font-size:0.85rem;">
                                     <i class="fa-solid fa-lock mr-1"></i>Anmeldung als: <strong><?= htmlspecialchars($charName) ?></strong>
                                 </div>
                                 <!-- Hidden fields: werden per JS befüllt -->
@@ -236,8 +236,8 @@ $hasPrefill = !empty($prefill);
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col"><button type="button" class="edivi__nidabutton w-100" id="crew__delete" name="crew__delete">Besatzung löschen</button></div>
-                                    <div class="col"><button type="button" class="edivi__nidabutton w-100" id="crew__switch" name="crew__switch">Fahrer / Beifahrer tauschen</button></div>
+                                    <div class="col"><button type="button" class="edivi__nidabutton w-full" id="crew__delete" name="crew__delete">Besatzung löschen</button></div>
+                                    <div class="col"><button type="button" class="edivi__nidabutton w-full" id="crew__switch" name="crew__switch">Fahrer / Beifahrer tauschen</button></div>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -263,8 +263,8 @@ $hasPrefill = !empty($prefill);
                                     </div>
                                     <div id="session-crew-list"></div>
                                     <div class="mt-3 flex gap-2">
-                                        <button type="button" class="edivi__nidabutton flex-grow-1" id="btn-join-session">Beitreten</button>
-                                        <button type="button" class="edivi__nidabutton flex-grow-1" id="btn-new-session">Neue Besatzung</button>
+                                        <button type="button" class="edivi__nidabutton grow" id="btn-join-session">Beitreten</button>
+                                        <button type="button" class="edivi__nidabutton grow" id="btn-new-session">Neue Besatzung</button>
                                         <button type="button" class="edivi__nidabutton" id="btn-delete-session" style="background-color:#dc3545;border-color:#dc3545;aspect-ratio:1;padding:0;width:42px;min-width:42px;" title="Session löschen"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 </div>
@@ -272,7 +272,7 @@ $hasPrefill = !empty($prefill);
                             <!-- Join-Formular: wird eingeblendet wenn "Beitreten" geklickt -->
                             <div id="join-form-container" style="display:none;">
                                 <div class="session-info-box">
-                                    <strong class="d-block mb-2">Position wählen:</strong>
+                                    <strong class="block mb-2">Position wählen:</strong>
                                     <select id="join-position-select" class="form-select mb-2">
                                     </select>
                                     <div class="row mb-2">
@@ -291,7 +291,7 @@ $hasPrefill = !empty($prefill);
                                             </select>
                                         </div>
                                     </div>
-                                    <button type="button" class="edivi__nidabutton w-100" id="btn-submit-join">Beitreten</button>
+                                    <button type="button" class="edivi__nidabutton w-full" id="btn-submit-join">Beitreten</button>
                                 </div>
                             </div>
                             <div id="spacer-area">
@@ -299,7 +299,7 @@ $hasPrefill = !empty($prefill);
                                 <hr class="my-5" style="color: transparent">
                             </div>
                             <div class="row">
-                                <div class="col text-end">
+                                <div class="col text-right">
                                     <button type="submit" class="edivi__nidabutton" style="padding: 20px 40px" id="data__set" name="data__set">OK</button>
                                 </div>
                             </div>

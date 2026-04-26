@@ -22,7 +22,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="mitarbeiter">
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -51,7 +51,7 @@ use App\Helpers\Flash;
                     <div class="intra__tile py-2 px-3 mb-3">
                         <div class="row g-2 items-end">
                             <div class="col-auto">
-                                <label for="filterDienstgrad" class="ignis-field__label small mb-1">Dienstgrad</label>
+                                <label for="filterDienstgrad" class="ignis-field__label text-sm mb-1">Dienstgrad</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterDienstgrad" style="min-width: 180px;">
                                     <option value="">Alle</option>
                                     <?php foreach ($dienstgrade as $dg): ?>
@@ -60,7 +60,7 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="col-auto">
-                                <label for="filterRDQuali" class="ignis-field__label small mb-1">RD-Qualifikation</label>
+                                <label for="filterRDQuali" class="ignis-field__label text-sm mb-1">RD-Qualifikation</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterRDQuali" style="min-width: 200px;">
                                     <option value="">Alle</option>
                                     <?php foreach ($rdQualis as $rd): ?>
@@ -71,7 +71,7 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="col-auto">
-                                <label for="filterFWQuali" class="ignis-field__label small mb-1">FW-Qualifikation</label>
+                                <label for="filterFWQuali" class="ignis-field__label text-sm mb-1">FW-Qualifikation</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterFWQuali" style="min-width: 180px;">
                                     <option value="">Alle</option>
                                     <?php foreach ($fwQualis as $fw): ?>
@@ -86,7 +86,7 @@ use App\Helpers\Flash;
                                     <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
                                 </button>
                             </div>
-                            <div class="col-auto ms-auto">
+                            <div class="col-auto ml-auto">
                                 <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-success" id="exportCSV" data-ignis-tooltip="Gefilterte Liste als CSV exportieren">
                                     <i class="fa-solid fa-file-csv"></i> CSV-Export
                                 </button>
@@ -129,14 +129,14 @@ use App\Helpers\Flash;
                                             <?php if (!$isRdNone): ?>
                                                 <span class="ignis-chip ignis-chip--warning" style="color:var(--black)"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
                                             <?php else: ?>
-                                                <span class="text-muted">-</span>
+                                                <span class="text-[var(--text-dimmed,#818189)]">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php if (!$isFwNone): ?>
                                                 <span class="ignis-chip ignis-chip--danger"><?= htmlspecialchars($fwShort) ?></span> <small><?= htmlspecialchars($fwName) ?></small>
                                             <?php else: ?>
-                                                <span class="text-muted">-</span>
+                                                <span class="text-[var(--text-dimmed,#818189)]">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
@@ -239,7 +239,7 @@ use App\Helpers\Flash;
                                     <label for="dienstnr">Dienstnummer</label>
                                     <div id="dienstnr-status" class="dienstnr-status"></div>
                                     <div class="invalid-feedback">Mindestens eine Zahl (z.B. RD-001)</div>
-                                    <div id="dienstnr-feedback" class="text-danger small" style="display: none;"></div>
+                                    <div id="dienstnr-feedback" class="text-[#d46b6b] text-sm" style="display: none;"></div>
                                 </div>
                             </div>
                             <div>

@@ -47,18 +47,18 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
 
 <body data-bs-theme="dark" data-page="mitarbeiter">
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
                     <h1 class="mb-3">Mitarbeiterprofil</h1>
 
                     <div class="mb-3 flex flex-wrap items-center gap-2 rounded px-3 py-2" style="background: var(--card-bg); border: 1px solid var(--border-color);">
-                        <span class="fw-semibold" style="font-size: var(--font-size-sm);">Konto-Status:</span>
+                        <span class="font-semibold" style="font-size: var(--font-size-sm);">Konto-Status:</span>
                         <?php if ($accountStatus === 'active'): ?>
                             <span class="ignis-chip ignis-chip--success"><i class="fa-solid fa-circle-check mr-1"></i>Konto aktiv</span>
                             <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
-                                <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $panelakte['id'] ?>" class="text-decoration-none" style="font-size: var(--font-size-sm);">
+                                <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--font-size-sm);">
                                     <?= htmlspecialchars($panelakte['fullname']) ?> (<?= htmlspecialchars($panelakte['username']) ?>)
                                 </a>
                             <?php elseif ($panelakte): ?>
@@ -67,7 +67,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                         <?php elseif ($accountStatus === 'inactive'): ?>
                             <span class="ignis-chip"><i class="fa-solid fa-circle-minus mr-1"></i>Konto deaktiviert</span>
                             <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
-                                <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $panelakte['id'] ?>" class="text-decoration-none" style="font-size: var(--font-size-sm);">
+                                <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--font-size-sm);">
                                     <?= htmlspecialchars($panelakte['username']) ?>
                                 </a>
                             <?php endif; ?>
@@ -126,11 +126,11 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                 $profileName   = $geschlechtText . ' ' . $row['fullname'];
                                 ?>
 
-                                <div class="w-100 text-center">
+                                <div class="w-full text-center">
                                     <?php if ($canEdit): ?>
-                                        <div class="mb-3 position-relative inline-block">
+                                        <div class="mb-3 relative inline-block">
                                             <img src="<?= htmlspecialchars($profileImage) ?>" alt="Profilbild" id="pfp-preview" class="border" style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;" title="Klicken zum Ändern">
-                                            <label for="pfp-upload" class="position-absolute bottom-0 end-0 ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" style="width: 28px; height: 28px; font-size: 0.7rem; cursor: pointer;" title="Bild hochladen">
+                                            <label for="pfp-upload" class="absolute bottom-0 end-0 ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" style="width: 28px; height: 28px; font-size: 0.7rem; cursor: pointer;" title="Bild hochladen">
                                                 <i class="fa-solid fa-camera"></i>
                                             </label>
                                             <input type="file" id="pfp-upload" accept="image/png,image/jpeg,image/webp" class="hidden">
@@ -160,8 +160,8 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                     <?php endif; ?>
 
                                     <hr class="my-3">
-                                    <table class="mx-auto w-100">
-                                        <tbody class="text-start">
+                                    <table class="mx-auto w-full">
+                                        <tbody class="text-left">
                                             <?php if ($canEdit): ?>
                                             <tr>
                                                 <td class="font-bold">Vor- und Zuname</td>
@@ -169,40 +169,40 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                             </tr>
                                             <?php endif; ?>
                                             <tr>
-                                                <td class="fw-bold">Geburtsdatum</td>
+                                                <td class="font-bold">Geburtsdatum</td>
                                                 <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="gebdatum" data-type="date" data-raw="' . htmlspecialchars((string) $row['gebdatum']) . '"' : '' ?>><?= htmlspecialchars($geburtstag) ?></td>
                                             </tr>
                                             <?php if ($canEdit): ?>
                                             <tr>
-                                                <td class="fw-bold">Geschlecht</td>
+                                                <td class="font-bold">Geschlecht</td>
                                                 <?php $geschlechtLabel = match ((int) $row['geschlecht']) { 0 => 'Männlich', 1 => 'Weiblich', default => 'Divers' }; ?>
                                                 <td class="inline-edit-cell" data-field="geschlecht" data-type="select" data-options='{"0":"Männlich","1":"Weiblich","2":"Divers"}' data-raw="<?= (int) $row['geschlecht'] ?>"><?= htmlspecialchars($geschlechtLabel) ?></td>
                                             </tr>
                                             <?php endif; ?>
                                             <?php if (defined('CHAR_ID') && CHAR_ID): ?>
                                                 <tr>
-                                                    <td class="fw-bold">Charakter-ID</td>
+                                                    <td class="font-bold">Charakter-ID</td>
                                                     <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="charakterid" data-type="text"' : '' ?>><?= htmlspecialchars($row['charakterid'] ?? '') ?></td>
                                                 </tr>
                                             <?php endif; ?>
                                             <tr>
-                                                <td class="fw-bold">Discord-ID</td>
+                                                <td class="font-bold">Discord-ID</td>
                                                 <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="discordtag" data-type="text"' : '' ?>><?= htmlspecialchars($row['discordtag'] ?? 'N. hinterlegt') ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Telefonnummer</td>
+                                                <td class="font-bold">Telefonnummer</td>
                                                 <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="telefonnr" data-type="text"' : '' ?>><?= htmlspecialchars($row['telefonnr'] ?? '') ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Dienstnummer</td>
+                                                <td class="font-bold">Dienstnummer</td>
                                                 <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="dienstnr" data-type="text"' : '' ?>><?= htmlspecialchars($row['dienstnr'] ?? '') ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Position</td>
+                                                <td class="font-bold">Position</td>
                                                 <td class="<?= $canEdit ? 'inline-edit-cell' : '' ?>" <?= $canEdit ? 'data-field="zusatzqual" data-type="text"' : '' ?>><?= htmlspecialchars($row['zusatz'] ?? 'Keine') ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold">Einstellungsdatum</td>
+                                                <td class="font-bold">Einstellungsdatum</td>
                                                 <td><?= htmlspecialchars($einstellungsdatum) ?></td>
                                             </tr>
                                         </tbody>
@@ -226,7 +226,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                             <div class="p-3 shadow-sm border ma-logs">
                                 <details<?php echo isset($_GET['logpage']) ? ' open' : ''; ?>>
                                     <summary class="mb-3" style="cursor: pointer;">
-                                        <h5 class="d-inline">Systemprotokoll</h5>
+                                        <h5 class="inline">Systemprotokoll</h5>
                                     </summary>
                                     <div class="log-container">
                                         <?php include __DIR__ . '/../../assets/components/profiles/logs/main.php' ?>
@@ -303,15 +303,15 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.success) {
-                    btn.outerHTML = '<span style="font-size: var(--font-size-sm);"><i class="fa-solid fa-check text-success mr-1"></i>' +
-                        '<code class="user-select-all">' + data.inviteUrl + '</code></span>';
+                    btn.outerHTML = '<span style="font-size: var(--font-size-sm);"><i class="fa-solid fa-check text-[#6abf76] mr-1"></i>' +
+                        '<code class="select-all">' + data.inviteUrl + '</code></span>';
                     var resultEl = document.getElementById('inviteResult');
                     if (resultEl) resultEl.innerHTML = '';
                     var banner = document.getElementById('newCreatedBanner');
                     if (banner) {
                         banner.className = 'alert alert-success mb-3';
                         banner.innerHTML = '<i class="fa-solid fa-check mr-2"></i><strong>Einladungslink erstellt!</strong> ' +
-                            '<code class="user-select-all">' + data.inviteUrl + '</code>';
+                            '<code class="select-all">' + data.inviteUrl + '</code>';
                     }
                 } else {
                     btn.disabled = false;

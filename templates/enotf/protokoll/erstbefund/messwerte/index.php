@@ -73,12 +73,12 @@ $currentDateTime = date('Y-m-d\TH:i');
 </head>
 
 <body data-bs-theme="dark" data-page="verlauf" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
-    <div class="container-fluid" id="edivi__container">
-        <div class="row h-100">
+    <div class="w-full" id="edivi__container">
+        <div class="row h-full">
             <div class="col" id="edivi__content">
                 <form name="form" id="vitalsForm" method="post" action="">
                     <div class="row">
-                        <div class="col position-relative">
+                        <div class="col relative">
                             <div class="row my-3">
                                 <div class="col edivi__vitalparam-box" data-before="SpO₂" data-after="%">
                                     <input type="text" name="spo2" id="spo2"

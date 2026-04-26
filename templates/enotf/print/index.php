@@ -149,7 +149,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 </head>
 
 <body>
-    <div id="topbar" class="container-fluid" data-pin-enabled="<?= $pinEnabled ?>">
+    <div id="topbar" class="w-full" data-pin-enabled="<?= $pinEnabled ?>">
         <div class="row">
             <div class="col">
                 <?php if (!isset($_SESSION['klinik_access_enr'])): ?>
@@ -158,7 +158,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     </a>
                 <?php endif; ?>
             </div>
-            <div class="col text-end">
+            <div class="col text-right">
                 <button type="button" class="topbar-btn" onclick="zoomOut()" title="Verkleinern">
                     <i class="fa-solid fa-minus"></i>
                 </button>
@@ -179,16 +179,16 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <h6 class="print__heading">Patientendaten</h6>
                         <?php $printFullname = trim(($daten['pat_nachname'] ?? '') . (!empty($daten['pat_nachname']) && !empty($daten['pat_vorname']) ? ', ' : '') . ($daten['pat_vorname'] ?? '')); ?>
                         <div class="print__field-wrapper" data-field-name="Name">
-                            <input type="text" class="w-100 print__field" value="<?= htmlspecialchars($printFullname) ?>" readonly>
+                            <input type="text" class="w-full print__field" value="<?= htmlspecialchars($printFullname) ?>" readonly>
                         </div>
                         <div class="print__field-wrapper" data-field-name="Geburtsdatum">
-                            <input type="text" class="w-100 print__field" id="patgebdat" data-date="<?= $daten['patgebdat'] ?>" value="<?= !empty($daten['patgebdat']) ? date('d.m.Y', strtotime($daten['patgebdat'])) : '' ?>" readonly>
+                            <input type="text" class="w-full print__field" id="patgebdat" data-date="<?= $daten['patgebdat'] ?>" value="<?= !empty($daten['patgebdat']) ? date('d.m.Y', strtotime($daten['patgebdat'])) : '' ?>" readonly>
                         </div>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>Geschlecht</td>
                                 <td>
@@ -224,11 +224,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                     <div class="col-5">
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>
                                     <div class="print__field-wrapper" data-field-name="Alter">
-                                        <input type="text" class="w-100 print__field" id="_AGE_" readonly>
+                                        <input type="text" class="w-full print__field" id="_AGE_" readonly>
                                     </div>
                                 </td>
                                 <td>Jahre</td>
@@ -236,7 +236,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <?php if ($daten['prot_by'] === 0) : ?>
                             <h1 class="print__heading-main">Einsatzprotokoll</h1>
@@ -246,10 +246,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <p class="print__text-small">Automatisch erstellt mit ıgnıs</p>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col-5">
                         <div class="print__field-wrapper" data-field-name="Einsatz-Nr">
-                            <input type="text" class="w-100 print__field" value="<?= $daten['enr'] ?>" readonly>
+                            <input type="text" class="w-full print__field" value="<?= $daten['enr'] ?>" readonly>
                         </div>
                     </div>
                     <div class="col">
@@ -270,25 +270,25 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         }
                         ?>
                         <div class="print__field-wrapper" data-field-name="Rufname">
-                            <input type="text" class="w-100 print__field" value="<?= $fahrzeugname ?>" readonly>
+                            <input type="text" class="w-full print__field" value="<?= $fahrzeugname ?>" readonly>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col">
-                <div class="row border border-dark border-start-0 print__full-height">
+                <div class="row border border-dark border-l-0 print__full-height">
                     <div class="col">
                         <h6 class="print__heading">Einsatztechnische Daten</h6>
                         <div class="row">
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="Einsatz-Datum/Zeit">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($daten['edatum']) ? date('d.m.Y', strtotime($daten['edatum'])) . " " . $daten['ezeit'] : '' . " " . $daten['ezeit'] ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= !empty($daten['edatum']) ? date('d.m.Y', strtotime($daten['edatum'])) . " " . $daten['ezeit'] : '' . " " . $daten['ezeit'] ?>" readonly>
                                 </div>
                                 <div class="print__field-wrapper" data-field-name="Einsatz-Ort">
-                                    <input type="text" class="w-100 print__field" value="<?= $einsatzort_display ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= $einsatzort_display ?>" readonly>
                                 </div>
                                 <div class="print__field-wrapper" data-field-name="Transp.-Ziel">
-                                    <input type="text" class="w-100 print__field" value="<?= $transportziel_display ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= $transportziel_display ?>" readonly>
                                 </div>
                                 <?php
                                 $versorgungsarten = [
@@ -306,7 +306,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 $versorgung_text = $versorgungsarten[$daten['transportziel'] ?? ''] ?? '';
                                 ?>
                                 <div class="print__field-wrapper" data-field-name="Versorgung">
-                                    <input type="text" class="w-100 print__field" value="<?= $versorgung_text ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= $versorgung_text ?>" readonly>
                                 </div>
                             </div>
                         </div>
@@ -314,23 +314,23 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <?php if ($daten['prot_by'] === 0) : ?>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Fahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_transp_perso'] ?>" readonly>
+                                        <input type="text" class="w-full print__field" value="<?= $daten['fzg_transp_perso'] ?>" readonly>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Beifahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_transp_perso_2'] ?>" readonly>
+                                        <input type="text" class="w-full print__field" value="<?= $daten['fzg_transp_perso_2'] ?>" readonly>
                                     </div>
                                 </div>
                             <?php else : ?>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Fahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_na_perso'] ?>" readonly>
+                                        <input type="text" class="w-full print__field" value="<?= $daten['fzg_na_perso'] ?>" readonly>
                                     </div>
                                 </div>
                                 <div class="col">
                                     <div class="print__field-wrapper" data-field-name="Beifahrer">
-                                        <input type="text" class="w-100 print__field" value="<?= $daten['fzg_na_perso_2'] ?>" readonly>
+                                        <input type="text" class="w-full print__field" value="<?= $daten['fzg_na_perso_2'] ?>" readonly>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -339,7 +339,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 </div>
             </div>
         </div>
-        <div class="row border border-dark border-top-0">
+        <div class="row border border-dark border-t-0">
             <?php
             $naca_print_labels = [
                 0 => '0',
@@ -392,13 +392,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 </div>
             </div>
         </div>
-        <div class="row border border-dark border-top-0">
+        <div class="row border border-dark border-t-0">
             <div class="col">
                 <h6 class="print__heading">Notfallgeschehen, Anamnese, Erstebefund, Vormedikation, Vorbehandlung</h6>
                 <div class="row">
                     <div class="col">
                         <div class="print__field-wrapper">
-                            <textarea rows="22" style="resize:none" class="w-100 print__textbox" readonly><?= $daten['anmerkungen'] ?></textarea>
+                            <textarea rows="22" style="resize:none" class="w-full print__textbox" readonly><?= $daten['anmerkungen'] ?></textarea>
                         </div>
                     </div>
                 </div>
@@ -406,15 +406,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         </div>
         <div class="row">
             <div class="col">
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h6 class="print__heading">Erstbefund</h6>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h6 class="print__heading">Atemwege</h6>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>
                                     <?php if ($daten['awfrei_1'] == 1): ?>
@@ -449,9 +449,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             </tr>
                         </table>
                     </div>
-                    <div class="col border-start border-dark">
+                    <div class="col border-l border-dark">
                         <h6 class="print__heading">Zyanose</h6>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>
                                     <?php if ($daten['zyanose_1'] == 1): ?>
@@ -474,13 +474,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <div class="row">
                             <div class="col">
                                 <h6 class="print__heading">Atmung</h6>
                             </div>
-                            <div class="col print__text-small text-end">
+                            <div class="col print__text-small text-right">
                                 <?php if ($daten['b_symptome'] == 99): ?>
                                     <input type="radio" name="nicht_untersucht_atmung" checked disabled />
                                     <label for="nicht_untersucht_atmung">nicht untersucht</label>
@@ -490,7 +490,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>
                                     <?php if ($daten['b_symptome'] === 0): ?>
@@ -561,13 +561,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <div class="row">
                             <div class="col">
                                 <h5 class="print__heading">Auskultation</h5>
                             </div>
-                            <div class="col print__text-small text-end">
+                            <div class="col print__text-small text-right">
                                 <?php if ($daten['b_auskult'] == 99): ?>
                                     <input type="radio" name="nicht_untersucht_auskult" checked disabled />
                                     <label for="nicht_untersucht_auskult">nicht untersucht</label>
@@ -577,7 +577,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>
                                     <?php if ($daten['b_auskult'] === 0): ?>
@@ -640,13 +640,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <div class="row">
                             <div class="col">
                                 <h6 class="print__heading">Kreislauf</h6>
                             </div>
-                            <div class="col print__text-small text-end">
+                            <div class="col print__text-small text-right">
                                 <?php if ($daten['c_rekap'] == 2): ?>
                                     <input type="radio" name="rekap_verlängert" checked disabled />
                                     <label for="rekap_verlängert">Rekap. &gt; 2 s</label>
@@ -655,7 +655,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <label for="rekap_verlängert">Rekap. &gt; 2 s</label>
                                 <?php endif; ?>
                             </div>
-                            <div class="col print__text-small text-end">
+                            <div class="col print__text-small text-right">
                                 <?php if ($daten['c_blutung'] == 2): ?>
                                     <input type="radio" name="starke_blutung" checked disabled />
                                     <label for="starke_blutung">starke Blutung</label>
@@ -672,9 +672,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             3 => 'Nicht beurteilbar'
                         ];
                         ?>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
-                                <td>Zustand<br><span class="fw-bold"><?= $c_kreislauf_labels[$daten['c_kreislauf'] ?? ''] ?? '' ?></span></td>
+                                <td>Zustand<br><span class="font-bold"><?= $c_kreislauf_labels[$daten['c_kreislauf'] ?? ''] ?? '' ?></span></td>
                                 <td>
                                     Puls
                                     <br>
@@ -722,13 +722,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <div class="row">
                             <div class="col">
                                 <h6 class="print__heading">EKG</h6>
                             </div>
-                            <div class="col print__text-small text-end">
+                            <div class="col print__text-small text-right">
                                 <?php if ($daten['c_ekg'] == 99): ?>
                                     <input type="radio" name="kein_ekg" checked disabled />
                                     <label for="kein_ekg">Kein EKG</label>
@@ -738,7 +738,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>
                                     <?php if ($daten['c_ekg'] == 1): ?>
@@ -865,51 +865,51 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h6 class="print__heading">Messwerte initial</h6>
                         <div class="row">
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="/Min" data-vp-name="AF">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['atemfreq'] ?>" readonly>
+                                    <input type="text" class="w-full print__field-vitals" value="<?= $daten['atemfreq'] ?>" readonly>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="%" data-vp-name="SpO2">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['spo2'] ?>" readonly>
+                                    <input type="text" class="w-full print__field-vitals" value="<?= $daten['spo2'] ?>" readonly>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="/Min" data-vp-name="HF">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['herzfreq'] ?>" readonly>
+                                    <input type="text" class="w-full print__field-vitals" value="<?= $daten['herzfreq'] ?>" readonly>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="mmHg" data-vp-name="etCO2">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['etco2'] ?>" readonly>
+                                    <input type="text" class="w-full print__field-vitals" value="<?= $daten['etco2'] ?>" readonly>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="mmHg" data-vp-name="RR">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['rrsys'] ?><?= !empty($daten['rrdias']) ? '/' . $daten['rrdias'] : '' ?>" readonly>
+                                    <input type="text" class="w-full print__field-vitals" value="<?= $daten['rrsys'] ?><?= !empty($daten['rrdias']) ? '/' . $daten['rrdias'] : '' ?>" readonly>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="<?= htmlspecialchars($bzUnit) ?>" data-vp-name="BZ">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['bz'] ?>" readonly>
+                                    <input type="text" class="w-full print__field-vitals" value="<?= $daten['bz'] ?>" readonly>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="print__field-wrapper" data-field-name="°C" data-vp-name="Temp">
-                                    <input type="text" class="w-100 print__field-vitals" value="<?= $daten['temp'] ?>" readonly>
+                                    <input type="text" class="w-full print__field-vitals" value="<?= $daten['temp'] ?>" readonly>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h6 class="print__heading">ERKRANKUNGEN</h6>
                         <?php
@@ -1097,25 +1097,25 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         }
                         ?>
                         <div class="print__field-wrapper" data-field-name="führende Diagnose">
-                            <input type="text" class="w-100 print__field" value="<?= !empty($diagnose_haupt_text) ? $diagnose_haupt_text : '' ?>" readonly>
+                            <input type="text" class="w-full print__field" value="<?= !empty($diagnose_haupt_text) ? $diagnose_haupt_text : '' ?>" readonly>
                         </div>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h5 class="print__heading">weitere Diagnosen</h5>
                         <div class="print__field-wrapper">
-                            <textarea rows="3" style="resize:none;font-size:11pt" class="w-100 print__textbox" readonly><?= !empty($diagnose_weitere_text) ? $diagnose_weitere_text : '' ?></textarea>
+                            <textarea rows="3" style="resize:none;font-size:11pt" class="w-full print__textbox" readonly><?= !empty($diagnose_weitere_text) ? $diagnose_weitere_text : '' ?></textarea>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col">
-                <div class="row border border-dark border-top-0 border-start-0">
+                <div class="row border border-dark border-t-0 border-l-0">
                     <div class="col">
                         <h6 class="print__heading">Neurologie</h6>
                     </div>
-                    <div class="col-8 border-start border-dark">
+                    <div class="col-8 border-l border-dark">
                         <?php
                         $d_bewusstsein_labels = [
                             1 => 'wach',
@@ -1128,10 +1128,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             99 => 'nicht untersucht'
                         ];
                         ?>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td colspan="4">
-                                    Bewusstsein <span class="fw-bold"><?= $d_bewusstsein_labels[$daten['d_bewusstsein'] ?? ''] ?? '' ?></span>
+                                    Bewusstsein <span class="font-bold"><?= $d_bewusstsein_labels[$daten['d_bewusstsein'] ?? ''] ?? '' ?></span>
                                 </td>
                             </tr>
                             <tr>
@@ -1143,22 +1143,22 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     $gcs_motorik = isset($daten['d_gcs_3']) ? (6 - $daten['d_gcs_3']) : 0;
                                     $gcs_total = $gcs_augen + $gcs_verbal + $gcs_motorik;
                                     ?>
-                                    Augen<br><span class="fw-bold"><?= $gcs_augen ?></span>
+                                    Augen<br><span class="font-bold"><?= $gcs_augen ?></span>
                                 </td>
                                 <td>
-                                    Verbal<br><span class="fw-bold"><?= $gcs_verbal ?></span>
+                                    Verbal<br><span class="font-bold"><?= $gcs_verbal ?></span>
                                 </td>
                                 <td>
-                                    Motorik<br><span class="fw-bold"><?= $gcs_motorik ?></span>
+                                    Motorik<br><span class="font-bold"><?= $gcs_motorik ?></span>
                                 </td>
                                 <td>
-                                    Summe<br><span class="fw-bold" style="font-size: 8pt"><?= $gcs_total ?> GCS</span>
+                                    Summe<br><span class="font-bold" style="font-size: 8pt"><?= $gcs_total ?> GCS</span>
                                 </td>
                             </tr>
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0 border-start-0">
+                <div class="row border border-dark border-t-0 border-l-0">
                     <div class="col">
                         <?php
                         $d_pupillenw_1_labels = [
@@ -1176,19 +1176,19 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         ];
                         ?>
                         <h5 class="print__heading">Pupillenstatus</h5>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>rechts</td>
-                                <td>Weite<br><span class="fw-bold"><?= $d_pupillenw_1_labels[$daten['d_pupillenw_2'] ?? ''] ?? '' ?></span></td>
-                                <td>Lichtreaktion<br><span class="fw-bold"><?= $d_lichtreakt_1_labels[$daten['d_lichtreakt_2'] ?? ''] ?? '' ?></span></td>
+                                <td>Weite<br><span class="font-bold"><?= $d_pupillenw_1_labels[$daten['d_pupillenw_2'] ?? ''] ?? '' ?></span></td>
+                                <td>Lichtreaktion<br><span class="font-bold"><?= $d_lichtreakt_1_labels[$daten['d_lichtreakt_2'] ?? ''] ?? '' ?></span></td>
                                 <td>links</td>
-                                <td>Weite<br><span class="fw-bold"><?= $d_pupillenw_1_labels[$daten['d_pupillenw_1'] ?? ''] ?? '' ?></span></td>
-                                <td>Lichtreaktion<br><span class="fw-bold"><?= $d_lichtreakt_1_labels[$daten['d_lichtreakt_1'] ?? ''] ?? '' ?></span></td>
+                                <td>Weite<br><span class="font-bold"><?= $d_pupillenw_1_labels[$daten['d_pupillenw_1'] ?? ''] ?? '' ?></span></td>
+                                <td>Lichtreaktion<br><span class="font-bold"><?= $d_lichtreakt_1_labels[$daten['d_lichtreakt_1'] ?? ''] ?? '' ?></span></td>
                             </tr>
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0 border-start-0">
+                <div class="row border border-dark border-t-0 border-l-0">
                     <div class="col print__text-small">
                         <?php
                         $d_ex_1_labels = [
@@ -1198,9 +1198,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             99 => 'Nicht beurteilbar'
                         ];
                         ?>
-                        Extremitätenbewegung<br><span class="fw-bold"><?= $d_ex_1_labels[$daten['d_ex_1'] ?? ''] ?? '' ?></span>
+                        Extremitätenbewegung<br><span class="font-bold"><?= $d_ex_1_labels[$daten['d_ex_1'] ?? ''] ?? '' ?></span>
                     </div>
-                    <div class="col border-start border-dark">
+                    <div class="col border-l border-dark">
                         <?php
                         $sz_nrs_labels = [
                             0 => 'keine',
@@ -1218,9 +1218,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             99 => 'Nicht beurteilbar'
                         ];
                         ?>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
-                                <td rowspan="2">Schmerzen<br><span class="fw-bold">NRS <?= $sz_nrs_labels[$daten['sz_nrs'] ?? ''] ?? '' ?></span></td>
+                                <td rowspan="2">Schmerzen<br><span class="font-bold">NRS <?= $sz_nrs_labels[$daten['sz_nrs'] ?? ''] ?? '' ?></span></td>
                                 <td>
                                     <?php if ($daten['sz_toleranz_1'] == 1): ?>
                                         <input type="radio" name="tolerabel" checked disabled />
@@ -1245,7 +1245,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0 border-start-0">
+                <div class="row border border-dark border-t-0 border-l-0">
                     <div class="col">
                         <?php
                         $psych = [];
@@ -1257,7 +1257,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         }
                         ?>
                         <h6 class="print__heading">Psyche</h6>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td></td>
                                 <td>
@@ -1395,7 +1395,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0 border-start-0">
+                <div class="row border border-dark border-t-0 border-l-0">
                     <div class="col">
                         <h6 class="print__heading">Verletzungen</h6>
                         <?php
@@ -1411,42 +1411,42 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             2 => 'geschlossen'
                         ];
                         ?>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>Schädel-Hirn</td>
-                                <td class="fw-bold"><?= $v_muster_k_labels[$daten['v_muster_k'] ?? ''] ?? '' ?></td>
-                                <td class="fw-bold"> <?= $v_muster_k1_labels[$daten['v_muster_k1'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"><?= $v_muster_k_labels[$daten['v_muster_k'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"> <?= $v_muster_k1_labels[$daten['v_muster_k1'] ?? ''] ?? '' ?></td>
                             </tr>
                             <tr>
                                 <td>Wirbelsäule</td>
-                                <td class="fw-bold"><?= $v_muster_k_labels[$daten['v_muster_w'] ?? ''] ?? '' ?></td>
-                                <td class="fw-bold"> <?= $v_muster_k1_labels[$daten['v_muster_w1'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"><?= $v_muster_k_labels[$daten['v_muster_w'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"> <?= $v_muster_k1_labels[$daten['v_muster_w1'] ?? ''] ?? '' ?></td>
                             </tr>
                             <tr>
                                 <td>Thorax</td>
-                                <td class="fw-bold"><?= $v_muster_k_labels[$daten['v_muster_t'] ?? ''] ?? '' ?></td>
-                                <td class="fw-bold"> <?= $v_muster_k1_labels[$daten['v_muster_t1'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"><?= $v_muster_k_labels[$daten['v_muster_t'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"> <?= $v_muster_k1_labels[$daten['v_muster_t1'] ?? ''] ?? '' ?></td>
                             </tr>
                             <tr>
                                 <td>Abdomen</td>
-                                <td class="fw-bold"><?= $v_muster_k_labels[$daten['v_muster_a'] ?? ''] ?? '' ?></td>
-                                <td class="fw-bold"> <?= $v_muster_k1_labels[$daten['v_muster_a1'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"><?= $v_muster_k_labels[$daten['v_muster_a'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"> <?= $v_muster_k1_labels[$daten['v_muster_a1'] ?? ''] ?? '' ?></td>
                             </tr>
                             <tr>
                                 <td>Obere Extremitäten</td>
-                                <td class="fw-bold"><?= $v_muster_k_labels[$daten['v_muster_al'] ?? ''] ?? '' ?></td>
-                                <td class="fw-bold"> <?= $v_muster_k1_labels[$daten['v_muster_al1'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"><?= $v_muster_k_labels[$daten['v_muster_al'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"> <?= $v_muster_k1_labels[$daten['v_muster_al1'] ?? ''] ?? '' ?></td>
                             </tr>
                             <tr>
                                 <td>Untere Extremitäten</td>
-                                <td class="fw-bold"><?= $v_muster_k_labels[$daten['v_muster_bl'] ?? ''] ?? '' ?></td>
-                                <td class="fw-bold"> <?= $v_muster_k1_labels[$daten['v_muster_bl1'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"><?= $v_muster_k_labels[$daten['v_muster_bl'] ?? ''] ?? '' ?></td>
+                                <td class="font-bold"> <?= $v_muster_k1_labels[$daten['v_muster_bl1'] ?? ''] ?? '' ?></td>
                             </tr>
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0 border-start-0">
-                    <div class="col text-end fw-bold print__text-small">
+                <div class="row border border-dark border-t-0 border-l-0">
+                    <div class="col text-right font-bold print__text-small">
                         erstellt mit ıgnıs von EmergencyForge
                     </div>
                 </div>
@@ -1511,25 +1511,25 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 ?>
 
                 <?php if (!empty($groupedVitals)): ?>
-                    <div class="row border border-dark border-top-0">
+                    <div class="row border border-dark border-t-0">
                         <div class="col p-3" style="background: white;">
                             <canvas id="vitalChart" width="700" height="400"></canvas>
                         </div>
                     </div>
                 <?php else: ?>
-                    <div class="row border border-dark border-top-0">
+                    <div class="row border border-dark border-t-0">
                         <div class="col p-3 text-center print__text-small">
                             Keine Vitalparameter dokumentiert
                         </div>
                     </div>
                 <?php endif; ?>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <div class="row">
                             <div class="col">
                                 <h6 class="print__heading">Medikation</h6>
                             </div>
-                            <div class="col print__text-small text-end">
+                            <div class="col print__text-small text-right">
                                 <?php if ($daten['medis'] == 1 || $daten['medis'] === 0): ?>
                                     <input type="radio" name="keine_medis" checked disabled />
                                     <label for="keine_medis">Keine Medikamente</label>
@@ -1610,61 +1610,61 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         }
                         ?>
                         <div class="print__field-wrapper">
-                            <textarea rows="18" style="resize:none" class="w-100 print__textbox" readonly><?= displayAllMedikamente($daten['medis'] ?? ''); ?></textarea>
+                            <textarea rows="18" style="resize:none" class="w-full print__textbox" readonly><?= displayAllMedikamente($daten['medis'] ?? ''); ?></textarea>
                         </div>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h6 class="print__heading">Zeiten</h6>
                         <div class="row">
                             <div class="col-3">
                                 <div class="print__field-wrapper" data-field-name="Alarm">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($zeiten['salarm']) ? date('H:i', strtotime($zeiten['salarm'])) : '' ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= !empty($zeiten['salarm']) ? date('H:i', strtotime($zeiten['salarm'])) : '' ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="print__field-wrapper" data-field-name="aus (3)">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($zeiten['s3']) ? date('H:i', strtotime($zeiten['s3'])) : '' ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= !empty($zeiten['s3']) ? date('H:i', strtotime($zeiten['s3'])) : '' ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="print__field-wrapper" data-field-name="E.-an (4)">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($zeiten['s4']) ? date('H:i', strtotime($zeiten['s4'])) : '' ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= !empty($zeiten['s4']) ? date('H:i', strtotime($zeiten['s4'])) : '' ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="print__field-wrapper" data-field-name="Pat.-an">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($zeiten['spat']) ? date('H:i', strtotime($zeiten['spat'])) : '' ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= !empty($zeiten['spat']) ? date('H:i', strtotime($zeiten['spat'])) : '' ?>" readonly>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-3">
                                 <div class="print__field-wrapper" data-field-name="E.-ab (7)">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($zeiten['s7']) ? date('H:i', strtotime($zeiten['s7'])) : '' ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= !empty($zeiten['s7']) ? date('H:i', strtotime($zeiten['s7'])) : '' ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="print__field-wrapper" data-field-name="KH an (8)">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($zeiten['s8']) ? date('H:i', strtotime($zeiten['s8'])) : '' ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= !empty($zeiten['s8']) ? date('H:i', strtotime($zeiten['s8'])) : '' ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="print__field-wrapper" data-field-name="frei (1)">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($zeiten['s1']) ? date('H:i', strtotime($zeiten['s1'])) : '' ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= !empty($zeiten['s1']) ? date('H:i', strtotime($zeiten['s1'])) : '' ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="print__field-wrapper" data-field-name="Wache (2)">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($zeiten['s2']) ? date('H:i', strtotime($zeiten['s2'])) : '' ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= !empty($zeiten['s2']) ? date('H:i', strtotime($zeiten['s2'])) : '' ?>" readonly>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-3">
                                 <div class="print__field-wrapper" data-field-name="Ende">
-                                    <input type="text" class="w-100 print__field" value="<?= !empty($zeiten['sende']) ? date('H:i', strtotime($zeiten['sende'])) : '' ?>" readonly>
+                                    <input type="text" class="w-full print__field" value="<?= !empty($zeiten['sende']) ? date('H:i', strtotime($zeiten['sende'])) : '' ?>" readonly>
                                 </div>
                             </div>
                         </div>
@@ -1674,7 +1674,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             <div class="col">
                 <div class="row border border-dark">
                     <div class="col">
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>Patient Name<br><span style="font-weight: 600;font-size:11pt"><?= htmlspecialchars($printFullname) ?></span></td>
                                 <td>Geb.Dat.<br><span style="font-weight: 600;font-size:11pt"><?= !empty($daten['patgebdat']) ? date('d.m.Y', strtotime($daten['patgebdat'])) : '' ?></span></td>
@@ -1682,7 +1682,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h5 class="print__heading">Maßnahmen</h5>
                         <h6 class="print__heading">Zugänge</h6>
@@ -1964,14 +1964,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         }
                         ?>
                         <div class="print__field-wrapper">
-                            <textarea rows="8" style="resize:none" class="w-100 print__textbox" readonly><?= displayAllZugaengeText($daten['c_zugang'] ?? ''); ?></textarea>
+                            <textarea rows="8" style="resize:none" class="w-full print__textbox" readonly><?= displayAllZugaengeText($daten['c_zugang'] ?? ''); ?></textarea>
                         </div>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h6 class="print__heading">Atemwege</h6>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>
                                     <?php if ($daten['awsicherung_1'] == 1): ?>
@@ -2015,7 +2015,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <?php
                         $awsicherung_neu_labels = [
@@ -2035,7 +2035,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             5 => 'keine'
                         ];
                         ?>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>
                                     Intubation<br><span style="font-weight:600;font-size:11pt"><?= $awsicherung_neu_labels[$daten['awsicherung_neu'] ?? ''] ?? '' ?></span>
@@ -2052,7 +2052,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h6 class="print__heading">Weitere</h6>
                         <?php
@@ -2066,7 +2066,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             99 => 'sonstige Lagerung'
                         ];
                         ?>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td colspan="2">
                                     Lagerung<br><span style="font-weight:600;font-size:11pt"><?= $lagerung_labels[$daten['lagerung'] ?? ''] ?? '' ?></span>
@@ -2135,9 +2135,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td colspan="2">
                                     <?php if ($daten['e_krintervention'] == 1): ?>
@@ -2172,7 +2172,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </table>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h6 class="print__heading">Rettungstechnik</h6>
                         <?php
@@ -2197,7 +2197,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
                         $rettungstechnikDisplay = !empty($rettungstechnikDisplayTexts) ? implode(', ', $rettungstechnikDisplayTexts) : 'keine';
                         ?>
-                        <table class="w-100 print__text-small">
+                        <table class="w-full print__text-small">
                             <tr>
                                 <td>
                                     <?= $rettungstechnikDisplay ?>
@@ -2207,10 +2207,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     </div>
                 </div>
                 <?php if ($daten['prot_by'] != 1): ?>
-                    <div class="row border border-dark border-top-0">
+                    <div class="row border border-dark border-t-0">
                         <div class="col">
                             <h6 class="print__heading">Nachforderung Notarzt</h6>
-                            <table class="w-100 print__text-small">
+                            <table class="w-full print__text-small">
                                 <tr>
                                     <td>
                                         <?php if ($daten['na_nachf'] == 1): ?>
@@ -2235,15 +2235,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </div>
                     </div>
                 <?php endif; ?>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h6 class="print__heading">Beteiligte Einsatzmittel</h6>
                         <div class="print__field-wrapper" data-field-name="Bet. EM">
-                            <input type="text" class="w-100 print__field" value="<?= $daten['fzg_sonst'] ?>" readonly>
+                            <input type="text" class="w-full print__field" value="<?= $daten['fzg_sonst'] ?>" readonly>
                         </div>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <?php
                         $uebergabe_ort_labels = [
@@ -2289,14 +2289,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <span style="font-weight:600;font-size:11pt"><?= $uebergabe_ort_text ?></span>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
+                <div class="row border border-dark border-t-0">
                     <div class="col">
                         <h6 class="print__heading">Protokollant / Unterschrift</h6>
                         <span style="font-size:11pt;font-family: 'Freehand', sans-serif"><?= $daten['pfname'] ?? '&nbsp' ?></span>
                     </div>
                 </div>
-                <div class="row border border-dark border-top-0">
-                    <div class="col text-end fw-bold print__text-small">
+                <div class="row border border-dark border-t-0">
+                    <div class="col text-right font-bold print__text-small">
                         erstellt mit ıgnıs von EmergencyForge
                     </div>
                 </div>

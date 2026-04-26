@@ -466,7 +466,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: var(--main-color);"></i>
                 </div>
                 <h5 class="text-white mb-2">Ein unerwarteter Fehler ist aufgetreten</h5>
-                <p class="text-muted mb-4" style="font-size:0.88rem;">
+                <p class="text-[var(--text-dimmed,#818189)] mb-4" style="font-size:0.88rem;">
                     Der Fehler wurde automatisch protokolliert. Bitte teilen Sie den untenstehenden
                     Fehlercode dem Administrator mit, damit der Fehler identifiziert werden kann.
                 </p>

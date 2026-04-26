@@ -20,14 +20,14 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
                     <div class="flex justify-between items-center mb-3">
                         <div>
                             <h1 class="mb-0">Krankenhaus-Fachrichtungen</h1>
-                            <p class="text-muted mb-0"><?= htmlspecialchars($poi['name']) ?></p>
+                            <p class="text-[var(--text-dimmed,#818189)] mb-0"><?= htmlspecialchars($poi['name']) ?></p>
                         </div>
                         <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                             <div class="flex gap-2">
@@ -83,7 +83,7 @@ use App\Helpers\Flash;
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted">Keine Fachrichtungen vorhanden</td>
+                                        <td colspan="4" class="text-center text-[var(--text-dimmed,#818189)]">Keine Fachrichtungen vorhanden</td>
                                     </tr>
                                 <?php endif; ?>
                             </tbody>
@@ -113,9 +113,9 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="dept-sort-order" class="ignis-field__label">Sortierung</label>
                                 <input type="number" class="ignis-input" name="sort_order" id="dept-sort-order" value="999" min="0" step="1">
-                                <small class="text-muted">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
+                                <small class="text-[var(--text-dimmed,#818189)]">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
                             </div>
-                            <p class="text-muted small">
+                            <p class="text-[var(--text-dimmed,#818189)] text-sm">
                                 <i class="fa-solid fa-info-circle"></i> Beispiele: ZNA/INA, Schockraum, Intensivstation, Notaufnahme, CT, Herzkatheter
                             </p>
                         </div>
@@ -149,7 +149,7 @@ use App\Helpers\Flash;
                             <div class="mb-3">
                                 <label for="edit-dept-sort-order" class="ignis-field__label">Sortierung</label>
                                 <input type="number" class="ignis-input" name="sort_order" id="edit-dept-sort-order" min="0" step="1" required>
-                                <small class="text-muted">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
+                                <small class="text-[var(--text-dimmed,#818189)]">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
                             </div>
                         </div>
                         <div class="modal-footer">

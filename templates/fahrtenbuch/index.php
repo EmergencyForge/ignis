@@ -236,7 +236,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                                                             <input type="hidden" name="action" value="delete">
                                                             <input type="hidden" name="id" value="<?= (int) $e['id'] ?>">
                                                             <input type="hidden" name="return_to" value="admin">
-                                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-danger" title="Löschen">
+                                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" title="Löschen">
                                                                 <i class="fa-solid fa-trash"></i>
                                                             </button>
                                                         </form>

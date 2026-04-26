@@ -136,7 +136,7 @@ use App\Helpers\Flash;
                                 <?php if ($activeIncidentNumber && $statusSource !== 'no_dispatch'): ?>
                                     &middot; Einsatz #<?= htmlspecialchars($activeIncidentNumber) ?>
                                 <?php elseif (!$activeIncidentId && $statusSource !== 'no_dispatch'): ?>
-                                    &middot; <span class="text-warning">Kein aktiver Einsatz</span>
+                                    &middot; <span class="text-[#ddb84a]">Kein aktiver Einsatz</span>
                                 <?php endif; ?>
                             </small>
                         </div>

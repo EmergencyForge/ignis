@@ -101,7 +101,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
         <!-- Edit Modal -->
         <div class="modal fade" id="editModal" tabindex="-1">
             <div class="modal-dialog">
-                <div class="modal-content bg-dark">
+                <div class="modal-content bg-[rgba(0,0,0,0.3)]">
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="edit">
                         <input type="hidden" name="ressource_id" id="edit_ressource_id">
@@ -143,7 +143,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
         <!-- Create Modal -->
         <div class="modal fade" id="createModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
-                <div class="modal-content bg-dark">
+                <div class="modal-content bg-[rgba(0,0,0,0.3)]">
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="create">
                         <div class="modal-header">
@@ -218,7 +218,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
         <!-- Quick Add Modal -->
         <div class="modal fade" id="quickAddModal" tabindex="-1">
             <div class="modal-dialog">
-                <div class="modal-content bg-dark">
+                <div class="modal-content bg-[rgba(0,0,0,0.3)]">
                     <form method="POST" action="" id="quickAddForm">
                         <input type="hidden" name="action" value="create">
                         <input type="hidden" name="typ" value="fahrzeug">
@@ -312,7 +312,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         </div>
                         <span class="badge" style="background-color: #495057; font-size: 0.85rem; padding: 6px 10px; flex-shrink: 0; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(fzg.veh_type)}</span>
                     </div>
-                    ${fzg.identifier ? `<small class="d-block mt-1 ml-4" style="color: #adb5bd; font-size: 0.875rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(fzg.identifier)}</small>` : ''}
+                    ${fzg.identifier ? `<small class="block mt-1 ml-4" style="color: #adb5bd; font-size: 0.875rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(fzg.identifier)}</small>` : ''}
                 </button>
             `).join('');
 

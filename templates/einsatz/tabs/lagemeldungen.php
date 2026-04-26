@@ -9,7 +9,7 @@
 
     <?php if (empty($sitreps)): ?>
         <div class="ignis-alert">
-            <i class="fa-solid fa-info-circle me-2"></i>
+            <i class="fa-solid fa-info-circle mr-2"></i>
             Noch keine Lagemeldungen vorhanden
         </div>
     <?php else: ?>
@@ -19,13 +19,13 @@
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <div class="mb-2">
-                                <strong><i class="fa-solid fa-clock me-1"></i><?= fmt_dt($sr['report_time']) ?></strong>
+                                <strong><i class="fa-solid fa-clock mr-1"></i><?= fmt_dt($sr['report_time']) ?></strong>
                                 <?php if ($sr['vehicle_radio_name']): ?>
                                     <?php $badgeClass = (isset($sr['source']) && $sr['source'] === 'leitstelle') ? 'bg-warning text-dark' : 'bg-primary'; ?>
-                                    <span class="badge <?= $badgeClass ?> ms-2"><?= htmlspecialchars($sr['vehicle_radio_name']) ?></span>
+                                    <span class="badge <?= $badgeClass ?> ml-2"><?= htmlspecialchars($sr['vehicle_radio_name']) ?></span>
                                 <?php endif; ?>
                                 <?php if ($sr['sys_name']): ?>
-                                    <span class="ignis-chip ignis-chip--info ms-2"><?= htmlspecialchars($sr['sys_name']) ?></span>
+                                    <span class="ignis-chip ignis-chip--info ml-2"><?= htmlspecialchars($sr['sys_name']) ?></span>
                                 <?php endif; ?>
                             </div>
                             <div class="break-words"><?= nl2br(htmlspecialchars($sr['text'])) ?></div>
@@ -66,8 +66,8 @@
                         <?php endforeach; ?>
                     </select>
                     <?php if (empty($attachedVehicles)): ?>
-                        <small class="text-warning">
-                            <i class="fa-solid fa-exclamation-triangle me-1"></i>
+                        <small class="text-[#ddb84a]">
+                            <i class="fa-solid fa-exclamation-triangle mr-1"></i>
                             Bitte erst Fahrzeuge hinzufügen
                         </small>
                     <?php endif; ?>
@@ -78,14 +78,14 @@
                 </div>
                 <div class="flex justify-end md:col-span-12">
                     <button type="submit" class="ignis-btn ignis-btn--primary" <?= empty($attachedVehicles) ? 'disabled' : '' ?>>
-                        <i class="fa-solid fa-plus me-1"></i>Lagemeldung speichern
+                        <i class="fa-solid fa-plus mr-1"></i>Lagemeldung speichern
                     </button>
                 </div>
             </div>
         </form>
     <?php else: ?>
         <div class="ignis-alert ignis-alert--info mb-0 mt-3">
-            <i class="fa-solid fa-lock me-2"></i>
+            <i class="fa-solid fa-lock mr-2"></i>
             <?php if ($incident['finalized']): ?>
                 Einsatz ist abgeschlossen - keine Änderungen möglich.
             <?php else: ?>

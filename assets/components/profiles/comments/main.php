@@ -19,7 +19,7 @@ $typeIcons = [
 ];
 
 if (empty($comments)): ?>
-    <div class="text-center text-muted py-3" style="font-size: var(--font-size-sm);">
+    <div class="text-center text-[var(--text-dimmed,#818189)] py-3" style="font-size: var(--font-size-sm);">
         <i class="fa-solid fa-comments" style="font-size: 1.5rem; opacity: 0.3;"></i>
         <p class="mb-0 mt-2">Keine Kommentare vorhanden</p>
     </div>

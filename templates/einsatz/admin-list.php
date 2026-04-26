@@ -100,7 +100,7 @@ use App\Helpers\Flash;
                                 <?php else: ?>
                                 <a class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int)$i['id'] ?>">Öffnen</a>
                                 <?php if ($showArchived): ?>
-                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="d-inline">
+                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="inline">
                                         <input type="hidden" name="action" value="unarchive_incident">
                                         <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success btn-icon" title="Wiederherstellen">
@@ -108,7 +108,7 @@ use App\Helpers\Flash;
                                         </button>
                                     </form>
                                 <?php else: ?>
-                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="d-inline">
+                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="inline">
                                         <input type="hidden" name="action" value="archive_incident">
                                         <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
                                         <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-warning btn-icon" title="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });">
@@ -136,7 +136,7 @@ use App\Helpers\Flash;
                 <div class="modal-body" id="bulkDeleteContent">
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 </div>
@@ -181,7 +181,7 @@ use App\Helpers\Flash;
             const modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
             document.getElementById('bulkDeleteContent').innerHTML = `
                 <div class="flex justify-center">
-                    <div class="spinner-border" role="status"><span class="visually-hidden">Laden...</span></div>
+                    <div class="spinner-border" role="status"><span class="sr-only">Laden...</span></div>
                 </div>`;
             document.getElementById('bulkDeleteFooter').style.display = 'none';
             modal.show();
@@ -208,7 +208,7 @@ use App\Helpers\Flash;
                             <form id="bulkDeleteFieldsForm">
                                 <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                                     <div>
-                                        <label class="ignis-field__label fw-bold">Zeitraum:</label>
+                                        <label class="ignis-field__label font-bold">Zeitraum:</label>
                                         <select class="form-select" id="timePeriod">
                                             <option value="7">Letzte 7 Tage</option>
                                             <option value="30" selected>Letzte 30 Tage</option>
@@ -218,7 +218,7 @@ use App\Helpers\Flash;
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="ignis-field__label fw-bold">Status:</label>
+                                        <label class="ignis-field__label font-bold">Status:</label>
                                         <select class="form-select" id="statusFilter">
                                             <option value="all" selected>Alle</option>
                                             <option value="unfinalized">Nur unfertige</option>
@@ -227,7 +227,7 @@ use App\Helpers\Flash;
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="ignis-field__label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
+                                    <label class="ignis-field__label font-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
                                 <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
@@ -254,7 +254,7 @@ use App\Helpers\Flash;
                 return;
             }
 
-            document.getElementById('bulkDeleteContent').innerHTML = `<div class="flex justify-center"><div class="spinner-border" role="status"><span class="visually-hidden">Lade Vorschau...</span></div></div>`;
+            document.getElementById('bulkDeleteContent').innerHTML = `<div class="flex justify-center"><div class="spinner-border" role="status"><span class="sr-only">Lade Vorschau...</span></div></div>`;
 
             const formData = new FormData();
             selectedFields.forEach(field => formData.append('fields[]', field));
@@ -281,7 +281,7 @@ use App\Helpers\Flash;
                             document.getElementById('bulkDeleteContent').innerHTML = `
                                 <div class="ignis-alert ignis-alert--warning"><i class="fa-solid fa-exclamation-triangle"></i> <strong>Achtung!</strong><p class="mb-0 mt-2">Es wurden <strong>${data.count} Protokoll(e)</strong> gefunden, die archiviert werden.</p><p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p></div>
                                 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                                    <table class="table table-sm table-striped"><thead class="sticky-top bg-dark"><tr><th>Einsatznummer</th><th>Ort</th><th>Stichwort</th><th>Leiter</th><th>Angelegt am</th><th>Status</th></tr></thead><tbody>${protocolsList}</tbody></table>
+                                    <table class="table table-sm table-striped"><thead class="sticky-top bg-[rgba(0,0,0,0.3)]"><tr><th>Einsatznummer</th><th>Ort</th><th>Stichwort</th><th>Leiter</th><th>Angelegt am</th><th>Status</th></tr></thead><tbody>${protocolsList}</tbody></table>
                                 </div>`;
                             document.getElementById('bulkDeleteFooter').style.display = 'flex';
                             window.bulkDeleteSelectedFields = selectedFields;

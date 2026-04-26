@@ -79,10 +79,10 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                             <label for="sichtungskategorie" class="ignis-field__label">Kategorie *</label>
                             <select class="form-control form-control-lg" id="sichtungskategorie" name="sichtungskategorie" required>
                                 <option value="">Bitte wählen...</option>
-                                <option value="SK1" class="text-danger">SK1 - Rot (Akute Lebensgefahr)</option>
-                                <option value="SK2" class="text-warning">SK2 - Gelb (Nicht auszuschließende schwere Folgeschäden)</option>
-                                <option value="SK3" class="text-success">SK3 - Grün (Spätere Behandlung)</option>
-                                <option value="SK4" class="text-info">SK4 - Blau (Akute Lebensgefahr ohne zeitnahe Versorgung)</option>
+                                <option value="SK1" class="text-[#d46b6b]">SK1 - Rot (Akute Lebensgefahr)</option>
+                                <option value="SK2" class="text-[#ddb84a]">SK2 - Gelb (Nicht auszuschließende schwere Folgeschäden)</option>
+                                <option value="SK3" class="text-[#6abf76]">SK3 - Grün (Spätere Behandlung)</option>
+                                <option value="SK4" class="text-[#5bb8cc]">SK4 - Blau (Akute Lebensgefahr ohne zeitnahe Versorgung)</option>
                                 <option value="SK5" style="background-color: #000; color: #fff;">SK5 - Schwarz (Tot)</option>
                                 <option value="SK6" style="color: #9b59b6;">SK6 - Lila (Beteiligter ohne Verletzung)</option>
                             </select>

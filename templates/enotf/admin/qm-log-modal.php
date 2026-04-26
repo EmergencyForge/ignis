@@ -20,7 +20,7 @@ if (count($row) == 0) {
 
 // Generate log content HTML for modal
 ?>
-<div class="container-fluid">
+<div class="w-full">
     <?php
     $stmt = $pdo->prepare("SELECT * FROM intra_edivi_qmlog WHERE protokoll_id = :id ORDER BY id ASC");
     $stmt->bindParam(':id', $_GET['id']);

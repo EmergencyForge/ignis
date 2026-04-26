@@ -15,16 +15,16 @@ use App\Security\CsrfProtection;
                 <div class="flex items-center justify-between px-3 py-2" style="border-bottom:1px solid var(--bs-border-color);">
                     <div class="flex items-center gap-2 min-w-0">
                         <span class="ignis-chip" id="docViewer-badge">Dokument</span>
-                        <h6 class="mb-0 text-truncate" id="docViewer-title" style="font-size:0.88rem;"></h6>
+                        <h6 class="mb-0 truncate" id="docViewer-title" style="font-size:0.88rem;"></h6>
                     </div>
-                    <div class="flex items-center gap-1 flex-shrink-0">
+                    <div class="flex items-center gap-1 shrink-0">
                         <a href="#" id="docViewer-detailLink" class="ignis-btn ignis-btn--sm ignis-btn--ghost" title="Detailseite"><i class="fa-solid fa-up-right-from-square"></i></a>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                 </div>
                 <!-- Meta-Chips -->
                 <div class="px-3 py-2 flex flex-wrap gap-2 items-center" id="docViewer-chips" style="font-size:0.78rem;background:var(--bs-tertiary-bg);border-bottom:1px solid var(--bs-border-color);">
-                    <div class="text-center py-2 w-100"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                    <div class="text-center py-2 w-full"><i class="fa-solid fa-spinner fa-spin"></i></div>
                 </div>
             </div>
 
@@ -54,7 +54,7 @@ function openDocumentViewer(docid) {
     const buttonsEl = document.getElementById('docViewer-buttons');
 
     // Reset
-    chipsEl.innerHTML = '<div class="text-center py-2 w-100"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+    chipsEl.innerHTML = '<div class="text-center py-2 w-full"><i class="fa-solid fa-spinner fa-spin"></i></div>';
     iframe.src = 'about:blank';
     statusEl.innerHTML = '';
     buttonsEl.innerHTML = '';
@@ -64,7 +64,7 @@ function openDocumentViewer(docid) {
         .then(r => r.json())
         .then(data => {
             if (!data.success) {
-                chipsEl.innerHTML = '<span class="text-danger">Fehler: ' + (data.error || 'Unbekannt') + '</span>';
+                chipsEl.innerHTML = '<span class="text-[#d46b6b]">Fehler: ' + (data.error || 'Unbekannt') + '</span>';
                 return;
             }
             const doc = data.document;
@@ -115,7 +115,7 @@ function openDocumentViewer(docid) {
             buttonsEl.innerHTML = btns;
         })
         .catch(err => {
-            chipsEl.innerHTML = '<span class="text-danger">Fehler: ' + err.message + '</span>';
+            chipsEl.innerHTML = '<span class="text-[#d46b6b]">Fehler: ' + err.message + '</span>';
         });
 }
 
@@ -244,7 +244,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                     <div class="modal-body">
                         <?php if (!$editdg) { ?>
                             <div class="ignis-alert ignis-alert--danger" role="alert">
-                                <h4 class="fw-bold">Achtung!</h4> Es sind keine Profildaten hinterlegt. Dokumente können fehlerhaft sein.<br>Bitte erstelle erst ein <a href="<?= BASE_PATH ?>mitarbeiter/list.php">eigenes Mitarbeiterprofil</a> (mit deiner Discord-ID).
+                                <h4 class="font-bold">Achtung!</h4> Es sind keine Profildaten hinterlegt. Dokumente können fehlerhaft sein.<br>Bitte erstelle erst ein <a href="<?= BASE_PATH ?>mitarbeiter/list.php">eigenes Mitarbeiterprofil</a> (mit deiner Discord-ID).
                             </div>
                         <?php } ?>
 
@@ -255,7 +255,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                         <input type="hidden" name="ausstellerid" value="<?= $_SESSION['discordtag'] ?>">
 
                         <div class="mb-3">
-                            <label for="templateSelect" class="ignis-field__label">Dokumenten-Template wählen <span class="text-danger">*</span></label>
+                            <label for="templateSelect" class="ignis-field__label">Dokumenten-Template wählen <span class="text-[#d46b6b]">*</span></label>
                             <select class="form-select" id="templateSelect" name="template_id" required>
                                 <option value="" disabled selected>Bitte wählen</option>
                                 <?php
@@ -272,7 +272,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                         <hr>
 
                         <div id="dynamicTemplateForm">
-                            <p class="text-muted">Wähle ein Template aus...</p>
+                            <p class="text-[var(--text-dimmed,#818189)]">Wähle ein Template aus...</p>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -319,7 +319,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
             const formContainer = document.getElementById('dynamicTemplateForm');
 
             if (!templateId) {
-                formContainer.innerHTML = '<p class="text-muted">Wähle ein Template aus...</p>';
+                formContainer.innerHTML = '<p class="text-[var(--text-dimmed,#818189)]">Wähle ein Template aus...</p>';
                 return;
             }
 
@@ -346,7 +346,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
             let html = '';
 
             if (!template.fields || template.fields.length === 0) {
-                html = '<p class="text-muted">Dieses Template hat keine zusätzlichen Felder.</p>';
+                html = '<p class="text-[var(--text-dimmed,#818189)]">Dieses Template hat keine zusätzlichen Felder.</p>';
                 container.innerHTML = html;
                 return;
             }
@@ -363,7 +363,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
 
         function renderField(field) {
             const required = field.is_required ? 'required' : '';
-            const requiredLabel = field.is_required ? '<span class="text-danger">*</span>' : '';
+            const requiredLabel = field.is_required ? '<span class="text-[#d46b6b]">*</span>' : '';
             const fieldName = field.field_name;
 
             let html = `<div class="mb-3">

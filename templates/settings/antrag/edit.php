@@ -120,10 +120,10 @@ use App\Helpers\Flash;
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <?= $feld['pflichtfeld'] ? '<i class="fa-solid fa-check text-success"></i>' : '<i class="fa-solid fa-times text-gray-400"></i>' ?>
+                                                <?= $feld['pflichtfeld'] ? '<i class="fa-solid fa-check text-[#6abf76]"></i>' : '<i class="fa-solid fa-times text-gray-400"></i>' ?>
                                             </td>
                                             <td class="text-center">
-                                                <?= $feld['readonly'] ? '<i class="fa-solid fa-lock text-warning"></i>' : '<i class="fa-solid fa-unlock text-gray-400"></i>' ?>
+                                                <?= $feld['readonly'] ? '<i class="fa-solid fa-lock text-[#ddb84a]"></i>' : '<i class="fa-solid fa-unlock text-gray-400"></i>' ?>
                                             </td>
                                             <td class="text-right">
                                                 <a href="?id=<?= (int)$id ?>&delete_feld=<?= (int)$feld['id'] ?>"
@@ -153,7 +153,7 @@ use App\Helpers\Flash;
     <!-- Modal: Feld hinzufügen -->
     <div class="modal fade" id="addFeldModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-dark">
+            <div class="modal-content bg-[rgba(0,0,0,0.3)]">
                 <form method="post">
                     <div class="modal-header">
                         <h5 class="modal-title"><i class="fa-solid fa-plus mr-2"></i>Neues Feld hinzufügen</h5>

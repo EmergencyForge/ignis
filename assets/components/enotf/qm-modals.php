@@ -17,7 +17,7 @@ use App\Helpers\EnotfUrl;
                 <div class="modal-body" id="qmActionsContent">
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 </div>
@@ -36,7 +36,7 @@ use App\Helpers\EnotfUrl;
                 <div class="modal-body" id="qmLogContent">
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 </div>
@@ -55,7 +55,7 @@ use App\Helpers\EnotfUrl;
                 document.getElementById('qmActionsContent').innerHTML = `
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 `;
@@ -88,7 +88,7 @@ use App\Helpers\EnotfUrl;
                 document.getElementById('qmLogContent').innerHTML = `
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 `;

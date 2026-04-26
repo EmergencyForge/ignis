@@ -48,7 +48,7 @@ $actionTypeLabels = [
     <div class="intra__tile-content">
         <?php if (empty($logEntries)): ?>
             <div class="ignis-alert ignis-alert--info mb-0">
-                <i class="fas fa-info-circle me-2"></i>
+                <i class="fas fa-info-circle mr-2"></i>
                 Noch keine Einträge vorhanden.
             </div>
         <?php else: ?>
@@ -76,14 +76,14 @@ $actionTypeLabels = [
                                 </td>
                                 <td>
                                     <span class="badge bg-<?= $typeInfo['color'] ?>">
-                                        <i class="fas <?= $typeInfo['icon'] ?> me-1"></i>
+                                        <i class="fas <?= $typeInfo['icon'] ?> mr-1"></i>
                                         <?= htmlspecialchars($typeInfo['label']) ?>
                                     </span>
                                 </td>
                                 <td><?= htmlspecialchars($entry['action_description']) ?></td>
                                 <td>
                                     <?php if ($entry['vehicle_name']): ?>
-                                        <i class="fas fa-truck me-1 text-gray-400"></i>
+                                        <i class="fas fa-truck mr-1 text-gray-400"></i>
                                         <?= htmlspecialchars($entry['vehicle_name']) ?>
                                     <?php else: ?>
                                         <span class="text-gray-400">—</span>
@@ -91,15 +91,15 @@ $actionTypeLabels = [
                                 </td>
                                 <td>
                                     <?php if ($entry['operator_name']): ?>
-                                        <i class="fas fa-user me-1 text-gray-400"></i>
+                                        <i class="fas fa-user mr-1 text-gray-400"></i>
                                         <?= htmlspecialchars($entry['operator_name']) ?>
                                     <?php elseif ($entry['created_by'] === null): ?>
                                         <span class="badge system-badge">
-                                            <i class="fas fa-cog me-1"></i>
+                                            <i class="fas fa-cog mr-1"></i>
                                             System
                                         </span>
                                     <?php elseif ($entry['created_by_name']): ?>
-                                        <i class="fas fa-user me-1 text-gray-400"></i>
+                                        <i class="fas fa-user mr-1 text-gray-400"></i>
                                         <?= htmlspecialchars($entry['created_by_name']) ?>
                                     <?php else: ?>
                                         <span class="text-gray-400">—</span>
@@ -113,7 +113,7 @@ $actionTypeLabels = [
 
             <div class="mt-3">
                 <small class="text-gray-400">
-                    <i class="fas fa-info-circle me-1"></i>
+                    <i class="fas fa-info-circle mr-1"></i>
                     Gesamt: <?= count($logEntries) ?> Einträge
                 </small>
             </div>
