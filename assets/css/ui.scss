@@ -2657,6 +2657,180 @@ body:has(.ignis-dialog-backdrop.is-open) {
 }
 
 // =====================================================
+// ıgnıs UI — Snackbar
+// Bottom-left Stack mit max. 3 sichtbaren Notifications. Slide-in
+// von links, ausblendet sanft. Variants info/success/warning/error/
+// progress orientieren sich an unseren Alert-Tokens; das Layout ist
+// kompakt (Icon + Body + Action + Close).
+// =====================================================
+
+.ignis-snack-stack {
+    position: fixed;
+    bottom: 1.25rem;
+    left: 1.25rem;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.6rem;
+    pointer-events: none;
+    max-width: min(420px, calc(100vw - 2.5rem));
+}
+
+.ignis-snack {
+    pointer-events: auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    padding: 0.7rem 0.85rem;
+    background: var(--body-bg-lighter, #161616);
+    color: var(--text-normal, #bbbac1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 3px solid var(--text-dimmed, #818189);
+    border-radius: var(--radius-md, 6px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    font-size: 0.85rem;
+    line-height: 1.4;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.25s ease, transform 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+
+    &.is-visible {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    &.is-leaving {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    &__icon {
+        flex-shrink: 0;
+        font-size: 1rem;
+        margin-top: 0.1em;
+        line-height: 1;
+    }
+
+    &__body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__title {
+        font-weight: 600;
+        color: var(--text-title, #e8e6f3);
+        margin-bottom: 0.15rem;
+    }
+
+    &__msg {
+        word-break: break-word;
+    }
+
+    &__progress {
+        margin-top: 0.45rem;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 999px;
+        overflow: hidden;
+    }
+
+    &__bar {
+        height: 100%;
+        width: 0%;
+        background: currentColor;
+        border-radius: inherit;
+        transition: width 0.3s ease;
+    }
+
+    &__action {
+        flex-shrink: 0;
+        appearance: none;
+        background: transparent;
+        border: 0;
+        color: currentColor;
+        font: inherit;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 0.15rem 0.5rem;
+        border-radius: var(--radius-sm, 4px);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        font-size: 0.72rem;
+        opacity: 0.85;
+        transition: background 0.15s ease, opacity 0.15s ease;
+
+        &:hover, &:focus-visible {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.08);
+            outline: none;
+        }
+    }
+
+    &__close {
+        flex-shrink: 0;
+        appearance: none;
+        background: transparent;
+        border: 0;
+        color: currentColor;
+        opacity: 0.5;
+        cursor: pointer;
+        padding: 0 0.15rem;
+        font-size: 1rem;
+        line-height: 1;
+        margin-top: 0.05em;
+        transition: opacity 0.15s ease;
+
+        &:hover, &:focus-visible {
+            opacity: 1;
+            outline: none;
+        }
+    }
+
+    // ── Variants ────────────────────────────────────────────────
+    &--success {
+        border-left-color: var(--btn-success-bg, #3a7d44);
+        color: #6abf76;
+
+        .ignis-snack__title { color: #6abf76; }
+    }
+
+    &--warning {
+        border-left-color: var(--btn-warning-bg, #c49a2a);
+        color: #ddb84a;
+
+        .ignis-snack__title { color: #ddb84a; }
+    }
+
+    &--error {
+        border-left-color: var(--btn-danger-bg, #b03a3a);
+        color: #d46b6b;
+
+        .ignis-snack__title { color: #d46b6b; }
+    }
+
+    &--info {
+        border-left-color: var(--btn-primary-bg, #4a6fa5);
+        color: #7ba3d4;
+
+        .ignis-snack__title { color: #7ba3d4; }
+    }
+
+    &--progress {
+        border-left-color: var(--main-color, #ff4d00);
+        color: var(--main-color, #ff4d00);
+
+        .ignis-snack__title { color: var(--main-color, #ff4d00); }
+    }
+}
+
+// Reduced-Motion: Animationen abschalten
+@media (prefers-reduced-motion: reduce) {
+    .ignis-snack {
+        transition: opacity 0.1s linear;
+        transform: none !important;
+    }
+}
+
+// =====================================================
 // ıgnıs UI — Tooltip + Popover
 // Beide nutzen denselben Floating-Container, unterscheiden sich durch
 // Inhalt: Tooltip = Text-only, Popover = Title + reicher Body.
