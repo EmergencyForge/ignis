@@ -96,7 +96,7 @@
 
             <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div>
-                    <label class="form-label">Vorhandene Fahrzeuge</label>
+                    <label class="ignis-field__label">Vorhandene Fahrzeuge</label>
                     <select name="vehicle_id" class="form-select" data-custom-dropdown="true" data-search-threshold="5">
                         <option value="">Bitte wählen....</option>
                         <?php
@@ -111,15 +111,15 @@
                     <small class="text-gray-400">Oder Freitext-Felder unten nutzen</small>
                 </div>
                 <div>
-                    <label class="form-label">Freitext Funkrufname</label>
+                    <label class="ignis-field__label">Freitext Funkrufname</label>
                     <input type="text" name="radio_name" class="ignis-input" placeholder="z.B. Florian Musterhausen 1/44/1">
                 </div>
                 <div>
-                    <label class="form-label">Freitext Art</label>
+                    <label class="ignis-field__label">Freitext Art</label>
                     <input type="text" name="vehicle_name" class="ignis-input" placeholder="z.B. HLF, TLF, DLK">
                 </div>
                 <div>
-                    <label class="form-label">Freitext Identifier</label>
+                    <label class="ignis-field__label">Freitext Identifier</label>
                     <input type="text" name="vehicle_identifier" class="ignis-input" placeholder="Kennzeichen oder ID">
                 </div>
                 <div class="flex justify-end md:col-span-2">

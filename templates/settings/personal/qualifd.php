@@ -82,17 +82,14 @@ use App\Helpers\Flash;
                         <div class="modal-body">
                             <input type="hidden" name="id" id="dienstgrad-id">
                             <div class="mb-3">
-                                <label for="dienstgrad-sgnr" class="form-label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
+                                <label for="dienstgrad-sgnr" class="ignis-field__label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
                                 <input type="number" class="ignis-input" name="sgnr" id="dienstgrad-sgnr" required>
                             </div>
                             <div class="mb-3">
-                                <label for="dienstgrad-sgname" class="form-label">Bezeichnung</label>
+                                <label for="dienstgrad-sgname" class="ignis-field__label">Bezeichnung</label>
                                 <input type="text" class="ignis-input" name="sgname" id="dienstgrad-sgname" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="disabled" id="dienstgrad-disabled">
-                                <label class="form-check-label" for="dienstgrad-disabled">Inaktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="dienstgrad-disabled"><input type="checkbox" name="disabled" id="dienstgrad-disabled"><span>Inaktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
                             <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
@@ -120,17 +117,14 @@ use App\Helpers\Flash;
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="new-dienstgrad-sgnr" class="form-label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
+                                <label for="new-dienstgrad-sgnr" class="ignis-field__label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
                                 <input type="number" class="ignis-input" name="sgnr" id="new-dienstgrad-sgnr" required>
                             </div>
                             <div class="mb-3">
-                                <label for="new-dienstgrad-sgname" class="form-label">Bezeichnung</label>
+                                <label for="new-dienstgrad-sgname" class="ignis-field__label">Bezeichnung</label>
                                 <input type="text" class="ignis-input" name="sgname" id="new-dienstgrad-sgname" required>
                             </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="disabled" id="new-dienstgrad-disabled">
-                                <label class="form-check-label" for="new-dienstgrad-disabled">Inaktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="new-dienstgrad-disabled"><input type="checkbox" name="disabled" id="new-dienstgrad-disabled"><span>Inaktiv?</span></label>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>

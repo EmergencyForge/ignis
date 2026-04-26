@@ -177,7 +177,7 @@ function fmt_elapsed(int|string $seconds): string
                             <input type="hidden" name="incident_id" value="<?= $id ?>">
                             <input type="hidden" name="return_tab" value="<?= $activeTab ?>">
                             <div class="mb-3">
-                                <label class="form-label">Status</label>
+                                <label class="ignis-field__label">Status</label>
                                 <select name="status" class="form-select">
                                     <option value="0" <?= (int)$incident['status'] === 0 ? 'selected' : '' ?>>Ungesehen</option>
                                     <option value="1" <?= (int)$incident['status'] === 1 ? 'selected' : '' ?>>In Prüfung</option>

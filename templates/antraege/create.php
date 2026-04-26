@@ -57,7 +57,7 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
                             $auto_fill_value = $feld->auto_fill ? $autoFill($feld->auto_fill, $mitarbeiter) : '';
                         ?>
                             <div class="<?= $spanClass ?>">
-                                <label for="<?= htmlspecialchars($feld->feldname) ?>" class="form-label font-bold">
+                                <label for="<?= htmlspecialchars($feld->feldname) ?>" class="ignis-field__label font-bold">
                                     <?= htmlspecialchars($feld->label) ?>
                                     <?php if ($feld->pflichtfeld): ?>
                                         <span class="text-red-500">*</span>

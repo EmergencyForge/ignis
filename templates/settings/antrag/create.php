@@ -37,7 +37,7 @@ use App\Helpers\Flash;
                     <div class="intra__tile p-4">
                         <form method="post" action="">
                             <div class="mb-4">
-                                <label for="name" class="form-label fw-bold">
+                                <label for="name" class="ignis-field__label fw-bold">
                                     Name des Antragstyps <span class="text-danger">*</span>
                                 </label>
                                 <input type="text"
@@ -51,7 +51,7 @@ use App\Helpers\Flash;
                             </div>
 
                             <div class="mb-4">
-                                <label for="beschreibung" class="form-label fw-bold">
+                                <label for="beschreibung" class="ignis-field__label fw-bold">
                                     Beschreibung
                                 </label>
                                 <textarea class="ignis-input"
@@ -64,7 +64,7 @@ use App\Helpers\Flash;
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="mb-4">
-                                    <label for="icon" class="form-label fw-bold">Icon</label>
+                                    <label for="icon" class="ignis-field__label fw-bold">Icon</label>
                                     <div class="input-group">
                                         <span class="input-group-text">
                                             <i id="icon-preview" class="<?= htmlspecialchars($old['icon'] ?? 'fa-solid fa-file-lines') ?> fs-4"></i>
@@ -85,7 +85,7 @@ use App\Helpers\Flash;
                                 </div>
 
                                 <div class="mb-4">
-                                    <label for="sortierung" class="form-label fw-bold">Sortierung</label>
+                                    <label for="sortierung" class="ignis-field__label fw-bold">Sortierung</label>
                                     <input type="number"
                                         class="ignis-input"
                                         id="sortierung"

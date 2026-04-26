@@ -63,13 +63,13 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                         <h5 class="mb-4">Antragsteller</h5>
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label class="form-label text-xs text-gray-400">Name und Dienstnummer</label>
+                                <label class="ignis-field__label text-xs text-gray-400">Name und Dienstnummer</label>
                                 <div class="form-control-plaintext font-bold">
                                     <?= htmlspecialchars($antrag->name_dn) ?>
                                 </div>
                             </div>
                             <div>
-                                <label class="form-label text-xs text-gray-400">Aktueller Dienstgrad</label>
+                                <label class="ignis-field__label text-xs text-gray-400">Aktueller Dienstgrad</label>
                                 <div class="form-control-plaintext font-bold">
                                     <?= htmlspecialchars($antrag->dienstgrad ?? '') ?>
                                 </div>
@@ -114,7 +114,7 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                         <h5 class="mb-4">Bearbeitung</h5>
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label class="form-label text-xs text-gray-400">Bearbeiter</label>
+                                <label class="ignis-field__label text-xs text-gray-400">Bearbeiter</label>
                                 <div class="form-control-plaintext">
                                     <?php if (!empty($antrag->cirs_manager)): ?>
                                         <span class="font-bold"><?= htmlspecialchars($antrag->cirs_manager) ?></span>
@@ -124,7 +124,7 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                                 </div>
                             </div>
                             <div>
-                                <label class="form-label text-xs text-gray-400">Status</label>
+                                <label class="ignis-field__label text-xs text-gray-400">Status</label>
                                 <div class="form-control-plaintext">
                                     <span class="badge text-bg-<?= $currentStatus['class'] ?>">
                                         <i class="<?= $currentStatus['icon'] ?> mr-1"></i>
@@ -136,7 +136,7 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
 
                         <?php if (!empty($antrag->cirs_text)): ?>
                             <div class="mt-4">
-                                <label class="form-label text-xs text-gray-400">Bemerkung</label>
+                                <label class="ignis-field__label text-xs text-gray-400">Bemerkung</label>
                                 <div class="rounded bg-black/30 p-3">
                                     <p class="mb-0" style="white-space: pre-line;"><?= htmlspecialchars($antrag->cirs_text) ?></p>
                                 </div>

@@ -103,7 +103,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="card-body">
                             <div class="grid grid-cols-1 items-end gap-3 md:grid-cols-3">
                                 <div>
-                                    <label for="fahrzeugtyp-filter" class="form-label mb-2">Fahrzeugtyp filtern:</label>
+                                    <label for="fahrzeugtyp-filter" class="ignis-field__label mb-2">Fahrzeugtyp filtern:</label>
                                     <select class="ignis-input" id="fahrzeugtyp-filter">
                                         <option value="">Alle anzeigen</option>
                                         <?php
@@ -114,7 +114,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </select>
                                 </div>
                                 <div>
-                                    <label for="kategorie-filter" class="form-label mb-2">Kategorietyp filtern:</label>
+                                    <label for="kategorie-filter" class="ignis-field__label mb-2">Kategorietyp filtern:</label>
                                     <select class="ignis-input" id="kategorie-filter">
                                         <option value="">Alle Typen</option>
                                         <option value="0">Nur Notfallrucksack</option>
@@ -234,11 +234,11 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="category-title" class="form-label">Titel</label>
+                                <label for="category-title" class="ignis-field__label">Titel</label>
                                 <input type="text" class="ignis-input" id="category-title" name="title" required>
                             </div>
                             <div class="mb-3">
-                                <label for="category-type" class="form-label">Typ</label>
+                                <label for="category-type" class="ignis-field__label">Typ</label>
                                 <select class="ignis-input" id="category-type" name="type">
                                     <option value="0">Notfallrucksack</option>
                                     <option value="1">Innenfach</option>
@@ -246,11 +246,11 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="category-veh_type" class="form-label">Fahrzeugtyp (nur bei fahrzeugspezifisch)</label>
+                                <label for="category-veh_type" class="ignis-field__label">Fahrzeugtyp (nur bei fahrzeugspezifisch)</label>
                                 <input type="text" class="ignis-input" id="category-veh_type" name="veh_type" placeholder="z.B. RTW, NEF, KTW" required>
                             </div>
                             <div class="mb-3">
-                                <label for="category-priority" class="form-label">Priorität</label>
+                                <label for="category-priority" class="ignis-field__label">Priorität</label>
                                 <input type="number" class="ignis-input" id="category-priority" name="priority" value="0">
                             </div>
                         </div>
@@ -275,11 +275,11 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="edit-category-title" class="form-label">Titel</label>
+                                <label for="edit-category-title" class="ignis-field__label">Titel</label>
                                 <input type="text" class="ignis-input" id="edit-category-title" name="title" required>
                             </div>
                             <div class="mb-3">
-                                <label for="edit-category-type" class="form-label">Typ</label>
+                                <label for="edit-category-type" class="ignis-field__label">Typ</label>
                                 <select class="ignis-input" id="edit-category-type" name="type">
                                     <option value="0">Notfallrucksack</option>
                                     <option value="1">Innenfach</option>
@@ -287,11 +287,11 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="edit-category-veh_type" class="form-label">Fahrzeugtyp</label>
+                                <label for="edit-category-veh_type" class="ignis-field__label">Fahrzeugtyp</label>
                                 <input type="text" class="ignis-input" id="edit-category-veh_type" name="veh_type" required>
                             </div>
                             <div class="mb-3">
-                                <label for="edit-category-priority" class="form-label">Priorität</label>
+                                <label for="edit-category-priority" class="ignis-field__label">Priorität</label>
                                 <input type="number" class="ignis-input" id="edit-category-priority" name="priority">
                             </div>
                         </div>
@@ -315,7 +315,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="tile-category" class="form-label">Kategorie</label>
+                                <label for="tile-category" class="ignis-field__label">Kategorie</label>
                                 <select class="ignis-input" id="tile-category" name="category" required>
                                     <?php
                                     foreach ($categories as $cat) {
@@ -339,11 +339,11 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="tile-title" class="form-label">Bezeichnung</label>
+                                <label for="tile-title" class="ignis-field__label">Bezeichnung</label>
                                 <input type="text" class="ignis-input" id="tile-title" name="title" required>
                             </div>
                             <div class="mb-3">
-                                <label for="tile-amount" class="form-label">Anzahl</label>
+                                <label for="tile-amount" class="ignis-field__label">Anzahl</label>
                                 <input type="number" class="ignis-input" id="tile-amount" name="amount" value="1" min="0">
                             </div>
                         </div>
@@ -368,7 +368,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="edit-tile-category" class="form-label">Kategorie</label>
+                                <label for="edit-tile-category" class="ignis-field__label">Kategorie</label>
                                 <select class="ignis-input" id="edit-tile-category" name="category" required>
                                     <?php
                                     foreach ($categories as $cat) {
@@ -392,11 +392,11 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="edit-tile-title" class="form-label">Bezeichnung</label>
+                                <label for="edit-tile-title" class="ignis-field__label">Bezeichnung</label>
                                 <input type="text" class="ignis-input" id="edit-tile-title" name="title" required>
                             </div>
                             <div class="mb-3">
-                                <label for="edit-tile-amount" class="form-label">Anzahl</label>
+                                <label for="edit-tile-amount" class="ignis-field__label">Anzahl</label>
                                 <input type="number" class="ignis-input" id="edit-tile-amount" name="amount" min="0">
                             </div>
                         </div>

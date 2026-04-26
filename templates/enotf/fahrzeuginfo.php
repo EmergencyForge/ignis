@@ -113,7 +113,7 @@ $currentDate = date('d.m.Y');
                                         <input type="hidden" name="vehicle_id" value="<?= $vehicle['id'] ?>">
                                         <input type="hidden" name="action" value="create">
                                         <div class="mb-2">
-                                            <label class="form-label text-light">Meldung durch</label>
+                                            <label class="ignis-field__label text-light">Meldung durch</label>
                                             <select name="reported_by_name" class="form-select form-select-sm" data-custom-dropdown="true">
                                                 <?php if (!empty($_SESSION['fahrername'])): ?>
                                                     <option value="<?= htmlspecialchars($_SESSION['fahrername']) ?>">Fahrer — <?= htmlspecialchars($_SESSION['fahrername']) ?></option>
@@ -127,15 +127,15 @@ $currentDate = date('d.m.Y');
                                             </select>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label text-light">Titel</label>
+                                            <label class="ignis-field__label text-light">Titel</label>
                                             <input type="text" name="title" class="ignis-input ignis-input--sm" placeholder="Kurze Beschreibung des Defekts" required>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label text-light">Beschreibung</label>
+                                            <label class="ignis-field__label text-light">Beschreibung</label>
                                             <textarea name="description" class="ignis-input ignis-input--sm" rows="2" placeholder="Details..."></textarea>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="form-label text-light">Kategorie</label>
+                                            <label class="ignis-field__label text-light">Kategorie</label>
                                             <select name="category" class="form-select form-select-sm" data-custom-dropdown="true" required>
                                                 <option value="" disabled selected>Bitte auswählen...</option>
                                                 <option value="aufbau_karosserie">Aufbau / Karosserie</option>
@@ -155,7 +155,7 @@ $currentDate = date('d.m.Y');
                                             </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label text-light">Fahrzeug noch einsatzfähig?</label>
+                                            <label class="ignis-field__label text-light">Fahrzeug noch einsatzfähig?</label>
                                             <div class="flex gap-3">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="vehicle_operable" id="enotf-operable-yes" value="1" checked>

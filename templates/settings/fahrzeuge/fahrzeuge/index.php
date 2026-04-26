@@ -27,13 +27,7 @@ use App\Helpers\Flash;
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span>Einstellungen</span>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">Fahrzeuge</span>
-                    </nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Fahrzeuge</span></nav>
                     <div class="page-header mb-4">
                         <h1>Fahrzeugverwaltung</h1>
                         <div class="header-actions">
@@ -190,27 +184,27 @@ use App\Helpers\Flash;
                             <input type="hidden" name="id" id="fahrzeug-id">
 
                             <div class="mb-3">
-                                <label for="fahrzeug-name" class="form-label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
+                                <label for="fahrzeug-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
                                 <input type="text" class="ignis-input" name="name" id="fahrzeug-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-kennzeichen" class="form-label">Kennzeichen</label>
+                                <label for="fahrzeug-kennzeichen" class="ignis-field__label">Kennzeichen</label>
                                 <input type="text" class="ignis-input" name="kennzeichen" id="fahrzeug-kennzeichen" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
+                                <label for="fahrzeug-identifier" class="ignis-field__label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
                                 <input type="text" class="ignis-input" name="identifier" id="fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-veh_typ" class="form-label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
+                                <label for="fahrzeug-veh_typ" class="ignis-field__label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
                                 <input type="text" class="ignis-input" name="veh_type" id="fahrzeug-veh_typ" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="fahrzeug-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="priority" id="fahrzeug-priority" required>
                             </div>
 
@@ -224,13 +218,10 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
 
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" name="active" id="fahrzeug-active">
-                                <label class="form-check-label" for="fahrzeug-active">Aktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="fahrzeug-active"><input type="checkbox" name="active" id="fahrzeug-active"><span>Aktiv?</span></label>
 
                             <div class="mb-3">
-                                <label for="fahrzeug-allowed_jobs" class="form-label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
+                                <label for="fahrzeug-allowed_jobs" class="ignis-field__label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
                                 <input type="text" class="ignis-input" name="allowed_jobs" id="fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
                             </div>
 
@@ -273,27 +264,27 @@ use App\Helpers\Flash;
                         <div class="modal-body">
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-name" class="form-label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
+                                <label for="new-fahrzeug-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
                                 <input type="text" class="ignis-input" name="name" id="new-fahrzeug-name" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-kennzeichen" class="form-label">Kennzeichen</label>
+                                <label for="new-fahrzeug-kennzeichen" class="ignis-field__label">Kennzeichen</label>
                                 <input type="text" class="ignis-input" name="kennzeichen" id="new-fahrzeug-kennzeichen" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-identifier" class="form-label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
+                                <label for="new-fahrzeug-identifier" class="ignis-field__label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
                                 <input type="text" class="ignis-input" name="identifier" id="new-fahrzeug-identifier" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-veh_typ" class="form-label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
+                                <label for="new-fahrzeug-veh_typ" class="ignis-field__label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
                                 <input type="text" class="ignis-input" name="veh_type" id="new-fahrzeug-veh_typ" required>
                             </div>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-priority" class="form-label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                                <label for="new-fahrzeug-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
                                 <input type="number" class="ignis-input" name="priority" id="new-fahrzeug-priority" required>
                             </div>
 
@@ -307,13 +298,10 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
 
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" name="active" id="new-fahrzeug-active" checked>
-                                <label class="form-check-label" for="new-fahrzeug-active">Aktiv?</label>
-                            </div>
+                            <label class="ignis-checkbox" for="new-fahrzeug-active"><input type="checkbox" name="active" id="new-fahrzeug-active" checked><span>Aktiv?</span></label>
 
                             <div class="mb-3">
-                                <label for="new-fahrzeug-allowed_jobs" class="form-label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
+                                <label for="new-fahrzeug-allowed_jobs" class="ignis-field__label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
                                 <input type="text" class="ignis-input" name="allowed_jobs" id="new-fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
                             </div>
 
@@ -895,11 +883,11 @@ use App\Helpers\Flash;
                     <div class="import-row-edit hidden mt-2 pt-2" id="import-edit-${v.id}" style="border-top:1px solid rgba(255,255,255,0.06);">
                         <div class="row g-2" style="font-size:var(--fs-sm);">
                             <div class="col-4">
-                                <label class="form-label mb-0 text-muted">Typ</label>
+                                <label class="ignis-field__label mb-0 text-muted">Typ</label>
                                 <input type="text" class="ignis-input ignis-input--sm" id="imp-veh_type-${v.id}" value="${escAttr(v.veh_type || '')}">
                             </div>
                             <div class="col-4">
-                                <label class="form-label mb-0 text-muted">RD-Typ</label>
+                                <label class="ignis-field__label mb-0 text-muted">RD-Typ</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="imp-rd_type-${v.id}">
                                     <option value="0" ${v.rd_type==0?'selected':''}>Andere</option>
                                     <option value="1" ${v.rd_type==1?'selected':''}>RD - Mit NA</option>
@@ -908,7 +896,7 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="col-4">
-                                <label class="form-label mb-0 text-muted">Erlaubte Jobs</label>
+                                <label class="ignis-field__label mb-0 text-muted">Erlaubte Jobs</label>
                                 <input type="text" class="ignis-input ignis-input--sm" id="imp-allowed_jobs-${v.id}" value="${escAttr(v.job || '')}">
                             </div>
                         </div>

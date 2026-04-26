@@ -118,15 +118,7 @@ $statusLabels = [
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6">
-                    <nav class="admin-breadcrumb">
-                        <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span>Einstellungen</span>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php">Fahrzeuge</a>
-                        <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                        <span class="current">Defekt-Meldungen</span>
-                    </nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active">Defekt-Meldungen</span></nav>
 
                     <div class="page-header mb-4">
                         <h1>Defekt-Meldungen</h1>
@@ -174,7 +166,7 @@ $statusLabels = [
                     <div class="intra__tile mb-4 p-3">
                         <form method="GET" class="flex flex-wrap items-end gap-2">
                             <div>
-                                <label class="form-label mb-1">Fahrzeug</label>
+                                <label class="ignis-field__label mb-1">Fahrzeug</label>
                                 <select name="vehicle" class="form-select form-select-sm" data-custom-dropdown="true">
                                     <option value="">Alle</option>
                                     <?php foreach ($vehicles as $v): ?>
@@ -185,7 +177,7 @@ $statusLabels = [
                                 </select>
                             </div>
                             <div>
-                                <label class="form-label mb-1">Status</label>
+                                <label class="ignis-field__label mb-1">Status</label>
                                 <select name="status" class="form-select form-select-sm" data-custom-dropdown="true">
                                     <option value="">Alle</option>
                                     <option value="open" <?= $filterStatus === 'open' ? 'selected' : '' ?>>Offen</option>
@@ -320,7 +312,7 @@ $statusLabels = [
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Fahrzeug</label>
+                            <label class="ignis-field__label">Fahrzeug</label>
                             <select name="vehicle_id" class="form-select" required>
                                 <option value="">Bitte wählen...</option>
                                 <?php foreach ($vehicles as $v): ?>
@@ -331,15 +323,15 @@ $statusLabels = [
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Titel</label>
+                            <label class="ignis-field__label">Titel</label>
                             <input type="text" name="title" class="ignis-input" placeholder="Kurze Beschreibung des Defekts" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Beschreibung</label>
+                            <label class="ignis-field__label">Beschreibung</label>
                             <textarea name="description" class="ignis-input" rows="3" placeholder="Detaillierte Beschreibung..."></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Kategorie</label>
+                            <label class="ignis-field__label">Kategorie</label>
                             <select name="category" class="form-select" required>
                                 <option value="" disabled selected>Bitte auswählen...</option>
                                 <?php foreach ($categoryLabels as $key => $label): ?>
@@ -348,16 +340,10 @@ $statusLabels = [
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Fahrzeug noch einsatzfähig?</label>
+                            <label class="ignis-field__label">Fahrzeug noch einsatzfähig?</label>
                             <div class="flex gap-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="vehicle_operable" id="operable-yes" value="1" checked>
-                                    <label class="form-check-label" for="operable-yes">Ja</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="vehicle_operable" id="operable-no" value="0">
-                                    <label class="form-check-label" for="operable-no">Nein</label>
-                                </div>
+                                <label class="ignis-radio" for="operable-yes"><input type="radio" name="vehicle_operable" id="operable-yes" value="1" checked><span>Ja</span></label>
+                                <label class="ignis-radio" for="operable-no"><input type="radio" name="vehicle_operable" id="operable-no" value="0"><span>Nein</span></label>
                             </div>
                             <small class="text-gray-400">Bei "Nein" wird das Fahrzeug automatisch als nicht einsatzfähig markiert.</small>
                         </div>
@@ -384,7 +370,7 @@ $statusLabels = [
                     <div class="modal-body">
                         <p class="mb-3">Defekt <strong id="resolve-defect-title"></strong> als gelöst markieren?</p>
                         <div class="mb-3">
-                            <label class="form-label">Lösungsnotiz <small class="text-gray-400">(optional)</small></label>
+                            <label class="ignis-field__label">Lösungsnotiz <small class="text-gray-400">(optional)</small></label>
                             <textarea name="resolution_note" class="ignis-input" rows="3" placeholder="Was wurde gemacht?"></textarea>
                         </div>
                     </div>
@@ -411,7 +397,7 @@ $statusLabels = [
                     <div class="modal-body">
                         <p class="mb-3">Defekt <strong id="status-change-defect-title"></strong> auf <span id="status-change-label" class="font-bold"></span> setzen?</p>
                         <div class="mb-3">
-                            <label class="form-label">Notiz <small class="text-gray-400">(optional)</small></label>
+                            <label class="ignis-field__label">Notiz <small class="text-gray-400">(optional)</small></label>
                             <textarea name="status_note" class="ignis-input" rows="3" placeholder="z.B. Ersatzteil bestellt, wird nächste Woche geliefert..."></textarea>
                         </div>
                     </div>

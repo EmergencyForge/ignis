@@ -19,13 +19,7 @@ use App\Helpers\Flash;
 <body data-bs-theme="dark" data-page="protokolle">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
     <div class="container my-4">
-        <nav class="admin-breadcrumb">
-            <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
-            <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-            <span>Protokolle</span>
-            <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-            <span class="current">Einsatz QM</span>
-        </nav>
+        <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">Einsatz QM</span></nav>
         <div class="page-header mb-4">
             <h1>Einsatzprotokolle (QM)</h1>
             <div class="header-actions">
@@ -214,7 +208,7 @@ use App\Helpers\Flash;
                             <form id="bulkDeleteFieldsForm">
                                 <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                                     <div>
-                                        <label class="form-label fw-bold">Zeitraum:</label>
+                                        <label class="ignis-field__label fw-bold">Zeitraum:</label>
                                         <select class="form-select" id="timePeriod">
                                             <option value="7">Letzte 7 Tage</option>
                                             <option value="30" selected>Letzte 30 Tage</option>
@@ -224,7 +218,7 @@ use App\Helpers\Flash;
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="form-label fw-bold">Status:</label>
+                                        <label class="ignis-field__label fw-bold">Status:</label>
                                         <select class="form-select" id="statusFilter">
                                             <option value="all" selected>Alle</option>
                                             <option value="unfinalized">Nur unfertige</option>
@@ -233,7 +227,7 @@ use App\Helpers\Flash;
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
+                                    <label class="ignis-field__label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
                                 <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">

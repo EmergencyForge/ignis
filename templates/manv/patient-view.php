@@ -133,19 +133,19 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="name" class="form-label">Name</label>
+                                    <label for="name" class="ignis-field__label">Name</label>
                                     <input type="text" class="ignis-input" id="name" name="name" value="<?= htmlspecialchars($patient['name'] ?? '') ?>">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="vorname" class="form-label">Vorname</label>
+                                    <label for="vorname" class="ignis-field__label">Vorname</label>
                                     <input type="text" class="ignis-input" id="vorname" name="vorname" value="<?= htmlspecialchars($patient['vorname'] ?? '') ?>">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="geburtsdatum" class="form-label">Geburtsdatum</label>
+                                    <label for="geburtsdatum" class="ignis-field__label">Geburtsdatum</label>
                                     <input type="date" class="ignis-input" id="geburtsdatum" name="geburtsdatum" value="<?= htmlspecialchars($patient['geburtsdatum'] ?? '') ?>">
                                 </div>
                                 <div class="mb-3">
-                                    <label for="geschlecht" class="form-label">Geschlecht</label>
+                                    <label for="geschlecht" class="ignis-field__label">Geschlecht</label>
                                     <select class="ignis-input" id="geschlecht" name="geschlecht">
                                         <option value="unbekannt" <?= ($patient['geschlecht'] ?? '') === 'unbekannt' ? 'selected' : '' ?>>Unbekannt</option>
                                         <option value="m" <?= ($patient['geschlecht'] ?? '') === 'm' ? 'selected' : '' ?>>Männlich</option>
@@ -162,7 +162,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="sichtungskategorie" class="form-label">Kategorie</label>
+                                    <label for="sichtungskategorie" class="ignis-field__label">Kategorie</label>
                                     <select class="form-control form-control-lg" id="sichtungskategorie" name="sichtungskategorie">
                                         <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> class="text-danger">SK1 - Rot</option>
                                         <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> class="text-warning">SK2 - Gelb</option>
@@ -183,7 +183,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="transportmittel_id" class="form-label">Zugewiesenes Fahrzeug</label>
+                                    <label for="transportmittel_id" class="ignis-field__label">Zugewiesenes Fahrzeug</label>
                                     <select class="ignis-input" id="transportmittel_id" name="transportmittel_id">
                                         <option value="" data-rdtype="">Noch nicht zugewiesen</option>
                                         <?php foreach ($verfuegbareFahrzeuge as $fzg):
@@ -200,20 +200,20 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="display_fahrzeugtyp" class="form-label">Art</label>
+                                    <label for="display_fahrzeugtyp" class="ignis-field__label">Art</label>
                                     <input type="text" class="ignis-input" id="display_fahrzeugtyp" value="<?= htmlspecialchars($patient['transportmittel'] ?? '') ?>" readonly>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="display_rufname" class="form-label">Rufname / Kennung</label>
+                                    <label for="display_rufname" class="ignis-field__label">Rufname / Kennung</label>
                                     <input type="text" class="ignis-input" id="display_rufname" value="<?= htmlspecialchars($patient['transportmittel_rufname'] ?? '') ?>" readonly>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="display_lokalisation" class="form-label">Fahrzeug-Lokalisation</label>
+                                    <label for="display_lokalisation" class="ignis-field__label">Fahrzeug-Lokalisation</label>
                                     <input type="text" class="ignis-input" id="display_lokalisation" value="<?= htmlspecialchars($patient['fahrzeug_lokalisation'] ?? '') ?>" readonly>
                                 </div>
                                 <?php if ($canTransport): ?>
                                     <div class="mb-3">
-                                        <label for="transportziel" class="form-label">Transportziel</label>
+                                        <label for="transportziel" class="ignis-field__label">Transportziel</label>
                                         <select class="ignis-input" id="transportziel" name="transportziel">
                                             <option value="">Bitte wählen...</option>
                                             <option value="Kein Transport" <?= (($patient['transportziel'] ?? '') === 'Kein Transport') ? 'selected' : '' ?>>Kein Transport</option>
@@ -243,11 +243,11 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             </div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="verletzungen" class="form-label">Verletzungen</label>
+                                    <label for="verletzungen" class="ignis-field__label">Verletzungen</label>
                                     <textarea class="ignis-input" id="verletzungen" name="verletzungen" rows="3"><?= htmlspecialchars($patient['verletzungen'] ?? '') ?></textarea>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="notizen" class="form-label">Notizen</label>
+                                    <label for="notizen" class="ignis-field__label">Notizen</label>
                                     <textarea class="ignis-input" id="notizen" name="notizen" rows="2"><?= htmlspecialchars($patient['notizen'] ?? '') ?></textarea>
                                 </div>
                             </div>

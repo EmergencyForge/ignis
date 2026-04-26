@@ -33,7 +33,7 @@ $val = function (string $field, string $default = '') use ($entry) {
 <div class="grid grid-cols-1 gap-3 md:grid-cols-12">
     <!-- Datum -->
     <div class="md:col-span-4">
-        <label for="fb_datum" class="form-label">Datum <span class="text-danger">*</span></label>
+        <label for="fb_datum" class="ignis-field__label">Datum <span class="text-danger">*</span></label>
         <input type="date" class="ignis-input ignis-input--sm" id="fb_datum" name="datum"
                value="<?= $isEdit ? $val('datum') : date('Y-m-d') ?>" required
                data-ignis-datepicker>
@@ -41,21 +41,21 @@ $val = function (string $field, string $default = '') use ($entry) {
 
     <!-- Abfahrt -->
     <div class="md:col-span-4">
-        <label for="fb_abfahrt" class="form-label">Abfahrt <span class="text-danger">*</span></label>
+        <label for="fb_abfahrt" class="ignis-field__label">Abfahrt <span class="text-danger">*</span></label>
         <input type="time" class="ignis-input ignis-input--sm" id="fb_abfahrt" name="abfahrt"
                value="<?= $isEdit ? $val('abfahrt') : date('H:i') ?>" required>
     </div>
 
     <!-- Ankunft -->
     <div class="md:col-span-4">
-        <label for="fb_ankunft" class="form-label">Ankunft</label>
+        <label for="fb_ankunft" class="ignis-field__label">Ankunft</label>
         <input type="time" class="ignis-input ignis-input--sm" id="fb_ankunft" name="ankunft"
                value="<?= $val('ankunft') ?>">
     </div>
 
     <!-- Fahrzeug -->
     <div class="md:col-span-6">
-        <label for="fb_fahrzeug" class="form-label">Fahrzeug <span class="text-danger">*</span></label>
+        <label for="fb_fahrzeug" class="ignis-field__label">Fahrzeug <span class="text-danger">*</span></label>
         <?php if ($isReadonly): ?>
             <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($vehicleName ?: $vehicleIdentifier) ?>" readonly>
             <input type="hidden" name="vehicle_id" value="<?= (int)$vehicleId ?>">
@@ -78,7 +78,7 @@ $val = function (string $field, string $default = '') use ($entry) {
 
     <!-- Fahrer -->
     <div class="md:col-span-6">
-        <label for="fb_fahrer" class="form-label">Fahrer <span class="text-danger">*</span></label>
+        <label for="fb_fahrer" class="ignis-field__label">Fahrer <span class="text-danger">*</span></label>
         <?php if ($isReadonly): ?>
             <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($fahrerName) ?>" readonly>
             <input type="hidden" name="fahrer_name" value="<?= htmlspecialchars($fahrerName) ?>">
@@ -90,7 +90,7 @@ $val = function (string $field, string $default = '') use ($entry) {
 
     <!-- Fahrttyp -->
     <div class="md:col-span-6">
-        <label for="fb_fahrttyp" class="form-label">Fahrttyp <span class="text-danger">*</span></label>
+        <label for="fb_fahrttyp" class="ignis-field__label">Fahrttyp <span class="text-danger">*</span></label>
         <select class="form-select form-select-sm" data-custom-dropdown="true" id="fb_fahrttyp" name="fahrttyp" required>
             <option value="">Bitte auswählen...</option>
             <?php foreach ($fahrttypen as $slug => $label): ?>
@@ -104,21 +104,21 @@ $val = function (string $field, string $default = '') use ($entry) {
 
     <!-- Kilometer -->
     <div class="md:col-span-6">
-        <label for="fb_kilometer" class="form-label">Kilometer</label>
+        <label for="fb_kilometer" class="ignis-field__label">Kilometer</label>
         <input type="number" class="ignis-input ignis-input--sm" id="fb_kilometer" name="kilometer"
                step="0.1" min="0" value="<?= $val('kilometer') ?>">
     </div>
 
     <!-- Stationierungsort -->
     <div class="md:col-span-12">
-        <label for="fb_stationierungsort" class="form-label">Stationierungsort</label>
+        <label for="fb_stationierungsort" class="ignis-field__label">Stationierungsort</label>
         <input type="text" class="ignis-input ignis-input--sm" id="fb_stationierungsort" name="stationierungsort"
                value="<?= $val('stationierungsort') ?>" placeholder="z.B. Feuerwehr Gerätehaus">
     </div>
 
     <!-- Grund -->
     <div class="md:col-span-12">
-        <label for="fb_grund" class="form-label">Grund der Fahrt</label>
+        <label for="fb_grund" class="ignis-field__label">Grund der Fahrt</label>
         <textarea class="ignis-input ignis-input--sm" id="fb_grund" name="grund" rows="2"
                   placeholder="Freitext..."><?= $val('grund') ?></textarea>
     </div>

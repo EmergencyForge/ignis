@@ -107,11 +107,11 @@ use App\Helpers\Flash;
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="dept-name" class="form-label">Fachrichtung *</label>
+                                <label for="dept-name" class="ignis-field__label">Fachrichtung *</label>
                                 <input type="text" class="ignis-input" name="name" id="dept-name" placeholder="z.B. ZNA/INA, Schockraum, Intensivstation" required>
                             </div>
                             <div class="mb-3">
-                                <label for="dept-sort-order" class="form-label">Sortierung</label>
+                                <label for="dept-sort-order" class="ignis-field__label">Sortierung</label>
                                 <input type="number" class="ignis-input" name="sort_order" id="dept-sort-order" value="999" min="0" step="1">
                                 <small class="text-muted">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
                             </div>
@@ -143,11 +143,11 @@ use App\Helpers\Flash;
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
-                                <label for="edit-dept-name" class="form-label">Fachrichtung *</label>
+                                <label for="edit-dept-name" class="ignis-field__label">Fachrichtung *</label>
                                 <input type="text" class="ignis-input" name="name" id="edit-dept-name" required>
                             </div>
                             <div class="mb-3">
-                                <label for="edit-dept-sort-order" class="form-label">Sortierung</label>
+                                <label for="edit-dept-sort-order" class="ignis-field__label">Sortierung</label>
                                 <input type="number" class="ignis-input" name="sort_order" id="edit-dept-sort-order" min="0" step="1" required>
                                 <small class="text-muted">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
                             </div>

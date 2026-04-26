@@ -286,7 +286,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                             <?php if ($federationEnabled): ?>
                                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                                     <div>
-                                        <label class="form-label" style="font-size:var(--fs-sm);">Instanz-ID</label>
+                                        <label class="ignis-field__label" style="font-size:var(--fs-sm);">Instanz-ID</label>
                                         <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($instanceId) ?>" readonly style="font-family:var(--font-mono);font-size:var(--fs-xs);">
                                     </div>
                                     <div>
@@ -294,7 +294,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                             <input type="hidden" name="action" value="update_name">
                                             <div class="flex-1">
-                                                <label class="form-label" style="font-size:var(--fs-sm);">Instanzname</label>
+                                                <label class="ignis-field__label" style="font-size:var(--fs-sm);">Instanzname</label>
                                                 <input type="text" name="instance_name" class="ignis-input ignis-input--sm"
                                                        value="<?= htmlspecialchars($instanceName) ?>"
                                                        placeholder="z.B. Berufsfeuerwehr Berlin">
@@ -424,7 +424,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
 
                                     <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                                         <div>
-                                            <label class="form-label" style="font-size:var(--fs-xs);font-weight:600;">
+                                            <label class="ignis-field__label" style="font-size:var(--fs-xs);font-weight:600;">
                                                 <i class="fa-solid fa-download" style="color:var(--main-color)"></i> Von dort abrufen
                                             </label>
                                             <div class="flex flex-col gap-1">
@@ -443,7 +443,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                             </div>
                                         </div>
                                         <div>
-                                            <label class="form-label" style="font-size:var(--fs-xs);font-weight:600;">
+                                            <label class="ignis-field__label" style="font-size:var(--fs-xs);font-weight:600;">
                                                 <i class="fa-solid fa-upload" style="color:var(--main-color)"></i> Dorthin bereitstellen
                                             </label>
                                             <div class="flex flex-col gap-1">
@@ -465,7 +465,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
 
                                     <div class="flex flex-wrap items-end gap-3">
                                         <div>
-                                            <label class="form-label" style="font-size:var(--fs-xs);">Sync-Intervall (Min.)</label>
+                                            <label class="ignis-field__label" style="font-size:var(--fs-xs);">Sync-Intervall (Min.)</label>
                                             <input type="number" name="sync_interval_minutes" class="ignis-input ignis-input--sm" style="width:80px;"
                                                    value="<?= (int)$link['sync_interval_minutes'] ?>" min="5" max="1440">
                                         </div>

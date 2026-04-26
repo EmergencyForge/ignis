@@ -239,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
 
                     <form method="POST" action="">
                         <div class="mb-4">
-                            <label for="code" class="form-label">
+                            <label for="code" class="ignis-field__label">
                                 Bitte geben Sie den 6-stelligen Code ein
                             </label>
                             <input
@@ -253,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
                                 required
                                 autofocus
                                 autocomplete="off">
-                            <div class="form-text mt-3">
+                            <div class="ignis-field__hint mt-3">
                                 <i class="fa-solid fa-info-circle mr-1"></i>
                                 Der Code wurde Ihnen vom Rettungsdienst zur Verfügung gestellt.
                             </div>

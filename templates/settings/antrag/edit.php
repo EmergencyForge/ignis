@@ -31,19 +31,19 @@ use App\Helpers\Flash;
                 <form method="post">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div>
-                            <label for="name" class="form-label font-bold">Name <span class="text-red-500">*</span></label>
+                            <label for="name" class="ignis-field__label font-bold">Name <span class="text-red-500">*</span></label>
                             <input type="text" class="ignis-input" id="name" name="name"
                                 value="<?= htmlspecialchars($typ['name']) ?>" required>
                         </div>
                         <div>
-                            <label for="sortierung" class="form-label font-bold">Sortierung</label>
+                            <label for="sortierung" class="ignis-field__label font-bold">Sortierung</label>
                             <input type="number" class="ignis-input" id="sortierung" name="sortierung"
                                 value="<?= (int)$typ['sortierung'] ?>" min="0">
                         </div>
                     </div>
 
                     <div class="mt-4 mb-4">
-                        <label for="beschreibung" class="form-label font-bold">Beschreibung</label>
+                        <label for="beschreibung" class="ignis-field__label font-bold">Beschreibung</label>
                         <textarea class="ignis-input" id="beschreibung" name="beschreibung"
                             rows="2"><?= htmlspecialchars($typ['beschreibung']) ?></textarea>
                     </div>
@@ -162,19 +162,19 @@ use App\Helpers\Flash;
                     <div class="modal-body">
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label for="feldname" class="form-label font-bold">Feldname (technisch) <span class="text-red-500">*</span></label>
+                                <label for="feldname" class="ignis-field__label font-bold">Feldname (technisch) <span class="text-red-500">*</span></label>
                                 <input type="text" class="ignis-input" id="feldname" name="feldname" placeholder="z.B. von_datum, grund" required>
                                 <small class="mt-1 block text-xs text-gray-400">Nur Kleinbuchstaben, Zahlen und Unterstriche</small>
                             </div>
                             <div>
-                                <label for="label" class="form-label font-bold">Label (Anzeige) <span class="text-red-500">*</span></label>
+                                <label for="label" class="ignis-field__label font-bold">Label (Anzeige) <span class="text-red-500">*</span></label>
                                 <input type="text" class="ignis-input" id="label" name="label" placeholder="z.B. Urlaub von" required>
                             </div>
                         </div>
 
                         <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
-                                <label for="feldtyp" class="form-label font-bold">Feldtyp <span class="text-red-500">*</span></label>
+                                <label for="feldtyp" class="ignis-field__label font-bold">Feldtyp <span class="text-red-500">*</span></label>
                                 <select class="form-select" id="feldtyp" name="feldtyp" required>
                                     <option value="text">Text (einzeilig)</option>
                                     <option value="textarea">Textarea (mehrzeilig)</option>
@@ -188,14 +188,14 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div>
-                                <label for="breite" class="form-label font-bold">Feldbreite</label>
+                                <label for="breite" class="ignis-field__label font-bold">Feldbreite</label>
                                 <select class="form-select" id="breite" name="breite">
                                     <option value="full">Volle Breite</option>
                                     <option value="half">Halbe Breite</option>
                                 </select>
                             </div>
                             <div>
-                                <label for="auto_fill" class="form-label font-bold">Auto-Fill</label>
+                                <label for="auto_fill" class="ignis-field__label font-bold">Auto-Fill</label>
                                 <select class="form-select" id="auto_fill" name="auto_fill">
                                     <option value="">Kein Auto-Fill</option>
                                     <option value="fullname_dienstnr">Name + Dienstnr.</option>
@@ -209,34 +209,28 @@ use App\Helpers\Flash;
                         </div>
 
                         <div class="mt-4">
-                            <label for="platzhalter" class="form-label font-bold">Platzhalter-Text</label>
+                            <label for="platzhalter" class="ignis-field__label font-bold">Platzhalter-Text</label>
                             <input type="text" class="ignis-input" id="platzhalter" name="platzhalter" placeholder="z.B. TT.MM.JJJJ">
                         </div>
 
                         <div class="mt-4" id="optionen-container" style="display: none;">
-                            <label for="optionen" class="form-label font-bold">Optionen (für Select)</label>
+                            <label for="optionen" class="ignis-field__label font-bold">Optionen (für Select)</label>
                             <textarea class="ignis-input" id="optionen" name="optionen" rows="3" placeholder="Eine Option pro Zeile"></textarea>
                             <small class="mt-1 block text-xs text-gray-400">Jede Zeile wird zu einer Auswahloption</small>
                         </div>
 
                         <div class="mt-4">
-                            <label for="hinweistext" class="form-label font-bold">Hinweistext</label>
+                            <label for="hinweistext" class="ignis-field__label font-bold">Hinweistext</label>
                             <textarea class="ignis-input" id="hinweistext" name="hinweistext" rows="2" placeholder="Optionaler Hinweis, der unter dem Feld angezeigt wird"></textarea>
                         </div>
 
                         <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="pflichtfeld" name="pflichtfeld">
-                                <label class="form-check-label" for="pflichtfeld">
+                            <label class="ignis-checkbox" for="pflichtfeld"><input type="checkbox" id="pflichtfeld" name="pflichtfeld"><span>
                                     <strong>Pflichtfeld</strong>
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="readonly" name="readonly">
-                                <label class="form-check-label" for="readonly">
+                                </span></label>
+                            <label class="ignis-checkbox" for="readonly"><input type="checkbox" id="readonly" name="readonly"><span>
                                     <strong>Nur lesbar (Readonly)</strong>
-                                </label>
-                            </div>
+                                </span></label>
                         </div>
                     </div>
                     <div class="modal-footer">

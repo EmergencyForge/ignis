@@ -255,7 +255,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                         <input type="hidden" name="ausstellerid" value="<?= $_SESSION['discordtag'] ?>">
 
                         <div class="mb-3">
-                            <label for="templateSelect" class="form-label">Dokumenten-Template wählen <span class="text-danger">*</span></label>
+                            <label for="templateSelect" class="ignis-field__label">Dokumenten-Template wählen <span class="text-danger">*</span></label>
                             <select class="form-select" id="templateSelect" name="template_id" required>
                                 <option value="" disabled selected>Bitte wählen</option>
                                 <?php
@@ -367,7 +367,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
             const fieldName = field.field_name;
 
             let html = `<div class="mb-3">
-                <label for="field_${fieldName}" class="form-label">${field.field_label} ${requiredLabel}</label>`;
+                <label for="field_${fieldName}" class="ignis-field__label">${field.field_label} ${requiredLabel}</label>`;
 
             switch (field.field_type) {
                 case 'text':

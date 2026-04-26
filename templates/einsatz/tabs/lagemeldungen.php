@@ -46,15 +46,15 @@
 
             <div class="grid grid-cols-1 gap-3 md:grid-cols-12">
                 <div class="md:col-span-3">
-                    <label class="form-label">Datum *</label>
+                    <label class="ignis-field__label">Datum *</label>
                     <input type="date" name="rt_date" class="ignis-input" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') ?>" required>
                 </div>
                 <div class="md:col-span-3">
-                    <label class="form-label">Uhrzeit *</label>
+                    <label class="ignis-field__label">Uhrzeit *</label>
                     <input type="time" name="rt_time" class="ignis-input" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('H:i') ?>" required>
                 </div>
                 <div class="md:col-span-6">
-                    <label class="form-label">Gemeldet durch (Fahrzeug) *</label>
+                    <label class="ignis-field__label">Gemeldet durch (Fahrzeug) *</label>
                     <select name="sitrep_attached_vehicle_id" class="form-select" required>
                         <option value="">– auswählen –</option>
                         <?php foreach ($attachedVehicles as $av): ?>
@@ -73,7 +73,7 @@
                     <?php endif; ?>
                 </div>
                 <div class="md:col-span-12">
-                    <label class="form-label">Meldungstext *</label>
+                    <label class="ignis-field__label">Meldungstext *</label>
                     <textarea name="text" class="ignis-input" rows="4" required placeholder="Text der Lagemeldung..."></textarea>
                 </div>
                 <div class="flex justify-end md:col-span-12">

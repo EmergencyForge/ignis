@@ -49,27 +49,27 @@ use App\Helpers\Flash;
                 <form method="post" class="intra__tile p-3">
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-12">
                         <div class="md:col-span-6">
-                            <label class="form-label">Einsatznummer*</label>
+                            <label class="ignis-field__label">Einsatznummer*</label>
                             <input type="text" name="incident_number" class="ignis-input" required>
                         </div>
                         <div class="md:col-span-6">
-                            <label class="form-label">Einsatzort*</label>
+                            <label class="ignis-field__label">Einsatzort*</label>
                             <input type="text" name="location" class="ignis-input" required>
                         </div>
                         <div class="md:col-span-6">
-                            <label class="form-label">Einsatzstichwort*</label>
+                            <label class="ignis-field__label">Einsatzstichwort*</label>
                             <input type="text" name="keyword" class="ignis-input" required>
                         </div>
                         <div class="md:col-span-3">
-                            <label class="form-label">Datum*</label>
+                            <label class="ignis-field__label">Datum*</label>
                             <input type="date" name="date" class="ignis-input" value="<?= (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('Y-m-d') ?>" required>
                         </div>
                         <div class="md:col-span-3">
-                            <label class="form-label">Uhrzeit*</label>
+                            <label class="ignis-field__label">Uhrzeit*</label>
                             <input type="time" name="time" class="ignis-input" required>
                         </div>
                         <div class="md:col-span-6">
-                            <label class="form-label">Einsatzleiter*</label>
+                            <label class="ignis-field__label">Einsatzleiter*</label>
                             <select name="leader_id" class="form-select" required data-custom-dropdown="true" data-search-threshold="5">
                                 <option value="">Bitte wählen...</option>
                                 <?php foreach ($leaders as $l): ?>
@@ -81,22 +81,22 @@ use App\Helpers\Flash;
                             <hr>
                         </div>
                         <div class="md:col-span-6">
-                            <label class="form-label">Melder – Name</label>
+                            <label class="ignis-field__label">Melder – Name</label>
                             <input type="text" name="caller_name" class="ignis-input">
                         </div>
                         <div class="md:col-span-6">
-                            <label class="form-label">Melder – Kontakt</label>
+                            <label class="ignis-field__label">Melder – Kontakt</label>
                             <input type="text" name="caller_contact" class="ignis-input">
                         </div>
                         <div class="md:col-span-12">
                             <hr>
                         </div>
                         <div class="md:col-span-6">
-                            <label class="form-label">Geschädigter/Eigentümer/Halter – Name</label>
+                            <label class="ignis-field__label">Geschädigter/Eigentümer/Halter – Name</label>
                             <input type="text" name="owner_name" class="ignis-input">
                         </div>
                         <div class="md:col-span-6">
-                            <label class="form-label">Geschädigter/Eigentümer/Halter – Kontakt</label>
+                            <label class="ignis-field__label">Geschädigter/Eigentümer/Halter – Kontakt</label>
                             <input type="text" name="owner_contact" class="ignis-input">
                         </div>
                         <div class="md:col-span-12">

@@ -327,12 +327,9 @@ if ($isDevMode) {
                                         </form>
 
                                         <?php if (!$isPreRelease): ?>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" id="include-prerelease-check" name="include_prerelease_ui" value="1">
-                                                <label class="form-check-label" for="include-prerelease-check">
+                                            <label class="ignis-checkbox" for="include-prerelease-check"><input type="checkbox" id="include-prerelease-check" name="include_prerelease_ui" value="1"><span>
                                                     <small><i class="fa-solid fa-flask"></i> Pre-Release-Versionen einschließen</small>
-                                                </label>
-                                            </div>
+                                                </span></label>
                                         <?php endif; ?>
 
                                         <div class="flex gap-2">
@@ -718,7 +715,7 @@ if ($isDevMode) {
 
                                 <?php if (!empty($devBranches)): ?>
                                     <div class="mb-3">
-                                        <label for="dev-branch-select" class="form-label">Branch auswählen:</label>
+                                        <label for="dev-branch-select" class="ignis-field__label">Branch auswählen:</label>
                                         <select class="form-select" id="dev-branch-select">
                                             <option value="">-- Branch wählen --</option>
                                             <?php foreach ($devBranches as $branch): ?>

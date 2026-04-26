@@ -66,19 +66,19 @@
                             <div class="card-body">
                                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                                     <div>
-                                        <label class="form-label">Einsatznummer *</label>
+                                        <label class="ignis-field__label">Einsatznummer *</label>
                                         <input type="text" class="ignis-input" id="missionNumber" value="<?= htmlspecialchars($prefillNumber) ?>" required>
                                     </div>
                                     <div>
-                                        <label class="form-label">Einsatzort *</label>
+                                        <label class="ignis-field__label">Einsatzort *</label>
                                         <input type="text" class="ignis-input" id="missionLocation" value="<?= htmlspecialchars($prefillLocation) ?>" required>
                                     </div>
                                     <div>
-                                        <label class="form-label">Einsatzdatum *</label>
+                                        <label class="ignis-field__label">Einsatzdatum *</label>
                                         <input type="text" class="ignis-input" id="missionDate" placeholder="TT.MM.JJJJ" required>
                                     </div>
                                     <div>
-                                        <label class="form-label">Überwacher *</label>
+                                        <label class="ignis-field__label">Überwacher *</label>
                                         <input type="text" class="ignis-input" id="supervisor" placeholder="Name des Überwachenden" required>
                                     </div>
                                 </div>

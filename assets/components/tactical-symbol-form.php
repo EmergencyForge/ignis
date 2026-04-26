@@ -34,7 +34,7 @@ if (!isset($showPreview)) {
 
     <?php if ($showPreview): ?>
         <div class="mb-3">
-            <label class="form-label">Vorschau</label>
+            <label class="ignis-field__label">Vorschau</label>
             <div class="text-center p-3 bg-light rounded">
                 <div id="<?= $prefix ?>tz-preview" style="display: inline-block;">
                     <span style="font-size: 48px; color: #999;">Kein Symbol</span>
@@ -47,7 +47,7 @@ if (!isset($showPreview)) {
     <?php endif; ?>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>grundzeichen" class="form-label">Grundzeichen</label>
+        <label for="<?= $prefix ?>grundzeichen" class="ignis-field__label">Grundzeichen</label>
         <select class="form-select" name="grundzeichen" id="<?= $prefix ?>grundzeichen">
             <option value="">-- Kein Zeichen --</option>
             <option value="abrollbehaelter">Abrollbehälter</option>
@@ -82,7 +82,7 @@ if (!isset($showPreview)) {
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>organisation" class="form-label">Organisation</label>
+        <label for="<?= $prefix ?>organisation" class="ignis-field__label">Organisation</label>
         <select class="form-select" name="organisation" id="<?= $prefix ?>organisation">
             <option value="">-- Keine --</option>
             <option value="bundeswehr">Bundeswehr</option>
@@ -97,7 +97,7 @@ if (!isset($showPreview)) {
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>fachaufgabe" class="form-label">Fachaufgabe</label>
+        <label for="<?= $prefix ?>fachaufgabe" class="ignis-field__label">Fachaufgabe</label>
         <select class="form-select" name="fachaufgabe" id="<?= $prefix ?>fachaufgabe">
             <option value="">-- Keine --</option>
             <option value="abwehr-wassergefahren">Abwehr von Wassergefahren</option>
@@ -140,7 +140,7 @@ if (!isset($showPreview)) {
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>einheit" class="form-label">Einheit</label>
+        <label for="<?= $prefix ?>einheit" class="ignis-field__label">Einheit</label>
         <select class="form-select" name="einheit" id="<?= $prefix ?>einheit">
             <option value="">-- Keine --</option>
             <option value="trupp">Trupp</option>
@@ -154,7 +154,7 @@ if (!isset($showPreview)) {
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>symbol" class="form-label">Symbol</label>
+        <label for="<?= $prefix ?>symbol" class="ignis-field__label">Symbol</label>
         <select class="form-select" name="symbol" id="<?= $prefix ?>symbol">
             <option value="">-- Kein Symbol --</option>
             <option value="abc">ABC</option>
@@ -176,21 +176,21 @@ if (!isset($showPreview)) {
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>typ" class="form-label">Typ</label>
+        <label for="<?= $prefix ?>typ" class="ignis-field__label">Typ</label>
         <input type="text" class="ignis-input" name="typ" id="<?= $prefix ?>typ"
             placeholder="z.B. HLF20, RTW, DLK23/12">
         <small class="text-muted">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>text" class="form-label">Text</label>
+        <label for="<?= $prefix ?>text" class="ignis-field__label">Text</label>
         <input type="text" class="ignis-input" name="text" id="<?= $prefix ?>text"
             placeholder="z.B. LF20, RTW 1/82-1">
         <small class="text-muted">Wird auf dem taktischen Zeichen angezeigt</small>
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>tz_name" class="form-label">Name</label>
+        <label for="<?= $prefix ?>tz_name" class="ignis-field__label">Name</label>
         <input type="text" class="ignis-input" name="tz_name" id="<?= $prefix ?>tz_name"
             placeholder="z.B. Einsatzabschnitt Nord">
         <small class="text-muted">Name des taktischen Zeichens</small>

@@ -46,19 +46,19 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     <div class="card-body">
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
-                                <label for="name" class="form-label">Name</label>
+                                <label for="name" class="ignis-field__label">Name</label>
                                 <input type="text" class="ignis-input" id="name" name="name">
                             </div>
                             <div>
-                                <label for="vorname" class="form-label">Vorname</label>
+                                <label for="vorname" class="ignis-field__label">Vorname</label>
                                 <input type="text" class="ignis-input" id="vorname" name="vorname">
                             </div>
                             <div>
-                                <label for="geburtsdatum" class="form-label">Geburtsdatum</label>
+                                <label for="geburtsdatum" class="ignis-field__label">Geburtsdatum</label>
                                 <input type="date" class="ignis-input" id="geburtsdatum" name="geburtsdatum">
                             </div>
                             <div>
-                                <label for="geschlecht" class="form-label">Geschlecht</label>
+                                <label for="geschlecht" class="ignis-field__label">Geschlecht</label>
                                 <select class="ignis-input" id="geschlecht" name="geschlecht">
                                     <option value="unbekannt">Unbekannt</option>
                                     <option value="m">Männlich</option>
@@ -76,7 +76,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                     <div class="card-body">
                         <div class="mb-4">
-                            <label for="sichtungskategorie" class="form-label">Kategorie *</label>
+                            <label for="sichtungskategorie" class="ignis-field__label">Kategorie *</label>
                             <select class="form-control form-control-lg" id="sichtungskategorie" name="sichtungskategorie" required>
                                 <option value="">Bitte wählen...</option>
                                 <option value="SK1" class="text-danger">SK1 - Rot (Akute Lebensgefahr)</option>
@@ -106,7 +106,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                     <div class="card-body space-y-4">
                         <div>
-                            <label for="transportmittel_id" class="form-label">Zugewiesenes Fahrzeug</label>
+                            <label for="transportmittel_id" class="ignis-field__label">Zugewiesenes Fahrzeug</label>
                             <select class="ignis-input" id="transportmittel_id" name="transportmittel_id">
                                 <option value="">Noch nicht zugewiesen</option>
                                 <?php foreach ($fahrzeuge as $fzg): ?>
@@ -121,20 +121,20 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                         </div>
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div>
-                                <label for="display_fahrzeugtyp" class="form-label">Art</label>
+                                <label for="display_fahrzeugtyp" class="ignis-field__label">Art</label>
                                 <input type="text" class="ignis-input" id="display_fahrzeugtyp" readonly>
                             </div>
                             <div>
-                                <label for="display_rufname" class="form-label">Rufname / Kennung</label>
+                                <label for="display_rufname" class="ignis-field__label">Rufname / Kennung</label>
                                 <input type="text" class="ignis-input" id="display_rufname" readonly>
                             </div>
                             <div>
-                                <label for="display_lokalisation" class="form-label">Fahrzeug-Lokalisation</label>
+                                <label for="display_lokalisation" class="ignis-field__label">Fahrzeug-Lokalisation</label>
                                 <input type="text" class="ignis-input" id="display_lokalisation" readonly>
                             </div>
                         </div>
                         <div>
-                            <label for="transportziel" class="form-label">Transportziel</label>
+                            <label for="transportziel" class="ignis-field__label">Transportziel</label>
                             <select class="ignis-input" id="transportziel" name="transportziel">
                                 <option value="">Bitte wählen...</option>
                                 <option value="Kein Transport">Kein Transport</option>
@@ -154,11 +154,11 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                     <div class="card-body space-y-4">
                         <div>
-                            <label for="verletzungen" class="form-label">Verletzungen / Diagnose</label>
+                            <label for="verletzungen" class="ignis-field__label">Verletzungen / Diagnose</label>
                             <textarea class="ignis-input" id="verletzungen" name="verletzungen" rows="3" placeholder="Beschreibung der Verletzungen..."></textarea>
                         </div>
                         <div>
-                            <label for="notizen" class="form-label">Notizen</label>
+                            <label for="notizen" class="ignis-field__label">Notizen</label>
                             <textarea class="ignis-input" id="notizen" name="notizen" rows="2" placeholder="Zusätzliche Notizen..."></textarea>
                         </div>
                     </div>
