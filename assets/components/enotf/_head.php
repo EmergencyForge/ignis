@@ -14,7 +14,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
 <link rel="stylesheet" href="<?= asset('assets/css/divi.min.css') ?>" />
-<link rel="stylesheet" href="<?= asset('assets/css/enotf-custom-dropdown.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/ui.min.css') ?>" />
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-modals.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-toast.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
@@ -22,8 +22,19 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <script src="<?= asset('public/assets/dist/vendor.js') ?>"></script>
 <!-- App scripts: defer to unblock rendering -->
 <script defer src="<?= BASE_PATH ?>assets/js/toasts.js"></script>
-<script defer src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
-<script defer src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/dropdown.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/form.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/tabs.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/accordion.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/datepicker.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/chip.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/combobox.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/colorpicker.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/tooltip.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/alert.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/file.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-german-date.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/enotf-session-sync.js?v=<?= filemtime(__DIR__ . '/../../js/enotf-session-sync.js') ?>"></script>

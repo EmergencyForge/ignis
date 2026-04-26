@@ -1737,13 +1737,17 @@ $topbarTimeAgo = static function (string $createdAt): string {
             }
         });
 
-        // Mobile sidebar toggle
+        // Mobile sidebar toggle (Legacy-Sidebar — Neue Sidebar wird von
+        // sidebar-flyout.js verwaltet; hier Early-Return verhindert Konflikt.)
         $("#sidebarToggle").on("click", function() {
+            if ($("body").hasClass("new-navbar")) {
+                return;
+            }
             $("#intraSidebar").toggleClass("open");
             $("#sidebarOverlay").toggleClass("active");
         });
 
-        // Close sidebar on overlay click
+        // Close sidebar on overlay click (Legacy)
         $("#sidebarOverlay").on("click", function() {
             $("#intraSidebar").removeClass("open");
             $(this).removeClass("active");

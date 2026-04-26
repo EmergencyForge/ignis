@@ -691,6 +691,7 @@ select.form-select option {
   border: 1px solid var(--darkgray);
   padding: 1rem;
   animation: tile-enter 0.4s var(--ease-out-quint) both;
+  overflow-x: auto;
 }
 
 .intra__tile > h4,

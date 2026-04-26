@@ -66,8 +66,13 @@ use App\Helpers\Flash;
 
                                     $isActive    = $user->is_active;
                                     $statusBadge = $isActive
-                                        ? "<span class='badge text-bg-success'>Aktiv</span>"
-                                        : "<span class='badge text-bg-secondary'>Deaktiviert</span>";
+                                        ? "<span class='ignis-chip ignis-chip--status ignis-chip--success'>Aktiv</span>"
+                                        : "<span class='ignis-chip ignis-chip--status ignis-chip--danger'>Deaktiviert</span>";
+
+                                    $chipVariants = ['primary', 'success', 'warning', 'danger', 'info'];
+                                    $roleChipMod  = in_array($roleColor, $chipVariants, true)
+                                        ? ' ignis-chip--' . $roleColor
+                                        : '';
                                     $rowClass    = $isActive ? '' : ' class="opacity-50"';
                                     $statusData  = $isActive ? 'active' : 'inactive';
 
@@ -85,7 +90,7 @@ use App\Helpers\Flash;
                                             <?= htmlspecialchars($user->mitarbeiter_fullname ?? 'Kein Profil verbunden') ?>
                                             (<strong><?= htmlspecialchars($user->username) ?></strong>)
                                         </td>
-                                        <td><span class="badge text-bg-<?= htmlspecialchars($roleColor) ?>"><?= htmlspecialchars($roleName) ?></span></td>
+                                        <td><span class="ignis-chip<?= $roleChipMod ?>"><?= htmlspecialchars($roleName) ?></span></td>
                                         <td><?= $statusBadge ?></td>
                                         <td><span style="display:none"><?= htmlspecialchars($dateRaw) ?></span><?= htmlspecialchars($dateFmt) ?></td>
                                         <?php if (Gate::allows('user.update', $user)): ?>

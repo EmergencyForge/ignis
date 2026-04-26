@@ -35,7 +35,8 @@ $val = function (string $field, string $default = '') use ($entry) {
     <div class="md:col-span-4">
         <label for="fb_datum" class="form-label">Datum <span class="text-danger">*</span></label>
         <input type="date" class="form-control form-control-sm" id="fb_datum" name="datum"
-               value="<?= $isEdit ? $val('datum') : date('Y-m-d') ?>" required>
+               value="<?= $isEdit ? $val('datum') : date('Y-m-d') ?>" required
+               data-ignis-datepicker>
     </div>
 
     <!-- Abfahrt -->

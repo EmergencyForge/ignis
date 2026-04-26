@@ -79,6 +79,14 @@ body {
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
 }
 
+// Verhindert horizontales Scrollen der gesamten Page durch zu breite Tabellen.
+// Wide Inhalte (z. B. Tables in .intra__tile) bekommen einen eigenen Scroll-
+// Container statt den `<body>` aufzublähen, sonst „rutscht" die fixed Topbar
+// optisch über die Viewport-Breite hinaus.
+html, body {
+  overflow-x: clip;
+}
+
 body:not(#antrag) {
   --bs-body-bg: var(--body-bg) !important;
 }
