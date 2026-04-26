@@ -263,10 +263,12 @@ abstract class FeatureTestCase extends IntegrationTestCase
 
     /**
      * Prüft dass die Response JSON ist und liefert den dekodierten Body.
+     * Heißt bewusst nicht `assertJson` — die Methode ist in PHPUnit 10
+     * final, deshalb hier ein eigener Name.
      *
      * @return array<array-key,mixed>
      */
-    protected function assertJson(Response $response): array
+    protected function assertJsonResponse(Response $response): array
     {
         $ct = $response->headers['Content-Type'] ?? '';
         $this->assertStringContainsString(

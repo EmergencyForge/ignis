@@ -32,10 +32,10 @@ class NotificationRoutesTest extends FeatureTestCase
     #[Test]
     public function notification_poll_api_returns_401_for_unauthenticated(): void
     {
-        $response = $this->get('/api/notifications/poll.php');
+        $response = $this->get('/api/notifications/poll');
 
         $this->assertUnauthorized($response);
-        $body = $this->assertJson($response);
+        $body = $this->assertJsonResponse($response);
         $this->assertArrayHasKey('success', $body);
         $this->assertFalse($body['success']);
     }
