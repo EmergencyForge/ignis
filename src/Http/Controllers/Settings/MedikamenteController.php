@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
-use App\Auth\Permissions;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
@@ -20,7 +19,7 @@ class MedikamenteController extends Controller
     public function index(): void
     {
         $this->requireAuth();
-        if (!Permissions::check(['admin', 'edivi.view'])) {
+        if (!Gate::allows('enotf.viewAdminList')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index.php');
         }

@@ -50,6 +50,20 @@ class MitarbeiterPolicy
         return Permissions::check(['admin', 'personnel.documents.manage']);
     }
 
+    /**
+     * Darf der Aktor ein fremdes Personaldokument einsehen? (Eigene
+     * Dokumente prüft der Controller separat anhand der Aussteller-ID.)
+     */
+    public static function viewDoc(mixed $context = null): bool
+    {
+        return Permissions::check([
+            'admin',
+            'personnel.documents.manage',
+            'personnel.documents.view',
+            'personnel.view',
+        ]);
+    }
+
     public static function deleteComments(mixed $context = null): bool
     {
         return Permissions::check(['admin', 'personnel.comment.delete']);

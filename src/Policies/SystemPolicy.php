@@ -26,4 +26,12 @@ class SystemPolicy
     {
         return Permissions::check('admin');
     }
+
+    /**
+     * Dashboard-Verwaltung (Widget-Konfig, Reihenfolge).
+     */
+    public static function manageDashboard(mixed $context = null): bool
+    {
+        return Permissions::check(['admin', 'dashboard.manage']);
+    }
 }

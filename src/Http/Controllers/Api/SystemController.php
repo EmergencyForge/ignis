@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Http\Request;
 use App\Http\Response;
 use App\KnowledgeBase\KBHelper;
@@ -352,7 +352,7 @@ final class SystemController
                 }
             }
 
-            if (Permissions::check(['admin', 'edivi.view'])) {
+            if (Gate::allows('enotf.viewAdminList')) {
                 $items = $this->searchEnotf($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'eNOTF Protokolle', 'icon' => 'fa-file-medical', 'items' => $items];
