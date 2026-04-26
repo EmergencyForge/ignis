@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
 use App\Utils\AuditLogger;
@@ -141,7 +142,7 @@ class MedikamenteController extends Controller
 
     private function ensureAdmin(): void
     {
-        if (!Permissions::check('admin')) {
+        if (!Gate::allows('system.admin')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('settings/medikamente/index.php');
         }

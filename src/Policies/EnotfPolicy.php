@@ -147,4 +147,20 @@ class EnotfPolicy
     {
         return Permissions::check(['admin', 'edivi.edit']);
     }
+
+    /**
+     * Admin-View des eNOTF-Protokolllistings (lesend).
+     */
+    public static function viewAdminList(mixed $context = null): bool
+    {
+        return Permissions::check(['admin', 'edivi.view']);
+    }
+
+    /**
+     * Bearbeiten von Protokollen im Admin-Kontext (Schließen, Editieren, …).
+     */
+    public static function editProtocol(mixed $context = null): bool
+    {
+        return Permissions::check(['admin', 'edivi.edit']);
+    }
 }

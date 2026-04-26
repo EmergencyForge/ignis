@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Auth\Permissions;
+use App\Auth\Gate;
 use App\Helpers\EnotfUrl;
 use App\Helpers\Flash;
 use App\Notifications\NotificationManager;
@@ -26,7 +26,7 @@ class EnotfAdminController extends Controller
     public function listAction(): void
     {
         $this->requireAuth();
-        if (!Permissions::check(['admin', 'edivi.view'])) {
+        if (!Gate::allows('enotf.viewAdminList')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index.php');
         }
@@ -37,7 +37,7 @@ class EnotfAdminController extends Controller
     public function destroy(): void
     {
         $this->requireAuth();
-        if (!Permissions::check(['admin', 'edivi.edit'])) {
+        if (!Gate::allows('enotf.editProtocol')) {
             Flash::set('error', 'no-permissions');
             header('Location: ' . EnotfUrl::admin('list'));
             exit;
@@ -86,7 +86,7 @@ class EnotfAdminController extends Controller
     public function qmActionsModal(): void
     {
         $this->requireAuth();
-        if (!Permissions::check(['admin', 'edivi.view'])) {
+        if (!Gate::allows('enotf.viewAdminList')) {
             http_response_code(403);
             exit(json_encode(['success' => false, 'message' => 'Keine Berechtigung']));
         }
@@ -96,7 +96,7 @@ class EnotfAdminController extends Controller
     public function qmLogModal(): void
     {
         $this->requireAuth();
-        if (!Permissions::check(['admin', 'edivi.view'])) {
+        if (!Gate::allows('enotf.viewAdminList')) {
             http_response_code(403);
             exit('Keine Berechtigung');
         }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Cron\CronScheduler;
+use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
 use PDO;
@@ -205,7 +206,7 @@ final class CronController extends Controller
 
     private function ensureAdmin(): void
     {
-        if (!\App\Auth\Permissions::check('admin')) {
+        if (!\App\Auth\Gate::allows('system.admin')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index.php');
         }

@@ -65,7 +65,7 @@ class SystemController extends Controller
 
     private function ensureAdmin(): void
     {
-        if (!Permissions::check('admin')) {
+        if (!Gate::allows('system.admin')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index.php');
         }
