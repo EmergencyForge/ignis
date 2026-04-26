@@ -28,8 +28,8 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
         <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+            <div class="flex flex-wrap -mx-3">
+                <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
@@ -53,11 +53,11 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                     <form name="form" method="post" action="">
                         <input type="hidden" name="new" value="1" />
                         <input name="id" type="hidden" value="<?= (int) $target->id ?>" />
-                        <div class="row">
-                            <div class="col mr-2">
+                        <div class="flex flex-wrap -mx-3">
+                            <div class="flex-1 mr-2 px-3">
                                 <div class="intra__tile py-2 px-3">
-                                    <div class="row">
-                                        <div class="col mb-3">
+                                    <div class="flex flex-wrap -mx-3">
+                                        <div class="flex-1 mb-3 px-3">
                                             <div class="ignis-field">
                                                 <label for="username" class="ignis-field__label">Benutzername <span class="ignis-field__required">*</span></label>
                                                 <input type="text" class="ignis-input" id="username" name="username" value="<?= htmlspecialchars($target->username) ?>" required>
@@ -66,10 +66,10 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                                     </div>
                                 </div>
                             </div>
-                            <div class="col">
+                            <div class="flex-1 px-3">
                                 <div class="intra__tile py-2 px-3">
-                                    <div class="row">
-                                        <div class="col mb-3">
+                                    <div class="flex flex-wrap -mx-3">
+                                        <div class="flex-1 mb-3 px-3">
                                             <div class="ignis-field">
                                                 <label for="role" class="ignis-field__label">Rolle/Gruppe <span class="ignis-field__required">*</span></label>
                                                 <select name="role" id="role" data-custom-dropdown="true" required>
@@ -85,8 +85,8 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col mb-3 mx-auto">
+                        <div class="flex flex-wrap -mx-3">
+                            <div class="flex-1 mb-3 mx-auto px-3">
                                 <button type="submit" name="submit" class="mt-4 ignis-btn ignis-btn--success ignis-btn--sm">Änderungen speichern</button>
                             </div>
                         </div>
@@ -96,8 +96,8 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
 
             <?php if (Gate::allows('user.viewAuditLog')): ?>
                 <h1 class="mb-3">Benutzer-Log</h1>
-                <div class="row">
-                    <div class="col">
+                <div class="flex flex-wrap -mx-3">
+                    <div class="flex-1 px-3">
                         <div class="intra__tile py-2 px-3">
                             <table class="table table-striped" id="table-audit">
                                 <thead>

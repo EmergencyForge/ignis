@@ -153,12 +153,12 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="row mb-3">
-                            <div class="col">
+                        <div class="flex flex-wrap -mx-3 mb-3">
+                            <div class="flex-1 px-3">
                                 <label class="ignis-field__label">Identifier <small class="form-hint">(eindeutig, keine Leerzeichen)</small></label>
                                 <input type="text" class="ignis-input" name="identifier" pattern="[a-z0-9._-]+" required>
                             </div>
-                            <div class="col">
+                            <div class="flex-1 px-3">
                                 <label class="ignis-field__label">Anzeigename</label>
                                 <input type="text" class="ignis-input" name="name" required>
                             </div>
@@ -167,8 +167,8 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                             <label class="ignis-field__label">Beschreibung <small class="form-hint">(optional)</small></label>
                             <input type="text" class="ignis-input" name="description">
                         </div>
-                        <div class="row mb-3">
-                            <div class="col">
+                        <div class="flex flex-wrap -mx-3 mb-3">
+                            <div class="flex-1 px-3">
                                 <label class="ignis-field__label">Handler-Typ</label>
                                 <select name="handler_type" class="form-select" required>
                                     <option value="webhook">Webhook (HTTP-URL)</option>
@@ -176,7 +176,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                                     <option value="job">Queue-Job (FQCN dispatchen)</option>
                                 </select>
                             </div>
-                            <div class="col">
+                            <div class="flex-1 px-3">
                                 <label class="ignis-field__label">Schedule <small class="form-hint">(Cron-Expression)</small></label>
                                 <input type="text" class="ignis-input" name="schedule" placeholder="*/5 * * * *" required style="font-family:monospace;">
                             </div>

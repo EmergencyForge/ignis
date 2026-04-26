@@ -218,8 +218,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
 
 <body data-bs-theme="dark" id="edivi__login">
     <div class="w-full" id="edivi__container">
-        <div class="row h-full">
-            <div class="col" id="edivi__content">
+        <div class="flex flex-wrap -mx-3 h-full">
+            <div class="flex-1 px-3" id="edivi__content">
                 <div class="klinik-card mx-auto">
                     <div class="logo">
                         <i class="fa-solid fa-hospital"></i>

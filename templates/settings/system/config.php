@@ -208,15 +208,14 @@ $configByCategory = $configManager->getConfigByCategory();
                                                     <div class="ignis-field__hint">Dieser API-Schlüssel wird für externe Schnittstellen verwendet. Ein neuer Schlüssel macht alte Integrationen ungültig.</div>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'boolean'): ?>
-                                                    <div class="form-check form-switch">
+                                                    <label class="ignis-switch" for="<?= htmlspecialchars($config['config_key']) ?>">
                                                         <input
-                                                            class="form-check-input"
                                                             type="checkbox"
-                                                            role="switch"
                                                             id="<?= htmlspecialchars($config['config_key']) ?>"
                                                             name="<?= htmlspecialchars($config['config_key']) ?>"
                                                             <?= ($config['config_value'] === 'true' || $config['config_value'] === '1') ? 'checked' : '' ?>>
-                                                    </div>
+                                                        <span></span>
+                                                    </label>
 
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'color'): ?>
                                                     <div class="color-input-wrapper">

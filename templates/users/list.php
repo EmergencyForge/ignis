@@ -24,8 +24,8 @@ use App\Helpers\Flash;
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
         <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+            <div class="flex flex-wrap -mx-3">
+                <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
                         <span class="ignis-breadcrumb__item is-active">Benutzer</span>

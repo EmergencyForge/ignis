@@ -49,8 +49,8 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+            <div class="flex flex-wrap -mx-3">
+                <div class="flex-1 mb-5 px-3">
                     <h1 class="mb-3">Mitarbeiterprofil</h1>
 
                     <div class="mb-3 flex flex-wrap items-center gap-2 rounded px-3 py-2" style="background: var(--card-bg); border: 1px solid var(--border-color);">
@@ -100,11 +100,11 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
 
                     <?php include __DIR__ . '/../../assets/components/profiles/checks.php' ?>
 
-                    <div class="row">
-                        <div class="col-5 p-3 shadow-sm border ma-basedata">
+                    <div class="flex flex-wrap -mx-3">
+                        <div class="w-5/12 p-3 shadow-sm border ma-basedata px-3">
                             <form id="profil" method="post">
-                                <div class="row">
-                                    <div class="col">
+                                <div class="flex flex-wrap -mx-3">
+                                    <div class="flex-1 px-3">
                                         <div class="ignis-btn ignis-btn--soft-primary ignis-btn--sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalNewComment" title="Notiz anlegen"><i class="fa-solid fa-sticky-note"></i></div>
                                         <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
                                             <div class="ignis-btn ignis-btn--soft-primary ignis-btn--sm btn-icon" data-bs-toggle="modal" data-bs-target="#modalDokuCreate" title="Dokument erstellen"><i class="fa-solid fa-print"></i></div>
@@ -116,7 +116,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                             <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="col text-right" style="color:var(--tag-color)">Akten-ID: <?= (int) $row['id'] ?></div>
+                                    <div class="flex-1 text-right px-3" style="color:var(--tag-color)">Akten-ID: <?= (int) $row['id'] ?></div>
                                 </div>
 
                                 <?php
@@ -214,7 +214,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                 </div>
                             </form>
                         </div>
-                        <div class="col ml-4">
+                        <div class="flex-1 ml-4 px-3">
                             <div class="p-3 shadow-sm border ma-comments mb-3">
                                 <div class="comment-settings mb-3">
                                     <h4>Kommentare/Notizen</h4>
@@ -235,8 +235,8 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                             </div>
                         </div>
                     </div>
-                    <div class="row mt-3 mb-4">
-                        <div class="col p-3 shadow-sm border ma-documents">
+                    <div class="flex flex-wrap -mx-3 mt-3 mb-4">
+                        <div class="flex-1 p-3 shadow-sm border ma-documents px-3">
                             <h4>Dokumente</h4>
                             <?php include __DIR__ . '/../../assets/components/profiles/documents/main.php' ?>
                         </div>

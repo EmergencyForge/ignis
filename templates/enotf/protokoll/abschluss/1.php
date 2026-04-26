@@ -71,11 +71,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="w-full" id="edivi__container">
-            <div class="row h-full">
+            <div class="flex flex-wrap -mx-3 h-full">
                 <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
-                <div class="col" id="edivi__content" style="padding-left: 0">
-                    <div class="row" style="margin-left: 0">
-                        <div class="col-2 flex flex-col edivi__interactbutton-more">
+                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
+                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
+                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '1') ?>" data-requires="ebesonderheiten" class="active">
                                 <span>Einsatzverlauf Besonderheiten</span>
                             </a>
@@ -91,7 +91,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>An Leitstelle senden</span>
                             </a>
                         </div>
-                        <div class="col-2 flex flex-col edivi__interactbutton">
+                        <div class="w-2/12 flex flex-col edivi__interactbutton px-3">
                             <input type="checkbox" class="btn-check" id="ebesonderheiten-1" name="ebesonderheiten[]" value="1" <?php echo (in_array(1, $ebesonderheiten) ? 'checked' : '') ?> autocomplete="off">
                             <label for="ebesonderheiten-1" class="edivi__unauffaellig">keine</label>
 
@@ -119,7 +119,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <input type="checkbox" class="btn-check" id="ebesonderheiten-9" name="ebesonderheiten[]" value="9" <?php echo (in_array(9, $ebesonderheiten) ? 'checked' : '') ?> autocomplete="off">
                             <label for="ebesonderheiten-9">Einsatz mit LNA/OrgL</label>
                         </div>
-                        <div class="col-2 flex flex-col edivi__interactbutton">
+                        <div class="w-2/12 flex flex-col edivi__interactbutton px-3">
                             <input type="checkbox" class="btn-check" id="ebesonderheiten-10" name="ebesonderheiten[]" value="10" <?php echo (in_array(10, $ebesonderheiten) ? 'checked' : '') ?> autocomplete="off">
                             <label for="ebesonderheiten-10">mehrere Patienten</label>
 

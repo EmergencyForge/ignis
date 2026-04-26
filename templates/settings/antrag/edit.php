@@ -49,13 +49,8 @@ use App\Helpers\Flash;
                     </div>
 
                     <div class="mb-4">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="aktiv" name="aktiv"
-                                <?= $typ['aktiv'] ? 'checked' : '' ?>>
-                            <label class="form-check-label" for="aktiv">
-                                <strong>Antragstyp aktiviert</strong>
-                            </label>
-                        </div>
+                        <label class="ignis-switch" for="aktiv"><input type="checkbox" id="aktiv" name="aktiv"
+                                <?= $typ['aktiv'] ? 'checked' : '' ?>><span><strong>Antragstyp aktiviert</strong></span></label>
                     </div>
 
                     <button type="submit" name="update_typ" class="ignis-btn ignis-btn--soft-primary">

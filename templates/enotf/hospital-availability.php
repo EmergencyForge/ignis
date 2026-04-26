@@ -203,8 +203,8 @@ $defaultUrl = EnotfUrl::page('overview');
 
 <body data-bs-theme="dark" style="overflow-x:hidden">
     <div class="w-full" id="edivi__container">
-        <div class="row h-full">
-            <div class="col" id="edivi__content">
+        <div class="flex flex-wrap -mx-3 h-full">
+            <div class="flex-1 px-3" id="edivi__content">
                 <h2 class="text-center my-3">
                     <i class="fa-solid fa-hospital mr-2"></i>
                     Krankenhaus-Verfügbarkeit
@@ -289,8 +289,8 @@ $defaultUrl = EnotfUrl::page('overview');
 
                 <!-- Back Button -->
                 <div class="edivi__freigabe-buttons mt-4">
-                    <div class="row">
-                        <div class="col">
+                    <div class="flex flex-wrap -mx-3">
+                        <div class="flex-1 px-3">
                             <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
                         </div>
                     </div>

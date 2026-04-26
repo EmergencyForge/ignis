@@ -63,11 +63,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="w-full" id="edivi__container">
-            <div class="row h-full">
+            <div class="flex flex-wrap -mx-3 h-full">
                 <?php include __DIR__ . '/../../../../../assets/components/enotf/nav.php'; ?>
-                <div class="col" id="edivi__content" style="padding-left: 0">
-                    <div class="row" style="margin-left: 0">
-                        <div class="col-2 flex flex-col edivi__interactbutton-more">
+                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
+                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
+                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'atemwege') ?>" data-requires="awfrei_1,zyanose_1">
                                 <span>Atemwege</span>
                             </a>
@@ -93,7 +93,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>Messwerte</span>
                             </a>
                         </div>
-                        <div class="col-2 flex flex-col edivi__interactbutton-more">
+                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
                             <input type="checkbox"
                                 class="btn-check"
                                 id="erweitern-ohne-path"
@@ -107,7 +107,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>Schmerzen</span>
                             </a>
                         </div>
-                        <div class="col-2 flex flex-col edivi__interactbutton">
+                        <div class="w-2/12 flex flex-col edivi__interactbutton px-3">
                             <input type="radio" class="btn-check" id="sz_nrs-0" name="sz_nrs" value="0" <?php echo ($daten['sz_nrs'] === 0 ? 'checked' : '') ?> autocomplete="off">
                             <label for="sz_nrs-0">keine</label>
 
@@ -129,7 +129,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <input type="radio" class="btn-check" id="sz_nrs-6" name="sz_nrs" value="6" <?php echo ($daten['sz_nrs'] === 6 ? 'checked' : '') ?> autocomplete="off">
                             <label for="sz_nrs-6">6</label>
                         </div>
-                        <div class="col-2 flex flex-col edivi__interactbutton">
+                        <div class="w-2/12 flex flex-col edivi__interactbutton px-3">
                             <input type="radio" class="btn-check" id="sz_nrs-7" name="sz_nrs" value="7" <?php echo ($daten['sz_nrs'] === 7 ? 'checked' : '') ?> autocomplete="off">
                             <label for="sz_nrs-7">7</label>
 
@@ -148,7 +148,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <input type="radio" class="btn-check" id="sz_nrs-99" name="sz_nrs" value="99" <?php echo ($daten['sz_nrs'] === 99 ? 'checked' : '') ?> autocomplete="off">
                             <label for="sz_nrs-99">Nicht beurteilbar</label>
                         </div>
-                        <div class="col-2 flex flex-col edivi__interactbutton">
+                        <div class="w-2/12 flex flex-col edivi__interactbutton px-3">
                             <input type="radio" class="btn-check" id="sz_toleranz_1-1" name="sz_toleranz_1" value="1" <?php echo ($daten['sz_toleranz_1'] === 1 ? 'checked' : '') ?> autocomplete="off">
                             <label for="sz_toleranz_1-1">Tolerabel</label>
 

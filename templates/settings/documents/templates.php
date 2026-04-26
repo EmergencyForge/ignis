@@ -472,12 +472,12 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeister${isGenderSpecific ? '/-in' : ''}" value="${label}" data-option-label required>
                 </div>
                 <div class="gender-inputs" style="display: ${isGenderSpecific ? 'block' : 'none'}">
-                    <div class="row">
-                        <div class="col-6 mb-2">
+                    <div class="flex flex-wrap -mx-3">
+                        <div class="w-6/12 mb-2 px-3">
                             <label class="ignis-field__label text-sm">Label Männlich <span class="gender-badge badge bg-[#4a6fa5]">♂</span></label>
                             <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeister" value="${label_m}" data-option-label-m>
                         </div>
-                        <div class="col-6 mb-2">
+                        <div class="w-6/12 mb-2 px-3">
                             <label class="ignis-field__label text-sm">Label Weiblich <span class="gender-badge badge bg-[#b03a3a]">♀</span></label>
                             <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeisterin" value="${label_w}" data-option-label-w>
                         </div>
@@ -676,16 +676,16 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             const showGender = isSelect;
 
             return `
-                <div class="row g-2 mb-2">
-                    <div class="col-5">
+                <div class="flex flex-wrap -mx-3 g-2 mb-2">
+                    <div class="w-5/12 px-3">
                         <label class="ignis-field__label" style="font-size:0.72rem;">Label</label>
                         <input type="text" class="ignis-input ignis-input--sm" data-edit="label" value="${field.field_label}">
                     </div>
-                    <div class="col-4">
+                    <div class="w-4/12 px-3">
                         <label class="ignis-field__label" style="font-size:0.72rem;">Name (technisch)</label>
                         <input type="text" class="ignis-input ignis-input--sm" data-edit="name" value="${field.field_name}" pattern="[a-z_]+">
                     </div>
-                    <div class="col-3">
+                    <div class="w-3/12 px-3">
                         <label class="ignis-field__label" style="font-size:0.72rem;">Typ</label>
                         <select class="form-select form-select-sm" data-custom-dropdown="true" data-edit="type">
                             <option value="text"${field.field_type === 'text' ? ' selected' : ''}>Text</option>

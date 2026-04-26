@@ -44,8 +44,8 @@ use App\Helpers\Flash;
                 </div>
             </div>
             <?php Flash::render(); ?>
-            <div class="row">
-                <div class="col mb-5">
+            <div class="flex flex-wrap -mx-3">
+                <div class="flex-1 mb-5 px-3">
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-protokoll">
                             <thead>

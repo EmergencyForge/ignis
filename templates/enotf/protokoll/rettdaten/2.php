@@ -117,17 +117,17 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="w-full" id="edivi__container">
-            <div class="row h-full">
-                <div class="col" id="edivi__content">
-                    <div class="row">
-                        <div class="col">
-                            <div class="row my-1">
-                                <div class="col">
+            <div class="flex flex-wrap -mx-3 h-full">
+                <div class="flex-1 px-3" id="edivi__content">
+                    <div class="flex flex-wrap -mx-3">
+                        <div class="flex-1 px-3">
+                            <div class="flex flex-wrap -mx-3 my-1">
+                                <div class="flex-1 px-3">
                                     <h5>Objekt / POI / Einrichtung</h5>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 px-3">
                                     <table class="w-full">
                                         <tbody>
                                             <tr>
@@ -143,19 +143,19 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                             </div>
                             <?php $srTransport = $daten['sonderrechte_transport'] ?? null; ?>
-                            <div class="row my-1">
-                                <div class="col">
+                            <div class="flex flex-wrap -mx-3 my-1">
+                                <div class="flex-1 px-3">
                                     <h5>Straße</h5>
                                 </div>
-                                <div class="col-3">
+                                <div class="w-3/12 px-3">
                                     <h5>HNR / Postal</h5>
                                 </div>
-                                <div class="col-2">
+                                <div class="w-2/12 px-3">
                                     <h5>SR Transport</h5>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 px-3">
                                     <table class="w-full">
                                         <tbody>
                                             <tr>
@@ -166,7 +166,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col-3">
+                                <div class="w-3/12 px-3">
                                     <table class="w-full">
                                         <tbody>
                                             <tr>
@@ -177,7 +177,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col-2">
+                                <div class="w-2/12 px-3">
                                     <button type="button" id="btn-sonderrechte-transport" class="w-full form-control edivi__target" style="cursor:pointer;text-align:center;background-color:#333333;border:1px solid #595959;border-radius:0;color:#fff;font-size:1.2rem;padding:0.2rem;"><?php
                                         if ($srTransport === 'ja') echo 'ja';
                                         elseif ($srTransport === 'nein') echo 'nein';
@@ -185,16 +185,16 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     ?></button>
                                 </div>
                             </div>
-                            <div class="row my-1">
-                                <div class="col">
+                            <div class="flex flex-wrap -mx-3 my-1">
+                                <div class="flex-1 px-3">
                                     <h5>Ort</h5>
                                 </div>
-                                <div class="col">
+                                <div class="flex-1 px-3">
                                     <h5>Ortsteil</h5>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 px-3">
                                     <table class="w-full">
                                         <tbody>
                                             <tr>
@@ -205,7 +205,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col">
+                                <div class="flex-1 px-3">
                                     <table class="w-full">
                                         <tbody>
                                             <tr>
@@ -220,11 +220,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </div>
                     </div>
                     <div class="edivi__freigabe-buttons">
-                        <div class="row">
-                            <div class="col">
+                        <div class="flex flex-wrap -mx-3">
+                            <div class="flex-1 px-3">
                                 <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
                             </div>
-                            <div class="col">
+                            <div class="flex-1 px-3">
                                 <a href="#" id="save-address-btn">speichern</a>
                             </div>
                         </div>

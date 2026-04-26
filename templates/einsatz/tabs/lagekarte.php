@@ -385,11 +385,11 @@ try {
 
 <div class="intra__tile p-3 mb-3">
     <div class="intra__tile-header">
-        <div class="row">
-            <div class="col">
+        <div class="flex flex-wrap -mx-3">
+            <div class="flex-1 px-3">
                 <h4>Lagekarte</h4>
             </div>
-            <div class="col text-right">
+            <div class="flex-1 text-right px-3">
                 <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="toggleMarkerMode">
                     <i class="fa-solid fa-plus mr-1"></i>Marker hinzufügen
                 </button>

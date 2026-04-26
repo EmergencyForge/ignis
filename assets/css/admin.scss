@@ -1009,6 +1009,205 @@ select.form-select option {
   color: var(--text-dimmed);
 }
 
+// =====================================================
+// DataTables — ıgnıs-Restyling
+// Ersetzt das Bootstrap-5-Theme von datatables.net-bs5 durch eigene
+// Tokens. Wird auf alle `.dataTables_wrapper`-Containers angewendet.
+// =====================================================
+.dataTables_wrapper {
+  color: var(--text-normal);
+
+  // ── Top-Toolbar (Length-Select + Search) ─────────────────────────
+  .dataTables_length,
+  .dataTables_filter {
+    margin-bottom: 1rem;
+    color: var(--text-dimmed);
+    font-size: 0.82rem;
+
+    label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    select,
+    input[type="search"] {
+      background: var(--input-bg, #161616);
+      color: var(--text-normal);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius-md, 6px);
+      padding: 0.35rem 0.6rem;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+      &:hover { border-color: rgba(255, 255, 255, 0.18); }
+      &:focus,
+      &:focus-visible {
+        border-color: var(--main-color);
+        box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+      }
+    }
+  }
+
+  .dataTables_filter {
+    text-align: right;
+
+    input[type="search"] {
+      min-width: 220px;
+    }
+  }
+
+  // ── Sort-Indicators auf <th> ─────────────────────────────────────
+  table.dataTable thead th {
+    cursor: default;
+    color: var(--text-dimmed);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.6rem 0.85rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--darkgray);
+    position: relative;
+  }
+
+  table.dataTable thead th.sorting,
+  table.dataTable thead th.sorting_asc,
+  table.dataTable thead th.sorting_desc {
+    cursor: pointer;
+    padding-right: 1.6rem !important;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      right: 0.6rem;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      opacity: 0.35;
+      transition: opacity 0.15s ease, color 0.15s ease;
+    }
+    &::before {
+      top: calc(50% - 7px);
+      border-bottom: 5px solid currentColor;
+    }
+    &::after {
+      bottom: calc(50% - 7px);
+      border-top: 5px solid currentColor;
+    }
+
+    &:hover::before,
+    &:hover::after {
+      opacity: 0.65;
+    }
+  }
+
+  table.dataTable thead th.sorting_asc::before,
+  table.dataTable thead th.sorting_desc::after {
+    opacity: 1;
+    color: var(--main-color);
+  }
+
+  // ── Body-Cells ───────────────────────────────────────────────────
+  table.dataTable tbody tr {
+    background: transparent;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.025);
+    }
+  }
+
+  table.dataTable tbody td {
+    padding: 0.55rem 0.85rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    font-size: 0.85rem;
+    vertical-align: middle;
+  }
+
+  table.dataTable.table-striped > tbody > tr.odd > * {
+    box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.015);
+  }
+
+  // ── Bottom-Toolbar (Info + Pagination) ───────────────────────────
+  .dataTables_info {
+    margin-top: 0.85rem;
+    color: var(--text-dimmed);
+    font-size: 0.78rem;
+  }
+
+  .dataTables_paginate {
+    margin-top: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+
+    .paginate_button {
+      appearance: none;
+      background: transparent;
+      color: var(--text-normal);
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm, 4px);
+      padding: 0.3rem 0.6rem;
+      min-width: 2rem;
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      display: inline-block;
+      text-align: center;
+
+      &:hover:not(.disabled):not(.current) {
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+      }
+
+      &.current {
+        background: var(--main-color);
+        color: #fff !important;
+        font-weight: 500;
+      }
+
+      &.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+
+        &:hover {
+          background: transparent;
+          color: var(--text-normal);
+        }
+      }
+
+      &.previous,
+      &.next,
+      &.first,
+      &.last {
+        font-weight: 500;
+      }
+    }
+
+    .ellipsis {
+      padding: 0.3rem 0.4rem;
+      color: var(--text-dimmed);
+    }
+  }
+
+  // ── Processing-Overlay ───────────────────────────────────────────
+  .dataTables_processing {
+    background: var(--body-bg-lighter);
+    color: var(--text-normal);
+    border: 1px solid var(--darkgray);
+    border-radius: var(--radius-md);
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  }
+}
+
 .dataTables_empty,
 td.dt-empty {
   text-align: center;

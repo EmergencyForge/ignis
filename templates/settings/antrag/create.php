@@ -97,18 +97,12 @@ use App\Helpers\Flash;
                             </div>
 
                             <div class="mb-4">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input"
-                                        type="checkbox"
+                                <label class="ignis-switch" for="aktiv"><input type="checkbox"
                                         id="aktiv"
                                         name="aktiv"
-                                        <?= (isset($old['aktiv']) || empty($old)) ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="aktiv">
-                                        <strong>Antragstyp sofort aktivieren</strong>
+                                        <?= (isset($old['aktiv']) || empty($old)) ? 'checked' : '' ?>><span><strong>Antragstyp sofort aktivieren</strong>
                                         <br>
-                                        <small class="text-[var(--text-dimmed,#818189)]">Wenn deaktiviert, können Benutzer diesen Antragstyp nicht sehen</small>
-                                    </label>
-                                </div>
+                                        <small class="text-[var(--text-dimmed,#818189)]">Wenn deaktiviert, können Benutzer diesen Antragstyp nicht sehen</small></span></label>
                             </div>
 
                             <hr class="text-white my-4">

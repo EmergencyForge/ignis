@@ -27,8 +27,8 @@ use App\Helpers\Flash;
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
         <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+            <div class="flex flex-wrap -mx-3">
+                <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item is-active">Mitarbeiter</span></nav>
                     <div class="page-header mb-4">
                         <h1>Mitarbeiterübersicht</h1>
@@ -49,8 +49,8 @@ use App\Helpers\Flash;
 
                     <!-- Filter-Leiste -->
                     <div class="intra__tile py-2 px-3 mb-3">
-                        <div class="row g-2 items-end">
-                            <div class="col-auto">
+                        <div class="flex flex-wrap -mx-3 g-2 items-end">
+                            <div class="px-3">
                                 <label for="filterDienstgrad" class="ignis-field__label text-sm mb-1">Dienstgrad</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterDienstgrad" style="min-width: 180px;">
                                     <option value="">Alle</option>
@@ -59,7 +59,7 @@ use App\Helpers\Flash;
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-auto">
+                            <div class="px-3">
                                 <label for="filterRDQuali" class="ignis-field__label text-sm mb-1">RD-Qualifikation</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterRDQuali" style="min-width: 200px;">
                                     <option value="">Alle</option>
@@ -70,7 +70,7 @@ use App\Helpers\Flash;
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-auto">
+                            <div class="px-3">
                                 <label for="filterFWQuali" class="ignis-field__label text-sm mb-1">FW-Qualifikation</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterFWQuali" style="min-width: 180px;">
                                     <option value="">Alle</option>
@@ -81,12 +81,12 @@ use App\Helpers\Flash;
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            <div class="col-auto">
+                            <div class="px-3">
                                 <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="resetFilters">
                                     <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
                                 </button>
                             </div>
-                            <div class="col-auto ml-auto">
+                            <div class="ml-auto px-3">
                                 <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-success" id="exportCSV" data-ignis-tooltip="Gefilterte Liste als CSV exportieren">
                                     <i class="fa-solid fa-file-csv"></i> CSV-Export
                                 </button>

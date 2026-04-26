@@ -51,22 +51,22 @@ $currentDate = date('d.m.Y');
         include __DIR__ . '/../../assets/components/enotf/topbar.php';
         ?>
         <div class="w-full" id="edivi__container">
-            <div class="row h-full">
-                <div class="col" id="edivi__content">
+            <div class="flex flex-wrap -mx-3 h-full">
+                <div class="flex-1 px-3" id="edivi__content">
                     <div class="hr my-2" style="color:transparent"></div>
-                    <div class="row">
-                        <div class="col-8">
-                            <div class="row">
-                                <div class="col flex justify-start items-center">
+                    <div class="flex flex-wrap -mx-3">
+                        <div class="w-8/12 px-3">
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="flex-1 flex justify-start items-center px-3">
                                     <h4 class="font-bold">Einsatzprotokolle</h4>
                                 </div>
-                                <div class="col flex justify-end items-center gap-2">
+                                <div class="flex-1 flex justify-end items-center gap-2 px-3">
                                     <button type="button" class="edivi__nidabutton" style="display:inline-block" onclick="window.location.reload();" title="Seite neu laden"><i class="fa-solid fa-rotate-right"></i></button>
                                     <a href="create.php" class="edivi__nidabutton" style="display:inline-block"><i class="fa-solid fa-plus" title="Neuen Einsatz erstellen"></i></a>
                                 </div>
                             </div>
-                            <div class="row pl-3">
-                                <div class="col edivi__box p-4" style="overflow-x: hidden; overflow-y:auto; height: 70vh;">
+                            <div class="flex flex-wrap -mx-3 pl-3">
+                                <div class="flex-1 edivi__box p-4 px-3" style="overflow-x: hidden; overflow-y:auto; height: 70vh;">
                                     <?php
                                     $result = $protokolle;
 
@@ -137,10 +137,10 @@ $currentDate = date('d.m.Y');
                                             </div>
                                             <div class="edivi__einsatz-container edivi__einsatz-swipeable">
                                                 <a href="<?= EnotfUrl::protokoll($row['enr']) ?>" class="edivi__einsatz-link" draggable="false">
-                                                    <div class="row edivi__einsatz edivi__einsatz-set">
-                                                        <div class="col-2 edivi__einsatz-type"><?php if ($row['createdby'] == 1): ?><i class="fa-solid fa-bell" style="color:#fff;font-size:1.4rem;margin-right:10px;"></i><?php endif; ?><span><?= htmlspecialchars($label) ?></span></div>
-                                                        <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><?= $row['edatum'] ?><br><?= $row['ezeit'] ?> Uhr</div>
-                                                        <div class="col-8 edivi__einsatz-name"><span>Patient:</span><strong><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></strong><?php if (!empty($zielInfo)): ?><small><i class="fa-solid fa-bed" style="margin-right:4px;"></i><?= $zielInfo ?></small><?php endif; ?></div>
+                                                    <div class="flex flex-wrap -mx-3 edivi__einsatz edivi__einsatz-set">
+                                                        <div class="w-2/12 edivi__einsatz-type px-3"><?php if ($row['createdby'] == 1): ?><i class="fa-solid fa-bell" style="color:#fff;font-size:1.4rem;margin-right:10px;"></i><?php endif; ?><span><?= htmlspecialchars($label) ?></span></div>
+                                                        <div class="flex-1 edivi__einsatz-enr px-3"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><?= $row['edatum'] ?><br><?= $row['ezeit'] ?> Uhr</div>
+                                                        <div class="w-8/12 edivi__einsatz-name px-3"><span>Patient:</span><strong><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></strong><?php if (!empty($zielInfo)): ?><small><i class="fa-solid fa-bed" style="margin-right:4px;"></i><?= $zielInfo ?></small><?php endif; ?></div>
                                                     </div>
                                                 </a>
                                             </div>
@@ -150,13 +150,13 @@ $currentDate = date('d.m.Y');
                                     ?>
                                 </div>
                             </div>
-                            <!-- <div class="row pl-3">
-                                <div class="col p-0" style="margin: 10px 0;">
+                            <!-- <div class="flex flex-wrap -mx-3 pl-3">
+                                <div class="flex-1 p-0 px-3" style="margin: 10px 0;">
                                     <button type="submit" class="edivi__nidabutton w-full" name="delete_all">alle löschen</button>
                                 </div>
                             </div> -->
                         </div>
-                        <div class="col">
+                        <div class="flex-1 px-3">
                             <?php
                             $all_categories = $categories;
 
@@ -165,8 +165,8 @@ $currentDate = date('d.m.Y');
                                 $heading_id = 'heading' . $category['id'];
                                 $collapse_id = 'collapse' . $category['id'];
                             ?>
-                                <div class="row <?= $index > 0 ? 'mt-2' : '' ?>">
-                                    <div class="col">
+                                <div class="flex flex-wrap -mx-3 <?= $index > 0 ? 'mt-2' : '' ?>">
+                                    <div class="flex-1 px-3">
                                         <div class="accordion" id="<?= $accordion_id ?>" data-theme="dark">
                                             <div class="accordion-item">
                                                 <h2 class="accordion-header" id="<?= $heading_id ?>">

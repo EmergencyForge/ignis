@@ -32,11 +32,11 @@ $currentDate = date('d.m.Y');
             <div class="h-full">
                 <div id="edivi__content">
                     <div class="edivi__login-buttons">
-                        <div class="row">
-                            <div class="col">
+                        <div class="flex flex-wrap -mx-3">
+                            <div class="flex-1 px-3">
                                 Sie sind nicht angemeldet!
                             </div>
-                            <div class="col-3">
+                            <div class="w-3/12 px-3">
                                 <a href="login.php">anmelden</a>
                             </div>
                         </div>

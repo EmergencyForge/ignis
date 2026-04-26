@@ -80,7 +80,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
         <div class="w-full" id="edivi__container">
-            <div class="row h-full">
+            <div class="flex flex-wrap -mx-3 h-full">
                 <?php include __DIR__ . '/../../../assets/components/enotf/nav.php'; ?>
             </div>
         </div>
