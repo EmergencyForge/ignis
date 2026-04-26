@@ -90,6 +90,15 @@ $router->post('/api/emd-sync.php',
 );
 
 // ----------------------------------------------------------------------------
+//  Hover-Card-Fragments (Browser-Session, intern für Tooltips/Popovers)
+// ----------------------------------------------------------------------------
+
+$router->get('/api/mitarbeiter/{id:\d+}/card',
+    [\App\Http\Controllers\MitarbeiterController::class, 'card'],
+    [new AuthMiddleware()]
+);
+
+// ----------------------------------------------------------------------------
 //  Notifications (Browser-Session, Admin-UI)
 //
 //  Beide Endpoints laufen hinter Session-Auth. CSRF ist bewusst NICHT
