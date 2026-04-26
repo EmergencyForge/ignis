@@ -58,7 +58,8 @@ use App\Helpers\Flash;
                                         <td style="overflow-wrap:anywhere"><?= htmlspecialchars($entry->action ?? '') ?></td>
                                         <td style="overflow-wrap:anywhere"><?= htmlspecialchars($entry->details ?? '') ?></td>
                                         <td>
-                                            <a href="<?= BASE_PATH ?>benutzer/edit?id=<?= $userId ?>">
+                                            <a href="<?= BASE_PATH ?>benutzer/edit?id=<?= $userId ?>"
+                                               data-user-card="<?= $userId ?>">
                                                 <?= htmlspecialchars($username) ?> (ID: <?= $userId ?>)
                                             </a>
                                         </td>

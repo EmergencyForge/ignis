@@ -1,19 +1,24 @@
 /**
  * User-Hover-Card.
  *
- * Markiere einen Username/Mitarbeiter-Link mit `data-user-card="<id>"`,
- * dann zeigt das Modul beim Hover (oder Touch-Tap) eine Vorschau des
- * Profils — Name, Dienstgrad, Quali, Einsatzbereit-Status, Profil-Link.
+ * Hover-Trigger via Data-Attribut:
+ *   data-mitarbeiter-card="42"  → /api/v1/mitarbeiter/42/card
+ *   data-user-card="42"         → /api/v1/users/42/card (resolvt
+ *                                  intern auf Mitarbeiter via
+ *                                  User.aktenid; Fallback-Markup
+ *                                  ohne Mitarbeiter-Verknüpfung)
  *
+ * Beispiel:
  *   <a href="/mitarbeiter/profile?id=42"
- *      data-user-card="42">Max Mustermann</a>
+ *      data-mitarbeiter-card="42">Max Mustermann</a>
  *
- * Erste Anforderung lädt das Markup vom Server (`/api/v1/mitarbeiter
- * /<id>/card`), nachfolgende Hovers nutzen den Cache. Floating-Logik
- * baut auf der ignis-tooltip-Infrastruktur auf — wir nutzen den
- * gleichen Floating-Container wie ignis-popover, aber ohne Click-
- * Trigger; statt dessen Hover/Focus mit 300ms-Delay (UI-Standard
- * gegen unbeabsichtigte Pop-ups).
+ *   <a href="/benutzer/edit?id=7"
+ *      data-user-card="7">alice</a>
+ *
+ * Erste Anforderung lädt das Markup vom Server, nachfolgende Hovers
+ * nutzen den per-Source+ID gesplitteten Cache. 300 ms Hover-Delay
+ * verhindert versehentliche Triggers, 200 ms Hide-Delay erlaubt der
+ * Maus den Sprung von Anchor auf Card.
  */
 
 const cache = new Map();
@@ -59,26 +64,43 @@ function position(anchor, card) {
     card.dataset.placement = (top < a.top) ? 'top' : 'bottom';
 }
 
-async function fetchCard(userId) {
-    if (cache.has(userId)) return cache.get(userId);
+function resolveSource(anchor) {
+    const mitarbeiterId = anchor.getAttribute('data-mitarbeiter-card');
+    if (mitarbeiterId) {
+        return { kind: 'mitarbeiter', id: mitarbeiterId };
+    }
+    const userId = anchor.getAttribute('data-user-card');
+    if (userId) {
+        return { kind: 'user', id: userId };
+    }
+    return null;
+}
 
-    const url = (window.IgnisApiBase || '') + '/api/v1/mitarbeiter/' + encodeURIComponent(userId) + '/card';
+async function fetchCard(source) {
+    const cacheKey = source.kind + ':' + source.id;
+    if (cache.has(cacheKey)) return cache.get(cacheKey);
+
+    const path = source.kind === 'mitarbeiter'
+        ? '/api/v1/mitarbeiter/' + encodeURIComponent(source.id) + '/card'
+        : '/api/v1/users/'       + encodeURIComponent(source.id) + '/card';
+    const url = (window.IgnisApiBase || '') + path;
+
     const promise = fetch(url, { credentials: 'same-origin' })
         .then((r) => r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status)))
         .catch(() => null);
-    cache.set(userId, promise);
+    cache.set(cacheKey, promise);
     return promise;
 }
 
 function show(anchor) {
-    const userId = anchor.getAttribute('data-user-card');
-    if (!userId) return;
+    const source = resolveSource(anchor);
+    if (!source) return;
 
     if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
 
     showTimer = setTimeout(async () => {
         showTimer = null;
-        const html = await fetchCard(userId);
+        const html = await fetchCard(source);
         if (!html) return;
         if (!document.contains(anchor)) return;
 
@@ -128,13 +150,13 @@ function hide(immediate = false) {
 }
 
 document.addEventListener('mouseover', (e) => {
-    const anchor = e.target.closest('[data-user-card]');
+    const anchor = e.target.closest('[data-user-card], [data-mitarbeiter-card]');
     if (!anchor) return;
     show(anchor);
 });
 
 document.addEventListener('mouseout', (e) => {
-    const anchor = e.target.closest('[data-user-card]');
+    const anchor = e.target.closest('[data-user-card], [data-mitarbeiter-card]');
     if (!anchor) return;
     // Verlassen des Ankers leitet ein verzögertes Schließen ein —
     // Hover über die Card selbst bricht das ab.
@@ -142,11 +164,11 @@ document.addEventListener('mouseout', (e) => {
 });
 
 document.addEventListener('focusin', (e) => {
-    const anchor = e.target.closest('[data-user-card]');
+    const anchor = e.target.closest('[data-user-card], [data-mitarbeiter-card]');
     if (anchor) show(anchor);
 });
 document.addEventListener('focusout', (e) => {
-    const anchor = e.target.closest('[data-user-card]');
+    const anchor = e.target.closest('[data-user-card], [data-mitarbeiter-card]');
     if (anchor) scheduleHide();
 });
 

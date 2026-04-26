@@ -98,6 +98,11 @@ $router->get('/api/mitarbeiter/{id:\d+}/card',
     [new AuthMiddleware()]
 );
 
+$router->get('/api/users/{id:\d+}/card',
+    [\App\Http\Controllers\UserController::class, 'card'],
+    [new AuthMiddleware()]
+);
+
 // ----------------------------------------------------------------------------
 //  Notifications (Browser-Session, Admin-UI)
 //
