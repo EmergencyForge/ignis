@@ -62,14 +62,12 @@ use App\Http\Controllers\Api\NotificationController;
 // Browser-side: aktuelle Session-ID abfragen — kein Auth, läuft im
 // User-Browser, wird dann an FiveM weitergereicht.
 $router->match(['GET', 'POST'], '/api/character/get-session-id',     [CharacterController::class, 'sessionId']);
-$router->match(['GET', 'POST'], '/api/character/get-session-id.php', [CharacterController::class, 'sessionId']);
 
 // FiveM-Server: Charakter-Daten in Spieler-Session injizieren
 $router->post('/api/character/identify',
     [CharacterController::class, 'identify'],
     [ApiKeyMiddleware::class]
 );
-$router->post('/api/character/identify.php',
     [CharacterController::class, 'identify'],
     [ApiKeyMiddleware::class]
 );
@@ -79,7 +77,6 @@ $router->post('/api/emd/status-poll',
     [FireStatusPollController::class, 'poll'],
     [ApiKeyMiddleware::class]
 );
-$router->post('/api/emd/status-poll.php',
     [FireStatusPollController::class, 'poll'],
     [ApiKeyMiddleware::class]
 );
@@ -90,7 +87,6 @@ $router->post('/api/emd/sync',
     [EmdSyncController::class, 'sync'],
     [ApiKeyMiddleware::class]
 );
-$router->post('/api/emd/sync.php',
     [EmdSyncController::class, 'sync'],
     [ApiKeyMiddleware::class]
 );
@@ -115,7 +111,6 @@ $router->get('/api/notifications/poll',
     [NotificationController::class, 'poll'],
     [new AuthMiddleware()]
 );
-$router->get('/api/notifications/poll.php',
     [NotificationController::class, 'poll'],
     [new AuthMiddleware()]
 );
@@ -125,7 +120,6 @@ $router->post('/api/notifications/mark-read',
     [NotificationController::class, 'markRead'],
     [new AuthMiddleware()]
 );
-$router->post('/api/notifications/mark-read.php',
     [NotificationController::class, 'markRead'],
     [new AuthMiddleware()]
 );
@@ -140,7 +134,6 @@ $router->post('/api/notifications/mark-all-read',
     [NotificationController::class, 'markAllRead'],
     [new AuthMiddleware()]
 );
-$router->post('/api/notifications/mark-all-read.php',
     [NotificationController::class, 'markAllRead'],
     [new AuthMiddleware()]
 );

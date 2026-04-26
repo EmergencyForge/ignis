@@ -43,6 +43,27 @@ foreach ($routeFiles as $file) {
     }
 }
 
+// Eingehende Requests mit `.php`-Suffix → clean URL.
+// GET/HEAD bekommen einen 301, damit Browser-/Suchmaschinen-Cache
+// aufräumt; non-idempotente Methoden werden intern umgeschrieben,
+// damit Form-Submits ihren Body nicht durch einen Redirect verlieren.
+$rawUri = $_SERVER['REQUEST_URI'] ?? '/';
+$rawPath = parse_url($rawUri, PHP_URL_PATH) ?? '/';
+if (preg_match('#\.php$#', $rawPath) && !str_ends_with($rawPath, 'index.php')) {
+    $cleanPath = preg_replace('#\.php$#', '', $rawPath);
+    $query = parse_url($rawUri, PHP_URL_QUERY);
+    $cleanUri = $cleanPath . ($query !== null ? '?' . $query : '');
+
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    if ($method === 'GET' || $method === 'HEAD') {
+        // Permanent-Redirect, damit Browser-/Suchmaschinen-Cache aufräumen.
+        Response::redirect($cleanUri, 301)->send();
+        exit;
+    }
+    // Non-idempotente Methoden behalten ihren Body — wir rewriten intern.
+    $_SERVER['REQUEST_URI'] = $cleanUri;
+}
+
 try {
     $request  = Request::fromGlobals();
     $response = $router->dispatch($request);
