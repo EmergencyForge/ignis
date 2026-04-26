@@ -241,7 +241,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             value: textarea.value
                         }
                     }).done(function() {
-                        window.location.href = '<?= BASE_PATH ?>enotf/protokoll/anamnese/index.php?enr=' + enr;
+                        window.location.href = '<?= BASE_PATH ?>enotf/protokoll/anamnese/index?enr=' + enr;
                     }).fail(function() {
                         showToast("Fehler beim Speichern", 'error');
                     });

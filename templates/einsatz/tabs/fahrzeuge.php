@@ -68,7 +68,7 @@
                             <td><?= htmlspecialchars($ident) ?></td>
                             <td class="text-right">
                                 <?php if (!$incident['finalized']): ?>
-                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="inline">
+                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions" class="inline">
                                         <input type="hidden" name="action" value="remove_vehicle">
                                         <input type="hidden" name="incident_id" value="<?= $id ?>">
                                         <input type="hidden" name="return_tab" value="fahrzeuge">
@@ -89,7 +89,7 @@
     <?php if (!$incident['finalized']): ?>
         <hr class="my-4">
         <h5>Fahrzeug hinzufügen</h5>
-        <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="mt-3">
+        <form method="post" action="<?= BASE_PATH ?>einsatz/actions" class="mt-3">
             <input type="hidden" name="action" value="add_vehicle">
             <input type="hidden" name="incident_id" value="<?= $id ?>">
             <input type="hidden" name="return_tab" value="fahrzeuge">

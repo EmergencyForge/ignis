@@ -1327,7 +1327,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 <aside class="intra-sidebar" id="intraSidebar">
     <!-- Logo -->
     <div class="sidebar-logo">
-        <a href="<?= BASE_PATH ?>index.php">
+        <a href="<?= BASE_PATH ?>index">
             <img src="<?= SYSTEM_LOGO ?>" alt="<?= SYSTEM_NAME ?>">
         </a>
     </div>
@@ -1335,7 +1335,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     <!-- Navigation -->
     <nav class="sidebar-nav">
         <!-- Dashboard -->
-        <a href="<?= BASE_PATH ?>index.php" class="sidebar-link" data-page="dashboard">
+        <a href="<?= BASE_PATH ?>index" class="sidebar-link" data-page="dashboard">
             <i class="fa-solid fa-home"></i><span>Dashboard</span>
         </a>
 
@@ -1349,21 +1349,21 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <div class="sidebar-submenu-inner">
                     <?php if (Permissions::check(['admin', 'users.view'])): ?>
                         <span class="sidebar-section-title">Benutzer</span>
-                        <a href="<?= BASE_PATH ?>benutzer/list.php" class="sidebar-sublink">Übersicht</a>
+                        <a href="<?= BASE_PATH ?>benutzer/list" class="sidebar-sublink">Übersicht</a>
                         <?php if (Permissions::check(['admin', 'users.create'])): ?>
-                            <a href="<?= BASE_PATH ?>benutzer/registration-codes.php" class="sidebar-sublink">Registrierungscodes</a>
+                            <a href="<?= BASE_PATH ?>benutzer/registration-codes" class="sidebar-sublink">Registrierungscodes</a>
                         <?php endif; ?>
-                        <a href="<?= BASE_PATH ?>benutzer/rollen/index.php" class="sidebar-sublink">Rollenverwaltung</a>
+                        <a href="<?= BASE_PATH ?>benutzer/rollen/index" class="sidebar-sublink">Rollenverwaltung</a>
                         <?php if (Permissions::check(['admin', 'audit.view'])): ?>
-                            <a href="<?= BASE_PATH ?>benutzer/auditlog.php" class="sidebar-sublink">Audit-Log</a>
+                            <a href="<?= BASE_PATH ?>benutzer/auditlog" class="sidebar-sublink">Audit-Log</a>
                         <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
                         <span class="sidebar-section-title">Mitarbeiter</span>
-                        <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="sidebar-sublink">Übersicht</a>
+                        <a href="<?= BASE_PATH ?>mitarbeiter/list" class="sidebar-sublink">Übersicht</a>
                         <?php if (Permissions::check(['admin', 'application.view'])): ?>
-                            <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="sidebar-sublink">Anträge bearbeiten</a>
+                            <a href="<?= BASE_PATH ?>antrag/admin/list" class="sidebar-sublink">Anträge bearbeiten</a>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
@@ -1385,19 +1385,19 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 
                 <?php if (Permissions::check(['admin', 'manv.manage'])): ?>
                     <span class="sidebar-section-title" data-section="manv">MANV-Board</span>
-                    <a href="<?= BASE_PATH ?>manv/index.php" class="sidebar-sublink">MANV-Board</a>
+                    <a href="<?= BASE_PATH ?>manv/index" class="sidebar-sublink">MANV-Board</a>
                 <?php endif; ?>
 
                 <span class="sidebar-section-title" data-section="firetab">FW Einsatzprotokolle</span>
-                <a href="<?= BASE_PATH ?>einsatz/create.php" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
+                <a href="<?= BASE_PATH ?>einsatz/create" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
                 <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
-                    <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="sidebar-sublink">Qualitätsmanagement</a>
+                    <a href="<?= BASE_PATH ?>einsatz/admin/list" class="sidebar-sublink">Qualitätsmanagement</a>
                 <?php endif; ?>
             </div>
         </div>
 
         <!-- Wissensdatenbank -->
-        <a href="<?= BASE_PATH ?>wissensdb/index.php" class="sidebar-link" data-page="wissensdb">
+        <a href="<?= BASE_PATH ?>wissensdb/index" class="sidebar-link" data-page="wissensdb">
             <i class="fa-solid fa-book-medical"></i><span>Wissensdatenbank</span>
         </a>
 
@@ -1409,13 +1409,13 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             </a>
             <div class="sidebar-submenu" data-submenu="fahrzeuge">
                 <div class="sidebar-submenu-inner">
-                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php" class="sidebar-sublink">Übersicht</a>
-                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index.php" class="sidebar-sublink">Defekt-Meldungen</a>
+                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index" class="sidebar-sublink">Übersicht</a>
+                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index" class="sidebar-sublink">Defekt-Meldungen</a>
                     <?php if (Permissions::check(['admin', 'fahrtenbuch.view', 'fahrtenbuch.manage'])): ?>
-                        <a href="<?= BASE_PATH ?>fahrtenbuch/index.php" class="sidebar-sublink">Fahrtenbuch</a>
+                        <a href="<?= BASE_PATH ?>fahrtenbuch/index" class="sidebar-sublink">Fahrtenbuch</a>
                     <?php endif; ?>
                     <?php if (Permissions::check(['admin', 'vehicles.manage'])): ?>
-                        <a href="<?= BASE_PATH ?>settings/fahrzeuge/beladelisten/index.php" class="sidebar-sublink">Beladelisten</a>
+                        <a href="<?= BASE_PATH ?>settings/fahrzeuge/beladelisten/index" class="sidebar-sublink">Beladelisten</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -1431,38 +1431,38 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <div class="sidebar-submenu-inner">
                     <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
                         <span class="sidebar-section-title">Personal</span>
-                        <a href="<?= BASE_PATH ?>settings/personal/dienstgrade/index.php" class="sidebar-sublink">Dienstgrade</a>
-                        <a href="<?= BASE_PATH ?>settings/personal/qualifw/index.php" class="sidebar-sublink">FW Qualifikationen</a>
-                        <a href="<?= BASE_PATH ?>settings/personal/qualird/index.php" class="sidebar-sublink">RD Qualifikationen</a>
-                        <a href="<?= BASE_PATH ?>settings/personal/qualifd/index.php" class="sidebar-sublink">Fachdienste</a>
+                        <a href="<?= BASE_PATH ?>settings/personal/dienstgrade/index" class="sidebar-sublink">Dienstgrade</a>
+                        <a href="<?= BASE_PATH ?>settings/personal/qualifw/index" class="sidebar-sublink">FW Qualifikationen</a>
+                        <a href="<?= BASE_PATH ?>settings/personal/qualird/index" class="sidebar-sublink">RD Qualifikationen</a>
+                        <a href="<?= BASE_PATH ?>settings/personal/qualifd/index" class="sidebar-sublink">Fachdienste</a>
                         <?php if (Permissions::check(['admin'])): ?>
-                            <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="sidebar-sublink">Dokumente</a>
-                            <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="sidebar-sublink">Antragstypen</a>
+                            <a href="<?= BASE_PATH ?>settings/documents/templates" class="sidebar-sublink">Dokumente</a>
+                            <a href="<?= BASE_PATH ?>settings/antrag/list" class="sidebar-sublink">Antragstypen</a>
                         <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if (Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>
                         <span class="sidebar-section-title" data-section="enotf-settings">eNOTF</span>
                         <?php if (Permissions::check(['admin', 'pois.view'])): ?>
-                            <a href="<?= BASE_PATH ?>settings/pois/index.php" class="sidebar-sublink">POIs</a>
+                            <a href="<?= BASE_PATH ?>settings/pois/index" class="sidebar-sublink">POIs</a>
                         <?php endif; ?>
                         <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
-                            <a href="<?= BASE_PATH ?>settings/medikamente/index.php" class="sidebar-sublink">Medikamente</a>
-                            <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="sidebar-sublink">Schnellzugriff</a>
+                            <a href="<?= BASE_PATH ?>settings/medikamente/index" class="sidebar-sublink">Medikamente</a>
+                            <a href="<?= BASE_PATH ?>settings/enotf/index" class="sidebar-sublink">Schnellzugriff</a>
                         <?php endif; ?>
                     <?php endif; ?>
 
                     <span class="sidebar-section-title" data-section="system">System</span>
                     <?php if (Permissions::check(['admin', 'dashboard.manage'])): ?>
-                        <a href="<?= BASE_PATH ?>settings/dashboard/index.php" class="sidebar-sublink">Dashboard</a>
+                        <a href="<?= BASE_PATH ?>settings/dashboard/index" class="sidebar-sublink">Dashboard</a>
                     <?php endif; ?>
                     <?php if (Permissions::check(['admin'])): ?>
-                        <a href="<?= BASE_PATH ?>settings/system/config.php" class="sidebar-sublink">Konfiguration</a>
-                        <a href="<?= BASE_PATH ?>settings/system/index.php" class="sidebar-sublink">Updater</a>
-                        <a href="<?= BASE_PATH ?>settings/system/telemetry.php" class="sidebar-sublink">Telemetrie</a>
-                        <a href="<?= BASE_PATH ?>settings/system/performance.php" class="sidebar-sublink">Performance</a>
-                        <a href="<?= BASE_PATH ?>settings/system/logs.php" class="sidebar-sublink">Logs &amp; Errors</a>
-                        <a href="<?= BASE_PATH ?>settings/federation/index.php" class="sidebar-sublink">Instanzvernetzung</a>
+                        <a href="<?= BASE_PATH ?>settings/system/config" class="sidebar-sublink">Konfiguration</a>
+                        <a href="<?= BASE_PATH ?>settings/system/index" class="sidebar-sublink">Updater</a>
+                        <a href="<?= BASE_PATH ?>settings/system/telemetry" class="sidebar-sublink">Telemetrie</a>
+                        <a href="<?= BASE_PATH ?>settings/system/performance" class="sidebar-sublink">Performance</a>
+                        <a href="<?= BASE_PATH ?>settings/system/logs" class="sidebar-sublink">Logs &amp; Errors</a>
+                        <a href="<?= BASE_PATH ?>settings/federation/index" class="sidebar-sublink">Instanzvernetzung</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -1505,7 +1505,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
     <button class="sidebar-toggle-btn topbar-mobile-hamburger" id="sidebarToggle" aria-label="Menü öffnen">
         <i class="fa-solid fa-bars"></i>
     </button>
-    <a href="<?= BASE_PATH ?>index.php" class="topbar-mobile-brand">
+    <a href="<?= BASE_PATH ?>index" class="topbar-mobile-brand">
         <img src="<?= SYSTEM_LOGO ?>" alt="<?= SYSTEM_NAME ?>">
     </a>
 
@@ -1555,7 +1555,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
                     <?php endif; ?>
                 </div>
                 <div class="notifications-flyout-footer">
-                    <a href="<?= BASE_PATH ?>benachrichtigungen/index.php">Alle anzeigen</a>
+                    <a href="<?= BASE_PATH ?>benachrichtigungen/index">Alle anzeigen</a>
                 </div>
             </div>
         </div>
@@ -1578,7 +1578,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
                         </span>
                     </div>
                 </div>
-                <a href="<?= BASE_PATH ?>logout.php" class="user-dropdown-item">
+                <a href="<?= BASE_PATH ?>logout" class="user-dropdown-item">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Abmelden</span>
                 </a>

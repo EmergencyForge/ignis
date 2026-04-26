@@ -57,7 +57,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <script>
 (function() {
     if (navigator.userAgent.includes('CitizenFX')) {
-        fetch('<?= BASE_PATH ?>api/character/get-session-id.php')
+        fetch('<?= BASE_PATH ?>api/character/get-session-id')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.session_id) {

@@ -123,7 +123,7 @@
 
     // Lade verfügbare Fahrzeuge (außer dem eigenen)
     function loadAvailableVehicles() {
-        fetch('<?= BASE_PATH ?>api/enotf/share/get-available-vehicles.php')
+        fetch('<?= BASE_PATH ?>api/enotf/share/get-available-vehicles')
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.vehicles) {
@@ -250,7 +250,7 @@
         this.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Wird gesendet...';
 
         // Sende Share-Request
-        fetch('<?= BASE_PATH ?>api/enotf/share/send-request.php', {
+        fetch('<?= BASE_PATH ?>api/enotf/share/send-request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -325,7 +325,7 @@
     }
 
     function loadExistingProtocols() {
-        fetch('<?= BASE_PATH ?>api/enotf/share/get-own-protocols.php')
+        fetch('<?= BASE_PATH ?>api/enotf/share/get-own-protocols')
             .then(response => response.json())
             .then(data => {
                 console.log('Geladene Protokolle:', data);
@@ -358,7 +358,7 @@
         this.disabled = true;
         this.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Wird verarbeitet...';
 
-        fetch('<?= BASE_PATH ?>api/enotf/share/accept-request.php', {
+        fetch('<?= BASE_PATH ?>api/enotf/share/accept-request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -381,7 +381,7 @@
                     // Wenn neues Protokoll erstellt wurde, ggf. dorthin weiterleiten
                     if (action === 'new' && data.new_enr) {
                         setTimeout(() => {
-                            window.location.href = '<?= BASE_PATH ?>enotf/protokoll/index.php?enr=' + encodeURIComponent(data.new_enr);
+                            window.location.href = '<?= BASE_PATH ?>enotf/protokoll/index?enr=' + encodeURIComponent(data.new_enr);
                         }, 1500);
                     } else if (action === 'merge') {
                         // Bei Merge zur Overview oder Reload
@@ -413,7 +413,7 @@
     document.getElementById('rejectShareBtn')?.addEventListener('click', function() {
         this.disabled = true;
 
-        fetch('<?= BASE_PATH ?>api/enotf/share/reject-request.php', {
+        fetch('<?= BASE_PATH ?>api/enotf/share/reject-request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -487,7 +487,7 @@
 
     // Polling für Share-Requests (wird in der Hauptseite aufgerufen)
     function checkForShareRequests() {
-        fetch('<?= BASE_PATH ?>api/enotf/share/check-requests.php')
+        fetch('<?= BASE_PATH ?>api/enotf/share/check-requests')
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.has_requests && data.request) {

@@ -30,7 +30,7 @@ $SITE_TITLE = 'Antragsübersicht';
                         <i class="fa-solid fa-clipboard-list mr-2"></i>Antragsübersicht
                     </h1>
                     <?php if (Gate::allows('antrag.decide')): ?>
-                        <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="ignis-btn ignis-btn--soft-primary">
+                        <a href="<?= BASE_PATH ?>settings/antrag/list" class="ignis-btn ignis-btn--soft-primary">
                             <i class="fa-solid fa-gear mr-2"></i>Antragstypen verwalten
                         </a>
                     <?php endif; ?>

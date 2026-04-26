@@ -73,7 +73,7 @@ $stepNum = 1;
     </p>
     <div class="setup-steps">
         <?php $done = $doneConfig; ?>
-        <a href="<?= BASE_PATH ?>settings/system/config.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>settings/system/config" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Systemdaten anpassen</strong>
@@ -82,7 +82,7 @@ $stepNum = 1;
         </a>
 
         <?php $stepNum++; $done = $doneDienstgrade; ?>
-        <a href="<?= BASE_PATH ?>settings/personal/dienstgrade/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>settings/personal/dienstgrade/index" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Dienstgrade anlegen</strong>
@@ -91,7 +91,7 @@ $stepNum = 1;
         </a>
 
         <?php $stepNum++; $done = $doneQuali; ?>
-        <a href="<?= BASE_PATH ?>settings/personal/qualird/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>settings/personal/qualird/index" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Qualifikationen konfigurieren</strong>
@@ -100,7 +100,7 @@ $stepNum = 1;
         </a>
 
         <?php $stepNum++; $done = $doneRollen; ?>
-        <a href="<?= BASE_PATH ?>benutzer/rollen/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>benutzer/rollen/index" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Rollen & Berechtigungen einrichten</strong>
@@ -109,7 +109,7 @@ $stepNum = 1;
         </a>
 
         <?php $stepNum++; $done = $doneMitarbeiter; ?>
-        <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>mitarbeiter/list" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Ersten Mitarbeiter erstellen</strong>
@@ -123,7 +123,7 @@ $stepNum = 1;
         <div style="font-size:var(--fs-xs);color:var(--text-dimmed);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.4rem;">Optional</div>
         <div class="setup-steps">
             <?php $done = $donePois; ?>
-            <a href="<?= BASE_PATH ?>settings/pois/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
+            <a href="<?= BASE_PATH ?>settings/pois/index" class="setup-step <?= $done ? 'done' : '' ?>">
                 <span class="setup-step-icon" style="background:rgba(255,255,255,0.06);color:var(--text-dimmed);"><?= $done ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-map-marker-alt" style="font-size:0.65rem"></i>' ?></span>
                 <span class="setup-step-text">
                     <strong>POIs einrichten</strong>
@@ -132,7 +132,7 @@ $stepNum = 1;
             </a>
 
             <?php $done = $doneFahrzeuge; ?>
-            <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
+            <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index" class="setup-step <?= $done ? 'done' : '' ?>">
                 <span class="setup-step-icon" style="background:rgba(255,255,255,0.06);color:var(--text-dimmed);"><?= $done ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-truck" style="font-size:0.65rem"></i>' ?></span>
                 <span class="setup-step-text">
                     <strong>Fahrzeug anlegen</strong>

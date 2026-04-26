@@ -1368,7 +1368,7 @@ try {
                     formData.append('pos_x', pos.x);
                     formData.append('pos_y', pos.y);
 
-                    const response = await fetch('<?= BASE_PATH ?>api/fire/lagekarte.php', {
+                    const response = await fetch('<?= BASE_PATH ?>api/fire/lagekarte', {
                         method: 'POST',
                         body: formData
                     });
@@ -1776,7 +1776,7 @@ try {
         }
 
         try {
-            const response = await fetch('<?= BASE_PATH ?>api/fire/lagekarte.php', {
+            const response = await fetch('<?= BASE_PATH ?>api/fire/lagekarte', {
                 method: 'POST',
                 body: formData
             });
@@ -1806,7 +1806,7 @@ try {
         formData.append('action', 'create_zone');
 
         try {
-            const response = await fetch('<?= BASE_PATH ?>api/fire/lagekarte.php', {
+            const response = await fetch('<?= BASE_PATH ?>api/fire/lagekarte', {
                 method: 'POST',
                 body: formData
             });
@@ -1849,7 +1849,7 @@ try {
                 formData.append('marker_id', markerId);
 
                 try {
-                    const response = await fetch('<?= BASE_PATH ?>api/fire/lagekarte.php', {
+                    const response = await fetch('<?= BASE_PATH ?>api/fire/lagekarte', {
                         method: 'POST',
                         body: formData
                     });
@@ -1885,7 +1885,7 @@ try {
                 formData.append('zone_id', zoneId);
 
                 try {
-                    const response = await fetch('<?= BASE_PATH ?>api/fire/lagekarte.php', {
+                    const response = await fetch('<?= BASE_PATH ?>api/fire/lagekarte', {
                         method: 'POST',
                         body: formData
                     });

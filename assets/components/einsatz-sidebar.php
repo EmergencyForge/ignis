@@ -36,27 +36,27 @@ $einsatzExtraNav = $einsatzExtraNav ?? '';
     <?php endif; ?>
 
     <nav class="einsatz-sidebar-nav">
-        <a href="<?= BASE_PATH ?>einsatz/create.php" class="sidebar-link <?= $einsatzActivePage === 'create' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/create" class="sidebar-link <?= $einsatzActivePage === 'create' ? 'active' : '' ?>">
             <i class="fa-solid fa-plus"></i><span>Neuer Einsatz</span>
         </a>
-        <a href="<?= BASE_PATH ?>einsatz/list.php" class="sidebar-link <?= $einsatzActivePage === 'list' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/list" class="sidebar-link <?= $einsatzActivePage === 'list' ? 'active' : '' ?>">
             <i class="fa-solid fa-list"></i><span>Meine Einsätze</span>
         </a>
         <?php if (isset($_SESSION['einsatz_vehicle_id'])): ?>
-            <a href="<?= BASE_PATH ?>einsatz/statusmeldungen.php" class="sidebar-link <?= $einsatzActivePage === 'statusmeldungen' ? 'active' : '' ?>">
+            <a href="<?= BASE_PATH ?>einsatz/statusmeldungen" class="sidebar-link <?= $einsatzActivePage === 'statusmeldungen' ? 'active' : '' ?>">
                 <i class="fa-solid fa-signal"></i><span>Statusmeldungen</span>
             </a>
         <?php endif; ?>
-        <a href="<?= BASE_PATH ?>einsatz/asu.php" class="sidebar-link <?= $einsatzActivePage === 'asu' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/asu" class="sidebar-link <?= $einsatzActivePage === 'asu' ? 'active' : '' ?>">
             <i class="fa-solid fa-mask-ventilator"></i><span>AS-Überwachung</span>
         </a>
-        <a href="<?= BASE_PATH ?>einsatz/fahrtenbuch.php" class="sidebar-link <?= $einsatzActivePage === 'fahrtenbuch' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/fahrtenbuch" class="sidebar-link <?= $einsatzActivePage === 'fahrtenbuch' ? 'active' : '' ?>">
             <i class="fa-solid fa-book"></i><span>Fahrtenbuch</span>
         </a>
 
         <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
             <span class="einsatz-sidebar-section">Verwaltung</span>
-            <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="sidebar-link <?= $einsatzActivePage === 'admin' ? 'active' : '' ?>">
+            <a href="<?= BASE_PATH ?>einsatz/admin/list" class="sidebar-link <?= $einsatzActivePage === 'admin' ? 'active' : '' ?>">
                 <i class="fa-solid fa-shield-alt"></i><span>Alle Einsätze</span>
             </a>
         <?php endif; ?>
@@ -65,7 +65,7 @@ $einsatzExtraNav = $einsatzExtraNav ?? '';
     </nav>
 
     <div class="einsatz-sidebar-bottom">
-        <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug.php?logout=1" class="sidebar-link">
+        <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug?logout=1" class="sidebar-link">
             <i class="fa-solid fa-right-from-bracket"></i><span>Abmelden</span>
         </a>
     </div>

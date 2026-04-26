@@ -26,8 +26,8 @@ use App\Helpers\Flash;
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
-                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
-                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active">Audit Log</span>
                     </nav>
                     <div class="flex justify-between items-center mb-5">
@@ -58,7 +58,7 @@ use App\Helpers\Flash;
                                         <td style="overflow-wrap:anywhere"><?= htmlspecialchars($entry->action ?? '') ?></td>
                                         <td style="overflow-wrap:anywhere"><?= htmlspecialchars($entry->details ?? '') ?></td>
                                         <td>
-                                            <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= $userId ?>">
+                                            <a href="<?= BASE_PATH ?>benutzer/edit?id=<?= $userId ?>">
                                                 <?= htmlspecialchars($username) ?> (ID: <?= $userId ?>)
                                             </a>
                                         </td>

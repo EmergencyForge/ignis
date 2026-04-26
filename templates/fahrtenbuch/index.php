@@ -32,7 +32,7 @@ $SITE_TITLE = 'Fahrtenbuch';
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6">
-                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active">Fahrtenbuch</span></nav>
+                <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active">Fahrtenbuch</span></nav>
 
                 <div class="page-header mb-4">
                     <h1>Fahrtenbuch</h1>
@@ -70,7 +70,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                 <?php if ($canManage): ?>
                 <div id="createFormWrap" style="display:none;" class="intra__tile mb-4 p-4">
                     <h5 class="mb-4">Neuer Eintrag</h5>
-                    <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php">
+                    <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions">
                         <input type="hidden" name="action" value="create">
                         <input type="hidden" name="return_to" value="admin">
                         <input type="hidden" name="source" value="admin">
@@ -95,7 +95,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                 <!-- Edit Form -->
                 <div id="editFormWrap" style="display:none;" class="intra__tile mb-4 p-4">
                     <h5 class="mb-4">Eintrag bearbeiten</h5>
-                    <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php" id="editForm">
+                    <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions" id="editForm">
                         <input type="hidden" name="action" value="update">
                         <input type="hidden" name="id" id="edit_id" value="">
                         <input type="hidden" name="return_to" value="admin">
@@ -231,7 +231,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                                                                 title="Bearbeiten">
                                                             <i class="fa-solid fa-pen"></i>
                                                         </button>
-                                                        <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions.php" class="inline"
+                                                        <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions" class="inline"
                                                               onsubmit="return confirm('Eintrag wirklich löschen?');">
                                                             <input type="hidden" name="action" value="delete">
                                                             <input type="hidden" name="id" value="<?= (int) $e['id'] ?>">

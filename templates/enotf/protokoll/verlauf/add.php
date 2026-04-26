@@ -36,7 +36,7 @@ if ($daten['freigegeben'] == 1) {
 
 // Prüfung ob freigegeben
 if ($ist_freigegeben) {
-    header("Location: index.php?enr=" . $_GET['enr']);
+    header("Location: index?enr=" . $_GET['enr']);
     exit();
 }
 
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_vitals'])) {
         }
 
         if ($gespeicherte_werte > 0) {
-            header("Location: index.php?enr=" . $enr);
+            header("Location: index?enr=" . $enr);
             exit();
         } else {
             $message = 'Keine Werte zum Speichern gefunden oder Fehler beim Speichern.';
@@ -200,7 +200,7 @@ $currentDateTime = date('Y-m-d\TH:i');
                             </div>
                             <div class="flex flex-wrap -mx-3 edivi__vitalparam-mainbuttons">
                                 <div class="flex-1 px-3">
-                                    <a href="index.php?enr=<?= $enr ?>">Abbrechen</a>
+                                    <a href="index?enr=<?= $enr ?>">Abbrechen</a>
                                 </div>
                                 <div class="flex-1 px-3" style="border-left: 2px solid #191919;">
                                     <button type="submit" form="vitalsForm">

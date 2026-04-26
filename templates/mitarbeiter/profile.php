@@ -58,7 +58,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                         <?php if ($accountStatus === 'active'): ?>
                             <span class="ignis-chip ignis-chip--success"><i class="fa-solid fa-circle-check mr-1"></i>Konto aktiv</span>
                             <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
-                                <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--font-size-sm);">
+                                <a href="<?= BASE_PATH ?>benutzer/edit?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--font-size-sm);">
                                     <?= htmlspecialchars($panelakte['fullname']) ?> (<?= htmlspecialchars($panelakte['username']) ?>)
                                 </a>
                             <?php elseif ($panelakte): ?>
@@ -67,7 +67,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                         <?php elseif ($accountStatus === 'inactive'): ?>
                             <span class="ignis-chip"><i class="fa-solid fa-circle-minus mr-1"></i>Konto deaktiviert</span>
                             <?php if ($panelakte && Permissions::check(['admin', 'users.view'])): ?>
-                                <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--font-size-sm);">
+                                <a href="<?= BASE_PATH ?>benutzer/edit?id=<?= (int) $panelakte['id'] ?>" class="no-underline" style="font-size: var(--font-size-sm);">
                                     <?= htmlspecialchars($panelakte['username']) ?>
                                 </a>
                             <?php endif; ?>
@@ -295,7 +295,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Wird erstellt...';
 
-            fetch('<?= BASE_PATH ?>api/personnel/generate-invite.php', {
+            fetch('<?= BASE_PATH ?>api/personnel/generate-invite', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ label: fullname })
@@ -362,7 +362,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
 
                 pfpPreview.style.opacity = '0.5';
 
-                fetch('<?= BASE_PATH ?>api/personnel/upload-pfp.php', {
+                fetch('<?= BASE_PATH ?>api/personnel/upload-pfp', {
                     method: 'POST',
                     body: formData
                 })

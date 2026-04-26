@@ -41,7 +41,7 @@ use App\Helpers\Flash;
                         <?php endif; ?>
                     </div>
 
-                    <a href="<?= BASE_PATH ?>settings/pois/index.php" class="ignis-btn ignis-btn--sm ignis-btn--ghost mb-3">
+                    <a href="<?= BASE_PATH ?>settings/pois/index" class="ignis-btn ignis-btn--sm ignis-btn--ghost mb-3">
                         <i class="fa-solid fa-arrow-left"></i> Zurück zur POI-Verwaltung
                     </a>
 
@@ -99,7 +99,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="createDepartmentModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/pois/departments-create.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/pois/departments-create" method="POST">
                         <input type="hidden" name="poi_id" value="<?= (int)$poi_id ?>">
                         <div class="modal-header">
                             <h5 class="modal-title">Fachrichtung hinzufügen</h5>
@@ -134,7 +134,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="editDepartmentModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/pois/departments-update.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/pois/departments-update" method="POST">
                         <input type="hidden" name="id" id="edit-dept-id">
                         <input type="hidden" name="poi_id" value="<?= (int)$poi_id ?>">
                         <div class="modal-header">
@@ -162,12 +162,12 @@ use App\Helpers\Flash;
         </div>
     <?php endif; ?>
 
-    <form id="delete-dept-form" action="<?= BASE_PATH ?>settings/pois/departments-delete.php" method="POST" style="display:none;">
+    <form id="delete-dept-form" action="<?= BASE_PATH ?>settings/pois/departments-delete" method="POST" style="display:none;">
         <input type="hidden" name="id" id="dept-delete-id">
         <input type="hidden" name="poi_id" value="<?= (int)$poi_id ?>">
     </form>
 
-    <form id="reset-availability-form" action="<?= BASE_PATH ?>settings/pois/departments-reset-availability.php" method="POST" style="display:none;">
+    <form id="reset-availability-form" action="<?= BASE_PATH ?>settings/pois/departments-reset-availability" method="POST" style="display:none;">
         <input type="hidden" name="poi_id" value="<?= (int)$poi_id ?>">
     </form>
 

@@ -23,7 +23,7 @@ use App\Helpers\Flash;
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="mb-0">Dashboard-Konfiguration</h1>
                 <div class="flex gap-2">
-                    <a href="<?= BASE_PATH ?>dashboard.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline" target="_blank"><i class="fa-solid fa-external-link-alt"></i> Dashboard aufrufen</a>
+                    <a href="<?= BASE_PATH ?>dashboard" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline" target="_blank"><i class="fa-solid fa-external-link-alt"></i> Dashboard aufrufen</a>
                     <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
                         <i class="fa-solid fa-plus"></i> Kategorie erstellen
                     </button>
@@ -88,7 +88,7 @@ use App\Helpers\Flash;
     <div class="modal fade" id="editTileModal" tabindex="-1" aria-labelledby="editTileModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="<?= BASE_PATH ?>settings/dashboard/tiles/update.php" method="POST">
+                <form action="<?= BASE_PATH ?>settings/dashboard/tiles/update" method="POST">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editTileModalLabel">Verlinkung bearbeiten</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -126,7 +126,7 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                 </form>
-                <form id="delete-tile-form" action="<?= BASE_PATH ?>settings/dashboard/tiles/delete.php" method="POST" style="display: none;">
+                <form id="delete-tile-form" action="<?= BASE_PATH ?>settings/dashboard/tiles/delete" method="POST" style="display: none;">
                     <input type="hidden" name="id" id="delete-tile-id">
                 </form>
             </div>
@@ -137,7 +137,7 @@ use App\Helpers\Flash;
     <div class="modal fade" id="createTileModal" tabindex="-1" aria-labelledby="createTileModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="<?= BASE_PATH ?>settings/dashboard/tiles/create.php" method="POST">
+                <form action="<?= BASE_PATH ?>settings/dashboard/tiles/create" method="POST">
                     <div class="modal-header">
                         <h5 class="modal-title" id="createTileModalLabel">Neue Verlinkung erstellen</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -179,7 +179,7 @@ use App\Helpers\Flash;
     <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="<?= BASE_PATH ?>settings/dashboard/categories/update.php" method="POST">
+                <form action="<?= BASE_PATH ?>settings/dashboard/categories/update" method="POST">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editCategoryModalLabel">Kategorie bearbeiten</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -203,7 +203,7 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                 </form>
-                <form id="delete-category-form" action="<?= BASE_PATH ?>settings/dashboard/categories/delete.php" method="POST" style="display: none;">
+                <form id="delete-category-form" action="<?= BASE_PATH ?>settings/dashboard/categories/delete" method="POST" style="display: none;">
                     <input type="hidden" name="id" id="delete-category-id">
                 </form>
             </div>
@@ -214,7 +214,7 @@ use App\Helpers\Flash;
     <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="<?= BASE_PATH ?>settings/dashboard/categories/create.php" method="POST">
+                <form action="<?= BASE_PATH ?>settings/dashboard/categories/create" method="POST">
                     <div class="modal-header">
                         <h5 class="modal-title" id="createCategoryModalLabel">Neue Kategorie erstellen</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>

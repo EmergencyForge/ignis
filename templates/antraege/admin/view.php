@@ -181,7 +181,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                                 <button type="submit" name="save" class="ignis-btn ignis-btn--success">
                                     <i class="fa-solid fa-floppy-disk mr-2"></i>Änderungen speichern
                                 </button>
-                                <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                                <a href="<?= BASE_PATH ?>antrag/admin/list" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                                     <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Übersicht
                                 </a>
                             </div>

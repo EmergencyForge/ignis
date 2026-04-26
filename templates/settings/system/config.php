@@ -145,7 +145,7 @@ $configByCategory = $configManager->getConfigByCategory();
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">System</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">System</span></nav>
                     <div class="page-header mb-4">
                         <h1>System-Konfiguration</h1>
                     </div>

@@ -181,7 +181,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
         const enr = '<?= $enr ?>';
 
         function updateSyncIcons() {
-            fetch('<?= BASE_PATH ?>api/enotf/sync-status.php?enr=' + encodeURIComponent(enr))
+            fetch('<?= BASE_PATH ?>api/enotf/sync-status?enr=' + encodeURIComponent(enr))
                 .then(r => r.json())
                 .then(data => {
                     // Cloud-Icon: pat_synced Status

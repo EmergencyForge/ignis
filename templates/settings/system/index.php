@@ -1019,7 +1019,7 @@ if ($isDevMode) {
         }
 
         function checkComposerStatus() {
-            fetch('<?= BASE_PATH ?>api/system/composer-status.php?action=check', {
+            fetch('<?= BASE_PATH ?>api/system/composer-status?action=check', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1042,7 +1042,7 @@ if ($isDevMode) {
         }
 
         function executeComposerInstall() {
-            fetch('<?= BASE_PATH ?>api/system/composer-status.php?action=execute', {
+            fetch('<?= BASE_PATH ?>api/system/composer-status?action=execute', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

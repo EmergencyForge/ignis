@@ -41,7 +41,7 @@ if (empty($comments)): ?>
             </div>
             <?php if ($canDelete): ?>
                 <button type="button" class="comment-item__delete" title="Löschen"
-                    onclick="showConfirm('Kommentar wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Kommentar löschen'}).then(function(ok) { if(ok) window.location.href='<?= BASE_PATH ?>mitarbeiter/comment-delete.php?id=<?= $comment['logid'] ?>&pid=<?= $comment['profilid'] ?>'; });">
+                    onclick="showConfirm('Kommentar wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Kommentar löschen'}).then(function(ok) { if(ok) window.location.href='<?= BASE_PATH ?>mitarbeiter/comment-delete?id=<?= $comment['logid'] ?>&pid=<?= $comment['profilid'] ?>'; });">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             <?php endif; ?>

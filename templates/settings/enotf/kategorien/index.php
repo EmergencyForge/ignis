@@ -25,7 +25,7 @@ use App\Helpers\Flash;
                     <h1 class="mb-0">Schnellzugriff-Kategorien Verwaltung</h1>
                     <?php if (Permissions::check('admin')) : ?>
                         <div class="flex gap-2">
-                            <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                            <a href="<?= BASE_PATH ?>settings/enotf/index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                                 <i class="fa-solid fa-arrow-left"></i> Zurück
                             </a>
                             <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
@@ -81,7 +81,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/enotf/kategorien/update.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/enotf/kategorien/update" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editCategoryModalLabel">Kategorie bearbeiten</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -119,7 +119,7 @@ use App\Helpers\Flash;
         <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/enotf/kategorien/create.php" method="POST">
+                    <form action="<?= BASE_PATH ?>settings/enotf/kategorien/create" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createCategoryModalLabel">Neue Kategorie erstellen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -165,7 +165,7 @@ use App\Helpers\Flash;
                 deleteBtn.addEventListener('click', function() {
                     const id = document.getElementById('category-id').value;
                     if (confirm('Möchten Sie diese Kategorie wirklich löschen? Alle zugehörigen Links müssen vorher einer anderen Kategorie zugewiesen werden.')) {
-                        window.location.href = '<?= BASE_PATH ?>settings/enotf/kategorien/delete.php?id=' + id;
+                        window.location.href = '<?= BASE_PATH ?>settings/enotf/kategorien/delete?id=' + id;
                     }
                 });
             }

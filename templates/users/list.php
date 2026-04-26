@@ -27,7 +27,7 @@ use App\Helpers\Flash;
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
-                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
                         <span class="ignis-breadcrumb__item is-active">Benutzer</span>
                     </nav>
                     <div class="page-header mb-4">
@@ -95,7 +95,7 @@ use App\Helpers\Flash;
                                         <?php if (Gate::allows('user.update', $user)): ?>
                                             <td>
                                                 <div class="col-actions">
-                                                    <a href="<?= BASE_PATH ?>benutzer/edit.php?id=<?= (int) $user->id ?>"
+                                                    <a href="<?= BASE_PATH ?>benutzer/edit?id=<?= (int) $user->id ?>"
                                                        class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
                                                        data-ignis-tooltip="Bearbeiten">
                                                         <i class="fa-solid fa-pen-to-square"></i>

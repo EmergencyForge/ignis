@@ -118,7 +118,7 @@ $statusLabels = [
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active">Defekt-Meldungen</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active">Defekt-Meldungen</span></nav>
 
                     <div class="page-header mb-4">
                         <h1>Defekt-Meldungen</h1>

@@ -313,7 +313,7 @@ foreach ($notifications as $n) {
             e.preventDefault();
             var href = this.href;
             var notifId = this.dataset.notificationId;
-            fetch('<?= BASE_PATH ?>api/notifications/mark-read.php', {
+            fetch('<?= BASE_PATH ?>api/notifications/mark-read', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: parseInt(notifId) })

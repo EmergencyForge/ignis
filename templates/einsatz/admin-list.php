@@ -19,16 +19,16 @@ use App\Helpers\Flash;
 <body data-bs-theme="dark" data-page="protokolle">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
     <div class="container my-4">
-        <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">Einsatz QM</span></nav>
+        <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">Einsatz QM</span></nav>
         <div class="page-header mb-4">
             <h1>Einsatzprotokolle (QM)</h1>
             <div class="header-actions">
                 <div class="flex items-center gap-3">
                     <div class="btn-toolbar-group">
-                        <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="btn <?= !$showArchived ? 'active' : '' ?>">Aktiv</a>
-                        <a href="<?= BASE_PATH ?>einsatz/admin/list.php?show_archived=1" class="btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
+                        <a href="<?= BASE_PATH ?>einsatz/admin/list" class="btn <?= !$showArchived ? 'active' : '' ?>">Aktiv</a>
+                        <a href="<?= BASE_PATH ?>einsatz/admin/list?show_archived=1" class="btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
                     </div>
-                    <a href="<?= BASE_PATH ?>einsatz/create.php" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-plus"></i> Neu</a>
+                    <a href="<?= BASE_PATH ?>einsatz/create" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-plus"></i> Neu</a>
                     <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--outline-danger ignis-btn--sm">
                         <i class="fa-solid fa-trash-can"></i> Protokolle löschen
                     </button>
@@ -98,9 +98,9 @@ use App\Helpers\Flash;
                                 <?php if ($isFederated): ?>
                                     <span style="font-size:var(--fs-xs);color:var(--text-dimmed);">read-only</span>
                                 <?php else: ?>
-                                <a class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" href="<?= BASE_PATH ?>einsatz/view.php?id=<?= (int)$i['id'] ?>">Öffnen</a>
+                                <a class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" href="<?= BASE_PATH ?>einsatz/view?id=<?= (int)$i['id'] ?>">Öffnen</a>
                                 <?php if ($showArchived): ?>
-                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="inline">
+                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions" class="inline">
                                         <input type="hidden" name="action" value="unarchive_incident">
                                         <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success btn-icon" title="Wiederherstellen">
@@ -108,7 +108,7 @@ use App\Helpers\Flash;
                                         </button>
                                     </form>
                                 <?php else: ?>
-                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="inline">
+                                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions" class="inline">
                                         <input type="hidden" name="action" value="archive_incident">
                                         <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
                                         <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-warning btn-icon" title="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });">
@@ -186,7 +186,7 @@ use App\Helpers\Flash;
             document.getElementById('bulkDeleteFooter').style.display = 'none';
             modal.show();
 
-            fetch('<?= BASE_PATH ?>api/fire/bulk-delete-empty.php')
+            fetch('<?= BASE_PATH ?>api/fire/bulk-delete-empty')
                 .then(response => response.json())
                 .then(data => {
                     if (data.success && data.fields) {
@@ -262,7 +262,7 @@ use App\Helpers\Flash;
             formData.append('timePeriod', timePeriod);
             formData.append('statusFilter', statusFilter);
 
-            fetch('<?= BASE_PATH ?>api/fire/bulk-delete-empty.php', { method: 'POST', body: formData })
+            fetch('<?= BASE_PATH ?>api/fire/bulk-delete-empty', { method: 'POST', body: formData })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -314,7 +314,7 @@ use App\Helpers\Flash;
             formData.append('timePeriod', window.bulkDeleteTimePeriod || '30');
             formData.append('statusFilter', window.bulkDeleteStatusFilter || 'all');
 
-            fetch('<?= BASE_PATH ?>api/fire/bulk-delete-empty.php', { method: 'POST', body: formData })
+            fetch('<?= BASE_PATH ?>api/fire/bulk-delete-empty', { method: 'POST', body: formData })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {

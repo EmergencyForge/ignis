@@ -50,7 +50,7 @@ try {
         // Keine Announcements und kein Refresh nötig — nur Background-JS ausgeben falls Heartbeat nötig
         if ($needsHeartbeat): ?>
             <script>
-                fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=heartbeat').catch(function() {});
+                fetch('<?= BASE_PATH ?>api/telemetry/background?action=heartbeat').catch(function() {});
             </script>
         <?php endif;
         return;
@@ -62,9 +62,9 @@ try {
         ?>
         <script>
             <?php if ($needsHeartbeat): ?>
-                fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=heartbeat').catch(function() {});
+                fetch('<?= BASE_PATH ?>api/telemetry/background?action=heartbeat').catch(function() {});
             <?php endif; ?>
-            fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=refresh-announcements').catch(function() {});
+            fetch('<?= BASE_PATH ?>api/telemetry/background?action=refresh-announcements').catch(function() {});
         </script>
 <?php
         return;
@@ -487,7 +487,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
                 // Alle Announcements nacheinander dismissan
                 Promise.all(allAnnouncementIds.map(id =>
-                        fetch('<?= BASE_PATH ?>api/announcements/dismiss.php', {
+                        fetch('<?= BASE_PATH ?>api/announcements/dismiss', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -518,7 +518,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                 this.disabled = true;
                 this.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
-                fetch('<?= BASE_PATH ?>api/announcements/dismiss.php', {
+                fetch('<?= BASE_PATH ?>api/announcements/dismiss', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -557,10 +557,10 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
         // === Background-Requests (non-blocking, per AJAX) ===
         <?php if ($needsHeartbeat): ?>
-            fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=heartbeat').catch(function() {});
+            fetch('<?= BASE_PATH ?>api/telemetry/background?action=heartbeat').catch(function() {});
         <?php endif; ?>
         <?php if ($needsCacheRefresh): ?>
-            fetch('<?= BASE_PATH ?>api/telemetry/background.php?action=refresh-announcements').catch(function() {});
+            fetch('<?= BASE_PATH ?>api/telemetry/background?action=refresh-announcements').catch(function() {});
         <?php endif; ?>
     });
 </script>

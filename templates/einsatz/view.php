@@ -68,25 +68,25 @@ function fmt_elapsed(int|string $seconds): string
         ob_start();
         ?>
         <span class="einsatz-sidebar-section">Einsatzprotokoll</span>
-        <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= $id ?>&tab=stammdaten" class="sidebar-link <?= $activeTab === 'stammdaten' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/view?id=<?= $id ?>&tab=stammdaten" class="sidebar-link <?= $activeTab === 'stammdaten' ? 'active' : '' ?>">
             <i class="fa-solid fa-info-circle"></i><span>Stammdaten</span>
         </a>
-        <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= $id ?>&tab=bericht" class="sidebar-link <?= $activeTab === 'bericht' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/view?id=<?= $id ?>&tab=bericht" class="sidebar-link <?= $activeTab === 'bericht' ? 'active' : '' ?>">
             <i class="fa-solid fa-file-alt"></i><span>Einsatzbericht</span>
         </a>
-        <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= $id ?>&tab=fahrzeuge" class="sidebar-link <?= $activeTab === 'fahrzeuge' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/view?id=<?= $id ?>&tab=fahrzeuge" class="sidebar-link <?= $activeTab === 'fahrzeuge' ? 'active' : '' ?>">
             <i class="fa-solid fa-truck"></i><span>Einsatzmittel</span>
         </a>
-        <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= $id ?>&tab=lagemeldungen" class="sidebar-link <?= $activeTab === 'lagemeldungen' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/view?id=<?= $id ?>&tab=lagemeldungen" class="sidebar-link <?= $activeTab === 'lagemeldungen' ? 'active' : '' ?>">
             <i class="fa-solid fa-broadcast-tower"></i><span>Lagemeldungen</span>
         </a>
-        <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= $id ?>&tab=lagekarte" class="sidebar-link <?= $activeTab === 'lagekarte' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/view?id=<?= $id ?>&tab=lagekarte" class="sidebar-link <?= $activeTab === 'lagekarte' ? 'active' : '' ?>">
             <i class="fa-solid fa-map-marked-alt"></i><span>Lagekarte</span>
         </a>
-        <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= $id ?>&tab=abschluss" class="sidebar-link <?= $activeTab === 'abschluss' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/view?id=<?= $id ?>&tab=abschluss" class="sidebar-link <?= $activeTab === 'abschluss' ? 'active' : '' ?>">
             <i class="fa-solid fa-check-circle"></i><span>Abschluss</span>
         </a>
-        <a href="<?= BASE_PATH ?>einsatz/view.php?id=<?= $id ?>&tab=log" class="sidebar-link <?= $activeTab === 'log' ? 'active' : '' ?>">
+        <a href="<?= BASE_PATH ?>einsatz/view?id=<?= $id ?>&tab=log" class="sidebar-link <?= $activeTab === 'log' ? 'active' : '' ?>">
             <i class="fa-solid fa-history"></i><span>Protokoll</span>
         </a>
         <?php $einsatzExtraNav = ob_get_clean(); ?>
@@ -149,7 +149,7 @@ function fmt_elapsed(int|string $seconds): string
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php" class="inline">
+                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions" class="inline">
                         <input type="hidden" name="action" value="finalize">
                         <input type="hidden" name="incident_id" value="<?= $id ?>">
                         <input type="hidden" name="return_tab" value="abschluss">
@@ -171,7 +171,7 @@ function fmt_elapsed(int|string $seconds): string
                         <h5 class="modal-title" id="qmStatusModalLabel">QM-Status ändern</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                     </div>
-                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php">
+                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions">
                         <div class="modal-body">
                             <input type="hidden" name="action" value="set_status">
                             <input type="hidden" name="incident_id" value="<?= $id ?>">

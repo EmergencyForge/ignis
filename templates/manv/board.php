@@ -50,7 +50,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                     </small>
                 </div>
                 <div class="md:text-right">
-                    <a href="<?= BASE_PATH ?>manv/edit.php?id=<?= $lageId ?>" class="ignis-btn ignis-btn--soft-primary no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/edit?id=<?= $lageId ?>" class="ignis-btn ignis-btn--soft-primary no-underline hover:no-underline">
                         <i class="fas fa-edit mr-2"></i>Bearbeiten
                     </a>
                 </div>
@@ -110,10 +110,10 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                 <div class="card-header flex flex-wrap items-center justify-between gap-2">
                     <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Patienten</h5>
                     <div class="flex flex-wrap gap-2">
-                        <a href="ressourcen.php?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary no-underline hover:no-underline">
+                        <a href="ressourcen?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-truck mr-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
                         </a>
-                        <a href="<?= BASE_PATH ?>manv/patient-create.php?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>manv/patient-create?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary no-underline hover:no-underline">
                             <i class="fas fa-user-plus mr-2"></i>Neuer Patient
                         </a>
                     </div>
@@ -177,7 +177,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <a href="<?= BASE_PATH ?>manv/patient-view.php?id=<?= (int) $patient['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1">
+                                            <a href="<?= BASE_PATH ?>manv/patient-view?id=<?= (int) $patient['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <?php if ($canTransport && $isTransportVehicle && empty($patient['transport_abfahrt']) && !empty($patient['transportziel']) && $patient['transportziel'] !== 'Kein Transport'): ?>
@@ -199,10 +199,10 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
             <div class="mb-4 mt-4">
                 <div class="card">
                     <div class="card-body flex flex-wrap gap-2">
-                        <a href="index.php" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                        <a href="index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                             <i class="fas fa-arrow-left mr-2"></i>Zurück zur Übersicht
                         </a>
-                        <a href="log.php?id=<?= $lageId ?>" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
+                        <a href="log?id=<?= $lageId ?>" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-history mr-2"></i>Aktionslog
                         </a>
                     </div>

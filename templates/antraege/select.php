@@ -58,7 +58,7 @@ $SITE_TITLE = "Antrag einreichen";
             <?php else: ?>
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <?php foreach ($typen as $typ): ?>
-                        <a href="<?= BASE_PATH . 'antrag/create.php?typ=' . (int) $typ->id ?>"
+                        <a href="<?= BASE_PATH . 'antrag/create?typ=' . (int) $typ->id ?>"
                             class="no-underline hover:no-underline">
                             <div class="antrag-card h-full rounded p-6 text-center">
                                 <h4 class="mb-4"><?= htmlspecialchars($typ->name) ?></h4>
@@ -82,7 +82,7 @@ $SITE_TITLE = "Antrag einreichen";
             <?php endif; ?>
 
             <div class="mt-6">
-                <a href="<?= BASE_PATH ?>index.php" class="ignis-btn ignis-btn--ghost">
+                <a href="<?= BASE_PATH ?>index" class="ignis-btn ignis-btn--ghost">
                     <i class="fas fa-arrow-left mr-2"></i>Zurück zum Dashboard
                 </a>
             </div>

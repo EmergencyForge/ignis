@@ -140,7 +140,7 @@ async function confirmArchiveDoc(docid, archive) {
     if (!confirmed) return;
 
     try {
-        const res = await fetch('<?= BASE_PATH ?>api/documents/archive.php', {
+        const res = await fetch('<?= BASE_PATH ?>api/documents/archive', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

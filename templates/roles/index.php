@@ -30,8 +30,8 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
-                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
-                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active">Rollen</span>
                     </nav>
                     <div class="page-header mb-4">
@@ -95,7 +95,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
         <div class="modal fade" id="editRoleModal" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>benutzer/rollen/update.php" method="POST">
+                    <form action="<?= BASE_PATH ?>benutzer/rollen/update" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="editRoleModalLabel">Rolle bearbeiten</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
@@ -158,7 +158,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                         </div>
                     </form>
 
-                    <form id="delete-role-form" action="<?= BASE_PATH ?>benutzer/rollen/delete.php" method="POST" style="display:none;">
+                    <form id="delete-role-form" action="<?= BASE_PATH ?>benutzer/rollen/delete" method="POST" style="display:none;">
                         <input type="hidden" name="id" id="role-delete-id">
                     </form>
                 </div>
@@ -171,7 +171,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
         <div class="modal fade" id="createRoleModal" tabindex="-1" aria-labelledby="createRoleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>benutzer/rollen/create.php" method="POST">
+                    <form action="<?= BASE_PATH ?>benutzer/rollen/create" method="POST">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createRoleModalLabel">Neue Rolle erstellen</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>

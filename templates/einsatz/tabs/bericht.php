@@ -21,7 +21,7 @@
         </div>
     <?php else: ?>
         <!-- Editable form -->
-        <form method="post" action="<?= BASE_PATH ?>einsatz/actions.php">
+        <form method="post" action="<?= BASE_PATH ?>einsatz/actions">
             <input type="hidden" name="action" value="update_notes">
             <input type="hidden" name="incident_id" value="<?= $id ?>">
             <input type="hidden" name="return_tab" value="bericht">
@@ -40,7 +40,7 @@
     <div class="mb-3 flex items-center justify-between">
         <h4 class="mb-0">Atemschutzüberwachung (ASU)</h4>
         <?php if (!$incident['finalized']): ?>
-            <a href="<?= BASE_PATH ?>einsatz/asu.php?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>" class="ignis-btn ignis-btn--danger ignis-btn--sm">
+            <a href="<?= BASE_PATH ?>einsatz/asu?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>" class="ignis-btn ignis-btn--danger ignis-btn--sm">
                 ASU starten
             </a>
         <?php endif; ?>
@@ -240,7 +240,7 @@
                             </div>
                             <div class="modal-footer">
                                 <?php if (!$incident['finalized']): ?>
-                                    <a href="<?= BASE_PATH ?>einsatz/asu.php?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>&asu_id=<?= (int)$asu['id'] ?>" class="ignis-btn ignis-btn--primary">
+                                    <a href="<?= BASE_PATH ?>einsatz/asu?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>&asu_id=<?= (int)$asu['id'] ?>" class="ignis-btn ignis-btn--primary">
                                         <i class="fa-solid fa-edit mr-1"></i>Protokoll fortführen
                                     </a>
                                 <?php endif; ?>

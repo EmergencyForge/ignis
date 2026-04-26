@@ -31,8 +31,8 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
-                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span>
-                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($target->username) ?></span>
                     </nav>
                     <div class="flex flex-wrap items-center gap-2 mb-3">
@@ -184,7 +184,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                        <p class="ignis-dialog__text" style="opacity:.7;font-size:.82rem;">Der Benutzer kann sich nicht mehr einloggen, kann aber jederzeit reaktiviert werden. Alle Daten bleiben erhalten.</p>`,
                 confirmText: 'Deaktivieren',
             });
-            if (ok) window.location.href = 'toggle-active.php?id=' + userId + '&action=deactivate';
+            if (ok) window.location.href = 'toggle-active?id=' + userId + '&action=deactivate';
         });
 
         document.getElementById('btnReactivate')?.addEventListener('click', async () => {
@@ -194,7 +194,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                        <p class="ignis-dialog__text" style="opacity:.7;font-size:.82rem;">Der Benutzer kann sich danach wieder einloggen.</p>`,
                 confirmText: 'Reaktivieren',
             });
-            if (ok) window.location.href = 'toggle-active.php?id=' + userId + '&action=reactivate';
+            if (ok) window.location.href = 'toggle-active?id=' + userId + '&action=reactivate';
         });
 
         document.getElementById('btnDeleteUser')?.addEventListener('click', async () => {
@@ -206,7 +206,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                 confirmText: 'Endgültig löschen',
                 danger: true,
             });
-            if (ok) window.location.href = 'delete.php?id=' + userId;
+            if (ok) window.location.href = 'delete?id=' + userId;
         });
     </script>
     <?php endif; ?>

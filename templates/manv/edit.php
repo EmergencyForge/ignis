@@ -137,7 +137,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="<?= BASE_PATH ?>manv/board.php?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
                     <button type="submit" class="ignis-btn ignis-btn--soft-primary btn-lg">

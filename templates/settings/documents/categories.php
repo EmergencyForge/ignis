@@ -26,12 +26,12 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto my-6">
-            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index.php">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Dokumenten-Kategorien</span></nav>
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Dokumenten-Kategorien</span></nav>
 
             <div class="page-header mb-4">
                 <h1>Dokumenten-Kategorien</h1>
                 <div class="header-actions">
-                    <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="ignis-btn ignis-btn--outline-secondary">
+                    <a href="<?= BASE_PATH ?>settings/documents/templates" class="ignis-btn ignis-btn--outline-secondary">
                         <i class="fa-solid fa-file-lines"></i> Templates verwalten
                     </a>
                     <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="resetForm()">

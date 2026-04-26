@@ -1,13 +1,13 @@
 // =====================================================
 // Bootstrap-Compat-Shim
 // Minimaler Ersatz für die Teile von Bootstrap 5, die wir nach der
-// Tailwind-/ignis-Migration noch brauchen, damit das Bootstrap-CSS-
-// Bundle komplett entfallen kann. Inhalt:
-//   * Container/Row/Col-Grid (12 Spalten, sm/md/lg/xl-Breakpoints)
+// Tailwind-/ignis-Migration noch brauchen. Inhalt:
+//   * Container (Bootstrap-Breakpoints, behalten weil mehrere Templates
+//     darauf bauen)
 //   * Modal-Stack (.modal, .modal-dialog, .modal-content, …, .fade, .show)
 //   * .btn-close (X-Knopf in Modal-Headern)
-// Werden Templates auf Tailwind-Grid + ignis-dialog umgestellt, kann
-// dieser Shim wieder weg.
+// row/col-* wurden auf Tailwind migriert (flex flex-wrap -mx-3 + w-N/12),
+// sind hier raus. Modale ziehen später noch auf ignis-dialog um.
 // =====================================================
 
 // ── Container ──────────────────────────────────────────────────────
@@ -29,69 +29,6 @@
 @media (min-width: 992px) { .container, .container-sm, .container-md, .container-lg { max-width: 960px; } }
 @media (min-width: 1200px) { .container, .container-sm, .container-md, .container-lg, .container-xl { max-width: 1140px; } }
 @media (min-width: 1400px) { .container, .container-sm, .container-md, .container-lg, .container-xl { max-width: 1320px; } }
-
-// ── Row (Bootstrap 5 Grid) ─────────────────────────────────────────
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -0.75rem;
-    margin-left: -0.75rem;
-
-    > * {
-        flex-shrink: 0;
-        width: 100%;
-        max-width: 100%;
-        padding-right: 0.75rem;
-        padding-left: 0.75rem;
-    }
-}
-
-// ── Col + Col-N ────────────────────────────────────────────────────
-.col {
-    flex: 1 0 0%;
-}
-.col-auto {
-    flex: 0 0 auto;
-    width: auto;
-}
-
-@for $i from 1 through 12 {
-    .col-#{$i} {
-        flex: 0 0 auto;
-        width: percentage(calc($i / 12));
-    }
-}
-
-// ── Responsive Cols ────────────────────────────────────────────────
-$bp: (
-    sm: 576px,
-    md: 768px,
-    lg: 992px,
-    xl: 1200px,
-    xxl: 1400px,
-);
-
-@each $name, $size in $bp {
-    @media (min-width: $size) {
-        .col-#{$name} {
-            flex: 1 0 0%;
-        }
-        .col-#{$name}-auto {
-            flex: 0 0 auto;
-            width: auto;
-        }
-        @for $i from 1 through 12 {
-            .col-#{$name}-#{$i} {
-                flex: 0 0 auto;
-                width: percentage(calc($i / 12));
-            }
-        }
-    }
-}
-
-// Bootstrap-Gutter-Modifier (kommen vereinzelt vor)
-.g-0, .gx-0 { --bs-gutter-x: 0; }
-.g-0, .gy-0 { --bs-gutter-y: 0; }
 
 // ── Modal ──────────────────────────────────────────────────────────
 .modal-backdrop {
