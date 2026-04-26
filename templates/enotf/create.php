@@ -31,7 +31,7 @@ $currentDate = date('d.m.Y');
         <input type="hidden" name="action" value="openOrCreate" />
         <input type="hidden" name="prot_by" id="prot_by" value="" />
         <input type="hidden" name="force_create" id="force_create" value="0" />
-        <div class="container-fluid" id="edivi__container">
+        <div class="w-full" id="edivi__container">
             <div class="h-full">
                 <div id="edivi__content">
                     <div class="hr my-6" style="color:transparent"></div>
@@ -62,7 +62,7 @@ $currentDate = date('d.m.Y');
                 <div class="modal-body">
                     <p id="conflictMessage"></p>
                     <p><strong>Möchten Sie trotzdem ein neues Protokoll für diese Einsatznummer erstellen?</strong></p>
-                    <p class="text-gray-400 small">Das neue Protokoll wird mit einer Nummerierung versehen (z.B. _1, _2, etc.)</p>
+                    <p class="text-gray-400 text-sm">Das neue Protokoll wird mit einer Nummerierung versehen (z.B. _1, _2, etc.)</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>

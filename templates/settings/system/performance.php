@@ -328,8 +328,8 @@ use App\Helpers\Flash;
             for (const [key, value] of Object.entries(content)) {
                 const info = CONTENT_LABELS[key] || { label: key, icon: 'fa-circle' };
                 html += `
-                    <div class="flex justify-between items-center py-2 ${html ? 'border-top border-secondary border-opacity-25' : ''}">
-                        <span><i class="fa-solid ${info.icon} mr-2 text-muted"></i>${info.label}</span>
+                    <div class="flex justify-between items-center py-2 ${html ? 'border-t border-secondary border-opacity-25' : ''}">
+                        <span><i class="fa-solid ${info.icon} mr-2 text-[var(--text-dimmed,#818189)]"></i>${info.label}</span>
                         <span class="perf-stat-sm">${formatNumber(value)}</span>
                     </div>`;
             }
@@ -394,22 +394,22 @@ use App\Helpers\Flash;
                 html += `
                     <tr>
                         <td>
-                            <code class="small">${table.table_name}</code>
+                            <code class="text-sm">${table.table_name}</code>
                         </td>
-                        <td class="text-end">${formatNumber(table.row_count || 0)}</td>
-                        <td class="text-end">${table.size_mb} MB</td>
+                        <td class="text-right">${formatNumber(table.row_count || 0)}</td>
+                        <td class="text-right">${table.size_mb} MB</td>
                         <td>
                             <div class="flex items-center gap-2">
-                                <div class="perf-bar-bg flex-grow-1">
+                                <div class="perf-bar-bg grow">
                                     <div class="perf-bar" style="width: ${pct}%; background: ${barColor};"></div>
                                 </div>
-                                <span class="small text-muted" style="min-width: 35px;">${pct.toFixed(0)}%</span>
+                                <span class="text-sm text-[var(--text-dimmed,#818189)]" style="min-width: 35px;">${pct.toFixed(0)}%</span>
                             </div>
                         </td>
                     </tr>`;
             });
 
-            tbody.innerHTML = html || '<tr><td colspan="4" class="text-muted">Keine Daten</td></tr>';
+            tbody.innerHTML = html || '<tr><td colspan="4" class="text-[var(--text-dimmed,#818189)]">Keine Daten</td></tr>';
         }
 
         function renderConnections(server) {
@@ -422,14 +422,14 @@ use App\Helpers\Flash;
             container.innerHTML = `
                 <div class="mb-3">
                     <div class="flex justify-between mb-1">
-                        <span class="small">Aktive Verbindungen</span>
-                        <span class="small fw-bold">${used} / ${max}</span>
+                        <span class="text-sm">Aktive Verbindungen</span>
+                        <span class="text-sm font-bold">${used} / ${max}</span>
                     </div>
                     <div class="perf-bar-bg">
                         <div class="perf-bar" style="width: ${pct}%; background: ${barColor};"></div>
                     </div>
                 </div>
-                <div class="small text-muted">
+                <div class="text-sm text-[var(--text-dimmed,#818189)]">
                     Auslastung: ${pct.toFixed(1)}%
                 </div>`;
         }
@@ -454,7 +454,7 @@ use App\Helpers\Flash;
             let html = '';
             items.forEach(item => {
                 html += `
-                    <div class="flex justify-between items-center py-2 ${html ? 'border-top border-secondary border-opacity-25' : ''}">
+                    <div class="flex justify-between items-center py-2 ${html ? 'border-t border-secondary border-opacity-25' : ''}">
                         <span><i class="fa-solid ${item.icon} mr-2 text-${item.color}"></i>${item.label}</span>
                         <span class="perf-badge bg-${item.color} bg-opacity-25 text-${item.color}">${item.value}</span>
                     </div>`;

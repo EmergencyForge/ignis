@@ -22,7 +22,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
 
 <body data-bs-theme="dark" data-page="benutzer">
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -117,7 +117,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                             <div class="mb-3">
                                 <div class="ignis-field__label mb-2">Berechtigungen</div>
                                 <?php foreach ($permissionGroups as $groupName => $group): ?>
-                                    <div class="mb-3 border-bottom pb-2">
+                                    <div class="mb-3 border-b pb-2">
                                         <h6 class="mb-2"><span class="ignis-field__hint" style="text-transform:none;letter-spacing:0;font-size:.8rem;"><?= htmlspecialchars($groupName) ?></span></h6>
                                         <div class="row">
                                             <?php foreach ($group as $perm => $desc): ?>
@@ -140,7 +140,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                                         $previewChipMod = in_array($color, $chipMappable, true) ? ' ignis-chip--' . $color : '';
                                     ?>
                                         <div class="col-6 mb-2">
-                                            <label class="ignis-radio w-100">
+                                            <label class="ignis-radio w-full">
                                                 <input type="radio" name="color" id="role-color-<?= $color ?>" value="<?= $color ?>" required>
                                                 <span class="ignis-chip<?= $previewChipMod ?>" style="display:inline-block;text-align:center;min-width:6rem;"><?= ucfirst($color) ?></span>
                                             </label>
@@ -151,7 +151,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                         </div>
                         <div class="modal-footer flex justify-between">
                             <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-role-btn">Löschen</button>
-                            <div class="d-flex gap-2">
+                            <div class="flex gap-2">
                                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                                 <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
@@ -190,7 +190,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                             <div class="mb-3">
                                 <div class="ignis-field__label mb-2">Berechtigungen</div>
                                 <?php foreach ($permissionGroups as $groupName => $group): ?>
-                                    <div class="mb-2 border-bottom pb-2">
+                                    <div class="mb-2 border-b pb-2">
                                         <h6 class="mb-2"><span class="ignis-field__hint" style="text-transform:none;letter-spacing:0;font-size:.8rem;"><?= htmlspecialchars($groupName) ?></span></h6>
                                         <div class="row">
                                             <?php foreach ($group as $perm => $desc): ?>
@@ -213,7 +213,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                                         $previewChipMod = in_array($color, $chipMappable, true) ? ' ignis-chip--' . $color : '';
                                     ?>
                                         <div class="col-6 mb-2">
-                                            <label class="ignis-radio w-100">
+                                            <label class="ignis-radio w-full">
                                                 <input type="radio" name="color" id="new-role-color-<?= $color ?>" value="<?= $color ?>" required>
                                                 <span class="ignis-chip<?= $previewChipMod ?>" style="display:inline-block;text-align:center;min-width:6rem;"><?= ucfirst($color) ?></span>
                                             </label>

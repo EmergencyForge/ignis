@@ -18,7 +18,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="container">
             <div class="row">
                 <div class="col mb-5">

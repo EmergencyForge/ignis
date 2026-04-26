@@ -145,7 +145,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                     $isAdminOnly = !empty($ann['admin_only']);
                     $iconColors = $iconBoxColors[$ann['type']] ?? $iconBoxColors['info'];
                 ?>
-                    <div class="announcement-item <?= $index > 0 ? 'border-top' : '' ?>"
+                    <div class="announcement-item <?= $index > 0 ? 'border-t' : '' ?>"
                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
                         <div class="flex gap-3">
                             <!-- Icon -->
@@ -154,7 +154,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                             </div>
 
                             <!-- Content -->
-                            <div class="announcement-content flex-grow-1">
+                            <div class="announcement-content grow">
                                 <div class="flex items-center flex-wrap gap-2 mb-2">
                                     <span class="badge bg-<?= $config['badge'] ?>"><?= $config['label'] ?></span>
                                     <?php if ($isAdminOnly): ?>
@@ -208,12 +208,12 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 </div>
 
 <!-- Trigger Button für manuelles Öffnen -->
-<div id="efAnnouncementsTrigger" class="position-fixed" style="bottom: 20px; right: 20px; z-index: 1040; display: none;">
-    <button type="button" class="btn btn-<?= $hasCritical ? 'danger' : ($hasWarning ? 'warning' : 'primary') ?> rounded-pill shadow-lg position-relative"
+<div id="efAnnouncementsTrigger" class="fixed" style="bottom: 20px; right: 20px; z-index: 1040; display: none;">
+    <button type="button" class="btn btn-<?= $hasCritical ? 'danger' : ($hasWarning ? 'warning' : 'primary') ?> rounded-full shadow-lg relative"
         data-bs-toggle="modal" data-bs-target="#efAnnouncementsModal">
         <i class="fa-solid fa-bullhorn mr-2"></i>
         <span class="hidden d-sm-inline"><?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?></span>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-sm-none">
+        <span class="absolute top-0 start-100 translate-middle badge rounded-full bg-[#b03a3a] sm:hidden">
             <?= count($announcements) ?>
         </span>
     </button>

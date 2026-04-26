@@ -69,7 +69,7 @@
 <div class="grid grid-cols-1 gap-3 lg:grid-cols-3">
     <!-- Trupp 1 -->
     <div>
-        <div class="card bg-dark h-100">
+        <div class="card bg-[rgba(0,0,0,0.3)] h-full">
             <div class="card-header flex items-center justify-between">
                 <h5 class="mb-0">1. Trupp</h5>
                 <div class="btn-group btn-group-sm">
@@ -125,15 +125,15 @@
 
                 <!-- Personal -->
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Truppführer (TF) *</label>
+                    <label class="ignis-field__label text-sm">Truppführer (TF) *</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp1TF" placeholder="Name">
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Truppmann 1 (TM1) *</label>
+                    <label class="ignis-field__label text-sm">Truppmann 1 (TM1) *</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp1TM1" placeholder="Name">
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Truppmann 2 (TM2)</label>
+                    <label class="ignis-field__label text-sm">Truppmann 2 (TM2)</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp1TM2" placeholder="Name">
                 </div>
 
@@ -142,46 +142,46 @@
                 <!-- Einsatzinfo -->
                 <div class="mb-2 grid grid-cols-2 gap-2">
                     <div>
-                        <label class="ignis-field__label small">Anfangsdruck (bar)</label>
+                        <label class="ignis-field__label text-sm">Anfangsdruck (bar)</label>
                         <input type="number" class="ignis-input ignis-input--sm" id="trupp1StartPressure" placeholder="300" min="0" max="400">
                     </div>
                     <div>
-                        <label class="ignis-field__label small">Einsatzbeginn</label>
+                        <label class="ignis-field__label text-sm">Einsatzbeginn</label>
                         <input type="time" class="ignis-input ignis-input--sm" id="trupp1StartTime">
                     </div>
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Auftrag</label>
+                    <label class="ignis-field__label text-sm">Auftrag</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp1Mission" placeholder="z.B. Brandbekämpfung, Personensuche">
                 </div>
 
                 <!-- Kontrollen -->
                 <div class="mb-2">
-                    <label class="ignis-field__label small">1. Kontrolle (10 Min / 1/3)</label>
+                    <label class="ignis-field__label text-sm">1. Kontrolle (10 Min / 1/3)</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp1Check1" placeholder="Druck / Status">
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">2. Kontrolle (20 Min / 2/3)</label>
+                    <label class="ignis-field__label text-sm">2. Kontrolle (20 Min / 2/3)</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp1Check2" placeholder="Druck / Status">
                 </div>
 
                 <!-- Einsatzende -->
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Einsatzziel</label>
+                    <label class="ignis-field__label text-sm">Einsatzziel</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp1Objective" placeholder="z.B. 2. OG Zimmer 5">
                 </div>
                 <div class="mb-2 grid grid-cols-2 gap-2">
                     <div>
-                        <label class="ignis-field__label small">Rückzug</label>
+                        <label class="ignis-field__label text-sm">Rückzug</label>
                         <input type="time" class="ignis-input ignis-input--sm" id="trupp1Retreat">
                     </div>
                     <div>
-                        <label class="ignis-field__label small">Einsatzende</label>
+                        <label class="ignis-field__label text-sm">Einsatzende</label>
                         <input type="time" class="ignis-input ignis-input--sm" id="trupp1End">
                     </div>
                 </div>
                 <div class="mb-0">
-                    <label class="ignis-field__label small">Bemerkungen</label>
+                    <label class="ignis-field__label text-sm">Bemerkungen</label>
                     <textarea class="ignis-input ignis-input--sm" id="trupp1Remarks" rows="2" placeholder="Zusätzliche Informationen"></textarea>
                 </div>
             </div>
@@ -190,7 +190,7 @@
 
     <!-- Trupp 2 -->
     <div>
-        <div class="card bg-dark h-100">
+        <div class="card bg-[rgba(0,0,0,0.3)] h-full">
             <div class="card-header flex items-center justify-between">
                 <h5 class="mb-0">2. Trupp</h5>
                 <div class="btn-group btn-group-sm">
@@ -246,15 +246,15 @@
 
                 <!-- Personal -->
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Truppführer (TF) *</label>
+                    <label class="ignis-field__label text-sm">Truppführer (TF) *</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp2TF" placeholder="Name">
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Truppmann 1 (TM1) *</label>
+                    <label class="ignis-field__label text-sm">Truppmann 1 (TM1) *</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp2TM1" placeholder="Name">
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Truppmann 2 (TM2)</label>
+                    <label class="ignis-field__label text-sm">Truppmann 2 (TM2)</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp2TM2" placeholder="Name">
                 </div>
 
@@ -263,46 +263,46 @@
                 <!-- Einsatzinfo -->
                 <div class="mb-2 grid grid-cols-2 gap-2">
                     <div>
-                        <label class="ignis-field__label small">Anfangsdruck (bar)</label>
+                        <label class="ignis-field__label text-sm">Anfangsdruck (bar)</label>
                         <input type="number" class="ignis-input ignis-input--sm" id="trupp2StartPressure" placeholder="300" min="0" max="400">
                     </div>
                     <div>
-                        <label class="ignis-field__label small">Einsatzbeginn</label>
+                        <label class="ignis-field__label text-sm">Einsatzbeginn</label>
                         <input type="time" class="ignis-input ignis-input--sm" id="trupp2StartTime">
                     </div>
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Auftrag</label>
+                    <label class="ignis-field__label text-sm">Auftrag</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp2Mission" placeholder="z.B. Brandbekämpfung, Personensuche">
                 </div>
 
                 <!-- Kontrollen -->
                 <div class="mb-2">
-                    <label class="ignis-field__label small">1. Kontrolle (10 Min / 1/3)</label>
+                    <label class="ignis-field__label text-sm">1. Kontrolle (10 Min / 1/3)</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp2Check1" placeholder="Druck / Status">
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">2. Kontrolle (20 Min / 2/3)</label>
+                    <label class="ignis-field__label text-sm">2. Kontrolle (20 Min / 2/3)</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp2Check2" placeholder="Druck / Status">
                 </div>
 
                 <!-- Einsatzende -->
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Einsatzziel</label>
+                    <label class="ignis-field__label text-sm">Einsatzziel</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp2Objective" placeholder="z.B. 2. OG Zimmer 5">
                 </div>
                 <div class="mb-2 grid grid-cols-2 gap-2">
                     <div>
-                        <label class="ignis-field__label small">Rückzug</label>
+                        <label class="ignis-field__label text-sm">Rückzug</label>
                         <input type="time" class="ignis-input ignis-input--sm" id="trupp2Retreat">
                     </div>
                     <div>
-                        <label class="ignis-field__label small">Einsatzende</label>
+                        <label class="ignis-field__label text-sm">Einsatzende</label>
                         <input type="time" class="ignis-input ignis-input--sm" id="trupp2End">
                     </div>
                 </div>
                 <div class="mb-0">
-                    <label class="ignis-field__label small">Bemerkungen</label>
+                    <label class="ignis-field__label text-sm">Bemerkungen</label>
                     <textarea class="ignis-input ignis-input--sm" id="trupp2Remarks" rows="2" placeholder="Zusätzliche Informationen"></textarea>
                 </div>
             </div>
@@ -311,7 +311,7 @@
 
     <!-- Trupp 3 (Sicherheitstrupp) -->
     <div>
-        <div class="card bg-dark h-100">
+        <div class="card bg-[rgba(0,0,0,0.3)] h-full">
             <div class="card-header flex items-center justify-between">
                 <h5 class="mb-0">Sicherheitstrupp</h5>
                 <div class="btn-group btn-group-sm">
@@ -367,15 +367,15 @@
 
                 <!-- Personal -->
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Truppführer (TF) *</label>
+                    <label class="ignis-field__label text-sm">Truppführer (TF) *</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp3TF" placeholder="Name">
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Truppmann 1 (TM1) *</label>
+                    <label class="ignis-field__label text-sm">Truppmann 1 (TM1) *</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp3TM1" placeholder="Name">
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Truppmann 2 (TM2)</label>
+                    <label class="ignis-field__label text-sm">Truppmann 2 (TM2)</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp3TM2" placeholder="Name">
                 </div>
 
@@ -384,46 +384,46 @@
                 <!-- Einsatzinfo -->
                 <div class="mb-2 grid grid-cols-2 gap-2">
                     <div>
-                        <label class="ignis-field__label small">Anfangsdruck (bar)</label>
+                        <label class="ignis-field__label text-sm">Anfangsdruck (bar)</label>
                         <input type="number" class="ignis-input ignis-input--sm" id="trupp3StartPressure" placeholder="300" min="0" max="400">
                     </div>
                     <div>
-                        <label class="ignis-field__label small">Einsatzbeginn</label>
+                        <label class="ignis-field__label text-sm">Einsatzbeginn</label>
                         <input type="time" class="ignis-input ignis-input--sm" id="trupp3StartTime">
                     </div>
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Auftrag</label>
+                    <label class="ignis-field__label text-sm">Auftrag</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp3Mission" placeholder="z.B. Brandbekämpfung, Personensuche">
                 </div>
 
                 <!-- Kontrollen -->
                 <div class="mb-2">
-                    <label class="ignis-field__label small">1. Kontrolle (10 Min / 1/3)</label>
+                    <label class="ignis-field__label text-sm">1. Kontrolle (10 Min / 1/3)</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp3Check1" placeholder="Druck / Status">
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">2. Kontrolle (20 Min / 2/3)</label>
+                    <label class="ignis-field__label text-sm">2. Kontrolle (20 Min / 2/3)</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp3Check2" placeholder="Druck / Status">
                 </div>
 
                 <!-- Einsatzende -->
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Einsatzziel</label>
+                    <label class="ignis-field__label text-sm">Einsatzziel</label>
                     <input type="text" class="ignis-input ignis-input--sm" id="trupp3Objective" placeholder="z.B. 2. OG Zimmer 5">
                 </div>
                 <div class="mb-2 grid grid-cols-2 gap-2">
                     <div>
-                        <label class="ignis-field__label small">Rückzug</label>
+                        <label class="ignis-field__label text-sm">Rückzug</label>
                         <input type="time" class="ignis-input ignis-input--sm" id="trupp3Retreat">
                     </div>
                     <div>
-                        <label class="ignis-field__label small">Einsatzende</label>
+                        <label class="ignis-field__label text-sm">Einsatzende</label>
                         <input type="time" class="ignis-input ignis-input--sm" id="trupp3End">
                     </div>
                 </div>
                 <div class="mb-0">
-                    <label class="ignis-field__label small">Bemerkungen</label>
+                    <label class="ignis-field__label text-sm">Bemerkungen</label>
                     <textarea class="ignis-input ignis-input--sm" id="trupp3Remarks" rows="2" placeholder="Zusätzliche Informationen"></textarea>
                 </div>
             </div>
@@ -432,11 +432,11 @@
 </div>
 
 <!-- Action Buttons -->
-<div class="d-flex justify-content-between mt-3">
+<div class="flex justify-between mt-3">
     <button type="button" class="ignis-btn" onclick="clearAll()">
-        <i class="fa-solid fa-eraser me-1"></i>Alle Felder leeren
+        <i class="fa-solid fa-eraser mr-1"></i>Alle Felder leeren
     </button>
     <button type="button" class="ignis-btn ignis-btn--primary" onclick="sendData()">
-        <i class="fa-solid fa-save me-1"></i>Protokoll speichern
+        <i class="fa-solid fa-save mr-1"></i>Protokoll speichern
     </button>
 </div>

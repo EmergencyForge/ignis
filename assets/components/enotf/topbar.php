@@ -22,7 +22,7 @@ $topbar_show_abmelden  = $topbar_show_abmelden ?? false;
 $topbar_show_notices   = $topbar_show_notices ?? true;
 ?>
 
-<div class="container-fluid" id="edivi__topbar">
+<div class="w-full" id="edivi__topbar">
     <div class="row">
         <div class="col flex items-center">
             <?php if (isset($topbar_left_html)): ?>
@@ -91,8 +91,8 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                 <?php endif; ?>
             <?php endif; ?>
         </div>
-        <div class="col text-end flex justify-end items-center">
-            <a href="<?= EnotfUrl::page('login') ?>?prefill=1" class="flex flex-col items-center text-decoration-none text-reset align-self-stretch justify-between" id="topbar-crew-display" style="font-size: 0.85rem; line-height: 1.2; padding: 5px 15px;">
+        <div class="col text-right flex justify-end items-center">
+            <a href="<?= EnotfUrl::page('login') ?>?prefill=1" class="flex flex-col items-center no-underline text-reset self-stretch justify-between" id="topbar-crew-display" style="font-size: 0.85rem; line-height: 1.2; padding: 5px 15px;">
                 <div class="flex items-start">
                     <div class="flex flex-col items-end justify-start">
                         <span data-crew-name="fahrername"><?= htmlspecialchars($_SESSION['fahrername'] ?? '') ?></span>
@@ -153,7 +153,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                 <img src="https://web-assets.emergencyforge.de/images/defaultLogo.webp" alt="EmergencyForge Logo" height="64px" width="auto">
             </a>
             <?php if ($topbar_show_abmelden): ?>
-                <button class="edivi__nidabutton-primary align-self-stretch flex items-center" type="button" data-bs-toggle="modal" data-bs-target="#logoutModal" style="padding: 0 15px; margin-left: 15px; border-left: 2px solid #424242;">abmelden</button>
+                <button class="edivi__nidabutton-primary self-stretch flex items-center" type="button" data-bs-toggle="modal" data-bs-target="#logoutModal" style="padding: 0 15px; margin-left: 15px; border-left: 2px solid #424242;">abmelden</button>
             <?php endif; ?>
         </div>
     </div>
@@ -225,7 +225,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
     <?php if ($daten['freigegeben'] == 1 && $daten['hidden_user'] != 1) : ?>
         <div class="container-full edivi__notice edivi__notice-freigeber">
             <div class="row">
-                <div class="col-1 text-end"><i class="fa-solid fa-info"></i></div>
+                <div class="col-1 text-right"><i class="fa-solid fa-info"></i></div>
                 <div class="col">
                     Das Protokoll wurde durch <strong><?= $daten['freigeber_name'] ?></strong> am <strong><?= $daten['last_edit'] ?></strong> Uhr freigegeben. Es kann nicht mehr bearbeitet werden.
                 </div>
@@ -235,7 +235,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
     <?php if ($daten['hidden_user'] == 1) : ?>
         <div class="container-full edivi__notice edivi__notice-freigeber">
             <div class="row">
-                <div class="col-1 text-end"><i class="fa-solid fa-info"></i></div>
+                <div class="col-1 text-right"><i class="fa-solid fa-info"></i></div>
                 <div class="col">
                     Das Protokoll wurde durch <strong><?= $daten['freigeber_name'] ?></strong> am <strong><?= $daten['last_edit'] ?></strong> Uhr gelöscht. Es kann nicht mehr bearbeitet werden.
                 </div>

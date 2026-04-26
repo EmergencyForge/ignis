@@ -28,7 +28,7 @@
             <textarea name="notes" class="form-control mb-2" rows="5" placeholder="Beschreiben Sie hier das Einsatzgeschehen..."><?= htmlspecialchars($incident['notes'] ?? '') ?></textarea>
             <div class="text-right">
                 <button type="submit" class="ignis-btn ignis-btn--primary ignis-btn--sm">
-                    <i class="fa-solid fa-save me-1"></i>Speichern
+                    <i class="fa-solid fa-save mr-1"></i>Speichern
                 </button>
             </div>
         </form>
@@ -48,7 +48,7 @@
 
     <?php if (empty($asuProtocols)): ?>
         <div class="ignis-alert">
-            <i class="fa-solid fa-info-circle me-2"></i>
+            <i class="fa-solid fa-info-circle mr-2"></i>
             Keine ASU-Protokolle vorhanden
         </div>
     <?php else: ?>
@@ -155,7 +155,7 @@
                                                             default => $num > 0 ? ('Trupp ' . $num) : 'Trupp'
                                                         };
                                                         ?>
-                                                        <h6 class="mb-3 pb-2 border-bottom">
+                                                        <h6 class="mb-3 pb-2 border-b">
                                                             <?= htmlspecialchars($label) ?>
                                                         </h6>
 
@@ -241,7 +241,7 @@
                             <div class="modal-footer">
                                 <?php if (!$incident['finalized']): ?>
                                     <a href="<?= BASE_PATH ?>einsatz/asu.php?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>&asu_id=<?= (int)$asu['id'] ?>" class="ignis-btn ignis-btn--primary">
-                                        <i class="fa-solid fa-edit me-1"></i>Protokoll fortführen
+                                        <i class="fa-solid fa-edit mr-1"></i>Protokoll fortführen
                                     </a>
                                 <?php endif; ?>
                                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>

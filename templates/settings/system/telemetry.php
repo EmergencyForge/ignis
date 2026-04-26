@@ -240,7 +240,7 @@ $cacheInfo = $announcements->getCacheInfo();
                     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         <!-- Telemetrie -->
                         <div>
-                            <div class="card h-100">
+                            <div class="card h-full">
                                 <div class="card-header flex items-center justify-between">
                                     <span><i class="fas fa-chart-line mr-2"></i>Telemetrie</span>
                                     <span class="badge bg-<?= $telemetryEnabled ? 'success' : 'secondary' ?>">
@@ -285,7 +285,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                         <tr>
                                             <td class="text-gray-400">Installation-ID:</td>
                                             <td>
-                                                <code class="small uuid-blur" title="Hover zum Einblenden"><?= htmlspecialchars($installationId) ?></code>
+                                                <code class="text-sm uuid-blur" title="Hover zum Einblenden"><?= htmlspecialchars($installationId) ?></code>
                                             </td>
                                         </tr>
                                         <tr>
@@ -294,14 +294,14 @@ $cacheInfo = $announcements->getCacheInfo();
                                         </tr>
                                         <tr>
                                             <td class="text-gray-400">Hub-Server:</td>
-                                            <td><code class="small"><?= htmlspecialchars($hubUrl) ?></code></td>
+                                            <td><code class="text-sm"><?= htmlspecialchars($hubUrl) ?></code></td>
                                         </tr>
                                     </table>
 
                                     <?php if ($previewData): ?>
                                         <details class="mt-3">
                                             <summary class="text-gray-400" style="cursor: pointer;">Datenvorschau anzeigen</summary>
-                                            <pre class="bg-dark text-light p-3 rounded mt-2 small" style="max-height: 300px; overflow: auto;"><?= htmlspecialchars(json_encode($previewData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
+                                            <pre class="bg-[rgba(0,0,0,0.3)] text-white p-3 rounded mt-2 text-sm" style="max-height: 300px; overflow: auto;"><?= htmlspecialchars(json_encode($previewData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)) ?></pre>
                                         </details>
                                     <?php endif; ?>
                                 </div>
@@ -310,7 +310,7 @@ $cacheInfo = $announcements->getCacheInfo();
 
                         <!-- Globale Announcements -->
                         <div>
-                            <div class="card h-100">
+                            <div class="card h-full">
                                 <div class="card-header flex items-center justify-between">
                                     <span><i class="fas fa-bullhorn mr-2"></i>Globale Ankündigungen</span>
                                     <span class="badge bg-<?= $announcementsEnabled ? 'success' : 'secondary' ?>">
@@ -378,9 +378,9 @@ $cacheInfo = $announcements->getCacheInfo();
                                     ?>
 
                                     <!-- Debug (kann später entfernt werden) -->
-                                    <div class="ignis-alert small py-1 mb-2">
+                                    <div class="ignis-alert text-sm py-1 mb-2">
                                         Cache: <?= count($allCached) ?> | Aktiv: <?= count($currentAnnouncements) ?>
-                                        <?php if ($debugError): ?> | <span class="text-danger">Error: <?= htmlspecialchars($debugError) ?></span><?php endif; ?>
+                                        <?php if ($debugError): ?> | <span class="text-[#d46b6b]">Error: <?= htmlspecialchars($debugError) ?></span><?php endif; ?>
                                     </div>
 
                                     <?php if (!empty($currentAnnouncements)): ?>
@@ -403,7 +403,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                             <?php endforeach; ?>
                                         </div>
                                     <?php elseif (!empty($allCached)): ?>
-                                        <div class="ignis-alert ignis-alert--warning small">
+                                        <div class="ignis-alert ignis-alert--warning text-sm">
                                             <?= count($allCached) ?> im Cache, aber durch Filter ausgeblendet.
                                             <details class="mt-2">
                                                 <summary>Cache-Inhalt</summary>
@@ -411,7 +411,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                             </details>
                                         </div>
                                     <?php else: ?>
-                                        <p class="text-gray-400 small mb-0">Keine Ankündigungen.</p>
+                                        <p class="text-gray-400 text-sm mb-0">Keine Ankündigungen.</p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -428,18 +428,18 @@ $cacheInfo = $announcements->getCacheInfo();
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="datenschutzModalLabel">
-                        <i class="fas fa-shield-alt mr-2 text-info"></i>Datenschutz
+                        <i class="fas fa-shield-alt mr-2 text-[#5bb8cc]"></i>Datenschutz
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-gray-400 small mb-3">
+                    <p class="text-gray-400 text-sm mb-3">
                         Wir nehmen den Schutz deiner Daten ernst. Hier siehst du genau, was die Telemetrie überträgt — und was nicht.
                     </p>
                     <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <div>
-                            <h6 class="text-success"><i class="fas fa-check mr-1"></i> Was wir sammeln:</h6>
-                            <ul class="small mb-0">
+                            <h6 class="text-[#6abf76]"><i class="fas fa-check mr-1"></i> Was wir sammeln:</h6>
+                            <ul class="text-sm mb-0">
                                 <li>Anonyme Installation-ID (UUID)</li>
                                 <li>Server- und Systemname</li>
                                 <li>ıgnıs- und PHP-Version</li>
@@ -449,8 +449,8 @@ $cacheInfo = $announcements->getCacheInfo();
                             </ul>
                         </div>
                         <div>
-                            <h6 class="text-danger"><i class="fas fa-times mr-1"></i> Was wir NICHT sammeln:</h6>
-                            <ul class="small mb-0">
+                            <h6 class="text-[#d46b6b]"><i class="fas fa-times mr-1"></i> Was wir NICHT sammeln:</h6>
+                            <ul class="text-sm mb-0">
                                 <li>Namen, E-Mails, Discord-IDs</li>
                                 <li>IP-Adressen der Nutzer</li>
                                 <li>Passwörter oder API-Keys</li>

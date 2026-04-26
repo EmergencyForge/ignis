@@ -62,12 +62,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="container-fluid" id="edivi__container">
-            <div class="row h-100">
+        <div class="w-full" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
                 <div class="col" id="edivi__content" style="padding-left: 0">
                     <div class="row" style="margin-left: 0">
-                        <div class="col-2 d-flex flex-column edivi__interactbutton-more">
+                        <div class="col-2 flex flex-col edivi__interactbutton-more">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1') ?>" data-requires="diagnose_haupt">
                                 <span>Diagnose (führend)</span>
                             </a>
@@ -80,11 +80,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </div>
                         <div class="col-4 edivi__overview-container" style="margin:0; padding:0;">
                             <div class="row edivi__box" style="margin:0;">
-                                <h5 class="text-light px-2 py-1">Freitext Diagnose</h5>
+                                <h5 class="text-white px-2 py-1">Freitext Diagnose</h5>
                                 <div class="col">
                                     <div class="row my-2">
                                         <div class="col">
-                                            <textarea name="diagnose" id="diagnose" rows="5" class="w-100 form-control" style="resize: none" placeholder="..."><?= $daten['diagnose'] ?></textarea>
+                                            <textarea name="diagnose" id="diagnose" rows="5" class="w-full form-control" style="resize: none" placeholder="..."><?= $daten['diagnose'] ?></textarea>
                                         </div>
                                     </div>
                                 </div>

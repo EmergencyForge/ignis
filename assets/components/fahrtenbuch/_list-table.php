@@ -28,7 +28,7 @@ $fahrttypBadges = [
 ?>
 
 <?php if (empty($entries)): ?>
-    <div class="text-center py-4 <?= $context === 'admin' ? 'text-muted' : 'text-light' ?>" style="opacity:0.6;">
+    <div class="text-center py-4 <?= $context === 'admin' ? 'text-[var(--text-dimmed,#818189)]' : 'text-white' ?>" style="opacity:0.6;">
         <i class="fa-solid fa-book fa-2x mb-2"></i>
         <div>Keine Fahrtenbuch-Einträge vorhanden</div>
     </div>
@@ -57,18 +57,18 @@ $fahrttypBadges = [
                     <tr>
                         <td><?= \App\Helpers\DateTimeHelper::formatDateLocal($e['datum']) ?></td>
                         <td><?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?></td>
-                        <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-muted">—</span>' ?></td>
+                        <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-[var(--text-dimmed,#818189)]">—</span>' ?></td>
                         <?php if ($context === 'admin'): ?>
                             <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
                         <?php endif; ?>
                         <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
                         <td><span class="badge text-bg-<?= $typBadge ?>"><?= htmlspecialchars($typLabel) ?></span></td>
                         <td><?= $e['kilometer'] !== null ? number_format((float)$e['kilometer'], 1, ',', '.') : '—' ?></td>
-                        <td class="text-truncate" style="max-width:200px;" title="<?= htmlspecialchars($e['grund'] ?? '') ?>">
-                            <?= htmlspecialchars($e['grund'] ?? '') ?: '<span class="text-muted">—</span>' ?>
+                        <td class="truncate" style="max-width:200px;" title="<?= htmlspecialchars($e['grund'] ?? '') ?>">
+                            <?= htmlspecialchars($e['grund'] ?? '') ?: '<span class="text-[var(--text-dimmed,#818189)]">—</span>' ?>
                         </td>
                         <?php if ($canEdit || $canDelete): ?>
-                            <td class="text-end text-nowrap">
+                            <td class="text-right whitespace-nowrap">
                                 <?php if ($canEdit): ?>
                                     <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost fb-edit-btn"
                                             data-id="<?= $e['id'] ?>"
@@ -87,12 +87,12 @@ $fahrttypBadges = [
                                     </button>
                                 <?php endif; ?>
                                 <?php if ($canDelete): ?>
-                                    <form method="POST" action="<?= htmlspecialchars($actionsUrl) ?>" class="d-inline"
+                                    <form method="POST" action="<?= htmlspecialchars($actionsUrl) ?>" class="inline"
                                           onsubmit="return confirm('Eintrag wirklich löschen?');">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?= $e['id'] ?>">
                                         <input type="hidden" name="return_to" value="<?= htmlspecialchars($context) ?>">
-                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-danger" title="Löschen">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" title="Löschen">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>

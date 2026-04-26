@@ -18,7 +18,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
@@ -108,7 +108,7 @@ use App\Helpers\Flash;
                 <div class="modal-content">
                     <form action="<?= BASE_PATH ?>settings/pois/update.php" method="POST">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="editPoiModalLabel">POI bearbeiten <small class="text-muted" id="poi-id-display"></small></h5>
+                            <h5 class="modal-title" id="editPoiModalLabel">POI bearbeiten <small class="text-[var(--text-dimmed,#818189)]" id="poi-id-display"></small></h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
                         </div>
                         <div class="modal-body">

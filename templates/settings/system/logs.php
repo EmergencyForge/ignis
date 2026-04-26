@@ -224,7 +224,7 @@ function logs_level_badge(string $level): string
                     <div class="intra__tile logs-lookup-hero mb-3 p-3">
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="shrink-0">
-                                <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-primary"></i>Error-ID Lookup</div>
+                                <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-[#7ba3d4]"></i>Error-ID Lookup</div>
                                 <div class="text-gray-400" style="font-size: 0.72rem;">
                                     8-stellige ID aus der Production-Fehlerseite &mdash; z.B. <code>0B29305D</code>
                                 </div>
@@ -255,19 +255,19 @@ function logs_level_badge(string $level): string
                         </div>
                         <div class="intra__tile h-full p-3 text-center">
                             <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Letzte 24h</div>
-                            <div class="mt-1 text-xl font-bold text-warning"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></div>
+                            <div class="mt-1 text-xl font-bold text-[#ddb84a]"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></div>
                         </div>
                         <div class="intra__tile h-full p-3 text-center">
                             <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Letzte 7 Tage</div>
-                            <div class="mt-1 text-xl font-bold text-warning"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></div>
+                            <div class="mt-1 text-xl font-bold text-[#ddb84a]"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></div>
                         </div>
                         <div class="intra__tile h-full p-3 text-center">
                             <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Critical</div>
-                            <div class="mt-1 text-xl font-bold text-danger"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></div>
+                            <div class="mt-1 text-xl font-bold text-[#d46b6b]"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></div>
                         </div>
                         <div class="intra__tile h-full p-3 text-center">
                             <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Error</div>
-                            <div class="mt-1 text-xl font-bold text-danger"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></div>
+                            <div class="mt-1 text-xl font-bold text-[#d46b6b]"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></div>
                         </div>
                     </div>
 
@@ -335,8 +335,8 @@ function logs_level_badge(string $level): string
                     <div class="intra__tile p-3 mt-3">
                         <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
                             <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-hexagon-exclamation text-warning"></i>
-                                <h6 class="mb-0 fw-semibold">Fehlgeschlagene Hintergrund-Jobs</h6>
+                                <i class="fa-solid fa-hexagon-exclamation text-[#ddb84a]"></i>
+                                <h6 class="mb-0 font-semibold">Fehlgeschlagene Hintergrund-Jobs</h6>
                                 <?php if ($failedTotal > 0): ?>
                                     <span class="ignis-chip ignis-chip--status ignis-chip--danger"><?= (int) $failedTotal ?>
                                     </span>
@@ -354,7 +354,7 @@ function logs_level_badge(string $level): string
                                     <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="retryAllFailedJobsBtn">
                                         <i class="fa-solid fa-arrows-rotate mr-1"></i>Alle erneut versuchen
                                     </button>
-                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-danger" id="deleteAllFailedJobsBtn">
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" id="deleteAllFailedJobsBtn">
                                         <i class="fa-solid fa-trash mr-1"></i>Alle löschen
                                     </button>
                                 <?php endif; ?>
@@ -390,7 +390,7 @@ function logs_level_badge(string $level): string
                                                 <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm failed-retry-btn" data-id="<?= (int) $fj['id'] ?>">
                                                     <i class="fa-solid fa-arrows-rotate mr-1"></i>Erneut versuchen
                                                 </button>
-                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm text-danger failed-delete-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm text-[#d46b6b] failed-delete-btn" data-id="<?= (int) $fj['id'] ?>">
                                                     <i class="fa-solid fa-trash mr-1"></i>Löschen
                                                 </button>
                                                 <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
@@ -432,14 +432,14 @@ function logs_level_badge(string $level): string
 
                     <!-- ───────────── Files (collapsed) ───────────── -->
                     <details class="intra__tile p-3 mt-3">
-                        <summary class="fw-bold" style="cursor:pointer;">
+                        <summary class="font-bold" style="cursor:pointer;">
                             <i class="fa-solid fa-folder-tree mr-2"></i>Verfügbare Log-Dateien (<?= count($files) ?>)
                         </summary>
                         <table class="table table-striped table-sm mt-3 mb-0">
                             <thead>
                                 <tr>
                                     <th>Datei</th>
-                                    <th class="text-end">Größe</th>
+                                    <th class="text-right">Größe</th>
                                     <th>Typ</th>
                                     <th>Letzte Änderung</th>
                                     <th></th>
@@ -449,7 +449,7 @@ function logs_level_badge(string $level): string
                                 <?php foreach ($files as $f): ?>
                                     <tr>
                                         <td><code><?= htmlspecialchars($f['name']) ?></code></td>
-                                        <td class="text-end"><?= number_format($f['size'] / 1024, 1) ?> KB</td>
+                                        <td class="text-right"><?= number_format($f['size'] / 1024, 1) ?> KB</td>
                                         <td>
                                             <?php if ($f['type'] === 'error'): ?>
                                                 <span class="ignis-chip ignis-chip--status ignis-chip--danger">error</span>
@@ -458,7 +458,7 @@ function logs_level_badge(string $level): string
                                             <?php endif; ?>
                                         </td>
                                         <td><?= date('d.m.Y H:i', $f['mtime']) ?></td>
-                                        <td class="text-end">
+                                        <td class="text-right">
                                             <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary tail-btn" data-file="<?= htmlspecialchars($f['name']) ?>">
                                                 <i class="fa-solid fa-eye mr-1"></i>Letzte 100
                                             </button>

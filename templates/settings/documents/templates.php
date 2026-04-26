@@ -168,7 +168,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="container my-5">
             <?php Flash::render(); ?>
 
@@ -194,7 +194,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             <div id="templateGrid" class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 <!-- Wird dynamisch befüllt -->
             </div>
-            <div id="templateGridEmpty" class="text-center text-muted py-5" style="display:none;">
+            <div id="templateGridEmpty" class="text-center text-[var(--text-dimmed,#818189)] py-5" style="display:none;">
                 <i class="fa-solid fa-file-circle-plus fa-3x mb-3" style="opacity:0.2;"></i>
                 <p>Noch keine Templates vorhanden</p>
             </div>
@@ -217,13 +217,13 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
                             <div class="md:col-span-6">
                                 <div class="mb-3">
-                                    <label for="templateName" class="ignis-field__label">Template-Name <span class="text-danger">*</span></label>
+                                    <label for="templateName" class="ignis-field__label">Template-Name <span class="text-[#d46b6b]">*</span></label>
                                     <input type="text" class="ignis-input" id="templateName" name="name" required>
                                 </div>
                             </div>
                             <div class="md:col-span-3">
                                 <div class="mb-3">
-                                    <label for="templateCategory" class="ignis-field__label">Kategorie <span class="text-danger">*</span></label>
+                                    <label for="templateCategory" class="ignis-field__label">Kategorie <span class="text-[#d46b6b]">*</span></label>
                                     <select class="form-select" id="templateCategory" name="category_id" required>
                                         <option value="">Bitte wählen</option>
                                         <?php foreach ($kategorien as $kat): ?>
@@ -241,7 +241,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                     <input type="text" class="ignis-input" id="templateFile" name="template_file"
                                         pattern="[a-z_]+\.html\.twig"
                                         placeholder="auto">
-                                    <small class="text-muted">Automatisch wenn leer</small>
+                                    <small class="text-[var(--text-dimmed,#818189)]">Automatisch wenn leer</small>
                                 </div>
                             </div>
                         </div>
@@ -302,19 +302,19 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                         <input type="hidden" id="fieldIndex">
 
                         <div class="mb-3">
-                            <label for="fieldLabel" class="ignis-field__label">Feld-Label <span class="text-danger">*</span></label>
+                            <label for="fieldLabel" class="ignis-field__label">Feld-Label <span class="text-[#d46b6b]">*</span></label>
                             <input type="text" class="ignis-input" id="fieldLabel" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="fieldName" class="ignis-field__label">Feld-Name (technisch) <span class="text-danger">*</span></label>
+                            <label for="fieldName" class="ignis-field__label">Feld-Name (technisch) <span class="text-[#d46b6b]">*</span></label>
                             <input type="text" class="ignis-input" id="fieldName" required
                                 pattern="[a-z_]+" title="Nur Kleinbuchstaben und Unterstriche">
-                            <small class="text-muted">Nur Kleinbuchstaben und Unterstriche erlaubt</small>
+                            <small class="text-[var(--text-dimmed,#818189)]">Nur Kleinbuchstaben und Unterstriche erlaubt</small>
                         </div>
 
                         <div class="mb-3">
-                            <label for="fieldType" class="ignis-field__label">Feld-Typ <span class="text-danger">*</span></label>
+                            <label for="fieldType" class="ignis-field__label">Feld-Typ <span class="text-[#d46b6b]">*</span></label>
                             <select class="form-select" id="fieldType" required>
                                 <option value="text">Textfeld</option>
                                 <option value="textarea">Mehrzeiliger Text</option>
@@ -333,7 +333,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                 <label class="form-check-label" for="genderSpecific">
                                     Geschlechtsspezifische Optionen
                                 </label>
-                                <small class="ignis-field__hint text-muted d-block">
+                                <small class="ignis-field__hint text-[var(--text-dimmed,#818189)] block">
                                     Aktivieren für männlich/weiblich/neutral Varianten
                                 </small>
                             </div>
@@ -464,25 +464,25 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger" onclick="this.closest('.option-item').remove()">Löschen</button>
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Wert (z.B. 0, 1, 2)</label>
+                    <label class="ignis-field__label text-sm">Wert (z.B. 0, 1, 2)</label>
                     <input type="text" class="ignis-input ignis-input--sm" value="${value}" data-option-value required>
                 </div>
                 <div class="mb-2">
-                    <label class="ignis-field__label small">Label ${isGenderSpecific ? '(Neutral/Allgemein)' : ''}</label>
+                    <label class="ignis-field__label text-sm">Label ${isGenderSpecific ? '(Neutral/Allgemein)' : ''}</label>
                     <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeister${isGenderSpecific ? '/-in' : ''}" value="${label}" data-option-label required>
                 </div>
                 <div class="gender-inputs" style="display: ${isGenderSpecific ? 'block' : 'none'}">
                     <div class="row">
                         <div class="col-6 mb-2">
-                            <label class="ignis-field__label small">Label Männlich <span class="gender-badge badge bg-primary">♂</span></label>
+                            <label class="ignis-field__label text-sm">Label Männlich <span class="gender-badge badge bg-[#4a6fa5]">♂</span></label>
                             <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeister" value="${label_m}" data-option-label-m>
                         </div>
                         <div class="col-6 mb-2">
-                            <label class="ignis-field__label small">Label Weiblich <span class="gender-badge badge bg-danger">♀</span></label>
+                            <label class="ignis-field__label text-sm">Label Weiblich <span class="gender-badge badge bg-[#b03a3a]">♀</span></label>
                             <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeisterin" value="${label_w}" data-option-label-w>
                         </div>
                     </div>
-                    <small class="text-muted">Wenn leer, wird das allgemeine Label verwendet</small>
+                    <small class="text-[var(--text-dimmed,#818189)]">Wenn leer, wird das allgemeine Label verwendet</small>
                 </div>
             `;
             optionsList.appendChild(optionDiv);
@@ -573,7 +573,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             fieldList.innerHTML = '';
 
             if (fields.length === 0) {
-                fieldList.innerHTML = '<p class="text-muted" style="font-size:0.82rem;">Noch keine Felder hinzugefügt</p>';
+                fieldList.innerHTML = '<p class="text-[var(--text-dimmed,#818189)]" style="font-size:0.82rem;">Noch keine Felder hinzugefügt</p>';
                 return;
             }
 
@@ -605,7 +605,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     <span class="field-badges">${badges}</span>
                     <span class="field-actions">
                         <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost btn-toggle-edit" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Bearbeiten"><i class="fa-solid fa-pen"></i></button>
-                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-danger btn-remove-field" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Löschen"><i class="fa-solid fa-xmark"></i></button>
+                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b] btn-remove-field" style="padding:0.1rem 0.3rem;font-size:0.75rem;" title="Löschen"><i class="fa-solid fa-xmark"></i></button>
                     </span>
                 `;
                 wrapper.appendChild(row);
@@ -790,7 +790,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             row.innerHTML = `
                 <input type="text" class="ignis-input ignis-input--sm" data-opt="value" value="${value}" placeholder="Wert" style="width:80px;flex:0 0 80px;">
                 <input type="text" class="ignis-input ignis-input--sm" data-opt="label" value="${label}" placeholder="Label">
-                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-danger" style="padding:0.1rem 0.3rem;" onclick="this.closest('.inline-option').remove()"><i class="fa-solid fa-xmark"></i></button>
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" style="padding:0.1rem 0.3rem;" onclick="this.closest('.inline-option').remove()"><i class="fa-solid fa-xmark"></i></button>
             `;
             container.appendChild(row);
         }
@@ -929,7 +929,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                         ${isVisual ? '<span class="ignis-chip ignis-chip--info ml-1" style="font-size:0.6rem;">Visual</span>' : ''}
                                     </div>
                                 </div>
-                                ${template.description ? '<p class="text-muted mb-0" style="font-size:0.75rem;line-height:1.3;">' + template.description + '</p>' : ''}
+                                ${template.description ? '<p class="text-[var(--text-dimmed,#818189)] mb-0" style="font-size:0.75rem;line-height:1.3;">' + template.description + '</p>' : ''}
                             </div>
                             <div class="border-t p-2 flex gap-1 justify-end" style="background:transparent;">
                                 <a href="${BASE_PATH}settings/documents/visual-editor.php?id=${template.id}" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" onclick="event.stopPropagation();" title="Visueller Editor">
@@ -1060,7 +1060,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             preview.innerHTML = '<h5>' + (document.getElementById('templateName').value || 'Unbenanntes Template') + '</h5>';
 
             if (fields.length === 0) {
-                preview.innerHTML += '<p class="text-muted">Keine Felder definiert</p>';
+                preview.innerHTML += '<p class="text-[var(--text-dimmed,#818189)]">Keine Felder definiert</p>';
             } else {
                 fields.forEach(field => {
                     preview.innerHTML += renderFieldPreview(field);
@@ -1071,7 +1071,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         function renderFieldPreview(field) {
-            const required = field.is_required ? '<span class="text-danger">*</span>' : '';
+            const required = field.is_required ? '<span class="text-[#d46b6b]">*</span>' : '';
             const genderBadge = field.gender_specific ? ' <span class="ignis-chip ignis-chip--info">Geschlechtsspezifisch</span>' : '';
 
             let html = `<div class="mb-3">
@@ -1086,7 +1086,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     break;
                 case 'richtext':
                     html += `<textarea class="ignis-input" rows="5" ${field.is_required ? 'required' : ''}></textarea>
-                             <small class="text-muted">Rich-Text Editor würde hier angezeigt</small>`;
+                             <small class="text-[var(--text-dimmed,#818189)]">Rich-Text Editor würde hier angezeigt</small>`;
                     break;
                 case 'date':
                     html += `<input type="date" class="ignis-input" ${field.is_required ? 'required' : ''}>`;
@@ -1110,10 +1110,10 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     }
                     html += `</select>`;
                     if (field.field_type !== 'select') {
-                        html += `<small class="text-muted">Daten aus Datenbank</small>`;
+                        html += `<small class="text-[var(--text-dimmed,#818189)]">Daten aus Datenbank</small>`;
                     }
                     if (field.gender_specific) {
-                        html += `<small class="text-muted d-block mt-1">Die Anzeige passt sich automatisch an das Geschlecht an</small>`;
+                        html += `<small class="text-[var(--text-dimmed,#818189)] block mt-1">Die Anzeige passt sich automatisch an das Geschlecht an</small>`;
                     }
                     break;
             }
@@ -1636,13 +1636,13 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                                 </div>
                                 <div class="modal-body">
                                     <p class="mb-3">Wie sollen die visuellen Editor-Layouts aus den Twig-Vorlagen generiert werden?</p>
-                                    <div class="d-grid gap-2">
-                                        <button class="ignis-btn ignis-btn--outline-primary text-start px-3 py-2" data-choice="missing">
+                                    <div class="grid gap-2">
+                                        <button class="ignis-btn ignis-btn--outline-primary text-left px-3 py-2" data-choice="missing">
                                             <i class="fa-solid fa-plus-circle mr-2"></i>
                                             <strong>Nur fehlende generieren</strong>
                                             <br><small style="opacity:0.7;">Nur Templates ohne visuelles Layout werden neu erstellt. Bestehende Layouts bleiben unverändert.</small>
                                         </button>
-                                        <button class="ignis-btn ignis-btn--outline-danger text-start px-3 py-2" data-choice="all">
+                                        <button class="ignis-btn ignis-btn--outline-danger text-left px-3 py-2" data-choice="all">
                                             <i class="fa-solid fa-triangle-exclamation mr-2"></i>
                                             <strong>Alle überschreiben</strong>
                                             <br><small style="opacity:0.7;">Alle Layouts werden aus den Twig-Vorlagen komplett neu generiert. Manuelle Änderungen im Editor gehen verloren!</small>

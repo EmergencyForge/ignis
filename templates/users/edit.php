@@ -23,7 +23,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
 
 <body data-bs-theme="dark" data-page="benutzer">
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -35,10 +35,10 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list.php">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($target->username) ?></span>
                     </nav>
-                    <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                    <div class="flex flex-wrap items-center gap-2 mb-3">
                         <h1 class="m-0">Benutzer bearbeiten</h1>
                         <?php if (Gate::allows('user.delete', $target)): ?>
-                            <div class="ms-auto d-flex flex-wrap gap-2">
+                            <div class="ml-auto flex flex-wrap gap-2">
                                 <?php if ($target->is_active): ?>
                                     <button class="ignis-btn ignis-btn--outline-warning ignis-btn--sm" id="btnDeactivate"><i class="fa-solid fa-user-slash"></i> Deaktivieren</button>
                                 <?php else: ?>
@@ -115,7 +115,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                                     ?>
                                         <tr>
                                             <td><?= htmlspecialchars($date) ?></td>
-                                            <td class="fw-bold"><?= htmlspecialchars($entry->module ?? '') ?></td>
+                                            <td class="font-bold"><?= htmlspecialchars($entry->module ?? '') ?></td>
                                             <td><?= htmlspecialchars($entry->action ?? '') ?></td>
                                             <td><?= htmlspecialchars($entry->details ?? '') ?></td>
                                         </tr>

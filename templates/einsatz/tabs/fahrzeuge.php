@@ -9,7 +9,7 @@
 
     <?php if (empty($attachedVehicles)): ?>
         <div class="ignis-alert">
-            <i class="fa-solid fa-info-circle me-2"></i>
+            <i class="fa-solid fa-info-circle mr-2"></i>
             Noch keine Fahrzeuge hinzugefügt
         </div>
     <?php else: ?>
@@ -124,14 +124,14 @@
                 </div>
                 <div class="flex justify-end md:col-span-2">
                     <button type="submit" class="ignis-btn ignis-btn--primary">
-                        <i class="fa-solid fa-plus me-1"></i>Fahrzeug hinzufügen
+                        <i class="fa-solid fa-plus mr-1"></i>Fahrzeug hinzufügen
                     </button>
                 </div>
             </div>
         </form>
     <?php else: ?>
         <div class="ignis-alert ignis-alert--info mt-3 mb-0">
-            <i class="fa-solid fa-lock me-2"></i>
+            <i class="fa-solid fa-lock mr-2"></i>
             <?php if ($incident['finalized']): ?>
                 Einsatz ist abgeschlossen - keine Änderungen möglich.
             <?php else: ?>

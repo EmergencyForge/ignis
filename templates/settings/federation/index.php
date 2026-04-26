@@ -271,7 +271,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                     <div class="card mb-4">
                         <div class="card-header flex items-center justify-between">
                             <h5 class="mb-0">Instanzübergreifende Vernetzung</h5>
-                            <form method="post" class="d-inline">
+                            <form method="post" class="inline">
                                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="action" value="toggle_federation">
                                 <button type="submit" class="ignis-btn ignis-btn--sm <?= $federationEnabled ? 'btn-outline-danger' : 'btn-outline-success' ?>">
@@ -385,7 +385,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                             </div>
                         <?php else: ?>
                             <?php foreach ($links as $link): ?>
-                            <div class="card-body border-bottom" style="border-color:var(--darkgray) !important;">
+                            <div class="card-body border-b" style="border-color:var(--darkgray) !important;">
                                 <div class="mb-3 flex items-start justify-between">
                                     <div>
                                         <h6 class="mb-1">
@@ -490,7 +490,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         </button>
                                     </form>
                                     <?php endif; ?>
-                                    <form method="post" class="d-inline" id="delete-link-<?= $link['id'] ?>">
+                                    <form method="post" class="inline" id="delete-link-<?= $link['id'] ?>">
                                         <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                         <input type="hidden" name="action" value="delete_link">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">

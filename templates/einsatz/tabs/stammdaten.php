@@ -76,7 +76,7 @@ $startTime = $dtStart ? $dtStart->format('H:i') : '';
             <?php if (!$incident['finalized']): ?>
                 <div class="mt-3 flex justify-end md:col-span-12">
                     <button type="submit" class="ignis-btn ignis-btn--primary">
-                        <i class="fa-solid fa-save me-1"></i>Änderungen speichern
+                        <i class="fa-solid fa-save mr-1"></i>Änderungen speichern
                     </button>
                 </div>
             <?php endif; ?>
@@ -85,7 +85,7 @@ $startTime = $dtStart ? $dtStart->format('H:i') : '';
 
     <?php if ($incident['finalized']): ?>
         <div class="ignis-alert ignis-alert--info mb-0 mt-3">
-            <i class="fa-solid fa-lock me-2"></i>
+            <i class="fa-solid fa-lock mr-2"></i>
             Dieser Einsatz wurde abgeschlossen und kann nicht mehr bearbeitet werden.
         </div>
     <?php endif; ?>

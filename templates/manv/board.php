@@ -76,19 +76,19 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                         <small class="text-gray-400">Gesamt</small>
                     </div>
                     <div>
-                        <h3 class="mb-0 text-danger"><?= (int) $stats['sk1'] ?></h3>
+                        <h3 class="mb-0 text-[#d46b6b]"><?= (int) $stats['sk1'] ?></h3>
                         <small class="text-gray-400">SK1</small>
                     </div>
                     <div>
-                        <h3 class="mb-0 text-warning"><?= (int) $stats['sk2'] ?></h3>
+                        <h3 class="mb-0 text-[#ddb84a]"><?= (int) $stats['sk2'] ?></h3>
                         <small class="text-gray-400">SK2</small>
                     </div>
                     <div>
-                        <h3 class="mb-0 text-success"><?= (int) $stats['sk3'] ?></h3>
+                        <h3 class="mb-0 text-[#6abf76]"><?= (int) $stats['sk3'] ?></h3>
                         <small class="text-gray-400">SK3</small>
                     </div>
                     <div>
-                        <h3 class="mb-0 text-info"><?= (int) $stats['sk4'] ?></h3>
+                        <h3 class="mb-0 text-[#5bb8cc]"><?= (int) $stats['sk4'] ?></h3>
                         <small class="text-gray-400">SK4</small>
                     </div>
                     <div>
@@ -214,7 +214,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
     <!-- Transport Abfahrt Modal -->
     <div class="modal fade" id="transportModal" tabindex="-1" aria-labelledby="transportModalLabel" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content bg-dark">
+            <div class="modal-content bg-[rgba(0,0,0,0.3)]">
                 <div class="modal-header">
                     <h5 class="modal-title" id="transportModalLabel">
                         <i class="fas fa-truck-loading mr-2"></i>Patient als abgefahren markieren

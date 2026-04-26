@@ -178,8 +178,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <body data-bs-theme="dark" data-page="freigabe" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
         <form name="form" method="post" action="">
             <input type="hidden" name="new" value="1" />
-            <div class="container-fluid" id="edivi__container">
-                <div class="row h-100">
+            <div class="w-full" id="edivi__container">
+                <div class="row h-full">
                     <div class="col" id="edivi__content">
                         <div class="row">
                             <div class="col">
@@ -190,7 +190,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                                 <div class="row">
                                     <div class="col edivi__freigabe">
-                                        <table class="w-100">
+                                        <table class="w-full">
                                             <tbody>
                                                 <tr>
                                                     <td><?= $daten['patname'] ?? '<span style="color:lightgray">Kein Name hinterlegt</span>' ?> * <?= $daten['patgebdat'] ?? '<span style="color:lightgray">Kein Datum hinterlegt</span>' ?></td>
@@ -208,7 +208,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                                 <div class="row">
                                     <div class="col edivi__freigabe">
-                                        <table class="w-100">
+                                        <table class="w-full">
                                             <tbody>
                                                 <tr>
                                                     <td>von: <?= !empty($transp_von_display) ? htmlspecialchars($transp_von_display) : '<span style="color:lightgray">Kein Ort hinterlegt</span>' ?></td>
@@ -231,7 +231,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                                 <div class="row">
                                     <div class="col edivi__freigabe">
-                                        <table class="w-100">
+                                        <table class="w-full">
                                             <tbody>
                                                 <?php if ($daten['prot_by'] == 0): // Rettungsdienst-Protokoll 
                                                 ?>
@@ -273,7 +273,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                                 <div class="row">
                                     <div class="col edivi__freigabe">
-                                        <table class="w-100">
+                                        <table class="w-full">
                                             <tbody>
                                                 <tr>
                                                     <td><?= !empty($daten['fzg_sonst']) ? htmlspecialchars($daten['fzg_sonst']) : '<span style="color:lightgray">Keine weiteren Rettungsmittel hinterlegt</span>' ?></td>
@@ -293,7 +293,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                                 <div class="row">
                                     <div class="col edivi__freigabe">
-                                        <table class="w-100">
+                                        <table class="w-full">
                                             <tbody>
                                                 <tr>
                                                     <td>Einsatz-Nr.: <?= $daten['enr'] ?></td>
@@ -314,7 +314,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                                 <div class="row">
                                     <div class="col edivi__freigabe">
-                                        <table class="w-100">
+                                        <table class="w-full">
                                             <tbody>
                                                 <tr>
                                                     <td><?= $daten['pfname'] ?? '<span style="color:lightgray">Kein Protokollant hinterlegt</span>' ?></td>
@@ -347,7 +347,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                                 <div class="row">
                                     <div class="col edivi__freigabe">
-                                        <table class="w-100">
+                                        <table class="w-full">
                                             <tbody>
                                                 <tr>
                                                     <td class="edivi__checks-text" id="plausibility"><?php include __DIR__ . '/../../../../assets/components/enotf/plausibility.php'; ?></td>

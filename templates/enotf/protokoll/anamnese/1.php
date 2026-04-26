@@ -59,17 +59,17 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 <body data-bs-theme="dark" data-page="anamnese" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="container-fluid" id="edivi__container">
-            <div class="row h-100">
-                <div class="col d-flex flex-column" id="edivi__content">
+        <div class="w-full" id="edivi__container">
+            <div class="row h-full">
+                <div class="col flex flex-col" id="edivi__content">
                     <div class="row" style="flex-grow: 1;">
                         <div class="col-10 edivi__box  py-1" style="margin: 10px">
-                            <textarea name="anmerkungen" id="anmerkungen" class="w-100 form-control" style="resize: none; height: 100%; border-radius: 0;" rows="12" data-ignore-autosave><?= $daten['anmerkungen'] ?></textarea>
+                            <textarea name="anmerkungen" id="anmerkungen" class="w-full form-control" style="resize: none; height: 100%; border-radius: 0;" rows="12" data-ignore-autosave><?= $daten['anmerkungen'] ?></textarea>
                         </div>
                         <?php if (!$ist_freigegeben) : ?>
                             <div class="col">
-                                <div class="d-flex justify-content-center align-items-center" style="margin: 10px 0; height: 80px;">
-                                    <button type="button" id="save-anamnese-btn" class="ignis-btn ignis-btn--success px-4 w-100 h-100" style="font-size:1.4rem">OK</button>
+                                <div class="flex justify-center items-center" style="margin: 10px 0; height: 80px;">
+                                    <button type="button" id="save-anamnese-btn" class="ignis-btn ignis-btn--success px-4 w-full h-full" style="font-size:1.4rem">OK</button>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -78,8 +78,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <i class="fa-solid fa-triangle-exclamation"></i> Der Text ist l&auml;nger als 22 Zeilen &ndash; ggf. wird nicht der komplette Text im Protokoll-Ausdruck sichtbar sein.
                     </div>
                     <?php if (!$ist_freigegeben) : ?>
-                        <div class="d-flex" style="flex-shrink: 0;">
-                            <div class="d-flex flex-column edivi__interactbutton" id="textblock-main" style="flex: 0 0 auto; min-width: 220px;">
+                        <div class="flex" style="flex-shrink: 0;">
+                            <div class="flex flex-col edivi__interactbutton" id="textblock-main" style="flex: 0 0 auto; min-width: 220px;">
                                 <!-- Vorerkrankungen -->
                                 <a href="javascript:void(0)" class="anamnese-textblock-btn has-submenu" data-key="vorerkrankungen" data-text="VORERKRANKUNGEN:" data-newline="2"><span>Vorerkrankungen</span></a>
                                 <!-- Medikation -->
@@ -90,21 +90,21 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <a href="javascript:void(0)" class="anamnese-textblock-btn has-submenu" data-key="drogen" data-text="DROGEN / ABUSUS:" data-newline="2"><span>Drogen / Abusus</span></a>
                             </div>
                             <!-- Vorerkrankungen -->
-                            <div class="flex-column edivi__interactbutton textblock-submenu" id="textblock-sub-vorerkrankungen" style="display: none; flex: 0 0 auto; min-width: 220px;">
+                            <div class="flex-col edivi__interactbutton textblock-submenu" id="textblock-sub-vorerkrankungen" style="display: none; flex: 0 0 auto; min-width: 220px;">
                                 <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Beim Pat. sind keine Vorerkrankungen bekannt."><span>keine bekannt</span></a>
                                 <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Es konnten keine Vorerkrankungen ermittelt werden."><span>nicht ermittelbar</span></a>
                             </div>
                             <!-- Medikation -->
-                            <div class="flex-column edivi__interactbutton textblock-submenu" id="textblock-sub-medikation" style="display: none; flex: 0 0 auto; min-width: 220px;">
+                            <div class="flex-col edivi__interactbutton textblock-submenu" id="textblock-sub-medikation" style="display: none; flex: 0 0 auto; min-width: 220px;">
                                 <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Beim Pat. ist keine Vormedikation bekannt."><span>keine Vormedikation</span></a>
                                 <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Es konnte keine Vormedikation ermittelt werden."><span>nicht ermittelbar</span></a>
                             </div>
                             <!-- Allergien -->
-                            <div class="flex-column edivi__interactbutton textblock-submenu" id="textblock-sub-allergien" style="display: none; flex: 0 0 auto; min-width: 220px;">
+                            <div class="flex-col edivi__interactbutton textblock-submenu" id="textblock-sub-allergien" style="display: none; flex: 0 0 auto; min-width: 220px;">
                                 <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Beim Pat. sind keine Allergien bekannt."><span>keine Allergien</span></a>
                             </div>
                             <!-- Drogen / Abusus -->
-                            <div class="flex-column edivi__interactbutton textblock-submenu" id="textblock-sub-drogen" style="display: none; flex: 0 0 auto; min-width: 220px;">
+                            <div class="flex-col edivi__interactbutton textblock-submenu" id="textblock-sub-drogen" style="display: none; flex: 0 0 auto; min-width: 220px;">
                                 <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Bekannter Nikotinabusus"><span>Nikotin</span></a>
                                 <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Bekannter Alkoholabusus"><span>Alkohol</span></a>
                                 <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Bekannter Opiatabusus"><span>Opiate</span></a>

@@ -50,22 +50,22 @@ $currentDate = date('d.m.Y');
         $topbar_show_notices = false;
         include __DIR__ . '/../../assets/components/enotf/topbar.php';
         ?>
-        <div class="container-fluid" id="edivi__container">
-            <div class="row h-100">
+        <div class="w-full" id="edivi__container">
+            <div class="row h-full">
                 <div class="col" id="edivi__content">
                     <div class="hr my-2" style="color:transparent"></div>
                     <div class="row">
                         <div class="col-8">
                             <div class="row">
                                 <div class="col flex justify-start items-center">
-                                    <h4 class="fw-bold">Einsatzprotokolle</h4>
+                                    <h4 class="font-bold">Einsatzprotokolle</h4>
                                 </div>
                                 <div class="col flex justify-end items-center gap-2">
                                     <button type="button" class="edivi__nidabutton" style="display:inline-block" onclick="window.location.reload();" title="Seite neu laden"><i class="fa-solid fa-rotate-right"></i></button>
                                     <a href="create.php" class="edivi__nidabutton" style="display:inline-block"><i class="fa-solid fa-plus" title="Neuen Einsatz erstellen"></i></a>
                                 </div>
                             </div>
-                            <div class="row ps-3">
+                            <div class="row pl-3">
                                 <div class="col edivi__box p-4" style="overflow-x: hidden; overflow-y:auto; height: 70vh;">
                                     <?php
                                     $result = $protokolle;
@@ -150,9 +150,9 @@ $currentDate = date('d.m.Y');
                                     ?>
                                 </div>
                             </div>
-                            <!-- <div class="row ps-3">
+                            <!-- <div class="row pl-3">
                                 <div class="col p-0" style="margin: 10px 0;">
-                                    <button type="submit" class="edivi__nidabutton w-100" name="delete_all">alle löschen</button>
+                                    <button type="submit" class="edivi__nidabutton w-full" name="delete_all">alle löschen</button>
                                 </div>
                             </div> -->
                         </div>

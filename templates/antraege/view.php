@@ -92,7 +92,7 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                                         <div class="field-label"><?= htmlspecialchars($feld->label) ?></div>
                                         <div class="field-value">
                                             <?php if ($feld->feldtyp === 'checkbox'): ?>
-                                                <?= $feld->wert ? '<i class="fa-solid fa-square-check text-success"></i> Ja' : '<i class="fa-regular fa-square text-gray-400"></i> Nein' ?>
+                                                <?= $feld->wert ? '<i class="fa-solid fa-square-check text-[#6abf76]"></i> Ja' : '<i class="fa-regular fa-square text-gray-400"></i> Nein' ?>
                                             <?php elseif (empty($feld->wert)): ?>
                                                 <span class="text-gray-400"><i>Keine Angabe</i></span>
                                             <?php else: ?>

@@ -227,14 +227,14 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
 <body data-bs-theme="dark" data-page="verlauf" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <?php include __DIR__ . '/../../../../assets/components/enotf/topbar.php'; ?>
 
-    <div class="container-fluid" id="edivi__container">
-        <div class="row h-100">
+    <div class="w-full" id="edivi__container">
+        <div class="row h-full">
             <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
             <div class="col-12 col-md-11" id="edivi__content">
                 <div class="row my-3">
                     <div class="col">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex gap-2">
+                        <div class="flex justify-between items-center">
+                            <div class="flex gap-2">
                                 <a href="list.php?enr=<?= $enr ?>&action=manage" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-list"></i> Verlauf bearbeiten
                                 </a>
@@ -246,7 +246,7 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="row">
                     <div class="col">
                         <div class="vitals-info">
-                            <h6 class="text-light mb-2">
+                            <h6 class="text-white mb-2">
                                 <i class="fa-solid fa-chart-line"></i> Vitalparameter-Übersicht
                             </h6>
                             <div>
@@ -265,12 +265,12 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
                 <div class="row">
                     <div class="col">
                         <div class="row edivi__box">
-                            <h5 class="text-light px-2 py-1">Alle Vitalparameter</h5>
+                            <h5 class="text-white px-2 py-1">Alle Vitalparameter</h5>
                             <div class="col p-3">
                                 <div class="legend-toggle" id="legendToggle">
                                     <!-- Wird durch JavaScript gefüllt -->
                                 </div>
-                                <div class="chart-container position-relative" onclick="addValues()">
+                                <div class="chart-container relative" onclick="addValues()">
                                     <div class="chart-click-hint">
                                         <i class="fa-solid fa-plus"></i> Klicken zum Hinzufügen
                                     </div>

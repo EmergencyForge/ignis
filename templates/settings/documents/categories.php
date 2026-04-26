@@ -114,13 +114,13 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="categoryModalLabel">Kategorie erstellen</h1>
+                    <h1 class="modal-title text-lg" id="categoryModalLabel">Kategorie erstellen</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="catId">
                     <div class="mb-3">
-                        <label for="catName" class="ignis-field__label">Name <span class="text-danger">*</span></label>
+                        <label for="catName" class="ignis-field__label">Name <span class="text-[#d46b6b]">*</span></label>
                         <input type="text" class="ignis-input" id="catName" required placeholder="z.B. Bescheinigung">
                     </div>
                     <div class="mb-3">
@@ -139,7 +139,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="catIcon" class="ignis-field__label">Icon <span class="text-gray-400 small">(optional)</span></label>
+                        <label for="catIcon" class="ignis-field__label">Icon <span class="text-gray-400 text-sm">(optional)</span></label>
                         <input type="text" class="ignis-input" id="catIcon" placeholder="z.B. fa-solid fa-scroll">
                         <div class="ignis-field__hint">Font Awesome Klasse. Vorschau: <i id="iconPreview" class="ml-1"></i></div>
                     </div>

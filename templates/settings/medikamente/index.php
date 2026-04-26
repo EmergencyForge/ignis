@@ -18,7 +18,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="container">
             <div class="row">
                 <div class="col mb-5">
@@ -66,8 +66,8 @@ use App\Helpers\Flash;
                                     <tr>
                                         <td <?= $dimmed ?>><?= (int)$row['priority'] ?></td>
                                         <td <?= $dimmed ?>><?= $wirkstoff ?></td>
-                                        <td <?= $dimmed ?>><?= $herstellername !== '' ? $herstellername : '<span class="text-muted">-</span>' ?></td>
-                                        <td <?= $dimmed ?>><?= $dosierungen !== '' ? $dosierungen : '<span class="text-muted">-</span>' ?></td>
+                                        <td <?= $dimmed ?>><?= $herstellername !== '' ? $herstellername : '<span class="text-[var(--text-dimmed,#818189)]">-</span>' ?></td>
+                                        <td <?= $dimmed ?>><?= $dosierungen !== '' ? $dosierungen : '<span class="text-[var(--text-dimmed,#818189)]">-</span>' ?></td>
                                         <td><?= $medActive ?></td>
                                         <td><?= $actions ?></td>
                                     </tr>

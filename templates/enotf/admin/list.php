@@ -21,7 +21,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="edivi">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -183,7 +183,7 @@ use App\Helpers\Flash;
                 <div class="modal-body" id="qmActionsContent">
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 </div>
@@ -202,7 +202,7 @@ use App\Helpers\Flash;
                 <div class="modal-body" id="qmLogContent">
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 </div>
@@ -221,7 +221,7 @@ use App\Helpers\Flash;
                 <div class="modal-body" id="bulkDeleteContent">
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 </div>
@@ -285,7 +285,7 @@ use App\Helpers\Flash;
                 document.getElementById('qmActionsContent').innerHTML = `
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 `;
@@ -316,7 +316,7 @@ use App\Helpers\Flash;
                 document.getElementById('qmLogContent').innerHTML = `
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 `;
@@ -387,7 +387,7 @@ use App\Helpers\Flash;
             document.getElementById('bulkDeleteContent').innerHTML = `
                 <div class="flex justify-center">
                     <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Laden...</span>
+                        <span class="sr-only">Laden...</span>
                     </div>
                 </div>
             `;
@@ -471,7 +471,7 @@ use App\Helpers\Flash;
             document.getElementById('bulkDeleteContent').innerHTML = `
                 <div class="flex justify-center">
                     <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Lade Vorschau...</span>
+                        <span class="sr-only">Lade Vorschau...</span>
                     </div>
                 </div>
             `;
@@ -525,7 +525,7 @@ use App\Helpers\Flash;
                                 </div>
                                 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                                     <table class="table table-sm table-striped">
-                                        <thead class="sticky-top bg-dark">
+                                        <thead class="sticky-top bg-[rgba(0,0,0,0.3)]">
                                             <tr>
                                                 <th>Einsatznummer</th>
                                                 <th>Patient</th>

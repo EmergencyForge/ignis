@@ -164,10 +164,10 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                                 <div class="mb-3">
                                     <label for="sichtungskategorie" class="ignis-field__label">Kategorie</label>
                                     <select class="form-control form-control-lg" id="sichtungskategorie" name="sichtungskategorie">
-                                        <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> class="text-danger">SK1 - Rot</option>
-                                        <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> class="text-warning">SK2 - Gelb</option>
-                                        <option value="SK3" <?= ($patient['sichtungskategorie'] ?? '') === 'SK3' ? 'selected' : '' ?> class="text-success">SK3 - Grün</option>
-                                        <option value="SK4" <?= ($patient['sichtungskategorie'] ?? '') === 'SK4' ? 'selected' : '' ?> class="text-info">SK4 - Blau</option>
+                                        <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> class="text-[#d46b6b]">SK1 - Rot</option>
+                                        <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> class="text-[#ddb84a]">SK2 - Gelb</option>
+                                        <option value="SK3" <?= ($patient['sichtungskategorie'] ?? '') === 'SK3' ? 'selected' : '' ?> class="text-[#6abf76]">SK3 - Grün</option>
+                                        <option value="SK4" <?= ($patient['sichtungskategorie'] ?? '') === 'SK4' ? 'selected' : '' ?> class="text-[#5bb8cc]">SK4 - Blau</option>
                                         <option value="SK5" <?= ($patient['sichtungskategorie'] ?? '') === 'SK5' ? 'selected' : '' ?> style="background-color: #000; color: #fff;">SK5 - Schwarz (Tot)</option>
                                         <option value="SK6" <?= ($patient['sichtungskategorie'] ?? '') === 'SK6' ? 'selected' : '' ?> style="color: #9b59b6;">SK6 - Lila</option>
                                     </select>

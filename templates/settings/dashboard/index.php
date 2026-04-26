@@ -110,7 +110,7 @@ use App\Helpers\Flash;
                                 <input type="text" class="ignis-input" name="icon" id="tile-icon" placeholder="z.B. fa-solid fa-home">
                                 <span class="input-group-text"><i id="tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
                             </div>
-                            <small class="ignis-field__hint text-muted"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
+                            <small class="ignis-field__hint text-[var(--text-dimmed,#818189)]"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
                             <div id="icon-suggestions" class="border mt-2 p-2 rounded" style="max-height: 200px; overflow-y: auto; display: none;"></div>
                         </div>
                         <div class="mb-3">
@@ -158,7 +158,7 @@ use App\Helpers\Flash;
                                 <input type="text" class="ignis-input" name="icon" id="new-tile-icon" placeholder="z.B. fa-solid fa-external-link-alt">
                                 <span class="input-group-text"><i id="new-tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
                             </div>
-                            <small class="ignis-field__hint text-muted"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
+                            <small class="ignis-field__hint text-[var(--text-dimmed,#818189)]"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
                             <div id="new-icon-suggestions" class="border mt-2 p-2 rounded shadow-sm" style="max-height: 220px; overflow-y: auto; display: none;"></div>
                         </div>
                         <div class="mb-3">

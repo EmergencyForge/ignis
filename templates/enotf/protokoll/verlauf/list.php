@@ -304,8 +304,8 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
 <body data-bs-theme="dark" data-page="verlauf" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <?php include __DIR__ . '/../../../../assets/components/enotf/topbar.php'; ?>
 
-    <div class="container-fluid" id="edivi__container">
-        <div class="row h-100">
+    <div class="w-full" id="edivi__container">
+        <div class="row h-full">
             <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
             <div class="col" id="edivi__content">
                 <div class="my-3"></div>

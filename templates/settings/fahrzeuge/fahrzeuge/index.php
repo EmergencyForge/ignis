@@ -20,7 +20,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . "/../../../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -359,7 +359,7 @@ use App\Helpers\Flash;
                 <div class="modal-body" id="importModalBody">
                     <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 </div>
@@ -521,14 +521,14 @@ use App\Helpers\Flash;
                                     <i class="fa-solid fa-shapes"></i>
                                 </div>
                                 <h5 class="mb-2">Keine Vorlagen vorhanden</h5>
-                                <p class="text-muted">Erstelle eine Vorlage beim Bearbeiten eines Fahrzeugs über das <i class="fa-solid fa-floppy-disk"></i> Icon neben dem TZ-Formular.</p>
+                                <p class="text-[var(--text-dimmed,#818189)]">Erstelle eine Vorlage beim Bearbeiten eines Fahrzeugs über das <i class="fa-solid fa-floppy-disk"></i> Icon neben dem TZ-Formular.</p>
                             </div>
                         `;
                         return;
                     }
 
                     let html = `
-                        <p class="text-muted mb-3" style="font-size:var(--fs-sm);">
+                        <p class="text-[var(--text-dimmed,#818189)] mb-3" style="font-size:var(--fs-sm);">
                             Vorlagen definieren das taktische Zeichen für einen Fahrzeugtyp. Der <strong>Name (tz_name)</strong> bleibt immer individuell pro Fahrzeug.
                         </p>
                         <div class="tz-template-list">
@@ -540,18 +540,18 @@ use App\Helpers\Flash;
                         ].filter(Boolean);
                         const fieldSummary = fields.length > 0
                             ? fields.map(f => `<span class="ignis-chip ignis-chip--dark" style="font-size:0.65rem;">${escHtml(f)}</span>`).join(' ')
-                            : '<span class="text-muted">Keine Felder</span>';
+                            : '<span class="text-[var(--text-dimmed,#818189)]">Keine Felder</span>';
 
                         html += `
                             <div class="intra__tile p-3 mb-2 flex items-center justify-between gap-3" id="tz-tpl-${t.id}">
-                                <div class="flex-grow-1" style="min-width:0;">
+                                <div class="grow" style="min-width:0;">
                                     <div class="flex items-center gap-2 mb-1">
                                         <strong>${escHtml(t.name)}</strong>
-                                        ${t.typ ? `<span class="text-muted" style="font-size:var(--fs-sm);">Typ: ${escHtml(t.typ)}</span>` : ''}
+                                        ${t.typ ? `<span class="text-[var(--text-dimmed,#818189)]" style="font-size:var(--fs-sm);">Typ: ${escHtml(t.typ)}</span>` : ''}
                                     </div>
                                     <div class="flex flex-wrap gap-1">${fieldSummary}</div>
                                 </div>
-                                <div class="flex gap-1 flex-shrink-0">
+                                <div class="flex gap-1 shrink-0">
                                     <button class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" onclick="applyTzTemplateToType(${t.id}, '${escAttr(t.name)}')" title="Auf alle Fahrzeuge eines Typs anwenden">
                                         <i class="fa-solid fa-layer-group mr-1"></i>Anwenden
                                     </button>
@@ -688,7 +688,7 @@ use App\Helpers\Flash;
                         <i class="fa-solid fa-satellite-dish"></i>
                     </div>
                     <h5 class="mb-3">Fahrzeugdaten von EMD anfordern</h5>
-                    <p class="text-muted mb-4">
+                    <p class="text-[var(--text-dimmed,#818189)] mb-4">
                         Beim nächsten EMD-Sync werden die Fahrzeugdaten der Leitstelle angefordert.<br>
                         Sobald die Daten eingetroffen sind, können Sie hier jedes Fahrzeug prüfen und importieren.
                     </p>
@@ -709,7 +709,7 @@ use App\Helpers\Flash;
                         <i class="fa-solid fa-satellite-dish"></i>
                     </div>
                     <h5 class="mb-3">Warte auf EMD-Daten...</h5>
-                    <p class="text-muted mb-4">
+                    <p class="text-[var(--text-dimmed,#818189)] mb-4">
                         Die Anforderung wurde gesendet. Die Fahrzeugdaten werden beim nächsten Sync übermittelt.<br>
                         <small>Dies kann 5–10 Sekunden dauern. Die Ansicht aktualisiert sich automatisch.</small>
                     </p>
@@ -772,9 +772,9 @@ use App\Helpers\Flash;
             const existingVehicles = vehicles.filter(v => v.existing);
 
             let html = `<div class="flex items-center justify-between mb-3">
-                <span class="text-muted">${vehicles.length} Fahrzeuge empfangen</span>
+                <span class="text-[var(--text-dimmed,#818189)]">${vehicles.length} Fahrzeuge empfangen</span>
                 <div class="flex items-center gap-2">
-                    <span class="text-muted" id="importProgress"></span>
+                    <span class="text-[var(--text-dimmed,#818189)]" id="importProgress"></span>
                     <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="ignoreAllRemaining()" title="Alle verbleibenden Fahrzeuge ignorieren">
                         <i class="fa-solid fa-forward-fast mr-1"></i>Alle ignorieren
                     </button>
@@ -824,7 +824,7 @@ use App\Helpers\Flash;
             if (hasExisting && e) {
                 existingInfo = `
                     <div class="mt-2 p-2 rounded" style="background:rgba(255,255,255,0.03);font-size:var(--fs-xs);border:1px solid rgba(255,255,255,0.06);">
-                        <span class="text-muted">Bestehendes Fahrzeug:</span>
+                        <span class="text-[var(--text-dimmed,#818189)]">Bestehendes Fahrzeug:</span>
                         <strong>${escHtml(e.name)}</strong> (${escHtml(e.veh_type || '-')})
                         — ${escHtml(e.identifier || '-')}
                         <span class="badge text-bg-${rdTypeBadges[e.rd_type] || 'dark'}" style="font-size:0.6rem;">${rdTypeLabels[e.rd_type] || '?'}</span>
@@ -835,7 +835,7 @@ use App\Helpers\Flash;
             let actions = '';
             if (hasExisting && e) {
                 actions = `
-                    <div class="flex gap-1 flex-shrink-0">
+                    <div class="flex gap-1 shrink-0">
                         <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
@@ -849,7 +849,7 @@ use App\Helpers\Flash;
                 `;
             } else {
                 actions = `
-                    <div class="flex gap-1 flex-shrink-0">
+                    <div class="flex gap-1 shrink-0">
                         <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="importAction(${v.id}, 'ignore')" title="Ignorieren">
                             <i class="fa-solid fa-forward"></i>
                         </button>
@@ -864,7 +864,7 @@ use App\Helpers\Flash;
                 <div class="import-row intra__tile p-3 mb-2" id="import-row-${v.id}" data-delay="${delay}"
                      style="opacity:0;transform:translateY(10px);transition:all 0.3s ease ${delay}ms;">
                     <div class="flex items-start justify-between gap-3">
-                        <div class="flex-grow-1" style="min-width:0;">
+                        <div class="grow" style="min-width:0;">
                             <div class="flex items-center gap-2 mb-1">
                                 <strong style="font-size:var(--fs-md);">${escHtml(v.name)}</strong>
                                 ${rdBadge}
@@ -883,11 +883,11 @@ use App\Helpers\Flash;
                     <div class="import-row-edit hidden mt-2 pt-2" id="import-edit-${v.id}" style="border-top:1px solid rgba(255,255,255,0.06);">
                         <div class="row g-2" style="font-size:var(--fs-sm);">
                             <div class="col-4">
-                                <label class="ignis-field__label mb-0 text-muted">Typ</label>
+                                <label class="ignis-field__label mb-0 text-[var(--text-dimmed,#818189)]">Typ</label>
                                 <input type="text" class="ignis-input ignis-input--sm" id="imp-veh_type-${v.id}" value="${escAttr(v.veh_type || '')}">
                             </div>
                             <div class="col-4">
-                                <label class="ignis-field__label mb-0 text-muted">RD-Typ</label>
+                                <label class="ignis-field__label mb-0 text-[var(--text-dimmed,#818189)]">RD-Typ</label>
                                 <select class="form-select form-select-sm" data-custom-dropdown="true" id="imp-rd_type-${v.id}">
                                     <option value="0" ${v.rd_type==0?'selected':''}>Andere</option>
                                     <option value="1" ${v.rd_type==1?'selected':''}>RD - Mit NA</option>
@@ -896,7 +896,7 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="col-4">
-                                <label class="ignis-field__label mb-0 text-muted">Erlaubte Jobs</label>
+                                <label class="ignis-field__label mb-0 text-[var(--text-dimmed,#818189)]">Erlaubte Jobs</label>
                                 <input type="text" class="ignis-input ignis-input--sm" id="imp-allowed_jobs-${v.id}" value="${escAttr(v.job || '')}">
                             </div>
                         </div>
@@ -1018,7 +1018,7 @@ use App\Helpers\Flash;
                             <i class="fa-solid fa-check-circle"></i>
                         </div>
                         <h5>Import abgeschlossen</h5>
-                        <p class="text-muted">Alle Fahrzeuge wurden verarbeitet.</p>
+                        <p class="text-[var(--text-dimmed,#818189)]">Alle Fahrzeuge wurden verarbeitet.</p>
                         <button class="ignis-btn ignis-btn--soft-primary" onclick="location.reload()">Seite neu laden</button>
                     </div>
                 `;

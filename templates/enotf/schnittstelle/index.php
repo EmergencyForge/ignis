@@ -45,8 +45,8 @@ if ($ziel) {
 </head>
 
 <body data-bs-theme="dark" style="overflow-x:hidden; display: flex; flex-direction: column; min-height: 100vh;" id="edivi__arrivalboard">
-    <div class="container-fluid" style="flex: 1;">
-        <div class="row h-100">
+    <div class="w-full" style="flex: 1;">
+        <div class="row h-full">
             <div class="col" id="edivi__content">
                 <table class="w-full">
                     <thead>
@@ -135,7 +135,7 @@ if ($ziel) {
     </div>
     <footer class="py-2 text-center text-white" style="background-color: #131313;">
         <div class="grid grid-cols-3 items-center">
-            <div class="flex items-center ps-4" style="font-size:2rem">
+            <div class="flex items-center pl-4" style="font-size:2rem">
                 eNOTFArrivalboard
                 <?php if ($ziel && !empty($zielName)): ?>
                     <span style="font-size:0.9rem; opacity:0.6; margin-left:1rem;"><?= htmlspecialchars($zielName) ?></span>

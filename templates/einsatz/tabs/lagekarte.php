@@ -389,15 +389,15 @@ try {
             <div class="col">
                 <h4>Lagekarte</h4>
             </div>
-            <div class="col text-end">
+            <div class="col text-right">
                 <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="toggleMarkerMode">
-                    <i class="fa-solid fa-plus me-1"></i>Marker hinzufügen
+                    <i class="fa-solid fa-plus mr-1"></i>Marker hinzufügen
                 </button>
                 <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" id="toggleZoneMode">
-                    <i class="fa-solid fa-draw-polygon me-1"></i>Zone zeichnen
+                    <i class="fa-solid fa-draw-polygon mr-1"></i>Zone zeichnen
                 </button>
                 <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="refreshMap">
-                    <i class="fa-solid fa-sync-alt me-1"></i>Aktualisieren
+                    <i class="fa-solid fa-sync-alt mr-1"></i>Aktualisieren
                 </button>
             </div>
         </div>
@@ -405,7 +405,7 @@ try {
     <div class="intra__tile-content">
         <?php if ($incident['finalized']): ?>
             <div class="ignis-alert ignis-alert--warning">
-                <i class="fa-solid fa-lock me-2"></i>
+                <i class="fa-solid fa-lock mr-2"></i>
                 Dieser Einsatz ist abgeschlossen. Die Lagekarte kann nicht mehr bearbeitet werden.
             </div>
         <?php endif; ?>
@@ -417,7 +417,7 @@ try {
 
         <?php if (!empty($assignedVehicles)): ?>
             <!-- Assigned Vehicle Markers Grid -->
-            <div class="mb-2 text-muted small"><strong>Zugewiesene Fahrzeuge:</strong></div>
+            <div class="mb-2 text-[var(--text-dimmed,#818189)] text-sm"><strong>Zugewiesene Fahrzeuge:</strong></div>
             <div class="marker-legend mb-3" id="vehicleMarkerLegend">
                 <?php foreach ($assignedVehicles as $vehicle): ?>
                     <div class="legend-item"
@@ -439,7 +439,7 @@ try {
         <?php endif; ?>
 
         <!-- Standard Markers Grid -->
-        <div class="mb-2 text-muted small"><strong>Standard-Marker:</strong></div>
+        <div class="mb-2 text-[var(--text-dimmed,#818189)] text-sm"><strong>Standard-Marker:</strong></div>
         <div class="marker-legend" id="markerLegend">
 
             <div class="legend-item" data-type="Einsatzleiter"
@@ -488,7 +488,7 @@ try {
 
         <!-- Marker List -->
         <div class="mt-4">
-            <h6 class="mb-3"><i class="fa-solid fa-map-pin me-2"></i>Platzierte Marker</h6>
+            <h6 class="mb-3"><i class="fa-solid fa-map-pin mr-2"></i>Platzierte Marker</h6>
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
                     <thead>
@@ -504,7 +504,7 @@ try {
                     <tbody id="markerTableBody">
                         <?php if (empty($markers)): ?>
                             <tr>
-                                <td colspan="6" class="text-center text-muted">
+                                <td colspan="6" class="text-center text-[var(--text-dimmed,#818189)]">
                                     Noch keine Marker platziert
                                 </td>
                             </tr>
@@ -536,7 +536,7 @@ try {
 
         <!-- Zone List -->
         <div class="mt-4">
-            <h6 class="mb-3"><i class="fa-solid fa-draw-polygon me-2"></i>Markierte Zonen</h6>
+            <h6 class="mb-3"><i class="fa-solid fa-draw-polygon mr-2"></i>Markierte Zonen</h6>
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
                     <thead>
@@ -553,7 +553,7 @@ try {
                     <tbody id="zoneTableBody">
                         <?php if (empty($zones)): ?>
                             <tr>
-                                <td colspan="7" class="text-center text-muted">
+                                <td colspan="7" class="text-center text-[var(--text-dimmed,#818189)]">
                                     Noch keine Zonen erstellt
                                 </td>
                             </tr>
@@ -593,7 +593,7 @@ try {
 <!-- Marker Creation Modal -->
 <div class="modal fade" id="markerModal" tabindex="-1" aria-labelledby="markerModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
+        <div class="modal-content bg-[rgba(0,0,0,0.3)]">
             <div class="modal-header">
                 <h5 class="modal-title" id="markerModalLabel">Marker hinzufügen</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -609,7 +609,7 @@ try {
                         <div class="text-center mb-2">
                             <span id="selectedMarkerIcon">📌</span>
                         </div>
-                        <p class="text-center text-muted small" id="selectedMarkerText">
+                        <p class="text-center text-[var(--text-dimmed,#818189)] text-sm" id="selectedMarkerText">
                             Bitte wählen Sie einen Marker-Typ aus der Legende
                         </p>
                     </div>
@@ -625,7 +625,7 @@ try {
                         <label for="markerText" class="ignis-field__label">Text-Beschriftung</label>
                         <input type="text" class="ignis-input" id="markerText" name="text"
                             placeholder="z.B. LF20, RTW 1/82-1">
-                        <small class="text-muted">Wird auf dem taktischen Zeichen angezeigt</small>
+                        <small class="text-[var(--text-dimmed,#818189)]">Wird auf dem taktischen Zeichen angezeigt</small>
                     </div>
 
                     <!-- Name field for tactical symbols -->
@@ -633,7 +633,7 @@ try {
                         <label for="markerName" class="ignis-field__label">Name</label>
                         <input type="text" class="ignis-input" id="markerName" name="name"
                             placeholder="z.B. Einsatzabschnitt Nord">
-                        <small class="text-muted">Name des taktischen Zeichens</small>
+                        <small class="text-[var(--text-dimmed,#818189)]">Name des taktischen Zeichens</small>
                     </div>
 
                     <!-- Typ field for tactical symbols -->
@@ -641,7 +641,7 @@ try {
                         <label for="markerTyp" class="ignis-field__label">Typ</label>
                         <input type="text" class="ignis-input" id="markerTyp" name="typ"
                             placeholder="z.B. HLF20, RTW, DLK23/12">
-                        <small class="text-muted">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
+                        <small class="text-[var(--text-dimmed,#818189)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
                     </div>
 
                     <!-- Custom Tactical Symbol Fields -->
@@ -650,7 +650,7 @@ try {
                         <h6 class="mb-3">Benutzerdefiniertes taktisches Zeichen</h6>
 
                         <div class="mb-3">
-                            <label for="customGrundzeichen" class="ignis-field__label">Grundzeichen <span class="text-danger">*</span></label>
+                            <label for="customGrundzeichen" class="ignis-field__label">Grundzeichen <span class="text-[#d46b6b]">*</span></label>
                             <select class="form-select" id="customGrundzeichen">
                                 <option value="">-- Bitte wählen --</option>
                                 <option value="abrollbehaelter">Abrollbehälter</option>
@@ -803,12 +803,12 @@ try {
                             <label for="customTyp" class="ignis-field__label">Typ</label>
                             <input type="text" class="ignis-input" id="customTyp"
                                 placeholder="z.B. HLF20, RTW, DLK23/12">
-                            <small class="ignis-field__hint text-muted">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
+                            <small class="ignis-field__hint text-[var(--text-dimmed,#818189)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
                         </div>
 
                         <div class="text-center mb-3">
                             <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" id="previewCustomSymbol">
-                                <i class="fa-solid fa-eye me-1"></i>Vorschau
+                                <i class="fa-solid fa-eye mr-1"></i>Vorschau
                             </button>
                         </div>
                     </div>
@@ -817,7 +817,7 @@ try {
             <div class="modal-footer">
                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
                 <button type="button" class="ignis-btn ignis-btn--primary" id="saveMarkerBtn">
-                    <i class="fa-solid fa-save me-1"></i>Marker speichern
+                    <i class="fa-solid fa-save mr-1"></i>Marker speichern
                 </button>
             </div>
         </div>
@@ -827,7 +827,7 @@ try {
 <!-- Zone Creation Modal -->
 <div class="modal fade" id="zoneModal" tabindex="-1" aria-labelledby="zoneModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content bg-dark">
+        <div class="modal-content bg-[rgba(0,0,0,0.3)]">
             <div class="modal-header">
                 <h5 class="modal-title" id="zoneModalLabel">Zone benennen</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -838,7 +838,7 @@ try {
                     <input type="hidden" id="zoneColor" name="color" value="#dc3545">
 
                     <div class="mb-3">
-                        <label for="zoneName" class="ignis-field__label">Zonenname <span class="text-danger">*</span></label>
+                        <label for="zoneName" class="ignis-field__label">Zonenname <span class="text-[#d46b6b]">*</span></label>
                         <input type="text" class="ignis-input" id="zoneName" name="name"
                             placeholder="z.B. Sperrzone, Gefahrenbereich" required>
                     </div>
@@ -851,7 +851,7 @@ try {
 
                     <div class="mb-3">
                         <label class="ignis-field__label">Farbe wählen</label>
-                        <div class="d-flex flex-wrap gap-2">
+                        <div class="flex flex-wrap gap-2">
                             <div class="zone-color-option selected" data-color="#dc3545" style="background-color: #dc3545;" title="Rot - Gefahr"></div>
                             <div class="zone-color-option" data-color="#fd7e14" style="background-color: #fd7e14;" title="Orange - Warnung"></div>
                             <div class="zone-color-option" data-color="#ffc107" style="background-color: #ffc107;" title="Gelb - Vorsicht"></div>
@@ -868,7 +868,7 @@ try {
             <div class="modal-footer">
                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
                 <button type="button" class="ignis-btn ignis-btn--primary" id="saveZoneBtn">
-                    <i class="fa-solid fa-save me-1"></i>Speichern
+                    <i class="fa-solid fa-save mr-1"></i>Speichern
                 </button>
             </div>
         </div>
@@ -1484,8 +1484,8 @@ try {
         toggleBtn.addEventListener('click', function() {
             markerMode = !markerMode;
             this.innerHTML = markerMode ?
-                '<i class="fa-solid fa-times me-1"></i>Abbrechen' :
-                '<i class="fa-solid fa-plus me-1"></i>Marker hinzufügen';
+                '<i class="fa-solid fa-times mr-1"></i>Abbrechen' :
+                '<i class="fa-solid fa-plus mr-1"></i>Marker hinzufügen';
             this.classList.toggle('btn-outline-light');
             this.classList.toggle('btn-warning');
 
@@ -1546,8 +1546,8 @@ try {
         toggleZoneBtn.addEventListener('click', function() {
             zoneMode = !zoneMode;
             this.innerHTML = zoneMode ?
-                '<i class="fa-solid fa-times me-1"></i>Abbrechen' :
-                '<i class="fa-solid fa-draw-polygon me-1"></i>Zone zeichnen';
+                '<i class="fa-solid fa-times mr-1"></i>Abbrechen' :
+                '<i class="fa-solid fa-draw-polygon mr-1"></i>Zone zeichnen';
             this.classList.toggle('btn-outline-info');
             this.classList.toggle('btn-warning');
 
@@ -1572,7 +1572,7 @@ try {
                     finishBtn.id = 'finishZoneBtn';
                     finishBtn.className = 'btn btn-success btn-sm';
                     finishBtn.style.cssText = 'position:absolute;top:65px;left:20px;z-index:1050;background-color:rgba(25,135,84,0.6);border-color:rgba(25,135,84,0.6);backdrop-filter:blur(4px);';
-                    finishBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Zone erstellen';
+                    finishBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>Zone erstellen';
                     finishBtn.addEventListener('click', finishZoneDrawing);
                     finishBtn.addEventListener('mouseenter', function() {
                         this.style.backgroundColor = 'rgba(25, 135, 84, 0.9)';

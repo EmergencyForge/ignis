@@ -62,7 +62,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();var href=this.href;showConfirm('Ungespeicherte Änderungen verwerfen?',{title:'Seite verlassen',danger:true,confirmText:'Verwerfen'}).then(function(ok){if(ok)window.location=href;});}">
             <i class="fa-solid fa-arrow-left"></i>
         </a>
-        <span class="text-truncate" style="font-size:0.8rem;max-width:200px;opacity:0.7;" title="<?= htmlspecialchars($template['name']) ?>">
+        <span class="truncate" style="font-size:0.8rem;max-width:200px;opacity:0.7;" title="<?= htmlspecialchars($template['name']) ?>">
             <strong id="editor-template-name"><?= htmlspecialchars($template['name']) ?></strong>
         </span>
         <?php
@@ -71,7 +71,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         ?>
         <label class="form-check form-check-inline mb-0 ml-2" style="font-size:0.72rem;" title="Entwurfs-Wasserzeichen auf PDFs anzeigen">
             <input class="form-check-input" type="checkbox" id="chk-draft" style="width:0.85em;height:0.85em;"<?= $isDraft ? ' checked' : '' ?>>
-            <span class="form-check-label text-warning">Entwurf</span>
+            <span class="form-check-label text-[#ddb84a]">Entwurf</span>
         </label>
 
         <div class="separator"></div>
@@ -187,7 +187,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             <option value="mittel">Mittel (1,91cm)</option>
         </select>
 
-        <div class="ms-auto flex items-center gap-1">
+        <div class="ml-auto flex items-center gap-1">
             <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;" title="Automatisches Speichern aktivieren/deaktivieren">
                 <input class="form-check-input" type="checkbox" id="chk-autosave" style="width:0.85em;height:0.85em;" checked>
                 <span class="form-check-label">Auto-Save</span>
@@ -493,21 +493,21 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 <div class="modal-body p-0" style="font-size:0.82rem;">
                     <table class="table table-sm table-striped mb-0">
                         <tbody>
-                            <tr><td class="ps-3"><kbd>Ctrl+S</kbd></td><td>Speichern</td></tr>
-                            <tr><td class="ps-3"><kbd>Ctrl+Z</kbd></td><td>Rückgängig</td></tr>
-                            <tr><td class="ps-3"><kbd>Ctrl+Y</kbd></td><td>Wiederholen</td></tr>
-                            <tr><td class="ps-3"><kbd>Ctrl+C</kbd> / <kbd>X</kbd> / <kbd>V</kbd></td><td>Kopieren / Ausschneiden / Einfügen</td></tr>
-                            <tr><td class="ps-3"><kbd>Ctrl+D</kbd></td><td>Duplizieren</td></tr>
-                            <tr><td class="ps-3"><kbd>Ctrl+A</kbd></td><td>Alles auswählen</td></tr>
-                            <tr><td class="ps-3"><kbd>Ctrl+G</kbd></td><td>Gruppieren</td></tr>
-                            <tr><td class="ps-3"><kbd>Ctrl+Shift+G</kbd></td><td>Gruppe auflösen</td></tr>
-                            <tr><td class="ps-3"><kbd>Entf</kbd> / <kbd>Backspace</kbd></td><td>Löschen</td></tr>
-                            <tr><td class="ps-3"><kbd>Escape</kbd></td><td>Auswahl aufheben</td></tr>
-                            <tr><td class="ps-3"><kbd>Pfeiltasten</kbd></td><td>Verschieben (1px)</td></tr>
-                            <tr><td class="ps-3"><kbd>Shift</kbd> + Pfeiltasten</td><td>Verschieben (10px)</td></tr>
-                            <tr><td class="ps-3"><kbd>Shift</kbd> + Rotation</td><td>15°-Einrastung</td></tr>
-                            <tr><td class="ps-3"><kbd>Ctrl</kbd> + Mausrad</td><td>Zoom</td></tr>
-                            <tr><td class="ps-3"><kbd>?</kbd></td><td>Diese Hilfe anzeigen</td></tr>
+                            <tr><td class="pl-3"><kbd>Ctrl+S</kbd></td><td>Speichern</td></tr>
+                            <tr><td class="pl-3"><kbd>Ctrl+Z</kbd></td><td>Rückgängig</td></tr>
+                            <tr><td class="pl-3"><kbd>Ctrl+Y</kbd></td><td>Wiederholen</td></tr>
+                            <tr><td class="pl-3"><kbd>Ctrl+C</kbd> / <kbd>X</kbd> / <kbd>V</kbd></td><td>Kopieren / Ausschneiden / Einfügen</td></tr>
+                            <tr><td class="pl-3"><kbd>Ctrl+D</kbd></td><td>Duplizieren</td></tr>
+                            <tr><td class="pl-3"><kbd>Ctrl+A</kbd></td><td>Alles auswählen</td></tr>
+                            <tr><td class="pl-3"><kbd>Ctrl+G</kbd></td><td>Gruppieren</td></tr>
+                            <tr><td class="pl-3"><kbd>Ctrl+Shift+G</kbd></td><td>Gruppe auflösen</td></tr>
+                            <tr><td class="pl-3"><kbd>Entf</kbd> / <kbd>Backspace</kbd></td><td>Löschen</td></tr>
+                            <tr><td class="pl-3"><kbd>Escape</kbd></td><td>Auswahl aufheben</td></tr>
+                            <tr><td class="pl-3"><kbd>Pfeiltasten</kbd></td><td>Verschieben (1px)</td></tr>
+                            <tr><td class="pl-3"><kbd>Shift</kbd> + Pfeiltasten</td><td>Verschieben (10px)</td></tr>
+                            <tr><td class="pl-3"><kbd>Shift</kbd> + Rotation</td><td>15°-Einrastung</td></tr>
+                            <tr><td class="pl-3"><kbd>Ctrl</kbd> + Mausrad</td><td>Zoom</td></tr>
+                            <tr><td class="pl-3"><kbd>?</kbd></td><td>Diese Hilfe anzeigen</td></tr>
                         </tbody>
                     </table>
                 </div>

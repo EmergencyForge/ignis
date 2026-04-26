@@ -22,7 +22,7 @@ $SITE_TITLE = 'Antragsübersicht';
 <body data-bs-theme="dark" data-page="mitarbeiter">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
 
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-5">
                 <div class="mb-4 flex items-center justify-between">
@@ -66,7 +66,7 @@ $SITE_TITLE = 'Antragsübersicht';
                                         <td><strong><?= htmlspecialchars($antrag->uniqueid) ?></strong></td>
                                         <td>
                                             <i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?> mr-1"></i>
-                                            <span class="small"><?= htmlspecialchars($antrag->typ->name ?? '') ?></span>
+                                            <span class="text-sm"><?= htmlspecialchars($antrag->typ->name ?? '') ?></span>
                                         </td>
                                         <td><?= htmlspecialchars($antrag->name_dn) ?></td>
                                         <td>

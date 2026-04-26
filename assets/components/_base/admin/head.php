@@ -11,6 +11,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- Vendor + App-SCSS zuerst, Tailwind-Utilities zuletzt damit sie bei
      gleicher Spezifität im Cascade-Tie gewinnen. -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/bootstrap-compat.min.css') ?>">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/rubik/css/all.min.css" />
 <link rel="stylesheet" href="<?= asset('assets/css/style.min.css') ?>" />
 <link rel="stylesheet" href="<?= asset('assets/css/admin.min.css') ?>" />

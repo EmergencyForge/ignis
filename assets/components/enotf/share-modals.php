@@ -10,7 +10,7 @@
             </div>
             <div class="modal-body">
                 <p>Wähle ein Fahrzeug aus, mit dem du dieses Protokoll teilen möchtest:</p>
-                <div class="mb-3 position-relative">
+                <div class="mb-3 relative">
                     <label for="targetVehicleSearch" class="ignis-field__label">Zielfahrzeug</label>
                     <input type="text"
                         class="ignis-input"
@@ -18,7 +18,7 @@
                         placeholder="Rufname, Kennzeichen oder ID eingeben..."
                         autocomplete="off">
                     <input type="hidden" id="selectedVehicleId">
-                    <div class="dropdown-menu w-100" id="vehicleDropdown" style="max-height: 300px; overflow-y: auto;">
+                    <div class="dropdown-menu w-full" id="vehicleDropdown" style="max-height: 300px; overflow-y: auto;">
                         <!-- Dropdown items werden hier dynamisch eingefügt -->
                     </div>
                 </div>
@@ -80,7 +80,7 @@
                 <p><strong>Was möchtest du tun?</strong></p>
                 <label class="ignis-radio" for="shareActionMerge"><input type="radio" name="shareAction" id="shareActionMerge" value="merge"><span>
                         <strong>In bestehendes Protokoll übernehmen</strong><br>
-                        <small class="text-muted">Wähle ein vorhandenes Protokoll aus. Die Daten werden übernommen, ohne deine Fahrzeugzuweisungen zu überschreiben.</small>
+                        <small class="text-[var(--text-dimmed,#818189)]">Wähle ein vorhandenes Protokoll aus. Die Daten werden übernommen, ohne deine Fahrzeugzuweisungen zu überschreiben.</small>
                     </span></label>
                 <div id="existingProtocolsContainer" class="ml-4 mb-3 hidden">
                     <select class="form-select" id="existingProtocolSelect" data-custom-dropdown="true" data-search-threshold="8">
@@ -89,7 +89,7 @@
                 </div>
                 <label class="ignis-radio" for="shareActionNew"><input type="radio" name="shareAction" id="shareActionNew" value="new"><span>
                         <strong>Neues Protokoll erstellen</strong><br>
-                        <small class="text-muted">Erstellt ein neues Protokoll mit den geteilten Daten und deinen Fahrzeugdaten.</small>
+                        <small class="text-[var(--text-dimmed,#818189)]">Erstellt ein neues Protokoll mit den geteilten Daten und deinen Fahrzeugdaten.</small>
                     </span></label>
             </div>
             <div class="modal-footer">
@@ -156,7 +156,7 @@
             item.href = '#';
 
             const typeLabel = vehicle.rd_type == 1 ? 'NA' : 'RD';
-            const kennzeichenText = vehicle.kennzeichen ? ` <small class="text-muted">[${vehicle.kennzeichen}]</small>` : '';
+            const kennzeichenText = vehicle.kennzeichen ? ` <small class="text-[var(--text-dimmed,#818189)]">[${vehicle.kennzeichen}]</small>` : '';
             item.innerHTML = `${vehicle.name || vehicle.identifier} <span class="ignis-chip">${typeLabel}</span>${kennzeichenText}`;
 
             item.dataset.identifier = vehicle.identifier;

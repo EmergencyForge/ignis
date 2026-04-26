@@ -21,7 +21,7 @@ $SITE_TITLE = 'Einladungen verwalten';
 
 <body data-bs-theme="dark" data-page="benutzer">
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -38,7 +38,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                             <h1>Einladungen verwalten</h1>
                         </div>
                         <?php if ($registrationMode === 'code'): ?>
-                            <div class="col text-end">
+                            <div class="col text-right">
                                 <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createInviteModal">
                                     <i class="fa-solid fa-plus"></i> Einladung erstellen
                                 </button>
@@ -92,7 +92,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                                             <?php if (!empty($code->label)): ?>
                                                 <?= htmlspecialchars($code->label) ?>
                                             <?php else: ?>
-                                                <span class="text-muted">Ohne Bezeichnung</span>
+                                                <span class="text-[var(--text-dimmed,#818189)]">Ohne Bezeichnung</span>
                                             <?php endif; ?>
                                         </td>
                                         <td><?= htmlspecialchars($code->creator?->username ?? 'System') ?></td>
@@ -100,12 +100,12 @@ $SITE_TITLE = 'Einladungen verwalten';
                                         <td>
                                             <?php if ($code->expires_at !== null): ?>
                                                 <?php if ($isExpired): ?>
-                                                    <span class="text-danger"><?= htmlspecialchars($code->expires_at->format('d.m.Y H:i')) ?></span>
+                                                    <span class="text-[#d46b6b]"><?= htmlspecialchars($code->expires_at->format('d.m.Y H:i')) ?></span>
                                                 <?php else: ?>
                                                     <?= htmlspecialchars($code->expires_at->format('d.m.Y H:i')) ?>
                                                 <?php endif; ?>
                                             <?php else: ?>
-                                                <span class="text-muted">Unbegrenzt</span>
+                                                <span class="text-[var(--text-dimmed,#818189)]">Unbegrenzt</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
@@ -120,7 +120,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                                         <td>
                                             <?php if ($code->is_used): ?>
                                                 <?= htmlspecialchars($code->usedByUser?->username ?? 'Unbekannt') ?>
-                                                <br><small class="text-muted"><?= htmlspecialchars($code->used_at?->format('d.m.Y H:i') ?? '') ?></small>
+                                                <br><small class="text-[var(--text-dimmed,#818189)]"><?= htmlspecialchars($code->used_at?->format('d.m.Y H:i') ?? '') ?></small>
                                             <?php else: ?>
                                                 -
                                             <?php endif; ?>
@@ -133,7 +133,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                                                     </button>
                                                 <?php endif; ?>
                                                 <?php if (!$code->is_used): ?>
-                                                    <form method="POST" class="d-inline" onsubmit="event.preventDefault(); showConfirm('Diese Einladung wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Einladung löschen'}).then(result => { if(result) this.submit(); });">
+                                                    <form method="POST" class="inline" onsubmit="event.preventDefault(); showConfirm('Diese Einladung wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Einladung löschen'}).then(result => { if(result) this.submit(); });">
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="code_id" value="<?= (int) $code->id ?>">
                                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" data-ignis-tooltip="Löschen">
@@ -160,7 +160,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                 <form method="POST">
                     <input type="hidden" name="action" value="generate">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="createInviteModalLabel">Neue Einladung erstellen</h1>
+                        <h1 class="modal-title text-lg" id="createInviteModalLabel">Neue Einladung erstellen</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">

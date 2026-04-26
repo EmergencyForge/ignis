@@ -125,7 +125,7 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
 </head>
 
 <body data-bs-theme="dark" style="overflow-x:hidden">
-    <div class="container-fluid" id="edivi__container">
+    <div class="w-full" id="edivi__container">
         <div class="lockscreen-container">
             <div class="lockscreen-box">
                 <div class="lockscreen-icon">

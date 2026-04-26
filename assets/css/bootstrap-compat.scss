@@ -1,0 +1,264 @@
+// =====================================================
+// Bootstrap-Compat-Shim
+// Minimaler Ersatz für die Teile von Bootstrap 5, die wir nach der
+// Tailwind-/ignis-Migration noch brauchen, damit das Bootstrap-CSS-
+// Bundle komplett entfallen kann. Inhalt:
+//   * Container/Row/Col-Grid (12 Spalten, sm/md/lg/xl-Breakpoints)
+//   * Modal-Stack (.modal, .modal-dialog, .modal-content, …, .fade, .show)
+//   * .btn-close (X-Knopf in Modal-Headern)
+// Werden Templates auf Tailwind-Grid + ignis-dialog umgestellt, kann
+// dieser Shim wieder weg.
+// =====================================================
+
+// ── Container ──────────────────────────────────────────────────────
+.container,
+.container-fluid,
+.container-sm,
+.container-md,
+.container-lg,
+.container-xl {
+    width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+}
+
+@media (min-width: 576px) { .container, .container-sm { max-width: 540px; } }
+@media (min-width: 768px) { .container, .container-sm, .container-md { max-width: 720px; } }
+@media (min-width: 992px) { .container, .container-sm, .container-md, .container-lg { max-width: 960px; } }
+@media (min-width: 1200px) { .container, .container-sm, .container-md, .container-lg, .container-xl { max-width: 1140px; } }
+@media (min-width: 1400px) { .container, .container-sm, .container-md, .container-lg, .container-xl { max-width: 1320px; } }
+
+// ── Row (Bootstrap 5 Grid) ─────────────────────────────────────────
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -0.75rem;
+    margin-left: -0.75rem;
+
+    > * {
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 100%;
+        padding-right: 0.75rem;
+        padding-left: 0.75rem;
+    }
+}
+
+// ── Col + Col-N ────────────────────────────────────────────────────
+.col {
+    flex: 1 0 0%;
+}
+.col-auto {
+    flex: 0 0 auto;
+    width: auto;
+}
+
+@for $i from 1 through 12 {
+    .col-#{$i} {
+        flex: 0 0 auto;
+        width: percentage(calc($i / 12));
+    }
+}
+
+// ── Responsive Cols ────────────────────────────────────────────────
+$bp: (
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1200px,
+    xxl: 1400px,
+);
+
+@each $name, $size in $bp {
+    @media (min-width: $size) {
+        .col-#{$name} {
+            flex: 1 0 0%;
+        }
+        .col-#{$name}-auto {
+            flex: 0 0 auto;
+            width: auto;
+        }
+        @for $i from 1 through 12 {
+            .col-#{$name}-#{$i} {
+                flex: 0 0 auto;
+                width: percentage(calc($i / 12));
+            }
+        }
+    }
+}
+
+// Bootstrap-Gutter-Modifier (kommen vereinzelt vor)
+.g-0, .gx-0 { --bs-gutter-x: 0; }
+.g-0, .gy-0 { --bs-gutter-y: 0; }
+
+// ── Modal ──────────────────────────────────────────────────────────
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+
+    &.show { opacity: 1; }
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1055;
+    display: none;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: 0;
+
+    &.show {
+        display: block;
+    }
+
+    &.fade .modal-dialog {
+        transform: translateY(-20px);
+        opacity: 0;
+        transition: transform 0.2s ease, opacity 0.15s ease;
+    }
+    &.show .modal-dialog {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 1.75rem auto;
+    pointer-events: none;
+    max-width: 500px;
+}
+
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 3.5rem);
+}
+
+.modal-sm  { max-width: 320px; }
+.modal-lg  { max-width: 800px; }
+.modal-xl  { max-width: 1140px; }
+.modal-fullscreen {
+    max-width: none;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background: var(--body-bg-lighter, #161616);
+    color: var(--text-normal, #bbbac1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-xl, 10px);
+    outline: 0;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+}
+
+.modal-title {
+    margin: 0;
+    line-height: 1.4;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-title, #e8e6f3);
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1rem;
+}
+
+.modal-footer {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--darkgray, #2a2a2a);
+}
+
+// ── Btn-Close (X-Knopf in Modal-Headern) ───────────────────────────
+.btn-close {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    width: 1.4rem;
+    height: 1.4rem;
+    color: var(--text-dimmed, #818189);
+    cursor: pointer;
+    padding: 0;
+    border-radius: var(--radius-sm, 4px);
+    position: relative;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &::before, &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 12px;
+        height: 1.5px;
+        background: currentColor;
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+    &::after {
+        transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
+    &:hover, &:focus-visible {
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+        outline: none;
+    }
+}
+
+.btn-close-white { color: #fff; }
+
+// ── Fade-Helper (für allgemeine Bootstrap-Nutzungen) ───────────────
+.fade {
+    transition: opacity 0.15s linear;
+
+    &:not(.show) {
+        opacity: 0;
+    }
+}
+
+// ── body-Modal-Open-Zustand ────────────────────────────────────────
+body.modal-open {
+    overflow: hidden;
+}
+
+// ── Tooltip-Klasse (Reste, falls noch verwendet) ───────────────────
+// `.tooltip.bs-tooltip-*` etc. werden nicht geshim't — wir nutzen
+// `data-ignis-tooltip` (siehe ui.scss).

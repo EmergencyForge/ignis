@@ -61,13 +61,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 <body data-bs-theme="dark" data-page="massnahmen" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="container-fluid" id="edivi__container">
-            <div class="row h-100">
+        <div class="w-full" id="edivi__container">
+            <div class="row h-full">
                 <div class="col" id="edivi__content edivi__medikamente">
                     <div class="row mt-4 mx-4">
                         <div class="col">
-                            <div class="w-100 p-3" style="background-color: #333333; min-height: 60vh; border-radius: 8px;" id="medis-list">
-                                <div class="text-center text-muted p-4">
+                            <div class="w-full p-3" style="background-color: #333333; min-height: 60vh; border-radius: 8px;" id="medis-list">
+                                <div class="text-center text-[var(--text-dimmed,#818189)] p-4">
                                     <i class="fa-solid fa-spinner fa-spin" style="font-size: 2em;"></i>
                                     <div class="mt-2">Medikamente werden geladen...</div>
                                 </div>
@@ -116,7 +116,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             </div>
                             <div class="row mt-3">
                                 <div class="col">
-                                    <div class="position-relative" id="dosierung-autocomplete-wrapper">
+                                    <div class="relative" id="dosierung-autocomplete-wrapper">
                                         <input class="form-control medikament-field-ignore" type="text" placeholder="Dosierung" name="medis-concentration" id="medis-concentration" autocomplete="off" style="background-color: #333333; color: white; --bs-secondary-color: #a2a2a2" data-ignore-autosave="true">
                                         <div id="dosierung-dropdown" class="dosierung-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; background-color: #444; border: 1px solid #555; border-radius: 4px; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>
                                     </div>
@@ -479,7 +479,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             const enr = new URLSearchParams(window.location.search).get('enr');
 
             const listContainer = document.getElementById('medis-list');
-            listContainer.innerHTML = '<div class="text-center text-muted p-4"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2em;"></i><div class="mt-2">Medikamente werden geladen...</div></div>';
+            listContainer.innerHTML = '<div class="text-center text-[var(--text-dimmed,#818189)] p-4"><i class="fa-solid fa-spinner fa-spin" style="font-size: 2em;"></i><div class="mt-2">Medikamente werden geladen...</div></div>';
 
             fetch('./load_medikamente.php', {
                     method: 'POST',
@@ -499,7 +499,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 })
                 .catch(error => {
                     console.error('Error loading medikamente:', error);
-                    listContainer.innerHTML = '<div class="text-center text-danger p-4"><i class="fa-solid fa-triangle-exclamation" style="font-size: 2em;"></i><div class="mt-2">Fehler beim Laden der Medikamente:<br>' + error.message + '</div></div>';
+                    listContainer.innerHTML = '<div class="text-center text-[#d46b6b] p-4"><i class="fa-solid fa-triangle-exclamation" style="font-size: 2em;"></i><div class="mt-2">Fehler beim Laden der Medikamente:<br>' + error.message + '</div></div>';
                 });
         }
 
@@ -524,7 +524,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 })
                 .catch(error => {
                     console.error('Error loading medikamente:', error);
-                    document.getElementById('medis-list').innerHTML = '<div class="text-center text-danger p-4">Fehler beim Laden der Medikamente: ' + error.message + '</div>';
+                    document.getElementById('medis-list').innerHTML = '<div class="text-center text-[#d46b6b] p-4">Fehler beim Laden der Medikamente: ' + error.message + '</div>';
                 });
         }
 
@@ -549,7 +549,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 medDiv.dataset.timestamp = med.timestamp;
 
                 medDiv.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center text-white">
+                    <div class="flex justify-between items-center text-white">
                         <div class="medikament-compact">
                             <span style="color:#a2a2a2">${med.zeit}</span>
                             <span>${med.wirkstoff}</span>
