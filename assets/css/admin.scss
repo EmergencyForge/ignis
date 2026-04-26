@@ -1222,6 +1222,20 @@ select.form-select option {
         outline: 1px solid rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
     }
 
+    // Drag-Handle (nur sichtbar im Admin-Modus, Cursor=grab)
+    &__handle {
+        flex-shrink: 0;
+        cursor: grab;
+        color: var(--text-dimmed, #818189);
+        font-size: 0.8rem;
+        padding: 0.1rem 0.2rem;
+        opacity: 0.5;
+        transition: opacity 0.1s ease;
+
+        &:hover { opacity: 1; }
+        &:active { cursor: grabbing; }
+    }
+
     &__title {
         flex: 1;
         min-width: 0;
@@ -1236,6 +1250,42 @@ select.form-select option {
         gap: 0.3rem;
         flex-shrink: 0;
     }
+
+    // SortableJS Drag-States
+    &--ghost {
+        opacity: 0.3;
+        background: rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+    }
+
+    &--chosen {
+        background: rgba(var(--main-color-rgb, 255, 77, 0), 0.08);
+    }
+
+    &--drag {
+        cursor: grabbing;
+        opacity: 0.95;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+}
+
+// Inline-Edit-Button: sieht aus wie ein Chip, klickbar
+.beladung-tile__amount-edit {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    transition: filter 0.1s ease;
+
+    &:hover { filter: brightness(1.15); }
+    &:focus-visible {
+        outline: 2px solid var(--main-color);
+        outline-offset: 1px;
+    }
+}
+
+.beladung-tile__amount-input {
+    width: 4.5rem;
+    text-align: center;
 }
 
 // =====================================================

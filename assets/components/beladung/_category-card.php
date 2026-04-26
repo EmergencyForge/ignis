@@ -75,14 +75,27 @@ foreach ($tiles as $t) {
         <?php if (count($tiles) === 0): ?>
             <p class="beladung-category-card__empty">Keine Gegenstände in dieser Kategorie.</p>
         <?php else: ?>
-            <ul class="beladung-tiles">
+            <ul class="beladung-tiles<?= $canEdit ? ' beladung-tiles--sortable' : '' ?>"
+                data-category-id="<?= (int) ($category['id'] ?? 0) ?>">
                 <?php foreach ($tiles as $tile): ?>
                     <?php $tileSearch = mb_strtolower($tile['title'] ?? '', 'UTF-8'); ?>
-                    <li class="beladung-tile" data-search="<?= htmlspecialchars($tileSearch) ?>">
+                    <li class="beladung-tile" data-search="<?= htmlspecialchars($tileSearch) ?>"
+                        data-tile-id="<?= (int) ($tile['id'] ?? 0) ?>">
+                        <?php if ($canEdit): ?>
+                            <span class="beladung-tile__handle" data-ignis-tooltip="Ziehen zum Sortieren">
+                                <i class="fa-solid fa-grip-vertical"></i>
+                            </span>
+                        <?php endif; ?>
                         <span class="beladung-tile__title"><?= htmlspecialchars($tile['title'] ?? '') ?></span>
                         <span class="beladung-tile__amount">
-                            <span class="ignis-chip ignis-chip--primary"><?= (int) ($tile['amount'] ?? 0) ?>×</span>
                             <?php if ($canEdit): ?>
+                                <button type="button"
+                                        class="ignis-chip ignis-chip--primary beladung-tile__amount-edit"
+                                        data-tile-id="<?= (int) ($tile['id'] ?? 0) ?>"
+                                        data-amount="<?= (int) ($tile['amount'] ?? 0) ?>"
+                                        data-ignis-tooltip="Klick zum Bearbeiten">
+                                    <?= (int) ($tile['amount'] ?? 0) ?>×
+                                </button>
                                 <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon edit-tile-btn"
                                         data-id="<?= (int) ($tile['id'] ?? 0) ?>"
                                         data-category="<?= (int) ($tile['category'] ?? 0) ?>"
@@ -96,6 +109,8 @@ foreach ($tiles as $t) {
                                         data-ignis-tooltip="Löschen">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
+                            <?php else: ?>
+                                <span class="ignis-chip ignis-chip--primary"><?= (int) ($tile['amount'] ?? 0) ?>×</span>
                             <?php endif; ?>
                         </span>
                     </li>

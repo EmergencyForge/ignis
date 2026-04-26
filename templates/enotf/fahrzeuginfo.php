@@ -273,7 +273,7 @@ $currentDate = date('d.m.Y');
                                         $tilesStmt = $pdo->prepare(
                                             "SELECT * FROM intra_fahrzeuge_beladung_tiles
                                              WHERE category IN ($placeholders)
-                                             ORDER BY title ASC"
+                                             ORDER BY sort_order ASC, title ASC"
                                         );
                                         $tilesStmt->execute($catIds);
                                         foreach ($tilesStmt->fetchAll(PDO::FETCH_ASSOC) as $t) {
