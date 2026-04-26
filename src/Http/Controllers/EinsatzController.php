@@ -67,12 +67,7 @@ class EinsatzController extends Controller
 
         // Logout-Action via GET ?logout=1
         if (isset($_GET['logout'])) {
-            unset(
-                $_SESSION['einsatz_vehicle_id'],
-                $_SESSION['einsatz_vehicle_name'],
-                $_SESSION['einsatz_operator_id'],
-                $_SESSION['einsatz_operator_name']
-            );
+            \App\Session\SessionManager::logoutEinsatz();
             Flash::success('Von Fahrzeug abgemeldet.');
             $this->redirect('einsatz/login-fahrzeug.php');
         }
@@ -183,16 +178,15 @@ class EinsatzController extends Controller
             $this->redirect('einsatz/login-fahrzeug.php');
         }
 
-        // Session füllen
-        $_SESSION['einsatz_vehicle_id']    = (int) $vehicle->id;
-        $_SESSION['einsatz_vehicle_name']  = $vehicle->name . ($vehicle->identifier ? ' (' . $vehicle->identifier . ')' : '');
-        $_SESSION['einsatz_operator_id']   = (int) $operator->id;
-        $_SESSION['einsatz_operator_name'] = $operator->fullname;
-
-        Flash::success(
-            'Erfolgreich auf ' . $_SESSION['einsatz_vehicle_name']
-            . ' angemeldet als ' . $_SESSION['einsatz_operator_name']
+        $vehicleLabel = $vehicle->name . ($vehicle->identifier ? ' (' . $vehicle->identifier . ')' : '');
+        \App\Session\SessionManager::loginEinsatz(
+            (int) $vehicle->id,
+            $vehicleLabel,
+            (int) $operator->id,
+            $operator->fullname,
         );
+
+        Flash::success('Erfolgreich auf ' . $vehicleLabel . ' angemeldet als ' . $operator->fullname);
         $this->redirect('einsatz/list.php');
     }
 

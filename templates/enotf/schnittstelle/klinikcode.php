@@ -34,11 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
             } elseif (strtotime($result['expires_at']) < time()) {
                 $error = 'Dieser Code ist abgelaufen.';
             } else {
-                // Setze Session-Variable für Klinikzugriff
-                $_SESSION['klinik_access_enr'] = $result['enr'];
-                $_SESSION['klinik_access_time'] = time();
-
-                // Weiterleitung zur Druckansicht
+                \App\Session\SessionManager::loginKlinikcode($result['enr']);
                 header("Location: " . EnotfUrl::print($result['enr']));
                 exit();
             }

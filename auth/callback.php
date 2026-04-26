@@ -138,25 +138,18 @@ try {
             exit;
         }
 
-        $_SESSION['userid'] = $user['id'];
-        $_SESSION['cirs_username'] = $user['username'];
-        $_SESSION['aktenid'] = $user['aktenid'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['discordtag'] = $user['discord_id'];
-
         if ($user['full_admin'] == 1) {
-            $_SESSION['permissions'] = ['full_admin'];
+            $perms = ['full_admin'];
         } else {
             $roleStmt = $pdo->prepare("SELECT permissions FROM intra_users_roles WHERE id = :role_id");
             $roleStmt->execute(['role_id' => $user['role']]);
             $role = $roleStmt->fetch();
-
-            if ($role && isset($role['permissions'])) {
-                $_SESSION['permissions'] = json_decode($role['permissions'], true) ?? [];
-            } else {
-                $_SESSION['permissions'] = [];
-            }
+            $perms = ($role && isset($role['permissions']))
+                ? (json_decode($role['permissions'], true) ?? [])
+                : [];
         }
+
+        SessionManager::loginUser($user, $perms);
     } else {
         // Check registration mode
         $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
@@ -236,20 +229,14 @@ try {
             $user = $stmt->fetch();
         }
 
-        $_SESSION['userid'] = $user['id'];
-        $_SESSION['cirs_username'] = $user['username'];
-        $_SESSION['aktenid'] = $user['aktenid'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['discordtag'] = $user['discord_id'];
-        $_SESSION['permissions'] = [];
+        SessionManager::loginUser($user, []);
     }
 
     $redirectUrl = $_SESSION['redirect_url'] ?? BASE_PATH . 'index.php';
     unset($_SESSION['redirect_url']);
-
-    // Sicherheit: Session-ID nach Login regenerieren (verhindert Session-Fixation)
-    SessionManager::regenerate();
-    $_SESSION['permissions_loaded'] = time(); // TTL für Permissions setzen
+    // Numerischer TTL für Permissions setzen — überschreibt das Boolean-Flag,
+    // das loginUser() initial gesetzt hat.
+    $_SESSION['permissions_loaded'] = time();
 
     // Cleanup: gelesene Benachrichtigungen älter als 30 Tage löschen (max. 1x pro Tag)
     try {

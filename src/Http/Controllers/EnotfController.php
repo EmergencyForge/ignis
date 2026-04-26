@@ -157,17 +157,16 @@ class EnotfController extends Controller
 
                     if ($result !== null) {
                         $sessionData = $result['session_data'];
-
-                        $_SESSION['fahrername']          = $sessionData['fahrername'];
-                        $_SESSION['fahrerquali']         = $sessionData['fahrerquali'];
-                        $_SESSION['beifahrername']       = $sessionData['beifahrername'];
-                        $_SESSION['beifahrerquali']      = $sessionData['beifahrerquali'];
-                        $_SESSION['praktikantname']      = $sessionData['praktikantname'];
-                        $_SESSION['praktikantquali']     = $sessionData['praktikantquali'];
-                        $_SESSION['protfzg']             = $vehicle;
-                        $_SESSION['enotf_session_token'] = $result['session_token'];
-                        $_SESSION['enotf_position']      = $joinPosition;
-
+                        \App\Session\SessionManager::loginEnotfCrew(
+                            $joinPosition,
+                            $result['session_token'],
+                            [
+                                'fahrer'     => ['name' => $sessionData['fahrername'],     'quali' => $sessionData['fahrerquali']],
+                                'beifahrer'  => ['name' => $sessionData['beifahrername'],  'quali' => $sessionData['beifahrerquali']],
+                                'praktikant' => ['name' => $sessionData['praktikantname'], 'quali' => $sessionData['praktikantquali']],
+                            ],
+                            $vehicle,
+                        );
                         $this->redirectAbsolute(EnotfUrl::page('overview'));
                     }
                 }
@@ -197,12 +196,6 @@ class EnotfController extends Controller
             'praktikantquali' => $_POST['praktikantquali'] ?? null,
         ];
 
-        // PHP-Session füllen
-        foreach ($crew as $key => $val) {
-            $_SESSION[$key] = $val;
-        }
-        $_SESSION['protfzg'] = $vehicle;
-
         // Existierende Member-Session wiederverwenden, falls vorhanden
         $existingToken = $_SESSION['enotf_session_token'] ?? null;
         $existingSessionId = null;
@@ -212,14 +205,37 @@ class EnotfController extends Controller
 
         if ($existingSessionId) {
             $sessionService->updateCrew($existingSessionId, $crew);
-            // Token + Position bleiben
+            // Token + Position bleiben — wir aktualisieren nur das Crew-Snapshot in der Session
+            \App\Session\SessionManager::loginEnotfCrew(
+                $_SESSION['enotf_position'] ?? '',
+                $existingToken,
+                $this->crewArrayToStruct($crew),
+                $vehicle,
+            );
         } else {
             $result = $sessionService->createSession($vehicle, $crew);
-            $_SESSION['enotf_session_token'] = $result['session_token'];
-            $_SESSION['enotf_position']      = $result['position'];
+            \App\Session\SessionManager::loginEnotfCrew(
+                $result['position'],
+                $result['session_token'],
+                $this->crewArrayToStruct($crew),
+                $vehicle,
+            );
         }
 
         $this->redirectAbsolute(EnotfUrl::page('overview'));
+    }
+
+    /**
+     * Konvertiert das flache crew-Array (fahrername/fahrerquali/...) ins
+     * strukturierte Format, das SessionManager::loginEnotfCrew() erwartet.
+     */
+    private function crewArrayToStruct(array $crew): array
+    {
+        return [
+            'fahrer'     => ['name' => $crew['fahrername']      ?? '', 'quali' => $crew['fahrerquali']      ?? ''],
+            'beifahrer'  => ['name' => $crew['beifahrername']   ?? '', 'quali' => $crew['beifahrerquali']   ?? ''],
+            'praktikant' => ['name' => $crew['praktikantname']  ?? '', 'quali' => $crew['praktikantquali']  ?? ''],
+        ];
     }
 
     /**
@@ -246,18 +262,7 @@ class EnotfController extends Controller
             $sessionService->deactivateAllForVehicle($vehicle);
         }
 
-        // PHP-Session-Variablen löschen
-        unset(
-            $_SESSION['fahrername'],
-            $_SESSION['fahrerquali'],
-            $_SESSION['beifahrername'],
-            $_SESSION['beifahrerquali'],
-            $_SESSION['praktikantname'],
-            $_SESSION['praktikantquali'],
-            $_SESSION['protfzg'],
-            $_SESSION['enotf_session_token'],
-            $_SESSION['enotf_position']
-        );
+        \App\Session\SessionManager::logoutEnotfCrew();
 
         $this->renderView('enotf/loggedout', [
             'pinEnabled' => EnotfPolicy::pinEnabled() ? 'true' : 'false',
