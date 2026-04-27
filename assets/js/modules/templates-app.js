@@ -508,7 +508,7 @@ async function saveTemplate(e) {
     const templateId = document.getElementById('templateId').value;
 
     try {
-        const response = await fetch(BASE_PATH + 'api/documents/save.php', {
+        const response = await fetch(BASE_PATH + 'api/documents/save', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -534,7 +534,7 @@ async function saveTemplate(e) {
 
 async function loadTemplates() {
     try {
-        const response = await fetch(BASE_PATH + 'api/documents/list.php');
+        const response = await fetch(BASE_PATH + 'api/documents/list');
         templates = await response.json();
         renderTemplateList();
     } catch (error) {
@@ -629,7 +629,7 @@ document.getElementById('saveTemplateBtn').addEventListener('click', () => {
 
 async function loadTemplate(id) {
     try {
-        const response = await fetch(BASE_PATH + `api/documents/get.php?id=${id}`);
+        const response = await fetch(BASE_PATH + `api/documents/get?id=${id}`);
         const template = await response.json();
 
         document.getElementById('templateId').value = template.id;
@@ -656,7 +656,7 @@ async function deleteTemplate(id, event) {
     }
 
     try {
-        const response = await fetch(BASE_PATH + `api/documents/delete.php?id=${id}`, {
+        const response = await fetch(BASE_PATH + `api/documents/delete?id=${id}`, {
             method: 'DELETE'
         });
         const result = await response.json();
@@ -675,7 +675,7 @@ async function duplicateTemplate(id, event) {
     event.stopPropagation();
 
     try {
-        const response = await fetch(BASE_PATH + 'api/documents/duplicate.php', {
+        const response = await fetch(BASE_PATH + 'api/documents/duplicate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ template_id: id, csrf_token: window.TemplatesAppConfig.csrfToken }),
@@ -802,7 +802,7 @@ async function convertTwigToCanvas(templateId) {
             reject(new Error('iframe konnte nicht geladen werden'));
         };
 
-        iframe.src = BASE_PATH + 'api/documents/twig-preview.php?id=' + templateId;
+        iframe.src = BASE_PATH + 'api/documents/twig-preview?id=' + templateId;
     });
 }
 
@@ -1360,7 +1360,7 @@ document.getElementById('btn-convert-all')?.addEventListener('click', async func
             }
 
             // 2. Canvas-JSON speichern via layout-save Endpoint
-            const res = await fetch(BASE_PATH + 'api/documents/layout-save.php', {
+            const res = await fetch(BASE_PATH + 'api/documents/layout-save', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1411,7 +1411,7 @@ document.getElementById('btn-regenerate-all')?.addEventListener('click', async f
 
     for (const t of templates) {
         try {
-            const res = await fetch(BASE_PATH + 'api/documents/regenerate.php', {
+            const res = await fetch(BASE_PATH + 'api/documents/regenerate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

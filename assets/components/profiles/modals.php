@@ -326,7 +326,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
             formContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div><p>Lade Formular...</p></div>';
 
             try {
-                const response = await fetch(BASE_PATH + `api/documents/get.php?id=${templateId}`);
+                const response = await fetch(BASE_PATH + `api/documents/get?id=${templateId}`);
                 const template = await response.json();
 
                 if (template.error) {
@@ -507,7 +507,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
             }
 
             try {
-                const response = await fetch(BASE_PATH + 'api/documents/create-custom.php', {
+                const response = await fetch(BASE_PATH + 'api/documents/create-custom', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -579,7 +579,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
             this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Vorschau...';
 
             try {
-                const response = await fetch(BASE_PATH + 'api/documents/layout-preview.php', {
+                const response = await fetch(BASE_PATH + 'api/documents/layout-preview', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

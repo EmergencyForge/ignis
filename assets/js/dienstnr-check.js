@@ -87,7 +87,7 @@
             if (excludeId) postData.exclude_id = excludeId;
 
             $.ajax({
-                url: basePath + 'api/personnel/check-dienstnr-legacy.php',
+                url: basePath + 'api/personnel/check-dienstnr-legacy',
                 method: 'POST',
                 data: postData,
                 dataType: 'text',
