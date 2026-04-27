@@ -103,6 +103,11 @@ $router->get('/api/users/{id:\d+}/card',
     [new AuthMiddleware()]
 );
 
+$router->get('/api/pois/{id:\d+}/card',
+    [\App\Http\Controllers\Api\PoiCardController::class, 'show'],
+    [new AuthMiddleware()]
+);
+
 // ----------------------------------------------------------------------------
 //  Notifications (Browser-Session, Admin-UI)
 //

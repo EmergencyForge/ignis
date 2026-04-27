@@ -27,7 +27,11 @@ use App\Helpers\Flash;
                     <div class="flex justify-between items-center mb-3">
                         <div>
                             <h1 class="mb-0">Krankenhaus-Fachrichtungen</h1>
-                            <p class="text-[var(--text-dimmed,#818189)] mb-0"><?= htmlspecialchars($poi['name']) ?></p>
+                            <p class="text-[var(--text-dimmed,#818189)] mb-0">
+                                <span data-poi-card="<?= (int) $poi['id'] ?>" style="cursor:help;">
+                                    <?= htmlspecialchars($poi['name']) ?>
+                                </span>
+                            </p>
                         </div>
                         <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                             <div class="flex gap-2">
