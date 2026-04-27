@@ -50,7 +50,7 @@ class PoiController extends Controller
 
         if ($name === '' || $ort === '') {
             Flash::set('error', 'Name und Ort sind Pflichtfelder.');
-            $this->redirect('settings/pois/index.php');
+            $this->redirect('settings/pois/index');
         }
 
         try {
@@ -68,7 +68,7 @@ class PoiController extends Controller
             Flash::set('error', 'Fehler beim Erstellen des POIs: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/pois/index.php');
+        $this->redirect('settings/pois/index');
     }
 
     public function update(): void
@@ -87,7 +87,7 @@ class PoiController extends Controller
 
         if ($id <= 0 || $name === '' || $ort === '') {
             Flash::set('error', 'Name und Ort sind Pflichtfelder.');
-            $this->redirect('settings/pois/index.php');
+            $this->redirect('settings/pois/index');
         }
 
         try {
@@ -105,7 +105,7 @@ class PoiController extends Controller
             Flash::set('error', 'Fehler beim Aktualisieren des POIs: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/pois/index.php');
+        $this->redirect('settings/pois/index');
     }
 
     public function destroy(): void
@@ -118,7 +118,7 @@ class PoiController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'Ungültige ID.');
-            $this->redirect('settings/pois/index.php');
+            $this->redirect('settings/pois/index');
         }
 
         try {
@@ -128,7 +128,7 @@ class PoiController extends Controller
             Flash::set('error', 'Fehler beim Löschen des POIs: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/pois/index.php');
+        $this->redirect('settings/pois/index');
     }
 
     // ── Departments ────────────────────────────────────────
@@ -144,13 +144,13 @@ class PoiController extends Controller
         $poiId = $_GET['poi_id'] ?? null;
         if (!$poiId) {
             Flash::set('error', 'Kein POI ausgewählt.');
-            $this->redirect('settings/pois/index.php');
+            $this->redirect('settings/pois/index');
         }
 
         $poi = Capsule::table('intra_edivi_pois')->where('id', $poiId)->first();
         if (!$poi) {
             Flash::set('error', 'POI nicht gefunden.');
-            $this->redirect('settings/pois/index.php');
+            $this->redirect('settings/pois/index');
         }
 
         $departments = Capsule::table('intra_edivi_hospital_departments')
@@ -179,13 +179,13 @@ class PoiController extends Controller
 
         if ($name === '' || $poiId <= 0) {
             Flash::set('error', 'Fachrichtungsname ist erforderlich.');
-            $this->redirect('settings/pois/departments.php?poi_id=' . $poiId);
+            $this->redirect('settings/pois/departments?poi_id=' . $poiId);
         }
 
         $poi = Capsule::table('intra_edivi_pois')->where('id', $poiId)->first();
         if (!$poi) {
             Flash::set('error', 'POI nicht gefunden.');
-            $this->redirect('settings/pois/index.php');
+            $this->redirect('settings/pois/index');
         }
 
         try {
@@ -205,7 +205,7 @@ class PoiController extends Controller
             Flash::set('error', 'Fehler beim Hinzufügen der Fachrichtung: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/pois/departments.php?poi_id=' . $poiId);
+        $this->redirect('settings/pois/departments?poi_id=' . $poiId);
     }
 
     public function departmentUpdate(): void
@@ -220,13 +220,13 @@ class PoiController extends Controller
 
         if ($name === '' || $id <= 0 || $poiId <= 0) {
             Flash::set('error', 'Alle Felder sind erforderlich.');
-            $this->redirect('settings/pois/departments.php?poi_id=' . $poiId);
+            $this->redirect('settings/pois/departments?poi_id=' . $poiId);
         }
 
         $dept = Capsule::table('intra_edivi_hospital_departments')->where('id', $id)->first();
         if (!$dept || (int) $dept->poi_id !== $poiId) {
             Flash::set('error', 'Fachrichtung nicht gefunden.');
-            $this->redirect('settings/pois/departments.php?poi_id=' . $poiId);
+            $this->redirect('settings/pois/departments?poi_id=' . $poiId);
         }
 
         try {
@@ -239,7 +239,7 @@ class PoiController extends Controller
             Flash::set('error', 'Fehler beim Aktualisieren der Fachrichtung: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/pois/departments.php?poi_id=' . $poiId);
+        $this->redirect('settings/pois/departments?poi_id=' . $poiId);
     }
 
     public function departmentDestroy(): void
@@ -252,7 +252,7 @@ class PoiController extends Controller
 
         if ($id <= 0) {
             Flash::set('error', 'Ungültige Anfrage.');
-            $this->redirect('settings/pois/departments.php?poi_id=' . $poiId);
+            $this->redirect('settings/pois/departments?poi_id=' . $poiId);
         }
 
         try {
@@ -262,7 +262,7 @@ class PoiController extends Controller
             Flash::set('error', 'Fehler beim Löschen der Fachrichtung: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/pois/departments.php?poi_id=' . $poiId);
+        $this->redirect('settings/pois/departments?poi_id=' . $poiId);
     }
 
     public function departmentResetAvailability(): void
@@ -273,7 +273,7 @@ class PoiController extends Controller
         $poiId = (int) ($_POST['poi_id'] ?? 0);
         if ($poiId <= 0) {
             Flash::set('error', 'Kein POI ausgewählt.');
-            $this->redirect('settings/pois/index.php');
+            $this->redirect('settings/pois/index');
         }
 
         try {
@@ -290,7 +290,7 @@ class PoiController extends Controller
             Flash::set('error', 'Fehler beim Zurücksetzen: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/pois/departments.php?poi_id=' . $poiId);
+        $this->redirect('settings/pois/departments?poi_id=' . $poiId);
     }
 
     // ── Access Codes ───────────────────────────────────────
@@ -351,7 +351,7 @@ class PoiController extends Controller
     {
         if (!Gate::allows('poi.manage')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('settings/pois/index.php');
+            $this->redirect('settings/pois/index');
         }
     }
 }

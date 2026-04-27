@@ -72,7 +72,7 @@ class EnotfController extends Controller
 
         if ($title === '' || $url === '') {
             Flash::set('error', 'Titel und URL dürfen nicht leer sein.');
-            $this->redirect('settings/enotf/index.php');
+            $this->redirect('settings/enotf/index');
         }
 
         try {
@@ -91,7 +91,7 @@ class EnotfController extends Controller
             error_log('Fehler beim Erstellen eines eNOTF Quicklinks: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/enotf/index.php');
+        $this->redirect('settings/enotf/index');
     }
 
     public function update(): void
@@ -110,7 +110,7 @@ class EnotfController extends Controller
 
         if ($id <= 0 || $title === '' || $url === '') {
             Flash::set('error', 'Ungültige Daten.');
-            $this->redirect('settings/enotf/index.php');
+            $this->redirect('settings/enotf/index');
         }
 
         try {
@@ -129,7 +129,7 @@ class EnotfController extends Controller
             error_log('Fehler beim Aktualisieren eines eNOTF Quicklinks: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/enotf/index.php');
+        $this->redirect('settings/enotf/index');
     }
 
     public function destroy(): void
@@ -140,7 +140,7 @@ class EnotfController extends Controller
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'Ungültige ID.');
-            $this->redirect('settings/enotf/index.php');
+            $this->redirect('settings/enotf/index');
         }
 
         try {
@@ -151,7 +151,7 @@ class EnotfController extends Controller
             error_log('Fehler beim Löschen eines eNOTF Quicklinks: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/enotf/index.php');
+        $this->redirect('settings/enotf/index');
     }
 
     // ── Categories ─────────────────────────────────────────
@@ -185,13 +185,13 @@ class EnotfController extends Controller
 
         if ($name === '' || $slug === '') {
             Flash::set('error', 'Name und Slug dürfen nicht leer sein.');
-            $this->redirect('settings/enotf/kategorien/index.php');
+            $this->redirect('settings/enotf/kategorien/index');
         }
 
         $exists = Capsule::table('intra_enotf_categories')->where('slug', $slug)->exists();
         if ($exists) {
             Flash::set('error', 'Dieser Slug existiert bereits.');
-            $this->redirect('settings/enotf/kategorien/index.php');
+            $this->redirect('settings/enotf/kategorien/index');
         }
 
         try {
@@ -207,7 +207,7 @@ class EnotfController extends Controller
             error_log('Fehler beim Erstellen einer eNOTF Kategorie: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/enotf/kategorien/index.php');
+        $this->redirect('settings/enotf/kategorien/index');
     }
 
     public function categoryUpdate(): void
@@ -223,7 +223,7 @@ class EnotfController extends Controller
 
         if ($id <= 0 || $name === '' || $slug === '') {
             Flash::set('error', 'Ungültige Daten.');
-            $this->redirect('settings/enotf/kategorien/index.php');
+            $this->redirect('settings/enotf/kategorien/index');
         }
 
         $exists = Capsule::table('intra_enotf_categories')
@@ -232,7 +232,7 @@ class EnotfController extends Controller
             ->exists();
         if ($exists) {
             Flash::set('error', 'Dieser Slug existiert bereits.');
-            $this->redirect('settings/enotf/kategorien/index.php');
+            $this->redirect('settings/enotf/kategorien/index');
         }
 
         try {
@@ -248,7 +248,7 @@ class EnotfController extends Controller
             error_log('Fehler beim Aktualisieren einer eNOTF Kategorie: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/enotf/kategorien/index.php');
+        $this->redirect('settings/enotf/kategorien/index');
     }
 
     public function categoryDestroy(): void
@@ -259,7 +259,7 @@ class EnotfController extends Controller
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'Ungültige ID.');
-            $this->redirect('settings/enotf/kategorien/index.php');
+            $this->redirect('settings/enotf/kategorien/index');
         }
 
         try {
@@ -270,7 +270,7 @@ class EnotfController extends Controller
                     ->count();
                 if ($linkCount > 0) {
                     Flash::set('error', 'Diese Kategorie kann nicht gelöscht werden, da noch ' . $linkCount . ' Link(s) zugewiesen sind.');
-                    $this->redirect('settings/enotf/kategorien/index.php');
+                    $this->redirect('settings/enotf/kategorien/index');
                 }
             }
 
@@ -281,7 +281,7 @@ class EnotfController extends Controller
             error_log('Fehler beim Löschen einer eNOTF Kategorie: ' . $e->getMessage());
         }
 
-        $this->redirect('settings/enotf/kategorien/index.php');
+        $this->redirect('settings/enotf/kategorien/index');
     }
 
     private function ensureAdmin(string $redirect): void

@@ -52,7 +52,7 @@ class PersonalController extends Controller
 
         if ($name === '' || $name_m === '' || $name_w === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/dienstgrade/index.php');
+            $this->redirect('settings/personal/dienstgrade/index');
         }
 
         try {
@@ -71,7 +71,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/dienstgrade/index.php');
+        $this->redirect('settings/personal/dienstgrade/index');
     }
 
     public function dienstgradUpdate(): void
@@ -89,7 +89,7 @@ class PersonalController extends Controller
 
         if ($id <= 0 || $name === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/dienstgrade/index.php');
+            $this->redirect('settings/personal/dienstgrade/index');
         }
 
         try {
@@ -108,7 +108,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/dienstgrade/index.php');
+        $this->redirect('settings/personal/dienstgrade/index');
     }
 
     public function dienstgradDelete(): void
@@ -119,13 +119,13 @@ class PersonalController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('rank', 'invalid-id');
-            $this->redirect('settings/personal/dienstgrade/index.php');
+            $this->redirect('settings/personal/dienstgrade/index');
         }
 
         $exists = Capsule::table('intra_mitarbeiter_dienstgrade')->where('id', $id)->exists();
         if (!$exists) {
             Flash::set('rank', 'not-found');
-            $this->redirect('settings/personal/dienstgrade/index.php');
+            $this->redirect('settings/personal/dienstgrade/index');
         }
 
         try {
@@ -137,7 +137,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/dienstgrade/index.php');
+        $this->redirect('settings/personal/dienstgrade/index');
     }
 
     // ── FW-Qualifikationen ──────────────────────────────────────
@@ -170,7 +170,7 @@ class PersonalController extends Controller
 
         if ($shortname === '' || $name === '' || $name_m === '' || $name_w === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualifw/index.php');
+            $this->redirect('settings/personal/qualifw/index');
         }
 
         try {
@@ -189,7 +189,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifw/index.php');
+        $this->redirect('settings/personal/qualifw/index');
     }
 
     public function fwQualiUpdate(): void
@@ -207,7 +207,7 @@ class PersonalController extends Controller
 
         if ($id <= 0 || $name === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualifw/index.php');
+            $this->redirect('settings/personal/qualifw/index');
         }
 
         try {
@@ -226,7 +226,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifw/index.php');
+        $this->redirect('settings/personal/qualifw/index');
     }
 
     public function fwQualiDelete(): void
@@ -237,7 +237,7 @@ class PersonalController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('quali', 'invalid-id');
-            $this->redirect('settings/personal/qualifw/index.php');
+            $this->redirect('settings/personal/qualifw/index');
         }
 
         try {
@@ -249,7 +249,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifw/index.php');
+        $this->redirect('settings/personal/qualifw/index');
     }
 
     // ── RD-Qualifikationen ──────────────────────────────────────
@@ -283,7 +283,7 @@ class PersonalController extends Controller
 
         if ($name === '' || $name_m === '' || $name_w === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualird/index.php');
+            $this->redirect('settings/personal/qualird/index');
         }
 
         try {
@@ -303,7 +303,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualird/index.php');
+        $this->redirect('settings/personal/qualird/index');
     }
 
     public function rdQualiUpdate(): void
@@ -322,7 +322,7 @@ class PersonalController extends Controller
 
         if ($id <= 0 || $name === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualird/index.php');
+            $this->redirect('settings/personal/qualird/index');
         }
 
         try {
@@ -342,7 +342,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualird/index.php');
+        $this->redirect('settings/personal/qualird/index');
     }
 
     public function rdQualiDelete(): void
@@ -353,7 +353,7 @@ class PersonalController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('quali', 'invalid-id');
-            $this->redirect('settings/personal/qualird/index.php');
+            $this->redirect('settings/personal/qualird/index');
         }
 
         try {
@@ -365,7 +365,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualird/index.php');
+        $this->redirect('settings/personal/qualird/index');
     }
 
     // ── Fachdienste (FD) ────────────────────────────────────────
@@ -395,7 +395,7 @@ class PersonalController extends Controller
 
         if ($sgnr <= 0 || $sgname === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualifd/index.php');
+            $this->redirect('settings/personal/qualifd/index');
         }
 
         try {
@@ -411,7 +411,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifd/index.php');
+        $this->redirect('settings/personal/qualifd/index');
     }
 
     public function fdQualiUpdate(): void
@@ -426,7 +426,7 @@ class PersonalController extends Controller
 
         if ($id <= 0 || $sgname === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualifd/index.php');
+            $this->redirect('settings/personal/qualifd/index');
         }
 
         try {
@@ -442,7 +442,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifd/index.php');
+        $this->redirect('settings/personal/qualifd/index');
     }
 
     public function fdQualiDelete(): void
@@ -453,7 +453,7 @@ class PersonalController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('quali', 'invalid-id');
-            $this->redirect('settings/personal/qualifd/index.php');
+            $this->redirect('settings/personal/qualifd/index');
         }
 
         try {
@@ -465,7 +465,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifd/index.php');
+        $this->redirect('settings/personal/qualifd/index');
     }
 
     // ── Helpers ─────────────────────────────────────────────────

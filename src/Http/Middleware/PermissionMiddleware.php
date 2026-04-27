@@ -55,7 +55,7 @@ final class PermissionMiddleware implements MiddlewareInterface
                 \App\Helpers\Flash::set('error', 'no-permissions');
             }
             $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-            return Response::redirect($base . 'index.php');
+            return Response::redirect($base . 'index');
         }
 
         return $next($request);
