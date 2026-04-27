@@ -87,9 +87,16 @@ function initAccordion(root) {
     });
 
     const defaultKey = root.dataset.default;
-    if (defaultKey) {
-        const defaultItem = items.find((i) => getKey(i) === defaultKey);
-        if (defaultItem) setOpen(defaultItem, true);
+    if (defaultKey === '*') {
+        // Wildcard: alle Items initial geöffnet (nur sinnvoll mit data-multi="true").
+        items.forEach((item) => setOpen(item, true));
+    } else if (defaultKey) {
+        // Komma-separierte Keys werden alle initial geöffnet (sonst nur einer).
+        const keys = defaultKey.split(',').map((k) => k.trim()).filter(Boolean);
+        keys.forEach((key) => {
+            const item = items.find((i) => getKey(i) === key);
+            if (item) setOpen(item, true);
+        });
     }
 }
 

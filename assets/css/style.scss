@@ -73,10 +73,54 @@
   hyphens: auto;
 }
 
+// Bootstrap-Default-Reset für <hr> — border-color erbt jetzt von color,
+// sodass `style="color:transparent"` Spacer-Linien unsichtbar macht. Ohne
+// diese Regel kommt der Browser-Default (sichtbare 1px-Inset-Linie).
+hr {
+  margin: 1rem 0;
+  color: inherit;
+  border: 0;
+  border-top: 1px solid;
+  opacity: 0.25;
+}
+
 body {
   --bs-body-font-family: "Rubik", system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-family: var(--bs-body-font-family);
+  background-color: var(--body-bg);
+  color: var(--text-normal);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Heading-Defaults. Bootstrap hat das früher normalisiert (margin-top: 0,
+// einheitliche Schriftgrößen). Ohne diese Regeln bekommen wir Browser-
+// Defaults — vor allem `h6 { font-size: 0.67em }` und großes
+// `margin-block` an jeder Überschrift.
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-family: "Poppins", var(--bs-body-font-family);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-title);
+}
+
+h1, .h1 { font-size: 2rem; }
+h2, .h2 { font-size: 1.6rem; }
+h3, .h3 { font-size: 1.35rem; }
+h4, .h4 { font-size: 1.1rem; }
+h5, .h5 { font-size: 0.95rem; }
+h6, .h6 { font-size: 0.85rem; }
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
 }
 
 // Verhindert horizontales Scrollen der gesamten Page durch zu breite Tabellen.

@@ -13,20 +13,18 @@
 
 /** @type {import('tailwindcss').Config} */
 export default {
-    content: {
-        files: [
-            'templates/**/*.php',
-            'assets/components/**/*.php',
-            'public/*.php',
-            // Root-Level PHP-Entry-Points (login.php, dashboard.php, index.php, ...)
-            // enthalten auch Markup und müssen von Tailwind gescannt werden.
-            '*.php',
-        ],
-        // Explizite Exclude-Liste — ohne das versucht der fast-glob-Scanner
-        // gerne mal auch durch vendor/, node_modules/ oder storage/ zu laufen,
-        // was bei großen Projekten zu Stack-Overflow führt.
-        extract: {},
-    },
+    // Tailwind nutzt die default-Extraction für alle Content-Files. Ein
+    // explizites `extract: {}` würde — wie früher fehlerhaft hier gesetzt —
+    // die Class-Erkennung in PHP-Templates abschalten und u.a. responsive
+    // Variants (`md:`, `sm:`) komplett purgen.
+    content: [
+        'templates/**/*.php',
+        'assets/components/**/*.php',
+        'public/*.php',
+        // Root-Level PHP-Entry-Points (login.php, dashboard.php, index.php, ...)
+        // enthalten auch Markup und müssen von Tailwind gescannt werden.
+        '*.php',
+    ],
     theme: {
         extend: {
             colors: {
@@ -77,15 +75,18 @@ export default {
     corePlugins: {
         preflight: false,
     },
-    // Tailwind generiert `.collapse { visibility: collapse }` (CSS Table-
-    // Utility), Bootstrap nutzt dieselbe `.collapse`-Klasse aber als
-    // `display`-basiertes Akkordeon-State-System. Klassen-Kollision:
-    // Tailwinds Utility würde Bootstrap-Collapse-Inhalte unsichtbar machen,
-    // auch wenn Bootstrap `.show` setzt. Deshalb die Utility blockieren
-    // — Bootstrap-Akkordeons funktionieren damit wieder normal.
-    blocklist: ['collapse'],
+    // (Früher hier: blocklist: ['collapse']. Das hat einen Tailwind-Bug
+    // getriggert, der alle Responsive-Variants — `md:`, `sm:`, `lg:`, `xl:` —
+    // mit-purgen ließ. Stattdessen wird Tailwinds `.collapse {visibility:collapse}`
+    // im eNOTF-Scope via divi.scss neutralisiert, wo Bootstraps Collapse-State
+    // das letzte Wort braucht.)
     plugins: [
-        require('@tailwindcss/forms'),
+        // Strategy 'class' statt der Default-Base-Layer-Variante: das Plugin
+        // schreibt seine Reset-Styles dann nur bei expliziten `.form-input`/
+        // `.form-select`/... Klassen, nicht global an jedes <input>/<select>/
+        // <textarea>. Sonst überschreibt es das Custom-Styling aus
+        // assets/css/style.scss, divi.scss, ui.scss & co.
+        require('@tailwindcss/forms')({ strategy: 'class' }),
         require('@tailwindcss/typography'),
     ],
 };

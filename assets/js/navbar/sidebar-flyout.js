@@ -186,21 +186,10 @@
 
   markActiveItems();
 
-  const initialOpenId = (() => {
-    const fromUrl = findActiveFlyoutId();
-    if (fromUrl) return fromUrl;
-
-    const currentPage = BODY.getAttribute('data-page');
-    if (!currentPage) return null;
-    const match = SIDEBAR.querySelector(
-      `.rail-item[data-page="${currentPage}"][data-flyout-trigger="true"]`
-    );
-    return match ? match.getAttribute('data-nav-id') : null;
-  })();
-
-  if (initialOpenId) {
-    openFlyout(initialOpenId);
-  }
+  // Flyout bleibt beim Page-Load geschlossen — Nutzer öffnen es manuell
+  // per Click auf das passende Rail-Item. Active-States im Rail
+  // (`markActiveItems` oben) werden trotzdem gesetzt, damit der User die
+  // aktuelle Seite an der Hervorhebung erkennt.
 
   // Mobile drawer
   const mobileToggle = document.getElementById('sidebarToggle');

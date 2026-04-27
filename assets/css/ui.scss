@@ -1031,6 +1031,42 @@ body:has(.ignis-dialog-backdrop.is-open) {
       max-height: 0;
     }
   }
+
+  // Flat-Variante: kein Card-Container um die Items, stattdessen liegt der
+  // Header direkt auf der Page-Surface und bekommt eine dünne Bottom-Border
+  // in Brand-Orange. Wird im eNOTF Schnellzugriff/Verwaltung genutzt.
+  &--flat {
+    gap: 1rem;
+
+    .ignis-accordion__item {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      overflow: visible;
+
+      &.is-open {
+        border-color: transparent;
+      }
+    }
+
+    .ignis-accordion__header {
+      padding: 0.4rem 0.25rem;
+      border-bottom: 1px solid var(--main-color, #ff4d00);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+
+      &:hover {
+        background: transparent;
+        color: #fff;
+      }
+    }
+
+    .ignis-accordion__panel > * {
+      padding: 0.6rem 0 0;
+    }
+  }
 }
 
 // =====================================================

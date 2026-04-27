@@ -144,10 +144,10 @@ return [
                     'items'       => [
                         [
                             'label'        => 'MANV-Board',
-                            'href'         => BASE_PATH . 'manv/index.php',
+                            'href'         => BASE_PATH . 'manv/',
                             'quick_action' => [
                                 'type'   => 'link',
-                                'target' => BASE_PATH . 'manv/create.php',
+                                'target' => BASE_PATH . 'manv/create',
                                 'label'  => 'Neue MANV-Lage anlegen',
                             ],
                         ],
@@ -158,12 +158,12 @@ return [
                     'items' => [
                         [
                             'label'    => 'fireTab öffnen',
-                            'href'     => BASE_PATH . 'einsatz/create.php',
+                            'href'     => BASE_PATH . 'einsatz/',
                             'external' => true,
                         ],
                         [
                             'label'       => 'Qualitätsmanagement',
-                            'href'        => BASE_PATH . 'einsatz/admin/list.php',
+                            'href'        => BASE_PATH . 'einsatz/admin/list',
                             'permissions' => ['admin', 'fire.incident.qm'],
                         ],
                     ],
