@@ -33,8 +33,7 @@ if (isset($_GET['enr'])) {
 
         // Prüfe ob das Protokoll noch freigegeben ist
         if ($daten['freigegeben'] != 1) {
-            unset($_SESSION['klinik_access_enr']);
-            unset($_SESSION['klinik_access_time']);
+            \App\Session\SessionManager::clearKlinikAccess();
             header("Location: " . EnotfUrl::schnittstelle('klinikcode'));
             exit();
         }

@@ -5,6 +5,8 @@
  * @var \PDO $pdo
  */
 
+use App\Session\SessionManager;
+
 $error = '';
 $success_message = '';
 $hospital = null;
@@ -12,7 +14,7 @@ $departments = [];
 
 // Logout handling
 if (isset($_GET['logout'])) {
-    unset($_SESSION['hospital_poi_id']);
+    SessionManager::forget('hospital_poi_id');
     header("Location: " . $_SERVER['PHP_SELF']);
     exit();
 }
@@ -36,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
             $hospital_data = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($hospital_data) {
-                $_SESSION['hospital_poi_id'] = $hospital_data['id'];
+                SessionManager::set('hospital_poi_id', $hospital_data['id']);
             } else {
                 $error = 'Ungültiger Zugangscode.';
             }
@@ -48,7 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
 }
 
 // Update availability
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']) && isset($_SESSION['hospital_poi_id'])) {
+$hospitalPoiId = SessionManager::get('hospital_poi_id');
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']) && $hospitalPoiId !== null) {
     try {
         foreach ($_POST['availability'] ?? [] as $dept_id => $status) {
             $stmt = $pdo->prepare("
@@ -72,9 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_availability']
 }
 
 // Load hospital data if logged in
-if (isset($_SESSION['hospital_poi_id'])) {
+if ($hospitalPoiId !== null) {
     $stmt = $pdo->prepare("SELECT * FROM intra_edivi_pois WHERE id = ?");
-    $stmt->execute([$_SESSION['hospital_poi_id']]);
+    $stmt->execute([$hospitalPoiId]);
     $hospital = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Load departments with availability
@@ -90,7 +93,7 @@ if (isset($_SESSION['hospital_poi_id'])) {
         WHERE d.poi_id = ?
         ORDER BY d.sort_order ASC, d.name ASC
     ");
-    $stmt->execute([$_SESSION['hospital_poi_id']]);
+    $stmt->execute([$hospitalPoiId]);
     $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
