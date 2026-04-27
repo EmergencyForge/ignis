@@ -108,6 +108,11 @@ $router->get('/api/pois/{id:\d+}/card',
     [new AuthMiddleware()]
 );
 
+$router->get('/api/vehicles/{id:\d+}/card',
+    [\App\Http\Controllers\Api\VehicleCardController::class, 'show'],
+    [new AuthMiddleware()]
+);
+
 // ----------------------------------------------------------------------------
 //  Notifications (Browser-Session, Admin-UI)
 //

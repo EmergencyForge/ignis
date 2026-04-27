@@ -235,8 +235,10 @@ $statusLabels = [
                                             </div>
                                             <div class="defect-vehicle">
                                                 <i class="fa-solid fa-truck"></i>
-                                                <?= htmlspecialchars($d['vehicle_name']) ?>
-                                                <span class="text-gray-400">(<?= htmlspecialchars($d['vehicle_identifier']) ?>)</span>
+                                                <span data-vehicle-card="<?= (int) $d['vehicle_id'] ?>" style="cursor:help;">
+                                                    <?= htmlspecialchars($d['vehicle_name']) ?>
+                                                    <span class="text-gray-400">(<?= htmlspecialchars($d['vehicle_identifier']) ?>)</span>
+                                                </span>
                                             </div>
                                         </div>
                                         <?php if ($d['description']): ?>

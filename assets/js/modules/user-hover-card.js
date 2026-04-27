@@ -30,6 +30,7 @@ const SOURCES = [
     { attr: 'data-mitarbeiter-card', kind: 'mitarbeiter', path: (id) => '/api/v1/mitarbeiter/' + encodeURIComponent(id) + '/card' },
     { attr: 'data-user-card',        kind: 'user',        path: (id) => '/api/v1/users/'       + encodeURIComponent(id) + '/card' },
     { attr: 'data-poi-card',         kind: 'poi',         path: (id) => '/api/v1/pois/'        + encodeURIComponent(id) + '/card' },
+    { attr: 'data-vehicle-card',     kind: 'vehicle',     path: (id) => '/api/v1/vehicles/'    + encodeURIComponent(id) + '/card' },
 ];
 const ANCHOR_SELECTOR = SOURCES.map((s) => '[' + s.attr + ']').join(', ');
 
