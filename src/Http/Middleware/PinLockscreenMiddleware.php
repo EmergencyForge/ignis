@@ -59,11 +59,10 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
             // dort wieder rauskommt. Lockscreen selbst nicht als Ziel speichern.
             $currentUri = $request->server['REQUEST_URI'] ?? $request->path;
             if (!str_contains($currentUri, 'lockscreen.php')) {
-                $_SESSION['pin_return_url'] = $currentUri;
+                \App\Session\SessionManager::setPinReturnUrl($currentUri);
             }
 
-            $_SESSION['pin_verified'] = false;
-            unset($_SESSION['pin_last_activity']);
+            \App\Session\SessionManager::setPinVerified(false);
 
             $target = class_exists(EnotfUrl::class)
                 ? EnotfUrl::page('lockscreen')
@@ -72,7 +71,7 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
             return Response::redirect($target);
         }
 
-        $_SESSION['pin_last_activity'] = $now;
+        \App\Session\SessionManager::touchPin();
         return $next($request);
     }
 
@@ -91,13 +90,13 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
         $raw = $request->query['test'] ?? null;
         if ($raw !== null) {
             if ($raw === 'off' || $raw === '0') {
-                unset($_SESSION['enotf_pin_test']);
+                \App\Session\SessionManager::forget('enotf_pin_test');
                 return false;
             }
-            $_SESSION['enotf_pin_test'] = true;
+            \App\Session\SessionManager::set('enotf_pin_test', true);
             return true;
         }
-        return !empty($_SESSION['enotf_pin_test']);
+        return (bool) \App\Session\SessionManager::get('enotf_pin_test');
     }
 
     private function hasActiveKlinikAccess(): bool
@@ -112,7 +111,7 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
         }
 
         // Abgelaufen — aufräumen
-        unset($_SESSION['klinik_access_enr'], $_SESSION['klinik_access_time']);
+        \App\Session\SessionManager::clearKlinikAccess();
         return false;
     }
 }

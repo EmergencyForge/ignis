@@ -76,11 +76,11 @@ final class CharacterController
         session_id($sessionId);
         session_start();
 
-        $_SESSION['char_name'] = $charName;
-        $_SESSION['char_job']  = $charJob;
-        if (!empty($data['char_id'])) {
-            $_SESSION['char_id'] = (int) $data['char_id'];
-        }
+        \App\Session\SessionManager::loginCharacter(
+            !empty($data['char_id']) ? (int) $data['char_id'] : null,
+            $charJob,
+            $charName,
+        );
 
         session_write_close();
 

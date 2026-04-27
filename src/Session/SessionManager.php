@@ -210,13 +210,13 @@ class SessionManager
         self::start();
         self::regenerate();
 
-        $_SESSION['userid']          = $user['id'] ?? null;
-        $_SESSION['cirs_username']   = $user['username'] ?? '';
-        $_SESSION['aktenid']         = $user['aktenid'] ?? null;
-        $_SESSION['role']            = $user['role'] ?? null;
-        $_SESSION['discordtag']      = $user['discord_id'] ?? null;
-        $_SESSION['permissions']     = $permissions;
-        $_SESSION['permissions_loaded'] = true;
+        $_SESSION['userid']             = $user['id'] ?? null;
+        $_SESSION['cirs_username']      = $user['username'] ?? '';
+        $_SESSION['aktenid']            = $user['aktenid'] ?? null;
+        $_SESSION['role']               = $user['role'] ?? null;
+        $_SESSION['discordtag']         = $user['discord_id'] ?? null;
+        $_SESSION['permissions']        = $permissions;
+        $_SESSION['permissions_loaded'] = time();
     }
 
     /**
@@ -278,14 +278,19 @@ class SessionManager
 
     /**
      * Login eines FiveM-Charakters (CitizenFX-User-Agent).
+     *
+     * `$charId` ist optional: der identify-Endpoint bekommt die Char-ID
+     * nicht in jedem Fall (z.B. wenn der FiveM-Server sie nicht kennt).
      */
-    public static function loginCharacter(string $charId, string $charJob, string $charName): void
+    public static function loginCharacter(int|string|null $charId, string $charJob, string $charName): void
     {
         self::start();
 
-        $_SESSION['char_id']   = $charId;
         $_SESSION['char_job']  = $charJob;
         $_SESSION['char_name'] = $charName;
+        if ($charId !== null && $charId !== '') {
+            $_SESSION['char_id'] = $charId;
+        }
     }
 
     /**
@@ -411,5 +416,313 @@ class SessionManager
     public static function forget(string $key): void
     {
         unset($_SESSION[$key]);
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Redirect-After-Login
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Speichert die URL, auf die nach erfolgreichem Login redirected werden
+     * soll. Wird in Auth-Middlewares aufgerufen, bevor das Login-Form
+     * gezeigt wird.
+     */
+    public static function setRedirectUrl(string $url): void
+    {
+        self::start();
+        $_SESSION['redirect_url'] = $url;
+    }
+
+    /**
+     * Holt die hinterlegte Redirect-URL und löscht sie aus der Session
+     * (atomares „pull"). Liefert null, wenn keine gesetzt war.
+     */
+    public static function pullRedirectUrl(): ?string
+    {
+        self::start();
+        $url = $_SESSION['redirect_url'] ?? null;
+        unset($_SESSION['redirect_url']);
+        return $url;
+    }
+
+    /**
+     * Speichert die Request-URI als Redirect-Ziel für das nächste Login.
+     * Notnagel mit fester REQUEST_URI-Quelle, damit jeder Aufrufer
+     * dieselbe Logik nutzt.
+     */
+    public static function setRedirectFromRequest(): void
+    {
+        self::setRedirectUrl($_SERVER['REQUEST_URI'] ?? '/');
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // eNOTF Crew-Update (partieller Refresh ohne Re-Login)
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Aktualisiert die Crew-Daten einer aktiven eNOTF-Session, ohne
+     * Position oder Session-Token anzufassen. Wird vom Crew-Sync-API
+     * genutzt, wenn ein anderes Crewmitglied den Stand modifiziert hat.
+     *
+     * @param array<string, string|null> $crew  Keys: fahrername, fahrerquali,
+     *                                          beifahrername, beifahrerquali,
+     *                                          praktikantname, praktikantquali
+     */
+    public static function updateEnotfCrew(array $crew): void
+    {
+        self::start();
+        foreach ([
+            'fahrername', 'fahrerquali',
+            'beifahrername', 'beifahrerquali',
+            'praktikantname', 'praktikantquali',
+        ] as $key) {
+            if (array_key_exists($key, $crew)) {
+                $_SESSION[$key] = $crew[$key];
+            }
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // PIN-Lockscreen
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Markiert die Session als PIN-verifiziert und merkt sich die
+     * Return-URL nach erfolgreicher PIN-Eingabe.
+     */
+    public static function setPinVerified(bool $verified, ?string $returnUrl = null): void
+    {
+        self::start();
+        if ($verified) {
+            $_SESSION['pin_verified']      = true;
+            $_SESSION['pin_last_activity'] = time();
+            if ($returnUrl !== null) {
+                $_SESSION['pin_return_url'] = $returnUrl;
+            }
+        } else {
+            unset($_SESSION['pin_verified'], $_SESSION['pin_last_activity']);
+        }
+    }
+
+    /**
+     * Refresht den Activity-Timestamp für die PIN-Inactivity-Logic.
+     */
+    public static function touchPin(): void
+    {
+        self::start();
+        $_SESSION['pin_last_activity'] = time();
+    }
+
+    /**
+     * Speichert die URL, auf die nach erfolgreicher PIN-Eingabe
+     * zurückgeleitet wird.
+     */
+    public static function setPinReturnUrl(string $url): void
+    {
+        self::start();
+        $_SESSION['pin_return_url'] = $url;
+    }
+
+    /**
+     * Liefert die PIN-Return-URL und löscht sie atomar (pull-Pattern).
+     */
+    public static function pullPinReturnUrl(): ?string
+    {
+        self::start();
+        $url = $_SESSION['pin_return_url'] ?? null;
+        unset($_SESSION['pin_return_url']);
+        return $url;
+    }
+
+    /**
+     * Entfernt alle PIN-bezogenen Session-Felder (Logout der PIN-Schicht).
+     */
+    public static function clearPin(): void
+    {
+        self::start();
+        unset(
+            $_SESSION['pin_verified'],
+            $_SESSION['pin_last_activity'],
+            $_SESSION['pin_return_url']
+        );
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Misc Flags
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Markiert, dass die nächste View-Log-Erfassung übersprungen werden
+     * soll (z.B. bei einer Speicheraktion, die ein Reload triggert).
+     * Wird vom Logger geprüft und nach dem Skip automatisch konsumiert.
+     */
+    public static function skipNextViewLog(): void
+    {
+        self::start();
+        $_SESSION['skip_next_view_log'] = true;
+    }
+
+    /**
+     * Speichert pending Composer-Update-State. Wird vom SystemUpdater
+     * gesetzt, wenn ein Update nicht in einem Request abgeschlossen werden
+     * konnte und der nächste Request den Vorgang fortsetzen soll.
+     */
+    public static function setComposerPending(?array $data): void
+    {
+        self::start();
+        if ($data === null) {
+            unset($_SESSION['composer_pending']);
+        } else {
+            $_SESSION['composer_pending'] = $data;
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Permissions-Cache (TTL-basiertes Refresh in config.php)
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Speichert die aufgelösten Permission-Strings und markiert den
+     * Lade-Zeitpunkt. Wird beim Login und nach Ablauf des TTL aus
+     * config.php aufgerufen.
+     *
+     * @param string[] $permissions
+     */
+    public static function setPermissions(array $permissions): void
+    {
+        self::start();
+        $_SESSION['permissions']        = $permissions;
+        $_SESSION['permissions_loaded'] = time();
+    }
+
+    /**
+     * Liefert das Alter (Sekunden) des Permissions-Caches. Liefert
+     * `PHP_INT_MAX`, wenn noch nie geladen wurde — so dass jeder TTL-
+     * Vergleich automatisch zu einem Refresh führt.
+     */
+    public static function permissionsAge(): int
+    {
+        $loaded = $_SESSION['permissions_loaded'] ?? 0;
+        if (!is_int($loaded) || $loaded <= 0) {
+            return PHP_INT_MAX;
+        }
+        return time() - $loaded;
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // OAuth2-State (CSRF-Schutz für Discord-OAuth)
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Speichert den vom OAuth-Provider erzeugten State-Token mit Zeitstempel.
+     * Wird vor dem Redirect zum Authorization-Server gesetzt und vom
+     * Callback wieder gegen den vom Server zurückgereichten State geprüft.
+     */
+    public static function setOAuth2State(string $state): void
+    {
+        self::start();
+        $_SESSION['oauth2state']      = $state;
+        $_SESSION['oauth2state_time'] = time();
+    }
+
+    /**
+     * Validiert einen OAuth-State und konsumiert ihn (atomar). Liefert:
+     *   - 'ok'         wenn State gesetzt, jung genug (≤5min) und gleich
+     *   - 'missing'    wenn kein State in der Session
+     *   - 'expired'    wenn älter als 5 Minuten
+     *   - 'mismatch'   wenn State nicht übereinstimmt
+     *
+     * In allen Fehler-Fällen werden die State-Felder gelöscht, damit ein
+     * Replay nicht möglich ist.
+     */
+    public static function consumeOAuth2State(string $providedState): string
+    {
+        self::start();
+        $stored = $_SESSION['oauth2state']      ?? null;
+        $time   = $_SESSION['oauth2state_time'] ?? null;
+
+        unset($_SESSION['oauth2state'], $_SESSION['oauth2state_time']);
+
+        if ($stored === null || $time === null) {
+            return 'missing';
+        }
+        if (time() - (int) $time > 300) {
+            return 'expired';
+        }
+        if ($providedState === '' || $providedState !== $stored) {
+            return 'mismatch';
+        }
+        return 'ok';
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Registrierungs-Flow (Einladungs-Codes + Login-Fehler)
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Setzt eine Fehlermeldung, die das Login-Formular beim nächsten
+     * Render anzeigt und anschließend wieder löscht.
+     */
+    public static function setRegistrationError(string $message): void
+    {
+        self::start();
+        $_SESSION['registration_error'] = $message;
+    }
+
+    /**
+     * Liefert die hinterlegte Registrierungs-Fehlermeldung und löscht
+     * sie atomar (pull-Pattern).
+     */
+    public static function pullRegistrationError(): ?string
+    {
+        self::start();
+        $msg = $_SESSION['registration_error'] ?? null;
+        unset($_SESSION['registration_error']);
+        return is_string($msg) ? $msg : null;
+    }
+
+    /**
+     * Speichert den Registrierungs-/Einladungs-Code, den der User auf der
+     * Login-Seite oder via /invite eingegeben hat. Wird im OAuth-Callback
+     * verifiziert und nach erfolgreicher Registrierung wieder gelöscht.
+     */
+    public static function setRegistrationCode(string $code): void
+    {
+        self::start();
+        $_SESSION['registration_code'] = $code;
+    }
+
+    public static function getRegistrationCode(): ?string
+    {
+        $code = $_SESSION['registration_code'] ?? null;
+        return is_string($code) ? $code : null;
+    }
+
+    public static function clearRegistrationCode(): void
+    {
+        unset($_SESSION['registration_code']);
+    }
+
+    /**
+     * Entfernt den Klinikcode-Zugang (Hospital-Availability-Schnittstelle).
+     * Wird nach Ablauf des KLINIK_WINDOW_SECONDS-Fensters aufgerufen.
+     */
+    public static function clearKlinikAccess(): void
+    {
+        unset($_SESSION['klinik_access_enr'], $_SESSION['klinik_access_time']);
+    }
+
+    /**
+     * Entfernt alle Session-Keys mit dem gegebenen Prefix. Optional kann
+     * ein Key vom Löschen ausgenommen werden — nützlich, um beim Wechsel
+     * auf eine View alle anderen `*_viewed_*`-Marker zu entfernen.
+     */
+    public static function forgetByPrefix(string $prefix, ?string $exceptKey = null): void
+    {
+        foreach (array_keys($_SESSION) as $key) {
+            if (str_starts_with((string) $key, $prefix) && $key !== $exceptKey) {
+                unset($_SESSION[$key]);
+            }
+        }
     }
 }

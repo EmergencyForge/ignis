@@ -60,7 +60,7 @@ class EinsatzController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (!Gate::allows('fireIncident.accessModule')) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setRedirectFromRequest();
             $this->redirect('login.php');
         }
 
@@ -129,7 +129,7 @@ class EinsatzController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (!Gate::allows('fireIncident.accessModule')) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setRedirectFromRequest();
             $this->redirect('login.php');
         }
 
@@ -199,7 +199,7 @@ class EinsatzController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (!Gate::allows('fireIncident.accessModule')) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setRedirectFromRequest();
             $this->redirect('login.php');
         }
 
@@ -211,11 +211,7 @@ class EinsatzController extends Controller
         // Alle einsatz_viewed_*-Session-Marker beim Zurück zur Liste löschen
         // (Read-Tracking, wird vermutlich für "neue Lagemeldungen seit letztem
         // Ansehen"-Indikatoren genutzt)
-        foreach (array_keys($_SESSION) as $key) {
-            if (str_starts_with($key, 'einsatz_viewed_')) {
-                unset($_SESSION[$key]);
-            }
-        }
+        \App\Session\SessionManager::forgetByPrefix('einsatz_viewed_');
 
         $vehicleId = (int) $_SESSION['einsatz_vehicle_id'];
 
@@ -263,7 +259,7 @@ class EinsatzController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (!Gate::allows('fireIncident.accessModule')) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setRedirectFromRequest();
             $this->redirect('login.php');
         }
 
@@ -276,11 +272,7 @@ class EinsatzController extends Controller
         }
 
         // Clear viewed sessions for other incidents
-        foreach (array_keys($_SESSION) as $key) {
-            if (str_starts_with($key, 'einsatz_viewed_') && $key !== 'einsatz_viewed_' . $id) {
-                unset($_SESSION[$key]);
-            }
-        }
+        \App\Session\SessionManager::forgetByPrefix('einsatz_viewed_', 'einsatz_viewed_' . $id);
 
         // Load incident with leader name
         $incident = Capsule::table('intra_fire_incidents as i')
@@ -371,7 +363,7 @@ class EinsatzController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (!Gate::allows('fireIncident.accessModule')) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setRedirectFromRequest();
             $this->redirect('login.php');
         }
 
@@ -381,11 +373,7 @@ class EinsatzController extends Controller
         }
 
         // Clear all einsatz_viewed session variables
-        foreach (array_keys($_SESSION) as $key) {
-            if (str_starts_with($key, 'einsatz_viewed_')) {
-                unset($_SESSION[$key]);
-            }
-        }
+        \App\Session\SessionManager::forgetByPrefix('einsatz_viewed_');
 
         $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
 
@@ -403,7 +391,7 @@ class EinsatzController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (!Gate::allows('fireIncident.accessModule')) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setRedirectFromRequest();
             $this->redirect('login.php');
         }
 
@@ -546,7 +534,7 @@ class EinsatzController extends Controller
         }
 
         // Archive/unarchive redirect to admin list (handled inside those methods)
-        $_SESSION['skip_next_view_log'] = true;
+        \App\Session\SessionManager::skipNextViewLog();
         $this->redirect('einsatz/view.php?id=' . $id . '&tab=' . urlencode($returnTab));
     }
 
@@ -1009,7 +997,7 @@ class EinsatzController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (!Gate::allows('fireIncident.accessModule')) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setRedirectFromRequest();
             $this->redirect('login.php');
         }
 
@@ -1083,7 +1071,7 @@ class EinsatzController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (!Gate::allows('fireIncident.accessModule')) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setRedirectFromRequest();
             $this->redirect('login.php');
         }
 
@@ -1130,7 +1118,7 @@ class EinsatzController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (!Gate::allows('fireIncident.accessModule')) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setRedirectFromRequest();
             $this->redirect('login.php');
         }
 

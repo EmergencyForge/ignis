@@ -13,26 +13,17 @@ error_reporting(E_ALL);
 
 // Session wird bereits durch config.php gestartet
 
-if (!isset($_SESSION['oauth2state']) || !isset($_SESSION['oauth2state_time'])) {
-    exit('Session expired. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
-}
-
-if (time() - $_SESSION['oauth2state_time'] > 300) {
-    unset($_SESSION['oauth2state']);
-    unset($_SESSION['oauth2state_time']);
-    exit('Authorization expired. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
+$stateResult = SessionManager::consumeOAuth2State((string) ($_GET['state'] ?? ''));
+switch ($stateResult) {
+    case 'missing':
+        exit('Session expired. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
+    case 'expired':
+        exit('Authorization expired. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
+    case 'mismatch':
+        exit('Invalid state parameter. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
 }
 
 $provider = DiscordOAuth::createProvider('auth/callback.php');
-
-if (empty($_GET['state']) || ($_GET['state'] !== $_SESSION['oauth2state'])) {
-    unset($_SESSION['oauth2state']);
-    unset($_SESSION['oauth2state_time']);
-    exit('Invalid state parameter. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
-}
-
-unset($_SESSION['oauth2state']);
-unset($_SESSION['oauth2state_time']);
 
 if (!isset($_GET['code'])) {
     exit('Authorization code not provided.');
@@ -65,13 +56,13 @@ try {
         $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
 
         if ($registrationMode === 'closed') {
-            $_SESSION['registration_error'] = 'Registrierung ist derzeit geschlossen. Bitte wenden Sie sich an einen Administrator.';
+            SessionManager::setRegistrationError('Registrierung ist derzeit geschlossen. Bitte wenden Sie sich an einen Administrator.');
             header('Location: ' . BASE_PATH . 'login.php');
             exit;
         } elseif ($registrationMode === 'code') {
-            $code = $_SESSION['registration_code'] ?? null;
+            $code = SessionManager::getRegistrationCode();
             if (!$code) {
-                $_SESSION['registration_error'] = 'Als neuer Benutzer benötigen Sie einen Registrierungscode. Bitte geben Sie diesen auf der Login-Seite ein.';
+                SessionManager::setRegistrationError('Als neuer Benutzer benötigen Sie einen Registrierungscode. Bitte geben Sie diesen auf der Login-Seite ein.');
                 header('Location: ' . BASE_PATH . 'login.php');
                 exit;
             }
@@ -133,7 +124,7 @@ try {
     if ($user) {
         // Deaktivierte Benutzer ablehnen
         if (isset($user['is_active']) && $user['is_active'] == 0) {
-            $_SESSION['registration_error'] = 'Dein Benutzerkonto wurde deaktiviert. Bitte wende dich an einen Administrator.';
+            SessionManager::setRegistrationError('Dein Benutzerkonto wurde deaktiviert. Bitte wende dich an einen Administrator.');
             header('Location: ' . BASE_PATH . 'login.php');
             exit;
         }
@@ -156,16 +147,16 @@ try {
 
         if ($registrationMode === 'closed') {
             // No registration allowed - redirect to login with error message
-            $_SESSION['registration_error'] = 'Registrierung ist derzeit geschlossen. Bitte wenden Sie sich an einen Administrator.';
+            SessionManager::setRegistrationError('Registrierung ist derzeit geschlossen. Bitte wenden Sie sich an einen Administrator.');
             header('Location: ' . BASE_PATH . 'login.php');
             exit;
         } elseif ($registrationMode === 'code') {
             // Check for valid registration code
-            $code = $_SESSION['registration_code'] ?? null;
+            $code = SessionManager::getRegistrationCode();
 
             if (!$code) {
                 // No code provided - redirect to login with error message
-                $_SESSION['registration_error'] = 'Als neuer Benutzer benötigen Sie einen Registrierungscode. Bitte geben Sie diesen auf der Login-Seite ein.';
+                SessionManager::setRegistrationError('Als neuer Benutzer benötigen Sie einen Registrierungscode. Bitte geben Sie diesen auf der Login-Seite ein.');
                 header('Location: ' . BASE_PATH . 'login.php');
                 exit;
             }
@@ -175,16 +166,16 @@ try {
             $codeRecord = $codeStmt->fetch();
 
             if (!$codeRecord) {
-                unset($_SESSION['registration_code']);
-                $_SESSION['registration_error'] = 'Ungültiger oder bereits verwendeter Einladungslink.';
+                SessionManager::clearRegistrationCode();
+                SessionManager::setRegistrationError('Ungültiger oder bereits verwendeter Einladungslink.');
                 header('Location: ' . BASE_PATH . 'login.php');
                 exit;
             }
 
             // Ablaufdatum prüfen
             if (!empty($codeRecord['expires_at']) && strtotime($codeRecord['expires_at']) < time()) {
-                unset($_SESSION['registration_code']);
-                $_SESSION['registration_error'] = 'Dieser Einladungslink ist abgelaufen.';
+                SessionManager::clearRegistrationCode();
+                SessionManager::setRegistrationError('Dieser Einladungslink ist abgelaufen.');
                 header('Location: ' . BASE_PATH . 'login.php');
                 exit;
             }
@@ -206,7 +197,7 @@ try {
             $updateCodeStmt = $pdo->prepare("UPDATE intra_registration_codes SET is_used = 1, used_by = :user_id, used_at = NOW() WHERE id = :code_id");
             $updateCodeStmt->execute(['user_id' => $userId, 'code_id' => $codeRecord['id']]);
 
-            unset($_SESSION['registration_code']);
+            SessionManager::clearRegistrationCode();
 
             $stmt = $pdo->prepare("SELECT * FROM intra_users WHERE discord_id = :discord_id");
             $stmt->execute(['discord_id' => $discordId]);
@@ -232,19 +223,15 @@ try {
         SessionManager::loginUser($user, []);
     }
 
-    $redirectUrl = $_SESSION['redirect_url'] ?? BASE_PATH . 'index.php';
-    unset($_SESSION['redirect_url']);
-    // Numerischer TTL für Permissions setzen — überschreibt das Boolean-Flag,
-    // das loginUser() initial gesetzt hat.
-    $_SESSION['permissions_loaded'] = time();
+    $redirectUrl = SessionManager::pullRedirectUrl() ?? BASE_PATH . 'index.php';
 
     // Cleanup: gelesene Benachrichtigungen älter als 30 Tage löschen (max. 1x pro Tag)
     try {
-        $lastCleanup = $_SESSION['notification_cleanup'] ?? 0;
+        $lastCleanup = (int) SessionManager::get('notification_cleanup', 0);
         if (time() - $lastCleanup > 86400) {
             $notificationManager = new NotificationManager($pdo);
             $notificationManager->deleteOldRead(30);
-            $_SESSION['notification_cleanup'] = time();
+            SessionManager::set('notification_cleanup', time());
         }
     } catch (Exception $e) {
         error_log("Notification cleanup error: " . $e->getMessage());

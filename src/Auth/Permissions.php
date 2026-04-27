@@ -6,8 +6,6 @@ use App\Session\SessionManager;
 use PDO;
 use PDOException;
 
-require __DIR__ . '/../../assets/config/database.php';
-
 class Permissions
 {
     public static function retrieveFromDatabase(PDO $pdo, int $userId): array
@@ -60,5 +58,3 @@ class Permissions
         return (bool) array_intersect((array) $requiredPermissions, $perms);
     }
 }
-
-$_SESSION['permissions'] = Permissions::retrieveFromDatabase($pdo, $_SESSION['userid'] ?? 0);
