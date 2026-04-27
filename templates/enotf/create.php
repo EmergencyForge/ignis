@@ -31,7 +31,7 @@ $currentDate = date('d.m.Y');
         <input type="hidden" name="action" value="openOrCreate" />
         <input type="hidden" name="prot_by" id="prot_by" value="" />
         <input type="hidden" name="force_create" id="force_create" value="0" />
-        <div class="w-full" id="edivi__container">
+        <div class="container-fluid" id="edivi__container">
             <div class="h-full">
                 <div id="edivi__content">
                     <div class="hr my-6" style="color:transparent"></div>
@@ -39,13 +39,13 @@ $currentDate = date('d.m.Y');
                         <input type="text" class="form-control mb-3" name="enr" id="enr" placeholder="Einsatznummer" required />
                     </div>
                     <div class="mx-5 my-6">
-                        <button class="edivi__nidabutton flex w-full items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="rdprot" name="rdprot" onclick="setProtBy(0)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NF</span> Notfallprotokoll</button>
+                        <button class="edivi__nidabutton flex w-100 align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="rdprot" name="rdprot" onclick="setProtBy(0)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NF</span> Notfallprotokoll</button>
                     </div>
                     <div class="mx-5 my-6">
-                        <button class="edivi__nidabutton flex w-full items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="naprot" name="naprot" onclick="setProtBy(1)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NA</span> Notarztprotokoll</button>
+                        <button class="edivi__nidabutton flex w-100 align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="naprot" name="naprot" onclick="setProtBy(1)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NA</span> Notarztprotokoll</button>
                     </div>
                     <div class="mx-5 my-6 text-center">
-                        <a href="overview" class="edivi__nidabutton-secondary inline-block w-full">zurück</a>
+                        <a href="overview" class="edivi__nidabutton-secondary inline-block w-100">zurück</a>
                     </div>
                 </div>
             </div>
@@ -62,7 +62,7 @@ $currentDate = date('d.m.Y');
                 <div class="modal-body">
                     <p id="conflictMessage"></p>
                     <p><strong>Möchten Sie trotzdem ein neues Protokoll für diese Einsatznummer erstellen?</strong></p>
-                    <p class="text-gray-400 text-sm">Das neue Protokoll wird mit einer Nummerierung versehen (z.B. _1, _2, etc.)</p>
+                    <p class="text-muted text-sm">Das neue Protokoll wird mit einer Nummerierung versehen (z.B. _1, _2, etc.)</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>

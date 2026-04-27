@@ -28,15 +28,15 @@ $currentDate = date('d.m.Y');
 <body data-bs-theme="dark" style="overflow-x:hidden" data-pin-enabled="<?= $pinEnabled ?>">
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="w-full" id="edivi__container">
+        <div class="container-fluid" id="edivi__container">
             <div class="h-full">
                 <div id="edivi__content">
                     <div class="edivi__login-buttons">
-                        <div class="flex flex-wrap -mx-3">
-                            <div class="flex-1 px-3">
+                        <div class="row">
+                            <div class="col">
                                 Sie sind nicht angemeldet!
                             </div>
-                            <div class="w-3/12 px-3">
+                            <div class="col-3">
                                 <a href="login">anmelden</a>
                             </div>
                         </div>

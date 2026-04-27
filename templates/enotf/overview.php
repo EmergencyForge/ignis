@@ -50,23 +50,23 @@ $currentDate = date('d.m.Y');
         $topbar_show_notices = false;
         include __DIR__ . '/../../assets/components/enotf/topbar.php';
         ?>
-        <div class="w-full" id="edivi__container">
-            <div class="flex flex-wrap -mx-3 h-full">
-                <div class="flex-1 px-3" id="edivi__content">
+        <div class="container-fluid" id="edivi__container">
+            <div class="row h-full">
+                <div class="col" id="edivi__content">
                     <div class="hr my-2" style="color:transparent"></div>
-                    <div class="flex flex-wrap -mx-3">
-                        <div class="w-8/12 px-3">
-                            <div class="flex flex-wrap -mx-3">
-                                <div class="flex-1 flex justify-start items-center px-3">
-                                    <h4 class="font-bold">Einsatzprotokolle</h4>
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="row">
+                                <div class="col flex justify-content-start align-items-center">
+                                    <h4 class="fw-bold">Einsatzprotokolle</h4>
                                 </div>
-                                <div class="flex-1 flex justify-end items-center gap-2 px-3">
+                                <div class="col flex justify-content-end align-items-center gap-2">
                                     <button type="button" class="edivi__nidabutton" style="display:inline-block" onclick="window.location.reload();" title="Seite neu laden"><i class="fa-solid fa-rotate-right"></i></button>
                                     <a href="create" class="edivi__nidabutton" style="display:inline-block"><i class="fa-solid fa-plus" title="Neuen Einsatz erstellen"></i></a>
                                 </div>
                             </div>
-                            <div class="flex flex-wrap -mx-3 pl-3">
-                                <div class="flex-1 edivi__box p-4 px-3" style="overflow-x: hidden; overflow-y:auto; height: 70vh;">
+                            <div class="row pl-3">
+                                <div class="col edivi__box p-4" style="overflow-x: hidden; overflow-y:auto; height: 70vh;">
                                     <?php
                                     $result = $protokolle;
 
@@ -137,9 +137,9 @@ $currentDate = date('d.m.Y');
                                             </div>
                                             <div class="edivi__einsatz-container edivi__einsatz-swipeable">
                                                 <a href="<?= EnotfUrl::protokoll($row['enr']) ?>" class="edivi__einsatz-link" draggable="false">
-                                                    <div class="flex flex-wrap -mx-3 edivi__einsatz edivi__einsatz-set">
+                                                    <div class="row edivi__einsatz edivi__einsatz-set">
                                                         <div class="w-2/12 edivi__einsatz-type px-3"><?php if ($row['createdby'] == 1): ?><i class="fa-solid fa-bell" style="color:#fff;font-size:1.4rem;margin-right:10px;"></i><?php endif; ?><span><?= htmlspecialchars($label) ?></span></div>
-                                                        <div class="flex-1 edivi__einsatz-enr px-3"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><?= $row['edatum'] ?><br><?= $row['ezeit'] ?> Uhr</div>
+                                                        <div class="col edivi__einsatz-enr"><span>#<?= $row['enr'] ?> <span class="edivi__einsatz-cat"><?= $protType ?></span></span><?= $row['edatum'] ?><br><?= $row['ezeit'] ?> Uhr</div>
                                                         <div class="w-8/12 edivi__einsatz-name px-3"><span>Patient:</span><strong><?= $row['patname'] ?> * <?= $row['patgebdat'] ?></strong><?php if (!empty($zielInfo)): ?><small><i class="fa-solid fa-bed" style="margin-right:4px;"></i><?= $zielInfo ?></small><?php endif; ?></div>
                                                     </div>
                                                 </a>
@@ -150,13 +150,13 @@ $currentDate = date('d.m.Y');
                                     ?>
                                 </div>
                             </div>
-                            <!-- <div class="flex flex-wrap -mx-3 pl-3">
-                                <div class="flex-1 p-0 px-3" style="margin: 10px 0;">
-                                    <button type="submit" class="edivi__nidabutton w-full" name="delete_all">alle löschen</button>
+                            <!-- <div class="row pl-3">
+                                <div class="col p-0" style="margin: 10px 0;">
+                                    <button type="submit" class="edivi__nidabutton w-100" name="delete_all">alle löschen</button>
                                 </div>
                             </div> -->
                         </div>
-                        <div class="flex-1 px-3">
+                        <div class="col">
                             <?php
                             $all_categories = $categories;
 
@@ -165,8 +165,8 @@ $currentDate = date('d.m.Y');
                                 $heading_id = 'heading' . $category['id'];
                                 $collapse_id = 'collapse' . $category['id'];
                             ?>
-                                <div class="flex flex-wrap -mx-3 <?= $index > 0 ? 'mt-2' : '' ?>">
-                                    <div class="flex-1 px-3">
+                                <div class="row<?= $index > 0 ? ' mt-2' : '' ?>">
+                                    <div class="col">
                                         <div class="accordion" id="<?= $accordion_id ?>" data-theme="dark">
                                             <div class="accordion-item">
                                                 <h2 class="accordion-header" id="<?= $heading_id ?>">
@@ -180,23 +180,24 @@ $currentDate = date('d.m.Y');
                                                         $quicklinks = $linksByCategory[$category['slug']] ?? [];
 
                                                         if (empty($quicklinks)) {
-                                                            echo '<p class="text-gray-400">Keine Links verfügbar.</p>';
+                                                            echo '<p class="text-muted">Keine Links verfügbar.</p>';
                                                         } else {
-                                                            // col_width aus DB ist Bootstrap-Syntax (col, col-6, col-4, col-3, col-12).
-                                                            // Auf Tailwind-Grid-Span übersetzen, damit die Link-Kacheln auch im
-                                                            // migrierten Kontext korrekt nebeneinander liegen.
+                                                            // Legacy-DB-Werte: 'col' (auto-fill) wurde im alten Design
+                                                            // visuell als 50%-Tile gerendert. Wir mappen daher 'col' →
+                                                            // 'col-6'; explizite Spaltenbreiten (col-3/4/6/12) bleiben
+                                                            // unverändert.
                                                             $colWidthMap = [
-                                                                'col'    => 'col-span-6',
-                                                                'col-3'  => 'col-span-3',
-                                                                'col-4'  => 'col-span-4',
-                                                                'col-6'  => 'col-span-6',
-                                                                'col-12' => 'col-span-12',
+                                                                'col'    => 'col-6',
+                                                                'col-3'  => 'col-3',
+                                                                'col-4'  => 'col-4',
+                                                                'col-6'  => 'col-6',
+                                                                'col-12' => 'col-12',
                                                             ];
-                                                            echo '<div class="grid grid-cols-12 gap-2">';
+                                                            echo '<div class="row g-2">';
                                                             foreach ($quicklinks as $link) {
-                                                                $span = $colWidthMap[$link['col_width']] ?? 'col-span-6';
-                                                                echo '<div class="' . $span . '">';
-                                                                echo '<a href="' . htmlspecialchars($link['url']) . '" class="edivi__nidabutton block w-full text-center no-underline hover:no-underline">';
+                                                                $span = $colWidthMap[$link['col_width']] ?? 'col-6';
+                                                                echo '<div class="' . htmlspecialchars($span) . '">';
+                                                                echo '<a href="' . htmlspecialchars($link['url']) . '" class="edivi__nidabutton w-100 d-block text-center text-decoration-none">';
                                                                 echo '<i class="' . htmlspecialchars($link['icon']) . '"></i> ' . htmlspecialchars($link['title']);
                                                                 echo '</a>';
                                                                 echo '</div>';

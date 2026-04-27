@@ -70,12 +70,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="w-full" id="edivi__container">
-            <div class="flex flex-wrap -mx-3 h-full">
+        <div class="container-fluid" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
-                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
-                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                <div class="col" id="edivi__content" style="padding-left: 0">
+                    <div class="row" style="margin-left: 0">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '1') ?>" data-requires="ebesonderheiten">
                                 <span>Einsatzverlauf Besonderheiten</span>
                             </a>
@@ -91,7 +91,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>An Leitstelle senden</span>
                             </a>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'abschluss', '3_1') ?>">
                                 <span>Ort</span>
                             </a>
@@ -122,14 +122,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 </div>
                 <div class="modal-body text-center py-5">
                     <p class="mb-4">Klinikcode für Protokoll #<?= $daten['enr'] ?></p>
-                    <div id="codeDisplay" class="display-3 font-bold text-[#7ba3d4] mb-4" style="letter-spacing: 0.5rem;">
+                    <div id="codeDisplay" class="display-3 fw-bold text-[#7ba3d4] mb-4" style="letter-spacing: 0.5rem;">
                         <div class="spinner-border" role="status">
                             <span class="sr-only">Lädt...</span>
                         </div>
                     </div>
                     <p class="text-[var(--text-dimmed,#818189)] text-sm">Code gültig für 1 Stunde</p>
                     <p class="text-[var(--text-dimmed,#818189)] text-sm mt-3">Zugriff unter:<br>
-                        <span class="text-white"><?= 'https://' . SYSTEM_URL ?>/enotf/schnittstelle/klinikcode.php</span>
+                        <span class="text-light"><?= 'https://' . SYSTEM_URL ?>/enotf/schnittstelle/klinikcode.php</span>
                     </p>
                 </div>
                 <div class="modal-footer">

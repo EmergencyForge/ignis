@@ -190,19 +190,19 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <body data-bs-theme="dark" data-page="freigabe" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
         <form name="form" method="post" action="">
             <input type="hidden" name="new" value="1" />
-            <div class="w-full" id="edivi__container">
-                <div class="flex flex-wrap -mx-3 h-full">
-                    <div class="flex-1 px-3" id="edivi__content">
-                        <div class="flex flex-wrap -mx-3">
-                            <div class="flex-1 px-3">
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 px-3">
+            <div class="container-fluid" id="edivi__container">
+                <div class="row h-full">
+                    <div class="col" id="edivi__content">
+                        <div class="row">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
                                         <h5>Patient</h5>
                                     </div>
                                 </div>
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 edivi__freigabe px-3">
-                                        <table class="w-full">
+                                <div class="row">
+                                    <div class="col edivi__freigabe">
+                                        <table class="container-fluid">
                                             <tbody>
                                                 <tr>
                                                     <td><?= $daten['patname'] ?? '<span style="color:lightgray">Kein Name hinterlegt</span>' ?> * <?= $daten['patgebdat'] ?? '<span style="color:lightgray">Kein Datum hinterlegt</span>' ?></td>
@@ -212,15 +212,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex-1 px-3">
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 px-3">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
                                         <h5>Transport</h5>
                                     </div>
                                 </div>
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 edivi__freigabe px-3">
-                                        <table class="w-full">
+                                <div class="row">
+                                    <div class="col edivi__freigabe">
+                                        <table class="container-fluid">
                                             <tbody>
                                                 <tr>
                                                     <td>von: <?= !empty($transp_von_display) ? htmlspecialchars($transp_von_display) : '<span style="color:lightgray">Kein Ort hinterlegt</span>' ?></td>
@@ -234,16 +234,16 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                             </div>
                         </div>
-                        <div class="flex flex-wrap -mx-3">
-                            <div class="flex-1 px-3">
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 px-3">
+                        <div class="row">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
                                         <h5>Besatzung</h5>
                                     </div>
                                 </div>
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 edivi__freigabe px-3">
-                                        <table class="w-full">
+                                <div class="row">
+                                    <div class="col edivi__freigabe">
+                                        <table class="container-fluid">
                                             <tbody>
                                                 <?php if ($daten['prot_by'] == 0): // Rettungsdienst-Protokoll 
                                                 ?>
@@ -277,15 +277,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex-1 px-3">
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 px-3">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
                                         <h5>Sonstige Fahrzeuge</h5>
                                     </div>
                                 </div>
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 edivi__freigabe px-3">
-                                        <table class="w-full">
+                                <div class="row">
+                                    <div class="col edivi__freigabe">
+                                        <table class="container-fluid">
                                             <tbody>
                                                 <tr>
                                                     <td><?= !empty($daten['fzg_sonst']) ? htmlspecialchars($daten['fzg_sonst']) : '<span style="color:lightgray">Keine weiteren Rettungsmittel hinterlegt</span>' ?></td>
@@ -296,16 +296,16 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                             </div>
                         </div>
-                        <div class="flex flex-wrap -mx-3">
-                            <div class="flex-1 px-3">
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 px-3">
+                        <div class="row">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
                                         <h5>Einsatzdaten</h5>
                                     </div>
                                 </div>
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 edivi__freigabe px-3">
-                                        <table class="w-full">
+                                <div class="row">
+                                    <div class="col edivi__freigabe">
+                                        <table class="container-fluid">
                                             <tbody>
                                                 <tr>
                                                     <td>Einsatz-Nr.: <?= $daten['enr'] ?></td>
@@ -318,15 +318,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex-1 px-3">
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 px-3">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
                                         <h5>Protokollant und freigebende Person</h5>
                                     </div>
                                 </div>
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 edivi__freigabe px-3">
-                                        <table class="w-full">
+                                <div class="row">
+                                    <div class="col edivi__freigabe">
+                                        <table class="container-fluid">
                                             <tbody>
                                                 <tr>
                                                     <td><?= $daten['pfname'] ?? '<span style="color:lightgray">Kein Protokollant hinterlegt</span>' ?></td>
@@ -350,16 +350,16 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 </div>
                             </div>
                         </div>
-                        <div class="flex flex-wrap -mx-3">
-                            <div class="flex-1 px-3">
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 px-3">
+                        <div class="row">
+                            <div class="col">
+                                <div class="row">
+                                    <div class="col">
                                         <h5>Plausibilitätsprüfung</h5>
                                     </div>
                                 </div>
-                                <div class="flex flex-wrap -mx-3">
-                                    <div class="flex-1 edivi__freigabe px-3">
-                                        <table class="w-full">
+                                <div class="row">
+                                    <div class="col edivi__freigabe">
+                                        <table class="container-fluid">
                                             <tbody>
                                                 <tr>
                                                     <td class="edivi__checks-text" id="plausibility"><?php include __DIR__ . '/../../../../assets/components/enotf/plausibility.php'; ?></td>
@@ -371,11 +371,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             </div>
                         </div>
                         <div class="edivi__freigabe-buttons">
-                            <div class="flex flex-wrap -mx-3">
-                                <div class="flex-1 px-3">
+                            <div class="row">
+                                <div class="col">
                                     <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
                                 </div>
-                                <div class="flex-1 px-3">
+                                <div class="col">
                                     <a href="#" id="final">Abschließen!</a>
                                 </div>
                             </div>

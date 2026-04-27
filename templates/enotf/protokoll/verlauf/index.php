@@ -227,13 +227,13 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
 <body data-bs-theme="dark" data-page="verlauf" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <?php include __DIR__ . '/../../../../assets/components/enotf/topbar.php'; ?>
 
-    <div class="w-full" id="edivi__container">
-        <div class="flex flex-wrap -mx-3 h-full">
+    <div class="container-fluid" id="edivi__container">
+        <div class="row h-full">
             <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
-            <div class="w-full md:w-11/12 px-3" id="edivi__content">
-                <div class="flex flex-wrap -mx-3 my-3">
-                    <div class="flex-1 px-3">
-                        <div class="flex justify-between items-center">
+            <div class="col-12 col-md-11" id="edivi__content">
+                <div class="row my-3">
+                    <div class="col">
+                        <div class="flex justify-content-between align-items-center">
                             <div class="flex gap-2">
                                 <a href="list?enr=<?= $enr ?>&action=manage" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-list"></i> Verlauf bearbeiten
@@ -243,10 +243,10 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
                     </div>
                 </div>
 
-                <div class="flex flex-wrap -mx-3">
-                    <div class="flex-1 px-3">
+                <div class="row">
+                    <div class="col">
                         <div class="vitals-info">
-                            <h6 class="text-white mb-2">
+                            <h6 class="text-light mb-2">
                                 <i class="fa-solid fa-chart-line"></i> Vitalparameter-Übersicht
                             </h6>
                             <div>
@@ -262,15 +262,15 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
                 </div>
 
                 <!-- Kombinierter Chart -->
-                <div class="flex flex-wrap -mx-3">
-                    <div class="flex-1 px-3">
-                        <div class="flex flex-wrap -mx-3 edivi__box">
-                            <h5 class="text-white px-2 py-1">Alle Vitalparameter</h5>
-                            <div class="flex-1 p-3 px-3">
+                <div class="row">
+                    <div class="col">
+                        <div class="row edivi__box">
+                            <h5 class="text-light px-2 py-1">Alle Vitalparameter</h5>
+                            <div class="col p-3">
                                 <div class="legend-toggle" id="legendToggle">
                                     <!-- Wird durch JavaScript gefüllt -->
                                 </div>
-                                <div class="chart-container relative" onclick="addValues()">
+                                <div class="chart-container position-relative" onclick="addValues()">
                                     <div class="chart-click-hint">
                                         <i class="fa-solid fa-plus"></i> Klicken zum Hinzufügen
                                     </div>
@@ -282,8 +282,8 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
                 </div>
 
                 <?php if (empty($vitals)): ?>
-                    <div class="flex flex-wrap -mx-3 mt-3">
-                        <div class="flex-1 text-center px-3">
+                    <div class="row mt-3">
+                        <div class="col text-center">
                             <div class="ignis-alert ignis-alert--info">
                                 <h5><i class="fa-solid fa-circle-info"></i> Noch keine Vitalparameter dokumentiert</h5>
                                 <p>Klicken Sie auf "Werte hinzufügen" oder auf den Chart-Bereich, um die ersten Vitalparameter zu erfassen.</p>

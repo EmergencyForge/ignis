@@ -61,27 +61,27 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 <body data-bs-theme="dark" data-page="massnahmen" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="w-full" id="edivi__container">
-            <div class="flex flex-wrap -mx-3 h-full">
-                <div class="flex-1 px-3" id="edivi__content edivi__medikamente">
-                    <div class="flex flex-wrap -mx-3 mt-4 mx-4">
-                        <div class="flex-1 px-3">
-                            <div class="w-full p-3" style="background-color: #333333; min-height: 60vh; border-radius: 8px;" id="medis-list">
+        <div class="container-fluid" id="edivi__container">
+            <div class="row h-full">
+                <div class="col" id="edivi__content edivi__medikamente">
+                    <div class="row mt-4 mx-4">
+                        <div class="col">
+                            <div class="w-100 p-3" style="background-color: #333333; min-height: 60vh; border-radius: 8px;" id="medis-list">
                                 <div class="text-center text-[var(--text-dimmed,#818189)] p-4">
                                     <i class="fa-solid fa-spinner fa-spin" style="font-size: 2em;"></i>
                                     <div class="mt-2">Medikamente werden geladen...</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex-1 px-3">
+                        <div class="col">
                             <?php
                             // Load medications from database, sorted alphabetically by wirkstoff
                             $medStmt = $pdo->prepare("SELECT wirkstoff, herstellername, dosierungen FROM intra_edivi_medikamente WHERE active = 1 ORDER BY wirkstoff ASC");
                             $medStmt->execute();
                             $medikamente = $medStmt->fetchAll(PDO::FETCH_ASSOC);
                             ?>
-                            <div class="flex flex-wrap -mx-3">
-                                <div class="flex-1 px-3">
+                            <div class="row">
+                                <div class="col">
                                     <select class="form-select medikament-field-ignore" name="medis-select" id="medis-select" required autocomplete="off" style="background-color: #333333; color: white;" data-ignore-autosave="true" data-custom-dropdown="true" data-search-threshold="10">
                                         <option value="" disabled hidden selected>Wirkstoff</option>
                                         <?php foreach ($medikamente as $med): ?>
@@ -96,12 +96,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </select>
                                 </div>
                             </div>
-                            <div class="flex flex-wrap -mx-3 mt-3">
-                                <div class="flex-1 px-3">
+                            <div class="row mt-3">
+                                <div class="col">
                                     <input type="time" name="medis-time" id="medis-time" class="form-control medikament-field-ignore" style="background-color: #333333; color: white;" step="1" value="<?= $currentTime ?>" data-ignore-autosave="true">
                                 </div>
-                                <div class="flex-1 px-3">
-                                    <div class="flex-1 px-3">
+                                <div class="col">
+                                    <div class="col">
                                         <select class="form-select medikament-field-ignore" name="medis-admission" id="medis-admission" required autocomplete="off" style="background-color: #333333; color: white;" data-ignore-autosave="true" data-custom-dropdown="true">
                                             <option value="" disabled hidden selected>Applikationsart</option>
                                             <option value="i.v.">i.v.</option>
@@ -114,14 +114,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex flex-wrap -mx-3 mt-3">
-                                <div class="flex-1 px-3">
+                            <div class="row mt-3">
+                                <div class="col">
                                     <div class="relative" id="dosierung-autocomplete-wrapper">
                                         <input class="form-control medikament-field-ignore" type="text" placeholder="Dosierung" name="medis-concentration" id="medis-concentration" autocomplete="off" style="background-color: #333333; color: white; --bs-secondary-color: #a2a2a2" data-ignore-autosave="true">
                                         <div id="dosierung-dropdown" class="dosierung-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; background-color: #444; border: 1px solid #555; border-radius: 4px; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>
                                     </div>
                                 </div>
-                                <div class="flex-1 px-3">
+                                <div class="col">
                                     <select class="form-select medikament-field-ignore" name="medis-unit" id="medis-unit" required autocomplete="off" style="background-color: #333333; color: white;" data-ignore-autosave="true" data-custom-dropdown="true">
                                         <option value="" disabled hidden selected>Einheit</option>
                                         <option value="mcg">&micro;g</option>
@@ -135,14 +135,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         </div>
                     </div>
                     <div class="edivi__freigabe-buttons">
-                        <div class="flex flex-wrap -mx-3">
-                            <div class="flex-1 px-3">
+                        <div class="row">
+                            <div class="col">
                                 <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
                             </div>
-                            <div class="flex-1 px-3">
+                            <div class="col">
                                 <a href="#" id="delete-btn">Löschen</a>
                             </div>
-                            <div class="flex-1 px-3">
+                            <div class="col">
                                 <a href="#" id="save-btn">Speichern</a>
                             </div>
                         </div>
@@ -549,7 +549,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 medDiv.dataset.timestamp = med.timestamp;
 
                 medDiv.innerHTML = `
-                    <div class="flex justify-between items-center text-white">
+                    <div class="flex justify-content-between align-items-center text-light">
                         <div class="medikament-compact">
                             <span style="color:#a2a2a2">${med.zeit}</span>
                             <span>${med.wirkstoff}</span>

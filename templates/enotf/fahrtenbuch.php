@@ -40,14 +40,14 @@ $currentDate = date('d.m.Y');
     $topbar_show_notices = false;
     include __DIR__ . '/../../assets/components/enotf/topbar.php';
     ?>
-    <div class="w-full" id="edivi__container">
+    <div class="container-fluid" id="edivi__container">
         <div class="h-full">
             <div id="edivi__content">
                 <div class="hr my-2" style="color:transparent"></div>
 
                 <div>
-                    <div class="mb-3 flex items-center justify-between">
-                        <h4 class="text-white mb-0"><i class="fa-solid fa-book mr-2"></i>Fahrtenbuch</h4>
+                    <div class="mb-3 flex align-items-center justify-content-between">
+                        <h4 class="text-light mb-0"><i class="fa-solid fa-book mr-2"></i>Fahrtenbuch</h4>
                         <button type="button" class="edivi__nidabutton" id="toggleCreateForm">
                             <i class="fa-solid fa-plus"></i>
                         </button>
@@ -55,7 +55,7 @@ $currentDate = date('d.m.Y');
 
                         <!-- Create Form -->
                         <div id="createFormWrap" style="display:none;" class="vehicle-info-card p-4 mb-4">
-                            <h5 class="text-white mb-3">Neuer Eintrag</h5>
+                            <h5 class="text-light mb-3">Neuer Eintrag</h5>
                             <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions">
                                 <input type="hidden" name="action" value="create">
                                 <input type="hidden" name="return_to" value="enotf">
@@ -75,7 +75,7 @@ $currentDate = date('d.m.Y');
 
                         <!-- Edit Form (hidden by default) -->
                         <div id="editFormWrap" style="display:none;" class="vehicle-info-card p-4 mb-4">
-                            <h5 class="text-white mb-3">Eintrag bearbeiten</h5>
+                            <h5 class="text-light mb-3">Eintrag bearbeiten</h5>
                             <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions" id="editForm">
                                 <input type="hidden" name="action" value="update">
                                 <input type="hidden" name="id" id="edit_id" value="">

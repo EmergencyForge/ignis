@@ -62,12 +62,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="w-full" id="edivi__container">
-            <div class="flex flex-wrap -mx-3 h-full">
+        <div class="container-fluid" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
-                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
-                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                <div class="col" id="edivi__content" style="padding-left: 0">
+                    <div class="row" style="margin-left: 0">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '1') ?>">
                                 <span>Anamnese</span>
                             </a>
@@ -78,7 +78,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>Einsatzort</span>
                             </a>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '2_1') ?>" class="active">
                                 <span>Symptombeginn</span>
                             </a>
@@ -86,7 +86,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>NACA</span>
                             </a>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton px-3">
                             <label class="edivi__interactbutton-text">Datum</label>
                             <input type="date" name="symptombeginn_datum" id="symptombeginn_datum"
                                 class="edivi__interactbutton-input"
@@ -98,7 +98,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 autocomplete="off">
                             <label for="symptombeginn_geschaetzt_1">geschätzt</label>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton px-3">
                             <label class="edivi__interactbutton-text">Zeit</label>
                             <input type="text" name="symptombeginn_zeit" id="symptombeginn_zeit"
                                 class="edivi__interactbutton-input"
@@ -112,8 +112,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 autocomplete="off">
                             <label for="symptombeginn_nf_1">nicht feststellbar</label>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton justify-center px-3">
-                            <button type="button" id="save-symptombeginn-btn" class="ignis-btn ignis-btn--success w-full">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton justify-center px-3">
+                            <button type="button" id="save-symptombeginn-btn" class="ignis-btn ignis-btn--success w-100">
                                 <i class="fa-solid fa-floppy-disk"></i> Speichern
                             </button>
                         </div>

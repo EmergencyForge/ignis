@@ -59,17 +59,17 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 <body data-bs-theme="dark" data-page="anamnese" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="w-full" id="edivi__container">
-            <div class="flex flex-wrap -mx-3 h-full">
-                <div class="flex-1 flex flex-col px-3" id="edivi__content">
-                    <div class="flex flex-wrap -mx-3" style="flex-grow: 1;">
+        <div class="container-fluid" id="edivi__container">
+            <div class="row h-full">
+                <div class="col d-flex flex-column" id="edivi__content">
+                    <div class="row" style="flex-grow: 1;">
                         <div class="w-10/12 edivi__box py-1 px-3" style="margin: 10px">
-                            <textarea name="anmerkungen" id="anmerkungen" class="w-full form-control" style="resize: none; height: 100%; border-radius: 0;" rows="12" data-ignore-autosave><?= $daten['anmerkungen'] ?></textarea>
+                            <textarea name="anmerkungen" id="anmerkungen" class="w-100 form-control" style="resize: none; height: 100%; border-radius: 0;" rows="12" data-ignore-autosave><?= $daten['anmerkungen'] ?></textarea>
                         </div>
                         <?php if (!$ist_freigegeben) : ?>
-                            <div class="flex-1 px-3">
-                                <div class="flex justify-center items-center" style="margin: 10px 0; height: 80px;">
-                                    <button type="button" id="save-anamnese-btn" class="ignis-btn ignis-btn--success px-4 w-full h-full" style="font-size:1.4rem">OK</button>
+                            <div class="col">
+                                <div class="flex justify-center align-items-center" style="margin: 10px 0; height: 80px;">
+                                    <button type="button" id="save-anamnese-btn" class="ignis-btn ignis-btn--success px-4 w-100 h-full" style="font-size:1.4rem">OK</button>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -79,7 +79,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     </div>
                     <?php if (!$ist_freigegeben) : ?>
                         <div class="flex" style="flex-shrink: 0;">
-                            <div class="flex flex-col edivi__interactbutton" id="textblock-main" style="flex: 0 0 auto; min-width: 220px;">
+                            <div class="d-flex flex-column edivi__interactbutton" id="textblock-main" style="flex: 0 0 auto; min-width: 220px;">
                                 <!-- Vorerkrankungen -->
                                 <a href="javascript:void(0)" class="anamnese-textblock-btn has-submenu" data-key="vorerkrankungen" data-text="VORERKRANKUNGEN:" data-newline="2"><span>Vorerkrankungen</span></a>
                                 <!-- Medikation -->

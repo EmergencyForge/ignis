@@ -83,23 +83,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body data-bs-theme="dark" style="overflow-x:hidden" id="edivi__login" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="w-full" id="edivi__container">
-            <div class="flex flex-wrap -mx-3 h-full">
-                <div class="flex-1 px-3" id="edivi__content">
+        <div class="container-fluid" id="edivi__container">
+            <div class="row h-full">
+                <div class="col" id="edivi__content">
                     <div class="hr my-5" style="color:transparent"></div>
-                    <div class="flex flex-wrap -mx-3 my-5 mx-5">
-                        <div class="flex-1 px-3">
-                            <button class="edivi__nidabutton w-full flex items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="rdprot" name="rdprot"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NF</span> Notfallprotokoll</button>
+                    <div class="row my-5 mx-5">
+                        <div class="col">
+                            <button class="edivi__nidabutton w-100 flex align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="rdprot" name="rdprot"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NF</span> Notfallprotokoll</button>
                         </div>
                     </div>
-                    <div class="flex flex-wrap -mx-3 my-5 mx-5">
-                        <div class="flex-1 px-3">
-                            <button class="edivi__nidabutton w-full flex items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="naprot" name="naprot"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NA</span> Notarztprotokoll</button>
+                    <div class="row my-5 mx-5">
+                        <div class="col">
+                            <button class="edivi__nidabutton w-100 flex align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="naprot" name="naprot"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NA</span> Notarztprotokoll</button>
                         </div>
                     </div>
-                    <div class="flex flex-wrap -mx-3 my-5 mx-5">
-                        <div class="flex-1 text-center px-3">
-                            <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>" class="edivi__nidabutton-secondary w-full" style="display:inline-block">zurück</a>
+                    <div class="row my-5 mx-5">
+                        <div class="col text-center">
+                            <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>" class="edivi__nidabutton-secondary w-100" style="display:inline-block">zurück</a>
                         </div>
                     </div>
                 </div>

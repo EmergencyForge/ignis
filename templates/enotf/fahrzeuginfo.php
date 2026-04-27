@@ -39,32 +39,32 @@ $currentDate = date('d.m.Y');
     $topbar_show_notices = false;
     include __DIR__ . '/../../assets/components/enotf/topbar.php';
     ?>
-    <div class="w-full" id="edivi__container">
-        <div class="flex flex-wrap -mx-3 h-full">
-            <div class="flex-1 px-3" id="edivi__content">
+    <div class="container-fluid" id="edivi__container">
+        <div class="row h-full">
+            <div class="col" id="edivi__content">
 
                 <div class="hr my-2" style="color:transparent"></div>
 
                 <div>
-                        <h4 class="text-white mb-4">
+                        <h4 class="text-light mb-4">
 
                         </h4>
 
                         <?php if ($vehicle): ?>
                             <!-- Fahrzeugdaten -->
                             <div class="vehicle-info-card p-4 mb-4">
-                                <h5 class="text-white mb-3">
+                                <h5 class="text-light mb-3">
                                     Fahrzeugdaten
                                 </h5>
                                 <div class="table-responsive">
                                     <table class="table table-dark-custom">
                                         <tbody>
                                             <tr>
-                                                <th scope="row" style="width: 200px;" class="text-white">Fahrzeugname:</th>
+                                                <th scope="row" style="width: 200px;" class="text-light">Fahrzeugname:</th>
                                                 <td><?= htmlspecialchars($vehicle['name']) ?></td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-white">Fahrzeugtyp:</th>
+                                                <th scope="row" class="text-light">Fahrzeugtyp:</th>
                                                 <td>
                                                     <?= htmlspecialchars($vehicle['veh_type']) ?>
                                                     <?php
@@ -82,15 +82,15 @@ $currentDate = date('d.m.Y');
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-white">Kennzeichen:</th>
+                                                <th scope="row" class="text-light">Kennzeichen:</th>
                                                 <td><?= $vehicle['kennzeichen'] ? htmlspecialchars($vehicle['kennzeichen']) : '—' ?></td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-white">Bezeichnung:</th>
+                                                <th scope="row" class="text-light">Bezeichnung:</th>
                                                 <td><?= htmlspecialchars($vehicle['identifier']) ?></td>
                                             </tr>
                                             <tr>
-                                                <th scope="row" class="text-white">Erstellt am:</th>
+                                                <th scope="row" class="text-light">Erstellt am:</th>
                                                 <td><?= (new DateTime($vehicle['created_at']))->format('d.m.Y H:i') ?> Uhr</td>
                                             </tr>
                                         </tbody>
@@ -100,8 +100,8 @@ $currentDate = date('d.m.Y');
 
                             <!-- Defekt melden -->
                             <div class="vehicle-info-card p-4 mb-4">
-                                <div class="mb-3 flex items-center justify-between">
-                                    <h5 class="text-white mb-0">Defekt-Meldungen</h5>
+                                <div class="mb-3 flex align-items-center justify-content-between">
+                                    <h5 class="text-light mb-0">Defekt-Meldungen</h5>
                                     <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-warning" id="toggleDefectForm">
                                         <i class="fa-solid fa-triangle-exclamation"></i> Defekt melden
                                     </button>
@@ -113,7 +113,7 @@ $currentDate = date('d.m.Y');
                                         <input type="hidden" name="vehicle_id" value="<?= $vehicle['id'] ?>">
                                         <input type="hidden" name="action" value="create">
                                         <div class="mb-2">
-                                            <label class="ignis-field__label text-white">Meldung durch</label>
+                                            <label class="ignis-field__label text-light">Meldung durch</label>
                                             <select name="reported_by_name" class="form-select form-select-sm" data-custom-dropdown="true">
                                                 <?php if (!empty($_SESSION['fahrername'])): ?>
                                                     <option value="<?= htmlspecialchars($_SESSION['fahrername']) ?>">Fahrer — <?= htmlspecialchars($_SESSION['fahrername']) ?></option>
@@ -127,15 +127,15 @@ $currentDate = date('d.m.Y');
                                             </select>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="ignis-field__label text-white">Titel</label>
+                                            <label class="ignis-field__label text-light">Titel</label>
                                             <input type="text" name="title" class="ignis-input ignis-input--sm" placeholder="Kurze Beschreibung des Defekts" required>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="ignis-field__label text-white">Beschreibung</label>
+                                            <label class="ignis-field__label text-light">Beschreibung</label>
                                             <textarea name="description" class="ignis-input ignis-input--sm" rows="2" placeholder="Details..."></textarea>
                                         </div>
                                         <div class="mb-2">
-                                            <label class="ignis-field__label text-white">Kategorie</label>
+                                            <label class="ignis-field__label text-light">Kategorie</label>
                                             <select name="category" class="form-select form-select-sm" data-custom-dropdown="true" required>
                                                 <option value="" disabled selected>Bitte auswählen...</option>
                                                 <option value="aufbau_karosserie">Aufbau / Karosserie</option>
@@ -155,15 +155,15 @@ $currentDate = date('d.m.Y');
                                             </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="ignis-field__label text-white">Fahrzeug noch einsatzfähig?</label>
+                                            <label class="ignis-field__label text-light">Fahrzeug noch einsatzfähig?</label>
                                             <div class="flex gap-3">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="vehicle_operable" id="enotf-operable-yes" value="1" checked>
-                                                    <label class="form-check-label text-white" for="enotf-operable-yes">Ja</label>
+                                                    <label class="form-check-label text-light" for="enotf-operable-yes">Ja</label>
                                                 </div>
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="radio" name="vehicle_operable" id="enotf-operable-no" value="0">
-                                                    <label class="form-check-label text-white" for="enotf-operable-no">Nein</label>
+                                                    <label class="form-check-label text-light" for="enotf-operable-no">Nein</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -219,7 +219,7 @@ $currentDate = date('d.m.Y');
                                     ?>
 
                                     <?php if (empty($openDefects)): ?>
-                                        <div class="text-gray-400 text-center py-3">
+                                        <div class="text-muted text-center py-3">
                                             <i class="fa-solid fa-check-circle" style="font-size:1.5rem;opacity:0.4;"></i>
                                             <div class="mt-1">Keine offenen Defekte</div>
                                         </div>
@@ -229,10 +229,10 @@ $currentDate = date('d.m.Y');
                                             $operable = (int)$def['vehicle_operable'];
                                             $catLabel = $enotfCategoryLabels[$def['category']] ?? $def['category'];
                                         ?>
-                                            <div class="mb-2 flex items-start gap-2 p-2" style="background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid var(--bs-<?= $operable ? 'warning' : 'danger' ?>);">
-                                                <div class="flex-1">
-                                                    <div class="flex flex-wrap items-center gap-2">
-                                                        <strong class="text-white" style="font-size:0.9rem;"><?= htmlspecialchars($def['title']) ?></strong>
+                                            <div class="mb-2 flex align-items-start gap-2 p-2" style="background:rgba(255,255,255,0.03);border-radius:6px;border-left:3px solid var(--bs-<?= $operable ? 'warning' : 'danger' ?>);">
+                                                <div class="col">
+                                                    <div class="flex flex-wrap align-items-center gap-2">
+                                                        <strong class="text-light" style="font-size:0.9rem;"><?= htmlspecialchars($def['title']) ?></strong>
                                                         <span class="ignis-chip" style="font-size:0.6rem;"><?= htmlspecialchars($catLabel) ?></span>
                                                         <span class="badge text-bg-<?= $stat[1] ?>" style="font-size:0.6rem;"><?= $stat[0] ?></span>
                                                         <?php if (!$operable): ?>
@@ -240,16 +240,16 @@ $currentDate = date('d.m.Y');
                                                         <?php endif; ?>
                                                     </div>
                                                     <?php if ($def['description']): ?>
-                                                        <div class="text-gray-400" style="font-size:0.8rem;"><?= htmlspecialchars($def['description']) ?></div>
+                                                        <div class="text-muted" style="font-size:0.8rem;"><?= htmlspecialchars($def['description']) ?></div>
                                                     <?php endif; ?>
-                                                    <div class="text-gray-400" style="font-size:0.7rem;">
+                                                    <div class="text-muted" style="font-size:0.7rem;">
                                                         <?= htmlspecialchars($def['reporter_name'] ?? 'Unbekannt') ?> — <?= \App\Helpers\DateTimeHelper::formatShortLocal($def['created_at']) ?>
                                                     </div>
                                                     <?php if (!empty($def['last_status_user'])): ?>
                                                         <div class="mt-1 p-2" style="font-size:0.75rem;background:rgba(255,255,255,0.03);border-radius:4px;border-left:2px solid var(--bs-<?= $statStyles[$def['status']][1] ?? 'secondary' ?>);">
                                                             <i class="fa-solid fa-pen" style="font-size:0.65rem;"></i>
                                                             <?= htmlspecialchars($def['last_status_details']) ?>
-                                                            <span class="text-gray-400">— <?= htmlspecialchars($def['last_status_user']) ?>, <?= \App\Helpers\DateTimeHelper::formatShortLocal($def['last_status_at']) ?></span>
+                                                            <span class="text-muted">— <?= htmlspecialchars($def['last_status_user']) ?>, <?= \App\Helpers\DateTimeHelper::formatShortLocal($def['last_status_at']) ?></span>
                                                         </div>
                                                     <?php endif; ?>
                                                 </div>
@@ -261,7 +261,7 @@ $currentDate = date('d.m.Y');
 
                             <!-- Beladelisten -->
                             <div class="vehicle-info-card p-4">
-                                <h5 class="text-white mb-3">Beladeliste</h5>
+                                <h5 class="text-light mb-3">Beladeliste</h5>
 
                                 <?php if (count($categories) > 0): ?>
                                     <?php
@@ -302,7 +302,7 @@ $currentDate = date('d.m.Y');
                                         <p>Kein Treffer für deine Suche.</p>
                                     </div>
                                 <?php else: ?>
-                                    <div class="text-gray-400 text-center py-4">
+                                    <div class="text-muted text-center py-4">
                                         <i class="fa-solid fa-exclamation-triangle" style="font-size: 2rem;"></i>
                                         <p class="mt-2">Keine Beladelisten für diesen Fahrzeugtyp vorhanden.</p>
                                     </div>
@@ -314,13 +314,13 @@ $currentDate = date('d.m.Y');
                             <div class="vehicle-info-card p-4">
                                 <div class="text-center py-4">
                                     <i class="fa-solid fa-exclamation-triangle text-[#ddb84a]" style="font-size: 3rem;"></i>
-                                    <h5 class="text-white mt-3">Fahrzeug nicht gefunden</h5>
-                                    <p class="text-gray-400">
+                                    <h5 class="text-light mt-3">Fahrzeug nicht gefunden</h5>
+                                    <p class="text-muted">
                                         Das Fahrzeug mit der ID "<?= htmlspecialchars($currentVehicleId) ?>" konnte nicht gefunden werden.
                                     </p>
 
                                     <?php if (isset($vehicles) && count($vehicles) > 0): ?>
-                                        <h6 class="text-white mt-4">Verfügbare Fahrzeuge:</h6>
+                                        <h6 class="text-light mt-4">Verfügbare Fahrzeuge:</h6>
                                         <div class="table-responsive mt-3">
                                             <table class="table table-dark-custom">
                                                 <thead>

@@ -141,13 +141,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <div class="edivi__box">
     <form id="qmActionsForm" action="<?= BASE_PATH ?>enotf/admin/qm-actions-modal?id=<?= $_GET['id'] ?>" method="post">
-        <div class="mb-1 mt-2 grid grid-cols-[120px_1fr] items-center gap-3">
-            <div class="font-bold">Gesichtet von</div>
-            <input type="text" name="bearbeiter" id="bearbeiter" class="form-control w-full" value="<?= htmlspecialchars($userHelper->getCurrentUserFullnameForAction()) ?>" readonly>
+        <div class="mb-1 mt-2 grid grid-cols-[120px_1fr] align-items-center gap-3">
+            <div class="fw-bold">Gesichtet von</div>
+            <input type="text" name="bearbeiter" id="bearbeiter" class="form-control w-100" value="<?= htmlspecialchars($userHelper->getCurrentUserFullnameForAction()) ?>" readonly>
         </div>
-        <div class="mt-3 grid grid-cols-[120px_1fr] items-center gap-3">
-            <div class="font-bold">Status</div>
-            <select name="protokoll_status" id="protokoll_status" class="form-select w-full" data-custom-dropdown="true">
+        <div class="mt-3 grid grid-cols-[120px_1fr] align-items-center gap-3">
+            <div class="fw-bold">Status</div>
+            <select name="protokoll_status" id="protokoll_status" class="form-select w-100" data-custom-dropdown="true">
                 <option value="0" <?php echo ($row['protokoll_status'] == 0 ? 'selected' : '') ?>>Ungesehen</option>
                 <option value="1" <?php echo ($row['protokoll_status'] == 1 ? 'selected' : '') ?>>in Prüfung</option>
                 <option value="2" <?php echo ($row['protokoll_status'] == 2 ? 'selected' : '') ?>>Freigegeben</option>
@@ -155,9 +155,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <option value="4" <?php echo ($row['protokoll_status'] == 4 ? 'selected' : '') ?>>Ausgeblendet</option>
             </select>
         </div>
-        <div class="mt-3 grid grid-cols-[120px_1fr] items-start gap-3">
-            <div class="pt-2 font-bold">Bemerkung</div>
-            <textarea name="qmkommentar" id="qmkommentar" rows="8" class="form-control w-full" style="resize: none;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
+        <div class="mt-3 grid grid-cols-[120px_1fr] align-items-start gap-3">
+            <div class="pt-2 fw-bold">Bemerkung</div>
+            <textarea name="qmkommentar" id="qmkommentar" rows="8" class="form-control w-100" style="resize: none;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
         </div>
         <div class="mb-2 mt-4 text-center">
             <input class="ignis-btn ignis-btn--success" name="submit" type="submit" value="Speichern" />

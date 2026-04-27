@@ -360,7 +360,7 @@ $status_config = [
         <?php else: ?>
             <!-- Availability Management -->
             <div class="hospital-card">
-                <div class="flex justify-between items-start mb-4">
+                <div class="flex justify-content-between align-items-start mb-4">
                     <div class="hospital-header grow mb-0 pb-0 border-0">
                         <h2><?= htmlspecialchars($hospital['name']) ?></h2>
                         <p><?= htmlspecialchars($hospital['ort']) ?><?= $hospital['ortsteil'] ? ', ' . htmlspecialchars($hospital['ortsteil']) : '' ?></p>

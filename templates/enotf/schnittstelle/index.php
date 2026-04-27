@@ -42,10 +42,10 @@ if ($ziel) {
 </head>
 
 <body data-bs-theme="dark" style="overflow-x:hidden; display: flex; flex-direction: column; min-height: 100vh;" id="edivi__arrivalboard">
-    <div class="w-full" style="flex: 1;">
-        <div class="flex flex-wrap -mx-3 h-full">
-            <div class="flex-1 px-3" id="edivi__content">
-                <table class="w-full">
+    <div class="container-fluid" style="flex: 1;">
+        <div class="row h-full">
+            <div class="col" id="edivi__content">
+                <table class="container-fluid">
                     <thead>
                         <tr>
                             <th class="text-center">Ankunft</th>
@@ -130,9 +130,9 @@ if ($ziel) {
             </div>
         </div>
     </div>
-    <footer class="py-2 text-center text-white" style="background-color: #131313;">
-        <div class="grid grid-cols-3 items-center">
-            <div class="flex items-center pl-4" style="font-size:2rem">
+    <footer class="py-2 text-center text-light" style="background-color: #131313;">
+        <div class="grid grid-cols-3 align-items-center">
+            <div class="flex align-items-center pl-4" style="font-size:2rem">
                 eNOTFArrivalboard
                 <?php if ($ziel && !empty($zielName)): ?>
                     <span style="font-size:0.9rem; opacity:0.6; margin-left:1rem;"><?= htmlspecialchars($zielName) ?></span>
@@ -141,11 +141,11 @@ if ($ziel) {
             <div class="flex justify-center">
                 <img src="https://web-assets.emergencyforge.de/images/defaultLogo.webp" alt="EmergencyForge Logo" height="48px" width="auto">
             </div>
-            <div class="flex items-center justify-end">
+            <div class="flex align-items-center justify-content-end">
                 <button id="sound-toggle" onclick="toggleSound()" style="background:none;border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:6px;padding:4px 12px;cursor:pointer;font-size:1.2rem;margin-right:1rem;opacity:1;transition:opacity 0.2s" title="Benachrichtigungston deaktivieren">
                     <i class="fa-solid fa-bell" id="sound-icon"></i>
                 </button>
-                <div class="mr-3 flex flex-col items-end">
+                <div class="mr-3 d-flex flex-column align-items-end">
                     <span id="current-time"><?= $currentTime ?></span>
                     <span id="current-date"><?= $currentDate ?></span>
                 </div>

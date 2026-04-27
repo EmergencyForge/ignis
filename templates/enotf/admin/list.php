@@ -21,7 +21,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="edivi">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
-    <div class="container-full relative" id="mainpageContainer">
+    <div class="container-full position-relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
@@ -30,7 +30,7 @@ use App\Helpers\Flash;
             <div class="page-header mb-4">
                 <h1>Protokollübersicht</h1>
                 <div class="header-actions">
-                    <div class="flex items-center gap-3">
+                    <div class="flex align-items-center gap-3">
                         <div class="btn-toolbar-group">
                             <a href="?view=0" class="btn <?= (!isset($_GET['view']) || $_GET['view'] != 1) ? 'active' : '' ?>">Alle</a>
                             <a href="?view=1" class="btn <?= (isset($_GET['view']) && $_GET['view'] == 1) ? 'active' : '' ?>">Unbearbeitet</a>
@@ -44,8 +44,8 @@ use App\Helpers\Flash;
                 </div>
             </div>
             <?php Flash::render(); ?>
-            <div class="flex flex-wrap -mx-3">
-                <div class="flex-1 mb-5 px-3">
+            <div class="row">
+                <div class="col mb-5">
                     <div class="intra__tile py-2 px-3">
                         <table class="table table-striped" id="table-protokoll">
                             <thead>
@@ -398,7 +398,7 @@ use App\Helpers\Flash;
                             </div>
                             <form id="bulkDeleteFieldsForm">
                                 <div class="mb-3">
-                                    <label class="ignis-field__label font-bold">Zeitraum:</label>
+                                    <label class="ignis-field__label fw-bold">Zeitraum:</label>
                                     <select class="form-select" id="timePeriod">
                                         <option value="7">Letzte 7 Tage</option>
                                         <option value="30" selected>Letzte 30 Tage</option>
@@ -408,7 +408,7 @@ use App\Helpers\Flash;
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="ignis-field__label font-bold">Leere Felder (ALLE müssen leer sein):</label>
+                                    <label class="ignis-field__label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
                                 <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">

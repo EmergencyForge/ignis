@@ -6,21 +6,29 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?php echo $SITE_TITLE; ?> &rsaquo; <?php echo SYSTEM_NAME ?></title>
-<!-- Preload critical font -->
-<link rel="preload" href="<?= BASE_PATH ?>assets/fonts/mavenpro/font/maven-pro-v39-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
 <!-- Stylesheets: Bootstrap first, then overrides -->
-<!-- Vendor + App-SCSS zuerst, Tailwind-Utilities zuletzt damit sie bei
-     gleicher Spezifität im Cascade-Tie gewinnen. -->
+<!-- Reihenfolge:
+     1. vendor.css           — FontAwesome (gemeinsam mit Admin)
+     2. vendor-enotf.css     — Bootstrap 5 (nur eNOTF)
+     3. bootstrap-compat.min — kleinere ıgnıs-Anpassungen oben drauf
+     4. divi.min, ui.min     — eNOTF-spezifisches Styling
+     5. enotf-modals/-toast  — eNOTF-Komponenten
+     6. tailwind.css         — Utility-Klassen, gewinnt bei gleicher Spezifität -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
+<link rel="stylesheet" href="<?= asset('public/assets/dist/vendor-enotf.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/bootstrap-compat.min.css') ?>">
+<!-- eNOTF nutzt den System-Font-Stack (kein Webfont-Load nötig). Maven Pro
+     bleibt für Display-Stellen (Clock, Stempel) optional verfügbar. -->
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
 <link rel="stylesheet" href="<?= asset('assets/css/divi.min.css') ?>" />
 <link rel="stylesheet" href="<?= asset('assets/css/ui.min.css') ?>" />
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-modals.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-toast.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
-<!-- Core-Bundle: jQuery + Bootstrap + DataTables (synchron, wegen window.$-Nutzung in Inline-Scripts) -->
+<!-- Core-Bundle: jQuery + DataTables (synchron, wegen window.$-Nutzung in Inline-Scripts).
+     vendor-enotf.js liefert das vollständige Bootstrap 5 (nur eNOTF). -->
 <script src="<?= asset('public/assets/dist/vendor.js') ?>"></script>
+<script src="<?= asset('public/assets/dist/vendor-enotf.js') ?>"></script>
 <!-- App scripts: defer to unblock rendering -->
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/dropdown.js"></script>
