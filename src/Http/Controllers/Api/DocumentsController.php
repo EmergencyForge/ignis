@@ -846,12 +846,16 @@ final class DocumentsController
                 $dompdf->setPaper('A4', 'portrait');
                 $dompdf->render();
 
+                // Rotated CSRF-Token im Custom-Header zurückgeben — der JS-
+                // Editor liest den Header vor dem Blob, damit der nächste Save
+                // nicht mit dem gerade verbrannten Token läuft (sonst 403).
                 return new Response(
                     status:  200,
                     body:    (string) $dompdf->output(),
                     headers: [
                         'Content-Type'        => 'application/pdf',
                         'Content-Disposition' => 'inline; filename="preview.pdf"',
+                        'X-CSRF-Token'        => CsrfProtection::getResponseToken(),
                     ],
                 );
             }
@@ -859,7 +863,10 @@ final class DocumentsController
             return new Response(
                 status:  200,
                 body:    $html,
-                headers: ['Content-Type' => 'text/html; charset=UTF-8'],
+                headers: [
+                    'Content-Type' => 'text/html; charset=UTF-8',
+                    'X-CSRF-Token' => CsrfProtection::getResponseToken(),
+                ],
             );
         } catch (\Throwable $e) {
             $body = '<!DOCTYPE html><html><body style="font-family:sans-serif;padding:2rem;">'

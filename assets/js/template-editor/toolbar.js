@@ -328,6 +328,11 @@
                     })),
                 });
 
+                // CSRF-Token aus dem Header lesen, BEVOR der Blob konsumiert wird —
+                // der Server hat den gesendeten Token rotiert, der nächste Save
+                // bräuchte sonst den alten Token und würde mit 403 abgelehnt.
+                window.EditorCsrf.handleResponseHeader(response);
+
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 iframe.src = url;

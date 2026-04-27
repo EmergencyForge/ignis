@@ -303,6 +303,11 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
         let editorInstances = {};
         let currentTemplate = null;
 
+        // CSRF-Token wird nach jedem Vorschau-Request rotiert; wir halten den
+        // aktuellen Wert in einem global-mutablen Slot, damit ein zweiter
+        // Klick auf Vorschau nicht mit dem inzwischen verbrannten Token läuft.
+        window.__dokuCsrfToken = <?= json_encode(\App\Security\CsrfProtection::getToken()) ?>;
+
         window.ClassicEditor = ClassicEditor;
         window.ckEditorConfig = {
             Essentials,
@@ -586,9 +591,15 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                         template_id: parseInt(templateId),
                         sample_data: sampleData,
                         format: 'pdf',
-                        csrf_token: '<?= CsrfProtection::getToken() ?>'
+                        csrf_token: window.__dokuCsrfToken
                     })
                 });
+
+                // Server rotiert den CSRF-Token bei jeder Validierung. Damit der
+                // nächste Vorschau-Klick nicht mit dem verbrannten Token läuft,
+                // den im Response-Header zurückgereichten Token übernehmen.
+                const newToken = response.headers.get('X-CSRF-Token');
+                if (newToken) window.__dokuCsrfToken = newToken;
 
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
