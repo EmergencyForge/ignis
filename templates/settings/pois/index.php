@@ -77,7 +77,7 @@ use App\Helpers\Flash;
                                     $actions = '';
                                     if (Permissions::check(['admin', 'pois.manage'])) {
                                         if ($row['typ'] === 'Krankenhaus' || $row['typ'] === 'Klinik') {
-                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments.php?poi_id={$row['id']}' class='btn btn-sm btn-outline-secondary btn-icon mr-1'><i class='fa-solid fa-hospital'></i></a>";
+                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments?poi_id={$row['id']}' class='btn btn-sm btn-outline-secondary btn-icon mr-1'><i class='fa-solid fa-hospital'></i></a>";
                                         }
                                         $actions .= "<a title='POI bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editPoiModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>";
                                     }

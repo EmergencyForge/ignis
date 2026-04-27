@@ -37,7 +37,7 @@
     if (timeSinceActivity >= timeout) {
       console.log("🔒 User inactive for 5 minutes, redirecting to lockscreen");
       const basePath = getBasePath();
-      window.location.href = basePath + "lockscreen.php";
+      window.location.href = basePath + "lockscreen";
     }
   }
 

@@ -122,7 +122,7 @@ class FahrtenbuchController extends Controller
     public function store(): void
     {
         $this->requireAnyContext();
-        $this->ensure('fahrt.create', redirectTo: 'index.php');
+        $this->ensure('fahrt.create', redirectTo: 'index');
 
         try {
             $data = CreateFahrtRequest::validate($_POST);
@@ -292,7 +292,7 @@ class FahrtenbuchController extends Controller
 
         if (!$isAdmin && !$isEnotf && !$isFiretab) {
             Flash::error('Nicht authentifiziert.');
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
     }
 

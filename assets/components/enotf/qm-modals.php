@@ -63,7 +63,7 @@ use App\Helpers\EnotfUrl;
                 modal.show();
 
                 // Load content via AJAX
-                fetch(`<?= BASE_PATH ?>enotf/admin/qm-actions-modal.php?id=${id}`)
+                fetch(`<?= BASE_PATH ?>enotf/admin/qm-actions-modal?id=${id}`)
                     .then(response => response.text())
                     .then(data => {
                         document.getElementById('qmActionsContent').innerHTML = data;
@@ -96,7 +96,7 @@ use App\Helpers\EnotfUrl;
                 modal.show();
 
                 // Load content via AJAX
-                fetch(`<?= BASE_PATH ?>enotf/admin/qm-log-modal.php?id=${id}`)
+                fetch(`<?= BASE_PATH ?>enotf/admin/qm-log-modal?id=${id}`)
                     .then(response => response.text())
                     .then(data => {
                         document.getElementById('qmLogContent').innerHTML = data;

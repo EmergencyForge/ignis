@@ -38,7 +38,7 @@ class DocumentController extends Controller
         $this->requireAuth();
         if (!Gate::allows('mitarbeiter.manageDocs')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $this->renderView('settings/documents/visual-editor', []);

@@ -502,7 +502,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             if (!clearNull) ajaxData.value = value;
 
             $.ajax({
-                url: basePath + 'api/enotf/save-fields.php',
+                url: basePath + 'api/enotf/save-fields',
                 type: 'POST',
                 data: ajaxData,
                 success: function() {

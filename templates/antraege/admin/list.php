@@ -59,7 +59,7 @@ $SITE_TITLE = 'Antragsübersicht';
                                         default => '',
                                     };
                                     $rowStyle  = $bgColor !== '' ? "style=\"--bs-table-striped-bg: {$bgColor}; --bs-table-bg: {$bgColor};\"" : '';
-                                    $viewUrl   = BASE_PATH . "antrag/view.php?antrag=" . urlencode($antrag->uniqueid);
+                                    $viewUrl   = BASE_PATH . "antrag/view?antrag=" . urlencode($antrag->uniqueid);
                                     $createdAt = $antrag->time_added;
                                 ?>
                                     <tr <?= $rowStyle ?>>

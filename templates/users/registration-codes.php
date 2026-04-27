@@ -84,7 +84,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                             <tbody>
                                 <?php foreach ($codes as $code):
                                     $isExpired = $code->expires_at !== null && $code->expires_at->isPast();
-                                    $inviteUrl = $systemUrl . BASE_PATH . 'invite.php?code=' . $code->code;
+                                    $inviteUrl = $systemUrl . BASE_PATH . 'invite?code=' . $code->code;
                                     $rowClass  = ($code->is_used || $isExpired) ? ' class="opacity-50"' : '';
                                 ?>
                                     <tr<?= $rowClass ?>>

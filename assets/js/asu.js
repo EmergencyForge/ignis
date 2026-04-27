@@ -347,7 +347,7 @@ function sendData() {
     params.asu_id = asuId;
   }
 
-  fetch(basePath + "einsatz/actions.php", {
+  fetch(basePath + "einsatz/actions", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -500,7 +500,7 @@ function deleteASUProtocol(asuId) {
     const urlParams = new URLSearchParams(window.location.search);
     const incidentId = urlParams.get("id");
 
-    fetch(basePath + "einsatz/actions.php", {
+    fetch(basePath + "einsatz/actions", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",

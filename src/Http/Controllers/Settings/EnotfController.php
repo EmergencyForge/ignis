@@ -22,7 +22,7 @@ class EnotfController extends Controller
         $this->requireAuth();
         if (!Gate::allows('enotf.viewAdminList')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $quicklinks = Capsule::table('intra_enotf_quicklinks')
@@ -161,7 +161,7 @@ class EnotfController extends Controller
         $this->requireAuth();
         if (!Gate::allows('enotf.viewAdminList')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $categories = Capsule::table('intra_enotf_categories')

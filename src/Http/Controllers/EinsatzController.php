@@ -45,9 +45,9 @@ class EinsatzController extends Controller
         FiveMSupport::prepareCookiesAndHeaders();
 
         if (Gate::allows('fireIncident.hasFireTabSession')) {
-            $this->redirect('einsatz/list.php');
+            $this->redirect('einsatz/list');
         }
-        $this->redirect('einsatz/login-fahrzeug.php');
+        $this->redirect('einsatz/login-fahrzeug');
     }
 
     /**
@@ -61,14 +61,14 @@ class EinsatzController extends Controller
 
         if (!Gate::allows('fireIncident.accessModule')) {
             \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
 
         // Logout-Action via GET ?logout=1
         if (isset($_GET['logout'])) {
             \App\Session\SessionManager::logoutEinsatz();
             Flash::success('Von Fahrzeug abgemeldet.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         // Charakter-Lock + Job-Filter aus den Konfig-Konstanten ableiten
@@ -130,7 +130,7 @@ class EinsatzController extends Controller
 
         if (!Gate::allows('fireIncident.accessModule')) {
             \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
 
         $vehicleId  = (int) ($_POST['vehicle_id'] ?? 0);
@@ -138,11 +138,11 @@ class EinsatzController extends Controller
 
         if ($vehicleId <= 0) {
             Flash::error('Bitte wählen Sie ein Fahrzeug aus.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
         if ($operatorId <= 0) {
             Flash::error('Bitte wählen Sie einen Mitarbeiter aus.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         // Vehicle prüfen — muss aktiv und rd_type=3 sein
@@ -155,7 +155,7 @@ class EinsatzController extends Controller
 
         if ($vehicle === null) {
             Flash::error('Fahrzeug nicht gefunden oder nicht verfügbar.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         // Operator prüfen
@@ -166,7 +166,7 @@ class EinsatzController extends Controller
 
         if ($operator === null) {
             Flash::error('Mitarbeiter nicht gefunden.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         // Char-Lock prüfen
@@ -174,7 +174,7 @@ class EinsatzController extends Controller
         $charName        = (string) ($_SESSION['char_name'] ?? '');
         if ($charLockEnabled && $charName !== '' && $operator->fullname !== $charName) {
             Flash::error('Sie können sich nur unter Ihrem eigenen Namen anmelden.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         $vehicleLabel = $vehicle->name . ($vehicle->identifier ? ' (' . $vehicle->identifier . ')' : '');
@@ -186,7 +186,7 @@ class EinsatzController extends Controller
         );
 
         Flash::success('Erfolgreich auf ' . $vehicleLabel . ' angemeldet als ' . $operator->fullname);
-        $this->redirect('einsatz/list.php');
+        $this->redirect('einsatz/list');
     }
 
     /**
@@ -200,12 +200,12 @@ class EinsatzController extends Controller
 
         if (!Gate::allows('fireIncident.accessModule')) {
             \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
 
         if (!Gate::allows('fireIncident.viewList')) {
             Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         // Alle einsatz_viewed_*-Session-Marker beim Zurück zur Liste löschen
@@ -260,7 +260,7 @@ class EinsatzController extends Controller
 
         if (!Gate::allows('fireIncident.accessModule')) {
             \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
 
         $id = (int) ($_GET['id'] ?? 0);
@@ -268,7 +268,7 @@ class EinsatzController extends Controller
 
         if ($id <= 0) {
             Flash::error('Ungültige Einsatz-ID');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         // Clear viewed sessions for other incidents
@@ -283,7 +283,7 @@ class EinsatzController extends Controller
 
         if (!$incident) {
             Flash::error('Einsatz nicht gefunden');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
         $incident = (array) $incident;
 
@@ -305,10 +305,10 @@ class EinsatzController extends Controller
             // Users without vehicle login need admin/QM
             if (!isset($_SESSION['einsatz_vehicle_id'])) {
                 Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
-                $this->redirect('einsatz/login-fahrzeug.php');
+                $this->redirect('einsatz/login-fahrzeug');
             }
             Flash::error('Ihr Fahrzeug ist diesem Einsatz nicht zugeordnet. Zugriff verweigert.');
-            $this->redirect('einsatz/list.php');
+            $this->redirect('einsatz/list');
         }
 
         // Load vehicles
@@ -364,12 +364,12 @@ class EinsatzController extends Controller
 
         if (!Gate::allows('fireIncident.accessModule')) {
             \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
 
         if (!Gate::allows('fireIncident.create')) {
             Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         // Clear all einsatz_viewed session variables
@@ -392,12 +392,12 @@ class EinsatzController extends Controller
 
         if (!Gate::allows('fireIncident.accessModule')) {
             \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
 
         if (!Gate::allows('fireIncident.create')) {
             Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         $incidentNumber = trim($_POST['incident_number'] ?? '');
@@ -473,7 +473,7 @@ class EinsatzController extends Controller
             Capsule::connection()->getPdo()->commit();
 
             Flash::success('Einsatz wurde erstellt.');
-            $this->redirect('einsatz/view.php?id=' . $incidentId);
+            $this->redirect('einsatz/view?id=' . $incidentId);
         } catch (PDOException $e) {
             Capsule::connection()->getPdo()->rollBack();
             $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
@@ -497,14 +497,14 @@ class EinsatzController extends Controller
 
         if ($id <= 0) {
             Flash::error('Ungültige Einsatz-ID');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         // Preload incident
         $incident = Capsule::table('intra_fire_incidents')->where('id', $id)->first();
         if (!$incident) {
             Flash::error('Einsatz nicht gefunden.');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
         $incident = (array) $incident;
 
@@ -535,7 +535,7 @@ class EinsatzController extends Controller
 
         // Archive/unarchive redirect to admin list (handled inside those methods)
         \App\Session\SessionManager::skipNextViewLog();
-        $this->redirect('einsatz/view.php?id=' . $id . '&tab=' . urlencode($returnTab));
+        $this->redirect('einsatz/view?id=' . $id . '&tab=' . urlencode($returnTab));
     }
 
     // ── Individual action methods ──────────────────────────
@@ -959,7 +959,7 @@ class EinsatzController extends Controller
         }
 
         Flash::success('Einsatz wurde archiviert.');
-        $this->redirect('einsatz/admin/list.php');
+        $this->redirect('einsatz/admin/list');
     }
 
     private function actionUnarchive(int $id, array $incident): void
@@ -983,7 +983,7 @@ class EinsatzController extends Controller
         }
 
         Flash::success('Einsatz wurde wiederhergestellt.');
-        $this->redirect('einsatz/admin/list.php');
+        $this->redirect('einsatz/admin/list');
     }
 
     // ── Statusmeldungen / ASU / Fahrtenbuch / Admin ──────
@@ -998,12 +998,12 @@ class EinsatzController extends Controller
 
         if (!Gate::allows('fireIncident.accessModule')) {
             \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
 
         if (!Gate::allows('fireIncident.hasFireTabSession')) {
             Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         $vehicleId   = (int) $_SESSION['einsatz_vehicle_id'];
@@ -1072,12 +1072,12 @@ class EinsatzController extends Controller
 
         if (!Gate::allows('fireIncident.accessModule')) {
             \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
 
         if (!Gate::allows('fireIncident.hasFireTabSession')) {
             Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         $prefillNumber    = $_GET['incident_number'] ?? '';
@@ -1119,12 +1119,12 @@ class EinsatzController extends Controller
 
         if (!Gate::allows('fireIncident.accessModule')) {
             \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
 
         if (!Gate::allows('fireIncident.hasFireTabSession')) {
             Flash::error('Bitte melden Sie sich zuerst auf einem Fahrzeug an.');
-            $this->redirect('einsatz/login-fahrzeug.php');
+            $this->redirect('einsatz/login-fahrzeug');
         }
 
         date_default_timezone_set('Europe/Berlin');

@@ -405,7 +405,7 @@ $configByCategory = $configManager->getConfigByCategory();
 
             // Send request to regenerate API key
             const basePath = <?= json_encode(BASE_PATH) ?>;
-            const url = basePath + (basePath.endsWith('/') ? '' : '/') + 'api/system/regenerate-api-key.php';
+            const url = basePath + (basePath.endsWith('/') ? '' : '/') + 'api/system/regenerate-api-key';
             fetch(url, {
                     method: 'POST',
                     headers: {

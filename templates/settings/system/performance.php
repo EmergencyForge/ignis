@@ -274,7 +274,7 @@ use App\Helpers\Flash;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Lade...';
 
             try {
-                const response = await fetch(BASE_PATH + 'api/system/performance.php');
+                const response = await fetch(BASE_PATH + 'api/system/performance');
                 const data = await response.json();
 
                 if (data.error) {

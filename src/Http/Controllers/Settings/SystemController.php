@@ -67,7 +67,7 @@ class SystemController extends Controller
     {
         if (!Gate::allows('system.admin')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
     }
 }

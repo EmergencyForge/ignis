@@ -190,7 +190,7 @@ use App\Helpers\Flash;
         let statusSource = <?= $statusSource !== null ? json_encode($statusSource) : 'null' ?>;
 
         setInterval(() => {
-            fetch(basePath + 'api/fire/status.php', {
+            fetch(basePath + 'api/fire/status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'get_status' })
@@ -236,7 +236,7 @@ use App\Helpers\Flash;
             const btn = document.querySelector(`.status-btn[data-status="${newStatus}"]`);
             if (btn) btn.classList.add('sending');
 
-            fetch(basePath + 'api/fire/status.php', {
+            fetch(basePath + 'api/fire/status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

@@ -459,7 +459,7 @@ final class SystemController
             $items[] = [
                 'title'    => $row['fullname'],
                 'subtitle' => $row['dienstnr'] ? 'DNr: ' . $row['dienstnr'] : '',
-                'url'      => 'mitarbeiter/profile.php?id=' . $row['id'],
+                'url'      => 'mitarbeiter/profile?id=' . $row['id'],
             ];
         }
         return $items;
