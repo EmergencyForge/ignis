@@ -7,13 +7,14 @@
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Security\CsrfProtection;
+use App\Session\SessionManager;
 use App\Utils\SystemUpdater;
 use App\Utils\AuditLogger;
 
-// Generate CSRF token if not exists
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+// CSRF-Token sicherstellen (idempotent — generiert beim ersten Aufruf,
+// liefert den existierenden Token für alle Folge-Renders).
+$csrfToken = CsrfProtection::getToken();
 
 $updater = new SystemUpdater();
 $currentVersion = $updater->getCurrentVersion();
@@ -28,8 +29,10 @@ $devBranchInfo = null;
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // CSRF Token validation
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
+    // CSRF Token validation — hash_equals statt validateToken(), damit
+    // der Token NICHT rotiert wird (mehrere Formulare auf der Page teilen
+    // sich denselben Token; rotation würde den 2. Submit nach Reload sprengen).
+    if (!isset($_POST['csrf_token']) || !hash_equals($csrfToken, $_POST['csrf_token'] ?? '')) {
         Flash::set('error', 'Ungültiger CSRF-Token. Bitte versuchen Sie es erneut.');
         header("Location: " . $_SERVER['REQUEST_URI']);
         exit();
@@ -44,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Log the check action
         $auditLogger = new AuditLogger($pdo);
         $auditLogger->log(
-            $_SESSION['userid'],
+            SessionManager::userId(),
             'system_update_check',
             json_encode(['result' => $updateInfo, 'cached' => $updateInfo['cached'] ?? false, 'force_refresh' => $forceRefresh, 'include_prerelease' => $includePreRelease !== null]),
             'System',
@@ -111,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Log the installation attempt
             $auditLogger = new AuditLogger($pdo);
             $auditLogger->log(
-                $_SESSION['userid'],
+                SessionManager::userId(),
                 'system_update_install',
                 json_encode(['version' => $newVersion, 'result' => $installResult]),
                 'System',
@@ -119,15 +122,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             );
 
             // Handle AJAX vs normal form submission differently
+            $composerPending = isset($installResult['composer_pending']) && $installResult['composer_pending'];
             if ($isAjax) {
                 // Return JSON for AJAX request
                 header('Content-Type: application/json');
                 if ($installResult['success']) {
-                    $_SESSION['composer_pending'] = isset($installResult['composer_pending']) && $installResult['composer_pending'];
+                    SessionManager::setComposerPending($composerPending);
                     echo json_encode([
                         'success' => true,
                         'message' => $installResult['message'],
-                        'composer_pending' => $_SESSION['composer_pending']
+                        'composer_pending' => $composerPending
                     ]);
                 } else {
                     echo json_encode([
@@ -141,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Normal form submission - use redirects and flash messages
                 if ($installResult['success']) {
-                    $_SESSION['composer_pending'] = isset($installResult['composer_pending']) && $installResult['composer_pending'];
+                    SessionManager::setComposerPending($composerPending);
                     Flash::set('success', $installResult['message']);
                 } else {
                     Flash::set('error', $installResult['message']);
@@ -203,21 +207,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $auditLogger = new AuditLogger($pdo);
         $auditLogger->log(
-            $_SESSION['userid'],
+            SessionManager::userId(),
             'system_update_dev_install',
             json_encode(['branch' => $branch, 'commit' => $commitSha, 'result' => $installResult]),
             'System',
             0
         );
 
+        $composerPending = isset($installResult['composer_pending']) && $installResult['composer_pending'];
         if ($isAjax) {
             header('Content-Type: application/json');
             if ($installResult['success']) {
-                $_SESSION['composer_pending'] = isset($installResult['composer_pending']) && $installResult['composer_pending'];
+                SessionManager::setComposerPending($composerPending);
                 echo json_encode([
                     'success' => true,
                     'message' => $installResult['message'],
-                    'composer_pending' => $_SESSION['composer_pending']
+                    'composer_pending' => $composerPending
                 ]);
             } else {
                 echo json_encode([
@@ -230,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         } else {
             if ($installResult['success']) {
-                $_SESSION['composer_pending'] = isset($installResult['composer_pending']) && $installResult['composer_pending'];
+                SessionManager::setComposerPending($composerPending);
                 Flash::set('success', $installResult['message']);
             } else {
                 Flash::set('error', $installResult['message']);
@@ -318,7 +323,7 @@ if ($isDevMode) {
                                 <div class="flex items-center">
                                     <div class="w-full">
                                         <form method="post" id="check-updates-form" class="mb-2">
-                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                             <input type="hidden" name="check_updates" value="1">
                                             <input type="hidden" name="include_prerelease" id="include-prerelease-hidden" value="0">
                                             <button type="submit" class="ignis-btn ignis-btn--soft-primary w-full">
@@ -334,7 +339,7 @@ if ($isDevMode) {
 
                                         <div class="flex gap-2">
                                             <form method="post" class="flex-1" id="force-refresh-form">
-                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                                 <input type="hidden" name="check_updates" value="1">
                                                 <input type="hidden" name="force_refresh" value="1">
                                                 <input type="hidden" name="include_prerelease" id="force-refresh-prerelease" value="0">
@@ -343,7 +348,7 @@ if ($isDevMode) {
                                                 </button>
                                             </form>
                                             <form method="post" class="flex-1">
-                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                                 <button type="submit" name="clear_cache" class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm w-full">
                                                     <i class="fa-solid fa-trash"></i> Cache leeren
                                                 </button>
@@ -456,7 +461,7 @@ if ($isDevMode) {
 
                                             <!-- Install Update Button -->
                                             <form method="post" id="install-update-form" class="mb-2">
-                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                                 <input type="hidden" name="install_update" value="1">
                                                 <input type="hidden" name="download_url" value="<?= htmlspecialchars($updateInfo['download_url']) ?>">
                                                 <input type="hidden" name="download_url_fallback" value="<?= htmlspecialchars($updateInfo['download_url_fallback'] ?? '') ?>">
@@ -734,7 +739,7 @@ if ($isDevMode) {
                                                     </div>
                                                 <?php else: ?>
                                                     <form method="post" id="dev-install-form" class="mt-3">
-                                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                                         <input type="hidden" name="dev_install_branch" value="1">
                                                         <input type="hidden" name="dev_branch" value="<?= htmlspecialchars($selectedBranch) ?>">
                                                         <input type="hidden" name="dev_commit_sha" value="<?= htmlspecialchars($devBranchInfo['sha']) ?>">
@@ -876,9 +881,7 @@ if ($isDevMode) {
         let composerCheckInterval = null;
 
         // Check if we should show the composer modal on page load
-        <?php if (isset($_SESSION['composer_pending']) && $_SESSION['composer_pending']): ?>
-            <?php unset($_SESSION['composer_pending']); ?>
-
+        <?php if (SessionManager::consumeComposerPending()): ?>
             document.addEventListener('DOMContentLoaded', function() {
                 showComposerModal();
             });
