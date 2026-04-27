@@ -60,7 +60,10 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                             </div>
                             <div>
                                 <label for="einsatzbeginn" class="ignis-field__label">Einsatzbeginn</label>
-                                <input type="datetime-local" class="ignis-input" id="einsatzbeginn" name="einsatzbeginn" value="<?= !empty($lage['einsatzbeginn']) ? date('Y-m-d\TH:i', strtotime($lage['einsatzbeginn'])) : '' ?>">
+                                <div data-ignis-datetimepicker
+                                     data-name="einsatzbeginn"
+                                     data-value="<?= !empty($lage['einsatzbeginn']) ? date('Y-m-d\TH:i', strtotime($lage['einsatzbeginn'])) : '' ?>"
+                                     class="ignis-datetimepicker"></div>
                             </div>
                         </div>
 
