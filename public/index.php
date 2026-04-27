@@ -72,13 +72,13 @@ if (preg_match('#\.php$#', $rawPath) && !str_ends_with($rawPath, 'index.php')) {
 // bekommen aber Deprecation-Header in der Response.
 $apiDeprecated = false;
 $apiSuccessor  = null;
-if (preg_match('#^/api/v1(/.*)?$#', $rawPath, $m)) {
+if (preg_match('~^/api/v1(/.*)?$~', $rawPath, $m)) {
     $rest = $m[1] ?? '';
     if ($rest === '') $rest = '/';
     $cleanPath = '/api' . $rest;
     $query = parse_url($rawUri, PHP_URL_QUERY);
     $_SERVER['REQUEST_URI'] = $cleanPath . ($query !== null ? '?' . $query : '');
-} elseif (preg_match('#^/api/(?!_router/)([^/?#].*)?$#', $rawPath, $m)) {
+} elseif (preg_match('~^/api/(?!_router/)([^/?#].*)?$~', $rawPath, $m)) {
     $apiDeprecated = true;
     $apiSuccessor  = '/api/v1/' . ($m[1] ?? '');
 }

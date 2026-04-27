@@ -174,47 +174,60 @@ $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
             background-color: rgba(255,255,255,0.05);
             color: #e0e0e0;
         }
-        /* Section styling - these have colored backgrounds so need dark text */
+        /* Section styling — dezente getönte Cards im Dark-Theme.
+           Die Akzentfarbe bleibt als Border + Header-Bottom-Tint sichtbar,
+           der Body hat einen subtilen Tint, kein voll-saturiertes Pur-Gelb. */
         .kb-section {
-            margin-bottom: 15px;
-            border-radius: 4px;
+            margin-bottom: 12px;
+            border-radius: var(--radius-md, 6px);
+            border: 1px solid var(--darkgray, #2a2a2a);
+            background-color: rgba(255, 255, 255, 0.02);
+            color: #e0e0e0;
+            overflow: hidden;
         }
         .kb-section-yellow {
-            background-color: #ffff00;
-            border: 1px solid #cccc00;
-            color: #000000;
+            background-color: rgba(255, 193, 7, 0.06);
+            border-color: rgba(255, 193, 7, 0.35);
+        }
+        .kb-section-yellow .kb-section-header {
+            background-color: rgba(255, 193, 7, 0.18);
+            color: #ffd966;
         }
         .kb-section-blue {
-            background-color: #cce5ff;
-            border: 1px solid #99ccff;
-            color: #000000;
+            background-color: rgba(13, 110, 253, 0.06);
+            border-color: rgba(13, 110, 253, 0.35);
+        }
+        .kb-section-blue .kb-section-header {
+            background-color: rgba(13, 110, 253, 0.18);
+            color: #6ea8fe;
         }
         .kb-section-red {
-            background-color: rgba(192, 0, 0, 0.1);
-            border: 2px solid #c00000;
-            color: #ffffff;
+            background-color: rgba(192, 0, 0, 0.06);
+            border-color: rgba(192, 0, 0, 0.45);
         }
-        .kb-section-red .kb-section-header,
-        .kb-section-red .kb-section-content {
-            color: #ffffff;
+        .kb-section-red .kb-section-header {
+            background-color: rgba(192, 0, 0, 0.22);
+            color: #ff8a8a;
         }
         .kb-section-gray {
-            background-color: rgba(255,255,255,0.1);
-            border: 1px solid #444;
-            color: #e0e0e0;
+            background-color: rgba(255, 255, 255, 0.03);
+            border-color: var(--darkgray, #2a2a2a);
         }
-        .kb-section-gray .kb-section-header,
-        .kb-section-gray .kb-section-content {
-            color: #e0e0e0;
+        .kb-section-gray .kb-section-header {
+            background-color: rgba(255, 255, 255, 0.04);
+            color: var(--text-dimmed, #a0a0a0);
         }
         .kb-section-header {
             margin: 0;
             padding: 8px 15px;
-            font-weight: bold;
-            border-bottom: 1px solid rgba(0,0,0,0.2);
+            font-weight: 600;
+            font-size: 0.82rem;
+            letter-spacing: 0.02em;
+            border-bottom: 1px solid var(--darkgray, #2a2a2a);
         }
         .kb-section-content {
             padding: 12px 15px;
+            color: #e0e0e0;
         }
         .edit-info {
             font-size: 0.85rem;

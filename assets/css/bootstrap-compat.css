@@ -204,3 +204,12 @@
 body.modal-open {
   overflow: hidden;
 }
+
+.collapse:not(.show) {
+  display: none;
+}
+
+.text-reset {
+  color: inherit !important;
+  text-decoration: inherit !important;
+}

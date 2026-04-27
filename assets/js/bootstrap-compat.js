@@ -108,6 +108,46 @@ const ModalAPI = {
     },
 };
 
+// ── Collapse / Accordion ───────────────────────────────────────────
+// Reicht für `data-bs-toggle="collapse"` mit `data-bs-target="#x"` aus.
+// Akkordeon-Verhalten (alle Geschwister im selben `data-bs-parent`
+// schließen, sobald eines geöffnet wird) ist optional und wird über
+// `data-bs-parent` am Button getriggert.
+
+function toggleCollapse(target, button) {
+    if (!target) return;
+    const isOpen = target.classList.contains('show');
+    if (isOpen) {
+        target.dispatchEvent(new CustomEvent('hide.bs.collapse', { bubbles: true }));
+        target.classList.remove('show');
+        if (button) button.setAttribute('aria-expanded', 'false');
+        target.dispatchEvent(new CustomEvent('hidden.bs.collapse', { bubbles: true }));
+    } else {
+        // Akkordeon-Modus: andere Panels im gleichen Parent schließen.
+        const parentSel = button?.getAttribute('data-bs-parent');
+        if (parentSel) {
+            const parent = document.querySelector(parentSel);
+            if (parent) {
+                parent.querySelectorAll('.accordion-collapse.show').forEach((p) => {
+                    if (p !== target) {
+                        p.dispatchEvent(new CustomEvent('hide.bs.collapse', { bubbles: true }));
+                        p.classList.remove('show');
+                        const btn = document.querySelector(
+                            `[data-bs-target="#${p.id}"]`
+                        );
+                        if (btn) btn.setAttribute('aria-expanded', 'false');
+                        p.dispatchEvent(new CustomEvent('hidden.bs.collapse', { bubbles: true }));
+                    }
+                });
+            }
+        }
+        target.dispatchEvent(new CustomEvent('show.bs.collapse', { bubbles: true }));
+        target.classList.add('show');
+        if (button) button.setAttribute('aria-expanded', 'true');
+        target.dispatchEvent(new CustomEvent('shown.bs.collapse', { bubbles: true }));
+    }
+}
+
 // ── Click-Delegation ───────────────────────────────────────────────
 
 document.addEventListener('click', (e) => {
@@ -117,6 +157,15 @@ document.addEventListener('click', (e) => {
         const sel = opener.getAttribute('data-bs-target');
         const target = document.querySelector(sel);
         if (target) ModalAPI.getOrCreateInstance(target).show();
+        return;
+    }
+
+    const collapseToggle = e.target.closest('[data-bs-toggle="collapse"][data-bs-target]');
+    if (collapseToggle) {
+        e.preventDefault();
+        const sel = collapseToggle.getAttribute('data-bs-target');
+        const target = document.querySelector(sel);
+        toggleCollapse(target, collapseToggle);
         return;
     }
 

@@ -874,6 +874,33 @@ body:has(.ignis-dialog-backdrop.is-open) {
   display: block;
   max-height: 0;
 }
+.ignis-accordion--flat {
+  gap: 1rem;
+}
+.ignis-accordion--flat .ignis-accordion__item {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+.ignis-accordion--flat .ignis-accordion__item.is-open {
+  border-color: transparent;
+}
+.ignis-accordion--flat .ignis-accordion__header {
+  padding: 0.4rem 0.25rem;
+  border-bottom: 1px solid var(--main-color, #ff4d00);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+.ignis-accordion--flat .ignis-accordion__header:hover {
+  background: transparent;
+  color: #fff;
+}
+.ignis-accordion--flat .ignis-accordion__panel > * {
+  padding: 0.6rem 0 0;
+}
 
 .ignis-datepicker-native {
   position: absolute !important;

@@ -1385,11 +1385,11 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 
                 <?php if (Permissions::check(['admin', 'manv.manage'])): ?>
                     <span class="sidebar-section-title" data-section="manv">MANV-Board</span>
-                    <a href="<?= BASE_PATH ?>manv/index" class="sidebar-sublink">MANV-Board</a>
+                    <a href="<?= BASE_PATH ?>manv/" class="sidebar-sublink">MANV-Board</a>
                 <?php endif; ?>
 
                 <span class="sidebar-section-title" data-section="firetab">FW Einsatzprotokolle</span>
-                <a href="<?= BASE_PATH ?>einsatz/create" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
+                <a href="<?= BASE_PATH ?>einsatz/" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
                 <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
                     <a href="<?= BASE_PATH ?>einsatz/admin/list" class="sidebar-sublink">Qualitätsmanagement</a>
                 <?php endif; ?>
