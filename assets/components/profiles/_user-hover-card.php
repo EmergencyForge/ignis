@@ -1,15 +1,20 @@
 <?php
 /**
- * Hover-Card-Vorschau für einen User OHNE verknüpftes Mitarbeiter-Profil.
- * Fallback-Variante: zeigt nur Username, Rolle und „kein Profil verbunden"-
- * Hint mit Link zur User-Edit-Seite.
+ * Hover-Card-Vorschau für einen User. Zeigt User-Stammdaten (Username,
+ * UID, Rolle, Admin-Flag) plus — falls vorhanden — den verlinkten
+ * Mitarbeiter als Chip-Link.
  *
  * Erwartet:
- *   @var \App\Models\User $user
+ *   @var \App\Models\User                 $user
+ *   @var \App\Models\Mitarbeiter|null     $linkedMitarbeiter
  */
 
-$role = $user->userRole;
-$editUrl = (defined('BASE_PATH') ? BASE_PATH : '/') . 'benutzer/edit?id=' . (int) $user->id;
+$role          = $user->userRole;
+$editUrl       = (defined('BASE_PATH') ? BASE_PATH : '/') . 'benutzer/edit?id=' . (int) $user->id;
+$mitarbeiter   = $linkedMitarbeiter ?? null;
+$mitarbeiterUrl = $mitarbeiter !== null
+    ? (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id
+    : null;
 ?>
 <div class="user-hover-card">
     <div class="user-hover-card__header">
@@ -32,7 +37,15 @@ $editUrl = (defined('BASE_PATH') ? BASE_PATH : '/') . 'benutzer/edit?id=' . (int
             <dd><span class="ignis-chip ignis-chip--status ignis-chip--danger">Admin+</span></dd>
         <?php endif; ?>
         <dt>Mitarbeiter</dt>
-        <dd><span class="ignis-chip ignis-chip--dark">Kein Profil verbunden</span></dd>
+        <dd>
+            <?php if ($mitarbeiter !== null): ?>
+                <a href="<?= htmlspecialchars($mitarbeiterUrl) ?>" class="ignis-chip ignis-chip--accent" style="text-decoration:none">
+                    <?= htmlspecialchars($mitarbeiter->fullname ?? ('#' . (int) $mitarbeiter->id)) ?>
+                </a>
+            <?php else: ?>
+                <span class="ignis-chip ignis-chip--dark">Kein Profil verbunden</span>
+            <?php endif; ?>
+        </dd>
     </dl>
 
     <a href="<?= htmlspecialchars($editUrl) ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">

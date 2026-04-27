@@ -83,30 +83,38 @@ function closeTop() {
     closeModal(stack[stack.length - 1]);
 }
 
+const instances = new WeakMap();
+
 class ModalShim {
-    constructor(el) { this.el = el; }
+    constructor(el) {
+        this.el = el;
+        // Wenn ein Modal über `new bootstrap.Modal(el)` zweimal instanziiert
+        // wird (z.B. erst per data-bs-toggle, dann per Inline-Script), nutzen
+        // wir die existierende Instanz weiter — sonst öffnet/schließt der
+        // zweite Aufruf das Modal unbeabsichtigt.
+        if (el && instances.has(el)) {
+            return instances.get(el);
+        }
+        if (el) instances.set(el, this);
+    }
     show() { openModal(this.el); }
     hide() { closeModal(this.el); }
     toggle() {
         if (this.el.classList.contains('show')) this.hide();
         else this.show();
     }
-}
 
-const instances = new WeakMap();
-
-const ModalAPI = {
-    getOrCreateInstance(el) {
+    // Statische Bootstrap-5-API
+    static getOrCreateInstance(el) {
         if (!el) return null;
         if (instances.has(el)) return instances.get(el);
-        const inst = new ModalShim(el);
-        instances.set(el, inst);
-        return inst;
-    },
-    getInstance(el) {
+        return new ModalShim(el);
+    }
+
+    static getInstance(el) {
         return instances.get(el) || null;
-    },
-};
+    }
+}
 
 // ── Collapse / Accordion ───────────────────────────────────────────
 // Reicht für `data-bs-toggle="collapse"` mit `data-bs-target="#x"` aus.
@@ -156,7 +164,7 @@ document.addEventListener('click', (e) => {
         e.preventDefault();
         const sel = opener.getAttribute('data-bs-target');
         const target = document.querySelector(sel);
-        if (target) ModalAPI.getOrCreateInstance(target).show();
+        if (target) ModalShim.getOrCreateInstance(target).show();
         return;
     }
 
@@ -190,10 +198,10 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Globale Bootstrap-Namespace-Exposition (legacy compat)
+// Globale Bootstrap-Namespace-Exposition (legacy compat). Modal ist eine
+// Klasse, damit Inline-Code `new bootstrap.Modal(el)` weiterläuft. Die
+// statischen `getOrCreateInstance`/`getInstance` sind direkt an der Klasse.
 window.bootstrap = window.bootstrap || {};
-window.bootstrap.Modal = ModalAPI;
-window.bootstrap.Modal.getOrCreateInstance = ModalAPI.getOrCreateInstance;
-window.bootstrap.Modal.getInstance         = ModalAPI.getInstance;
+window.bootstrap.Modal = ModalShim;
 
-export { ModalAPI };
+export { ModalShim, ModalShim as ModalAPI };

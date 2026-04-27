@@ -146,7 +146,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                     <?php endif; ?>
                                     <span id="display-dgtext"><?= htmlspecialchars($dienstgradText) ?></span><br>
                                     <?php if (empty($rdginfo['none'])): ?>
-                                        <span style="text-transform:none; color:var(--black)" class="ignis-chip ignis-chip--warning" id="display-rdquali"><?= htmlspecialchars($rdqualtext) ?></span>
+                                        <span style="text-transform:none" class="ignis-chip ignis-chip--warning" id="display-rdquali"><?= htmlspecialchars($rdqualtext) ?></span>
                                     <?php endif; ?>
                                     <?php if (empty($fwginfo['none'])): ?>
                                         <span style="text-transform:none" class="ignis-chip ignis-chip--danger" id="display-fwquali"><?= htmlspecialchars($bfqualtext) ?></span>

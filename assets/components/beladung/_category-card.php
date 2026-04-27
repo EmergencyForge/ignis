@@ -72,11 +72,16 @@ foreach ($tiles as $t) {
     </header>
 
     <div class="beladung-category-card__body">
-        <?php if (count($tiles) === 0): ?>
+        <?php if (count($tiles) === 0 && !$canEdit): ?>
             <p class="beladung-category-card__empty">Keine Gegenstände in dieser Kategorie.</p>
-        <?php else: ?>
-            <ul class="beladung-tiles<?= $canEdit ? ' beladung-tiles--sortable' : '' ?>"
-                data-category-id="<?= (int) ($category['id'] ?? 0) ?>">
+        <?php else:
+            $listClasses = 'beladung-tiles';
+            if ($canEdit)            $listClasses .= ' beladung-tiles--sortable';
+            if (count($tiles) === 0) $listClasses .= ' is-empty';
+        ?>
+            <ul class="<?= $listClasses ?>"
+                data-category-id="<?= (int) ($category['id'] ?? 0) ?>"
+                data-empty-text="Keine Gegenstände — Items hierher ziehen.">
                 <?php foreach ($tiles as $tile): ?>
                     <?php $tileSearch = mb_strtolower($tile['title'] ?? '', 'UTF-8'); ?>
                     <li class="beladung-tile" data-search="<?= htmlspecialchars($tileSearch) ?>"

@@ -29,6 +29,19 @@ function postForm(action, payload) {
 
 // ── Drag-Drop ─────────────────────────────────────────────────────────
 
+/**
+ * Synct die `.is-empty`-Klasse auf einer sortable Liste mit ihrem
+ * tatsächlichen Item-Stand. Wird nach jedem Drag-Drop für Source und
+ * Target aufgerufen — CSS rendert den „Items hierher ziehen"-Hinweis
+ * nur, wenn die Klasse gesetzt ist (Fallback-Lösung weil `:empty` durch
+ * PHP-Whitespace im Markup nicht greift).
+ */
+function syncEmptyClass(listEl) {
+    if (!listEl) return;
+    const hasItems = listEl.querySelector('.beladung-tile') !== null;
+    listEl.classList.toggle('is-empty', !hasItems);
+}
+
 function initSortable() {
     if (typeof window.Sortable !== 'function') return;
 
@@ -45,6 +58,15 @@ function initSortable() {
             dragClass:   'beladung-tile--drag',
             onEnd: (ev) => {
                 const targetList = ev.to;
+                const sourceList = ev.from;
+
+                // Empty-State über `.is-empty`-Klasse synchronisieren — CSS
+                // rendert dann den dashed-Border-Drop-Hinweis am leeren <ul>.
+                syncEmptyClass(targetList);
+                if (sourceList && sourceList !== targetList) {
+                    syncEmptyClass(sourceList);
+                }
+
                 const categoryId = targetList.getAttribute('data-category-id');
                 const tileIds = Array.from(targetList.querySelectorAll('.beladung-tile'))
                     .map((el) => el.getAttribute('data-tile-id'))

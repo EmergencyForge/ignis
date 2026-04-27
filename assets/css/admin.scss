@@ -1281,6 +1281,29 @@ select.form-select option {
     display: grid;
     grid-template-columns: 1fr;
     gap: 0.3rem;
+
+    // Leere sortable Liste rendert die data-empty-text als pseudo-content
+    // mit Mindesthöhe und gestrichelter Border — damit ist sie selbst das
+    // Drop-Target (statt einer Geschwister-<p> oben drüber, auf die User
+    // versehentlich droppen). `:empty` greift nicht, weil PHP zwischen
+    // <ul></ul> Whitespace lässt — daher die explizite `.is-empty`-Klasse,
+    // die PHP konditional setzt und JS nach Drag-Drop togglet.
+    &--sortable.is-empty {
+        min-height: 4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        border: 1px dashed rgba(255, 255, 255, 0.12);
+        border-radius: var(--radius-md, 6px);
+        color: var(--text-dimmed);
+        font-style: italic;
+        font-size: 0.85rem;
+
+        &::before {
+            content: attr(data-empty-text);
+        }
+    }
 }
 
 .beladung-tile {

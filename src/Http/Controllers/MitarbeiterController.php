@@ -82,19 +82,20 @@ class MitarbeiterController extends Controller
      * ignis-popover-Instanz geschoben. Auth: gleiche Sicht-Permission
      * wie die Mitarbeiter-Liste.
      */
-    public function card(int $id): \App\Http\Response
+    public function card(\App\Http\Request $request, string $id): \App\Http\Response
     {
         $this->requireAuth();
         \App\Auth\Gate::authorize('mitarbeiter.viewList');
 
-        if ($id <= 0) {
+        $idInt = (int) $id;
+        if ($idInt <= 0) {
             return \App\Http\Response::html('Ungültige ID.', 400);
         }
 
         /** @var Mitarbeiter|null $mitarbeiter */
         $mitarbeiter = Mitarbeiter::query()
             ->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel'])
-            ->find($id);
+            ->find($idInt);
 
         if ($mitarbeiter === null) {
             return \App\Http\Response::html('Mitarbeiter nicht gefunden.', 404);

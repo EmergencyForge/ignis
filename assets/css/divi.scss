@@ -2749,4 +2749,15 @@ body[data-page] {
       }
     }
   }
+
+  // Beladelisten-Cards: das Admin-Default `position: sticky; top: 0` für
+  // die Card-Header ist im eNOTF problematisch — der eNOTF-Topbar liegt
+  // bei top: 0, und der sticky-Header der ersten Kategorie wandert
+  // hinter den Topbar und ist damit nicht sichtbar/klickbar.
+  // Im eNOTF rendert der Header daher im normalen Fluss.
+  .beladung-category-card__header,
+  .beladung-search {
+    position: static;
+    top: auto;
+  }
 }

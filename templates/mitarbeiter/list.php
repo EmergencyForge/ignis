@@ -133,7 +133,7 @@ use App\Helpers\Flash;
                                         </td>
                                         <td>
                                             <?php if (!$isRdNone): ?>
-                                                <span class="ignis-chip ignis-chip--warning" style="color:var(--black)"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
+                                                <span class="ignis-chip ignis-chip--warning"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
                                             <?php else: ?>
                                                 <span class="text-[var(--text-dimmed,#818189)]">-</span>
                                             <?php endif; ?>
