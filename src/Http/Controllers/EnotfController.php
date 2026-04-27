@@ -357,7 +357,7 @@ class EnotfController extends Controller
 
             $this->redirectAbsolute($_SERVER['PHP_SELF']);
         } catch (\PDOException $e) {
-            $_SESSION['error_message'] = 'Fehler beim Löschen der Protokolle.';
+            \App\Helpers\Flash::error('Fehler beim Löschen der Protokolle.');
             error_log('Fehler beim Löschen der Protokolle: ' . $e->getMessage());
         }
     }
@@ -380,22 +380,18 @@ class EnotfController extends Controller
         $testMode = PinLockscreenMiddleware::applyTestFlag($request);
 
         if (!$testMode && EnotfPolicy::pinExempt()) {
-            $redirect = $_SESSION['pin_return_url'] ?? EnotfUrl::page('overview');
-            unset($_SESSION['pin_return_url']);
+            $redirect = \App\Session\SessionManager::pullPinReturnUrl() ?? EnotfUrl::page('overview');
             $this->redirectAbsolute($redirect);
         }
 
-        $_SESSION['pin_verified'] = false;
-        unset($_SESSION['pin_last_activity']);
+        \App\Session\SessionManager::setPinVerified(false);
 
         $error = false;
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pin'])) {
             if (defined('ENOTF_PIN') && hash_equals(ENOTF_PIN, (string) $_POST['pin'])) {
-                $_SESSION['pin_verified']      = true;
-                $_SESSION['pin_last_activity'] = time();
+                \App\Session\SessionManager::setPinVerified(true);
 
-                $redirect = $_SESSION['pin_return_url'] ?? EnotfUrl::page('overview');
-                unset($_SESSION['pin_return_url']);
+                $redirect = \App\Session\SessionManager::pullPinReturnUrl() ?? EnotfUrl::page('overview');
                 $this->redirectAbsolute($redirect);
             }
             $error = true;
@@ -631,7 +627,7 @@ class EnotfController extends Controller
             strpos($scriptName, '/enotf/login.php') === false &&
             strpos($scriptName, '/enotf/loggedout.php') === false
         ) {
-            $_SESSION['redirect_url'] = EnotfUrl::page('login');
+            \App\Session\SessionManager::setRedirectUrl(EnotfUrl::page('login'));
         }
 
         $this->redirect('login.php?redirect=enotf');
@@ -648,17 +644,15 @@ class EnotfController extends Controller
         }
 
         if (EnotfPolicy::pinVerified()) {
-            $_SESSION['pin_last_activity'] = time();
+            \App\Session\SessionManager::touchPin();
             return;
         }
 
         if (basename($_SERVER['PHP_SELF']) !== 'lockscreen.php') {
-            $_SESSION['pin_return_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setPinReturnUrl($_SERVER['REQUEST_URI'] ?? '/');
         }
 
-        $_SESSION['pin_verified'] = false;
-        unset($_SESSION['pin_last_activity']);
-
+        \App\Session\SessionManager::setPinVerified(false);
         $this->redirectAbsolute(EnotfUrl::page('lockscreen'));
     }
 

@@ -51,14 +51,14 @@ SessionManager::start();
 // ============================================================================
 // Permissions werden alle 5 Minuten neu aus der DB geladen.
 // Das stellt sicher, dass Änderungen an Rollen zeitnah wirksam werden.
-if (isset($_SESSION['userid'])) {
-    $permissionsAge = time() - ($_SESSION['permissions_loaded'] ?? 0);
+if (SessionManager::isLoggedIn()) {
     $permissionsTTL = 300; // 5 Minuten
-    
-    if (!isset($_SESSION['permissions']) || $permissionsAge > $permissionsTTL) {
+
+    if (!SessionManager::has('permissions') || SessionManager::permissionsAge() > $permissionsTTL) {
         require_once __DIR__ . '/database.php';
-        $_SESSION['permissions'] = Permissions::retrieveFromDatabase($pdo, $_SESSION['userid']);
-        $_SESSION['permissions_loaded'] = time();
+        SessionManager::setPermissions(
+            Permissions::retrieveFromDatabase($pdo, (int) SessionManager::userId())
+        );
     }
 }
 

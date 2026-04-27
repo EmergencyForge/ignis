@@ -2,9 +2,8 @@
 // Session wird durch config.php gestartet (SessionManager)
 require_once __DIR__ . '/assets/config/config.php';
 require_once __DIR__ . '/assets/config/database.php';
-if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
-
+if (!\App\Session\SessionManager::isLoggedIn() || !isset($_SESSION['permissions'])) {
+    \App\Session\SessionManager::setRedirectFromRequest();
     header("Location: " . BASE_PATH . "login.php");
     exit();
 }

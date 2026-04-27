@@ -61,7 +61,7 @@ final class AuthMiddleware implements MiddlewareInterface
         }
 
         // HTML: Redirect zu login.php mit gemerkter Ziel-URL
-        $_SESSION['redirect_url'] = $request->server['REQUEST_URI'] ?? $request->path;
+        \App\Session\SessionManager::setRedirectUrl($request->server['REQUEST_URI'] ?? $request->path);
         $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         return Response::redirect($base . 'login.php');
     }

@@ -18,14 +18,13 @@ if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
 
 // Preserve redirect parameter in session for OAuth flow
 if (isset($_GET['redirect']) && $_GET['redirect'] === 'enotf') {
-    if (!isset($_SESSION['redirect_url']) || empty($_SESSION['redirect_url'])) {
-        $_SESSION['redirect_url'] = EnotfUrl::page('login');
+    if (!\App\Session\SessionManager::has('redirect_url')) {
+        \App\Session\SessionManager::setRedirectUrl(EnotfUrl::page('login'));
     }
 }
 
 $registrationMode = defined('REGISTRATION_MODE') ? REGISTRATION_MODE : 'open';
-$error = $_SESSION['registration_error'] ?? null;
-unset($_SESSION['registration_error']);
+$error = \App\Session\SessionManager::pullRegistrationError();
 
 // Handle code submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code'])) {
@@ -42,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
             if (!empty($codeRecord['expires_at']) && strtotime($codeRecord['expires_at']) < time()) {
                 $error = 'Dieser Einladungscode ist abgelaufen.';
             } else {
-                $_SESSION['registration_code'] = $code;
+                \App\Session\SessionManager::setRegistrationCode($code);
                 // Redirect to Discord auth
                 header('Location: ' . BASE_PATH . 'auth/discord.php');
                 exit;

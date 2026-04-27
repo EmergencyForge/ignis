@@ -37,15 +37,14 @@ class EnotfPrintController extends Controller
         }
 
         if (EnotfPolicy::pinVerified()) {
-            $_SESSION['pin_last_activity'] = time();
+            \App\Session\SessionManager::touchPin();
             return;
         }
 
         if (basename($_SERVER['PHP_SELF']) !== 'lockscreen.php') {
-            $_SESSION['pin_return_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+            \App\Session\SessionManager::setPinReturnUrl($_SERVER['REQUEST_URI'] ?? '/');
         }
-        $_SESSION['pin_verified'] = false;
-        unset($_SESSION['pin_last_activity']);
+        \App\Session\SessionManager::setPinVerified(false);
 
         header('Location: ' . \App\Helpers\EnotfUrl::page('lockscreen'));
         exit;

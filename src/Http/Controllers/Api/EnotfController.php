@@ -163,12 +163,14 @@ final class EnotfController
         }
 
         // PHP-Session updaten
-        $_SESSION['fahrername']       = $session['fahrername'];
-        $_SESSION['fahrerquali']      = $session['fahrerquali'];
-        $_SESSION['beifahrername']    = $session['beifahrername'];
-        $_SESSION['beifahrerquali']   = $session['beifahrerquali'];
-        $_SESSION['praktikantname']   = $session['praktikantname'];
-        $_SESSION['praktikantquali']  = $session['praktikantquali'];
+        \App\Session\SessionManager::updateEnotfCrew([
+            'fahrername'      => $session['fahrername'],
+            'fahrerquali'     => $session['fahrerquali'],
+            'beifahrername'   => $session['beifahrername'],
+            'beifahrerquali'  => $session['beifahrerquali'],
+            'praktikantname'  => $session['praktikantname'],
+            'praktikantquali' => $session['praktikantquali'],
+        ]);
 
         return Response::json(['success' => true]);
     }

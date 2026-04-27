@@ -35,8 +35,8 @@ abstract class Controller
      */
     protected function requireAuth(): void
     {
-        if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-            $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'] ?? '/';
+        if (!\App\Session\SessionManager::isLoggedIn() || !isset($_SESSION['permissions'])) {
+            \App\Session\SessionManager::setRedirectFromRequest();
             $this->redirect('login.php');
         }
     }
