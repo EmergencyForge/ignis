@@ -355,22 +355,6 @@ if ($isDevMode) {
                                             </form>
                                         </div>
 
-                                        <?php if (!$isPreRelease): ?>
-                                            <script>
-                                                // Sync checkbox with hidden inputs in both forms
-                                                const prereleaseCheckbox = document.getElementById('include-prerelease-check');
-                                                const mainFormHidden = document.getElementById('include-prerelease-hidden');
-                                                const forceRefreshHidden = document.getElementById('force-refresh-prerelease');
-
-                                                if (prereleaseCheckbox) {
-                                                    prereleaseCheckbox.addEventListener('change', function() {
-                                                        const value = this.checked ? '1' : '0';
-                                                        if (mainFormHidden) mainFormHidden.value = value;
-                                                        if (forceRefreshHidden) forceRefreshHidden.value = value;
-                                                    });
-                                                }
-                                            </script>
-                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -474,159 +458,6 @@ if ($isDevMode) {
 
                                             <?php include __DIR__ . '/../../../assets/components/settings/system/_update-progress-modal.php'; ?>
 
-                                            <script>
-                                                document.getElementById('install-update-btn').addEventListener('click', async function() {
-                                                    const newVersion = <?= json_encode($updateInfo['latest_version']) ?>;
-                                                    const confirmed = await showConfirm(
-                                                        'Update auf Version ' + newVersion + ' installieren?\n\n' +
-                                                        'Ein Backup wird automatisch erstellt.\n' +
-                                                        'Dieser Vorgang kann einige Minuten dauern.', {
-                                                            title: 'Update installieren?',
-                                                            confirmText: 'Installieren',
-                                                            cancelText: 'Abbrechen',
-                                                            confirmClass: 'btn-success',
-                                                            danger: false
-                                                        }
-                                                    );
-
-                                                    if (confirmed) {
-                                                        // Show progress modal
-                                                        const progressModal = new bootstrap.Modal(document.getElementById('update-progress-modal'));
-                                                        progressModal.show();
-
-                                                        // Disable backdrop dismiss
-                                                        const modalElement = document.getElementById('update-progress-modal');
-                                                        modalElement.setAttribute('data-bs-backdrop', 'static');
-                                                        modalElement.setAttribute('data-bs-keyboard', 'false');
-
-                                                        // Simulate progress (since we can't get real-time updates from PHP)
-                                                        const progressBar = document.getElementById('update-progress-bar');
-                                                        const progressText = document.getElementById('update-progress-text');
-                                                        const statusText = document.getElementById('update-status-text');
-
-                                                        const steps = [{
-                                                                percent: 10,
-                                                                text: 'Download wird vorbereitet...'
-                                                            },
-                                                            {
-                                                                percent: 25,
-                                                                text: 'Update wird heruntergeladen...'
-                                                            },
-                                                            {
-                                                                percent: 40,
-                                                                text: 'Dateien werden extrahiert...'
-                                                            },
-                                                            {
-                                                                percent: 55,
-                                                                text: 'Backup wird erstellt...'
-                                                            },
-                                                            {
-                                                                percent: 70,
-                                                                text: 'Update wird installiert...'
-                                                            },
-                                                            {
-                                                                percent: 85,
-                                                                text: 'Dateien werden kopiert...'
-                                                            },
-                                                            {
-                                                                percent: 95,
-                                                                text: 'Installation wird abgeschlossen...'
-                                                            }
-                                                        ];
-
-                                                        let currentStep = 0;
-                                                        const updateProgress = () => {
-                                                            if (currentStep < steps.length) {
-                                                                const step = steps[currentStep];
-                                                                progressBar.style.width = step.percent + '%';
-                                                                progressText.textContent = step.percent + '%';
-                                                                statusText.innerHTML = '<small class="text-gray-400">' + step.text + '</small>';
-                                                                currentStep++;
-                                                            }
-                                                        };
-
-                                                        // Update progress every 2 seconds
-                                                        const progressInterval = setInterval(updateProgress, 2000);
-                                                        updateProgress(); // Start immediately
-
-                                                        // Submit via AJAX instead of form submit to keep modal visible
-                                                        const formData = new FormData(document.getElementById('install-update-form'));
-
-                                                        try {
-                                                            const response = await fetch(window.location.href, {
-                                                                method: 'POST',
-                                                                body: formData,
-                                                                headers: {
-                                                                    'X-Requested-With': 'XMLHttpRequest'
-                                                                }
-                                                            });
-
-                                                            clearInterval(progressInterval);
-
-                                                            // Check HTTP response status
-                                                            if (!response.ok) {
-                                                                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                                                            }
-
-                                                            // Parse JSON response
-                                                            const result = await response.json();
-
-                                                            if (result.success) {
-                                                                // Set to 100%
-                                                                progressBar.style.width = '100%';
-                                                                progressText.textContent = '100%';
-                                                                statusText.innerHTML = '<small class="text-[#6abf76]"><i class="fa-solid fa-check-circle"></i> Update abgeschlossen!</small>';
-
-                                                                // Wait a moment then reload
-                                                                setTimeout(() => {
-                                                                    window.location.reload();
-                                                                }, 1500);
-                                                            } else {
-                                                                // Show error
-                                                                progressBar.classList.remove('progress-bar-animated');
-                                                                progressBar.classList.add('bg-danger');
-                                                                const errorMsg = result.message || 'Unbekannter Fehler beim Update.';
-                                                                statusText.innerHTML = '<small class="text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle"></i> </small>';
-                                                                const errorTextNode = document.createTextNode(errorMsg);
-                                                                statusText.querySelector('small').appendChild(errorTextNode);
-
-                                                                // Show close button
-                                                                setTimeout(() => {
-                                                                    modalElement.querySelector('.modal-header').innerHTML = `
-                                                                <h5 class="modal-title text-[#d46b6b]">
-                                                                    <i class="fa-solid fa-exclamation-triangle mr-2"></i>
-                                                                    Update fehlgeschlagen
-                                                                </h5>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                            `;
-                                                                    modalElement.querySelector('.modal-body .alert-info').classList.add('hidden');
-                                                                }, 1000);
-                                                            }
-
-                                                        } catch (error) {
-                                                            clearInterval(progressInterval);
-                                                            progressBar.classList.remove('progress-bar-animated');
-                                                            progressBar.classList.add('bg-danger');
-                                                            statusText.innerHTML = '<small class="text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle"></i> Netzwerkfehler: </small>';
-                                                            const errorTextNode = document.createTextNode(error.message);
-                                                            statusText.querySelector('small').appendChild(errorTextNode);
-
-                                                            // Show close button
-                                                            setTimeout(() => {
-                                                                modalElement.querySelector('.modal-header').innerHTML = `
-                                                            <h5 class="modal-title text-[#d46b6b]">
-                                                                <i class="fa-solid fa-exclamation-triangle mr-2"></i>
-                                                                Update fehlgeschlagen
-                                                            </h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                                        `;
-                                                                modalElement.querySelector('.modal-body .alert-info').classList.add('hidden');
-                                                            }, 1000);
-                                                        }
-                                                    }
-                                                });
-                                            </script>
-
                                             <?php if (isset($updateInfo['html_url'])): ?>
                                                 <a href="<?= htmlspecialchars($updateInfo['html_url']) ?>"
                                                     target="_blank"
@@ -696,14 +527,6 @@ if ($isDevMode) {
                                         </select>
                                     </div>
 
-                                    <script>
-                                        document.getElementById('dev-branch-select').addEventListener('change', function() {
-                                            if (this.value) {
-                                                window.location.href = '?dev&branch=' + encodeURIComponent(this.value);
-                                            }
-                                        });
-                                    </script>
-
                                     <?php if ($devBranchInfo): ?>
                                         <div class="card bg-[rgba(0,0,0,0.3)] mb-3">
                                             <div class="card-body">
@@ -747,109 +570,6 @@ if ($isDevMode) {
                                                             <i class="fa-solid fa-download"></i> Commit installieren (<?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?>)
                                                         </button>
                                                     </form>
-
-                                                    <script>
-                                                        document.getElementById('dev-install-btn').addEventListener('click', async function() {
-                                                            const branch = <?= json_encode($selectedBranch) ?>;
-                                                            const sha = <?= json_encode(substr($devBranchInfo['sha'], 0, 8)) ?>;
-                                                            const confirmed = await showConfirm(
-                                                                'Branch "' + branch + '" (Commit ' + sha + ') installieren?\n\n' +
-                                                                'Ein Backup wird automatisch erstellt.\n' +
-                                                                'Dieser Vorgang kann einige Minuten dauern.', {
-                                                                    title: 'Branch-Update installieren?',
-                                                                    confirmText: 'Installieren',
-                                                                    cancelText: 'Abbrechen',
-                                                                    confirmClass: 'btn-warning',
-                                                                    danger: false
-                                                                }
-                                                            );
-
-                                                            if (confirmed) {
-                                                                const progressModal = new bootstrap.Modal(document.getElementById('update-progress-modal'));
-                                                                const modalElement = document.getElementById('update-progress-modal');
-                                                                progressModal.show();
-
-                                                                const progressBar = document.getElementById('update-progress-bar');
-                                                                const progressText = document.getElementById('update-progress-text');
-                                                                const statusText = document.getElementById('update-status-text');
-
-                                                                const steps = [
-                                                                    { percent: 10, text: 'Download wird vorbereitet...' },
-                                                                    { percent: 25, text: 'Branch-Commit wird heruntergeladen...' },
-                                                                    { percent: 40, text: 'Dateien werden extrahiert...' },
-                                                                    { percent: 55, text: 'Backup wird erstellt...' },
-                                                                    { percent: 70, text: 'Update wird installiert...' },
-                                                                    { percent: 85, text: 'Dateien werden kopiert...' },
-                                                                    { percent: 95, text: 'Installation wird abgeschlossen...' }
-                                                                ];
-
-                                                                let currentStep = 0;
-                                                                const updateProgress = () => {
-                                                                    if (currentStep < steps.length) {
-                                                                        const step = steps[currentStep];
-                                                                        progressBar.style.width = step.percent + '%';
-                                                                        progressText.textContent = step.percent + '%';
-                                                                        statusText.innerHTML = '<small class="text-gray-400">' + step.text + '</small>';
-                                                                        currentStep++;
-                                                                    }
-                                                                };
-
-                                                                const progressInterval = setInterval(updateProgress, 2000);
-                                                                updateProgress();
-
-                                                                const formData = new FormData(document.getElementById('dev-install-form'));
-
-                                                                try {
-                                                                    const response = await fetch(window.location.href, {
-                                                                        method: 'POST',
-                                                                        body: formData,
-                                                                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                                                                    });
-
-                                                                    clearInterval(progressInterval);
-
-                                                                    if (!response.ok) {
-                                                                        throw new Error('HTTP ' + response.status + ': ' + response.statusText);
-                                                                    }
-
-                                                                    const result = await response.json();
-
-                                                                    if (result.success) {
-                                                                        progressBar.style.width = '100%';
-                                                                        progressText.textContent = '100%';
-                                                                        statusText.innerHTML = '<small class="text-[#6abf76]"><i class="fa-solid fa-check-circle"></i> Update abgeschlossen!</small>';
-                                                                        setTimeout(() => { window.location.href = '?dev'; }, 1500);
-                                                                    } else {
-                                                                        progressBar.classList.remove('progress-bar-animated');
-                                                                        progressBar.classList.add('bg-danger');
-                                                                        const errorMsg = result.message || 'Unbekannter Fehler.';
-                                                                        statusText.innerHTML = '<small class="text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle"></i> </small>';
-                                                                        statusText.querySelector('small').appendChild(document.createTextNode(errorMsg));
-
-                                                                        setTimeout(() => {
-                                                                            modalElement.querySelector('.modal-header').innerHTML =
-                                                                                '<h5 class="modal-title text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle mr-2"></i>Update fehlgeschlagen</h5>' +
-                                                                                '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>';
-                                                                            modalElement.querySelector('.modal-body .alert-info').classList.add('hidden');
-                                                                        }, 1000);
-                                                                    }
-                                                                } catch (error) {
-                                                                    clearInterval(progressInterval);
-                                                                    progressBar.classList.remove('progress-bar-animated');
-                                                                    progressBar.classList.add('bg-danger');
-                                                                    statusText.innerHTML = '<small class="text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle"></i> Netzwerkfehler: </small>';
-                                                                    statusText.querySelector('small').appendChild(document.createTextNode(error.message));
-
-                                                                    setTimeout(() => {
-                                                                        modalElement.querySelector('.modal-header').innerHTML =
-                                                                            '<h5 class="modal-title text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle mr-2"></i>Update fehlgeschlagen</h5>' +
-                                                                            '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>';
-                                                                        modalElement.querySelector('.modal-body .alert-info').classList.add('hidden');
-                                                                    }, 1000);
-                                                                }
-                                                            }
-                                                        });
-                                                    </script>
                                                 <?php endif; ?>
                                             </div>
                                         </div>
@@ -876,117 +596,41 @@ if ($isDevMode) {
 
     <?php include __DIR__ . '/../../../assets/components/settings/system/_composer-modal.php'; ?>
 
+    <?php
+    // consumeComposerPending() löscht den Flag atomar — nur einmal aufrufen
+    // und das Ergebnis an das JS-Init durchreichen. Sonst wäre das Modal
+    // nach einem Refresh nicht mehr aktiv.
+    $composerPendingOnLoad = SessionManager::consumeComposerPending();
+    ?>
+
+    <script src="<?= BASE_PATH ?>assets/js/modules/system-settings.js"></script>
     <script>
-        let composerModal = null;
-        let composerCheckInterval = null;
-
-        // Check if we should show the composer modal on page load
-        <?php if (SessionManager::consumeComposerPending()): ?>
-            document.addEventListener('DOMContentLoaded', function() {
-                showComposerModal();
-            });
+    initSystemSettings({
+        basePath: '<?= BASE_PATH ?>',
+        showComposerOnLoad: <?= $composerPendingOnLoad ? 'true' : 'false' ?>,
+        <?php if (!empty($updateInfo['latest_version'])): ?>
+        installButton: {
+            buttonId:   'install-update-btn',
+            formId:     'install-update-form',
+            newVersion: <?= json_encode($updateInfo['latest_version']) ?>,
+        },
         <?php endif; ?>
-
-        function showComposerModal() {
-            composerModal = new bootstrap.Modal(document.getElementById('composer-modal'));
-            composerModal.show();
-
-            // Start checking composer status
-            checkComposerStatus();
-        }
-
-        function checkComposerStatus() {
-            fetch('<?= BASE_PATH ?>api/system/composer-status?action=check', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.pending) {
-                        // Composer installation is pending, trigger it
-                        executeComposerInstall();
-                    } else {
-                        // No pending installation, close modal
-                        dismissComposerModal();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error checking composer status:', error);
-                    showComposerError('Fehler beim Prüfen des Composer-Status: ' + error.message);
-                });
-        }
-
-        function executeComposerInstall() {
-            fetch('<?= BASE_PATH ?>api/system/composer-status?action=execute', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showComposerSuccess();
-                    } else {
-                        showComposerError(data.message || 'Unbekannter Fehler bei der Composer-Installation.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error executing composer install:', error);
-                    showComposerError('Fehler beim Ausführen von Composer: ' + error.message);
-                });
-        }
-
-        function showComposerSuccess() {
-            document.getElementById('composer-status-content').style.display = 'none';
-            document.getElementById('composer-error-content').style.display = 'none';
-            document.getElementById('composer-success-content').style.display = 'block';
-        }
-
-        function showComposerError(message) {
-            document.getElementById('composer-status-content').style.display = 'none';
-            document.getElementById('composer-success-content').style.display = 'none';
-            document.getElementById('composer-error-message').textContent = message;
-            document.getElementById('composer-error-content').style.display = 'block';
-        }
-
-        function retryComposerInstall() {
-            // Reset to status view
-            document.getElementById('composer-status-content').style.display = 'block';
-            document.getElementById('composer-success-content').style.display = 'none';
-            document.getElementById('composer-error-content').style.display = 'none';
-
-            // Retry installation
-            executeComposerInstall();
-        }
-
-        function dismissComposerModal() {
-            if (composerModal) {
-                composerModal.hide();
-            }
-        }
-
-        // Attach event listeners for buttons (replacing inline onclick)
-        document.addEventListener('DOMContentLoaded', function() {
-            const reloadBtn = document.getElementById('reload-page-btn');
-            if (reloadBtn) {
-                reloadBtn.addEventListener('click', function() {
-                    location.reload();
-                });
-            }
-
-            const retryBtn = document.getElementById('retry-composer-btn');
-            if (retryBtn) {
-                retryBtn.addEventListener('click', retryComposerInstall);
-            }
-
-            const dismissBtn = document.getElementById('dismiss-composer-btn');
-            if (dismissBtn) {
-                dismissBtn.addEventListener('click', dismissComposerModal);
-            }
-        });
+        <?php if ($isDevMode && !empty($devBranchInfo)):
+            $devCurrentHash = $currentVersion['commit_hash'] ?? '';
+            $devTargetHash  = $devBranchInfo['sha'] ?? '';
+            $devSameCommit  = !empty($devCurrentHash) && str_starts_with($devTargetHash, $devCurrentHash);
+        ?>
+        <?php if (!$devSameCommit): ?>
+        devInstallButton: {
+            buttonId:   'dev-install-btn',
+            formId:     'dev-install-form',
+            branch:     <?= json_encode($selectedBranch) ?>,
+            sha:        <?= json_encode(substr($devBranchInfo['sha'], 0, 8)) ?>,
+            successUrl: '?dev',
+        },
+        <?php endif; ?>
+        <?php endif; ?>
+    });
     </script>
 
     <?php include __DIR__ . "/../../../assets/components/footer.php"; ?>
