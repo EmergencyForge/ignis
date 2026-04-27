@@ -72,7 +72,9 @@ class PolicyMiddlewareTest extends TestCase
         $res = $mw->process($req, $this->ok());
 
         $this->assertSame(302, $res->status);
-        $this->assertStringContainsString('index.php', $res->headers['Location'] ?? '');
+        // Middleware redirected zur Index-Seite (clean URL, ohne `.php`-Suffix —
+        // siehe Front-Controller-Stripping in public/index.php).
+        $this->assertStringContainsString('/index', $res->headers['Location'] ?? '');
     }
 
     #[Test]

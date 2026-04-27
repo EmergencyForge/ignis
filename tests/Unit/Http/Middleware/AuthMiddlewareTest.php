@@ -45,7 +45,8 @@ class AuthMiddlewareTest extends TestCase
         $res = $mw->process($req, $this->ok());
 
         $this->assertSame(302, $res->status);
-        $this->assertStringContainsString('login.php', $res->headers['Location'] ?? '');
+        // Middleware redirected zur Login-Seite (clean URL ohne `.php`-Suffix).
+        $this->assertStringContainsString('/login', $res->headers['Location'] ?? '');
         $this->assertSame('/benutzer/list', $_SESSION['redirect_url'] ?? null);
     }
 

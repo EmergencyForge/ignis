@@ -48,7 +48,7 @@ class FahrzeugeController extends Controller
 
         if ($name === '' || $vehType === '' || $identifier === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/fahrzeuge/fahrzeuge/index.php');
+            $this->redirect('settings/fahrzeuge/fahrzeuge/index');
         }
 
         try {
@@ -60,7 +60,7 @@ class FahrzeugeController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/fahrzeuge/fahrzeuge/index.php');
+        $this->redirect('settings/fahrzeuge/fahrzeuge/index');
     }
 
     public function update(): void
@@ -82,7 +82,7 @@ class FahrzeugeController extends Controller
 
         if ($id <= 0 || $name === '' || $vehType === '' || $identifier === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/fahrzeuge/fahrzeuge/index.php');
+            $this->redirect('settings/fahrzeuge/fahrzeuge/index');
         }
 
         try {
@@ -94,7 +94,7 @@ class FahrzeugeController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/fahrzeuge/fahrzeuge/index.php');
+        $this->redirect('settings/fahrzeuge/fahrzeuge/index');
     }
 
     public function destroy(): void
@@ -105,13 +105,13 @@ class FahrzeugeController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('vehicle', 'invalid-id');
-            $this->redirect('settings/fahrzeuge/fahrzeuge/index.php');
+            $this->redirect('settings/fahrzeuge/fahrzeuge/index');
         }
 
         $exists = Capsule::table('intra_fahrzeuge')->where('id', $id)->exists();
         if (!$exists) {
             Flash::set('vehicle', 'not-found');
-            $this->redirect('settings/fahrzeuge/fahrzeuge/index.php');
+            $this->redirect('settings/fahrzeuge/fahrzeuge/index');
         }
 
         try {
@@ -123,7 +123,7 @@ class FahrzeugeController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/fahrzeuge/fahrzeuge/index.php');
+        $this->redirect('settings/fahrzeuge/fahrzeuge/index');
     }
 
     // ── Beladelisten ───────────────────────────────────────
@@ -145,7 +145,7 @@ class FahrzeugeController extends Controller
         $this->requireAuth();
         if (!Gate::allows('vehicle.manage')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('settings/fahrzeuge/beladelisten/index.php');
+            $this->redirect('settings/fahrzeuge/beladelisten/index');
         }
 
         header('Content-Type: application/json');
@@ -318,7 +318,7 @@ class FahrzeugeController extends Controller
     {
         if (!Gate::allows('vehicle.manage')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('settings/fahrzeuge/fahrzeuge/index.php');
+            $this->redirect('settings/fahrzeuge/fahrzeuge/index');
         }
     }
 

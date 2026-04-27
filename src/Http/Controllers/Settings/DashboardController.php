@@ -56,7 +56,7 @@ class DashboardController extends Controller
 
         if ($title === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/dashboard/index.php');
+            $this->redirect('settings/dashboard/index');
         }
 
         try {
@@ -71,7 +71,7 @@ class DashboardController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/dashboard/index.php');
+        $this->redirect('settings/dashboard/index');
     }
 
     public function categoryUpdate(): void
@@ -84,7 +84,7 @@ class DashboardController extends Controller
 
         if ($id <= 0 || $title === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/dashboard/index.php');
+            $this->redirect('settings/dashboard/index');
         }
 
         try {
@@ -99,7 +99,7 @@ class DashboardController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/dashboard/index.php');
+        $this->redirect('settings/dashboard/index');
     }
 
     public function categoryDestroy(): void
@@ -109,13 +109,13 @@ class DashboardController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('dashboard.category', 'invalid-id');
-            $this->redirect('settings/dashboard/index.php');
+            $this->redirect('settings/dashboard/index');
         }
 
         $exists = Capsule::table('intra_dashboard_categories')->where('id', $id)->exists();
         if (!$exists) {
             Flash::set('dashboard.category', 'not-found');
-            $this->redirect('settings/dashboard/index.php');
+            $this->redirect('settings/dashboard/index');
         }
 
         try {
@@ -127,7 +127,7 @@ class DashboardController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/dashboard/index.php');
+        $this->redirect('settings/dashboard/index');
     }
 
     // ── Tiles ──────────────────────────────────────────────
@@ -144,7 +144,7 @@ class DashboardController extends Controller
 
         if ($category <= 0 || $title === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/dashboard/index.php');
+            $this->redirect('settings/dashboard/index');
         }
 
         try {
@@ -162,7 +162,7 @@ class DashboardController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/dashboard/index.php');
+        $this->redirect('settings/dashboard/index');
     }
 
     public function tileUpdate(): void
@@ -178,7 +178,7 @@ class DashboardController extends Controller
 
         if ($id <= 0 || $category <= 0 || $title === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/dashboard/index.php');
+            $this->redirect('settings/dashboard/index');
         }
 
         try {
@@ -196,7 +196,7 @@ class DashboardController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/dashboard/index.php');
+        $this->redirect('settings/dashboard/index');
     }
 
     public function tileDestroy(): void
@@ -206,13 +206,13 @@ class DashboardController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('dashboard.tile', 'invalid-id');
-            $this->redirect('settings/dashboard/index.php');
+            $this->redirect('settings/dashboard/index');
         }
 
         $exists = Capsule::table('intra_dashboard_tiles')->where('id', $id)->exists();
         if (!$exists) {
             Flash::set('dashboard.tile', 'not-found');
-            $this->redirect('settings/dashboard/index.php');
+            $this->redirect('settings/dashboard/index');
         }
 
         try {
@@ -224,7 +224,7 @@ class DashboardController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/dashboard/index.php');
+        $this->redirect('settings/dashboard/index');
     }
 
     private function ensureManage(string $redirect): void
