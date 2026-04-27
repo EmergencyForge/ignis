@@ -171,7 +171,9 @@ $SITE_TITLE = 'Einladungen verwalten';
                         </div>
                         <div class="ignis-field mb-3">
                             <label for="expires_at" class="ignis-field__label">Gültig bis <span class="ignis-field__hint" style="display:inline;">(optional)</span></label>
-                            <input type="datetime-local" class="ignis-input" id="expires_at" name="expires_at">
+                            <div data-ignis-datetimepicker
+                                 data-name="expires_at"
+                                 class="ignis-datetimepicker"></div>
                             <span class="ignis-field__hint">Leer lassen für unbegrenzte Gültigkeit.</span>
                         </div>
                     </div>

@@ -49,7 +49,10 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
                             </div>
                             <div>
                                 <label for="einsatzbeginn" class="ignis-field__label">Einsatzbeginn</label>
-                                <input type="datetime-local" class="ignis-input" id="einsatzbeginn" name="einsatzbeginn" value="<?= date('Y-m-d\TH:i') ?>">
+                                <div data-ignis-datetimepicker
+                                     data-name="einsatzbeginn"
+                                     data-value="<?= date('Y-m-d\TH:i') ?>"
+                                     class="ignis-datetimepicker"></div>
                             </div>
                         </div>
 
