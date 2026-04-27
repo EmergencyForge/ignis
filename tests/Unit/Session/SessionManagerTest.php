@@ -218,4 +218,301 @@ final class SessionManagerTest extends TestCase
         $this->assertFalse(SessionManager::has('custom_key'));
         $this->assertNull(SessionManager::get('custom_key'));
     }
+
+    // ─── Redirect-After-Login ────────────────────────────────────────
+
+    #[Test]
+    public function redirect_url_set_und_pull_arbeitet_atomar(): void
+    {
+        SessionManager::setRedirectUrl('/benutzer/list');
+        $this->assertSame('/benutzer/list', $_SESSION['redirect_url']);
+
+        $first = SessionManager::pullRedirectUrl();
+        $this->assertSame('/benutzer/list', $first);
+
+        // Zweiter Pull → null, der Wert wurde konsumiert
+        $this->assertNull(SessionManager::pullRedirectUrl());
+        $this->assertArrayNotHasKey('redirect_url', $_SESSION);
+    }
+
+    #[Test]
+    public function redirect_from_request_liest_request_uri(): void
+    {
+        $_SERVER['REQUEST_URI'] = '/einsatz/view?id=42';
+        SessionManager::setRedirectFromRequest();
+        $this->assertSame('/einsatz/view?id=42', $_SESSION['redirect_url']);
+        unset($_SERVER['REQUEST_URI']);
+    }
+
+    // ─── PIN-Lockscreen ──────────────────────────────────────────────
+
+    #[Test]
+    public function pin_verified_setzt_und_loescht_zustand(): void
+    {
+        SessionManager::setPinVerified(true, '/enotf/list');
+        $this->assertTrue($_SESSION['pin_verified']);
+        $this->assertIsInt($_SESSION['pin_last_activity']);
+        $this->assertSame('/enotf/list', $_SESSION['pin_return_url']);
+
+        SessionManager::setPinVerified(false);
+        $this->assertArrayNotHasKey('pin_verified', $_SESSION);
+        $this->assertArrayNotHasKey('pin_last_activity', $_SESSION);
+    }
+
+    #[Test]
+    public function touch_pin_aktualisiert_activity_timestamp(): void
+    {
+        SessionManager::setPinVerified(true);
+        $first = $_SESSION['pin_last_activity'];
+
+        // Activity-Timestamp absichtlich in die Vergangenheit setzen, damit
+        // der touch sichtbar wirkt — sleep wäre zu langsam.
+        $_SESSION['pin_last_activity'] = $first - 10;
+        SessionManager::touchPin();
+
+        $this->assertGreaterThan($first - 10, $_SESSION['pin_last_activity']);
+    }
+
+    #[Test]
+    public function pin_return_url_set_und_pull_atomar(): void
+    {
+        SessionManager::setPinReturnUrl('/dashboard');
+        $this->assertSame('/dashboard', SessionManager::pullPinReturnUrl());
+        $this->assertNull(SessionManager::pullPinReturnUrl());
+    }
+
+    #[Test]
+    public function clear_pin_entfernt_alle_pin_keys(): void
+    {
+        SessionManager::setPinVerified(true, '/foo');
+        SessionManager::clearPin();
+        $this->assertArrayNotHasKey('pin_verified', $_SESSION);
+        $this->assertArrayNotHasKey('pin_last_activity', $_SESSION);
+        $this->assertArrayNotHasKey('pin_return_url', $_SESSION);
+    }
+
+    // ─── eNOTF Crew Update ───────────────────────────────────────────
+
+    #[Test]
+    public function update_enotf_crew_aktualisiert_nur_uebergebene_keys(): void
+    {
+        SessionManager::loginEnotfCrew('fahrer', 'tok', [
+            'fahrer'     => ['name' => 'A', 'quali' => 'NS'],
+            'beifahrer'  => ['name' => 'B', 'quali' => 'RS'],
+            'praktikant' => ['name' => 'C', 'quali' => 'PA'],
+        ]);
+
+        // Nur Beifahrer ändern
+        SessionManager::updateEnotfCrew([
+            'beifahrername'  => 'NeuerBeifahrer',
+            'beifahrerquali' => 'NotSan',
+        ]);
+
+        $this->assertSame('A',              $_SESSION['fahrername']);
+        $this->assertSame('NS',             $_SESSION['fahrerquali']);
+        $this->assertSame('NeuerBeifahrer', $_SESSION['beifahrername']);
+        $this->assertSame('NotSan',         $_SESSION['beifahrerquali']);
+        $this->assertSame('C',              $_SESSION['praktikantname']);
+    }
+
+    // ─── OAuth2-State (CSRF) ─────────────────────────────────────────
+
+    #[Test]
+    public function oauth2_state_consume_returns_ok_for_matching_state(): void
+    {
+        SessionManager::setOAuth2State('abc123');
+        $this->assertSame('ok', SessionManager::consumeOAuth2State('abc123'));
+
+        // Konsumiert → kein State mehr
+        $this->assertArrayNotHasKey('oauth2state', $_SESSION);
+    }
+
+    #[Test]
+    public function oauth2_state_consume_returns_missing_when_no_state_set(): void
+    {
+        $this->assertSame('missing', SessionManager::consumeOAuth2State('anything'));
+    }
+
+    #[Test]
+    public function oauth2_state_consume_returns_expired_after_5min(): void
+    {
+        SessionManager::setOAuth2State('xyz');
+        // Manuell auf 6 Minuten alt setzen
+        $_SESSION['oauth2state_time'] = time() - 360;
+
+        $this->assertSame('expired', SessionManager::consumeOAuth2State('xyz'));
+        $this->assertArrayNotHasKey('oauth2state', $_SESSION);
+    }
+
+    #[Test]
+    public function oauth2_state_consume_returns_mismatch_for_wrong_state(): void
+    {
+        SessionManager::setOAuth2State('correct');
+        $this->assertSame('mismatch', SessionManager::consumeOAuth2State('attacker'));
+        // State trotzdem konsumiert (kein Replay)
+        $this->assertArrayNotHasKey('oauth2state', $_SESSION);
+    }
+
+    #[Test]
+    public function oauth2_state_consume_rejects_empty_string(): void
+    {
+        SessionManager::setOAuth2State('correct');
+        $this->assertSame('mismatch', SessionManager::consumeOAuth2State(''));
+    }
+
+    // ─── Registrierungs-Flow ─────────────────────────────────────────
+
+    #[Test]
+    public function registration_error_pull_atomar(): void
+    {
+        SessionManager::setRegistrationError('Code abgelaufen');
+        $this->assertSame('Code abgelaufen', SessionManager::pullRegistrationError());
+        $this->assertNull(SessionManager::pullRegistrationError());
+    }
+
+    #[Test]
+    public function registration_code_set_get_clear(): void
+    {
+        SessionManager::setRegistrationCode('INV-2026-001');
+        $this->assertSame('INV-2026-001', SessionManager::getRegistrationCode());
+
+        SessionManager::clearRegistrationCode();
+        $this->assertNull(SessionManager::getRegistrationCode());
+    }
+
+    // ─── Permissions-Cache ───────────────────────────────────────────
+
+    #[Test]
+    public function set_permissions_speichert_liste_und_zeitstempel(): void
+    {
+        $before = time();
+        SessionManager::setPermissions(['admin', 'edivi.view']);
+        $this->assertSame(['admin', 'edivi.view'], $_SESSION['permissions']);
+        $this->assertGreaterThanOrEqual($before, $_SESSION['permissions_loaded']);
+    }
+
+    #[Test]
+    public function permissions_age_returns_int_max_when_never_loaded(): void
+    {
+        $this->assertSame(PHP_INT_MAX, SessionManager::permissionsAge());
+    }
+
+    #[Test]
+    public function permissions_age_returns_seconds_since_load(): void
+    {
+        SessionManager::setPermissions(['admin']);
+        $_SESSION['permissions_loaded'] = time() - 42;
+        $this->assertGreaterThanOrEqual(42, SessionManager::permissionsAge());
+        $this->assertLessThanOrEqual(43, SessionManager::permissionsAge());
+    }
+
+    // ─── Misc Flags ──────────────────────────────────────────────────
+
+    #[Test]
+    public function skip_next_view_log_setzt_flag(): void
+    {
+        SessionManager::skipNextViewLog();
+        $this->assertTrue($_SESSION['skip_next_view_log']);
+    }
+
+    #[Test]
+    public function set_composer_pending_setzt_und_clearet(): void
+    {
+        SessionManager::setComposerPending(['step' => 1, 'data' => 'foo']);
+        $this->assertSame(['step' => 1, 'data' => 'foo'], $_SESSION['composer_pending']);
+
+        SessionManager::setComposerPending(null);
+        $this->assertArrayNotHasKey('composer_pending', $_SESSION);
+    }
+
+    #[Test]
+    public function clear_klinik_access_entfernt_beide_keys(): void
+    {
+        SessionManager::loginKlinikcode('ENR-001');
+        SessionManager::clearKlinikAccess();
+        $this->assertArrayNotHasKey('klinik_access_enr', $_SESSION);
+        $this->assertArrayNotHasKey('klinik_access_time', $_SESSION);
+    }
+
+    #[Test]
+    public function forget_by_prefix_loescht_alle_passenden_keys(): void
+    {
+        $_SESSION['einsatz_viewed_1'] = true;
+        $_SESSION['einsatz_viewed_2'] = true;
+        $_SESSION['einsatz_viewed_3'] = true;
+        $_SESSION['userid']           = 42;
+
+        SessionManager::forgetByPrefix('einsatz_viewed_');
+
+        $this->assertArrayNotHasKey('einsatz_viewed_1', $_SESSION);
+        $this->assertArrayNotHasKey('einsatz_viewed_2', $_SESSION);
+        $this->assertArrayNotHasKey('einsatz_viewed_3', $_SESSION);
+        // Andere Keys bleiben unangetastet
+        $this->assertSame(42, $_SESSION['userid']);
+    }
+
+    #[Test]
+    public function forget_by_prefix_respektiert_except_key(): void
+    {
+        $_SESSION['einsatz_viewed_1'] = true;
+        $_SESSION['einsatz_viewed_2'] = true;
+        $_SESSION['einsatz_viewed_3'] = true;
+
+        SessionManager::forgetByPrefix('einsatz_viewed_', 'einsatz_viewed_2');
+
+        $this->assertArrayNotHasKey('einsatz_viewed_1', $_SESSION);
+        $this->assertSame(true, $_SESSION['einsatz_viewed_2']);
+        $this->assertArrayNotHasKey('einsatz_viewed_3', $_SESSION);
+    }
+
+    // ─── Cross-Context-Isolation ─────────────────────────────────────
+
+    #[Test]
+    public function login_character_mit_null_charid_setzt_nur_job_und_name(): void
+    {
+        SessionManager::loginCharacter(null, 'fire', 'John Doe');
+
+        $this->assertSame('fire',     $_SESSION['char_job']);
+        $this->assertSame('John Doe', $_SESSION['char_name']);
+        $this->assertArrayNotHasKey('char_id', $_SESSION);
+    }
+
+    #[Test]
+    public function alle_5_kontexte_koennen_parallel_aktiv_sein(): void
+    {
+        // Realistisches Scenario: Admin loggt sich ein, übernimmt eine
+        // eNOTF-Crew, betritt einen Einsatz, identifiziert seinen FiveM-
+        // Charakter und ruft eine Klinik-Schnittstelle auf — alle in
+        // derselben Session.
+        SessionManager::loginUser(
+            ['id' => 1, 'username' => 'admin', 'aktenid' => 1, 'role' => 1, 'discord_id' => 'd1'],
+            ['admin'],
+        );
+        SessionManager::loginEnotfCrew('fahrer', 'enotf-tok', [
+            'fahrer' => ['name' => 'F', 'quali' => 'NS'],
+        ]);
+        SessionManager::loginEinsatz(7, 'LF', 1, 'Op');
+        SessionManager::loginCharacter('char-1', 'fire', 'Name');
+        SessionManager::loginKlinikcode('ENR-1');
+
+        // Alle Kontexte sind unabhängig aktiv
+        $this->assertTrue(SessionManager::isLoggedIn());
+        $this->assertTrue(SessionManager::isEnotfActive());
+        $this->assertTrue(SessionManager::isEinsatzActive());
+        $this->assertSame('Name', $_SESSION['char_name']);
+        $this->assertSame('ENR-1', $_SESSION['klinik_access_enr']);
+
+        // Logout User → andere Kontexte überleben
+        SessionManager::logoutUser();
+        $this->assertFalse(SessionManager::isLoggedIn());
+        $this->assertTrue(SessionManager::isEnotfActive());
+        $this->assertTrue(SessionManager::isEinsatzActive());
+
+        // Logout eNOTF → Einsatz und Char und Klinik überleben
+        SessionManager::logoutEnotfCrew();
+        $this->assertFalse(SessionManager::isEnotfActive());
+        $this->assertTrue(SessionManager::isEinsatzActive());
+        $this->assertSame('Name', $_SESSION['char_name'] ?? null);
+        $this->assertSame('ENR-1', $_SESSION['klinik_access_enr'] ?? null);
+    }
 }
