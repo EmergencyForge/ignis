@@ -70,7 +70,7 @@ a:hover {
   color: var(--link-hover);
 }
 
-a:not([class*=btn]):not(.sidebar-link):not(.nav-link):not(.no-underline):not(.gsr-item):not(.rail-item):not(.flyout-item):not(.rail-logo):not(.setup-step):hover {
+a:not([class*=btn]):not(.sidebar-link):not(.nav-link):not(.no-underline):not(.gsr-item):not(.rail-item):not(.flyout-item):not(.rail-logo):not(.setup-step):not(.edivi__einsatz-link):not(.edivi__iconlink):not(.text-reset):hover {
   text-decoration: underline;
 }
 
@@ -1231,6 +1231,21 @@ select.form-select option {
   grid-template-columns: 1fr;
   gap: 0.3rem;
 }
+.beladung-tiles--sortable.is-empty {
+  min-height: 4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md, 6px);
+  color: var(--text-dimmed);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+.beladung-tiles--sortable.is-empty::before {
+  content: attr(data-empty-text);
+}
 
 .beladung-tile {
   display: flex;
@@ -1416,6 +1431,13 @@ td.dt-empty {
   display: flex;
   gap: 4px;
   justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+.dt-container table.dataTable td:last-child {
+  white-space: nowrap;
+  text-align: right;
+  padding-right: 0.5rem;
 }
 
 .col-actions .btn-icon {
@@ -2513,10 +2535,22 @@ td.dt-empty {
 
 body.new-navbar {
   --a16-rail-width: 110px;
-  --a16-flyout-width: 340px;
+  --a16-flyout-width: 260px;
   --a16-divider: rgba(255, 255, 255, 0.06);
   --a16-surface-raised: #161616;
   --sidebar-width: var(--a16-rail-width);
+}
+body.new-navbar.is-flyout-open {
+  --sidebar-width: calc(var(--a16-rail-width) + var(--a16-flyout-width));
+}
+
+body.new-navbar.is-flyout-open .intra__tile {
+  overflow-x: auto;
+}
+body.new-navbar.is-flyout-open .container,
+body.new-navbar.is-flyout-open .container-fluid,
+body.new-navbar.is-flyout-open .container-full {
+  max-width: 100%;
 }
 
 .intra-sidebar--a16 {
