@@ -20,7 +20,7 @@ class FederationController extends Controller
         $this->requireAuth();
         if (!Gate::allows('system.admin')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         \App\Security\CsrfProtection::getToken();

@@ -33,7 +33,7 @@ class RoleController extends Controller
     public function index(): void
     {
         $this->requireAuth();
-        $this->ensure('role.viewList', redirectTo: 'index.php');
+        $this->ensure('role.viewList', redirectTo: 'index');
 
         $roles            = Role::query()->orderBy('priority')->get();
         $permissionGroups = require dirname(__DIR__, 3) . '/config/permissions.php';
@@ -51,14 +51,14 @@ class RoleController extends Controller
     public function store(): void
     {
         $this->requireAuth();
-        $this->ensure('role.create', redirectTo: 'benutzer/rollen/index.php');
+        $this->ensure('role.create', redirectTo: 'benutzer/rollen/index');
         $this->requireMethod('POST');
 
         try {
             $data = CreateRoleRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('benutzer/rollen/index.php');
+            $this->redirect('benutzer/rollen/index');
         }
 
         try {
@@ -82,7 +82,7 @@ class RoleController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('benutzer/rollen/index.php');
+        $this->redirect('benutzer/rollen/index');
     }
 
     /**
@@ -92,14 +92,14 @@ class RoleController extends Controller
     public function update(): void
     {
         $this->requireAuth();
-        $this->ensure('role.update', redirectTo: 'benutzer/rollen/index.php');
+        $this->ensure('role.update', redirectTo: 'benutzer/rollen/index');
         $this->requireMethod('POST');
 
         try {
             $data = UpdateRoleRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('benutzer/rollen/index.php');
+            $this->redirect('benutzer/rollen/index');
         }
 
         try {
@@ -107,7 +107,7 @@ class RoleController extends Controller
             $role = Role::find($data['id']);
             if ($role === null) {
                 Flash::set('role', 'not-found');
-                $this->redirect('benutzer/rollen/index.php');
+                $this->redirect('benutzer/rollen/index');
             }
 
             $role->name        = $data['name'];
@@ -129,7 +129,7 @@ class RoleController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('benutzer/rollen/index.php');
+        $this->redirect('benutzer/rollen/index');
     }
 
     /**
@@ -139,14 +139,14 @@ class RoleController extends Controller
     public function destroy(): void
     {
         $this->requireAuth();
-        $this->ensure('role.delete', redirectTo: 'benutzer/rollen/index.php');
+        $this->ensure('role.delete', redirectTo: 'benutzer/rollen/index');
         $this->requireMethod('POST');
 
         $id = (int) ($_POST['id'] ?? 0);
 
         if ($id <= 0) {
             Flash::set('role', 'invalid-id');
-            $this->redirect('benutzer/rollen/index.php');
+            $this->redirect('benutzer/rollen/index');
         }
 
         try {
@@ -154,7 +154,7 @@ class RoleController extends Controller
             $role = Role::find($id);
             if ($role === null) {
                 Flash::set('role', 'not-found');
-                $this->redirect('benutzer/rollen/index.php');
+                $this->redirect('benutzer/rollen/index');
             }
 
             $role->delete();
@@ -172,7 +172,7 @@ class RoleController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('benutzer/rollen/index.php');
+        $this->redirect('benutzer/rollen/index');
     }
 
     // -----------------------------------------------------------------------
@@ -187,7 +187,7 @@ class RoleController extends Controller
     private function requireMethod(string $method): void
     {
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== $method) {
-            $this->redirect('benutzer/rollen/index.php');
+            $this->redirect('benutzer/rollen/index');
         }
     }
 }

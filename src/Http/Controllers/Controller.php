@@ -37,7 +37,7 @@ abstract class Controller
     {
         if (!\App\Session\SessionManager::isLoggedIn() || !isset($_SESSION['permissions'])) {
             \App\Session\SessionManager::setRedirectFromRequest();
-            $this->redirect('login.php');
+            $this->redirect('login');
         }
     }
 
@@ -46,7 +46,7 @@ abstract class Controller
      * Aktionen, die spezifischere Flash-Messages brauchen (z.B. "edit-self"),
      * machen den Gate-Check inline statt diesen Helper zu nutzen.
      */
-    protected function ensure(string $ability, mixed $resource = null, string $redirectTo = 'index.php'): void
+    protected function ensure(string $ability, mixed $resource = null, string $redirectTo = 'index'): void
     {
         if (Gate::denies($ability, $resource)) {
             Flash::set('error', 'no-permissions');

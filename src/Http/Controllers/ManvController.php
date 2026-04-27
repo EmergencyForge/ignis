@@ -27,7 +27,7 @@ class ManvController extends Controller
     public function index(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.viewList', redirectTo: 'index.php');
+        $this->ensure('manv.viewList', redirectTo: 'index');
 
         $statusFilter = (string) ($_GET['status'] ?? 'aktiv');
         if (!in_array($statusFilter, self::ALLOWED_STATUS, true)) {
@@ -57,7 +57,7 @@ class ManvController extends Controller
     public function create(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.create', redirectTo: 'index.php');
+        $this->ensure('manv.create', redirectTo: 'index');
 
         $users = $this->loadUsersForLeitung();
 
@@ -73,7 +73,7 @@ class ManvController extends Controller
     public function store(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.create', redirectTo: 'index.php');
+        $this->ensure('manv.create', redirectTo: 'index');
 
         $data = [
             'einsatznummer'        => trim((string) ($_POST['einsatznummer'] ?? '')),
@@ -90,7 +90,7 @@ class ManvController extends Controller
 
         if ($data['einsatznummer'] === '' || $data['einsatzort'] === '') {
             Flash::error('Einsatznummer und Einsatzort sind Pflichtfelder.');
-            $this->redirect('manv/create.php');
+            $this->redirect('manv/create');
         }
 
         try {
@@ -108,10 +108,10 @@ class ManvController extends Controller
             );
         } catch (\Throwable $e) {
             Flash::error('Fehler beim Erstellen der MANV-Lage: ' . $e->getMessage());
-            $this->redirect('manv/create.php');
+            $this->redirect('manv/create');
         }
 
-        $this->redirect('manv/board.php?id=' . $lageId);
+        $this->redirect('manv/board?id=' . $lageId);
     }
 
     /**
@@ -120,18 +120,18 @@ class ManvController extends Controller
     public function edit(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.update', redirectTo: 'index.php');
+        $this->ensure('manv.update', redirectTo: 'index');
 
         $lageId = (int) ($_GET['id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $manvLage = new MANVLage($this->pdo);
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $users = $this->loadUsersForLeitung();
@@ -150,18 +150,18 @@ class ManvController extends Controller
     public function update(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.update', redirectTo: 'index.php');
+        $this->ensure('manv.update', redirectTo: 'index');
 
         $lageId = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $manvLage = new MANVLage($this->pdo);
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $data = [
@@ -181,7 +181,7 @@ class ManvController extends Controller
 
         if ($data['einsatznummer'] === '' || $data['einsatzort'] === '') {
             Flash::error('Einsatznummer und Einsatzort sind Pflichtfelder.');
-            $this->redirect('manv/edit.php?id=' . $lageId);
+            $this->redirect('manv/edit?id=' . $lageId);
         }
 
         try {
@@ -198,7 +198,7 @@ class ManvController extends Controller
             Flash::error('Fehler beim Aktualisieren: ' . $e->getMessage());
         }
 
-        $this->redirect('manv/edit.php?id=' . $lageId);
+        $this->redirect('manv/edit?id=' . $lageId);
     }
 
     /**
@@ -207,18 +207,18 @@ class ManvController extends Controller
     public function log(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.view', redirectTo: 'index.php');
+        $this->ensure('manv.view', redirectTo: 'index');
 
         $lageId = (int) ($_GET['id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $manvLage = new MANVLage($this->pdo);
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $logEntries = (new MANVLog($this->pdo))->getByLage($lageId, 200);
@@ -239,11 +239,11 @@ class ManvController extends Controller
     public function board(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.view', redirectTo: 'index.php');
+        $this->ensure('manv.view', redirectTo: 'index');
 
         $lageId = (int) ($_GET['id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $manvLage      = new MANVLage($this->pdo);
@@ -253,7 +253,7 @@ class ManvController extends Controller
         $lage = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $stats      = $manvLage->getStatistics($lageId);
@@ -293,18 +293,18 @@ class ManvController extends Controller
     public function patientCreate(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.update', redirectTo: 'index.php');
+        $this->ensure('manv.update', redirectTo: 'index');
 
         $lageId = (int) ($_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $manvLage = new MANVLage($this->pdo);
         $lage     = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         // Verfügbare Fahrzeuge: nur Ressourcen, die noch keinem aktiven Patient zugewiesen sind
@@ -329,11 +329,11 @@ class ManvController extends Controller
     public function patientStore(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.update', redirectTo: 'index.php');
+        $this->ensure('manv.update', redirectTo: 'index');
 
         $lageId = (int) ($_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $manvPatient = new MANVPatient($this->pdo);
@@ -366,7 +366,7 @@ class ManvController extends Controller
                         . ' ist bereits Patient ' . htmlspecialchars($existing->patienten_nummer)
                         . ' zugewiesen.'
                     );
-                    $this->redirect('manv/patient-create.php?lage_id=' . $lageId);
+                    $this->redirect('manv/patient-create?lage_id=' . $lageId);
                 }
 
                 $transportmittel        = $fahrzeug->fahrzeugtyp;
@@ -407,10 +407,10 @@ class ManvController extends Controller
             );
         } catch (\Throwable $e) {
             Flash::error('Fehler beim Erstellen des Patienten: ' . $e->getMessage());
-            $this->redirect('manv/patient-create.php?lage_id=' . $lageId);
+            $this->redirect('manv/patient-create?lage_id=' . $lageId);
         }
 
-        $this->redirect('manv/patient-view.php?id=' . $patientId);
+        $this->redirect('manv/patient-view?id=' . $patientId);
     }
 
     /**
@@ -421,11 +421,11 @@ class ManvController extends Controller
     public function patientView(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.update', redirectTo: 'index.php');
+        $this->ensure('manv.update', redirectTo: 'index');
 
         $patientId = (int) ($_GET['id'] ?? 0);
         if ($patientId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $manvPatient = new MANVPatient($this->pdo);
@@ -434,7 +434,7 @@ class ManvController extends Controller
 
         $patient = $manvPatient->getById($patientId);
         if ($patient === null) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         // Quick-Sichtung via GET — schreibt Sichtung sofort, redirect auf saubere URL
@@ -450,7 +450,7 @@ class ManvController extends Controller
                 'patient',
                 $patientId
             );
-            $this->redirect('manv/patient-view.php?id=' . $patientId);
+            $this->redirect('manv/patient-view?id=' . $patientId);
         }
 
         $lage                   = $manvLage->getById((int) $patient['manv_lage_id']);
@@ -475,11 +475,11 @@ class ManvController extends Controller
     public function patientUpdate(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.update', redirectTo: 'index.php');
+        $this->ensure('manv.update', redirectTo: 'index');
 
         $patientId = (int) ($_GET['id'] ?? 0);
         if ($patientId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $manvPatient = new MANVPatient($this->pdo);
@@ -487,7 +487,7 @@ class ManvController extends Controller
 
         $patient = $manvPatient->getById($patientId);
         if ($patient === null) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         // Fahrzeugzuweisung auflösen + Doppel-Zuweisung prüfen
@@ -517,7 +517,7 @@ class ManvController extends Controller
                         . ' ist bereits Patient ' . htmlspecialchars($existing->patienten_nummer)
                         . ' zugewiesen.'
                     );
-                    $this->redirect('manv/patient-view.php?id=' . $patientId);
+                    $this->redirect('manv/patient-view?id=' . $patientId);
                 }
 
                 $transportmittel        = $fahrzeug->fahrzeugtyp;
@@ -578,7 +578,7 @@ class ManvController extends Controller
             Flash::error('Fehler beim Aktualisieren: ' . $e->getMessage());
         }
 
-        $this->redirect('manv/patient-view.php?id=' . $patientId);
+        $this->redirect('manv/patient-view?id=' . $patientId);
     }
 
     /**
@@ -589,11 +589,11 @@ class ManvController extends Controller
     public function ressourcen(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.update', redirectTo: 'index.php');
+        $this->ensure('manv.update', redirectTo: 'index');
 
         $lageId = (int) ($_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $manvLage      = new MANVLage($this->pdo);
@@ -602,7 +602,7 @@ class ManvController extends Controller
         $lage = $manvLage->getById($lageId);
         if ($lage === null) {
             Flash::error('MANV-Lage nicht gefunden.');
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         // Systemfahrzeuge (noch nicht zur Lage hinzugefügt)
@@ -635,11 +635,11 @@ class ManvController extends Controller
     public function ressourceStore(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.update', redirectTo: 'index.php');
+        $this->ensure('manv.update', redirectTo: 'index');
 
         $lageId = (int) ($_GET['lage_id'] ?? 0);
         if ($lageId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $manvRessource = new MANVRessource($this->pdo);
@@ -648,7 +648,7 @@ class ManvController extends Controller
         $bezeichnung = trim((string) ($_POST['bezeichnung'] ?? ''));
         if ($bezeichnung === '') {
             Flash::error('Bezeichnung ist Pflichtfeld.');
-            $this->redirect('manv/ressourcen.php?lage_id=' . $lageId);
+            $this->redirect('manv/ressourcen?lage_id=' . $lageId);
         }
 
         // Doppelte Bezeichnung in derselben Lage verhindern
@@ -663,7 +663,7 @@ class ManvController extends Controller
                 'Das Fahrzeug ' . htmlspecialchars($bezeichnung)
                 . ' wurde bereits zu dieser MANV-Lage hinzugefügt.'
             );
-            $this->redirect('manv/ressourcen.php?lage_id=' . $lageId);
+            $this->redirect('manv/ressourcen?lage_id=' . $lageId);
         }
 
         $data = [
@@ -694,7 +694,7 @@ class ManvController extends Controller
             Flash::error('Fehler beim Erstellen: ' . $e->getMessage());
         }
 
-        $this->redirect('manv/ressourcen.php?lage_id=' . $lageId);
+        $this->redirect('manv/ressourcen?lage_id=' . $lageId);
     }
 
     /**
@@ -703,12 +703,12 @@ class ManvController extends Controller
     public function ressourceUpdate(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.update', redirectTo: 'index.php');
+        $this->ensure('manv.update', redirectTo: 'index');
 
         $lageId     = (int) ($_GET['lage_id'] ?? 0);
         $resourceId = (int) ($_POST['ressource_id'] ?? 0);
         if ($lageId <= 0 || $resourceId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         $data = [
@@ -736,7 +736,7 @@ class ManvController extends Controller
             Flash::error('Fehler beim Bearbeiten: ' . $e->getMessage());
         }
 
-        $this->redirect('manv/ressourcen.php?lage_id=' . $lageId);
+        $this->redirect('manv/ressourcen?lage_id=' . $lageId);
     }
 
     /**
@@ -746,12 +746,12 @@ class ManvController extends Controller
     public function ressourceDelete(): void
     {
         $this->requireAuth();
-        $this->ensure('manv.delete', redirectTo: 'index.php');
+        $this->ensure('manv.delete', redirectTo: 'index');
 
         $lageId     = (int) ($_GET['lage_id'] ?? 0);
         $resourceId = (int) ($_GET['delete_id'] ?? 0);
         if ($lageId <= 0 || $resourceId <= 0) {
-            $this->redirect('manv/index.php');
+            $this->redirect('manv/index');
         }
 
         try {
@@ -768,7 +768,7 @@ class ManvController extends Controller
             Flash::error('Fehler beim Löschen: ' . $e->getMessage());
         }
 
-        $this->redirect('manv/ressourcen.php?lage_id=' . $lageId);
+        $this->redirect('manv/ressourcen?lage_id=' . $lageId);
     }
 
     // -----------------------------------------------------------------------

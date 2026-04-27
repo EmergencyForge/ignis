@@ -564,7 +564,7 @@ $currentDateTime = date('Y-m-d\TH:i');
         (function() {
             const enr = <?= json_encode($enr) ?>;
             const fields = ['spo2', 'atemfreq', 'etco2', 'herzfreq', 'rrsys', 'rrdias', 'bz', 'temp'];
-            const endpoint = '<?= BASE_PATH ?>api/enotf/save-fields.php';
+            const endpoint = '<?= BASE_PATH ?>api/enotf/save-fields';
 
             async function postField(field, value) {
                 const normalized = String(value).replace(',', '.').trim();
@@ -589,7 +589,7 @@ $currentDateTime = date('Y-m-d\TH:i');
 
             async function saveAll() {
                 const fields = ['spo2', 'atemfreq', 'etco2', 'herzfreq', 'rrsys', 'rrdias', 'bz', 'temp'];
-                const endpoint = '<?= BASE_PATH ?>api/enotf/save-fields.php';
+                const endpoint = '<?= BASE_PATH ?>api/enotf/save-fields';
                 const enr = <?= json_encode($enr) ?>;
 
                 const jobs = [];

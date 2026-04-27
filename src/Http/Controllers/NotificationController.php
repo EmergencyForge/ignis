@@ -83,7 +83,7 @@ class NotificationController extends Controller
             Flash::set('success', 'Benachrichtigung als gelesen markiert');
         }
 
-        $this->redirect('benachrichtigungen/index.php');
+        $this->redirect('benachrichtigungen/index');
     }
 
     /**
@@ -95,7 +95,7 @@ class NotificationController extends Controller
         (new NotificationManager($this->pdo))->markAllAsRead((int) $_SESSION['userid']);
         Flash::set('success', 'Alle Benachrichtigungen als gelesen markiert');
 
-        $this->redirect('benachrichtigungen/index.php');
+        $this->redirect('benachrichtigungen/index');
     }
 
     /**
@@ -110,6 +110,6 @@ class NotificationController extends Controller
             Flash::set('success', 'Benachrichtigung gelöscht');
         }
 
-        $this->redirect('benachrichtigungen/index.php');
+        $this->redirect('benachrichtigungen/index');
     }
 }

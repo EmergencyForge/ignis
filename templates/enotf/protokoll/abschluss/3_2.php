@@ -192,7 +192,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
                 // Code generieren
                 $.ajax({
-                    url: '<?= BASE_PATH ?>api/klinik/generate-code.php',
+                    url: '<?= BASE_PATH ?>api/klinik/generate-code',
                     method: 'POST',
                     data: {
                         enr: enr

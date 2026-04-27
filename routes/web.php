@@ -56,6 +56,33 @@ $router->get('/_router/ping', function ($request) {
 });
 
 // ----------------------------------------------------------------------------
+//  Top-Level public pages — Invite-Link, Login, Logout, Index.
+//
+//  invite.php existiert weiterhin als Datei und wird direkt von Apache
+//  serviert, wenn jemand `/invite.php?code=...` aufruft (Legacy-Link aus
+//  alten Mails). Die kanonische Form ist `/invite?code=...` — diese Route
+//  inkludiert die existierende Datei, damit beide URLs identisch wirken.
+// ----------------------------------------------------------------------------
+
+$router->get('/invite', function () {
+    require __DIR__ . '/../invite.php';
+    return \App\Http\Response::empty();
+});
+
+$rootIndex = function () {
+    require __DIR__ . '/../index.php';
+    return \App\Http\Response::empty();
+};
+$router->get('/',      $rootIndex);
+$router->get('/index', $rootIndex);
+
+$loginPage = function () {
+    require __DIR__ . '/../login.php';
+    return \App\Http\Response::empty();
+};
+$router->match(['GET', 'POST'], '/login', $loginPage);
+
+// ----------------------------------------------------------------------------
 //  Benutzer-Modul — UserController + RoleController rufen intern
 //  requireAuth() + ensure() auf, Routes brauchen nur AuthMiddleware.
 // ----------------------------------------------------------------------------
@@ -144,6 +171,7 @@ $notifDeleteAuth = [new AuthMiddleware(), new PolicyMiddleware('notification.del
 // GET → Liste
 $router->get('/benachrichtigungen',           [NotificationController::class, 'index'], $notifIndexAuth);
 $router->get('/benachrichtigungen/',          [NotificationController::class, 'index'], $notifIndexAuth);
+$router->get('/benachrichtigungen/index',     [NotificationController::class, 'index'], $notifIndexAuth);
 $router->get('/benachrichtigungen/index.php', [NotificationController::class, 'index'], $notifIndexAuth);
 
 // POST-Dispatcher anhand $_POST['action']. Gate::authorize() wirft bei
@@ -175,6 +203,7 @@ $notifPostDispatch = function (\App\Http\Request $request) {
 
 $router->post('/benachrichtigungen',           $notifPostDispatch, [new AuthMiddleware()]);
 $router->post('/benachrichtigungen/',          $notifPostDispatch, [new AuthMiddleware()]);
+$router->post('/benachrichtigungen/index',     $notifPostDispatch, [new AuthMiddleware()]);
 $router->post('/benachrichtigungen/index.php', $notifPostDispatch, [new AuthMiddleware()]);
 
 // ----------------------------------------------------------------------------

@@ -424,7 +424,7 @@ $hasPrefill = !empty($prefill);
                 return;
             }
 
-            fetch(basePath + 'api/enotf/check-vehicle-session.php?vehicle=' + encodeURIComponent(vehicleId))
+            fetch(basePath + 'api/enotf/check-vehicle-session?vehicle=' + encodeURIComponent(vehicleId))
                 .then(r => r.json())
                 .then(data => {
                     if (data.active) {
@@ -557,7 +557,7 @@ $hasPrefill = !empty($prefill);
 
             if (!confirmed) return;
 
-            fetch(basePath + 'api/enotf/delete-vehicle-session.php', {
+            fetch(basePath + 'api/enotf/delete-vehicle-session', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

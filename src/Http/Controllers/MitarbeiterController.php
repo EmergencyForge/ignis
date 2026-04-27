@@ -114,7 +114,7 @@ class MitarbeiterController extends Controller
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'invalid-id');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         /** @var Mitarbeiter|null $mitarbeiter */
@@ -124,7 +124,7 @@ class MitarbeiterController extends Controller
 
         if ($mitarbeiter === null) {
             Flash::set('error', 'not-found');
-            $this->redirect('mitarbeiter/list.php');
+            $this->redirect('mitarbeiter/list');
         }
 
         // Account-Status für die Status-Card oben in der View ermitteln
@@ -242,14 +242,14 @@ class MitarbeiterController extends Controller
             $data = UpdateMitarbeiterRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('mitarbeiter/profile.php?id=' . (int) ($_POST['id'] ?? 0));
+            $this->redirect('mitarbeiter/profile?id=' . (int) ($_POST['id'] ?? 0));
         }
 
         /** @var Mitarbeiter|null $mitarbeiter */
         $mitarbeiter = Mitarbeiter::find($data['id']);
         if ($mitarbeiter === null) {
             Flash::error('Mitarbeiter nicht gefunden.');
-            $this->redirect('mitarbeiter/list.php');
+            $this->redirect('mitarbeiter/list');
         }
 
         $userHelper = new UserHelper($this->pdo);
@@ -312,7 +312,7 @@ class MitarbeiterController extends Controller
             $mitarbeiter->save();
         }
 
-        $this->redirect('mitarbeiter/profile.php?id=' . $mitarbeiter->id);
+        $this->redirect('mitarbeiter/profile?id=' . $mitarbeiter->id);
     }
 
     /**
@@ -323,13 +323,13 @@ class MitarbeiterController extends Controller
 
         $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) {
-            $this->redirect('mitarbeiter/list.php');
+            $this->redirect('mitarbeiter/list');
         }
 
         /** @var Mitarbeiter|null $mitarbeiter */
         $mitarbeiter = Mitarbeiter::find($id);
         if ($mitarbeiter === null) {
-            $this->redirect('mitarbeiter/list.php');
+            $this->redirect('mitarbeiter/list');
         }
 
         $fachdienste     = isset($_POST['fachdienste']) && is_array($_POST['fachdienste']) ? $_POST['fachdienste'] : [];
@@ -347,7 +347,7 @@ class MitarbeiterController extends Controller
             );
         }
 
-        $this->redirect('mitarbeiter/profile.php?id=' . $id);
+        $this->redirect('mitarbeiter/profile?id=' . $id);
     }
 
     /**
@@ -358,7 +358,7 @@ class MitarbeiterController extends Controller
 
         $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($id <= 0) {
-            $this->redirect('mitarbeiter/list.php');
+            $this->redirect('mitarbeiter/list');
         }
 
         $content = trim((string) ($_POST['content'] ?? ''));
@@ -383,7 +383,7 @@ class MitarbeiterController extends Controller
             );
         }
 
-        $this->redirect('mitarbeiter/profile.php?id=' . $id);
+        $this->redirect('mitarbeiter/profile?id=' . $id);
     }
 
     /**
@@ -400,7 +400,7 @@ class MitarbeiterController extends Controller
             $data = CreateDocumentRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('mitarbeiter/list.php');
+            $this->redirect('mitarbeiter/list');
         }
 
         $profileId = $data['profileid'];
@@ -410,7 +410,7 @@ class MitarbeiterController extends Controller
         $mitarbeiter = Mitarbeiter::find($profileId);
         if ($mitarbeiter === null) {
             Flash::error('Mitarbeiter nicht gefunden.');
-            $this->redirect('mitarbeiter/list.php');
+            $this->redirect('mitarbeiter/list');
         }
 
         // Eindeutige docid generieren (7-stellig, wie Legacy)
@@ -497,11 +497,11 @@ class MitarbeiterController extends Controller
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $this->jsonResponse(['success' => false, 'message' => 'Keine Berechtigung'], 403);
             }
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('mitarbeiter/list.php');
+            $this->redirect('mitarbeiter/list');
         }
 
         try {
@@ -573,7 +573,7 @@ class MitarbeiterController extends Controller
         $this->jsonResponse([
             'success'  => true,
             'message'  => 'Mitarbeiter erfolgreich erstellt!',
-            'redirect' => BASE_PATH . 'mitarbeiter/profile.php?id=' . (int) $mitarbeiter->id . '&new_created=1',
+            'redirect' => BASE_PATH . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id . '&new_created=1',
         ]);
     }
 
@@ -586,7 +586,7 @@ class MitarbeiterController extends Controller
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'invalid-id');
-            $this->redirect('mitarbeiter/list.php');
+            $this->redirect('mitarbeiter/list');
         }
 
         $deleted = Mitarbeiter::query()->where('id', $id)->delete();
@@ -602,7 +602,7 @@ class MitarbeiterController extends Controller
             );
         }
 
-        $this->redirect('mitarbeiter/list.php');
+        $this->redirect('mitarbeiter/list');
     }
 
     /**
@@ -642,7 +642,7 @@ class MitarbeiterController extends Controller
         $docid = (string) ($_GET['docid'] ?? '');
         if ($docid === '') {
             Flash::set('error', 'Dokument-ID fehlt');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $doc = Capsule::table('intra_mitarbeiter_dokumente as pd')
@@ -668,14 +668,14 @@ class MitarbeiterController extends Controller
 
         if ($doc === null) {
             Flash::set('error', 'Dokument nicht gefunden');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         // Berechtigung: Eigenes Dokument oder personnel.documents.* Permission
         $isOwnDoc = ((string) $doc->ausstellerid === ($_SESSION['discord_id'] ?? ''));
         if (!$isOwnDoc && !\App\Auth\Gate::allows('mitarbeiter.viewDoc')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $canManage = \App\Auth\Gate::allows('mitarbeiter.manageDocs');
@@ -691,7 +691,7 @@ class MitarbeiterController extends Controller
         $austdatum       = $doc->ausstellungsdatum ? date('d.m.Y', strtotime($doc->ausstellungsdatum)) : '-';
 
         $backUrl = $doc->empfaenger_id
-            ? BASE_PATH . 'mitarbeiter/profile.php?id=' . (int) $doc->empfaenger_id . '#documents'
+            ? BASE_PATH . 'mitarbeiter/profile?id=' . (int) $doc->empfaenger_id . '#documents'
             : BASE_PATH . 'index.php';
 
         $this->renderView('mitarbeiter/dokument-view', [
@@ -787,6 +787,6 @@ class MitarbeiterController extends Controller
             header('Location: ' . $referer);
             exit;
         }
-        $this->redirect('index.php');
+        $this->redirect('index');
     }
 }

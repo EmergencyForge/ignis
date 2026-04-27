@@ -28,7 +28,7 @@ class EnotfAdminController extends Controller
         $this->requireAuth();
         if (!Gate::allows('enotf.viewAdminList')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $this->renderView('enotf/admin/list', []);

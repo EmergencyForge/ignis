@@ -551,7 +551,7 @@ class EnotfController extends Controller
 
         if (isset($_SESSION['userid'], $_SESSION['permissions'])) {
             if (!\App\Auth\Gate::allows('enotf.viewModule')) {
-                $this->redirect('index.php');
+                $this->redirect('index');
             }
         }
 
@@ -630,7 +630,7 @@ class EnotfController extends Controller
             \App\Session\SessionManager::setRedirectUrl(EnotfUrl::page('login'));
         }
 
-        $this->redirect('login.php?redirect=enotf');
+        $this->redirect('login?redirect=enotf');
     }
 
     /**

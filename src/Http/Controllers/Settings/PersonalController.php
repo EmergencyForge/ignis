@@ -478,7 +478,7 @@ class PersonalController extends Controller
     {
         if (!Gate::allows('mitarbeiter.viewList')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
     }
 

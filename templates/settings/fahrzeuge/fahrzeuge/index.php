@@ -146,7 +146,7 @@ use App\Helpers\Flash;
                                     $defectBadge = '';
                                     if ($openDefects > 0) {
                                         $badgeColor = ($minOperable !== null && (int)$minOperable === 0) ? 'danger' : 'warning';
-                                        $defectBadge = "<a href='" . BASE_PATH . "settings/fahrzeuge/defekte/index.php?vehicle=" . $row['id'] . "' class='badge text-bg-{$badgeColor}' title='Offene Defekte anzeigen'>{$openDefects}</a>";
+                                        $defectBadge = "<a href='" . BASE_PATH . "settings/fahrzeuge/defekte/index?vehicle=" . $row['id'] . "' class='badge text-bg-{$badgeColor}' title='Offene Defekte anzeigen'>{$openDefects}</a>";
                                     } else {
                                         $defectBadge = "<span class='text-muted'>—</span>";
                                     }
@@ -473,7 +473,7 @@ use App\Helpers\Flash;
         });
     </script>
     <script>
-        const TZ_TPL_API = '<?= BASE_PATH ?>api/vehicles/tz-templates.php';
+        const TZ_TPL_API = '<?= BASE_PATH ?>api/vehicles/tz-templates';
 
         window.openTzTemplateManager = function() {
             const modal = new bootstrap.Modal(document.getElementById('tzTemplateModal'));
@@ -609,7 +609,7 @@ use App\Helpers\Flash;
         };
     </script>
     <script>
-        const IMPORT_API = '<?= BASE_PATH ?>api/vehicles/import-handler.php';
+        const IMPORT_API = '<?= BASE_PATH ?>api/vehicles/import-handler';
         const rdTypeLabels = {0: 'Andere', 1: 'RD - Mit NA', 2: 'RD - Ohne NA', 3: 'Feuerwehr'};
         const rdTypeBadges = {0: 'dark', 1: 'warning', 2: 'success', 3: 'danger'};
 

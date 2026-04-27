@@ -88,7 +88,7 @@ use App\Helpers\Flash;
                     $context = 'firetab';
                     $canEdit = true;
                     $canDelete = false;
-                    $actionsUrl = BASE_PATH . 'fahrtenbuch/actions.php';
+                    $actionsUrl = BASE_PATH . 'fahrtenbuch/actions';
                     include __DIR__ . '/../../assets/components/fahrtenbuch/_list-table.php';
                     ?>
                 </div>

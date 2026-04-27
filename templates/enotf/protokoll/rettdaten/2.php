@@ -266,7 +266,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
         // POI-Daten laden
         function loadPOIs(searchTerm = '') {
-            const url = '<?= BASE_PATH ?>api/enotf/poi/poi-search.php' + (searchTerm ? '?search=' + encodeURIComponent(searchTerm) : '');
+            const url = '<?= BASE_PATH ?>api/enotf/poi/poi-search' + (searchTerm ? '?search=' + encodeURIComponent(searchTerm) : '');
 
             fetch(url)
                 .then(response => response.json())

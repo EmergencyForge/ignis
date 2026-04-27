@@ -57,7 +57,7 @@ class EnotfProtokollController extends Controller
             \App\Session\SessionManager::setRedirectUrl(\App\Helpers\EnotfUrl::page('login'));
         }
 
-        $this->redirect('login.php?redirect=enotf');
+        $this->redirect('login?redirect=enotf');
     }
 
     /**

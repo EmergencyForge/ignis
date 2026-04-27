@@ -135,7 +135,7 @@ final class PersonnelController
                 . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost')
             );
             $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-            $inviteUrl = $baseUrl . $base . 'invite.php?code=' . $code;
+            $inviteUrl = $baseUrl . $base . 'invite?code=' . $code;
 
             return Response::json([
                 'success'   => true,

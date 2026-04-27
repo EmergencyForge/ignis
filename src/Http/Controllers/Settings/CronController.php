@@ -208,7 +208,7 @@ final class CronController extends Controller
     {
         if (!\App\Auth\Gate::allows('system.admin')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
     }
 

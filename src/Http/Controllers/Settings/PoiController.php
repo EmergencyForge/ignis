@@ -23,7 +23,7 @@ class PoiController extends Controller
         $this->requireAuth();
         if (!Gate::allows('poi.view')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $pois = Capsule::table('intra_edivi_pois')
@@ -138,7 +138,7 @@ class PoiController extends Controller
         $this->requireAuth();
         if (!Gate::allows('poi.view')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $poiId = $_GET['poi_id'] ?? null;

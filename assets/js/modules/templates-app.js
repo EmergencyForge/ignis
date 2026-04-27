@@ -597,7 +597,7 @@ function renderTemplateList() {
             // Klick auf Karte → Editor öffnen
             col.querySelector('.template-card').addEventListener('click', (e) => {
                 if (e.target.closest('button, a')) return;
-                window.location.href = BASE_PATH + 'settings/documents/visual-editor.php?id=' + template.id;
+                window.location.href = BASE_PATH + 'settings/documents/visual-editor?id=' + template.id;
             });
 
             // Klick auf Edit-Button → Formular öffnen

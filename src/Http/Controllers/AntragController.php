@@ -63,20 +63,20 @@ class AntragController extends Controller
         $mitarbeiter = $this->loadCurrentMitarbeiter();
         if ($mitarbeiter === null) {
             Flash::set('error', 'Kein Mitarbeiterprofil für Ihre Discord-ID gefunden.');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $typId = (int) ($_GET['typ'] ?? 0);
         if ($typId <= 0) {
             Flash::set('error', 'Kein Antragstyp ausgewählt.');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         /** @var AntragTyp|null $typ */
         $typ = AntragTyp::query()->where('id', $typId)->where('aktiv', 1)->first();
         if ($typ === null) {
             Flash::set('error', 'Antragstyp nicht gefunden oder nicht aktiv.');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $felder = AntragField::query()
@@ -101,20 +101,20 @@ class AntragController extends Controller
         $mitarbeiter = $this->loadCurrentMitarbeiter();
         if ($mitarbeiter === null) {
             Flash::set('error', 'Kein Mitarbeiterprofil für Ihre Discord-ID gefunden.');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $typId = (int) ($_GET['typ'] ?? 0);
         if ($typId <= 0) {
             Flash::set('error', 'Kein Antragstyp ausgewählt.');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         /** @var AntragTyp|null $typ */
         $typ = AntragTyp::query()->where('id', $typId)->where('aktiv', 1)->first();
         if ($typ === null) {
             Flash::set('error', 'Antragstyp nicht gefunden oder nicht aktiv.');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $felder = AntragField::query()
@@ -130,7 +130,7 @@ class AntragController extends Controller
         } catch (ValidationException $e) {
             $errorMsgs = $e->errors();
             Flash::set('error', reset($errorMsgs) ?: 'Bitte überprüfe die Eingaben.');
-            $this->redirect('antrag/create.php?typ=' . $typId);
+            $this->redirect('antrag/create?typ=' . $typId);
         }
 
         // Eindeutige Public-ID generieren (6 Stellen)
@@ -163,11 +163,11 @@ class AntragController extends Controller
             });
         } catch (\Throwable $e) {
             Flash::set('error', 'Fehler beim Speichern: ' . $e->getMessage());
-            $this->redirect('antrag/create.php?typ=' . $typId);
+            $this->redirect('antrag/create?typ=' . $typId);
         }
 
         Flash::set('success', 'Antrag erfolgreich eingereicht!');
-        $this->redirect('antrag/view.php?antrag=' . $uniqueId);
+        $this->redirect('antrag/view?antrag=' . $uniqueId);
     }
 
     /**
@@ -206,7 +206,7 @@ class AntragController extends Controller
         $caseId = (string) ($_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         /** @var Antrag|null $antrag */
@@ -217,12 +217,12 @@ class AntragController extends Controller
 
         if ($antrag === null) {
             Flash::set('error', 'Antrag nicht gefunden.');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         if (Gate::denies('antrag.view', $antrag)) {
             Flash::set('error', 'Sie haben keine Berechtigung, diesen Antrag anzusehen.');
-            $this->redirect('index.php');
+            $this->redirect('index');
         }
 
         $felderMitWerten = $this->loadFieldsWithValues($antrag);
@@ -262,7 +262,7 @@ class AntragController extends Controller
         $caseId = (string) ($_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');
-            $this->redirect('antrag/admin/list.php');
+            $this->redirect('antrag/admin/list');
         }
 
         /** @var Antrag|null $antrag */
@@ -273,7 +273,7 @@ class AntragController extends Controller
 
         if ($antrag === null) {
             Flash::set('error', 'Antrag nicht gefunden.');
-            $this->redirect('antrag/admin/list.php');
+            $this->redirect('antrag/admin/list');
         }
 
         $felderMitWerten = $this->loadFieldsWithValues($antrag);
@@ -299,21 +299,21 @@ class AntragController extends Controller
         $caseId = (string) ($_GET['antrag'] ?? '');
         if ($caseId === '') {
             Flash::set('error', 'Keine Antragsnummer angegeben.');
-            $this->redirect('antrag/admin/list.php');
+            $this->redirect('antrag/admin/list');
         }
 
         /** @var Antrag|null $antrag */
         $antrag = Antrag::query()->where('uniqueid', $caseId)->first();
         if ($antrag === null) {
             Flash::set('error', 'Antrag nicht gefunden.');
-            $this->redirect('antrag/admin/list.php');
+            $this->redirect('antrag/admin/list');
         }
 
         try {
             $data = DecideAntragRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('antrag/admin/view.php?antrag=' . $caseId);
+            $this->redirect('antrag/admin/view?antrag=' . $caseId);
         }
 
         $userHelper       = new UserHelper($this->pdo);
@@ -355,7 +355,7 @@ class AntragController extends Controller
         }
 
         Flash::set('success', 'Antrag erfolgreich aktualisiert');
-        $this->redirect('antrag/view.php?antrag=' . $caseId);
+        $this->redirect('antrag/view?antrag=' . $caseId);
     }
 
     // -----------------------------------------------------------------------

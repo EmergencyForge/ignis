@@ -267,7 +267,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
             $('#confirmTransportBtn').on('click', function() {
                 if (currentPatientId) {
                     $.ajax({
-                        url: '<?= BASE_PATH ?>api/manv/api.php',
+                        url: '<?= BASE_PATH ?>api/manv/api',
                         method: 'POST',
                         data: {
                             action: 'transport_abfahrt',

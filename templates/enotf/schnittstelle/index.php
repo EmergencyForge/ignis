@@ -276,7 +276,7 @@ if ($ziel) {
             }
 
             function pollPreregistrations() {
-                var url = basePath + 'api/enotf/prereg.php' + (ziel ? '?klinik=' + encodeURIComponent(ziel) : '');
+                var url = basePath + 'api/enotf/prereg' + (ziel ? '?klinik=' + encodeURIComponent(ziel) : '');
                 fetch(url)
                     .then(function(res) {
                         return res.json();

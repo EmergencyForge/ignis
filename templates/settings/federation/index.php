@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $ourKeyForThem = FederationPairingService::generateApiKey();
 
                 // Call their pair endpoint
-                $endpoint = rtrim($remoteInfo['url'], '/') . '/api/federation/pair.php';
+                $endpoint = rtrim($remoteInfo['url'], '/') . '/api/federation/pair';
                 $payload = json_encode([
                     'instance_id' => $pairingService->ensureInstanceId(),
                     'instance_name' => $instanceName ?: (\App\Federation\FederationMiddleware::config('SYSTEM_NAME', 'ıgnıs')),

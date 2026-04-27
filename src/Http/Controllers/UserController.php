@@ -78,7 +78,7 @@ class UserController extends Controller
     public function index(): void
     {
         $this->requireAuth();
-        $this->ensure('user.viewList', redirectTo: 'index.php');
+        $this->ensure('user.viewList', redirectTo: 'index');
 
         $users = User::query()
             ->leftJoin(
@@ -115,7 +115,7 @@ class UserController extends Controller
     {
         $this->requireAuth();
         // Permission-Check ohne Target — vor dem Laden:
-        $this->ensure('user.update', redirectTo: 'benutzer/list.php');
+        $this->ensure('user.update', redirectTo: 'benutzer/list');
 
         $target = $this->loadUserForEditing();
 
@@ -148,7 +148,7 @@ class UserController extends Controller
     public function update(): void
     {
         $this->requireAuth();
-        $this->ensure('user.update', redirectTo: 'benutzer/list.php');
+        $this->ensure('user.update', redirectTo: 'benutzer/list');
 
         $target = $this->loadUserForEditing();
 
@@ -167,7 +167,7 @@ class UserController extends Controller
             );
         }
 
-        $this->redirect('benutzer/list.php');
+        $this->redirect('benutzer/list');
     }
 
     /**
@@ -179,7 +179,7 @@ class UserController extends Controller
     public function auditlog(): void
     {
         $this->requireAuth();
-        $this->ensure('user.viewAuditLog', redirectTo: 'index.php');
+        $this->ensure('user.viewAuditLog', redirectTo: 'index');
 
         $entries = Capsule::table('intra_audit_log')
             ->where('global', 1)
@@ -208,7 +208,7 @@ class UserController extends Controller
     public function registrationCodes(): void
     {
         $this->requireAuth();
-        $this->ensure('user.createRegistrationCode', redirectTo: 'index.php');
+        $this->ensure('user.createRegistrationCode', redirectTo: 'index');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $_POST['action'] ?? '';
@@ -240,7 +240,7 @@ class UserController extends Controller
             $data = GenerateRegistrationCodeRequest::validate($_POST);
         } catch (ValidationException $e) {
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('benutzer/registration-codes.php');
+            $this->redirect('benutzer/registration-codes');
         }
 
         $code = bin2hex(random_bytes(8));
@@ -253,7 +253,7 @@ class UserController extends Controller
         $rc->is_used    = false;
         $rc->save();
 
-        $inviteUrl = $this->resolveSystemUrl() . BASE_PATH . 'invite.php?code=' . $code;
+        $inviteUrl = $this->resolveSystemUrl() . BASE_PATH . 'invite?code=' . $code;
         Flash::set(
             'success',
             'Einladungslink erstellt! <br><code class="user-select-all">'
@@ -261,7 +261,7 @@ class UserController extends Controller
                 . '</code>'
         );
 
-        $this->redirect('benutzer/registration-codes.php');
+        $this->redirect('benutzer/registration-codes');
     }
 
     private function deleteRegistrationCode(): void
@@ -279,7 +279,7 @@ class UserController extends Controller
             Flash::error('Einladung konnte nicht gelöscht werden (bereits verwendet oder nicht gefunden).');
         }
 
-        $this->redirect('benutzer/registration-codes.php');
+        $this->redirect('benutzer/registration-codes');
     }
 
     /**
@@ -299,12 +299,12 @@ class UserController extends Controller
 
         if ($targetId <= 0) {
             Flash::set('error', 'invalid-request');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         if ($targetId === $currentUserId) {
             Flash::set('user', 'edit-self');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         /** @var User|null $target */
@@ -312,12 +312,12 @@ class UserController extends Controller
 
         if ($target === null) {
             Flash::set('error', 'user-not-found');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         if (Gate::denies('user.delete', $target)) {
             Flash::set('user', 'low-permissions');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         $target->delete();
@@ -331,7 +331,7 @@ class UserController extends Controller
             1
         );
 
-        $this->redirect('benutzer/list.php');
+        $this->redirect('benutzer/list');
     }
 
     /**
@@ -350,12 +350,12 @@ class UserController extends Controller
 
         if ($targetId <= 0 || !in_array($action, ['deactivate', 'reactivate'], true)) {
             Flash::set('error', 'invalid-request');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         if ($targetId === $currentUserId) {
             Flash::set('user', 'edit-self');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         /** @var User|null $target */
@@ -363,12 +363,12 @@ class UserController extends Controller
 
         if ($target === null) {
             Flash::set('error', 'user-not-found');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         if (Gate::denies('user.toggleActive', $target)) {
             Flash::set('user', 'low-permissions');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         if ($action === 'deactivate') {
@@ -401,7 +401,7 @@ class UserController extends Controller
             );
         }
 
-        $this->redirect('benutzer/edit.php?id=' . $targetId);
+        $this->redirect('benutzer/edit?id=' . $targetId);
     }
 
     // -----------------------------------------------------------------------
@@ -419,24 +419,24 @@ class UserController extends Controller
         $targetId = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
         if ($targetId <= 0) {
             Flash::set('error', 'invalid-request');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         /** @var User|null $target */
         $target = User::with('userRole')->find($targetId);
         if ($target === null) {
             Flash::set('error', 'user-not-found');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         if ($target->id === (int) $_SESSION['userid']) {
             Flash::set('user', 'edit-self');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         if (Gate::denies('user.update', $target)) {
             Flash::set('user', 'low-permissions');
-            $this->redirect('benutzer/list.php');
+            $this->redirect('benutzer/list');
         }
 
         return $target;

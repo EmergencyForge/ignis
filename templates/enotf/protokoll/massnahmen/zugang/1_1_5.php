@@ -255,7 +255,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
                     $('.zugang-checkbox').prop('checked', false);
 
                     $.ajax({
-                        url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
+                        url: '<?= BASE_PATH ?>api/enotf/save-fields',
                         type: 'POST',
                         data: {
                             enr: '<?= $enr ?>',
@@ -289,7 +289,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
                     });
                 } else {
                     $.ajax({
-                        url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
+                        url: '<?= BASE_PATH ?>api/enotf/save-fields',
                         type: 'POST',
                         data: {
                             enr: '<?= $enr ?>',
@@ -362,7 +362,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
                 let dbValue = mergedZugaenge.length === 0 ? '0' : JSON.stringify(mergedZugaenge);
 
                 $.ajax({
-                    url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
+                    url: '<?= BASE_PATH ?>api/enotf/save-fields',
                     type: 'POST',
                     data: {
                         enr: '<?= $enr ?>',
