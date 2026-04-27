@@ -1568,8 +1568,12 @@ button#save-anamnese-btn {
   background-color: #333333;
 }
 
-.edivi__einsatz-link {
+.edivi__einsatz-link,
+.edivi__einsatz-link:hover,
+.edivi__einsatz-link:focus,
+.edivi__einsatz-link:active {
   text-decoration: none;
+  color: inherit;
 }
 
 .edivi__einsatz-type,

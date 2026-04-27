@@ -62,8 +62,8 @@ final class DocumentsController
     public function getTemplate(Request $request): Response
     {
         try {
-            $id = $request->query['id'] ?? null;
-            if (!$id) {
+            $id = (int) ($request->query['id'] ?? 0);
+            if ($id <= 0) {
                 throw new \Exception('Template-ID fehlt');
             }
 

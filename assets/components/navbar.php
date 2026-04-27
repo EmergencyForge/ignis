@@ -1802,7 +1802,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
             $searchResults.html('<div class="gsr-loading"><i class="fa-solid fa-spinner fa-spin"></i> Suche...</div>');
 
             searchTimer = setTimeout(function() {
-                searchXhr = $.getJSON("<?= BASE_PATH ?>api/system/global-search.php", {
+                searchXhr = $.getJSON("<?= BASE_PATH ?>api/system/global-search", {
                         q: q
                     })
                     .done(function(data) {
@@ -1999,7 +1999,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
             localStorage.setItem(THEME_KEY, accent);
 
             $.ajax({
-                url: "<?= BASE_PATH ?>api/system/theme.php",
+                url: "<?= BASE_PATH ?>api/system/theme",
                 method: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({
@@ -2014,7 +2014,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
             applyAccent(savedAccent);
         } else {
             // Kein localStorage → Theme aus DB laden (z.B. neues Gerät)
-            $.getJSON("<?= BASE_PATH ?>api/system/theme.php", function(data) {
+            $.getJSON("<?= BASE_PATH ?>api/system/theme", function(data) {
                 if (data.config && data.config.accent) {
                     localStorage.setItem(THEME_KEY, data.config.accent);
                     applyAccent(data.config.accent);
@@ -2116,7 +2116,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
             if ($markAll.prop("disabled")) return;
             $markAll.prop("disabled", true);
             $.ajax({
-                url: "<?= BASE_PATH ?>api/notifications/mark-all-read.php",
+                url: "<?= BASE_PATH ?>api/notifications/mark-all-read",
                 method: "POST",
                 dataType: "json"
             }).done(function(data) {
@@ -2221,7 +2221,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
 
         function poll() {
             if (document.visibilityState === 'hidden') return;
-            fetch(basePath + 'api/notifications/poll.php?since=' + encodeURIComponent(lastPoll))
+            fetch(basePath + 'api/notifications/poll?since=' + encodeURIComponent(lastPoll))
                 .then(function(r) {
                     return r.json();
                 })

@@ -41,7 +41,7 @@
             gallery.innerHTML = '<div class="col-12 text-center py-3"><i class="fa-solid fa-spinner fa-spin"></i> Laden...</div>';
 
             try {
-                const response = await fetch(CONFIG.basePath + 'api/documents/asset-list.php?template_id=' + CONFIG.templateId);
+                const response = await fetch(CONFIG.basePath + 'api/documents/asset-list?template_id=' + CONFIG.templateId);
                 const result = await response.json();
 
                 if (!result.success) {
@@ -122,7 +122,7 @@
             window.EditorCsrf.addToFormData(formData);
 
             try {
-                const response = await fetch(CONFIG.basePath + 'api/documents/asset-upload.php', {
+                const response = await fetch(CONFIG.basePath + 'api/documents/asset-upload', {
                     method: 'POST',
                     body: formData,
                 });
@@ -157,7 +157,7 @@
 
         async deleteAsset(assetId) {
             try {
-                const response = await fetch(CONFIG.basePath + 'api/documents/asset-delete.php', {
+                const response = await fetch(CONFIG.basePath + 'api/documents/asset-delete', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(window.EditorCsrf.addToBody({ id: assetId })),
