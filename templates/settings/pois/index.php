@@ -83,7 +83,11 @@ use App\Helpers\Flash;
                                     }
                                 ?>
                                     <tr>
-                                        <td <?= $dimmed ?>><?= htmlspecialchars($row['name']) ?></td>
+                                        <td <?= $dimmed ?>>
+                                            <span data-poi-card="<?= (int) $row['id'] ?>" style="cursor:help;">
+                                                <?= htmlspecialchars($row['name']) ?>
+                                            </span>
+                                        </td>
                                         <td <?= $dimmed ?>><?= $strasse ?></td>
                                         <td <?= $dimmed ?>><?= $hnr ?></td>
                                         <td <?= $dimmed ?>><?= htmlspecialchars($row['ort']) ?></td>

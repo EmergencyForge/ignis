@@ -46,7 +46,11 @@ use App\Helpers\Flash;
                             <tbody>
                                 <?php foreach ($hospitals as $hospital): ?>
                                     <tr>
-                                        <td><?= htmlspecialchars($hospital['name']) ?></td>
+                                        <td>
+                                            <span data-poi-card="<?= (int) $hospital['id'] ?>" style="cursor:help;">
+                                                <?= htmlspecialchars($hospital['name']) ?>
+                                            </span>
+                                        </td>
                                         <td><?= htmlspecialchars($hospital['ort']) ?></td>
                                         <td>
                                             <span class="badge <?= (int)$hospital['dept_count'] > 0 ? 'text-bg-success' : 'text-bg-warning' ?>">

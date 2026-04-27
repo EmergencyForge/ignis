@@ -1,25 +1,37 @@
 /**
- * User-Hover-Card.
+ * Hover-Card.
  *
- * Hover-Trigger via Data-Attribut:
+ * Generischer Loader für Hover-Vorschauen, der mehrere Quell-Typen
+ * unterstützt. Der Datentyp wird aus dem Trigger-Attribut abgeleitet:
+ *
  *   data-mitarbeiter-card="42"  → /api/v1/mitarbeiter/42/card
- *   data-user-card="42"         → /api/v1/users/42/card (resolvt
- *                                  intern auf Mitarbeiter via
- *                                  User.aktenid; Fallback-Markup
- *                                  ohne Mitarbeiter-Verknüpfung)
+ *   data-user-card="42"         → /api/v1/users/42/card
+ *   data-poi-card="3"           → /api/v1/pois/3/card
  *
  * Beispiel:
  *   <a href="/mitarbeiter/profile?id=42"
  *      data-mitarbeiter-card="42">Max Mustermann</a>
  *
- *   <a href="/benutzer/edit?id=7"
- *      data-user-card="7">alice</a>
+ *   <span data-poi-card="3">Klinikum Süd</span>
  *
  * Erste Anforderung lädt das Markup vom Server, nachfolgende Hovers
  * nutzen den per-Source+ID gesplitteten Cache. 300 ms Hover-Delay
  * verhindert versehentliche Triggers, 200 ms Hide-Delay erlaubt der
  * Maus den Sprung von Anchor auf Card.
+ *
+ * Neue Typen werden über `SOURCES` registriert — Attribut + API-Pfad,
+ * nichts Weiteres nötig.
  */
+
+// Registry: Attribut-Name → Endpoint-Builder. Die Reihenfolge bestimmt
+// die Resolve-Priorität, falls ein Element mehrere data-*-card-Attribute
+// trägt (was nicht vorkommen sollte).
+const SOURCES = [
+    { attr: 'data-mitarbeiter-card', kind: 'mitarbeiter', path: (id) => '/api/v1/mitarbeiter/' + encodeURIComponent(id) + '/card' },
+    { attr: 'data-user-card',        kind: 'user',        path: (id) => '/api/v1/users/'       + encodeURIComponent(id) + '/card' },
+    { attr: 'data-poi-card',         kind: 'poi',         path: (id) => '/api/v1/pois/'        + encodeURIComponent(id) + '/card' },
+];
+const ANCHOR_SELECTOR = SOURCES.map((s) => '[' + s.attr + ']').join(', ');
 
 const cache = new Map();
 const HOVER_DELAY = 300;
@@ -65,13 +77,9 @@ function position(anchor, card) {
 }
 
 function resolveSource(anchor) {
-    const mitarbeiterId = anchor.getAttribute('data-mitarbeiter-card');
-    if (mitarbeiterId) {
-        return { kind: 'mitarbeiter', id: mitarbeiterId };
-    }
-    const userId = anchor.getAttribute('data-user-card');
-    if (userId) {
-        return { kind: 'user', id: userId };
+    for (const def of SOURCES) {
+        const id = anchor.getAttribute(def.attr);
+        if (id) return { kind: def.kind, id, path: def.path };
     }
     return null;
 }
@@ -80,10 +88,7 @@ async function fetchCard(source) {
     const cacheKey = source.kind + ':' + source.id;
     if (cache.has(cacheKey)) return cache.get(cacheKey);
 
-    const path = source.kind === 'mitarbeiter'
-        ? '/api/v1/mitarbeiter/' + encodeURIComponent(source.id) + '/card'
-        : '/api/v1/users/'       + encodeURIComponent(source.id) + '/card';
-    const url = (window.IgnisApiBase || '') + path;
+    const url = (window.IgnisApiBase || '') + source.path(source.id);
 
     const promise = fetch(url, { credentials: 'same-origin' })
         .then((r) => r.ok ? r.text() : Promise.reject(new Error('HTTP ' + r.status)))
@@ -150,13 +155,13 @@ function hide(immediate = false) {
 }
 
 document.addEventListener('mouseover', (e) => {
-    const anchor = e.target.closest('[data-user-card], [data-mitarbeiter-card]');
+    const anchor = e.target.closest(ANCHOR_SELECTOR);
     if (!anchor) return;
     show(anchor);
 });
 
 document.addEventListener('mouseout', (e) => {
-    const anchor = e.target.closest('[data-user-card], [data-mitarbeiter-card]');
+    const anchor = e.target.closest(ANCHOR_SELECTOR);
     if (!anchor) return;
     // Verlassen des Ankers leitet ein verzögertes Schließen ein —
     // Hover über die Card selbst bricht das ab.
@@ -164,11 +169,11 @@ document.addEventListener('mouseout', (e) => {
 });
 
 document.addEventListener('focusin', (e) => {
-    const anchor = e.target.closest('[data-user-card], [data-mitarbeiter-card]');
+    const anchor = e.target.closest(ANCHOR_SELECTOR);
     if (anchor) show(anchor);
 });
 document.addEventListener('focusout', (e) => {
-    const anchor = e.target.closest('[data-user-card], [data-mitarbeiter-card]');
+    const anchor = e.target.closest(ANCHOR_SELECTOR);
     if (anchor) scheduleHide();
 });
 
