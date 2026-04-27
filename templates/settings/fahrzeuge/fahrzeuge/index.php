@@ -153,7 +153,7 @@ use App\Helpers\Flash;
 
                                     echo "<tr>";
                                     echo "<td " . $dimmed . ">" . $row['priority'] . "</td>";
-                                    echo "<td " . $dimmed . ">" . $row['name'] . " (" . $row['veh_type'] .  ")</td>";
+                                    echo "<td " . $dimmed . "><span data-vehicle-card='" . (int) $row['id'] . "' style='cursor:help;'>" . htmlspecialchars($row['name']) . " (" . htmlspecialchars($row['veh_type']) . ")</span></td>";
                                     echo "<td " . $dimmed . ">" . $kennzeichenDisplay . "</td>";
                                     echo "<td>" . $docYes . "</td>";
                                     echo "<td>" . $defectBadge . "</td>";
