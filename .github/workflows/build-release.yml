@@ -124,8 +124,6 @@ jobs:
             -x "Dockerfile.*" \
             -x ".dockerignore" \
             `# — Dev-Tools (db-migrate.php MUSS drin bleiben — composer post-install) —` \
-            -x "tools/test-*.php" \
-            -x "tools/migrate-enotf-protokoll.php" \
             -x "scripts/*" \
             `# — Runtime-Artefakte (sicherheitshalber, auch wenn via .gitignore) —` \
             -x "php_errors.log" \

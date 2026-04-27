@@ -34,9 +34,6 @@ use PDOException;
  * NICHT automatisch rolled back. Tests die raw PDO nutzen müssen also
  * entweder manuell cleanup-en oder `$useTransactions = false` setzen und
  * wissen was sie tun.
- *
- * Wenn du die Test-DB komplett resetten willst:
- *   php tools/test-fresh-db.php --keep
  */
 abstract class IntegrationTestCase extends TestCase
 {
@@ -91,7 +88,7 @@ abstract class IntegrationTestCase extends TestCase
         // ALLE Queries über dieselbe Connection laufen und die Transaction-
         // Isolation End-to-End funktioniert.
         $capsulePdo = Capsule::connection()->getPdo();
-        if (method_exists($this->container, 'set')) {
+        if ($this->container instanceof \DI\Container) {
             $this->container->set(PDO::class, $capsulePdo);
         }
         $this->pdo = $capsulePdo;
