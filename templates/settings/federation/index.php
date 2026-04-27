@@ -9,10 +9,11 @@ use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Config\ConfigManager;
 use App\Federation\FederationPairingService;
+use App\Security\CsrfProtection;
+use App\Session\SessionManager;
 
-if (!isset($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-}
+$csrfToken = CsrfProtection::getToken();
+$userId    = SessionManager::userId();
 
 $configManager = new ConfigManager($pdo);
 $pairingService = new FederationPairingService($pdo);
@@ -37,7 +38,7 @@ if ($federationEnabled) {
 
 // Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    if (!isset($_POST['csrf_token']) || !hash_equals($csrfToken, $_POST['csrf_token'])) {
         Flash::set('error', 'Ungültiger CSRF-Token.');
         header("Location: " . $_SERVER['REQUEST_URI']);
         exit();
@@ -48,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Toggle federation
     if ($action === 'toggle_federation') {
         $newState = \App\Federation\FederationMiddleware::isEnabled() ? 'false' : 'true';
-        $configManager->update('FEDERATION_ENABLED', $newState, $_SESSION['userid']);
+        $configManager->update('FEDERATION_ENABLED', $newState, $userId);
 
         if ($newState === 'true') {
             $pairingService->ensureInstanceId();
@@ -63,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'update_name') {
         $name = trim($_POST['instance_name'] ?? '');
         if (!empty($name)) {
-            $configManager->update('FEDERATION_INSTANCE_NAME', $name, $_SESSION['userid']);
+            $configManager->update('FEDERATION_INSTANCE_NAME', $name, $userId);
             Flash::set('success', 'Instanzname aktualisiert.');
         }
         header("Location: " . $_SERVER['REQUEST_URI']);
@@ -75,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $pairingService->generateConnectionToken();
         $generatedToken = $result['token'];
         // Store the API key temporarily so we can create the link when someone pairs
-        $_SESSION['federation_pending_token_key'] = $result['api_key'];
+        SessionManager::set('federation_pending_token_key', $result['api_key']);
     }
 
     // Pair with remote instance via token
@@ -272,7 +273,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                         <div class="card-header flex items-center justify-between">
                             <h5 class="mb-0">Instanzübergreifende Vernetzung</h5>
                             <form method="post" class="inline">
-                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                 <input type="hidden" name="action" value="toggle_federation">
                                 <button type="submit" class="ignis-btn ignis-btn--sm <?= $federationEnabled ? 'btn-outline-danger' : 'btn-outline-success' ?>">
                                     <?= $federationEnabled ? '<i class="fa-solid fa-power-off"></i> Deaktivieren' : '<i class="fa-solid fa-power-off"></i> Aktivieren' ?>
@@ -291,7 +292,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                     </div>
                                     <div>
                                         <form method="post" class="flex items-end gap-2">
-                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                            <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                             <input type="hidden" name="action" value="update_name">
                                             <div class="flex-1">
                                                 <label class="ignis-field__label" style="font-size:var(--fs-sm);">Instanzname</label>
@@ -338,7 +339,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         </div>
                                     <?php else: ?>
                                         <form method="post">
-                                            <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                            <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                             <input type="hidden" name="action" value="generate_token">
                                             <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
                                                 <i class="fa-solid fa-wand-magic-sparkles"></i> Schlüssel generieren
@@ -359,7 +360,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         </div>
                                     <?php endif; ?>
                                     <form method="post">
-                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                        <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                         <input type="hidden" name="action" value="pair_with_token">
                                         <textarea name="connection_token" class="form-control form-control-sm mb-2" rows="3"
                                                   placeholder="Verbindungsschlüssel einfügen..."
@@ -418,7 +419,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                 </div>
 
                                 <form method="post">
-                                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                    <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                     <input type="hidden" name="action" value="update_link">
                                     <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
 
@@ -482,7 +483,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                 <div class="mt-3 flex gap-2 pt-2" style="border-top:1px solid var(--darkgray);">
                                     <?php if ($link['consume_personnel'] || $link['consume_enotf'] || $link['consume_fire']): ?>
                                     <form method="post" class="inline">
-                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                        <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                         <input type="hidden" name="action" value="sync_now">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
@@ -491,7 +492,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                     </form>
                                     <?php endif; ?>
                                     <form method="post" class="inline" id="delete-link-<?= $link['id'] ?>">
-                                        <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                                        <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                         <input type="hidden" name="action" value="delete_link">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
                                         <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger"
