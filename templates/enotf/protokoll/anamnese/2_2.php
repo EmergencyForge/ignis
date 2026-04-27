@@ -73,12 +73,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="w-full" id="edivi__container">
-            <div class="flex flex-wrap -mx-3 h-full">
+        <div class="container-fluid" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
-                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
-                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                <div class="col" id="edivi__content" style="padding-left: 0">
+                    <div class="row" style="margin-left: 0">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '1') ?>">
                                 <span>Anamnese</span>
                             </a>
@@ -89,7 +89,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>Einsatzort</span>
                             </a>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'anamnese', '2_1') ?>">
                                 <span>Symptombeginn</span>
                             </a>
@@ -97,7 +97,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>NACA</span>
                             </a>
                         </div>
-                        <div class="w-3/12 flex flex-col edivi__interactbutton px-3">
+                        <div class="w-3/12 d-flex flex-column edivi__interactbutton px-3">
                             <label class="edivi__interactbutton-text">initial</label>
                             <?php foreach ($naca_options as $val => $label) : ?>
                                 <input type="radio" class="btn-check" id="naca_initial-<?= $val ?>"
@@ -107,7 +107,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <label for="naca_initial-<?= $val ?>"><?= $label ?></label>
                             <?php endforeach; ?>
                         </div>
-                        <div class="w-3/12 flex flex-col edivi__interactbutton px-3">
+                        <div class="w-3/12 d-flex flex-column edivi__interactbutton px-3">
                             <label class="edivi__interactbutton-text">bei Übergabe</label>
                             <?php foreach ($naca_options as $val => $label) : ?>
                                 <input type="radio" class="btn-check" id="naca_uebergabe-<?= $val ?>"

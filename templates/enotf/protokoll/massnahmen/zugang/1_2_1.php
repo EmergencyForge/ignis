@@ -65,12 +65,12 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="w-full" id="edivi__container">
-            <div class="flex flex-wrap -mx-3 h-full">
+        <div class="container-fluid" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../../assets/components/enotf/nav.php'; ?>
-                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
-                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                <div class="col" id="edivi__content" style="padding-left: 0">
+                    <div class="row" style="margin-left: 0">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'atemwege') ?>" data-requires="awsicherung_neu">
                                 <span>Atemwege</span>
                             </a>
@@ -87,7 +87,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
                                 <span>Weitere</span>
                             </a>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1') ?>" class="active">
                                 <span>Zugang</span>
                             </a>
@@ -96,7 +96,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
                                 autocomplete="off">
                             <label for="c_zugang-0">Kein Zugang</label>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1_1') ?>">
                                 <span>PVK</span>
                             </a>
@@ -104,7 +104,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
                                 <span>intraossär</span>
                             </a>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'massnahmen', 'zugang/1_2_1') ?>" class="active">
                                 <span>Tibia proximal</span>
                             </a>
@@ -121,7 +121,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
                                 <span>anderer Ort</span>
                             </a>
                         </div>
-                        <div class="w-1/12 flex flex-col edivi__interactbutton px-3">
+                        <div class="w-1/12 d-flex flex-column edivi__interactbutton px-3">
                             <label class="edivi__interactbutton-text">links</label>
 
                             <?php
@@ -155,7 +155,7 @@ $currentZugaenge = getCurrentZugaenge($daten['c_zugang'] ?? '');
                                 <label for="<?= $radioId ?>" class="edivi__zugang-<?= $groesse ?>"><?= $groesse ?></label>
                             <?php endforeach; ?>
                         </div>
-                        <div class="w-1/12 flex flex-col edivi__interactbutton px-3">
+                        <div class="w-1/12 d-flex flex-column edivi__interactbutton px-3">
                             <label class="edivi__interactbutton-text">rechts</label>
 
                             <?php

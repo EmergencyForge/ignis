@@ -73,40 +73,40 @@ $currentDateTime = date('Y-m-d\TH:i');
 </head>
 
 <body data-bs-theme="dark" data-page="verlauf" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
-    <div class="w-full" id="edivi__container">
-        <div class="flex flex-wrap -mx-3 h-full">
-            <div class="flex-1 px-3" id="edivi__content">
+    <div class="container-fluid" id="edivi__container">
+        <div class="row h-full">
+            <div class="col" id="edivi__content">
                 <form name="form" id="vitalsForm" method="post" action="">
-                    <div class="flex flex-wrap -mx-3">
-                        <div class="flex-1 relative px-3">
-                            <div class="flex flex-wrap -mx-3 my-3">
-                                <div class="flex-1 edivi__vitalparam-box px-3" data-before="SpO₂" data-after="%">
+                    <div class="row">
+                        <div class="col position-relative">
+                            <div class="row my-3">
+                                <div class="col edivi__vitalparam-box" data-before="SpO₂" data-after="%">
                                     <input type="text" name="spo2" id="spo2"
                                         class="form-control edivi__vitalparam keypad-input"
                                         min="0" max="100" placeholder="96" value="<?= $daten['spo2'] ?>" data-ignore-autosave>
                                 </div>
 
-                                <div class="flex-1 edivi__vitalparam-box px-3" data-before="AF" data-after="/min">
+                                <div class="col edivi__vitalparam-box" data-before="AF" data-after="/min">
                                     <input type="text" name="atemfreq" id="atemfreq"
                                         class="form-control edivi__vitalparam keypad-input"
                                         min="0" max="60" placeholder="16" value="<?= $daten['atemfreq'] ?>" data-ignore-autosave>
                                 </div>
 
-                                <div class="flex-1 edivi__vitalparam-box px-3" data-before="etCO₂" data-after="mmHg">
+                                <div class="col edivi__vitalparam-box" data-before="etCO₂" data-after="mmHg">
                                     <input type="text" name="etco2" id="etco2"
                                         class="form-control edivi__vitalparam keypad-input"
                                         min="0" max="100" placeholder="35" value="<?= $daten['etco2'] ?>" data-ignore-autosave>
                                 </div>
                             </div>
 
-                            <div class="flex flex-wrap -mx-3 my-3">
-                                <div class="flex-1 edivi__vitalparam-box px-3" data-before="HF" data-after="/min">
+                            <div class="row my-3">
+                                <div class="col edivi__vitalparam-box" data-before="HF" data-after="/min">
                                     <input type="text" name="herzfreq" id="herzfreq"
                                         class="form-control edivi__vitalparam keypad-input"
                                         min="0" max="300" placeholder="80" value="<?= $daten['herzfreq'] ?>" data-ignore-autosave>
                                 </div>
 
-                                <div class="flex-1 edivi__vitalparam-box px-3" data-before="NIBP/RR" data-after="mmHg">
+                                <div class="col edivi__vitalparam-box" data-before="NIBP/RR" data-after="mmHg">
                                     <input type="text" name="rrsys" id="rrsys"
                                         class="form-control edivi__vitalparam-shared keypad-input"
                                         min="0" max="300" placeholder="120" style="border-right:0!important" value="<?= $daten['rrsys'] ?>" data-ignore-autosave>
@@ -117,8 +117,8 @@ $currentDateTime = date('Y-m-d\TH:i');
                                 </div>
                             </div>
 
-                            <div class="flex flex-wrap -mx-3 my-3">
-                                <div class="flex-1 edivi__vitalparam-box px-3" data-before="BZ" data-after="<?= htmlspecialchars($bzUnit) ?>">
+                            <div class="row my-3">
+                                <div class="col edivi__vitalparam-box" data-before="BZ" data-after="<?= htmlspecialchars($bzUnit) ?>">
                                     <input type="text" name="bz" id="bz"
                                         class="form-control edivi__vitalparam keypad-input"
                                         min="0"
@@ -129,21 +129,21 @@ $currentDateTime = date('Y-m-d\TH:i');
                                         data-ignore-autosave>
                                 </div>
 
-                                <div class="flex-1 edivi__vitalparam-box px-3" data-before="Temperatur" data-after="°C">
+                                <div class="col edivi__vitalparam-box" data-before="Temperatur" data-after="°C">
                                     <input type="text" name="temp" id="temp"
                                         class="form-control edivi__vitalparam keypad-input"
                                         min="10" max="45" step="0.1" placeholder="36,5" value="<?= $daten['temp'] ?>" data-ignore-autosave>
                                 </div>
                             </div>
 
-                            <div class="flex flex-wrap -mx-3 edivi__vitalparam-mainbuttons">
-                                <div class="flex-1 px-3"><a href="<?= EnotfUrl::protokoll($enr, 'erstbefund') ?>">Abbrechen</a></div>
-                                <div class="flex-1 px-3" style="border-left:2px solid #191919;">
+                            <div class="row edivi__vitalparam-mainbuttons">
+                                <div class="col"><a href="<?= EnotfUrl::protokoll($enr, 'erstbefund') ?>">Abbrechen</a></div>
+                                <div class="col" style="border-left:2px solid #191919;">
                                     <button type="button" id="saveVitalsBtn">Speichern</button>
                                 </div>
                             </div>
                         </div>
-                        <div class="w-5/12 px-3">
+                        <div class="col-5">
                             <!-- Range Strip -->
                             <div class="range-strip-wrapper">
                                 <div class="range-strip-container">

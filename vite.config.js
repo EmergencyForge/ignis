@@ -29,8 +29,9 @@ export default defineConfig({
         cssCodeSplit: true,
         rollupOptions: {
             input: {
-                tailwind: resolve(__dirname, 'assets/js/tailwind.js'),
-                vendor:   resolve(__dirname, 'assets/js/vendor.js'),
+                tailwind:     resolve(__dirname, 'assets/js/tailwind.js'),
+                vendor:       resolve(__dirname, 'assets/js/vendor.js'),
+                'vendor-enotf': resolve(__dirname, 'assets/js/vendor-enotf.js'),
             },
             output: {
                 // CSS-Bundles nach Entry-Key benennen (tailwind.css / vendor.css),

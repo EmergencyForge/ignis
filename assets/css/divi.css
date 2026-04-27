@@ -1353,7 +1353,8 @@ button#save-anamnese-btn {
 }
 
 .edivi__login-buttons .col,
-.edivi__login-buttons .col-3 {
+.edivi__login-buttons .col-3,
+.edivi__login-buttons > .flex > div {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -2494,4 +2495,242 @@ body[data-page=verlauf] .value-indicator {
 
 #freigabeButton::after {
   display: none;
+}
+
+#edivi__container .collapse,
+body[data-page] .collapse,
+body#edivi__login .collapse {
+  visibility: visible;
+}
+
+#edivi__container .collapse:not(.show),
+body[data-page] .collapse:not(.show),
+body#edivi__login .collapse:not(.show) {
+  display: none;
+}
+
+#edivi__container,
+body#edivi__login,
+body[data-page] {
+  --input-bg: #333333;
+  --input-text: #fff;
+  --input-placeholder: var(--enotf-text, #a2a2a2);
+  --darkgray: var(--enotf-border, #555);
+}
+#edivi__container .ignis-input,
+#edivi__container .ignis-textarea,
+body#edivi__login .ignis-input,
+body#edivi__login .ignis-textarea,
+body[data-page] .ignis-input,
+body[data-page] .ignis-textarea {
+  background: var(--enotf-surface, #333333);
+  border-color: var(--enotf-border, #555);
+  border-radius: 0;
+}
+#edivi__container .ignis-input:hover:not(:disabled):not([readonly]),
+#edivi__container .ignis-textarea:hover:not(:disabled):not([readonly]),
+body#edivi__login .ignis-input:hover:not(:disabled):not([readonly]),
+body#edivi__login .ignis-textarea:hover:not(:disabled):not([readonly]),
+body[data-page] .ignis-input:hover:not(:disabled):not([readonly]),
+body[data-page] .ignis-textarea:hover:not(:disabled):not([readonly]) {
+  border-color: var(--enotf-text, #a2a2a2);
+}
+#edivi__container .ignis-input:focus, #edivi__container .ignis-input:focus-visible,
+#edivi__container .ignis-textarea:focus,
+#edivi__container .ignis-textarea:focus-visible,
+body#edivi__login .ignis-input:focus,
+body#edivi__login .ignis-input:focus-visible,
+body#edivi__login .ignis-textarea:focus,
+body#edivi__login .ignis-textarea:focus-visible,
+body[data-page] .ignis-input:focus,
+body[data-page] .ignis-input:focus-visible,
+body[data-page] .ignis-textarea:focus,
+body[data-page] .ignis-textarea:focus-visible {
+  border-color: var(--enotf-focus-ring, #5783cf);
+  box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf);
+}
+#edivi__container .ignis-input[readonly],
+#edivi__container .ignis-textarea[readonly],
+body#edivi__login .ignis-input[readonly],
+body#edivi__login .ignis-textarea[readonly],
+body[data-page] .ignis-input[readonly],
+body[data-page] .ignis-textarea[readonly] {
+  background: transparent;
+  border-color: transparent;
+}
+#edivi__container .ignis-input::placeholder,
+#edivi__container .ignis-textarea::placeholder,
+body#edivi__login .ignis-input::placeholder,
+body#edivi__login .ignis-textarea::placeholder,
+body[data-page] .ignis-input::placeholder,
+body[data-page] .ignis-textarea::placeholder {
+  color: var(--enotf-text, #a2a2a2);
+}
+#edivi__container .ignis-dropdown__trigger,
+#edivi__container .ignis-combobox__trigger,
+#edivi__container .ignis-combobox__input,
+#edivi__container .ignis-datepicker__trigger,
+body#edivi__login .ignis-dropdown__trigger,
+body#edivi__login .ignis-combobox__trigger,
+body#edivi__login .ignis-combobox__input,
+body#edivi__login .ignis-datepicker__trigger,
+body[data-page] .ignis-dropdown__trigger,
+body[data-page] .ignis-combobox__trigger,
+body[data-page] .ignis-combobox__input,
+body[data-page] .ignis-datepicker__trigger {
+  background: var(--enotf-surface, #333333) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  color: #fff !important;
+}
+#edivi__container .ignis-dropdown__trigger:hover:not(:disabled),
+#edivi__container .ignis-combobox__trigger:hover:not(:disabled),
+#edivi__container .ignis-combobox__input:hover:not(:disabled),
+#edivi__container .ignis-datepicker__trigger:hover:not(:disabled),
+body#edivi__login .ignis-dropdown__trigger:hover:not(:disabled),
+body#edivi__login .ignis-combobox__trigger:hover:not(:disabled),
+body#edivi__login .ignis-combobox__input:hover:not(:disabled),
+body#edivi__login .ignis-datepicker__trigger:hover:not(:disabled),
+body[data-page] .ignis-dropdown__trigger:hover:not(:disabled),
+body[data-page] .ignis-combobox__trigger:hover:not(:disabled),
+body[data-page] .ignis-combobox__input:hover:not(:disabled),
+body[data-page] .ignis-datepicker__trigger:hover:not(:disabled) {
+  background: var(--enotf-surface-light, #4a4a4a) !important;
+}
+#edivi__container .ignis-dropdown__trigger:focus, #edivi__container .ignis-dropdown__trigger:focus-visible,
+#edivi__container .ignis-combobox__trigger:focus,
+#edivi__container .ignis-combobox__trigger:focus-visible,
+#edivi__container .ignis-combobox__input:focus,
+#edivi__container .ignis-combobox__input:focus-visible,
+#edivi__container .ignis-datepicker__trigger:focus,
+#edivi__container .ignis-datepicker__trigger:focus-visible,
+body#edivi__login .ignis-dropdown__trigger:focus,
+body#edivi__login .ignis-dropdown__trigger:focus-visible,
+body#edivi__login .ignis-combobox__trigger:focus,
+body#edivi__login .ignis-combobox__trigger:focus-visible,
+body#edivi__login .ignis-combobox__input:focus,
+body#edivi__login .ignis-combobox__input:focus-visible,
+body#edivi__login .ignis-datepicker__trigger:focus,
+body#edivi__login .ignis-datepicker__trigger:focus-visible,
+body[data-page] .ignis-dropdown__trigger:focus,
+body[data-page] .ignis-dropdown__trigger:focus-visible,
+body[data-page] .ignis-combobox__trigger:focus,
+body[data-page] .ignis-combobox__trigger:focus-visible,
+body[data-page] .ignis-combobox__input:focus,
+body[data-page] .ignis-combobox__input:focus-visible,
+body[data-page] .ignis-datepicker__trigger:focus,
+body[data-page] .ignis-datepicker__trigger:focus-visible {
+  box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf) !important;
+  outline: none;
+}
+#edivi__container .ignis-dropdown.is-open .ignis-dropdown__trigger,
+#edivi__container .ignis-combobox.is-open .ignis-combobox__trigger,
+#edivi__container .ignis-combobox.is-open .ignis-combobox__input,
+body#edivi__login .ignis-dropdown.is-open .ignis-dropdown__trigger,
+body#edivi__login .ignis-combobox.is-open .ignis-combobox__trigger,
+body#edivi__login .ignis-combobox.is-open .ignis-combobox__input,
+body[data-page] .ignis-dropdown.is-open .ignis-dropdown__trigger,
+body[data-page] .ignis-combobox.is-open .ignis-combobox__trigger,
+body[data-page] .ignis-combobox.is-open .ignis-combobox__input {
+  box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf) !important;
+}
+#edivi__container .ignis-dropdown__label,
+body#edivi__login .ignis-dropdown__label,
+body[data-page] .ignis-dropdown__label {
+  color: #fff;
+}
+#edivi__container .ignis-dropdown__label.is-placeholder,
+body#edivi__login .ignis-dropdown__label.is-placeholder,
+body[data-page] .ignis-dropdown__label.is-placeholder {
+  color: var(--enotf-text, #a2a2a2);
+}
+#edivi__container .ignis-dropdown__chevron,
+#edivi__container .ignis-combobox__chevron,
+body#edivi__login .ignis-dropdown__chevron,
+body#edivi__login .ignis-combobox__chevron,
+body[data-page] .ignis-dropdown__chevron,
+body[data-page] .ignis-combobox__chevron {
+  color: var(--enotf-text-light, #999);
+}
+#edivi__container .ignis-dropdown__panel,
+#edivi__container .ignis-combobox__panel,
+body#edivi__login .ignis-dropdown__panel,
+body#edivi__login .ignis-combobox__panel,
+body[data-page] .ignis-dropdown__panel,
+body[data-page] .ignis-combobox__panel {
+  background: var(--enotf-surface-light, #4a4a4a);
+  border: 1px solid var(--enotf-border, #555);
+  border-radius: 0;
+  color: #fff;
+}
+#edivi__container .ignis-dropdown__search,
+#edivi__container .ignis-combobox__search,
+body#edivi__login .ignis-dropdown__search,
+body#edivi__login .ignis-combobox__search,
+body[data-page] .ignis-dropdown__search,
+body[data-page] .ignis-combobox__search {
+  background: var(--enotf-surface, #333);
+  border: 1px solid var(--enotf-border, #555);
+  border-radius: 0;
+  color: #fff;
+}
+#edivi__container .ignis-dropdown__search::placeholder,
+#edivi__container .ignis-combobox__search::placeholder,
+body#edivi__login .ignis-dropdown__search::placeholder,
+body#edivi__login .ignis-combobox__search::placeholder,
+body[data-page] .ignis-dropdown__search::placeholder,
+body[data-page] .ignis-combobox__search::placeholder {
+  color: var(--enotf-text-light, #999);
+}
+#edivi__container .ignis-dropdown__search:focus,
+#edivi__container .ignis-combobox__search:focus,
+body#edivi__login .ignis-dropdown__search:focus,
+body#edivi__login .ignis-combobox__search:focus,
+body[data-page] .ignis-dropdown__search:focus,
+body[data-page] .ignis-combobox__search:focus {
+  border-color: var(--enotf-focus-ring, #5783cf);
+  box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf);
+}
+#edivi__container .ignis-dropdown__option,
+#edivi__container .ignis-combobox__option,
+body#edivi__login .ignis-dropdown__option,
+body#edivi__login .ignis-combobox__option,
+body[data-page] .ignis-dropdown__option,
+body[data-page] .ignis-combobox__option {
+  color: #fff;
+}
+#edivi__container .ignis-dropdown__option:hover, #edivi__container .ignis-dropdown__option.is-active, #edivi__container .ignis-dropdown__option[aria-selected=true],
+#edivi__container .ignis-combobox__option:hover,
+#edivi__container .ignis-combobox__option.is-active,
+#edivi__container .ignis-combobox__option[aria-selected=true],
+body#edivi__login .ignis-dropdown__option:hover,
+body#edivi__login .ignis-dropdown__option.is-active,
+body#edivi__login .ignis-dropdown__option[aria-selected=true],
+body#edivi__login .ignis-combobox__option:hover,
+body#edivi__login .ignis-combobox__option.is-active,
+body#edivi__login .ignis-combobox__option[aria-selected=true],
+body[data-page] .ignis-dropdown__option:hover,
+body[data-page] .ignis-dropdown__option.is-active,
+body[data-page] .ignis-dropdown__option[aria-selected=true],
+body[data-page] .ignis-combobox__option:hover,
+body[data-page] .ignis-combobox__option.is-active,
+body[data-page] .ignis-combobox__option[aria-selected=true] {
+  background: var(--enotf-border, #555);
+}
+#edivi__container .ignis-dropdown__option.is-selected,
+#edivi__container .ignis-combobox__option.is-selected,
+body#edivi__login .ignis-dropdown__option.is-selected,
+body#edivi__login .ignis-combobox__option.is-selected,
+body[data-page] .ignis-dropdown__option.is-selected,
+body[data-page] .ignis-combobox__option.is-selected {
+  background: var(--main-color);
+  color: #fff;
+}
+#edivi__container .ignis-dropdown__option.is-selected:hover,
+#edivi__container .ignis-combobox__option.is-selected:hover,
+body#edivi__login .ignis-dropdown__option.is-selected:hover,
+body#edivi__login .ignis-combobox__option.is-selected:hover,
+body[data-page] .ignis-dropdown__option.is-selected:hover,
+body[data-page] .ignis-combobox__option.is-selected:hover {
+  background: var(--main-color-dimmed);
 }

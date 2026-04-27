@@ -237,13 +237,13 @@ if (!empty($diagnose_weitere_array)) {
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="w-full" id="edivi__container">
-            <div class="flex flex-wrap -mx-3 h-full">
+        <div class="container-fluid" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
-                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
-                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
+                <div class="col" id="edivi__content" style="padding-left: 0">
+                    <div class="row" style="margin-left: 0">
                         <?php if (!$ist_freigegeben) : ?>
-                            <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                            <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                                 <a href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1') ?>" data-requires="diagnose_haupt">
                                     <span>Diagnose (führend)</span>
                                 </a>
@@ -255,44 +255,44 @@ if (!empty($diagnose_weitere_array)) {
                                 </a>
                             </div>
                         <?php endif; ?>
-                        <div class="flex-1 edivi__overview-container px-3">
-                            <div class="flex flex-wrap -mx-3">
-                                <div class="flex-1 px-3">
-                                    <div class="flex flex-wrap -mx-3 edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1') ?>" style="cursor:pointer">
-                                        <h5 class="text-white px-2 py-1 edivi__group-check">Diagnose (führend) <i id="icon-diagnose_fuehrend" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
-                                        <div class="flex-1 px-3">
-                                            <div class="flex flex-wrap -mx-3 my-2">
-                                                <div class="flex-1 px-3">
+                        <div class="col edivi__overview-container">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '1') ?>" style="cursor:pointer">
+                                        <h5 class="text-light px-2 py-1 edivi__group-check">Diagnose (führend) <i id="icon-diagnose_fuehrend" class="fa-solid fa-circle-exclamation" style="color:#d91425; margin-left:4px; display:none;"></i></h5>
+                                        <div class="col">
+                                            <div class="row my-2">
+                                                <div class="col">
                                                     <label for="diagnose_fuehrend" class="edivi__description" style="display: none;">Diagnose (führend)</label>
-                                                    <input type="text" name="diagnose_fuehrend" id="diagnose_fuehrend" class="w-full form-control edivi__input-check" value="<?= !empty($diagnose_haupt_text) ? $diagnose_haupt_text : '' ?>" readonly>
+                                                    <input type="text" name="diagnose_fuehrend" id="diagnose_fuehrend" class="w-100 form-control edivi__input-check" value="<?= !empty($diagnose_haupt_text) ? $diagnose_haupt_text : '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex-1 px-3">
-                                    <div class="flex flex-wrap -mx-3 edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '2') ?>" style="cursor:pointer">
-                                        <h5 class="text-white px-2 py-1">Diagnose (weitere)</h5>
-                                        <div class="flex-1 px-3">
-                                            <div class="flex flex-wrap -mx-3 my-2">
-                                                <div class="flex-1 px-3">
+                                <div class="col">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '2') ?>" style="cursor:pointer">
+                                        <h5 class="text-light px-2 py-1">Diagnose (weitere)</h5>
+                                        <div class="col">
+                                            <div class="row my-2">
+                                                <div class="col">
                                                     <label for="diagnose_weitere" class="edivi__description" style="display: none;">Diagnose (weitere)</label>
-                                                    <input type="text" name="diagnose_weitere" id="diagnose_weitere" class="w-full form-control" value="<?= !empty($diagnose_weitere_text) ? $diagnose_weitere_text : '' ?>" readonly>
+                                                    <input type="text" name="diagnose_weitere" id="diagnose_weitere" class="w-100 form-control" value="<?= !empty($diagnose_weitere_text) ? $diagnose_weitere_text : '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex flex-wrap -mx-3">
-                                <div class="flex-1 px-3">
-                                    <div class="flex flex-wrap -mx-3 edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '3') ?>" style="cursor:pointer">
-                                        <h5 class="text-white px-2 py-1">Diagnose Text</h5>
-                                        <div class="flex-1 px-3">
-                                            <div class="flex flex-wrap -mx-3 my-2">
-                                                <div class="flex-1 px-3">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row edivi__box edivi__box-clickable" data-href="<?= EnotfUrl::protokoll($daten['enr'], 'diagnose', '3') ?>" style="cursor:pointer">
+                                        <h5 class="text-light px-2 py-1">Diagnose Text</h5>
+                                        <div class="col">
+                                            <div class="row my-2">
+                                                <div class="col">
                                                     <label for="diagnose_text" class="edivi__description" style="display: none;">Diagnose Text</label>
-                                                    <textarea name="diagnose_text" id="diagnose_text" rows="5" class="w-full form-control" style="resize: none" readonly><?= $daten['diagnose'] ?></textarea>
+                                                    <textarea name="diagnose_text" id="diagnose_text" rows="5" class="w-100 form-control" style="resize: none" readonly><?= $daten['diagnose'] ?></textarea>
                                                 </div>
                                             </div>
                                         </div>

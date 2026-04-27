@@ -1428,7 +1428,8 @@ button#save-anamnese-btn {
 }
 
 .edivi__login-buttons .col,
-.edivi__login-buttons .col-3 {
+.edivi__login-buttons .col-3,
+.edivi__login-buttons > .flex > div {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -2596,4 +2597,156 @@ body[data-page="verlauf"] .value-indicator {
 
 #freigabeButton::after {
   display: none;
+}
+
+// Tailwinds `.collapse { visibility: collapse }`-Utility lädt nach uns und
+// würde Bootstraps Collapse-State (`.collapse.show` zeigt Inhalt) ausser
+// Kraft setzen. Im eNOTF-Scope explizit zurück auf Bootstrap-Verhalten.
+// (Tailwind-Blocklist konnten wir nicht nutzen — siehe tailwind.config.js.)
+#edivi__container .collapse,
+body[data-page] .collapse,
+body#edivi__login .collapse {
+  visibility: visible;
+}
+#edivi__container .collapse:not(.show),
+body[data-page] .collapse:not(.show),
+body#edivi__login .collapse:not(.show) {
+  display: none;
+}
+
+// =====================================================
+// eNOTF-Overrides für ıgnıs Form-Komponenten
+// Standard-ıgnıs nutzt sehr dunklen Input-BG (#161616) + sm-Border-Radius —
+// passt nicht in den medium-grauen eNOTF-Look (#333 / #4a4a4a) und kollidiert
+// optisch mit den .form-control / .edivi__nidabutton-Tönen daneben.
+// Hier die Komponenten gezielt im eNOTF-Scope eingefärbt.
+// =====================================================
+#edivi__container,
+body#edivi__login,
+body[data-page] {
+  // Custom-Properties direkt überschreiben — alle ıgnıs-Komponenten lesen
+  // sie über `var(--input-bg, …)` etc., damit reicht der Variablen-Patch
+  // für den Großteil.
+  --input-bg: #333333;
+  --input-text: #fff;
+  --input-placeholder: var(--enotf-text, #a2a2a2);
+  --darkgray: var(--enotf-border, #555);
+
+  .ignis-input,
+  .ignis-textarea {
+    background: var(--enotf-surface, #333333);
+    border-color: var(--enotf-border, #555);
+    border-radius: 0;
+
+    &:hover:not(:disabled):not([readonly]) {
+      border-color: var(--enotf-text, #a2a2a2);
+    }
+
+    &:focus,
+    &:focus-visible {
+      border-color: var(--enotf-focus-ring, #5783cf);
+      box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf);
+    }
+
+    &[readonly] {
+      background: transparent;
+      border-color: transparent;
+    }
+
+    &::placeholder {
+      color: var(--enotf-text, #a2a2a2);
+    }
+  }
+
+  // Trigger-Buttons (Dropdown / Combobox / Datepicker).
+  // !important hier bewusst, weil das ui.scss-Standard-Styling per
+  // verschachtelter `.ignis-dropdown .ignis-dropdown__trigger`-Specificity
+  // bei Variablen-Casts manchmal näher liegt als gewünscht.
+  // eNOTF-Look: keine Border (passt zu form-control, das ebenfalls border:0
+  // im edivi__box-/edivi__login-Kontext bekommt), nur Focus-Ring via
+  // box-shadow.
+  .ignis-dropdown__trigger,
+  .ignis-combobox__trigger,
+  .ignis-combobox__input,
+  .ignis-datepicker__trigger {
+    background: var(--enotf-surface, #333333) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: #fff !important;
+
+    &:hover:not(:disabled) {
+      background: var(--enotf-surface-light, #4a4a4a) !important;
+    }
+
+    &:focus,
+    &:focus-visible {
+      box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf) !important;
+      outline: none;
+    }
+  }
+
+  .ignis-dropdown.is-open .ignis-dropdown__trigger,
+  .ignis-combobox.is-open .ignis-combobox__trigger,
+  .ignis-combobox.is-open .ignis-combobox__input {
+    box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf) !important;
+  }
+
+  .ignis-dropdown__label {
+    color: #fff;
+
+    &.is-placeholder {
+      color: var(--enotf-text, #a2a2a2);
+    }
+  }
+
+  .ignis-dropdown__chevron,
+  .ignis-combobox__chevron {
+    color: var(--enotf-text-light, #999);
+  }
+
+  // Panel (das aufklappende Menü) — JS nutzt `__panel`, nicht `__menu`.
+  .ignis-dropdown__panel,
+  .ignis-combobox__panel {
+    background: var(--enotf-surface-light, #4a4a4a);
+    border: 1px solid var(--enotf-border, #555);
+    border-radius: 0;
+    color: #fff;
+  }
+
+  .ignis-dropdown__search,
+  .ignis-combobox__search {
+    background: var(--enotf-surface, #333);
+    border: 1px solid var(--enotf-border, #555);
+    border-radius: 0;
+    color: #fff;
+
+    &::placeholder {
+      color: var(--enotf-text-light, #999);
+    }
+
+    &:focus {
+      border-color: var(--enotf-focus-ring, #5783cf);
+      box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf);
+    }
+  }
+
+  .ignis-dropdown__option,
+  .ignis-combobox__option {
+    color: #fff;
+
+    &:hover,
+    &.is-active,
+    &[aria-selected="true"] {
+      background: var(--enotf-border, #555);
+    }
+
+    &.is-selected {
+      background: var(--main-color);
+      color: #fff;
+
+      &:hover {
+        background: var(--main-color-dimmed);
+      }
+    }
+  }
 }

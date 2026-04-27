@@ -4,7 +4,7 @@ use App\Helpers\EnotfUrl;
 $_navTz = isset($daten['transportziel']) ? (int)$daten['transportziel'] : null;
 $_navEnr = $daten['enr'];
 ?>
-<div class="w-full md:w-1/12 flex flex-col px-3" id="edivi__nidanav">
+<div class="col-12 col-md-1 d-flex flex-column" id="edivi__nidanav">
     <a href="<?= EnotfUrl::protokoll($_navEnr, 'rettdaten') ?>" data-page="stammdaten"
         data-requires="<?= enotf_get_nav_requires($_navTz, 1) ?>">
         <span>Rett. Daten</span>

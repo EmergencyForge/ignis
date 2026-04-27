@@ -62,12 +62,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     ?>
     <form name="form" method="post" action="">
         <input type="hidden" name="new" value="1" />
-        <div class="w-full" id="edivi__container">
-            <div class="flex flex-wrap -mx-3 h-full">
+        <div class="container-fluid" id="edivi__container">
+            <div class="row h-full">
                 <?php include __DIR__ . '/../../../../../assets/components/enotf/nav.php'; ?>
-                <div class="flex-1 px-3" id="edivi__content" style="padding-left: 0">
-                    <div class="flex flex-wrap -mx-3" style="margin-left: 0">
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                <div class="col" id="edivi__content" style="padding-left: 0">
+                    <div class="row" style="margin-left: 0">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <a href="<?= EnotfUrl::protokoll($daten['enr'], 'erstbefund', 'atemwege') ?>" data-requires="awfrei_1,zyanose_1">
                                 <span>Atemwege</span>
                             </a>
@@ -93,7 +93,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>Messwerte</span>
                             </a>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton-more px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton-more px-3">
                             <input type="checkbox"
                                 class="btn-check"
                                 id="neuro-ohne-path"
@@ -113,7 +113,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <span>GCS</span>
                             </a>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton px-3">
                             <label class="edivi__interactbutton-text">Augen öffnen</label>
 
                             <input type="radio" class="btn-check" id="d_gcs_1-0" name="d_gcs_1" value="0" <?php echo ($daten['d_gcs_1'] === 0 ? 'checked' : '') ?> autocomplete="off">
@@ -128,7 +128,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <input type="radio" class="btn-check" id="d_gcs_1-3" name="d_gcs_1" value="3" <?php echo ($daten['d_gcs_1'] == 3 ? 'checked' : '') ?> autocomplete="off">
                             <label for="d_gcs_1-3">kein Öffnen</label>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton px-3">
                             <label class="edivi__interactbutton-text">Beste verbale Reaktion</label>
 
                             <input type="radio" class="btn-check" id="d_gcs_2-0" name="d_gcs_2" value="0" <?php echo ($daten['d_gcs_2'] === 0 ? 'checked' : '') ?> autocomplete="off">
@@ -146,7 +146,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <input type="radio" class="btn-check" id="d_gcs_2-4" name="d_gcs_2" value="4" <?php echo ($daten['d_gcs_2'] == 4 ? 'checked' : '') ?> autocomplete="off">
                             <label for="d_gcs_2-4">keine Reaktion</label>
                         </div>
-                        <div class="w-2/12 flex flex-col edivi__interactbutton px-3">
+                        <div class="w-2/12 d-flex flex-column edivi__interactbutton px-3">
                             <label class="edivi__interactbutton-text">Beste motorische Reaktion</label>
 
                             <input type="radio" class="btn-check" id="d_gcs_3-0" name="d_gcs_3" value="0" <?php echo ($daten['d_gcs_3'] === 0 ? 'checked' : '') ?> autocomplete="off">

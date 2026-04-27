@@ -10,7 +10,7 @@
             </div>
             <div class="modal-body">
                 <p>Wähle ein Fahrzeug aus, mit dem du dieses Protokoll teilen möchtest:</p>
-                <div class="mb-3 relative">
+                <div class="mb-3 position-relative">
                     <label for="targetVehicleSearch" class="ignis-field__label">Zielfahrzeug</label>
                     <input type="text"
                         class="ignis-input"
@@ -18,7 +18,7 @@
                         placeholder="Rufname, Kennzeichen oder ID eingeben..."
                         autocomplete="off">
                     <input type="hidden" id="selectedVehicleId">
-                    <div class="dropdown-menu w-full" id="vehicleDropdown" style="max-height: 300px; overflow-y: auto;">
+                    <div class="dropdown-menu w-100" id="vehicleDropdown" style="max-height: 300px; overflow-y: auto;">
                         <!-- Dropdown items werden hier dynamisch eingefügt -->
                     </div>
                 </div>

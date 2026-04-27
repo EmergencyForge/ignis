@@ -304,15 +304,15 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
 <body data-bs-theme="dark" data-page="verlauf" data-session-token="<?= $_SESSION['enotf_session_token'] ?? '' ?>" data-base-path="<?= BASE_PATH ?>" data-pin-enabled="<?= $pinEnabled ?>">
     <?php include __DIR__ . '/../../../../assets/components/enotf/topbar.php'; ?>
 
-    <div class="w-full" id="edivi__container">
-        <div class="flex flex-wrap -mx-3 h-full">
+    <div class="container-fluid" id="edivi__container">
+        <div class="row h-full">
             <?php include __DIR__ . '/../../../../assets/components/enotf/nav.php'; ?>
-            <div class="flex-1 px-3" id="edivi__content">
+            <div class="col" id="edivi__content">
                 <div class="my-3"></div>
                 <!-- Erfolg/Fehler-Meldung -->
                 <?php if (!empty($message)): ?>
-                    <div class="flex flex-wrap -mx-3 mb-3">
-                        <div class="flex-1 px-3">
+                    <div class="row mb-3">
+                        <div class="col">
                             <div class="alert alert-<?= $messageType ?> alert-dismissible fade show" role="alert">
                                 <?= htmlspecialchars($message) ?>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -323,8 +323,8 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
 
                 <!-- Info bei freigegebener Dokumentation -->
                 <?php if ($ist_freigegeben): ?>
-                    <div class="flex flex-wrap -mx-3 mb-3">
-                        <div class="flex-1 px-3">
+                    <div class="row mb-3">
+                        <div class="col">
                             <div class="ignis-alert ignis-alert--warning">
                                 <i class="fa-solid fa-lock"></i> <strong>Hinweis:</strong> Diese Dokumentation ist freigegeben und kann nicht mehr bearbeitet werden.
                             </div>
@@ -349,8 +349,8 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
 
                 <!-- Vitalparameter-Tabelle -->
                 <?php if (empty($grouped_vitals)): ?>
-                    <div class="flex flex-wrap -mx-3">
-                        <div class="flex-1 px-3">
+                    <div class="row">
+                        <div class="col">
                             <div class="no-data-compact">
                                 <i class="fa-solid fa-circle-info" style="font-size: 32px; margin-bottom: 10px;"></i>
                                 <h6>Noch keine Vitalparameter erfasst</h6>
@@ -365,8 +365,8 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
                         </div>
                     </div>
                 <?php else: ?>
-                    <div class="flex flex-wrap -mx-3">
-                        <div class="flex-1 px-3">
+                    <div class="row">
+                        <div class="col">
                             <div class="vitals-container">
                                 <table class="vitals-table">
                                     <thead>
