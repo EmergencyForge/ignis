@@ -565,16 +565,39 @@ class SessionManager
     /**
      * Speichert pending Composer-Update-State. Wird vom SystemUpdater
      * gesetzt, wenn ein Update nicht in einem Request abgeschlossen werden
-     * konnte und der nächste Request den Vorgang fortsetzen soll.
+     * konnte und der nächste Request den Vorgang fortsetzen soll. Akzeptiert
+     * sowohl Booleans (Flag-Variante: "irgendwas hängt") als auch ein
+     * Array mit Detail-State.
      */
-    public static function setComposerPending(?array $data): void
+    public static function setComposerPending(array|bool|null $data): void
     {
         self::start();
-        if ($data === null) {
+        if ($data === null || $data === false) {
             unset($_SESSION['composer_pending']);
         } else {
             $_SESSION['composer_pending'] = $data;
         }
+    }
+
+    /**
+     * Liest den aktuellen Composer-Pending-Zustand als Boolean (truthy
+     * Flag oder gesetztes Detail-Array → true).
+     */
+    public static function isComposerPending(): bool
+    {
+        return !empty($_SESSION['composer_pending']);
+    }
+
+    /**
+     * Liest den Composer-Pending-Zustand und löscht ihn anschließend.
+     * Wird im Settings-Template benutzt, um einen Reload-Hinweis genau
+     * einmal anzuzeigen.
+     */
+    public static function consumeComposerPending(): bool
+    {
+        $pending = self::isComposerPending();
+        unset($_SESSION['composer_pending']);
+        return $pending;
     }
 
     // ──────────────────────────────────────────────────────────────────

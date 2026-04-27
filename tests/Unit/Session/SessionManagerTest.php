@@ -426,6 +426,30 @@ final class SessionManagerTest extends TestCase
     }
 
     #[Test]
+    public function composer_pending_unterstuetzt_bool_flag_variant(): void
+    {
+        // Settings-Page nutzt das Flag-Verhalten: einfach true/false
+        SessionManager::setComposerPending(true);
+        $this->assertTrue(SessionManager::isComposerPending());
+        $this->assertTrue($_SESSION['composer_pending']);
+
+        SessionManager::setComposerPending(false);
+        $this->assertFalse(SessionManager::isComposerPending());
+        $this->assertArrayNotHasKey('composer_pending', $_SESSION);
+    }
+
+    #[Test]
+    public function consume_composer_pending_returns_state_and_clears(): void
+    {
+        SessionManager::setComposerPending(true);
+        $this->assertTrue(SessionManager::consumeComposerPending());
+
+        // Zweiter Aufruf liefert false (atomar konsumiert)
+        $this->assertFalse(SessionManager::consumeComposerPending());
+        $this->assertArrayNotHasKey('composer_pending', $_SESSION);
+    }
+
+    #[Test]
     public function clear_klinik_access_entfernt_beide_keys(): void
     {
         SessionManager::loginKlinikcode('ENR-001');
