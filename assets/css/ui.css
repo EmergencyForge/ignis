@@ -382,6 +382,17 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-style: italic;
 }
 
+.ignis-dropdown__panel--floating {
+  position: fixed;
+  right: auto;
+  z-index: 2000;
+}
+.ignis-dropdown__panel--floating.is-active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
 .ignis-input,
 .ignis-textarea {
   display: block;

@@ -441,6 +441,24 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 }
 
+// Floating-Mode: Wird beim Open ans <body> portiert (siehe dropdown.js
+// _portalPanel), damit clippende Vorfahren (overflow:auto/hidden auf
+// Tiles, persistierte transforms aus tile-enter-Keyframes) das Dropdown
+// nicht anschneiden. Position kommt aus dem JS via getBoundingClientRect,
+// `is-active` ersetzt die Wrapper-basierte `.is-open`-Aktivierung —
+// das Panel hängt im portierten Zustand nicht mehr unter `.ignis-dropdown`.
+.ignis-dropdown__panel--floating {
+  position: fixed;
+  right: auto;
+  z-index: 2000;
+
+  &.is-active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+
 // =====================================================
 // ıgnıs UI — Form-Elements
 // Hauseigene Input / Textarea / Checkbox / Radio / Switch.

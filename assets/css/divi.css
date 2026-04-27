@@ -1493,8 +1493,12 @@ button#save-anamnese-btn {
   background-color: #333333;
 }
 
-.edivi__einsatz-link {
+.edivi__einsatz-link,
+.edivi__einsatz-link:hover,
+.edivi__einsatz-link:focus,
+.edivi__einsatz-link:active {
   text-decoration: none;
+  color: inherit;
 }
 
 .edivi__einsatz-type,
@@ -2733,4 +2737,13 @@ body#edivi__login .ignis-combobox__option.is-selected:hover,
 body[data-page] .ignis-dropdown__option.is-selected:hover,
 body[data-page] .ignis-combobox__option.is-selected:hover {
   background: var(--main-color-dimmed);
+}
+#edivi__container .beladung-category-card__header,
+#edivi__container .beladung-search,
+body#edivi__login .beladung-category-card__header,
+body#edivi__login .beladung-search,
+body[data-page] .beladung-category-card__header,
+body[data-page] .beladung-search {
+  position: static;
+  top: auto;
 }

@@ -64,8 +64,17 @@ export class Dropdown {
         this.trigger.setAttribute('aria-expanded', 'true');
         activeDropdown = this;
 
-        this._position();
+        // Panel ans <body> portieren, damit Container mit overflow:auto oder
+        // persistierten transforms (z.B. .intra__tile) das Panel nicht clippen.
+        this._portalPanel();
         this._renderOptions();
+        this._position();
+
+        // Re-position bei Scroll/Resize, solange das Panel offen ist.
+        this._reposition = () => this._position();
+        window.addEventListener('scroll', this._reposition, true);
+        window.addEventListener('resize', this._reposition);
+
         if (this.searchInput) {
             this.searchInput.value = '';
             this.searchInput.focus();
@@ -80,6 +89,14 @@ export class Dropdown {
         this.isOpen = false;
         this.wrapper.classList.remove('is-open');
         this.trigger.setAttribute('aria-expanded', 'false');
+
+        if (this._reposition) {
+            window.removeEventListener('scroll', this._reposition, true);
+            window.removeEventListener('resize', this._reposition);
+            this._reposition = null;
+        }
+        this._restorePanel();
+
         if (activeDropdown === this) activeDropdown = null;
         this._emit('close');
     }
@@ -102,6 +119,19 @@ export class Dropdown {
     }
 
     destroy() {
+        // Falls noch portiert: Panel zurückholen, damit es mit dem Wrapper
+        // entfernt wird statt am <body> zu verwaisen.
+        if (this._panelOriginalParent && this.panel.parentNode === document.body) {
+            this._panelOriginalParent.appendChild(this.panel);
+            this._panelOriginalParent = null;
+        }
+        if (this._reposition) {
+            window.removeEventListener('scroll', this._reposition, true);
+            window.removeEventListener('resize', this._reposition);
+        }
+        if (this._outsideHandler) {
+            document.removeEventListener('mousedown', this._outsideHandler);
+        }
         this.wrapper.remove();
         this.select.classList.remove('ignis-dropdown-native');
         delete this.select.dataset.ignisDropdown;
@@ -194,9 +224,13 @@ export class Dropdown {
 
         // Click-Outside schließt — mousedown statt click, damit Target
         // noch im DOM ist bevor _renderOptions() ihn ggf. detacht.
+        // Im Floating-Mode hängt das Panel am <body>, ist also kein
+        // Descendant von `wrapper` mehr — daher BEIDE prüfen.
         this._outsideHandler = (ev) => {
             if (!this.isOpen) return;
-            if (!this.wrapper.contains(ev.target)) this.close();
+            if (this.wrapper.contains(ev.target)) return;
+            if (this.panel.contains(ev.target)) return;
+            this.close();
         };
         document.addEventListener('mousedown', this._outsideHandler);
 
@@ -308,15 +342,57 @@ export class Dropdown {
         else this.optionsList.querySelector('li[data-value]')?.focus();
     }
 
-    _position() {
-        // Openen nach unten, wenn Platz. Sonst nach oben.
-        this.panel.hidden = false;
-        const rect = this.trigger.getBoundingClientRect();
-        const panelHeight = this.panel.offsetHeight;
-        const spaceBelow = window.innerHeight - rect.bottom;
-        const spaceAbove = rect.top;
+    /**
+     * Hängt das Panel temporär ans <body>, damit kein clippender Container
+     * (overflow:auto/hidden, persistierte transforms) das Panel anschneidet.
+     * `_restorePanel()` macht die Operation rückgängig.
+     *
+     * Setzt zusätzlich `is-active` direkt am Panel — die Wrapper-basierte
+     * `.is-open .ignis-dropdown__panel`-Regel greift im portierten Zustand
+     * nicht mehr (Panel ist kein Descendant von `.ignis-dropdown` mehr).
+     */
+    _portalPanel() {
+        if (this.panel.parentNode === document.body) return; // schon portiert
+        this._panelOriginalParent = this.panel.parentNode;
+        document.body.appendChild(this.panel);
+        this.panel.classList.add('ignis-dropdown__panel--floating');
+        this.panel.classList.add('is-active');
+    }
 
-        this.panel.classList.toggle('is-above', spaceBelow < panelHeight && spaceAbove > spaceBelow);
+    _restorePanel() {
+        if (!this._panelOriginalParent) return;
+        if (this.panel.parentNode === document.body) {
+            this._panelOriginalParent.appendChild(this.panel);
+        }
+        this.panel.classList.remove('ignis-dropdown__panel--floating');
+        this.panel.classList.remove('is-active');
+        this.panel.style.top = '';
+        this.panel.style.left = '';
+        this.panel.style.width = '';
+        this._panelOriginalParent = null;
+    }
+
+    _position() {
+        // Im Floating-Mode (am body) wird position:fixed gesetzt, sonst greift
+        // weiterhin das absolute Default-Layout aus ui.scss.
+        this.panel.hidden = false;
+        const rect        = this.trigger.getBoundingClientRect();
+        const panelHeight = this.panel.offsetHeight;
+        const spaceBelow  = window.innerHeight - rect.bottom;
+        const spaceAbove  = rect.top;
+        const openAbove   = spaceBelow < panelHeight && spaceAbove > spaceBelow;
+
+        this.panel.classList.toggle('is-above', openAbove);
+
+        if (this.panel.classList.contains('ignis-dropdown__panel--floating')) {
+            this.panel.style.left  = rect.left + 'px';
+            this.panel.style.width = rect.width + 'px';
+            if (openAbove) {
+                this.panel.style.top = (rect.top - panelHeight - 4) + 'px';
+            } else {
+                this.panel.style.top = (rect.bottom + 4) + 'px';
+            }
+        }
     }
 
     _emit(event, payload) {
