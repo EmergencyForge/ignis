@@ -38,24 +38,33 @@ class UserController extends Controller
      * Mitarbeiter-Card gerendert; sonst ein Minimal-Fragment mit Username
      * und Discord-ID.
      */
-    public function card(int $id): \App\Http\Response
+    public function card(\App\Http\Request $request, string $id): \App\Http\Response
     {
         $this->requireAuth();
         Gate::authorize('user.viewList');
 
-        $user = User::query()->with(['userRole', 'mitarbeiter.dienstgradModel', 'mitarbeiter.rdQualiModel', 'mitarbeiter.fwQualiModel'])->find($id);
+        $user = User::query()->with(['userRole', 'mitarbeiter.dienstgradModel', 'mitarbeiter.rdQualiModel', 'mitarbeiter.fwQualiModel'])->find((int) $id);
         if ($user === null) {
             return \App\Http\Response::html('Benutzer nicht gefunden.', 404);
         }
 
-        ob_start();
-        if ($user->mitarbeiter !== null) {
-            $mitarbeiter = $user->mitarbeiter;
-            $profileUrl  = (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id;
-            include __DIR__ . '/../../../assets/components/profiles/_hover-card.php';
-        } else {
-            include __DIR__ . '/../../../assets/components/profiles/_user-hover-card.php';
+        // Mitarbeiter-Linking läuft an zwei Stellen unterschiedlich:
+        //   - Eloquent-Relation:  User.aktenid → Mitarbeiter.id
+        //   - JOIN in users/list: User.discord_id = Mitarbeiter.discordtag
+        // Erster Pfad scheitert für User, deren `aktenid` nie gepflegt wurde
+        // (Discord-OAuth-First-Login). Wir fallen daher auf Discord-ID zurück.
+        $linkedMitarbeiter = $user->mitarbeiter;
+        if ($linkedMitarbeiter === null && !empty($user->discord_id)) {
+            $linkedMitarbeiter = \App\Models\Mitarbeiter::query()
+                ->where('discordtag', $user->discord_id)
+                ->first();
         }
+
+        ob_start();
+        // User-Hover-Card zeigt User-Stammdaten und ggf. den Link auf den
+        // verbundenen Mitarbeiter. Nicht die Mitarbeiter-Card selbst rendern
+        // — das ist ein separates `data-mitarbeiter-card`-Trigger.
+        include __DIR__ . '/../../../assets/components/profiles/_user-hover-card.php';
         return \App\Http\Response::html((string) ob_get_clean());
     }
 

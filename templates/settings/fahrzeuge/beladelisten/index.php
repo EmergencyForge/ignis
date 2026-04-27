@@ -100,11 +100,18 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
 
-                    <!-- Filter-Bereich -->
+                    <!-- Filter + Live-Suche -->
                     <div class="card mb-4">
                         <div class="card-body">
-                            <div class="grid grid-cols-1 items-end gap-3 md:grid-cols-3">
-                                <div>
+                            <div class="grid grid-cols-1 items-end gap-3 md:grid-cols-12">
+                                <div class="md:col-span-6">
+                                    <label for="beladung-search-input" class="ignis-field__label mb-2">Suche:</label>
+                                    <input type="search" class="ignis-input" id="beladung-search-input"
+                                           data-beladung-search
+                                           placeholder="Über Kategorien und Gegenstände …"
+                                           autocomplete="off">
+                                </div>
+                                <div class="md:col-span-2">
                                     <label for="fahrzeugtyp-filter" class="ignis-field__label mb-2">Fahrzeugtyp filtern:</label>
                                     <select class="ignis-input" id="fahrzeugtyp-filter">
                                         <option value="">Alle anzeigen</option>
@@ -115,7 +122,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         ?>
                                     </select>
                                 </div>
-                                <div>
+                                <div class="md:col-span-2">
                                     <label for="kategorie-filter" class="ignis-field__label mb-2">Kategorietyp filtern:</label>
                                     <select class="ignis-input" id="kategorie-filter">
                                         <option value="">Alle Typen</option>
@@ -124,12 +131,12 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <option value="2">Nur Außenfach</option>
                                     </select>
                                 </div>
-                                <div class="flex flex-wrap gap-2">
-                                    <button class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="reset-filter">
-                                        <i class="fa-solid fa-undo"></i> Filter zurücksetzen
+                                <div class="md:col-span-2 flex flex-wrap gap-2">
+                                    <button class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="reset-filter" data-ignis-tooltip="Filter zurücksetzen">
+                                        <i class="fa-solid fa-undo"></i>
                                     </button>
-                                    <button class="ignis-btn ignis-btn--outline-info ignis-btn--sm" id="toggle-empty" title="Kategorien ohne Gegenstände ein-/ausblenden">
-                                        <i class="fa-solid fa-eye-slash"></i> <span id="toggle-text">Leere ausblenden</span>
+                                    <button class="ignis-btn ignis-btn--outline-info ignis-btn--sm" id="toggle-empty" data-ignis-tooltip="Leere Kategorien ein-/ausblenden">
+                                        <i class="fa-solid fa-eye-slash"></i> <span id="toggle-text">Leer</span>
                                     </button>
                                 </div>
                             </div>
@@ -155,12 +162,6 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 }
                 $canEdit = \App\Auth\Gate::allows('vehicle.manage');
                 ?>
-
-                <div class="beladung-search">
-                    <input type="search" class="ignis-input" data-beladung-search
-                           placeholder="Suchen — über Kategorien und Gegenstände …"
-                           autocomplete="off">
-                </div>
 
                 <div id="categories-container" data-beladung-results>
                     <?php foreach ($categories as $category): ?>
@@ -441,18 +442,23 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 fahrzeugtypFilter.value = '';
                 kategorieFilter.value = '';
                 hideEmpty = false;
-                toggleText.textContent = 'Leere ausblenden';
+                toggleText.textContent = 'Leer';
                 toggleEmptyBtn.querySelector('i').className = 'fa-solid fa-eye-slash';
+                const searchInput = document.querySelector('[data-beladung-search]');
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
                 applyFilters();
             });
 
             toggleEmptyBtn.addEventListener('click', function() {
                 hideEmpty = !hideEmpty;
                 if (hideEmpty) {
-                    toggleText.textContent = 'Leere einblenden';
+                    toggleText.textContent = 'Leer';
                     this.querySelector('i').className = 'fa-solid fa-eye';
                 } else {
-                    toggleText.textContent = 'Leere ausblenden';
+                    toggleText.textContent = 'Leer';
                     this.querySelector('i').className = 'fa-solid fa-eye-slash';
                 }
                 applyFilters();

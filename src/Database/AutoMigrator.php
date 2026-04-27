@@ -48,8 +48,16 @@ class AutoMigrator
         }
         $fileCount = count($files);
 
-        // Fast path: nichts geändert seit letztem Lauf
-        if (file_exists($this->cacheFile) && (int) @file_get_contents($this->cacheFile) === $fileCount) {
+        // Fast path: nichts geändert seit letztem Lauf — aber zusätzlich
+        // prüfen, dass tatsächlich keine Migration im phinxlog fehlt.
+        // Reiner File-Count-Vergleich übersieht Fälle wo eine Migration
+        // hinzugefügt wurde und der vorherige runPhinx() fehlschlug
+        // (Phinx-Output ging ins Log, Cache wurde trotzdem aktualisiert).
+        if (
+            file_exists($this->cacheFile)
+            && (int) @file_get_contents($this->cacheFile) === $fileCount
+            && !$this->hasPendingMigrations($files)
+        ) {
             return;
         }
 
@@ -62,9 +70,40 @@ class AutoMigrator
         // Bridge: bei Erstkontakt mit Phinx vorhandene intra_migrations übernehmen
         $this->bridgeLegacyMigrationsTable();
 
-        // Bestehender Install mit neuen Migrations: still im Hintergrund laufen lassen
-        $this->runPhinx();
-        @file_put_contents($this->cacheFile, (string) $fileCount);
+        // Bestehender Install mit neuen Migrations: still im Hintergrund laufen.
+        // Cache nur bei Erfolg aktualisieren — sonst denkt der nächste Request
+        // „nichts zu tun" und der Bug wird unsichtbar.
+        if ($this->runPhinx()) {
+            @file_put_contents($this->cacheFile, (string) $fileCount);
+        }
+    }
+
+    /**
+     * Prüft ob in der phinxlog-Tabelle alle Migrations-Dateien als „up"
+     * vermerkt sind. Verlässt sich auf das `{timestamp}_…`-Filenamen-Pattern.
+     */
+    private function hasPendingMigrations(array $files): bool
+    {
+        try {
+            $hasTable = $this->pdo->query("SHOW TABLES LIKE 'phinxlog'")->rowCount() > 0;
+            if (!$hasTable) {
+                return true;
+            }
+
+            $rows = $this->pdo->query("SELECT version FROM phinxlog")->fetchAll(\PDO::FETCH_COLUMN);
+            $applied = array_flip(array_map('strval', (array) $rows));
+
+            foreach ($files as $path) {
+                $base = basename($path, '.php');
+                if (preg_match('/^(\d{14})_/', $base, $m) && !isset($applied[$m[1]])) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (\Throwable $e) {
+            // Im Zweifel runPhinx triggern, statt zu skippen.
+            return true;
+        }
     }
 
     private function isFreshInstall(): bool
@@ -211,8 +250,11 @@ HTML;
     /**
      * Programmatischer Phinx-Aufruf via Symfony-Console.
      * Capturt Output, schreibt bei Fehler ins Log statt zu sterben.
+     *
+     * @return bool true wenn Phinx erfolgreich gelaufen ist (Exit 0), false sonst.
+     *              Der Caller darf den File-Count-Cache nur bei true aktualisieren.
      */
-    private function runPhinx(): void
+    private function runPhinx(): bool
     {
         try {
             $app    = new PhinxApplication();
@@ -227,15 +269,17 @@ HTML;
 
             if ($exit !== 0) {
                 \App\Logging\Logger::error("Phinx migrate exit code $exit\n" . $output->fetch());
-                return;
+                return false;
             }
             // Nur loggen wenn tatsächlich was passiert ist
             $text = $output->fetch();
             if (str_contains($text, 'migrating') || str_contains($text, 'migrated')) {
                 \App\Logging\Logger::info("Phinx migrate output:\n" . $text);
             }
+            return true;
         } catch (\Throwable $e) {
             \App\Logging\Logger::error("Phinx run failed: " . $e->getMessage());
+            return false;
         }
     }
 }

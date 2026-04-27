@@ -12,7 +12,6 @@
 $dienstgrad = trim($mitarbeiter->dienstgradLabel());
 $rdQuali    = trim($mitarbeiter->rdQualiLabel());
 $fwQuali    = trim($mitarbeiter->fwQualiLabel());
-$einsatzbereit = ((int) ($mitarbeiter->einsatzbereit ?? 0)) === 1;
 ?>
 <div class="user-hover-card">
     <div class="user-hover-card__header">
@@ -40,14 +39,6 @@ $einsatzbereit = ((int) ($mitarbeiter->einsatzbereit ?? 0)) === 1;
             <dt>FW-Quali</dt>
             <dd><?= htmlspecialchars($fwQuali) ?></dd>
         <?php endif; ?>
-        <dt>Status</dt>
-        <dd>
-            <?php if ($einsatzbereit): ?>
-                <span class="ignis-chip ignis-chip--status ignis-chip--success">Einsatzbereit</span>
-            <?php else: ?>
-                <span class="ignis-chip ignis-chip--status ignis-chip--dark">Nicht einsatzbereit</span>
-            <?php endif; ?>
-        </dd>
     </dl>
 
     <a href="<?= htmlspecialchars($profileUrl) ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">

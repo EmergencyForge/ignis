@@ -21,6 +21,10 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
      bleibt für Display-Stellen (Clock, Stempel) optional verfügbar. -->
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
 <link rel="stylesheet" href="<?= asset('assets/css/divi.min.css') ?>" />
+<!-- admin.min.css für gemeinsame Komponenten (Beladelisten, Hover-Cards,
+     DataTables-Styling etc.). Reihenfolge: nach divi (eNOTF-spezifische
+     Overrides via #edivi__container haben höhere Specificity), vor ui. -->
+<link rel="stylesheet" href="<?= asset('assets/css/admin.min.css') ?>" />
 <link rel="stylesheet" href="<?= asset('assets/css/ui.min.css') ?>" />
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-modals.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-toast.css') ?>">

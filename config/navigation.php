@@ -63,11 +63,11 @@ return [
                     'items'       => [
                         [
                             'label' => 'Übersicht',
-                            'href'  => BASE_PATH . 'benutzer/list.php',
+                            'href'  => BASE_PATH . 'benutzer/list',
                         ],
                         [
                             'label'       => 'Registrierungscodes',
-                            'href'        => BASE_PATH . 'benutzer/registration-codes.php',
+                            'href'        => BASE_PATH . 'benutzer/registration-codes',
                             'permissions' => ['admin', 'users.create'],
                             'quick_action' => [
                                 'type'   => 'modal',
@@ -77,7 +77,7 @@ return [
                         ],
                         [
                             'label'        => 'Rollenverwaltung',
-                            'href'         => BASE_PATH . 'benutzer/rollen/index.php',
+                            'href'         => BASE_PATH . 'benutzer/rollen/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'role-create',
@@ -86,7 +86,7 @@ return [
                         ],
                         [
                             'label'       => 'Audit-Log',
-                            'href'        => BASE_PATH . 'benutzer/auditlog.php',
+                            'href'        => BASE_PATH . 'benutzer/auditlog',
                             'permissions' => ['admin', 'audit.view'],
                         ],
                     ],
@@ -97,7 +97,7 @@ return [
                     'items'       => [
                         [
                             'label'        => 'Übersicht',
-                            'href'         => BASE_PATH . 'mitarbeiter/list.php',
+                            'href'         => BASE_PATH . 'mitarbeiter/list',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'mitarbeiter-create',
@@ -106,7 +106,7 @@ return [
                         ],
                         [
                             'label'       => 'Anträge bearbeiten',
-                            'href'        => BASE_PATH . 'antrag/admin/list.php',
+                            'href'        => BASE_PATH . 'antrag/admin/list',
                             'permissions' => ['admin', 'application.view'],
                         ],
                     ],
@@ -178,11 +178,11 @@ return [
             'id'           => 'wissensdb',
             'label'        => 'Wissensdatenbank',
             'icon'         => 'fa-solid fa-book-medical',
-            'href'         => BASE_PATH . 'wissensdb/index.php',
+            'href'         => BASE_PATH . 'wissensdb/index',
             'data_page'    => 'wissensdb',
             'quick_action' => [
                 'type'   => 'link',
-                'target' => BASE_PATH . 'wissensdb/create.php',
+                'target' => BASE_PATH . 'wissensdb/create',
                 'label'  => 'Neuen Artikel schreiben',
             ],
         ],
@@ -201,7 +201,7 @@ return [
                     'items' => [
                         [
                             'label'        => 'Übersicht',
-                            'href'         => BASE_PATH . 'settings/fahrzeuge/fahrzeuge/index.php',
+                            'href'         => BASE_PATH . 'settings/fahrzeuge/fahrzeuge/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'fahrzeug-create',
@@ -210,7 +210,7 @@ return [
                         ],
                         [
                             'label'        => 'Defekt-Meldungen',
-                            'href'         => BASE_PATH . 'settings/fahrzeuge/defekte/index.php',
+                            'href'         => BASE_PATH . 'settings/fahrzeuge/defekte/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'defekt-create',
@@ -219,12 +219,12 @@ return [
                         ],
                         [
                             'label'       => 'Fahrtenbuch',
-                            'href'        => BASE_PATH . 'fahrtenbuch/index.php',
+                            'href'        => BASE_PATH . 'fahrtenbuch/index',
                             'permissions' => ['admin', 'fahrtenbuch.view', 'fahrtenbuch.manage'],
                         ],
                         [
                             'label'       => 'Beladelisten',
-                            'href'        => BASE_PATH . 'settings/fahrzeuge/beladelisten/index.php',
+                            'href'        => BASE_PATH . 'settings/fahrzeuge/beladelisten/index',
                             'permissions' => ['admin', 'vehicles.manage'],
                         ],
                     ],
@@ -248,7 +248,7 @@ return [
                     'items'       => [
                         [
                             'label'        => 'Dienstgrade',
-                            'href'         => BASE_PATH . 'settings/personal/dienstgrade/index.php',
+                            'href'         => BASE_PATH . 'settings/personal/dienstgrade/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'dienstgrad-create',
@@ -257,7 +257,7 @@ return [
                         ],
                         [
                             'label'        => 'FW Qualifikationen',
-                            'href'         => BASE_PATH . 'settings/personal/qualifw/index.php',
+                            'href'         => BASE_PATH . 'settings/personal/qualifw/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'qualifw-create',
@@ -266,7 +266,7 @@ return [
                         ],
                         [
                             'label'        => 'RD Qualifikationen',
-                            'href'         => BASE_PATH . 'settings/personal/qualird/index.php',
+                            'href'         => BASE_PATH . 'settings/personal/qualird/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'qualird-create',
@@ -275,7 +275,7 @@ return [
                         ],
                         [
                             'label'        => 'Fachdienste',
-                            'href'         => BASE_PATH . 'settings/personal/qualifd/index.php',
+                            'href'         => BASE_PATH . 'settings/personal/qualifd/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'qualifd-create',
@@ -284,16 +284,16 @@ return [
                         ],
                         [
                             'label'       => 'Dokumente',
-                            'href'        => BASE_PATH . 'settings/documents/templates.php',
+                            'href'        => BASE_PATH . 'settings/documents/templates',
                             'permissions' => ['admin'],
                         ],
                         [
                             'label'        => 'Antragstypen',
-                            'href'         => BASE_PATH . 'settings/antrag/list.php',
+                            'href'         => BASE_PATH . 'settings/antrag/list',
                             'permissions'  => ['admin'],
                             'quick_action' => [
                                 'type'   => 'link',
-                                'target' => BASE_PATH . 'settings/antrag/create.php',
+                                'target' => BASE_PATH . 'settings/antrag/create',
                                 'label'  => 'Neuen Antragstyp anlegen',
                             ],
                         ],
@@ -305,7 +305,7 @@ return [
                     'items'       => [
                         [
                             'label'        => 'POIs',
-                            'href'         => BASE_PATH . 'settings/pois/index.php',
+                            'href'         => BASE_PATH . 'settings/pois/index',
                             'permissions'  => ['admin', 'pois.view'],
                             'quick_action' => [
                                 'type'   => 'modal',
@@ -315,7 +315,7 @@ return [
                         ],
                         [
                             'label'        => 'Medikamente',
-                            'href'         => BASE_PATH . 'settings/medikamente/index.php',
+                            'href'         => BASE_PATH . 'settings/medikamente/index',
                             'permissions'  => ['admin', 'edivi.view'],
                             'quick_action' => [
                                 'type'   => 'modal',
@@ -325,7 +325,7 @@ return [
                         ],
                         [
                             'label'        => 'Schnellzugriff',
-                            'href'         => BASE_PATH . 'settings/enotf/index.php',
+                            'href'         => BASE_PATH . 'settings/enotf/index',
                             'permissions'  => ['admin', 'edivi.view'],
                             'quick_action' => [
                                 'type'   => 'modal',
@@ -340,42 +340,42 @@ return [
                     'items' => [
                         [
                             'label'       => 'Dashboard',
-                            'href'        => BASE_PATH . 'settings/dashboard/index.php',
+                            'href'        => BASE_PATH . 'settings/dashboard/index',
                             'permissions' => ['admin', 'dashboard.manage'],
                         ],
                         [
                             'label'       => 'Konfiguration',
-                            'href'        => BASE_PATH . 'settings/system/config.php',
+                            'href'        => BASE_PATH . 'settings/system/config',
                             'permissions' => ['admin'],
                         ],
                         [
                             'label'       => 'Updater',
-                            'href'        => BASE_PATH . 'settings/system/index.php',
+                            'href'        => BASE_PATH . 'settings/system/index',
                             'permissions' => ['admin'],
                         ],
                         [
                             'label'       => 'Telemetrie',
-                            'href'        => BASE_PATH . 'settings/system/telemetry.php',
+                            'href'        => BASE_PATH . 'settings/system/telemetry',
                             'permissions' => ['admin'],
                         ],
                         [
                             'label'       => 'Performance',
-                            'href'        => BASE_PATH . 'settings/system/performance.php',
+                            'href'        => BASE_PATH . 'settings/system/performance',
                             'permissions' => ['admin'],
                         ],
                         [
                             'label'       => 'Logs & Errors',
-                            'href'        => BASE_PATH . 'settings/system/logs.php',
+                            'href'        => BASE_PATH . 'settings/system/logs',
                             'permissions' => ['admin'],
                         ],
                         [
                             'label'       => 'Cron-Jobs',
-                            'href'        => BASE_PATH . 'settings/system/cron.php',
+                            'href'        => BASE_PATH . 'settings/system/cron',
                             'permissions' => ['admin'],
                         ],
                         [
                             'label'       => 'Instanzvernetzung',
-                            'href'        => BASE_PATH . 'settings/federation/index.php',
+                            'href'        => BASE_PATH . 'settings/federation/index',
                             'permissions' => ['admin'],
                         ],
                     ],

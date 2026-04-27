@@ -56,14 +56,18 @@ if ($totalPages > 1):
 ?>
     <nav aria-label="Systemprotokoll-Seiten" class="mt-3">
         <ul class="pagination pagination-sm justify-center mb-0">
-            <?php for ($i = 1; $i <= $totalPages; $i++):
-                $baseParams['logpage'] = $i;
-                $url = '?' . http_build_query($baseParams);
-            ?>
-                <li class="page-item <?= $i === $logPage ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $url ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
+            <?php foreach (\App\Helpers\Pagination::pages((int) $logPage, (int) $totalPages) as $entry):
+                if ($entry === null): ?>
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                <?php else:
+                    $baseParams['logpage'] = $entry;
+                    $url = '?' . http_build_query($baseParams);
+                ?>
+                    <li class="page-item <?= $entry === (int) $logPage ? 'active' : '' ?>">
+                        <a class="page-link" href="<?= $url ?>"><?= $entry ?></a>
+                    </li>
+                <?php endif; ?>
+            <?php endforeach; ?>
         </ul>
     </nav>
 <?php endif; ?>
