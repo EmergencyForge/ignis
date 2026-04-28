@@ -54,6 +54,9 @@ export class DatePicker {
         this.view = this._parseValue(this.input.value) || this._today();
         this.mode = 'days';
         this._render();
+        // Panel zu <body> portalieren, damit es nicht von overflow-Containern
+        // (Dialog-Body, Tile, Card) gekappt wird.
+        this._portalPanel();
         this._positionPanel();
         setTimeout(() => this.panel.querySelector('.is-focused, .is-today, [data-day]')?.focus(), 0);
     }
@@ -63,6 +66,7 @@ export class DatePicker {
         this.isOpen = false;
         this.wrapper.classList.remove('is-open');
         this.trigger.setAttribute('aria-expanded', 'false');
+        this._restorePanel();
     }
 
     toggle() { this.isOpen ? this.close() : this.open(); }
@@ -134,7 +138,11 @@ export class DatePicker {
         // am document ankommt und `wrapper.contains(ev.target)` false wird.
         this._outsideHandler = (ev) => {
             if (!this.isOpen) return;
-            if (!this.wrapper.contains(ev.target)) this.close();
+            // Im portierten Zustand ist das Panel nicht mehr Descendant des
+            // Wrappers — beide Container müssen geprüft werden.
+            if (this.wrapper.contains(ev.target)) return;
+            if (this.panel.contains(ev.target)) return;
+            this.close();
         };
         document.addEventListener('mousedown', this._outsideHandler);
 
@@ -421,11 +429,42 @@ export class DatePicker {
         }
     }
 
+    _portalPanel() {
+        if (this.panel.parentNode === document.body) return;
+        this._panelOriginalParent = this.panel.parentNode;
+        document.body.appendChild(this.panel);
+        this.panel.classList.add('ignis-datepicker__panel--floating');
+    }
+
+    _restorePanel() {
+        if (!this._panelOriginalParent) return;
+        if (this.panel.parentNode === document.body) {
+            this._panelOriginalParent.appendChild(this.panel);
+        }
+        this.panel.classList.remove('ignis-datepicker__panel--floating');
+        this.panel.style.top = '';
+        this.panel.style.left = '';
+        this._panelOriginalParent = null;
+    }
+
     _positionPanel() {
         const rect = this.trigger.getBoundingClientRect();
         const panelH = this.panel.offsetHeight;
         const spaceBelow = window.innerHeight - rect.bottom;
-        this.panel.classList.toggle('is-above', spaceBelow < panelH + 20 && rect.top > spaceBelow);
+        const openAbove = spaceBelow < panelH + 20 && rect.top > spaceBelow;
+
+        if (this.panel.classList.contains('ignis-datepicker__panel--floating')) {
+            // Im Floating-Mode kommt die Position komplett aus inline-Styles —
+            // die `is-above`-Klasse mit ihrer wrapper-relativen `bottom`-Regel
+            // würde sonst kollidieren.
+            this.panel.classList.remove('is-above');
+            this.panel.style.left = rect.left + 'px';
+            this.panel.style.top = openAbove
+                ? (rect.top - panelH - 6) + 'px'
+                : (rect.bottom + 6) + 'px';
+        } else {
+            this.panel.classList.toggle('is-above', openAbove);
+        }
     }
 
     _syncLabel() {
