@@ -429,17 +429,17 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                                 <i class="fa-solid fa-download" style="color:var(--main-color)"></i> Von dort abrufen
                                             </label>
                                             <div class="flex flex-col gap-1">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="consume_personnel" id="consume_personnel_<?= $link['id'] ?>" <?= $link['consume_personnel'] ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="consume_personnel_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Personal</label>
+                                                <div class="ignis-checkbox">
+                                                    <input type="checkbox" name="consume_personnel" id="consume_personnel_<?= $link['id'] ?>" <?= $link['consume_personnel'] ? 'checked' : '' ?>>
+                                                    <label for="consume_personnel_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Personal</label>
                                                 </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="consume_enotf" id="consume_enotf_<?= $link['id'] ?>" <?= $link['consume_enotf'] ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="consume_enotf_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">eNOTF-Protokolle</label>
+                                                <div class="ignis-checkbox">
+                                                    <input type="checkbox" name="consume_enotf" id="consume_enotf_<?= $link['id'] ?>" <?= $link['consume_enotf'] ? 'checked' : '' ?>>
+                                                    <label for="consume_enotf_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">eNOTF-Protokolle</label>
                                                 </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="consume_fire" id="consume_fire_<?= $link['id'] ?>" <?= $link['consume_fire'] ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="consume_fire_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Einsätze</label>
+                                                <div class="ignis-checkbox">
+                                                    <input type="checkbox" name="consume_fire" id="consume_fire_<?= $link['id'] ?>" <?= $link['consume_fire'] ? 'checked' : '' ?>>
+                                                    <label for="consume_fire_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Einsätze</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -448,17 +448,17 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                                 <i class="fa-solid fa-upload" style="color:var(--main-color)"></i> Dorthin bereitstellen
                                             </label>
                                             <div class="flex flex-col gap-1">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="provide_personnel" id="provide_personnel_<?= $link['id'] ?>" <?= $link['provide_personnel'] ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="provide_personnel_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Personal</label>
+                                                <div class="ignis-checkbox">
+                                                    <input type="checkbox" name="provide_personnel" id="provide_personnel_<?= $link['id'] ?>" <?= $link['provide_personnel'] ? 'checked' : '' ?>>
+                                                    <label for="provide_personnel_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Personal</label>
                                                 </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="provide_enotf" id="provide_enotf_<?= $link['id'] ?>" <?= $link['provide_enotf'] ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="provide_enotf_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">eNOTF-Protokolle</label>
+                                                <div class="ignis-checkbox">
+                                                    <input type="checkbox" name="provide_enotf" id="provide_enotf_<?= $link['id'] ?>" <?= $link['provide_enotf'] ? 'checked' : '' ?>>
+                                                    <label for="provide_enotf_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">eNOTF-Protokolle</label>
                                                 </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="provide_fire" id="provide_fire_<?= $link['id'] ?>" <?= $link['provide_fire'] ? 'checked' : '' ?>>
-                                                    <label class="form-check-label" for="provide_fire_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Einsätze</label>
+                                                <div class="ignis-checkbox">
+                                                    <input type="checkbox" name="provide_fire" id="provide_fire_<?= $link['id'] ?>" <?= $link['provide_fire'] ? 'checked' : '' ?>>
+                                                    <label for="provide_fire_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Einsätze</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -470,9 +470,9 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                             <input type="number" name="sync_interval_minutes" class="ignis-input ignis-input--sm" style="width:80px;"
                                                    value="<?= (int)$link['sync_interval_minutes'] ?>" min="5" max="1440">
                                         </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="is_active" id="is_active_<?= $link['id'] ?>" <?= $link['is_active'] ? 'checked' : '' ?>>
-                                            <label class="form-check-label" for="is_active_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Aktiv</label>
+                                        <div class="ignis-checkbox">
+                                            <input type="checkbox" name="is_active" id="is_active_<?= $link['id'] ?>" <?= $link['is_active'] ? 'checked' : '' ?>>
+                                            <label for="is_active_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Aktiv</label>
                                         </div>
                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
                                             <i class="fa-solid fa-floppy-disk"></i> Speichern

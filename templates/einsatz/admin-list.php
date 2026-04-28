@@ -177,9 +177,9 @@ use App\Helpers\Flash;
                         for (const [key, label] of Object.entries(data.fields)) {
                             const checked = key === 'location' ? 'checked' : '';
                             fieldsHtml += `
-                                <div class="form-check">
-                                    <input class="form-check-input bulk-field-checkbox" type="checkbox" value="${key}" id="field_${key}" ${checked}>
-                                    <label class="form-check-label" for="field_${key}">${label}</label>
+                                <div class="ignis-checkbox">
+                                    <input class="bulk-field-checkbox" type="checkbox" value="${key}" id="field_${key}" ${checked}>
+                                    <label for="field_${key}">${label}</label>
                                 </div>`;
                         }
                         document.getElementById('bulkDeleteContent').innerHTML = `

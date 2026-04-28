@@ -157,13 +157,13 @@ $currentDate = date('d.m.Y');
                                         <div class="mb-3">
                                             <label class="ignis-field__label text-light">Fahrzeug noch einsatzfähig?</label>
                                             <div class="flex gap-3">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="vehicle_operable" id="enotf-operable-yes" value="1" checked>
-                                                    <label class="form-check-label text-light" for="enotf-operable-yes">Ja</label>
+                                                <div class="ignis-checkbox">
+                                                    <input type="radio" name="vehicle_operable" id="enotf-operable-yes" value="1" checked>
+                                                    <label class="text-light" for="enotf-operable-yes">Ja</label>
                                                 </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="vehicle_operable" id="enotf-operable-no" value="0">
-                                                    <label class="form-check-label text-light" for="enotf-operable-no">Nein</label>
+                                                <div class="ignis-checkbox">
+                                                    <input type="radio" name="vehicle_operable" id="enotf-operable-no" value="0">
+                                                    <label class="text-light" for="enotf-operable-no">Nein</label>
                                                 </div>
                                             </div>
                                         </div>

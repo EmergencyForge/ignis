@@ -551,7 +551,7 @@ if (!empty($daten['rettungstechnik'])) {
             var formElements = document.querySelectorAll('input, textarea');
             var selectElements2 = document.querySelectorAll('select');
             var inputElements2 = document.querySelectorAll('.btn-check');
-            var inputElements3 = document.querySelectorAll('.form-check-input');
+            var inputElements3 = document.querySelectorAll('.');
 
             formElements.forEach(function(element) {
                 element.setAttribute('readonly', 'readonly');
