@@ -233,7 +233,7 @@ function logs_level_badge(string $level): string
                                 <div class="input-group">
                                     <input type="text"
                                            id="errorIdInput"
-                                           class="form-control lookup-input"
+                                           class="ignis-input lookup-input"
                                            placeholder="A1B2C3D4"
                                            maxlength="8"
                                            autocomplete="off"

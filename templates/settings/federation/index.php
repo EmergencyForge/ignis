@@ -362,7 +362,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                     <form method="post">
                                         <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                         <input type="hidden" name="action" value="pair_with_token">
-                                        <textarea name="connection_token" class="form-control form-control-sm mb-2" rows="3"
+                                        <textarea name="connection_token" class="ignis-input ignis-input ignis-input--sm mb-2" rows="3"
                                                   placeholder="Verbindungsschlüssel einfügen..."
                                                   style="font-family:var(--font-mono);font-size:var(--fs-xs);"></textarea>
                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-success">

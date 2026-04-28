@@ -167,35 +167,35 @@ $currentDateTime = date('Y-m-d\TH:i');
                         <div class="col position-relative">
                             <div class="row my-3">
                                 <div class="col edivi__vitalparam-box" data-before="SpO₂" data-after="%">
-                                    <input type="number" name="spo2" id="spo2" class="form-control edivi__vitalparam keypad-input" min="0" max="100" placeholder="96">
+                                    <input type="number" name="spo2" id="spo2" class="ignis-input edivi__vitalparam keypad-input" min="0" max="100" placeholder="96">
                                 </div>
                                 <div class="col edivi__vitalparam-box" data-before="AF" data-after="/min">
-                                    <input type="number" name="atemfreq" id="atemfreq" class="form-control edivi__vitalparam keypad-input" min="0" max="40" placeholder="16">
+                                    <input type="number" name="atemfreq" id="atemfreq" class="ignis-input edivi__vitalparam keypad-input" min="0" max="40" placeholder="16">
                                 </div>
                                 <div class="col edivi__vitalparam-box" data-before="etCO₂" data-after="mmHg">
-                                    <input type="number" name="etco2" id="etco2" class="form-control edivi__vitalparam keypad-input" min="0" max="100" placeholder="35">
+                                    <input type="number" name="etco2" id="etco2" class="ignis-input edivi__vitalparam keypad-input" min="0" max="100" placeholder="35">
                                 </div>
                             </div>
                             <div class="row my-3">
                                 <div class="col edivi__vitalparam-box" data-before="HF" data-after="/min">
-                                    <input type="number" name="herzfreq" id="herzfreq" class="form-control edivi__vitalparam keypad-input" min="0" max="300" placeholder="80">
+                                    <input type="number" name="herzfreq" id="herzfreq" class="ignis-input edivi__vitalparam keypad-input" min="0" max="300" placeholder="80">
                                 </div>
                                 <div class="col edivi__vitalparam-box" data-before="NIBP/RR" data-after="mmHg">
-                                    <input type="number" name="rrsys" id="rrsys" class="form-control edivi__vitalparam-shared keypad-input" min="0" max="300" placeholder="120" style="border-right:0!important">
+                                    <input type="number" name="rrsys" id="rrsys" class="ignis-input edivi__vitalparam-shared keypad-input" min="0" max="300" placeholder="120" style="border-right:0!important">
                                     <div class="edivi_vitalparam-spacer">/</div>
-                                    <input type="number" name="rrdias" id="rrdias" class="form-control edivi__vitalparam-shared keypad-input" min="0" max="300" placeholder="80" style="border-left:0!important">
+                                    <input type="number" name="rrdias" id="rrdias" class="ignis-input edivi__vitalparam-shared keypad-input" min="0" max="300" placeholder="80" style="border-left:0!important">
                                 </div>
                             </div>
                             <div class="row my-3">
                                 <div class="col edivi__vitalparam-box" data-before="BZ" data-after="<?= htmlspecialchars($bzUnit) ?>">
-                                    <input type="number" name="bz" id="bz" class="form-control edivi__vitalparam keypad-input"
+                                    <input type="number" name="bz" id="bz" class="ignis-input edivi__vitalparam keypad-input"
                                         min="0"
                                         max="<?= $bzUnit === 'mmol/l' ? 40 : 700 ?>"
                                         step="<?= $bzUnit === 'mmol/l' ? '0.1' : '1' ?>"
                                         placeholder="<?= $bzUnit === 'mmol/l' ? '5.0' : '90' ?>">
                                 </div>
                                 <div class="col edivi__vitalparam-box" data-before="Temperatur" data-after="°C">
-                                    <input type="number" name="temp" id="temp" class="form-control edivi__vitalparam keypad-input" min="10" max="45" placeholder="36,5">
+                                    <input type="number" name="temp" id="temp" class="ignis-input edivi__vitalparam keypad-input" min="10" max="45" placeholder="36,5">
                                 </div>
                             </div>
                             <div class="row edivi__vitalparam-mainbuttons">

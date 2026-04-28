@@ -133,7 +133,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <tr>
                                                 <td>
                                                     <div class="poi-autocomplete-wrapper">
-                                                        <input type="text" name="ziel_poi" id="ziel_poi" class="w-100 form-control edivi__target" value="<?= htmlspecialchars($daten['ziel_poi'] ?? '') ?>" autocomplete="off" data-ignore-autosave>
+                                                        <input type="text" name="ziel_poi" id="ziel_poi" class="w-100 ignis-input edivi__target" value="<?= htmlspecialchars($daten['ziel_poi'] ?? '') ?>" autocomplete="off" data-ignore-autosave>
                                                         <div class="poi-dropdown" id="ziel_poi-dropdown"></div>
                                                     </div>
                                                 </td>
@@ -160,7 +160,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    <input type="text" name="ziel_adresse_strasse" id="ziel_adresse_strasse" class="w-100 form-control edivi__target" value="<?= htmlspecialchars($adressData['strasse'] ?? '') ?>" data-ignore-autosave>
+                                                    <input type="text" name="ziel_adresse_strasse" id="ziel_adresse_strasse" class="w-100 ignis-input edivi__target" value="<?= htmlspecialchars($adressData['strasse'] ?? '') ?>" data-ignore-autosave>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -171,14 +171,14 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    <input type="text" name="ziel_adresse_hnr" id="ziel_adresse_hnr" class="w-100 form-control edivi__target" value="<?= htmlspecialchars($adressData['hnr'] ?? '') ?>" data-ignore-autosave>
+                                                    <input type="text" name="ziel_adresse_hnr" id="ziel_adresse_hnr" class="w-100 ignis-input edivi__target" value="<?= htmlspecialchars($adressData['hnr'] ?? '') ?>" data-ignore-autosave>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                                 <div class="col-2">
-                                    <button type="button" id="btn-sonderrechte-transport" class="w-100 form-control edivi__target" style="cursor:pointer;text-align:center;background-color:#333333;border:1px solid #595959;border-radius:0;color:#fff;font-size:1.2rem;padding:0.2rem;"><?php
+                                    <button type="button" id="btn-sonderrechte-transport" class="w-100 ignis-input edivi__target" style="cursor:pointer;text-align:center;background-color:#333333;border:1px solid #595959;border-radius:0;color:#fff;font-size:1.2rem;padding:0.2rem;"><?php
                                         if ($srTransport === 'ja') echo 'ja';
                                         elseif ($srTransport === 'nein') echo 'nein';
                                         else echo '—';
@@ -199,7 +199,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    <input type="text" name="ziel_adresse_ort" id="ziel_adresse_ort" class="w-100 form-control edivi__target" value="<?= htmlspecialchars($adressData['ort'] ?? '') ?>" data-ignore-autosave>
+                                                    <input type="text" name="ziel_adresse_ort" id="ziel_adresse_ort" class="w-100 ignis-input edivi__target" value="<?= htmlspecialchars($adressData['ort'] ?? '') ?>" data-ignore-autosave>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -210,7 +210,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                         <tbody>
                                             <tr>
                                                 <td>
-                                                    <input type="text" name="ziel_adresse_ortsteil" id="ziel_adresse_ortsteil" class="w-100 form-control edivi__target" value="<?= htmlspecialchars($adressData['ortsteil'] ?? '') ?>" data-ignore-autosave>
+                                                    <input type="text" name="ziel_adresse_ortsteil" id="ziel_adresse_ortsteil" class="w-100 ignis-input edivi__target" value="<?= htmlspecialchars($adressData['ortsteil'] ?? '') ?>" data-ignore-autosave>
                                                 </td>
                                             </tr>
                                         </tbody>

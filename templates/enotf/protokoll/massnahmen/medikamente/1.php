@@ -98,7 +98,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             </div>
                             <div class="row mt-3">
                                 <div class="col">
-                                    <input type="time" name="medis-time" id="medis-time" class="form-control medikament-field-ignore" style="background-color: #333333; color: white;" step="1" value="<?= $currentTime ?>" data-ignore-autosave="true">
+                                    <input type="time" name="medis-time" id="medis-time" class="ignis-input medikament-field-ignore" style="background-color: #333333; color: white;" step="1" value="<?= $currentTime ?>" data-ignore-autosave="true">
                                 </div>
                                 <div class="col">
                                     <div class="col">
@@ -117,7 +117,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <div class="row mt-3">
                                 <div class="col">
                                     <div class="relative" id="dosierung-autocomplete-wrapper">
-                                        <input class="form-control medikament-field-ignore" type="text" placeholder="Dosierung" name="medis-concentration" id="medis-concentration" autocomplete="off" style="background-color: #333333; color: white; --bs-secondary-color: #a2a2a2" data-ignore-autosave="true">
+                                        <input class="ignis-input medikament-field-ignore" type="text" placeholder="Dosierung" name="medis-concentration" id="medis-concentration" autocomplete="off" style="background-color: #333333; color: white; --bs-secondary-color: #a2a2a2" data-ignore-autosave="true">
                                         <div id="dosierung-dropdown" class="dosierung-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; background-color: #444; border: 1px solid #555; border-radius: 4px; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"></div>
                                     </div>
                                 </div>

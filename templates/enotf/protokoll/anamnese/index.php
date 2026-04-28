@@ -114,7 +114,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <div class="row my-2">
                                         <div class="col">
                                             <label for="anamnese" class="edivi__description" style="display: none;">Anamnese</label>
-                                            <textarea name="anamnese" id="anamnese" class="w-100 form-control" style="height: 50vh; overflow-y: auto; resize: none; border: 0 !important;" readonly><?= $daten['anmerkungen'] ?></textarea>
+                                            <textarea name="anamnese" id="anamnese" class="w-100 ignis-input" style="height: 50vh; overflow-y: auto; resize: none; border: 0 !important;" readonly><?= $daten['anmerkungen'] ?></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -127,7 +127,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label class="edivi__description">Symptombeginn</label>
-                                                    <input type="text" class="w-100 form-control" value="<?php
+                                                    <input type="text" class="w-100 ignis-input" value="<?php
                                                                                                             $sb_datum = !empty($daten['symptombeginn_datum']) ? date('d.m.Y', strtotime($daten['symptombeginn_datum'])) : '';
                                                                                                             $sb_zeit = $daten['symptombeginn_zeit'] ?? '';
                                                                                                             $sb_opts = [];
@@ -155,11 +155,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label class="edivi__description">Initial</label>
-                                                    <input type="text" name="naca_initial_display" class="w-100 form-control edivi__input-check" value="<?= $naca_labels[$daten['naca_initial'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="naca_initial_display" class="w-100 ignis-input edivi__input-check" value="<?= $naca_labels[$daten['naca_initial'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                                 <div class="col">
                                                     <label class="edivi__description">bei Übergabe</label>
-                                                    <input type="text" class="w-100 form-control" value="<?= $naca_labels[$daten['naca_uebergabe'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" class="w-100 ignis-input" value="<?= $naca_labels[$daten['naca_uebergabe'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -174,7 +174,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label class="edivi__description" style="display:none">Einsatzort</label>
-                                                    <input type="text" name="elokation_display" class="w-100 form-control edivi__input-check" value="<?= $elokation_labels[$daten['elokation'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="elokation_display" class="w-100 ignis-input edivi__input-check" value="<?= $elokation_labels[$daten['elokation'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>

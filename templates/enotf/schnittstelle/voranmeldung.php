@@ -530,13 +530,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                     <div class="row">
                                         <div class="col">
                                             <label for="diagnose" class="edivi__description">Diagnose</label>
-                                            <input type="text" name="diagnose" id="diagnose" class="w-100 form-control" maxlength="255" placeholder="..." value="<?= !empty($diagnose_haupt_text) ? $diagnose_haupt_text : '' ?>" readonly required>
+                                            <input type="text" name="diagnose" id="diagnose" class="w-100 ignis-input" maxlength="255" placeholder="..." value="<?= !empty($diagnose_haupt_text) ? $diagnose_haupt_text : '' ?>" readonly required>
                                         </div>
                                     </div>
                                     <div class="row mt-2">
                                         <div class="col">
                                             <label for="text" class="edivi__description">Anmeldetext</label>
-                                            <textarea name="text" id="text" rows="3" class="w-100 form-control" style="resize: none" placeholder="..."></textarea>
+                                            <textarea name="text" id="text" rows="3" class="w-100 ignis-input" style="resize: none" placeholder="..."></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -552,12 +552,12 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             $geschlecht_labels = [0 => 'männlich', 1 => 'weiblich', 2 => 'divers'];
                                             $geschlecht_display = $geschlecht_labels[$daten['patsex'] ?? -1] ?? '';
                                             ?>
-                                            <input type="text" id="geschlecht" class="w-100 form-control" value="<?= htmlspecialchars($geschlecht_display) ?>" readonly>
+                                            <input type="text" id="geschlecht" class="w-100 ignis-input" value="<?= htmlspecialchars($geschlecht_display) ?>" readonly>
                                             <input type="hidden" name="geschlecht" value="<?= htmlspecialchars((string)($daten['patsex'] ?? '')) ?>">
                                         </div>
                                         <div class="col">
                                             <label for="_AGE_" class="edivi__description">Alter</label>
-                                            <input type="text" name="_AGE_" id="_AGE_" class="w-100 form-control" value="0" readonly>
+                                            <input type="text" name="_AGE_" id="_AGE_" class="w-100 ignis-input" value="0" readonly>
                                             <input type="hidden" name="patgebdat" id="patgebdat" value="<?= $daten['patgebdat'] ?>">
                                         </div>
                                         <div class="col">
@@ -575,7 +575,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 $gcs_total = $gcs_augen + $gcs_verbal + $gcs_motorik;
                                             }
                                             ?>
-                                            <input type="text" id="_GCS_" name="_GCS_" class="w-100 form-control" placeholder="--" value="<?= $gcs_total ?>" readonly>
+                                            <input type="text" id="_GCS_" name="_GCS_" class="w-100 ignis-input" placeholder="--" value="<?= $gcs_total ?>" readonly>
                                         </div>
                                     </div>
                                     <div class="row mt-2">

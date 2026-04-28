@@ -240,7 +240,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'url' && $config['config_key'] === 'SYSTEM_LOGO'): ?>
                                                     <input
                                                         type="text"
-                                                        class="form-control mb-2"
+                                                        class="ignis-input mb-2"
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>"
                                                         value="<?= htmlspecialchars($config['config_value']) ?>"
@@ -259,7 +259,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                 <?php elseif ($config['is_editable'] && $config['config_type'] === 'url' && $config['config_key'] === 'META_IMAGE_URL'): ?>
                                                     <input
                                                         type="text"
-                                                        class="form-control mb-2"
+                                                        class="ignis-input mb-2"
                                                         id="<?= htmlspecialchars($config['config_key']) ?>"
                                                         name="<?= htmlspecialchars($config['config_key']) ?>"
                                                         value="<?= htmlspecialchars($config['config_value']) ?>"

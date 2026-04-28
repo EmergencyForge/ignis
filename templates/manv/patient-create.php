@@ -77,7 +77,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     <div class="card-body">
                         <div class="mb-4">
                             <label for="sichtungskategorie" class="ignis-field__label">Kategorie *</label>
-                            <select class="form-control form-control-lg" id="sichtungskategorie" name="sichtungskategorie" required>
+                            <select class="ignis-input form-control-lg" id="sichtungskategorie" name="sichtungskategorie" required>
                                 <option value="">Bitte wählen...</option>
                                 <option value="SK1" class="text-[#d46b6b]">SK1 - Rot (Akute Lebensgefahr)</option>
                                 <option value="SK2" class="text-[#ddb84a]">SK2 - Gelb (Nicht auszuschließende schwere Folgeschäden)</option>
