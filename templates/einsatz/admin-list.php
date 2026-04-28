@@ -84,7 +84,7 @@ use App\Helpers\Flash;
                         }
                         ?>
                         <tr>
-                            <td><?= htmlspecialchars($i['incident_number'] ?? '-') ?><?php if ($isFederated): ?> <span class="badge" style="background:rgba(255,255,255,0.1);font-size:0.6rem;"><?= htmlspecialchars($i['_federation_source'] ?? '') ?></span><?php endif; ?></td>
+                            <td><?= htmlspecialchars($i['incident_number'] ?? '-') ?><?php if ($isFederated): ?> <span class="ignis-chip" style="background:rgba(255,255,255,0.1);font-size:0.6rem;"><?= htmlspecialchars($i['_federation_source'] ?? '') ?></span><?php endif; ?></td>
                             <td><?php
                                 $startDt = new DateTime($i['started_at'], new DateTimeZone('UTC'));
                                 $startDt->setTimezone(new DateTimeZone('Europe/Berlin'));

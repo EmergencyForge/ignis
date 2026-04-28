@@ -156,9 +156,9 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                             <!-- Content -->
                             <div class="announcement-content grow">
                                 <div class="flex items-center flex-wrap gap-2 mb-2">
-                                    <span class="badge bg-<?= $config['badge'] ?>"><?= $config['label'] ?></span>
+                                    <span class="ignis-chip ignis-chip--<?= $config['badge'] ?>"><?= $config['label'] ?></span>
                                     <?php if ($isAdminOnly): ?>
-                                        <span class="badge ef-badge-admin">
+                                        <span class="ignis-chip ef-badge-admin">
                                             <i class="fa-solid fa-shield-halved mr-1"></i>Nur für Admins
                                         </span>
                                     <?php endif; ?>
@@ -178,11 +178,11 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
                                 <div class="flex items-center gap-2 flex-wrap mt-3">
                                     <?php if (!empty($ann['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ann['link']) ?>" class="ignis-btn btn-<?= $config['badge'] ?> ignis-btn--sm" target="_blank">
+                                        <a href="<?= htmlspecialchars($ann['link']) ?>" class="ignis-btn ignis-btn--<?= $config['badge'] ?> ignis-btn--sm" target="_blank">
                                             <i class="fa-solid fa-external-link mr-1"></i> Mehr erfahren
                                         </a>
                                     <?php endif; ?>
-                                    <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm dismiss-single-ignis-btn"
+                                    <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm dismiss-single-btn"
                                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
                                         <i class="fa-solid fa-eye-slash mr-1"></i> Ausblenden
                                     </button>
@@ -213,7 +213,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         data-bs-toggle="modal" data-bs-target="#efAnnouncementsModal">
         <i class="fa-solid fa-bullhorn mr-2"></i>
         <span class="hidden d-sm-inline"><?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?></span>
-        <span class="absolute top-0 start-100 translate-middle badge rounded-full bg-[#b03a3a] sm:hidden">
+        <span class="absolute top-0 start-100 translate-middle ignis-chip rounded-full bg-[#b03a3a] sm:hidden">
             <?= count($announcements) ?>
         </span>
     </button>
@@ -510,8 +510,8 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         }
 
         // Einzelne Announcement ausblenden
-        document.querySelectorAll('.dismiss-single-ignis-btn').forEach(ignis-btn => {
-            ignis-btn.addEventListener('click', function() {
+        document.querySelectorAll('.dismiss-single-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
                 const announcementId = this.dataset.announcementId;
                 const item = this.closest('.announcement-item');
 

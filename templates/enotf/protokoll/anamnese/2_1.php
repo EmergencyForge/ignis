@@ -113,7 +113,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                             <label for="symptombeginn_nf_1">nicht feststellbar</label>
                         </div>
                         <div class="w-2/12 d-flex flex-column edivi__interactbutton justify-center px-3">
-                            <button type="button" id="save-symptombeginn-ignis-btn" class="ignis-btn ignis-btn--success w-100">
+                            <button type="button" id="save-symptombeginn-btn" class="ignis-btn ignis-btn--success w-100">
                                 <i class="fa-solid fa-floppy-disk"></i> Speichern
                             </button>
                         </div>
@@ -245,7 +245,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             });
 
             // Speichern-Button: alle 4 Felder gleichzeitig speichern
-            document.getElementById('save-symptombeginn-ignis-btn').addEventListener('click', function(e) {
+            document.getElementById('save-symptombeginn-btn').addEventListener('click', function(e) {
                 e.preventDefault();
 
                 const fields = [{

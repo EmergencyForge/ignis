@@ -36,9 +36,9 @@ use App\Helpers\Flash;
                     <?php Flash::render(); ?>
                     <div class="mb-3">
                         <div class="filter-group" role="group" id="statusFilter">
-                            <button type="button" class="filter-ignis-btn active" data-filter="all">Alle</button>
-                            <button type="button" class="filter-ignis-btn" data-filter="active">Aktiv</button>
-                            <button type="button" class="filter-ignis-btn" data-filter="inactive">Deaktiviert</button>
+                            <button type="button" class="filter-btn active" data-filter="all">Alle</button>
+                            <button type="button" class="filter-btn" data-filter="active">Aktiv</button>
+                            <button type="button" class="filter-btn" data-filter="inactive">Deaktiviert</button>
                         </div>
                     </div>
                     <div class="intra__tile py-2 px-3">
@@ -123,7 +123,7 @@ use App\Helpers\Flash;
             // Custom filter for status
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
                 if (settings.nTable.id !== 'userTable') return true;
-                var filter = $('#statusFilter .filter-ignis-btn.active').data('filter');
+                var filter = $('#statusFilter .filter-btn.active').data('filter');
                 if (filter === 'all') return true;
                 var row = settings.aoData[dataIndex].nTr;
                 return $(row).data('status') === filter;
@@ -142,8 +142,8 @@ use App\Helpers\Flash;
             });
 
             // Status filter button click
-            $('#statusFilter .filter-ignis-btn').on('click', function() {
-                $('#statusFilter .filter-ignis-btn').removeClass('active');
+            $('#statusFilter .filter-btn').on('click', function() {
+                $('#statusFilter .filter-btn').removeClass('active');
                 $(this).addClass('active');
                 table.draw();
             });

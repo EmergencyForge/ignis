@@ -142,7 +142,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                     <tr>
                                         <td><strong><?= htmlspecialchars($patient['patienten_nummer']) ?></strong></td>
                                         <td>
-                                            <span class="badge <?= $skBadgeClass ?>">
+                                            <span class="ignis-chip <?= $skBadgeClass ?>">
                                                 <?= htmlspecialchars($patient['sichtungskategorie'] ?? '') ?>
                                             </span>
                                         </td>
@@ -181,7 +181,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <?php if ($canTransport && $isTransportVehicle && empty($patient['transport_abfahrt']) && !empty($patient['transportziel']) && $patient['transportziel'] !== 'Kein Transport'): ?>
-                                                <button class="ignis-btn ignis-btn--sm ignis-btn--success transport-ignis-btn"
+                                                <button class="ignis-btn ignis-btn--sm ignis-btn--success transport-btn"
                                                     data-patient-id="<?= (int) $patient['id'] ?>"
                                                     data-patient-nr="<?= htmlspecialchars($patient['patienten_nummer']) ?>">
                                                     <i class="fas fa-truck-loading mr-1"></i>Abfahrt
@@ -257,7 +257,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
             let currentPatientId = null;
             let currentPatientNr = null;
 
-            $('.transport-ignis-btn').on('click', function() {
+            $('.transport-btn').on('click', function() {
                 currentPatientId = $(this).data('patient-id');
                 currentPatientNr = $(this).data('patient-nr');
                 $('#modal-patient-nr').text(currentPatientNr);

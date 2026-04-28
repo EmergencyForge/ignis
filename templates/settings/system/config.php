@@ -324,8 +324,8 @@ $configByCategory = $configManager->getConfigByCategory();
 
     <script>
         // Category segmented control filtering
-        document.querySelectorAll('#categoryFilter .ignis-btn').forEach(function(ignis-btn) {
-            ignis-btn.addEventListener('click', function() {
+        document.querySelectorAll('#categoryFilter .ignis-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
                 document.querySelectorAll('#categoryFilter .ignis-btn').forEach(function(b) { b.classList.remove('active'); });
                 this.classList.add('active');
                 var cat = this.dataset.category;

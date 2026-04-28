@@ -93,7 +93,7 @@
                     }
 
                     echo "<tr>";
-                    echo "<td><span class='badge $bg'>" . htmlspecialchars($docart) . "</span></td>";
+                    echo "<td><span class='ignis-chip $bg'>" . htmlspecialchars($docart) . "</span></td>";
                     echo "<td>" . htmlspecialchars($doks['docid']) .  "</td>";
                     echo "<td>" . htmlspecialchars($doks['ersteller_name']) . "</td>";
                     echo "<td>" . htmlspecialchars($austdatum) . "</td>";

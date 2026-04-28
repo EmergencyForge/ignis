@@ -116,7 +116,7 @@ function fmt_elapsed(int|string $seconds): string
                                     [$badge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
                                 }
                                 ?>
-                                <span class="badge <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
+                                <span class="ignis-chip <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
                             </span>
                             <?php if ($incident['finalized']): ?>
                                 <button type="button" class="ignis-btn ignis-btn--primary" data-bs-toggle="modal" data-bs-target="#qmStatusModal">

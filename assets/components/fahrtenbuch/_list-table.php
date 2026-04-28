@@ -62,7 +62,7 @@ $fahrttypBadges = [
                             <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
                         <?php endif; ?>
                         <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
-                        <td><span class="badge text-bg-<?= $typBadge ?>"><?= htmlspecialchars($typLabel) ?></span></td>
+                        <td><span class="ignis-chip ignis-chip--<?= $typBadge ?>"><?= htmlspecialchars($typLabel) ?></span></td>
                         <td><?= $e['kilometer'] !== null ? number_format((float)$e['kilometer'], 1, ',', '.') : '—' ?></td>
                         <td class="truncate" style="max-width:200px;" title="<?= htmlspecialchars($e['grund'] ?? '') ?>">
                             <?= htmlspecialchars($e['grund'] ?? '') ?: '<span class="text-[var(--text-dimmed,#818189)]">—</span>' ?>
@@ -70,7 +70,7 @@ $fahrttypBadges = [
                         <?php if ($canEdit || $canDelete): ?>
                             <td class="text-right whitespace-nowrap">
                                 <?php if ($canEdit): ?>
-                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost fb-edit-ignis-btn"
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost fb-edit-btn"
                                             data-id="<?= $e['id'] ?>"
                                             data-datum="<?= htmlspecialchars($e['datum']) ?>"
                                             data-abfahrt="<?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?>"

@@ -227,7 +227,7 @@ $statusLabels = [
                                                 <h5 class="defect-title mb-0"><?= htmlspecialchars($d['title']) ?></h5>
                                                 <div class="defect-badges">
                                                     <span class="ignis-chip"><?= htmlspecialchars($catLabel) ?></span>
-                                                    <span class="badge text-bg-<?= $stat[1] ?>"><?= $stat[0] ?></span>
+                                                    <span class="ignis-chip ignis-chip--<?= $stat[1] ?>"><?= $stat[0] ?></span>
                                                     <?php if (!$operable): ?>
                                                         <span class="ignis-chip ignis-chip--danger"><i class="fa-solid fa-ban"></i> Nicht einsatzfähig</span>
                                                     <?php endif; ?>
@@ -265,7 +265,7 @@ $statusLabels = [
                                         <?php if ($canManage && !$isResolved): ?>
                                             <div class="defect-actions mt-2">
                                                 <?php if ($d['status'] === 'open' || $d['status'] === 'deferred'): ?>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-warning defect-status-ignis-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-warning defect-status-btn"
                                                             data-id="<?= $d['id'] ?>"
                                                             data-title="<?= htmlspecialchars($d['title']) ?>"
                                                             data-status="in_progress"
@@ -276,7 +276,7 @@ $statusLabels = [
                                                     </button>
                                                 <?php endif; ?>
                                                 <?php if ($d['status'] === 'open' || $d['status'] === 'in_progress'): ?>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary defect-status-ignis-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary defect-status-btn"
                                                             data-id="<?= $d['id'] ?>"
                                                             data-title="<?= htmlspecialchars($d['title']) ?>"
                                                             data-status="deferred"
@@ -286,7 +286,7 @@ $statusLabels = [
                                                         <i class="fa-solid fa-clock"></i> Aufschieben
                                                     </button>
                                                 <?php endif; ?>
-                                                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-success defect-resolve-ignis-btn"
+                                                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-success defect-resolve-btn"
                                                         data-id="<?= $d['id'] ?>"
                                                         data-title="<?= htmlspecialchars($d['title']) ?>"
                                                         title="Als gelöst markieren">
@@ -471,7 +471,7 @@ $statusLabels = [
                                     <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['fullname']) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="detail-assign-ignis-btn">Zuweisen</button>
+                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="detail-assign-btn">Zuweisen</button>
                         </div>
                     <?php endif; ?>
                     <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
@@ -613,8 +613,8 @@ $statusLabels = [
         }
 
         // Status ändern (In Bearbeitung / Aufschieben) — Modal öffnen
-        document.querySelectorAll('.defect-status-ignis-btn').forEach(function(ignis-btn) {
-            ignis-btn.addEventListener('click', function(e) {
+        document.querySelectorAll('.defect-status-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 document.getElementById('status-change-id').value = this.dataset.id;
                 document.getElementById('status-change-status').value = this.dataset.status;
@@ -649,8 +649,8 @@ $statusLabels = [
         }
 
         // Lösen-Dialog öffnen
-        document.querySelectorAll('.defect-resolve-ignis-btn').forEach(function(ignis-btn) {
-            ignis-btn.addEventListener('click', function(e) {
+        document.querySelectorAll('.defect-resolve-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 document.getElementById('resolve-defect-id').value = this.dataset.id;
                 document.getElementById('resolve-defect-title').textContent = this.dataset.title;
@@ -692,7 +692,7 @@ $statusLabels = [
                         document.getElementById('detail-title').textContent = d.title;
                         document.getElementById('detail-vehicle').textContent = (d.vehicle_name || '') + ' (' + (d.vehicle_identifier || '') + ')';
                         document.getElementById('detail-category').innerHTML = '<span class="ignis-chip">' + (categoryLabels[d.category] || d.category) + '</span>';
-                        document.getElementById('detail-status').innerHTML = '<span class="badge text-bg-' + stat[1] + '">' + stat[0] + '</span>';
+                        document.getElementById('detail-status').innerHTML = '<span class="ignis-chip text-bg-' + stat[1] + '">' + stat[0] + '</span>';
                         document.getElementById('detail-description').textContent = d.description || '—';
                         document.getElementById('detail-reporter').textContent = (d.reporter_name || 'Unbekannt') + ' am ' + formatDate(d.created_at);
                         document.getElementById('detail-assigned').textContent = d.assigned_name || '—';
@@ -727,7 +727,7 @@ $statusLabels = [
                         var assignSelect = document.getElementById('detail-assign-select');
                         if (assignSelect) {
                             assignSelect.value = d.assigned_to || '';
-                            var assignBtn = document.getElementById('detail-assign-ignis-btn');
+                            var assignBtn = document.getElementById('detail-assign-btn');
                             assignBtn.onclick = function() {
                                 var fd = new FormData();
                                 fd.append('action', 'update');

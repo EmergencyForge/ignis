@@ -273,7 +273,7 @@ $status_config = [
             gap: 0.5rem;
         }
 
-        .status-ignis-btn {
+        .status-btn {
             padding: 0.75rem 1rem;
             border: 2px solid transparent;
             background: #1a1a1a;
@@ -288,16 +288,16 @@ $status_config = [
             gap: 0.5rem;
         }
 
-        .status-ignis-btn:hover {
+        .status-btn:hover {
             background: #222;
         }
 
-        .status-ignis-btn.active {
+        .status-btn.active {
             border-color: currentColor;
             font-weight: 700;
         }
 
-        .status-ignis-btn input[type="radio"] {
+        .status-btn input[type="radio"] {
             display: none;
         }
 
@@ -407,7 +407,7 @@ $status_config = [
 
                                 <div class="status-buttons">
                                     <?php foreach ($status_config as $status_key => $status_info): ?>
-                                        <label class="status-ignis-btn <?= $dept['status'] === $status_key ? 'active' : '' ?>"
+                                        <label class="status-btn <?= $dept['status'] === $status_key ? 'active' : '' ?>"
                                             style="color: <?= $status_info['color'] ?>;">
                                             <input type="radio"
                                                 name="availability[<?= $dept['id'] ?>]"
@@ -439,9 +439,9 @@ $status_config = [
 
     <script>
         // Visual feedback for radio button selection
-        $('.status-ignis-btn').on('click', function() {
+        $('.status-btn').on('click', function() {
             const $this = $(this);
-            $this.siblings('.status-ignis-btn').removeClass('active');
+            $this.siblings('.status-btn').removeClass('active');
             $this.addClass('active');
         });
     </script>

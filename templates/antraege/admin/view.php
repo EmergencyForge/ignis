@@ -166,7 +166,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                                 <?php endif; ?>
                                 <div class="flex justify-between py-2">
                                     <span class="text-gray-400">Status:</span>
-                                    <span class="badge text-bg-<?= $currentStatus['class'] ?>">
+                                    <span class="ignis-chip ignis-chip--<?= $currentStatus['class'] ?>">
                                         <i class="<?= $currentStatus['icon'] ?> mr-1"></i>
                                         <?= $currentStatus['text'] ?>
                                     </span>

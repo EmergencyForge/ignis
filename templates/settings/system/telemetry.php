@@ -198,11 +198,11 @@ $cacheInfo = $announcements->getCacheInfo();
                                 }
                             };
 
-                            function copyText(text, ignis-btn) {
+                            function copyText(text, btn) {
                                 const done = () => {
-                                    const orig = ignis-btn.innerHTML;
-                                    ignis-btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-                                    setTimeout(() => { ignis-btn.innerHTML = orig; }, 1500);
+                                    const orig = btn.innerHTML;
+                                    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                                    setTimeout(() => { btn.innerHTML = orig; }, 1500);
                                 };
                                 if (navigator.clipboard && navigator.clipboard.writeText) {
                                     navigator.clipboard.writeText(text).then(done).catch(fallback);
@@ -243,7 +243,7 @@ $cacheInfo = $announcements->getCacheInfo();
                             <div class="ignis-card h-full">
                                 <div class="ignis-card__header flex items-center justify-between">
                                     <span><i class="fas fa-chart-line mr-2"></i>Telemetrie</span>
-                                    <span class="badge bg-<?= $telemetryEnabled ? 'success' : 'secondary' ?>">
+                                    <span class="ignis-chip bg-<?= $telemetryEnabled ? 'success' : 'secondary' ?>">
                                         <?= $telemetryEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
                                 </div>
@@ -313,7 +313,7 @@ $cacheInfo = $announcements->getCacheInfo();
                             <div class="ignis-card h-full">
                                 <div class="ignis-card__header flex items-center justify-between">
                                     <span><i class="fas fa-bullhorn mr-2"></i>Globale Ankündigungen</span>
-                                    <span class="badge bg-<?= $announcementsEnabled ? 'success' : 'secondary' ?>">
+                                    <span class="ignis-chip bg-<?= $announcementsEnabled ? 'success' : 'secondary' ?>">
                                         <?= $announcementsEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
                                 </div>
@@ -388,7 +388,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                             <?php foreach ($currentAnnouncements as $ann): ?>
                                                 <div class="list-group-item px-0">
                                                     <div class="flex flex-wrap items-center gap-1">
-                                                        <span class="badge bg-<?= $ann['type'] === 'critical' ? 'danger' : ($ann['type'] === 'warning' ? 'warning' : 'info') ?>">
+                                                        <span class="ignis-chip bg-<?= $ann['type'] === 'critical' ? 'danger' : ($ann['type'] === 'warning' ? 'warning' : 'info') ?>">
                                                             <?= htmlspecialchars($ann['type']) ?>
                                                         </span>
                                                         <?php if (!empty($ann['admin_only'])): ?>

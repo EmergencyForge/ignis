@@ -221,8 +221,8 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
     </div>
 
     <script>
-        function runCronJob(id, ignis-btn) {
-            if (ignis-btn) { ignis-btn.disabled = true; ignis-btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
+        function runCronJob(id, btn) {
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'; }
             const fd = new FormData();
             fd.append('id', id);
             fd.append('csrf_token', <?= json_encode($csrfToken) ?>);
@@ -238,7 +238,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
             })
             .catch(e => {
                 alert('Request fehlgeschlagen: ' + e);
-                if (ignis-btn) { ignis-btn.disabled = false; ignis-btn.innerHTML = '<i class="fa-solid fa-play"></i>'; }
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-play"></i>'; }
             });
         }
 

@@ -269,9 +269,9 @@ use App\Helpers\Flash;
         };
 
         async function loadData() {
-            const ignis-btn = document.getElementById('refreshBtn');
-            ignis-btn.disabled = true;
-            ignis-btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Lade...';
+            const btn = document.getElementById('refreshBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Lade...';
 
             try {
                 const response = await fetch(BASE_PATH + 'api/system/performance');
@@ -293,8 +293,8 @@ use App\Helpers\Flash;
                 console.error('Performance API error:', error);
                 showAlert('Fehler beim Laden der Daten: ' + error.message, {type: 'error', title: 'Fehler'});
             } finally {
-                ignis-btn.disabled = false;
-                ignis-btn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Aktualisieren';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i> Aktualisieren';
             }
         }
 
@@ -456,7 +456,7 @@ use App\Helpers\Flash;
                 html += `
                     <div class="flex justify-between items-center py-2 ${html ? 'border-t border-secondary border-opacity-25' : ''}">
                         <span><i class="fa-solid ${item.icon} mr-2 text-${item.color}"></i>${item.label}</span>
-                        <span class="perf-badge bg-${item.color} bg-opacity-25 text-${item.color}">${item.value}</span>
+                        <span class="perf-ignis-chip bg-${item.color} bg-opacity-25 text-${item.color}">${item.value}</span>
                     </div>`;
             });
 

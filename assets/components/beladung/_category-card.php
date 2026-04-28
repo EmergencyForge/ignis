@@ -53,7 +53,7 @@ foreach ($tiles as $t) {
             <?php endif; ?>
             <span class="ignis-chip"><?= count($tiles) ?> Pos.</span>
             <?php if ($canEdit): ?>
-                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-category-ignis-btn"
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-category-btn"
                         data-id="<?= (int) ($category['id'] ?? 0) ?>"
                         data-title="<?= htmlspecialchars($category['title'] ?? '') ?>"
                         data-type="<?= (int) ($category['type'] ?? 0) ?>"
@@ -62,7 +62,7 @@ foreach ($tiles as $t) {
                         data-ignis-tooltip="Kategorie bearbeiten">
                     <i class="fa-solid fa-pen"></i>
                 </button>
-                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon delete-category-ignis-btn"
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon delete-category-btn"
                         data-id="<?= (int) ($category['id'] ?? 0) ?>"
                         data-ignis-tooltip="Kategorie löschen">
                     <i class="fa-solid fa-trash"></i>
@@ -101,7 +101,7 @@ foreach ($tiles as $t) {
                                         data-ignis-tooltip="Klick zum Bearbeiten">
                                     <?= (int) ($tile['amount'] ?? 0) ?>×
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon edit-tile-ignis-btn"
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon edit-tile-btn"
                                         data-id="<?= (int) ($tile['id'] ?? 0) ?>"
                                         data-category="<?= (int) ($tile['category'] ?? 0) ?>"
                                         data-title="<?= htmlspecialchars($tile['title'] ?? '') ?>"
@@ -109,7 +109,7 @@ foreach ($tiles as $t) {
                                         data-ignis-tooltip="Bearbeiten">
                                     <i class="fa-solid fa-pen"></i>
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon delete-tile-ignis-btn"
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon delete-tile-btn"
                                         data-id="<?= (int) ($tile['id'] ?? 0) ?>"
                                         data-ignis-tooltip="Löschen">
                                     <i class="fa-solid fa-trash"></i>

@@ -65,7 +65,7 @@
                         <i class='" . htmlspecialchars($row['typ_icon']) . " me-1'></i>
                         <span class='small'>" . htmlspecialchars($row['typ_name']) . "</span>
                     </td>
-                    <td><span class='badge {$badge_color}'>" . $cirs_state . "</span></td>
+                    <td><span class='ignis-chip {$badge_color}'>" . $cirs_state . "</span></td>
                     <td><strong>{$row['uniqueid']}</strong></td>
                     <td>" . (!empty($row['cirs_manager']) ? htmlspecialchars($row['cirs_manager']) : '---') . "</td>
                     <td><span style='display:none'>{$row['time_added']}</span>{$adddat}</td>

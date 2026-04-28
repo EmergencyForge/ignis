@@ -68,7 +68,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                                         <td><span class="ignis-chip<?= $chipMod ?>"><?= htmlspecialchars($role->name) ?></span></td>
                                         <td>
                                             <?php if ($editable): ?>
-                                                <a href="#" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn"
+                                                <a href="#" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn"
                                                    data-ignis-tooltip="Rolle bearbeiten"
                                                    data-bs-toggle="modal" data-bs-target="#editRoleModal"
                                                    data-id="<?= (int) $role->id ?>"
@@ -150,7 +150,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                             </div>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-role-ignis-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-role-btn">Löschen</button>
                             <div class="flex gap-2">
                                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                                 <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
@@ -253,7 +253,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
             // WICHTIG: querySelector wird auf das Edit-Modal gescopet, sonst
             // würden auch die Checkboxen im Create-Modal mit-befüllt werden
             // (beide nutzen name="permissions[]").
-            document.querySelectorAll('.edit-ignis-btn').forEach(button => {
+            document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     if (!editModal) return;
                     const id = this.dataset.id;
@@ -287,7 +287,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                 });
             }
 
-            const deleteBtn = document.getElementById('delete-role-ignis-btn');
+            const deleteBtn = document.getElementById('delete-role-btn');
             if (deleteBtn) {
                 deleteBtn.addEventListener('click', function() {
                     showConfirm('Möchtest du diese Rolle wirklich löschen?', {

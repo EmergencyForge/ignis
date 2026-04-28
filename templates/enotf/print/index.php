@@ -153,19 +153,19 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         <div class="row">
             <div class="col">
                 <?php if (!isset($_SESSION['klinik_access_enr'])): ?>
-                    <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>" class="topbar-ignis-btn">
+                    <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>" class="topbar-btn">
                         <i class="fa-solid fa-arrow-left"></i>
                     </a>
                 <?php endif; ?>
             </div>
             <div class="col text-end">
-                <button type="button" class="topbar-ignis-btn" onclick="zoomOut()" title="Verkleinern">
+                <button type="button" class="topbar-btn" onclick="zoomOut()" title="Verkleinern">
                     <i class="fa-solid fa-minus"></i>
                 </button>
-                <button type="button" class="topbar-ignis-btn" onclick="zoomIn()" title="Vergrößern">
+                <button type="button" class="topbar-btn" onclick="zoomIn()" title="Vergrößern">
                     <i class="fa-solid fa-plus"></i>
                 </button>
-                <button type="button" class="topbar-ignis-btn" onclick="window.print()" title="Drucken">
+                <button type="button" class="topbar-btn" onclick="window.print()" title="Drucken">
                     <i class="fa-solid fa-print"></i>
                 </button>
             </div>
@@ -2765,9 +2765,9 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
         document.addEventListener('DOMContentLoaded', function() {
             if (isInIframe()) {
-                const printButtons = document.querySelectorAll('.topbar-ignis-btn[onclick*="print"]');
-                printButtons.forEach(ignis-btn => {
-                    ignis-btn.style.display = 'none';
+                const printButtons = document.querySelectorAll('.topbar-btn[onclick*="print"]');
+                printButtons.forEach(btn => {
+                    btn.style.display = 'none';
                 });
             }
 

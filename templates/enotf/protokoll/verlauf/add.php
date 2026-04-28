@@ -220,25 +220,25 @@ $currentDateTime = date('Y-m-d\TH:i');
                             <div class="keypad-container">
                                 <!-- Zahlen-Tastenfeld -->
                                 <div class="keypad-grid">
-                                    <button type="button" class="keypad-ignis-btn" onclick="keypadAddDigit('7')">7</button>
-                                    <button type="button" class="keypad-ignis-btn" onclick="keypadAddDigit('8')">8</button>
-                                    <button type="button" class="keypad-ignis-btn" onclick="keypadAddDigit('9')">9</button>
-                                    <button type="button" class="keypad-ignis-btn" onclick="keypadAddDigit('4')">4</button>
-                                    <button type="button" class="keypad-ignis-btn" onclick="keypadAddDigit('5')">5</button>
-                                    <button type="button" class="keypad-ignis-btn" onclick="keypadAddDigit('6')">6</button>
-                                    <button type="button" class="keypad-ignis-btn" onclick="keypadAddDigit('1')">1</button>
-                                    <button type="button" class="keypad-ignis-btn" onclick="keypadAddDigit('2')">2</button>
-                                    <button type="button" class="keypad-ignis-btn" onclick="keypadAddDigit('3')">3</button>
-                                    <button type="button" class="keypad-ignis-btn wide" onclick="keypadAddDigit('0')">0</button>
-                                    <button type="button" class="keypad-ignis-btn special" onclick="keypadAddDigit(',')">,</button>
+                                    <button type="button" class="keypad-btn" onclick="keypadAddDigit('7')">7</button>
+                                    <button type="button" class="keypad-btn" onclick="keypadAddDigit('8')">8</button>
+                                    <button type="button" class="keypad-btn" onclick="keypadAddDigit('9')">9</button>
+                                    <button type="button" class="keypad-btn" onclick="keypadAddDigit('4')">4</button>
+                                    <button type="button" class="keypad-btn" onclick="keypadAddDigit('5')">5</button>
+                                    <button type="button" class="keypad-btn" onclick="keypadAddDigit('6')">6</button>
+                                    <button type="button" class="keypad-btn" onclick="keypadAddDigit('1')">1</button>
+                                    <button type="button" class="keypad-btn" onclick="keypadAddDigit('2')">2</button>
+                                    <button type="button" class="keypad-btn" onclick="keypadAddDigit('3')">3</button>
+                                    <button type="button" class="keypad-btn wide" onclick="keypadAddDigit('0')">0</button>
+                                    <button type="button" class="keypad-btn special" onclick="keypadAddDigit(',')">,</button>
                                 </div>
 
                                 <!-- Untere Funktions-Buttons -->
                                 <div class="function-grid">
-                                    <button type="button" class="keypad-ignis-btn danger" onclick="keypadClearField()">
+                                    <button type="button" class="keypad-btn danger" onclick="keypadClearField()">
                                         Löschen
                                     </button>
-                                    <button type="button" class="keypad-ignis-btn danger" onclick="keypadBackspace()"><i class="fa-solid fa-delete-left"></i></button>
+                                    <button type="button" class="keypad-btn danger" onclick="keypadBackspace()"><i class="fa-solid fa-delete-left"></i></button>
                                 </div>
                             </div>
                         </div>

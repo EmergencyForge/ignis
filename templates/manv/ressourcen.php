@@ -66,7 +66,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                             <td><?= htmlspecialchars($fzg['fahrzeugtyp'] ?? '-') ?></td>
                                             <td><?= htmlspecialchars($fzg['lokalisation'] ?? '-') ?></td>
                                             <td>
-                                                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-ressource-ignis-btn"
+                                                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-ressource-btn"
                                                     data-id="<?= (int) $fzg['id'] ?>"
                                                     data-typ="<?= htmlspecialchars($fzg['typ']) ?>"
                                                     data-bezeichnung="<?= htmlspecialchars($fzg['bezeichnung']) ?>"
@@ -310,7 +310,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                             <i class="fas fa-ambulance mr-2" style="color: #0d6efd;"></i>
                             <strong style="font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 100%;">${escapeHtml(fzg.name)}</strong>
                         </div>
-                        <span class="badge" style="background-color: #495057; font-size: 0.85rem; padding: 6px 10px; flex-shrink: 0; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(fzg.veh_type)}</span>
+                        <span class="ignis-chip" style="background-color: #495057; font-size: 0.85rem; padding: 6px 10px; flex-shrink: 0; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(fzg.veh_type)}</span>
                     </div>
                     ${fzg.identifier ? `<small class="block mt-1 ml-4" style="color: #adb5bd; font-size: 0.875rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(fzg.identifier)}</small>` : ''}
                 </button>
@@ -370,8 +370,8 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             return String(text).replace(/[&<>"']/g, m => map[m]);
         }
 
-        document.querySelectorAll('.edit-ressource-ignis-btn').forEach(ignis-btn => {
-            ignis-btn.addEventListener('click', function() {
+        document.querySelectorAll('.edit-ressource-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
                 document.getElementById('edit_ressource_id').value = this.dataset.id;
                 document.getElementById('edit_typ').value = this.dataset.typ;
                 document.getElementById('edit_bezeichnung').value = this.dataset.bezeichnung;

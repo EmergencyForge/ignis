@@ -61,7 +61,7 @@ use App\Helpers\Flash;
                                         : "<img src='" . htmlspecialchars($row['badge']) . "' height='16px' width='auto' alt='Dienstgrad'>";
 
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Dienstgrad bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-badge='" . htmlspecialchars((string)$row['badge']) . "' data-priority='{$row['priority']}' data-archive='{$row['archive']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Dienstgrad bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-badge='" . htmlspecialchars((string)$row['badge']) . "' data-priority='{$row['priority']}' data-archive='{$row['archive']}'><i class='fa-solid fa-pen'></i></a>"
                                         : '';
                                 ?>
                                     <tr>
@@ -129,7 +129,7 @@ use App\Helpers\Flash;
 
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-ignis-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
 
                             <div>
                                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
@@ -241,7 +241,7 @@ use App\Helpers\Flash;
             }
             if (newBadgeInput) newBadgeInput.addEventListener('blur', updateNewBadgePreview);
 
-            document.querySelectorAll('.edit-ignis-btn').forEach(button => {
+            document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     document.getElementById('dienstgrad-id').value = this.dataset.id;
                     document.getElementById('dienstgrad-name').value = this.dataset.name;
@@ -255,7 +255,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            const delBtn = document.getElementById('delete-dienstgrad-ignis-btn');
+            const delBtn = document.getElementById('delete-dienstgrad-btn');
             if (delBtn) {
                 delBtn.addEventListener('click', function() {
                     showConfirm('Möchtest du diesen Dienstgrad wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Dienstgrad löschen'}).then(result => {

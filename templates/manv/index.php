@@ -103,7 +103,7 @@ $SITE_TITLE = 'MANV-Übersicht';
                                 <h5 class="mb-0">
                                     <i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($lage['einsatznummer']) ?>
                                 </h5>
-                                <span class="badge <?= $statusClass ?> status-badge"><?= $statusText ?></span>
+                                <span class="ignis-chip <?= $statusClass ?> status-badge"><?= $statusText ?></span>
                             </div>
                             <div class="ignis-card__body">
                                 <h6 class="ignis-card__subtitle mb-4 text-gray-400">

@@ -34,7 +34,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
 <head>
     <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
     <style>
-        .quick-action-ignis-btn { margin: 0.25rem; }
+        .quick-action-btn { margin: 0.25rem; }
         .bg-sk5 { background-color: #000 !important; color: #fff !important; }
         .bg-sk6 { background-color: #9b59b6 !important; color: #fff !important; }
         .patient-header {
@@ -85,7 +85,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                     </div>
                     <div class="md:text-right">
                         <h2>
-                            <span class="badge bg-<?= $skColor ?> text-2xl">
+                            <span class="ignis-chip ignis-chip--<?= $skColor ?> text-2xl">
                                 <?= htmlspecialchars($patient['sichtungskategorie'] ?? 'Ungesichtet') ?>
                             </span>
                         </h2>
@@ -103,22 +103,22 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                     <h5 class="mb-0">Schnell-Sichtung</h5>
                 </div>
                 <div class="ignis-card__body text-center">
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--danger quick-action-ignis-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--danger quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK1 - Rot
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--warning quick-action-ignis-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--warning quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK2 - Gelb
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--success quick-action-ignis-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--success quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK3 - Grün
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--info quick-action-ignis-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--info quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK4 - Blau
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="ignis-btn quick-action-ignis-btn" style="background-color: #000; color: #fff; border-color: #fff;">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="ignis-btn quick-action-btn" style="background-color: #000; color: #fff; border-color: #fff;">
                         <i class="fas fa-circle mr-1"></i>SK5 - Schwarz
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK6" class="ignis-btn quick-action-ignis-btn" style="background-color: #9b59b6; color: #fff;">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK6" class="ignis-btn quick-action-btn" style="background-color: #9b59b6; color: #fff;">
                         <i class="fas fa-circle mr-1"></i>SK6 - Lila
                     </a>
                 </div>

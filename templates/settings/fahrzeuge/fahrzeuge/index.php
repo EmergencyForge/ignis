@@ -82,16 +82,16 @@ use App\Helpers\Flash;
                                 foreach ($result as $row) {
                                     switch ($row['rd_type']) {
                                         case 1:
-                                            $docYes = "<span class='badge text-bg-warning'>RD - Mit NA</span>";
+                                            $docYes = "<span class='ignis-chip ignis-chip--warning'>RD - Mit NA</span>";
                                             break;
                                         case 2:
-                                            $docYes = "<span class='badge text-bg-success'>RD - Ohne NA</span>";
+                                            $docYes = "<span class='ignis-chip ignis-chip--success'>RD - Ohne NA</span>";
                                             break;
                                         case 3:
-                                            $docYes = "<span class='badge text-bg-danger'>Feuerwehr</span>";
+                                            $docYes = "<span class='ignis-chip ignis-chip--danger'>Feuerwehr</span>";
                                             break;
                                         default:
-                                            $docYes = "<span class='badge text-bg-dark'>Andere</span>";
+                                            $docYes = "<span class='ignis-chip ignis-chip--dark'>Andere</span>";
                                             break;
                                     }
 
@@ -137,8 +137,8 @@ use App\Helpers\Flash;
                                             $dataStr .= " data-{$key}='" . htmlspecialchars($val, ENT_QUOTES) . "'";
                                         }
 
-                                        $actions .= "<a title='Fahrzeug bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal'{$dataStr}><i class='fa-solid fa-pen'></i></a> ";
-                                        $actions .= "<a title='Fahrzeug kopieren' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-success ignis-btn--icon copy-ignis-btn'{$dataStr}><i class='fa-solid fa-copy'></i></a>";
+                                        $actions .= "<a title='Fahrzeug bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal'{$dataStr}><i class='fa-solid fa-pen'></i></a> ";
+                                        $actions .= "<a title='Fahrzeug kopieren' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-success ignis-btn--icon copy-btn'{$dataStr}><i class='fa-solid fa-copy'></i></a>";
                                     }
 
                                     $openDefects = (int)($row['open_defects'] ?? 0);
@@ -146,7 +146,7 @@ use App\Helpers\Flash;
                                     $defectBadge = '';
                                     if ($openDefects > 0) {
                                         $badgeColor = ($minOperable !== null && (int)$minOperable === 0) ? 'danger' : 'warning';
-                                        $defectBadge = "<a href='" . BASE_PATH . "settings/fahrzeuge/defekte/index?vehicle=" . $row['id'] . "' class='badge text-bg-{$badgeColor}' title='Offene Defekte anzeigen'>{$openDefects}</a>";
+                                        $defectBadge = "<a href='" . BASE_PATH . "settings/fahrzeuge/defekte/index?vehicle=" . $row['id'] . "' class='ignis-chip text-bg-{$badgeColor}' title='Offene Defekte anzeigen'>{$openDefects}</a>";
                                     } else {
                                         $defectBadge = "<span class='text-muted'>—</span>";
                                     }
@@ -233,7 +233,7 @@ use App\Helpers\Flash;
 
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-fahrzeug-ignis-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
 
                             <div>
                                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>

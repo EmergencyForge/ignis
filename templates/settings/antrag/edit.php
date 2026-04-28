@@ -110,7 +110,7 @@ use App\Helpers\Flash;
                                                 <?php endif; ?>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-<?= $feld['breite'] === 'full' ? 'primary' : 'warning' ?>">
+                                                <span class="ignis-chip bg-<?= $feld['breite'] === 'full' ? 'primary' : 'warning' ?>">
                                                     <?= $feld['breite'] === 'full' ? 'Voll' : 'Halb' ?>
                                                 </span>
                                             </td>

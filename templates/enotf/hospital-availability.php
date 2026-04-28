@@ -245,7 +245,7 @@ $defaultUrl = EnotfUrl::page('overview');
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <div class="hospital-type-badge">
+                            <div class="hospital-type-ignis-chip">
                                 <?= htmlspecialchars($hospital['type']) ?>
                             </div>
                         </div>

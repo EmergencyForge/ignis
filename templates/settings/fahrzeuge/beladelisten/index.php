@@ -491,7 +491,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             fahrzeugtypFilter.addEventListener('change', updateURL);
             kategorieFilter.addEventListener('change', updateURL);
 
-            document.querySelectorAll('.edit-category-ignis-btn').forEach(button => {
+            document.querySelectorAll('.edit-category-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
                     document.getElementById('edit-category-id').value = this.dataset.id;
@@ -503,7 +503,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 });
             });
 
-            document.querySelectorAll('.edit-tile-ignis-btn').forEach(button => {
+            document.querySelectorAll('.edit-tile-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const modal = new bootstrap.Modal(document.getElementById('editTileModal'));
                     document.getElementById('edit-tile-id').value = this.dataset.id;
@@ -514,7 +514,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 });
             });
 
-            document.querySelectorAll('.delete-category-ignis-btn').forEach(button => {
+            document.querySelectorAll('.delete-category-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     showConfirm('Möchten Sie diese Kategorie wirklich löschen? Alle zugehörigen Gegenstände werden ebenfalls gelöscht.', {danger: true, confirmText: 'Löschen', title: 'Kategorie löschen'}).then(result => {
                         if (result) {
@@ -524,7 +524,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 });
             });
 
-            document.querySelectorAll('.delete-tile-ignis-btn').forEach(button => {
+            document.querySelectorAll('.delete-tile-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     showConfirm('Möchten Sie diesen Gegenstand wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Gegenstand löschen'}).then(result => {
                         if (result) {
