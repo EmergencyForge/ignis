@@ -108,8 +108,8 @@ use App\Auth\Permissions;
             echo "<td>" . htmlspecialchars($doks['ersteller_name']) . "</td>";
             echo "<td>" . htmlspecialchars($austdatum) . "</td>";
             echo "<td>";
-            echo "<button class='btn btn-sm btn-soft-primary' onclick='openDocumentViewer(\"" . htmlspecialchars($doks['docid']) . "\")'><i class='fa-solid fa-eye'></i> Ansehen</button> ";
-            // echo "<a href='$pdfPath' download class='btn btn-sm btn-success'><i class='las la-download'></i></a>";
+            echo "<button class='ignis-btn ignis-btn--sm ignis-btn--soft-primary' onclick='openDocumentViewer(\"" . htmlspecialchars($doks['docid']) . "\")'><i class='fa-solid fa-eye'></i> Ansehen</button> ";
+            // echo "<a href='$pdfPath' download class='ignis-btn ignis-btn--sm ignis-btn--success'><i class='las la-download'></i></a>";
 
             if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 $escDocid = htmlspecialchars($doks['docid']);
@@ -118,8 +118,8 @@ use App\Auth\Permissions;
                 $archiveTitle = $isArchived ? 'Wiederherstellen' : 'Archivieren';
                 $archiveAction = $isArchived ? 'false' : 'true';
 
-                echo " <button class='btn btn-sm btn-outline-secondary btn-icon' title='{$archiveTitle}' onclick='confirmArchiveDoc(\"{$escDocid}\", {$archiveAction})'><i class='fa-solid {$archiveIcon}'></i></button>";
-                echo " <button class='btn btn-sm btn-outline-danger btn-icon' title='Endgültig löschen' onclick='confirmDeleteDoc(\"{$escDocid}\", \"{$escPid}\")'><i class='fa-solid fa-trash'></i></button>";
+                echo " <button class='ignis-btn ignis-btn--sm ignis-btn--outline-secondary ignis-btn--icon' title='{$archiveTitle}' onclick='confirmArchiveDoc(\"{$escDocid}\", {$archiveAction})'><i class='fa-solid {$archiveIcon}'></i></button>";
+                echo " <button class='ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon' title='Endgültig löschen' onclick='confirmDeleteDoc(\"{$escDocid}\", \"{$escPid}\")'><i class='fa-solid fa-trash'></i></button>";
             }
 
             echo "</td>";

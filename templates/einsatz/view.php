@@ -119,7 +119,7 @@ function fmt_elapsed(int|string $seconds): string
                                 <span class="badge <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
                             </span>
                             <?php if ($incident['finalized']): ?>
-                                <button type="button" class="ignis-btn ignis-btn--primary" data-bs-toggle="modal" data-bs-target="#qmStatusModal">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--primary" data-bs-toggle="modal" data-bs-target="#qmStatusModal">
                                     <i class="fa-solid fa-clipboard-check"></i> QM-Status ändern
                                 </button>
                             <?php endif; ?>
@@ -148,12 +148,12 @@ function fmt_elapsed(int|string $seconds): string
                     <p class="text-xs text-gray-400">Das Protokoll wird zur QM-Sichtung markiert und alle Daten werden gesperrt. Diese Aktion kann nicht rückgängig gemacht werden.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
                     <form method="post" action="<?= BASE_PATH ?>einsatz/actions" class="inline">
                         <input type="hidden" name="action" value="finalize">
                         <input type="hidden" name="incident_id" value="<?= $id ?>">
                         <input type="hidden" name="return_tab" value="abschluss">
-                        <button type="submit" class="ignis-btn ignis-btn--success">
+                        <button type="submit" class="ignis-ignis-btn ignis-btn--success">
                             <i class="fa-solid fa-check-circle mr-1"></i>Jetzt abschließen
                         </button>
                     </form>
@@ -188,8 +188,8 @@ function fmt_elapsed(int|string $seconds): string
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--primary">Speichern</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--primary">Speichern</button>
                         </div>
                     </form>
                 </div>

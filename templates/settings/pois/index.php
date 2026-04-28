@@ -28,10 +28,10 @@ use App\Helpers\Flash;
                         <div class="header-actions">
                             <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                                 <div class="flex gap-2">
-                                    <a href="<?= BASE_PATH ?>settings/pois/access-codes" class="ignis-btn ignis-btn--soft-warning">
+                                    <a href="<?= BASE_PATH ?>settings/pois/access-codes" class="ignis-ignis-btn ignis-btn--soft-warning">
                                         <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
                                     </a>
-                                    <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
+                                    <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
                                         <i class="fa-solid fa-plus"></i> POI erstellen
                                     </button>
                                 </div>
@@ -41,9 +41,9 @@ use App\Helpers\Flash;
                     <?php Flash::render(); ?>
                     <div class="mb-3">
                         <div class="btn-toolbar-group" id="statusFilter">
-                            <button class="btn active" data-filter="">Alle</button>
-                            <button class="btn" data-filter="Ja">Aktiv</button>
-                            <button class="btn" data-filter="Nein">Inaktiv</button>
+                            <button class="ignis-btn active" data-filter="">Alle</button>
+                            <button class="ignis-btn" data-filter="Ja">Aktiv</button>
+                            <button class="ignis-btn" data-filter="Nein">Inaktiv</button>
                         </div>
                     </div>
                     <div class="intra__tile py-2 px-3">
@@ -77,9 +77,9 @@ use App\Helpers\Flash;
                                     $actions = '';
                                     if (Permissions::check(['admin', 'pois.manage'])) {
                                         if ($row['typ'] === 'Krankenhaus' || $row['typ'] === 'Klinik') {
-                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments?poi_id={$row['id']}' class='btn btn-sm btn-outline-secondary btn-icon mr-1'><i class='fa-solid fa-hospital'></i></a>";
+                                            $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments?poi_id={$row['id']}' class='ignis-btn ignis-btn--sm ignis-btn--outline-secondary ignis-btn--icon mr-1'><i class='fa-solid fa-hospital'></i></a>";
                                         }
-                                        $actions .= "<a title='POI bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editPoiModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>";
+                                        $actions .= "<a title='POI bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn' data-bs-toggle='modal' data-bs-target='#editPoiModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>";
                                     }
                                 ?>
                                     <tr>
@@ -139,10 +139,10 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="poi-active"><input type="checkbox" name="active" id="poi-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-poi-btn">Löschen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-poi-ignis-btn">Löschen</button>
                             <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -185,8 +185,8 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="new-poi-active"><input type="checkbox" name="active" id="new-poi-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>
@@ -202,9 +202,9 @@ use App\Helpers\Flash;
                 language: window.IgnisDataTableLang('POIs')
             });
 
-            document.querySelectorAll('#statusFilter .btn').forEach(function(btn) {
-                btn.addEventListener('click', function() {
-                    document.querySelectorAll('#statusFilter .btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(ignis-btn) {
+                ignis-btn.addEventListener('click', function() {
+                    document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(b) { b.classList.remove('active'); });
                     this.classList.add('active');
                     table.column(6).search(this.dataset.filter).draw();
                 });
@@ -212,7 +212,7 @@ use App\Helpers\Flash;
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.edit-btn').forEach(button => {
+            document.querySelectorAll('.edit-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const id = this.dataset.id;
                     document.getElementById('poi-id').value = id;
@@ -228,7 +228,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            const delBtn = document.getElementById('delete-poi-btn');
+            const delBtn = document.getElementById('delete-poi-ignis-btn');
             if (delBtn) {
                 delBtn.addEventListener('click', function() {
                     showConfirm('Möchtest du diesen POI wirklich löschen?', { danger: true, confirmText: 'Löschen', title: 'POI löschen' }).then(result => {

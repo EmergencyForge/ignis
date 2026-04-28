@@ -27,14 +27,14 @@ $SITE_TITLE = 'Aktionslog - ' . htmlspecialchars($lage['einsatznummer']);
                     <p class="text-gray-400">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
                 </div>
                 <div class="md:text-right">
-                    <a href="<?= BASE_PATH ?>manv/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/board?id=<?= $lageId ?>" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück
                     </a>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-body">
+            <div class="ignis-card">
+                <div class="ignis-card__body">
                     <?php if (empty($logEntries)): ?>
                         <p class="text-gray-400">Keine Logeinträge vorhanden.</p>
                     <?php else: ?>

@@ -178,11 +178,11 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
                                 <div class="flex items-center gap-2 flex-wrap mt-3">
                                     <?php if (!empty($ann['link'])): ?>
-                                        <a href="<?= htmlspecialchars($ann['link']) ?>" class="btn btn-<?= $config['badge'] ?> btn-sm" target="_blank">
+                                        <a href="<?= htmlspecialchars($ann['link']) ?>" class="ignis-btn btn-<?= $config['badge'] ?> ignis-btn--sm" target="_blank">
                                             <i class="fa-solid fa-external-link mr-1"></i> Mehr erfahren
                                         </a>
                                     <?php endif; ?>
-                                    <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm dismiss-single-btn"
+                                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost ignis-btn--sm dismiss-single-ignis-btn"
                                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
                                         <i class="fa-solid fa-eye-slash mr-1"></i> Ausblenden
                                     </button>
@@ -199,7 +199,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                     <i class="fa-solid fa-shield-halved mr-1"></i>
                     Diese Nachricht stammt von EmergencyForge
                 </small>
-                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="efDismissAllBtn">
+                <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="efDismissAllBtn">
                     <i class="fa-solid fa-check mr-1"></i> Verstanden
                 </button>
             </div>
@@ -209,7 +209,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
 <!-- Trigger Button für manuelles Öffnen -->
 <div id="efAnnouncementsTrigger" class="fixed" style="bottom: 20px; right: 20px; z-index: 1040; display: none;">
-    <button type="button" class="btn btn-<?= $hasCritical ? 'danger' : ($hasWarning ? 'warning' : 'primary') ?> rounded-full shadow-lg relative"
+    <button type="button" class="ignis-btn btn-<?= $hasCritical ? 'danger' : ($hasWarning ? 'warning' : 'primary') ?> rounded-full shadow-lg relative"
         data-bs-toggle="modal" data-bs-target="#efAnnouncementsModal">
         <i class="fa-solid fa-bullhorn mr-2"></i>
         <span class="hidden d-sm-inline"><?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?></span>
@@ -429,7 +429,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
     }
 
     /* Pulse Animation für Trigger Button bei kritischen Meldungen */
-    #efAnnouncementsTrigger .btn-danger {
+    #efAnnouncementsTrigger .ignis-btn--danger {
         animation: ef-pulse 2s infinite;
     }
 
@@ -510,8 +510,8 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         }
 
         // Einzelne Announcement ausblenden
-        document.querySelectorAll('.dismiss-single-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+        document.querySelectorAll('.dismiss-single-ignis-btn').forEach(ignis-btn => {
+            ignis-btn.addEventListener('click', function() {
                 const announcementId = this.dataset.announcementId;
                 const item = this.closest('.announcement-item');
 

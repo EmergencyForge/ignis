@@ -35,17 +35,17 @@ use App\Helpers\Flash;
                         </div>
                         <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                             <div class="flex gap-2">
-                                <button type="button" class="ignis-btn ignis-btn--soft-warning" id="reset-availability-btn">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--soft-warning" id="reset-availability-ignis-btn">
                                     <i class="fa-solid fa-rotate-left"></i> Alle auf "Nicht besetzt"
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDepartmentModal">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDepartmentModal">
                                     <i class="fa-solid fa-plus"></i> Fachrichtung hinzufügen
                                 </button>
                             </div>
                         <?php endif; ?>
                     </div>
 
-                    <a href="<?= BASE_PATH ?>settings/pois/index" class="ignis-btn ignis-btn--sm ignis-btn--ghost mb-3">
+                    <a href="<?= BASE_PATH ?>settings/pois/index" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost mb-3">
                         <i class="fa-solid fa-arrow-left"></i> Zurück zur POI-Verwaltung
                     </a>
 
@@ -70,13 +70,13 @@ use App\Helpers\Flash;
                                             <td><?= \App\Helpers\DateTimeHelper::formatShortLocal($dept['created_at']) ?></td>
                                             <td>
                                                 <?php if (Permissions::check(['admin', 'pois.manage'])): ?>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-dept-btn"
+                                                    <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-dept-ignis-btn"
                                                             data-id="<?= (int)$dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>"
                                                             data-sort-order="<?= (int)$dept['sort_order'] ?>">
                                                         <i class="fa-solid fa-pen"></i>
                                                     </button>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon delete-dept-btn"
+                                                    <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon delete-dept-ignis-btn"
                                                             data-id="<?= (int)$dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>">
                                                         <i class="fa-solid fa-trash"></i>
@@ -124,8 +124,8 @@ use App\Helpers\Flash;
                             </p>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Hinzufügen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Hinzufügen</button>
                         </div>
                     </form>
                 </div>
@@ -157,8 +157,8 @@ use App\Helpers\Flash;
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -185,7 +185,7 @@ use App\Helpers\Flash;
             });
             <?php endif; ?>
 
-            document.querySelectorAll('.edit-dept-btn').forEach(button => {
+            document.querySelectorAll('.edit-dept-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     document.getElementById('edit-dept-id').value = this.dataset.id;
                     document.getElementById('edit-dept-name').value = this.dataset.name;
@@ -194,7 +194,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            document.querySelectorAll('.delete-dept-btn').forEach(button => {
+            document.querySelectorAll('.delete-dept-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const id = this.dataset.id;
                     const name = this.dataset.name;
@@ -207,7 +207,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            const resetBtn = document.getElementById('reset-availability-btn');
+            const resetBtn = document.getElementById('reset-availability-ignis-btn');
             if (resetBtn) {
                 resetBtn.addEventListener('click', function() {
                     showConfirm('Möchtest du wirklich alle Fachrichtungen auf "Nicht besetzt" zurücksetzen?', { danger: true, confirmText: 'Zurücksetzen', title: 'Verfügbarkeiten zurücksetzen' }).then(result => {

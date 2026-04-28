@@ -83,7 +83,7 @@
                 echo "<td>" . htmlspecialchars($row['enr']) . " " . $freigabe_status . "</td>";
                 echo "<td>" . (!empty($row['bearbeiter']) ? htmlspecialchars($row['bearbeiter']) : '---') . "</td>";
                 echo "<td><span style='display:none'>" . $row['sendezeit'] . "</span>" . $date . "</td>";
-                echo "<td><a href='" . \App\Helpers\EnotfUrl::protokoll($row['enr']) . "' class='btn btn-sm btn-soft-primary'><i class='fa-regular fa-eye'></i> Ansehen</a></td>";
+                echo "<td><a href='" . \App\Helpers\EnotfUrl::protokoll($row['enr']) . "' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary'><i class='fa-regular fa-eye'></i> Ansehen</a></td>";
                 echo "</tr>";
             }
         }

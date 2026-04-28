@@ -25,7 +25,7 @@ use App\Helpers\Flash;
                     <div class="flex justify-between items-center mb-5">
                         <h1 class="mb-0">Fachdienste verwalten</h1>
                         <?php if (Permissions::check('admin')) : ?>
-                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
+                            <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
                                 <i class="fa-solid fa-plus"></i> Fachdienst erstellen
                             </button>
                         <?php endif; ?>
@@ -51,7 +51,7 @@ use App\Helpers\Flash;
                                         $dimmed = "style='color:var(--tag-color)'";
                                     }
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Fachdienst bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-sgnr='{$row['sgnr']}' data-sgname='" . htmlspecialchars($row['sgname']) . "' data-disabled='{$row['disabled']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Fachdienst bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-sgnr='{$row['sgnr']}' data-sgname='" . htmlspecialchars($row['sgname']) . "' data-disabled='{$row['disabled']}'><i class='fa-solid fa-pen'></i></a>"
                                         : '';
                                 ?>
                                     <tr>
@@ -92,10 +92,10 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="dienstgrad-disabled"><input type="checkbox" name="disabled" id="dienstgrad-disabled"><span>Inaktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-ignis-btn">Löschen</button>
                             <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -127,8 +127,8 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="new-dienstgrad-disabled"><input type="checkbox" name="disabled" id="new-dienstgrad-disabled"><span>Inaktiv?</span></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>
@@ -150,7 +150,7 @@ use App\Helpers\Flash;
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.edit-btn').forEach(button => {
+            document.querySelectorAll('.edit-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     document.getElementById('dienstgrad-id').value = this.dataset.id;
                     document.getElementById('dienstgrad-sgnr').value = this.dataset.sgnr;
@@ -160,7 +160,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            const delBtn = document.getElementById('delete-dienstgrad-btn');
+            const delBtn = document.getElementById('delete-dienstgrad-ignis-btn');
             if (delBtn) {
                 delBtn.addEventListener('click', function() {
                     showConfirm('Möchtest du diese Qualifikation wirklich löschen?', { danger: true, confirmText: 'Löschen', title: 'Qualifikation löschen' }).then(result => {

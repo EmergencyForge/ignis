@@ -47,11 +47,11 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
             <?php endif; ?>
 
             <form method="POST" action="">
-                <div class="card mb-4">
-                    <div class="card-header">
+                <div class="ignis-card mb-4">
+                    <div class="ignis-card__header">
                         <h5 class="mb-0">Grunddaten</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="ignis-card__body">
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label for="einsatznummer" class="ignis-field__label">Einsatznummer *</label>
@@ -89,11 +89,11 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                     </div>
                 </div>
 
-                <div class="card mb-4">
-                    <div class="card-header">
+                <div class="ignis-card mb-4">
+                    <div class="ignis-card__header">
                         <h5 class="mb-0">Einsatzleitung</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="ignis-card__body">
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label for="lna_mitarbeiter_id" class="ignis-field__label">Leitender Notarzt (LNA)</label>
@@ -127,11 +127,11 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                     </div>
                 </div>
 
-                <div class="card mb-4">
-                    <div class="card-header">
+                <div class="ignis-card mb-4">
+                    <div class="ignis-card__header">
                         <h5 class="mb-0">Notizen</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="ignis-card__body">
                         <div>
                             <label for="notizen" class="ignis-field__label">Allgemeine Notizen</label>
                             <textarea class="ignis-input" id="notizen" name="notizen" rows="4"><?= htmlspecialchars($lage['notizen'] ?? '') ?></textarea>
@@ -140,10 +140,10 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="<?= BASE_PATH ?>manv/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/board?id=<?= $lageId ?>" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="ignis-btn ignis-btn--soft-primary btn-lg">
+                    <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--lg">
                         <i class="fas fa-save mr-2"></i>Änderungen speichern
                     </button>
                 </div>

@@ -29,10 +29,10 @@ use App\Helpers\Flash;
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
                                 <div class="flex gap-2">
-                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
+                                    <a href="<?= BASE_PATH ?>settings/enotf/kategorien/index" class="ignis-ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                                         <i class="fa-solid fa-folder"></i> Kategorien verwalten
                                     </a>
-                                    <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
+                                    <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createQuicklinkModal">
                                         <i class="fa-solid fa-plus"></i> Link erstellen
                                     </button>
                                 </div>
@@ -42,9 +42,9 @@ use App\Helpers\Flash;
                     <?php Flash::render(); ?>
                     <div class="mb-3">
                         <div class="btn-toolbar-group" id="statusFilter">
-                            <button class="btn active" data-filter="">Alle</button>
-                            <button class="btn" data-filter="Ja">Aktiv</button>
-                            <button class="btn" data-filter="Nein">Inaktiv</button>
+                            <button class="ignis-btn active" data-filter="">Alle</button>
+                            <button class="ignis-btn" data-filter="Ja">Aktiv</button>
+                            <button class="ignis-btn" data-filter="Nein">Inaktiv</button>
                         </div>
                     </div>
                     <div class="intra__tile px-3 py-2">
@@ -76,7 +76,7 @@ use App\Helpers\Flash;
                                     $icon = htmlspecialchars($row['icon']);
                                     $colWidth = htmlspecialchars($row['col_width']);
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Link bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editQuicklinkModal' data-id='{$row['id']}' data-title='{$title}' data-url='{$url}' data-icon='{$icon}' data-category='{$row['category_slug']}' data-sort-order='{$row['sort_order']}' data-col-width='{$colWidth}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Link bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn' data-bs-toggle='modal' data-bs-target='#editQuicklinkModal' data-id='{$row['id']}' data-title='{$title}' data-url='{$url}' data-icon='{$icon}' data-category='{$row['category_slug']}' data-sort-order='{$row['sort_order']}' data-col-width='{$colWidth}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : '';
                                 ?>
                                     <tr>
@@ -148,10 +148,10 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="quicklink-active"><input type="checkbox" name="active" id="quicklink-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-quicklink-btn">Löschen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-quicklink-ignis-btn">Löschen</button>
                             <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -208,8 +208,8 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="create-quicklink-active"><input type="checkbox" name="active" id="create-quicklink-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>
@@ -217,7 +217,7 @@ use App\Helpers\Flash;
         </div>
 
         <script>
-            document.querySelectorAll('.edit-btn').forEach(button => {
+            document.querySelectorAll('.edit-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     document.getElementById('quicklink-id').value = this.dataset.id;
                     document.getElementById('quicklink-title').value = this.dataset.title;
@@ -230,7 +230,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            const deleteBtn = document.getElementById('delete-quicklink-btn');
+            const deleteBtn = document.getElementById('delete-quicklink-ignis-btn');
             if (deleteBtn) {
                 deleteBtn.addEventListener('click', function() {
                     const id = document.getElementById('quicklink-id').value;
@@ -243,9 +243,9 @@ use App\Helpers\Flash;
     <?php endif; ?>
 
     <script>
-        document.querySelectorAll('#statusFilter .btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('#statusFilter .btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(ignis-btn) {
+            ignis-btn.addEventListener('click', function() {
+                document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(b) { b.classList.remove('active'); });
                 this.classList.add('active');
                 var filter = this.dataset.filter;
                 document.querySelectorAll('#table-quicklinks tbody tr').forEach(function(row) {

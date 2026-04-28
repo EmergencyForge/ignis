@@ -161,7 +161,7 @@ $cacheInfo = $announcements->getCacheInfo();
                     <div class="intra__tile uuid-banner mb-4 p-3">
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="shrink-0" style="font-size: 1.1rem; color: var(--bs-primary, #0d6efd);">
-                                <i class="fa-solid fa-id-card"></i>
+                                <i class="fa-solid fa-id-ignis-card"></i>
                             </div>
                             <div class="flex-1" style="min-width: 240px;">
                                 <div class="uuid-label mb-1">Support &amp; Telemetrie — Deine Installations-UUID</div>
@@ -173,10 +173,10 @@ $cacheInfo = $announcements->getCacheInfo();
                                 <code id="installationUuidValue" class="uuid-value" style="display: none;">
                                     <?= htmlspecialchars($installationId) ?>
                                 </code>
-                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="toggleUuidBtn" onclick="toggleInstallationUuid()">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="toggleUuidBtn" onclick="toggleInstallationUuid()">
                                     <i class="fa-regular fa-eye mr-1"></i>Einblenden
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="copyUuidBtn" onclick="copyInstallationUuid()" title="UUID kopieren">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost" id="copyUuidBtn" onclick="copyInstallationUuid()" title="UUID kopieren">
                                     <i class="fa-regular fa-copy"></i>
                                 </button>
                             </div>
@@ -198,11 +198,11 @@ $cacheInfo = $announcements->getCacheInfo();
                                 }
                             };
 
-                            function copyText(text, btn) {
+                            function copyText(text, ignis-btn) {
                                 const done = () => {
-                                    const orig = btn.innerHTML;
-                                    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-                                    setTimeout(() => { btn.innerHTML = orig; }, 1500);
+                                    const orig = ignis-btn.innerHTML;
+                                    ignis-btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                                    setTimeout(() => { ignis-btn.innerHTML = orig; }, 1500);
                                 };
                                 if (navigator.clipboard && navigator.clipboard.writeText) {
                                     navigator.clipboard.writeText(text).then(done).catch(fallback);
@@ -240,14 +240,14 @@ $cacheInfo = $announcements->getCacheInfo();
                     <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
                         <!-- Telemetrie -->
                         <div>
-                            <div class="card h-full">
-                                <div class="card-header flex items-center justify-between">
+                            <div class="ignis-card h-full">
+                                <div class="ignis-card__header flex items-center justify-between">
                                     <span><i class="fas fa-chart-line mr-2"></i>Telemetrie</span>
                                     <span class="badge bg-<?= $telemetryEnabled ? 'success' : 'secondary' ?>">
                                         <?= $telemetryEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
                                 </div>
-                                <div class="card-body">
+                                <div class="ignis-card__body">
                                     <p class="text-gray-400">
                                         Telemetrie hilft uns, ıgnıs weiterzuentwickeln.
                                         Es werden nur <strong>anonymisierte</strong> Statistiken übermittelt -
@@ -258,20 +258,20 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <div class="mb-3 flex flex-wrap gap-2">
                                         <form method="POST" class="inline">
                                             <input type="hidden" name="action" value="toggle_telemetry">
-                                            <button type="submit" class="btn btn-<?= $telemetryEnabled ? 'warning' : 'success' ?>">
+                                            <button type="submit" class="ignis-btn btn-<?= $telemetryEnabled ? 'warning' : 'success' ?>">
                                                 <i class="fas fa-<?= $telemetryEnabled ? 'toggle-off' : 'toggle-on' ?> mr-1"></i>
                                                 <?= $telemetryEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                                             </button>
                                         </form>
 
-                                        <button type="button" class="ignis-btn ignis-btn--outline-info" data-bs-toggle="modal" data-bs-target="#datenschutzModal">
+                                        <button type="button" class="ignis-ignis-btn ignis-btn--outline-info" data-bs-toggle="modal" data-bs-target="#datenschutzModal">
                                             <i class="fas fa-shield-alt mr-1"></i> Datenschutz
                                         </button>
 
                                         <?php if ($telemetryEnabled): ?>
                                             <form method="POST" class="inline">
                                                 <input type="hidden" name="action" value="send_heartbeat">
-                                                <button type="submit" class="ignis-btn ignis-btn--outline-primary">
+                                                <button type="submit" class="ignis-ignis-btn ignis-btn--outline-primary">
                                                     <i class="fas fa-paper-plane mr-1"></i> Jetzt senden
                                                 </button>
                                             </form>
@@ -310,14 +310,14 @@ $cacheInfo = $announcements->getCacheInfo();
 
                         <!-- Globale Announcements -->
                         <div>
-                            <div class="card h-full">
-                                <div class="card-header flex items-center justify-between">
+                            <div class="ignis-card h-full">
+                                <div class="ignis-card__header flex items-center justify-between">
                                     <span><i class="fas fa-bullhorn mr-2"></i>Globale Ankündigungen</span>
                                     <span class="badge bg-<?= $announcementsEnabled ? 'success' : 'secondary' ?>">
                                         <?= $announcementsEnabled ? 'Aktiviert' : 'Deaktiviert' ?>
                                     </span>
                                 </div>
-                                <div class="card-body">
+                                <div class="ignis-card__body">
                                     <p class="text-gray-400">
                                         Globale Ankündigungen informieren dich über wichtige Updates,
                                         Sicherheitshinweise und News vom ıgnıs-Team.
@@ -326,7 +326,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <div class="mb-3 flex gap-2">
                                         <form method="POST" class="inline">
                                             <input type="hidden" name="action" value="toggle_announcements">
-                                            <button type="submit" class="btn btn-<?= $announcementsEnabled ? 'warning' : 'success' ?>">
+                                            <button type="submit" class="ignis-btn btn-<?= $announcementsEnabled ? 'warning' : 'success' ?>">
                                                 <i class="fas fa-<?= $announcementsEnabled ? 'toggle-off' : 'toggle-on' ?> mr-1"></i>
                                                 <?= $announcementsEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                                             </button>
@@ -335,7 +335,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                         <?php if ($announcementsEnabled): ?>
                                             <form method="POST" class="inline">
                                                 <input type="hidden" name="action" value="refresh_announcements">
-                                                <button type="submit" class="ignis-btn ignis-btn--outline-primary">
+                                                <button type="submit" class="ignis-ignis-btn ignis-btn--outline-primary">
                                                     <i class="fas fa-sync mr-1"></i> Cache aktualisieren
                                                 </button>
                                             </form>
@@ -461,7 +461,7 @@ $cacheInfo = $announcements->getCacheInfo();
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-btn" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-ignis-btn" data-bs-dismiss="modal">Schließen</button>
                 </div>
             </div>
         </div>

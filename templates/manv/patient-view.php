@@ -34,7 +34,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
 <head>
     <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
     <style>
-        .quick-action-btn { margin: 0.25rem; }
+        .quick-action-ignis-btn { margin: 0.25rem; }
         .bg-sk5 { background-color: #000 !important; color: #fff !important; }
         .bg-sk6 { background-color: #9b59b6 !important; color: #fff !important; }
         .patient-header {
@@ -98,27 +98,27 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header">
+            <div class="ignis-card mb-4">
+                <div class="ignis-card__header">
                     <h5 class="mb-0">Schnell-Sichtung</h5>
                 </div>
-                <div class="card-body text-center">
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--danger quick-action-btn">
+                <div class="ignis-card__body text-center">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-ignis-btn ignis-btn--danger quick-action-ignis-btn">
                         <i class="fas fa-circle mr-1"></i>SK1 - Rot
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--warning quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-ignis-btn ignis-btn--warning quick-action-ignis-btn">
                         <i class="fas fa-circle mr-1"></i>SK2 - Gelb
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--success quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-ignis-btn ignis-btn--success quick-action-ignis-btn">
                         <i class="fas fa-circle mr-1"></i>SK3 - Grün
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--info quick-action-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-ignis-btn ignis-btn--info quick-action-ignis-btn">
                         <i class="fas fa-circle mr-1"></i>SK4 - Blau
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="btn quick-action-btn" style="background-color: #000; color: #fff; border-color: #fff;">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="ignis-btn quick-action-ignis-btn" style="background-color: #000; color: #fff; border-color: #fff;">
                         <i class="fas fa-circle mr-1"></i>SK5 - Schwarz
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK6" class="btn quick-action-btn" style="background-color: #9b59b6; color: #fff;">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK6" class="ignis-btn quick-action-ignis-btn" style="background-color: #9b59b6; color: #fff;">
                         <i class="fas fa-circle mr-1"></i>SK6 - Lila
                     </a>
                 </div>
@@ -127,11 +127,11 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
             <form method="POST" action="">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                        <div class="card mb-4">
-                            <div class="card-header">
+                        <div class="ignis-card mb-4">
+                            <div class="ignis-card__header">
                                 <h5 class="mb-0">Personalien</h5>
                             </div>
-                            <div class="card-body">
+                            <div class="ignis-card__body">
                                 <div class="mb-3">
                                     <label for="name" class="ignis-field__label">Name</label>
                                     <input type="text" class="ignis-input" id="name" name="name" value="<?= htmlspecialchars($patient['name'] ?? '') ?>">
@@ -156,11 +156,11 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             </div>
                         </div>
 
-                        <div class="card mb-4">
-                            <div class="card-header">
+                        <div class="ignis-card mb-4">
+                            <div class="ignis-card__header">
                                 <h5 class="mb-0">Sichtungskategorie</h5>
                             </div>
-                            <div class="card-body">
+                            <div class="ignis-card__body">
                                 <div class="mb-3">
                                     <label for="sichtungskategorie" class="ignis-field__label">Kategorie</label>
                                     <select class="ignis-input form-control-lg" id="sichtungskategorie" name="sichtungskategorie">
@@ -177,11 +177,11 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                     </div>
 
                     <div>
-                        <div class="card mb-4">
-                            <div class="card-header">
+                        <div class="ignis-card mb-4">
+                            <div class="ignis-card__header">
                                 <h5 class="mb-0"><?= $canTransport ? 'Transport' : 'Fahrzeugzuweisung' ?></h5>
                             </div>
-                            <div class="card-body">
+                            <div class="ignis-card__body">
                                 <div class="mb-3">
                                     <label for="transportmittel_id" class="ignis-field__label">Zugewiesenes Fahrzeug</label>
                                     <select class="ignis-input" id="transportmittel_id" name="transportmittel_id">
@@ -237,11 +237,11 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             </div>
                         </div>
 
-                        <div class="card mb-4">
-                            <div class="card-header">
+                        <div class="ignis-card mb-4">
+                            <div class="ignis-card__header">
                                 <h5 class="mb-0">Medizinische Informationen</h5>
                             </div>
-                            <div class="card-body">
+                            <div class="ignis-card__body">
                                 <div class="mb-3">
                                     <label for="verletzungen" class="ignis-field__label">Verletzungen</label>
                                     <textarea class="ignis-input" id="verletzungen" name="verletzungen" rows="3"><?= htmlspecialchars($patient['verletzungen'] ?? '') ?></textarea>
@@ -256,10 +256,10 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="<?= BASE_PATH ?>manv/board?id=<?= (int) $patient['manv_lage_id'] ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/board?id=<?= (int) $patient['manv_lage_id'] ?>" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="ignis-btn ignis-btn--soft-primary btn-lg">
+                    <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--lg">
                         <i class="fas fa-save mr-2"></i>Änderungen speichern
                     </button>
                 </div>

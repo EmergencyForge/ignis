@@ -25,11 +25,11 @@ use App\Helpers\Flash;
             <div class="header-actions">
                 <div class="flex items-center gap-3">
                     <div class="btn-toolbar-group">
-                        <a href="<?= BASE_PATH ?>einsatz/admin/list" class="btn <?= !$showArchived ? 'active' : '' ?>">Aktiv</a>
-                        <a href="<?= BASE_PATH ?>einsatz/admin/list?show_archived=1" class="btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
+                        <a href="<?= BASE_PATH ?>einsatz/admin/list" class="ignis-btn <?= !$showArchived ? 'active' : '' ?>">Aktiv</a>
+                        <a href="<?= BASE_PATH ?>einsatz/admin/list?show_archived=1" class="ignis-btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
                     </div>
-                    <a href="<?= BASE_PATH ?>einsatz/create" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-plus"></i> Neu</a>
-                    <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--outline-danger ignis-btn--sm">
+                    <a href="<?= BASE_PATH ?>einsatz/create" class="ignis-ignis-btn ignis-btn--success"><i class="fa-solid fa-plus"></i> Neu</a>
+                    <button onclick="showBulkDeleteModal()" class="ignis-ignis-btn ignis-btn--outline-danger ignis-btn--sm">
                         <i class="fa-solid fa-trash-can"></i> Protokolle löschen
                     </button>
                 </div>
@@ -98,12 +98,12 @@ use App\Helpers\Flash;
                                 <?php if ($isFederated): ?>
                                     <span style="font-size:var(--fs-xs);color:var(--text-dimmed);">read-only</span>
                                 <?php else: ?>
-                                <a class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" href="<?= BASE_PATH ?>einsatz/view?id=<?= (int)$i['id'] ?>">Öffnen</a>
+                                <a class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary" href="<?= BASE_PATH ?>einsatz/view?id=<?= (int)$i['id'] ?>">Öffnen</a>
                                 <?php if ($showArchived): ?>
                                     <form method="post" action="<?= BASE_PATH ?>einsatz/actions" class="inline">
                                         <input type="hidden" name="action" value="unarchive_incident">
                                         <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
-                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success btn-icon" title="Wiederherstellen">
+                                        <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--success ignis-btn--icon" title="Wiederherstellen">
                                             <i class="fa-solid fa-box-open"></i>
                                         </button>
                                     </form>
@@ -111,7 +111,7 @@ use App\Helpers\Flash;
                                     <form method="post" action="<?= BASE_PATH ?>einsatz/actions" class="inline">
                                         <input type="hidden" name="action" value="archive_incident">
                                         <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
-                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-warning btn-icon" title="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });">
+                                        <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-warning ignis-btn--icon" title="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });">
                                             <i class="fa-solid fa-archive"></i>
                                         </button>
                                     </form>
@@ -141,8 +141,8 @@ use App\Helpers\Flash;
                     </div>
                 </div>
                 <div class="modal-footer" id="bulkDeleteFooter" style="display: none;">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete()">
+                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete()">
                         <i class="fa-solid fa-trash"></i> Jetzt löschen
                     </button>
                 </div>
@@ -213,7 +213,7 @@ use App\Helpers\Flash;
                                     <label class="ignis-field__label font-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
                                     <i class="fa-solid fa-search"></i> Vorschau anzeigen
                                 </button>
                             </form>`;
@@ -252,7 +252,7 @@ use App\Helpers\Flash;
                         if (data.count === 0) {
                             document.getElementById('bulkDeleteContent').innerHTML = `
                                 <div class="ignis-alert ignis-alert--info"><i class="fa-solid fa-circle-info"></i> <strong>Keine passenden Protokolle gefunden</strong><p class="mb-0 mt-2">Es wurden keine Protokolle gefunden, die alle ausgewählten Kriterien erfüllen.</p></div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
+                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
                         } else {
                             let protocolsList = data.protocols.map(p => {
                                 const date = new Date(p.created_at);
@@ -272,11 +272,11 @@ use App\Helpers\Flash;
                             window.bulkDeleteStatusFilter = statusFilter;
                         }
                     } else {
-                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
+                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div><button type="button" class="ignis-ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
                     }
                 })
                 .catch(error => {
-                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
+                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div><button type="button" class="ignis-ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
                 });
         };
 

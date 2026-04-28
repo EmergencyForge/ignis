@@ -90,10 +90,10 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <h2>Beladelisten</h2>
                         <div>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-                                <button class="ignis-btn ignis-btn--success mr-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <button class="ignis-ignis-btn ignis-btn--success mr-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                                     <i class="fa-solid fa-plus"></i> Neue Kategorie
                                 </button>
-                                <button class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#addTileModal">
+                                <button class="ignis-ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#addTileModal">
                                     <i class="fa-solid fa-plus"></i> Neuer Gegenstand
                                 </button>
                             <?php endif; ?>
@@ -101,8 +101,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <!-- Filter + Live-Suche -->
-                    <div class="card mb-4">
-                        <div class="card-body">
+                    <div class="ignis-card mb-4">
+                        <div class="ignis-card__body">
                             <div class="grid grid-cols-1 items-end gap-3 md:grid-cols-12">
                                 <div class="md:col-span-6">
                                     <label for="beladung-search-input" class="ignis-field__label mb-2">Suche:</label>
@@ -132,10 +132,10 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </select>
                                 </div>
                                 <div class="md:col-span-2 flex flex-wrap gap-2">
-                                    <button class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="reset-filter" data-ignis-tooltip="Filter zurücksetzen">
+                                    <button class="ignis-ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="reset-filter" data-ignis-tooltip="Filter zurücksetzen">
                                         <i class="fa-solid fa-undo"></i>
                                     </button>
-                                    <button class="ignis-btn ignis-btn--outline-info ignis-btn--sm" id="toggle-empty" data-ignis-tooltip="Leere Kategorien ein-/ausblenden">
+                                    <button class="ignis-ignis-btn ignis-btn--outline-info ignis-btn--sm" id="toggle-empty" data-ignis-tooltip="Leere Kategorien ein-/ausblenden">
                                         <i class="fa-solid fa-eye-slash"></i> <span id="toggle-text">Leer</span>
                                     </button>
                                 </div>
@@ -212,8 +212,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Speichern</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -253,8 +253,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -305,8 +305,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -358,8 +358,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -417,8 +417,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         noResultsMsg.id = 'no-results-message';
                         noResultsMsg.className = '';
                         noResultsMsg.innerHTML = `
-                            <div class="card">
-                                <div class="card-body text-center py-5">
+                            <div class="ignis-card">
+                                <div class="ignis-card__body text-center py-5">
                                     <i class="fa-solid fa-magnifying-glass text-gray-400" style="font-size: 3rem;"></i>
                                     <h5 class="text-gray-400 mt-3">Keine Kategorien gefunden</h5>
                                     <p class="text-gray-400">Passen Sie Ihre Filter an oder erstellen Sie eine neue Kategorie.</p>
@@ -491,7 +491,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             fahrzeugtypFilter.addEventListener('change', updateURL);
             kategorieFilter.addEventListener('change', updateURL);
 
-            document.querySelectorAll('.edit-category-btn').forEach(button => {
+            document.querySelectorAll('.edit-category-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
                     document.getElementById('edit-category-id').value = this.dataset.id;
@@ -503,7 +503,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 });
             });
 
-            document.querySelectorAll('.edit-tile-btn').forEach(button => {
+            document.querySelectorAll('.edit-tile-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const modal = new bootstrap.Modal(document.getElementById('editTileModal'));
                     document.getElementById('edit-tile-id').value = this.dataset.id;
@@ -514,7 +514,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 });
             });
 
-            document.querySelectorAll('.delete-category-btn').forEach(button => {
+            document.querySelectorAll('.delete-category-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     showConfirm('Möchten Sie diese Kategorie wirklich löschen? Alle zugehörigen Gegenstände werden ebenfalls gelöscht.', {danger: true, confirmText: 'Löschen', title: 'Kategorie löschen'}).then(result => {
                         if (result) {
@@ -524,7 +524,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 });
             });
 
-            document.querySelectorAll('.delete-tile-btn').forEach(button => {
+            document.querySelectorAll('.delete-tile-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     showConfirm('Möchten Sie diesen Gegenstand wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Gegenstand löschen'}).then(result => {
                         if (result) {

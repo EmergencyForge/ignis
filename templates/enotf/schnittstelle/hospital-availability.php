@@ -273,7 +273,7 @@ $status_config = [
             gap: 0.5rem;
         }
 
-        .status-btn {
+        .status-ignis-btn {
             padding: 0.75rem 1rem;
             border: 2px solid transparent;
             background: #1a1a1a;
@@ -288,16 +288,16 @@ $status_config = [
             gap: 0.5rem;
         }
 
-        .status-btn:hover {
+        .status-ignis-btn:hover {
             background: #222;
         }
 
-        .status-btn.active {
+        .status-ignis-btn.active {
             border-color: currentColor;
             font-weight: 700;
         }
 
-        .status-btn input[type="radio"] {
+        .status-ignis-btn input[type="radio"] {
             display: none;
         }
 
@@ -354,7 +354,7 @@ $status_config = [
                             autocomplete="off">
                     </div>
 
-                    <button type="submit" class="btn btn-submit">
+                    <button type="submit" class="ignis-btn btn-submit">
                         <i class="fa-solid fa-arrow-right"></i>
                         Anmelden
                     </button>
@@ -368,7 +368,7 @@ $status_config = [
                         <h2><?= htmlspecialchars($hospital['name']) ?></h2>
                         <p><?= htmlspecialchars($hospital['ort']) ?><?= $hospital['ortsteil'] ? ', ' . htmlspecialchars($hospital['ortsteil']) : '' ?></p>
                     </div>
-                    <a href="?logout=1" class="btn btn-logout">
+                    <a href="?logout=1" class="ignis-btn btn-logout">
                         <i class="fa-solid fa-right-from-bracket"></i> Abmelden
                     </a>
                 </div>
@@ -407,7 +407,7 @@ $status_config = [
 
                                 <div class="status-buttons">
                                     <?php foreach ($status_config as $status_key => $status_info): ?>
-                                        <label class="status-btn <?= $dept['status'] === $status_key ? 'active' : '' ?>"
+                                        <label class="status-ignis-btn <?= $dept['status'] === $status_key ? 'active' : '' ?>"
                                             style="color: <?= $status_info['color'] ?>;">
                                             <input type="radio"
                                                 name="availability[<?= $dept['id'] ?>]"
@@ -427,7 +427,7 @@ $status_config = [
                             </div>
                         <?php endforeach; ?>
 
-                        <button type="submit" class="btn btn-submit mt-3">
+                        <button type="submit" class="ignis-btn btn-submit mt-3">
                             <i class="fa-solid fa-floppy-disk"></i>
                             Verfügbarkeiten speichern
                         </button>
@@ -439,9 +439,9 @@ $status_config = [
 
     <script>
         // Visual feedback for radio button selection
-        $('.status-btn').on('click', function() {
+        $('.status-ignis-btn').on('click', function() {
             const $this = $(this);
-            $this.siblings('.status-btn').removeClass('active');
+            $this.siblings('.status-ignis-btn').removeClass('active');
             $this.addClass('active');
         });
     </script>

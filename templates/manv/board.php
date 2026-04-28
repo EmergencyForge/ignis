@@ -50,20 +50,20 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                     </small>
                 </div>
                 <div class="md:text-right">
-                    <a href="<?= BASE_PATH ?>manv/edit?id=<?= $lageId ?>" class="ignis-btn ignis-btn--soft-primary no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/edit?id=<?= $lageId ?>" class="ignis-ignis-btn ignis-btn--soft-primary no-underline hover:no-underline">
                         <i class="fas fa-edit mr-2"></i>Bearbeiten
                     </a>
                 </div>
             </div>
 
             <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-                <div class="card">
-                    <div class="card-body">
+                <div class="ignis-card">
+                    <div class="ignis-card__body">
                         <strong>LNA:</strong> <?= htmlspecialchars($lage['lna_name'] ?? 'Nicht zugewiesen') ?>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="card-body">
+                <div class="ignis-card">
+                    <div class="ignis-card__body">
                         <strong>OrgL:</strong> <?= htmlspecialchars($lage['orgl_name'] ?? 'Nicht zugewiesen') ?>
                     </div>
                 </div>
@@ -106,19 +106,19 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-header flex flex-wrap items-center justify-between gap-2">
+            <div class="ignis-card mb-4">
+                <div class="ignis-card__header flex flex-wrap items-center justify-between gap-2">
                     <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Patienten</h5>
                     <div class="flex flex-wrap gap-2">
-                        <a href="ressourcen?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary no-underline hover:no-underline">
+                        <a href="ressourcen?lage_id=<?= $lageId ?>" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-truck mr-2"></i>Fahrzeugverwaltung (<?= count($ressourcen) ?>)
                         </a>
-                        <a href="<?= BASE_PATH ?>manv/patient-create?lage_id=<?= $lageId ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>manv/patient-create?lage_id=<?= $lageId ?>" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary no-underline hover:no-underline">
                             <i class="fas fa-user-plus mr-2"></i>Neuer Patient
                         </a>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="ignis-card__body">
                     <div class="table-responsive">
                         <table id="patientenTable" class="table table-striped">
                             <thead>
@@ -177,11 +177,11 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <a href="<?= BASE_PATH ?>manv/patient-view?id=<?= (int) $patient['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1">
+                                            <a href="<?= BASE_PATH ?>manv/patient-view?id=<?= (int) $patient['id'] ?>" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <?php if ($canTransport && $isTransportVehicle && empty($patient['transport_abfahrt']) && !empty($patient['transportziel']) && $patient['transportziel'] !== 'Kein Transport'): ?>
-                                                <button class="ignis-btn ignis-btn--sm ignis-btn--success transport-btn"
+                                                <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--success transport-ignis-btn"
                                                     data-patient-id="<?= (int) $patient['id'] ?>"
                                                     data-patient-nr="<?= htmlspecialchars($patient['patienten_nummer']) ?>">
                                                     <i class="fas fa-truck-loading mr-1"></i>Abfahrt
@@ -197,12 +197,12 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
             </div>
 
             <div class="mb-4 mt-4">
-                <div class="card">
-                    <div class="card-body flex flex-wrap gap-2">
-                        <a href="index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                <div class="ignis-card">
+                    <div class="ignis-card__body flex flex-wrap gap-2">
+                        <a href="index" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                             <i class="fas fa-arrow-left mr-2"></i>Zurück zur Übersicht
                         </a>
-                        <a href="log?id=<?= $lageId ?>" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
+                        <a href="log?id=<?= $lageId ?>" class="ignis-ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-history mr-2"></i>Aktionslog
                         </a>
                     </div>
@@ -229,10 +229,10 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">
+                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">
                         <i class="fas fa-times mr-2"></i>Abbrechen
                     </button>
-                    <button type="button" class="ignis-btn ignis-btn--success" id="confirmTransportBtn">
+                    <button type="button" class="ignis-ignis-btn ignis-btn--success" id="confirmTransportBtn">
                         <i class="fas fa-check mr-2"></i>Bestätigen
                     </button>
                 </div>
@@ -257,7 +257,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
             let currentPatientId = null;
             let currentPatientNr = null;
 
-            $('.transport-btn').on('click', function() {
+            $('.transport-ignis-btn').on('click', function() {
                 currentPatientId = $(this).data('patient-id');
                 currentPatientNr = $(this).data('patient-nr');
                 $('#modal-patient-nr').text(currentPatientNr);

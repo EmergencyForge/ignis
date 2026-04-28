@@ -67,8 +67,8 @@ $currentDate = date('d.m.Y');
                                 ?>
 
                                 <div class="mt-3 flex gap-2">
-                                    <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
-                                    <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="cancelCreateForm">Abbrechen</button>
+                                    <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
+                                    <button type="button" class="ignis-ignis-btn ignis-btn--sm btn-outline-light" id="cancelCreateForm">Abbrechen</button>
                                 </div>
                             </form>
                         </div>
@@ -90,8 +90,8 @@ $currentDate = date('d.m.Y');
                                 ?>
 
                                 <div class="mt-3 flex gap-2">
-                                    <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
-                                    <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="cancelEditForm">Abbrechen</button>
+                                    <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
+                                    <button type="button" class="ignis-ignis-btn ignis-btn--sm btn-outline-light" id="cancelEditForm">Abbrechen</button>
                                 </div>
                             </form>
                         </div>
@@ -138,23 +138,23 @@ $currentDate = date('d.m.Y');
         }
 
         // Edit buttons
-        document.querySelectorAll('.fb-edit-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
+        document.querySelectorAll('.fb-edit-ignis-btn').forEach(function(ignis-btn) {
+            ignis-btn.addEventListener('click', function() {
                 createWrap.style.display = 'none';
                 editWrap.style.display = 'block';
 
-                document.getElementById('edit_id').value = btn.dataset.id;
+                document.getElementById('edit_id').value = ignis-btn.dataset.id;
 
                 // Fill edit form fields (they're in the second set of form fields)
                 var form = document.getElementById('editForm');
                 var fields = {
-                    'datum': btn.dataset.datum,
-                    'abfahrt': btn.dataset.abfahrt,
-                    'ankunft': btn.dataset.ankunft || '',
-                    'fahrttyp': btn.dataset.fahrttyp,
-                    'kilometer': btn.dataset.kilometer || '',
-                    'stationierungsort': btn.dataset.stationierungsort || '',
-                    'grund': btn.dataset.grund || ''
+                    'datum': ignis-btn.dataset.datum,
+                    'abfahrt': ignis-btn.dataset.abfahrt,
+                    'ankunft': ignis-btn.dataset.ankunft || '',
+                    'fahrttyp': ignis-btn.dataset.fahrttyp,
+                    'kilometer': ignis-btn.dataset.kilometer || '',
+                    'stationierungsort': ignis-btn.dataset.stationierungsort || '',
+                    'grund': ignis-btn.dataset.grund || ''
                 };
 
                 for (var key in fields) {

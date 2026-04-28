@@ -98,7 +98,7 @@
                     echo "<td>" . htmlspecialchars($doks['ersteller_name']) . "</td>";
                     echo "<td>" . htmlspecialchars($austdatum) . "</td>";
                     echo "<td>";
-                    echo "<a href='$pdfPath' class='btn btn-sm btn-soft-primary' target='_blank'><i class='fa-regular fa-eye'></i> Ansehen</a>";
+                    echo "<a href='$pdfPath' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary' target='_blank'><i class='fa-regular fa-eye'></i> Ansehen</a>";
                     echo "</td>";
                     echo "</tr>";
                 }

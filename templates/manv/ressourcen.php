@@ -30,10 +30,10 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                     <p class="text-gray-400">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
                 </div>
                 <div class="flex flex-col gap-2 lg:flex-row lg:justify-end">
-                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--icon" data-bs-toggle="modal" data-bs-target="#quickAddModal" title="Schnell hinzufügen">
+                    <button type="button" class="ignis-ignis-btn ignis-btn--success ignis-btn--icon" data-bs-toggle="modal" data-bs-target="#quickAddModal" title="Schnell hinzufügen">
                         <i class="fas fa-bolt"></i>
                     </button>
-                    <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                    <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createModal">
                         <i class="fas fa-plus mr-1"></i> Fahrzeug hinzufügen
                     </button>
                 </div>
@@ -41,11 +41,11 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
 
             <?php Flash::render(); ?>
 
-            <div class="card mb-4">
-                <div class="card-header">
+            <div class="ignis-card mb-4">
+                <div class="ignis-card__header">
                     <h5 class="mb-0">Fahrzeuge (<?= count($fahrzeuge) ?>)</h5>
                 </div>
-                <div class="card-body">
+                <div class="ignis-card__body">
                     <?php if (empty($fahrzeuge)): ?>
                         <p class="text-gray-400">Keine Fahrzeuge vorhanden.</p>
                     <?php else: ?>
@@ -66,7 +66,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                             <td><?= htmlspecialchars($fzg['fahrzeugtyp'] ?? '-') ?></td>
                                             <td><?= htmlspecialchars($fzg['lokalisation'] ?? '-') ?></td>
                                             <td>
-                                                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-ressource-btn"
+                                                <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-ressource-ignis-btn"
                                                     data-id="<?= (int) $fzg['id'] ?>"
                                                     data-typ="<?= htmlspecialchars($fzg['typ']) ?>"
                                                     data-bezeichnung="<?= htmlspecialchars($fzg['bezeichnung']) ?>"
@@ -78,7 +78,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                                     data-bs-target="#editModal">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= (int) $fzg['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
+                                                <a href="?lage_id=<?= $lageId ?>&delete_id=<?= (int) $fzg['id'] ?>" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
                                                     <i class="fas fa-trash"></i>
                                                 </a>
                                             </td>
@@ -92,7 +92,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             </div>
 
             <div class="mb-4">
-                <a href="<?= BASE_PATH ?>manv/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                <a href="<?= BASE_PATH ?>manv/board?id=<?= $lageId ?>" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                     <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                 </a>
             </div>
@@ -132,8 +132,8 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -207,8 +207,8 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary btn-lg"><i class="fas fa-plus mr-2"></i>Fahrzeug hinzufügen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--lg"><i class="fas fa-plus mr-2"></i>Fahrzeug hinzufügen</button>
                         </div>
                     </form>
                 </div>
@@ -253,8 +253,8 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success"><i class="fas fa-bolt mr-2"></i>Schnell hinzufügen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--success"><i class="fas fa-bolt mr-2"></i>Schnell hinzufügen</button>
                         </div>
                     </form>
                 </div>
@@ -370,8 +370,8 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             return String(text).replace(/[&<>"']/g, m => map[m]);
         }
 
-        document.querySelectorAll('.edit-ressource-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+        document.querySelectorAll('.edit-ressource-ignis-btn').forEach(ignis-btn => {
+            ignis-btn.addEventListener('click', function() {
                 document.getElementById('edit_ressource_id').value = this.dataset.id;
                 document.getElementById('edit_typ').value = this.dataset.typ;
                 document.getElementById('edit_bezeichnung').value = this.dataset.bezeichnung;

@@ -27,7 +27,7 @@ use App\Helpers\Flash;
                         <h1>Medikamentenverwaltung</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
-                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createMedikamentModal">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createMedikamentModal">
                                     <i class="fa-solid fa-plus"></i> Medikament erstellen
                                 </button>
                             <?php endif; ?>
@@ -60,7 +60,7 @@ use App\Helpers\Flash;
                                     $wirkstoff = htmlspecialchars($row['wirkstoff']);
 
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Medikament bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editMedikamentModal' data-id='{$row['id']}' data-wirkstoff='{$wirkstoff}' data-herstellername='{$herstellername}' data-dosierungen='{$dosierungen}' data-priority='{$row['priority']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Medikament bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn' data-bs-toggle='modal' data-bs-target='#editMedikamentModal' data-id='{$row['id']}' data-wirkstoff='{$wirkstoff}' data-herstellername='{$herstellername}' data-dosierungen='{$dosierungen}' data-priority='{$row['priority']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : '';
                                 ?>
                                     <tr>
@@ -111,10 +111,10 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="medikament-active"><input type="checkbox" name="active" id="medikament-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-medikament-btn">Löschen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-medikament-ignis-btn">Löschen</button>
                             <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -154,8 +154,8 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="new-medikament-active"><input type="checkbox" name="active" id="new-medikament-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>
@@ -173,7 +173,7 @@ use App\Helpers\Flash;
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.edit-btn').forEach(button => {
+            document.querySelectorAll('.edit-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     document.getElementById('medikament-id').value = this.dataset.id;
                     document.getElementById('medikament-wirkstoff').value = this.dataset.wirkstoff;
@@ -185,7 +185,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            const delBtn = document.getElementById('delete-medikament-btn');
+            const delBtn = document.getElementById('delete-medikament-ignis-btn');
             if (delBtn) {
                 delBtn.addEventListener('click', function() {
                     showConfirm('Möchtest du dieses Medikament wirklich löschen?', { danger: true, confirmText: 'Löschen', title: 'Medikament löschen' }).then(result => {
