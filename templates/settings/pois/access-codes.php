@@ -53,7 +53,7 @@ use App\Helpers\Flash;
                                         </td>
                                         <td><?= htmlspecialchars($hospital['ort']) ?></td>
                                         <td>
-                                            <span class="ignis-chip <?= (int)$hospital['dept_count'] > 0 ? 'text-bg-success' : 'text-bg-warning' ?>">
+                                            <span class="ignis-chip <?= (int)$hospital['dept_count'] > 0 ? 'ignis-chip--success' : 'ignis-chip--warning' ?>">
                                                 <?= (int)$hospital['dept_count'] ?> Fachrichtung(en)
                                             </span>
                                         </td>

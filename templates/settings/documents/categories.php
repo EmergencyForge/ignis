@@ -126,13 +126,13 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="mb-3">
                         <label for="catColor" class="ignis-field__label">Badge-Farbe</label>
                         <select class="form-select" id="catColor">
-                            <option value="text-bg-secondary">Grau (Standard)</option>
-                            <option value="text-bg-primary">Blau</option>
-                            <option value="text-bg-success">Grün</option>
-                            <option value="text-bg-danger">Rot</option>
-                            <option value="text-bg-warning">Gelb</option>
-                            <option value="text-bg-info">Cyan</option>
-                            <option value="text-bg-dark">Dunkel</option>
+                            <option value="ignis-chip--secondary">Grau (Standard)</option>
+                            <option value="ignis-chip--primary">Blau</option>
+                            <option value="ignis-chip--success">Grün</option>
+                            <option value="ignis-chip--danger">Rot</option>
+                            <option value="ignis-chip--warning">Gelb</option>
+                            <option value="ignis-chip--info">Cyan</option>
+                            <option value="ignis-chip--dark">Dunkel</option>
                         </select>
                         <div class="mt-2">
                             <span class="ignis-chip" id="colorPreview">Vorschau</span>
@@ -172,7 +172,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
         function updateColorPreview() {
             var preview = document.getElementById('colorPreview');
             var name = document.getElementById('catName').value || 'Vorschau';
-            preview.className = 'badge ' + document.getElementById('catColor').value;
+            preview.className = 'ignis-chip ' + document.getElementById('catColor').value;
             preview.textContent = name;
         }
 
@@ -181,7 +181,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
         function resetForm() {
             document.getElementById('catId').value = '';
             document.getElementById('catName').value = '';
-            document.getElementById('catColor').value = 'text-bg-secondary';
+            document.getElementById('catColor').value = 'ignis-chip--secondary';
             document.getElementById('catIcon').value = '';
             document.getElementById('catSortOrder').value = '0';
             document.getElementById('categoryModalLabel').textContent = 'Kategorie erstellen';

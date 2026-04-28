@@ -1061,7 +1061,7 @@ final class DocumentsController
         }
 
         $name      = trim((string) $input['name']);
-        $color     = $input['color'] ?? 'text-bg-secondary';
+        $color     = $input['color'] ?? 'ignis-chip--secondary';
         $icon      = !empty($input['icon']) ? trim((string) $input['icon']) : null;
         $sortOrder = (int) ($input['sort_order'] ?? 0);
 

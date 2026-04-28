@@ -120,7 +120,7 @@ $SITE_TITLE = htmlspecialchars($typLabel);
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
 
-            <span class="ignis-chip <?= htmlspecialchars($doc->category_color ?? 'text-bg-secondary') ?>" style="font-size:0.7rem;">
+            <span class="ignis-chip <?= htmlspecialchars($doc->category_color ?? 'ignis-chip--secondary') ?>" style="font-size:0.7rem;">
                 <?= htmlspecialchars($doc->category_name ?? 'Dokument') ?>
             </span>
 

@@ -73,7 +73,7 @@ function openDocumentViewer(docid) {
             // Header
             titleEl.textContent = doc.type_label;
             badgeEl.textContent = doc.category_name || 'Dokument';
-            badgeEl.className = 'badge ' + (doc.category_color || 'text-bg-secondary');
+            badgeEl.className = 'ignis-chip ' + (doc.category_color || 'ignis-chip--secondary');
             detailLink.href = '<?= BASE_PATH ?>mitarbeiter/dokument-view.php?docid=' + doc.docid;
 
             // Meta-Chips (kompakte Zeile)
