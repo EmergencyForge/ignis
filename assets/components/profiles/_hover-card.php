@@ -41,7 +41,7 @@ $fwQuali    = trim($mitarbeiter->fwQualiLabel());
         <?php endif; ?>
     </dl>
 
-    <a href="<?= htmlspecialchars($profileUrl) ?>" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
+    <a href="<?= htmlspecialchars($profileUrl) ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> Profil öffnen
     </a>
 </div>

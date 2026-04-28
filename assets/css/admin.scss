@@ -66,11 +66,8 @@ a {
   transition: color 0.1s ease;
 }
 
-a:hover {
+a:not([class*="btn"]):not([class*="ignis-btn"]):not(.sidebar-link):not(.nav-link):not(.no-underline):not(.gsr-item):not(.rail-item):not(.flyout-item):not(.rail-logo):not(.setup-step):not(.edivi__einsatz-link):not(.edivi__iconlink):not(.text-reset):hover {
   color: var(--link-hover);
-}
-
-a:not([class*="btn"]):not(.sidebar-link):not(.nav-link):not(.no-underline):not(.gsr-item):not(.rail-item):not(.flyout-item):not(.rail-logo):not(.setup-step):not(.edivi__einsatz-link):not(.edivi__iconlink):not(.text-reset):hover {
   text-decoration: underline;
 }
 

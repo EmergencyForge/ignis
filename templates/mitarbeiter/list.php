@@ -34,14 +34,14 @@ use App\Helpers\Flash;
                         <h1>Mitarbeiterübersicht</h1>
                         <div class="header-actions">
                             <?php if (Gate::allows('mitarbeiter.create') && !$showArchive): ?>
-                                <button type="button" class="ignis-ignis-btn ignis-btn--success ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#modalCreateMitarbeiter">
+                                <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#modalCreateMitarbeiter">
                                     <i class="fa-solid fa-plus mr-1"></i>Neuer Mitarbeiter
                                 </button>
                             <?php endif; ?>
                             <?php if ($showArchive): ?>
-                                <a href="<?= BASE_PATH ?>mitarbeiter/list" class="ignis-ignis-btn ignis-btn--outline-success">Aktive Mitarbeiter</a>
+                                <a href="<?= BASE_PATH ?>mitarbeiter/list" class="ignis-btn ignis-btn--outline-success">Aktive Mitarbeiter</a>
                             <?php else: ?>
-                                <a href="<?= BASE_PATH ?>mitarbeiter/list?archiv" class="ignis-ignis-btn ignis-btn--outline-secondary">Archiv</a>
+                                <a href="<?= BASE_PATH ?>mitarbeiter/list?archiv" class="ignis-btn ignis-btn--outline-secondary">Archiv</a>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -82,12 +82,12 @@ use App\Helpers\Flash;
                                 </select>
                             </div>
                             <div class="px-3">
-                                <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="resetFilters">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="resetFilters">
                                     <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
                                 </button>
                             </div>
                             <div class="ml-auto px-3">
-                                <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-success" id="exportCSV" data-ignis-tooltip="Gefilterte Liste als CSV exportieren">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-success" id="exportCSV" data-ignis-tooltip="Gefilterte Liste als CSV exportieren">
                                     <i class="fa-solid fa-file-csv"></i> CSV-Export
                                 </button>
                             </div>
@@ -151,7 +151,7 @@ use App\Helpers\Flash;
                                         </td>
                                         <td>
                                             <div class="col-actions">
-                                                <a href="<?= BASE_PATH ?>mitarbeiter/profile?id=<?= (int) $m->id ?>" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Profil ansehen">
+                                                <a href="<?= BASE_PATH ?>mitarbeiter/profile?id=<?= (int) $m->id ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Profil ansehen">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
                                             </div>
@@ -258,8 +258,8 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost ignis-btn--sm" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-ignis-btn ignis-btn--success ignis-btn--sm" id="cm_submit">
+                        <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success ignis-btn--sm" id="cm_submit">
                             <i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen
                         </button>
                     </div>

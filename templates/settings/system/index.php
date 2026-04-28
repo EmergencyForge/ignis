@@ -326,7 +326,7 @@ if ($isDevMode) {
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                             <input type="hidden" name="check_updates" value="1">
                                             <input type="hidden" name="include_prerelease" id="include-prerelease-hidden" value="0">
-                                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary w-full">
+                                            <button type="submit" class="ignis-btn ignis-btn--soft-primary w-full">
                                                 <i class="fa-solid fa-sync"></i> Auf Updates prüfen
                                             </button>
                                         </form>
@@ -343,13 +343,13 @@ if ($isDevMode) {
                                                 <input type="hidden" name="check_updates" value="1">
                                                 <input type="hidden" name="force_refresh" value="1">
                                                 <input type="hidden" name="include_prerelease" id="force-refresh-prerelease" value="0">
-                                                <button type="submit" class="ignis-ignis-btn ignis-btn--outline-primary ignis-btn--sm w-full">
+                                                <button type="submit" class="ignis-btn ignis-btn--outline-primary ignis-btn--sm w-full">
                                                     <i class="fa-solid fa-sync"></i> Neu laden
                                                 </button>
                                             </form>
                                             <form method="post" class="flex-1">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                                                <button type="submit" name="clear_cache" class="ignis-ignis-btn ignis-btn--outline-secondary ignis-btn--sm w-full">
+                                                <button type="submit" name="clear_cache" class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm w-full">
                                                     <i class="fa-solid fa-trash"></i> Cache leeren
                                                 </button>
                                             </form>
@@ -451,7 +451,7 @@ if ($isDevMode) {
                                                 <input type="hidden" name="download_url_fallback" value="<?= htmlspecialchars($updateInfo['download_url_fallback'] ?? '') ?>">
                                                 <input type="hidden" name="new_version" value="<?= htmlspecialchars($updateInfo['latest_version']) ?>">
                                                 <input type="hidden" name="is_prerelease" value="<?= isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] ? '1' : '0' ?>">
-                                                <button type="button" id="install-update-ignis-btn" class="ignis-ignis-btn ignis-btn--success w-full">
+                                                <button type="button" id="install-update-ignis-btn" class="ignis-btn ignis-btn--success w-full">
                                                     <i class="fa-solid fa-download"></i> Update jetzt installieren
                                                 </button>
                                             </form>
@@ -461,14 +461,14 @@ if ($isDevMode) {
                                             <?php if (isset($updateInfo['html_url'])): ?>
                                                 <a href="<?= htmlspecialchars($updateInfo['html_url']) ?>"
                                                     target="_blank"
-                                                    class="ignis-ignis-btn ignis-btn--outline-primary w-full mb-2">
+                                                    class="ignis-btn ignis-btn--outline-primary w-full mb-2">
                                                     <i class="fa-solid fa-external-link-alt"></i> Release auf GitHub ansehen
                                                 </a>
                                             <?php endif; ?>
 
                                             <?php if (isset($updateInfo['download_url'])): ?>
                                                 <a href="<?= htmlspecialchars($updateInfo['download_url']) ?>"
-                                                    class="ignis-ignis-btn ignis-btn--outline-secondary w-full">
+                                                    class="ignis-btn ignis-btn--outline-secondary w-full">
                                                     <i class="fa-solid fa-file-zipper"></i> ZIP manuell herunterladen
                                                 </a>
                                             <?php endif; ?>
@@ -566,7 +566,7 @@ if ($isDevMode) {
                                                         <input type="hidden" name="dev_install_branch" value="1">
                                                         <input type="hidden" name="dev_branch" value="<?= htmlspecialchars($selectedBranch) ?>">
                                                         <input type="hidden" name="dev_commit_sha" value="<?= htmlspecialchars($devBranchInfo['sha']) ?>">
-                                                        <button type="button" id="dev-install-ignis-btn" class="ignis-ignis-btn ignis-btn--warning w-full">
+                                                        <button type="button" id="dev-install-ignis-btn" class="ignis-btn ignis-btn--warning w-full">
                                                             <i class="fa-solid fa-download"></i> Commit installieren (<?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?>)
                                                         </button>
                                                     </form>

@@ -103,16 +103,16 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                     <h5 class="mb-0">Schnell-Sichtung</h5>
                 </div>
                 <div class="ignis-card__body text-center">
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-ignis-btn ignis-btn--danger quick-action-ignis-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--danger quick-action-ignis-btn">
                         <i class="fas fa-circle mr-1"></i>SK1 - Rot
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-ignis-btn ignis-btn--warning quick-action-ignis-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK2" class="ignis-btn ignis-btn--warning quick-action-ignis-btn">
                         <i class="fas fa-circle mr-1"></i>SK2 - Gelb
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-ignis-btn ignis-btn--success quick-action-ignis-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK3" class="ignis-btn ignis-btn--success quick-action-ignis-btn">
                         <i class="fas fa-circle mr-1"></i>SK3 - Grün
                     </a>
-                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-ignis-btn ignis-btn--info quick-action-ignis-btn">
+                    <a href="?id=<?= $patientId ?>&quick_sk=SK4" class="ignis-btn ignis-btn--info quick-action-ignis-btn">
                         <i class="fas fa-circle mr-1"></i>SK4 - Blau
                     </a>
                     <a href="?id=<?= $patientId ?>&quick_sk=SK5" class="ignis-btn quick-action-ignis-btn" style="background-color: #000; color: #fff; border-color: #fff;">
@@ -256,10 +256,10 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="<?= BASE_PATH ?>manv/board?id=<?= (int) $patient['manv_lage_id'] ?>" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/board?id=<?= (int) $patient['manv_lage_id'] ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--lg">
+                    <button type="submit" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg">
                         <i class="fas fa-save mr-2"></i>Änderungen speichern
                     </button>
                 </div>

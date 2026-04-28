@@ -27,7 +27,7 @@
             <input type="hidden" name="return_tab" value="bericht">
             <textarea name="notes" class="ignis-input mb-2" rows="5" placeholder="Beschreiben Sie hier das Einsatzgeschehen..."><?= htmlspecialchars($incident['notes'] ?? '') ?></textarea>
             <div class="text-right">
-                <button type="submit" class="ignis-ignis-btn ignis-btn--primary ignis-btn--sm">
+                <button type="submit" class="ignis-btn ignis-btn--primary ignis-btn--sm">
                     <i class="fa-solid fa-save mr-1"></i>Speichern
                 </button>
             </div>
@@ -40,7 +40,7 @@
     <div class="mb-3 flex items-center justify-between">
         <h4 class="mb-0">Atemschutzüberwachung (ASU)</h4>
         <?php if (!$incident['finalized']): ?>
-            <a href="<?= BASE_PATH ?>einsatz/asu?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>" class="ignis-ignis-btn ignis-btn--danger ignis-btn--sm">
+            <a href="<?= BASE_PATH ?>einsatz/asu?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>" class="ignis-btn ignis-btn--danger ignis-btn--sm">
                 ASU starten
             </a>
         <?php endif; ?>
@@ -56,7 +56,7 @@
             <?php foreach ($asuProtocols as $asu): ?>
                 <?php $protocolData = json_decode($asu['data'], true) ?? []; ?>
                 <div>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#asuModal<?= (int)$asu['id'] ?>">
+                    <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#asuModal<?= (int)$asu['id'] ?>">
                         <i class="fa-solid fa-shield"></i>
                         <?= htmlspecialchars($asu['supervisor']) ?>
                         <br>
@@ -240,11 +240,11 @@
                             </div>
                             <div class="modal-footer">
                                 <?php if (!$incident['finalized']): ?>
-                                    <a href="<?= BASE_PATH ?>einsatz/asu?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>&asu_id=<?= (int)$asu['id'] ?>" class="ignis-ignis-btn ignis-btn--primary">
+                                    <a href="<?= BASE_PATH ?>einsatz/asu?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>&asu_id=<?= (int)$asu['id'] ?>" class="ignis-btn ignis-btn--primary">
                                         <i class="fa-solid fa-edit mr-1"></i>Protokoll fortführen
                                     </a>
                                 <?php endif; ?>
-                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                             </div>
                         </div>
                     </div>

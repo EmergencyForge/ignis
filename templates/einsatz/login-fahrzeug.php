@@ -70,10 +70,10 @@ use App\Helpers\Flash;
                             <strong>Besatzung:</strong> <?= htmlspecialchars($_SESSION['einsatz_operator_name']) ?>
                         </div>
                         <div class="flex flex-col gap-2">
-                            <a href="<?= BASE_PATH ?>einsatz/list" class="ignis-ignis-btn ignis-btn--primary ignis-btn--lg">
+                            <a href="<?= BASE_PATH ?>einsatz/list" class="ignis-btn ignis-btn--primary ignis-btn--lg">
                                 <i class="fa-solid fa-list mr-2"></i>Zur Einsatzliste
                             </a>
-                            <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug?logout=1" class="ignis-ignis-btn ignis-btn--outline-secondary">
+                            <a href="<?= BASE_PATH ?>einsatz/login-fahrzeug?logout=1" class="ignis-btn ignis-btn--outline-secondary">
                                 <i class="fa-solid fa-sign-out-alt mr-2"></i>Abmelden
                             </a>
                         </div>
@@ -146,7 +146,7 @@ use App\Helpers\Flash;
                                 </div>
 
                                 <div class="flex flex-col gap-2">
-                                    <button type="submit" class="ignis-ignis-btn ignis-btn--primary ignis-btn--lg">
+                                    <button type="submit" class="ignis-btn ignis-btn--primary ignis-btn--lg">
                                         <i class="fa-solid fa-sign-in-alt mr-2"></i>
                                         Anmelden
                                     </button>

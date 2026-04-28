@@ -98,7 +98,7 @@ use App\Helpers\Flash;
                                             <td>
                                                 <div class="col-actions">
                                                     <a href="<?= BASE_PATH ?>benutzer/edit?id=<?= (int) $user->id ?>"
-                                                       class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
+                                                       class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
                                                        data-ignis-tooltip="Bearbeiten">
                                                         <i class="fa-solid fa-pen-to-square"></i>
                                                     </a>

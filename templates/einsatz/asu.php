@@ -103,7 +103,7 @@
                 <div class="modal-body" id="asuProtocolView">
                 </div>
                 <div class="modal-footer border-secondary">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                 </div>
             </div>
         </div>

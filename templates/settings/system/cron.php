@@ -34,7 +34,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
         <div class="container mx-auto">
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="mb-0">Cron-Jobs</h1>
-                <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCronJobModal">
+                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCronJobModal">
                     <i class="fa-solid fa-plus"></i> Neuer Job
                 </button>
             </div>
@@ -49,10 +49,10 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                 </summary>
                 <div class="flex items-center gap-2 mt-3">
                     <input type="password" class="ignis-input ignis-input--sm" id="cron-endpoint-url" value="<?= htmlspecialchars($cronUrl) ?>" readonly style="font-family: var(--font-mono, monospace); font-size: 0.78rem;">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost" title="Anzeigen" onclick="const el=document.getElementById('cron-endpoint-url');el.type=el.type==='password'?'text':'password';this.querySelector('i').className='fa-solid '+(el.type==='text'?'fa-eye-slash':'fa-eye')">
+                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" title="Anzeigen" onclick="const el=document.getElementById('cron-endpoint-url');el.type=el.type==='password'?'text':'password';this.querySelector('i').className='fa-solid '+(el.type==='text'?'fa-eye-slash':'fa-eye')">
                         <i class="fa-solid fa-eye"></i>
                     </button>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="navigator.clipboard.writeText(document.getElementById('cron-endpoint-url').value);this.innerHTML='<i class=\'fa-solid fa-check\'></i> Kopiert';setTimeout(()=>this.innerHTML='<i class=\'fa-solid fa-copy\'></i> Kopieren',1200)">
+                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="navigator.clipboard.writeText(document.getElementById('cron-endpoint-url').value);this.innerHTML='<i class=\'fa-solid fa-check\'></i> Kopiert';setTimeout(()=>this.innerHTML='<i class=\'fa-solid fa-copy\'></i> Kopieren',1200)">
                         <i class="fa-solid fa-copy"></i> Kopieren
                     </button>
                 </div>
@@ -110,16 +110,16 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                                 <td><?= (int) $job['fail_count'] ?></td>
                                 <td>
                                     <div class="flex gap-1">
-                                        <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary" title="History" onclick="showCronHistory(<?= $jobId ?>, '<?= htmlspecialchars($job['name'], ENT_QUOTES) ?>')">
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" title="History" onclick="showCronHistory(<?= $jobId ?>, '<?= htmlspecialchars($job['name'], ENT_QUOTES) ?>')">
                                             <i class="fa-solid fa-clock-rotate-left"></i>
                                         </button>
-                                        <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-success" title="Jetzt ausführen" onclick="runCronJob(<?= $jobId ?>, this)">
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-success" title="Jetzt ausführen" onclick="runCronJob(<?= $jobId ?>, this)">
                                             <i class="fa-solid fa-play"></i>
                                         </button>
                                         <form method="POST" action="<?= $base ?>settings/system/cron/toggle" style="display:inline">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                             <input type="hidden" name="id" value="<?= $jobId ?>">
-                                            <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-warning" title="Aktivieren / Pausieren">
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-warning" title="Aktivieren / Pausieren">
                                                 <i class="fa-solid <?= ((int) $job['active']) === 1 ? 'fa-pause' : 'fa-play' ?>"></i>
                                             </button>
                                         </form>
@@ -127,7 +127,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                                             <form method="POST" action="<?= $base ?>settings/system/cron/delete" style="display:inline" data-confirm="Job wirklich löschen?">
                                                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                                 <input type="hidden" name="id" value="<?= $jobId ?>">
-                                                <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost-danger" title="Löschen">
+                                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger" title="Löschen">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
                                             </form>
@@ -195,8 +195,8 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                     </div>
                 </form>
             </div>

@@ -184,7 +184,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                             readonly>
                                                         <button
                                                             type="button"
-                                                            class="ignis-ignis-btn ignis-btn--outline-secondary ignis-btn--icon"
+                                                            class="ignis-btn ignis-btn--outline-secondary ignis-btn--icon"
                                                             onclick="toggleApiKeyVisibility()"
                                                             title="API-Schlüssel anzeigen/verbergen"
                                                             id="toggleApiKeyBtn">
@@ -192,14 +192,14 @@ $configByCategory = $configManager->getConfigByCategory();
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            class="ignis-ignis-btn ignis-btn--outline-primary ignis-btn--icon"
+                                                            class="ignis-btn ignis-btn--outline-primary ignis-btn--icon"
                                                             onclick="copyApiKey()"
                                                             title="API-Schlüssel kopieren">
                                                             <i class="fa-solid fa-copy"></i>
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            class="ignis-ignis-btn ignis-btn--soft-warning ignis-btn--icon"
+                                                            class="ignis-btn ignis-btn--soft-warning ignis-btn--icon"
                                                             onclick="regenerateApiKey(event)"
                                                             title="API-Schlüssel neu generieren">
                                                             <i class="fa-solid fa-rotate"></i>
@@ -312,7 +312,7 @@ $configByCategory = $configManager->getConfigByCategory();
                         <?php endforeach; ?>
 
                         <div class="mb-6 flex flex-col gap-2 md:flex-row md:justify-end">
-                            <button type="submit" name="save_config" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--lg">
+                            <button type="submit" name="save_config" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg">
                                 <i class="fa-solid fa-save"></i> Änderungen speichern
                             </button>
                         </div>

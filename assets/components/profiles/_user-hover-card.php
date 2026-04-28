@@ -48,7 +48,7 @@ $mitarbeiterUrl = $mitarbeiter !== null
         </dd>
     </dl>
 
-    <a href="<?= htmlspecialchars($editUrl) ?>" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
+    <a href="<?= htmlspecialchars($editUrl) ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> User bearbeiten
     </a>
 </div>

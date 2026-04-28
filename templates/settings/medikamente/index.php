@@ -27,7 +27,7 @@ use App\Helpers\Flash;
                         <h1>Medikamentenverwaltung</h1>
                         <div class="header-actions">
                             <?php if (Permissions::check('admin')) : ?>
-                                <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createMedikamentModal">
+                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createMedikamentModal">
                                     <i class="fa-solid fa-plus"></i> Medikament erstellen
                                 </button>
                             <?php endif; ?>
@@ -111,10 +111,10 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="medikament-active"><input type="checkbox" name="active" id="medikament-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-medikament-ignis-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-medikament-ignis-btn">Löschen</button>
                             <div>
-                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -154,8 +154,8 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="new-medikament-active"><input type="checkbox" name="active" id="new-medikament-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

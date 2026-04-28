@@ -78,7 +78,7 @@ foreach ($departments as $d) {
     </dl>
 
     <a href="<?= htmlspecialchars($base . 'settings/pois/departments?poi_id=' . (int) $poi->id) ?>"
-       class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
+       class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> Abteilungen verwalten
     </a>
 </div>

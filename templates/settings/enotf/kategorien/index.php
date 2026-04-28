@@ -25,10 +25,10 @@ use App\Helpers\Flash;
                     <h1 class="mb-0">Schnellzugriff-Kategorien Verwaltung</h1>
                     <?php if (Permissions::check('admin')) : ?>
                         <div class="flex gap-2">
-                            <a href="<?= BASE_PATH ?>settings/enotf/index" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                            <a href="<?= BASE_PATH ?>settings/enotf/index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                                 <i class="fa-solid fa-arrow-left"></i> Zurück
                             </a>
-                            <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
                                 <i class="fa-solid fa-plus"></i> Kategorie erstellen
                             </button>
                         </div>
@@ -104,10 +104,10 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="category-active"><input type="checkbox" name="active" id="category-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-category-ignis-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-category-ignis-btn">Löschen</button>
                             <div>
-                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                                <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -141,8 +141,8 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="create-category-active"><input type="checkbox" name="active" id="create-category-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

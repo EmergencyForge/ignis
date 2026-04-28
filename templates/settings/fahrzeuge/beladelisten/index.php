@@ -90,10 +90,10 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <h2>Beladelisten</h2>
                         <div>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-                                <button class="ignis-ignis-btn ignis-btn--success mr-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <button class="ignis-btn ignis-btn--success mr-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
                                     <i class="fa-solid fa-plus"></i> Neue Kategorie
                                 </button>
-                                <button class="ignis-ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#addTileModal">
+                                <button class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#addTileModal">
                                     <i class="fa-solid fa-plus"></i> Neuer Gegenstand
                                 </button>
                             <?php endif; ?>
@@ -132,10 +132,10 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </select>
                                 </div>
                                 <div class="md:col-span-2 flex flex-wrap gap-2">
-                                    <button class="ignis-ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="reset-filter" data-ignis-tooltip="Filter zurücksetzen">
+                                    <button class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="reset-filter" data-ignis-tooltip="Filter zurücksetzen">
                                         <i class="fa-solid fa-undo"></i>
                                     </button>
-                                    <button class="ignis-ignis-btn ignis-btn--outline-info ignis-btn--sm" id="toggle-empty" data-ignis-tooltip="Leere Kategorien ein-/ausblenden">
+                                    <button class="ignis-btn ignis-btn--outline-info ignis-btn--sm" id="toggle-empty" data-ignis-tooltip="Leere Kategorien ein-/ausblenden">
                                         <i class="fa-solid fa-eye-slash"></i> <span id="toggle-text">Leer</span>
                                     </button>
                                 </div>
@@ -212,8 +212,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -253,8 +253,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -305,8 +305,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>
@@ -358,8 +358,8 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </form>
                 </div>

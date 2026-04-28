@@ -23,8 +23,8 @@ use App\Helpers\Flash;
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="mb-0">Dashboard-Konfiguration</h1>
                 <div class="flex gap-2">
-                    <a href="<?= BASE_PATH ?>dashboard" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline" target="_blank"><i class="fa-solid fa-external-link-alt"></i> Dashboard aufrufen</a>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                    <a href="<?= BASE_PATH ?>dashboard" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline" target="_blank"><i class="fa-solid fa-external-link-alt"></i> Dashboard aufrufen</a>
+                    <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
                         <i class="fa-solid fa-plus"></i> Kategorie erstellen
                     </button>
                 </div>
@@ -42,7 +42,7 @@ use App\Helpers\Flash;
                                 <h2><?= htmlspecialchars($row['title']) ?></h2>
                                 <div class="flex gap-2">
                                     <button type="button"
-                                        class="edit-category-ignis-btn ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
+                                        class="edit-category-ignis-btn ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
                                         data-id="<?= (int)$row['id'] ?>"
                                         data-title="<?= htmlspecialchars($row['title']) ?>"
                                         data-priority="<?= (int)$row['priority'] ?>"
@@ -50,7 +50,7 @@ use App\Helpers\Flash;
                                         data-bs-target="#editCategoryModal">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <button type="button" class="create-tile-ignis-btn ignis-ignis-btn ignis-btn--sm ignis-btn--success"
+                                    <button type="button" class="create-tile-ignis-btn ignis-btn ignis-btn--sm ignis-btn--success"
                                         data-bs-toggle="modal"
                                         data-bs-target="#createTileModal"
                                         data-category="<?= (int)$row['id'] ?>">
@@ -63,7 +63,7 @@ use App\Helpers\Flash;
                                     <li class="mb-4 flex items-center justify-between">
                                         <h4><i class="<?= htmlspecialchars($tile['icon']) ?>"></i> <?= htmlspecialchars($tile['title']) ?></h4>
                                         <button type="button"
-                                            class="edit-tile-ignis-btn ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary whitespace-nowrap"
+                                            class="edit-tile-ignis-btn ignis-btn ignis-btn--sm ignis-btn--soft-primary whitespace-nowrap"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editTileModal"
                                             data-id="<?= (int)$tile['id'] ?>"
@@ -119,10 +119,10 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <div class="modal-footer flex justify-between">
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-tile-ignis-btn">Löschen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-tile-ignis-btn">Löschen</button>
                         <div>
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </div>
                 </form>
@@ -167,8 +167,8 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                        <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                     </div>
                 </form>
             </div>
@@ -196,10 +196,10 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <div class="modal-footer flex justify-between">
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-category-ignis-btn">Löschen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-category-ignis-btn">Löschen</button>
                         <div>
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                         </div>
                     </div>
                 </form>
@@ -230,8 +230,8 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                        <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                     </div>
                 </form>
             </div>

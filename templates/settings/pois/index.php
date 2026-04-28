@@ -28,10 +28,10 @@ use App\Helpers\Flash;
                         <div class="header-actions">
                             <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                                 <div class="flex gap-2">
-                                    <a href="<?= BASE_PATH ?>settings/pois/access-codes" class="ignis-ignis-btn ignis-btn--soft-warning">
+                                    <a href="<?= BASE_PATH ?>settings/pois/access-codes" class="ignis-btn ignis-btn--soft-warning">
                                         <i class="fa-solid fa-key"></i> Krankenhaus-Zugänge
                                     </a>
-                                    <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
+                                    <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createPoiModal">
                                         <i class="fa-solid fa-plus"></i> POI erstellen
                                     </button>
                                 </div>
@@ -139,10 +139,10 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="poi-active"><input type="checkbox" name="active" id="poi-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-poi-ignis-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-poi-ignis-btn">Löschen</button>
                             <div>
-                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -185,8 +185,8 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="new-poi-active"><input type="checkbox" name="active" id="new-poi-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

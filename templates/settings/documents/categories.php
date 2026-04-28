@@ -31,10 +31,10 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="page-header mb-4">
                 <h1>Dokumenten-Kategorien</h1>
                 <div class="header-actions">
-                    <a href="<?= BASE_PATH ?>settings/documents/templates" class="ignis-ignis-btn ignis-btn--outline-secondary">
+                    <a href="<?= BASE_PATH ?>settings/documents/templates" class="ignis-btn ignis-btn--outline-secondary">
                         <i class="fa-solid fa-file-lines"></i> Templates verwalten
                     </a>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="resetForm()">
+                    <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="resetForm()">
                         <i class="fa-solid fa-plus"></i> Kategorie erstellen
                     </button>
                 </div>
@@ -82,12 +82,12 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     </td>
                                     <td>
                                         <div class="flex justify-end gap-1">
-                                            <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Bearbeiten"
+                                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Bearbeiten"
                                                 onclick="editCategory(<?= htmlspecialchars(json_encode($kat)) ?>)">
                                                 <i class="fa-solid fa-pen"></i>
                                             </button>
                                             <?php if ($kat['template_count'] == 0): ?>
-                                                <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" data-ignis-tooltip="Löschen"
+                                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" data-ignis-tooltip="Löschen"
                                                     onclick="deleteCategory(<?= (int)$kat['id'] ?>, '<?= htmlspecialchars($kat['name'], ENT_QUOTES) ?>')">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>
@@ -150,8 +150,8 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--primary" onclick="saveCategory()">
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--primary" onclick="saveCategory()">
                         <i class="fa-solid fa-save"></i> Speichern
                     </button>
                 </div>

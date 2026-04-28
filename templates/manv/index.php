@@ -47,7 +47,7 @@ $SITE_TITLE = 'MANV-Übersicht';
             <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div>
                     <?php if ($statusFilter !== 'aktiv'): ?>
-                        <a href="<?= BASE_PATH ?>manv/index" class="ignis-ignis-btn ignis-btn--ghost mb-3 no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>manv/index" class="ignis-btn ignis-btn--ghost mb-3 no-underline hover:no-underline">
                             <i class="fas fa-arrow-left mr-2"></i>Zurück zu aktiven Lagen
                         </a>
                     <?php endif; ?>
@@ -61,7 +61,7 @@ $SITE_TITLE = 'MANV-Übersicht';
                     <p class="text-gray-400">Massenanfall von Verletzten - Lagenverwaltung</p>
                 </div>
                 <div class="md:text-right">
-                    <a href="<?= BASE_PATH ?>manv/create" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--lg no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/create" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg no-underline hover:no-underline">
                         <i class="fas fa-plus mr-2"></i>Neue MANV-Lage anlegen
                     </a>
                 </div>
@@ -159,10 +159,10 @@ $SITE_TITLE = 'MANV-Übersicht';
                         <h5 class="mb-0">Archivierte Lagen</h5>
                     </div>
                     <div class="ignis-card__body flex flex-wrap gap-2">
-                        <a href="<?= BASE_PATH ?>manv/index?status=abgeschlossen" class="ignis-ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>manv/index?status=abgeschlossen" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-archive mr-2"></i>Abgeschlossene Lagen anzeigen
                         </a>
-                        <a href="<?= BASE_PATH ?>manv/index?status=archiviert" class="ignis-ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
+                        <a href="<?= BASE_PATH ?>manv/index?status=archiviert" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-archive mr-2"></i>Archivierte Lagen anzeigen
                         </a>
                     </div>
