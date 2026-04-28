@@ -25,10 +25,10 @@ use App\Helpers\Flash;
                     <h1 class="mb-0">Schnellzugriff-Kategorien Verwaltung</h1>
                     <?php if (Permissions::check('admin')) : ?>
                         <div class="flex gap-2">
-                            <a href="<?= BASE_PATH ?>settings/enotf/index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                            <a href="<?= BASE_PATH ?>settings/enotf/index" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                                 <i class="fa-solid fa-arrow-left"></i> Zurück
                             </a>
-                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                            <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
                                 <i class="fa-solid fa-plus"></i> Kategorie erstellen
                             </button>
                         </div>
@@ -58,7 +58,7 @@ use App\Helpers\Flash;
                                     $name = htmlspecialchars($row['name']);
                                     $slug = htmlspecialchars($row['slug']);
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Kategorie bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editCategoryModal' data-id='{$row['id']}' data-name='{$name}' data-slug='{$slug}' data-sort-order='{$row['sort_order']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Kategorie bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn' data-bs-toggle='modal' data-bs-target='#editCategoryModal' data-id='{$row['id']}' data-name='{$name}' data-slug='{$slug}' data-sort-order='{$row['sort_order']}' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>"
                                         : '';
                                 ?>
                                     <tr>
@@ -104,10 +104,10 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="category-active"><input type="checkbox" name="active" id="category-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-category-btn">Löschen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-category-ignis-btn">Löschen</button>
                             <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                                <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -141,8 +141,8 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="create-category-active"><input type="checkbox" name="active" id="create-category-active" checked><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>
@@ -150,7 +150,7 @@ use App\Helpers\Flash;
         </div>
 
         <script>
-            document.querySelectorAll('.edit-btn').forEach(button => {
+            document.querySelectorAll('.edit-ignis-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     document.getElementById('category-id').value = this.dataset.id;
                     document.getElementById('category-name').value = this.dataset.name;
@@ -160,7 +160,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            const deleteBtn = document.getElementById('delete-category-btn');
+            const deleteBtn = document.getElementById('delete-category-ignis-btn');
             if (deleteBtn) {
                 deleteBtn.addEventListener('click', function() {
                     const id = document.getElementById('category-id').value;

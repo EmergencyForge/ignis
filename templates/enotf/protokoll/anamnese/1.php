@@ -69,7 +69,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <?php if (!$ist_freigegeben) : ?>
                             <div class="col">
                                 <div class="flex justify-center align-items-center" style="margin: 10px 0; height: 80px;">
-                                    <button type="button" id="save-anamnese-btn" class="ignis-btn ignis-btn--success px-4 w-100 h-full" style="font-size:1.4rem">OK</button>
+                                    <button type="button" id="save-anamnese-ignis-btn" class="ignis-ignis-btn ignis-btn--success px-4 w-100 h-full" style="font-size:1.4rem">OK</button>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -81,35 +81,35 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <div class="flex" style="flex-shrink: 0;">
                             <div class="d-flex flex-column edivi__interactbutton" id="textblock-main" style="flex: 0 0 auto; min-width: 220px;">
                                 <!-- Vorerkrankungen -->
-                                <a href="javascript:void(0)" class="anamnese-textblock-btn has-submenu" data-key="vorerkrankungen" data-text="VORERKRANKUNGEN:" data-newline="2"><span>Vorerkrankungen</span></a>
+                                <a href="javascript:void(0)" class="anamnese-textblock-ignis-btn has-submenu" data-key="vorerkrankungen" data-text="VORERKRANKUNGEN:" data-newline="2"><span>Vorerkrankungen</span></a>
                                 <!-- Medikation -->
-                                <a href="javascript:void(0)" class="anamnese-textblock-btn has-submenu" data-key="medikation" data-text="MEDIKATION:" data-newline="2"><span>Medikation</span></a>
+                                <a href="javascript:void(0)" class="anamnese-textblock-ignis-btn has-submenu" data-key="medikation" data-text="MEDIKATION:" data-newline="2"><span>Medikation</span></a>
                                 <!-- Allergien -->
-                                <a href="javascript:void(0)" class="anamnese-textblock-btn has-submenu" data-key="allergien" data-text="ALLERGIEN:" data-newline="2"><span>Allergien</span></a>
+                                <a href="javascript:void(0)" class="anamnese-textblock-ignis-btn has-submenu" data-key="allergien" data-text="ALLERGIEN:" data-newline="2"><span>Allergien</span></a>
                                 <!-- Drogen / Abusus -->
-                                <a href="javascript:void(0)" class="anamnese-textblock-btn has-submenu" data-key="drogen" data-text="DROGEN / ABUSUS:" data-newline="2"><span>Drogen / Abusus</span></a>
+                                <a href="javascript:void(0)" class="anamnese-textblock-ignis-btn has-submenu" data-key="drogen" data-text="DROGEN / ABUSUS:" data-newline="2"><span>Drogen / Abusus</span></a>
                             </div>
                             <!-- Vorerkrankungen -->
                             <div class="flex-col edivi__interactbutton textblock-submenu" id="textblock-sub-vorerkrankungen" style="display: none; flex: 0 0 auto; min-width: 220px;">
-                                <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Beim Pat. sind keine Vorerkrankungen bekannt."><span>keine bekannt</span></a>
-                                <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Es konnten keine Vorerkrankungen ermittelt werden."><span>nicht ermittelbar</span></a>
+                                <a href="javascript:void(0)" class="anamnese-subblock-ignis-btn" data-text="Beim Pat. sind keine Vorerkrankungen bekannt."><span>keine bekannt</span></a>
+                                <a href="javascript:void(0)" class="anamnese-subblock-ignis-btn" data-text="Es konnten keine Vorerkrankungen ermittelt werden."><span>nicht ermittelbar</span></a>
                             </div>
                             <!-- Medikation -->
                             <div class="flex-col edivi__interactbutton textblock-submenu" id="textblock-sub-medikation" style="display: none; flex: 0 0 auto; min-width: 220px;">
-                                <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Beim Pat. ist keine Vormedikation bekannt."><span>keine Vormedikation</span></a>
-                                <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Es konnte keine Vormedikation ermittelt werden."><span>nicht ermittelbar</span></a>
+                                <a href="javascript:void(0)" class="anamnese-subblock-ignis-btn" data-text="Beim Pat. ist keine Vormedikation bekannt."><span>keine Vormedikation</span></a>
+                                <a href="javascript:void(0)" class="anamnese-subblock-ignis-btn" data-text="Es konnte keine Vormedikation ermittelt werden."><span>nicht ermittelbar</span></a>
                             </div>
                             <!-- Allergien -->
                             <div class="flex-col edivi__interactbutton textblock-submenu" id="textblock-sub-allergien" style="display: none; flex: 0 0 auto; min-width: 220px;">
-                                <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Beim Pat. sind keine Allergien bekannt."><span>keine Allergien</span></a>
+                                <a href="javascript:void(0)" class="anamnese-subblock-ignis-btn" data-text="Beim Pat. sind keine Allergien bekannt."><span>keine Allergien</span></a>
                             </div>
                             <!-- Drogen / Abusus -->
                             <div class="flex-col edivi__interactbutton textblock-submenu" id="textblock-sub-drogen" style="display: none; flex: 0 0 auto; min-width: 220px;">
-                                <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Bekannter Nikotinabusus"><span>Nikotin</span></a>
-                                <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Bekannter Alkoholabusus"><span>Alkohol</span></a>
-                                <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Bekannter Opiatabusus"><span>Opiate</span></a>
-                                <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Bekannter Benzodiazepinabusus"><span>Benzodiazepine</span></a>
-                                <a href="javascript:void(0)" class="anamnese-subblock-btn" data-text="Beim Pat. ist Alkoholgeruch wahrnehmbar."><span>Foetor alcoholicus</span></a>
+                                <a href="javascript:void(0)" class="anamnese-subblock-ignis-btn" data-text="Bekannter Nikotinabusus"><span>Nikotin</span></a>
+                                <a href="javascript:void(0)" class="anamnese-subblock-ignis-btn" data-text="Bekannter Alkoholabusus"><span>Alkohol</span></a>
+                                <a href="javascript:void(0)" class="anamnese-subblock-ignis-btn" data-text="Bekannter Opiatabusus"><span>Opiate</span></a>
+                                <a href="javascript:void(0)" class="anamnese-subblock-ignis-btn" data-text="Bekannter Benzodiazepinabusus"><span>Benzodiazepine</span></a>
+                                <a href="javascript:void(0)" class="anamnese-subblock-ignis-btn" data-text="Beim Pat. ist Alkoholgeruch wahrnehmbar."><span>Foetor alcoholicus</span></a>
                             </div>
                         </div>
                     <?php endif; ?>
@@ -186,8 +186,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 checkLineCount();
             }
 
-            document.querySelectorAll('.anamnese-textblock-btn').forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
+            document.querySelectorAll('.anamnese-textblock-ignis-btn').forEach(function(ignis-btn) {
+                ignis-btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     var key = this.getAttribute('data-key');
                     var text = this.getAttribute('data-text');
@@ -200,7 +200,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     });
 
                     // Alle Hauptbuttons deaktivieren
-                    document.querySelectorAll('.anamnese-textblock-btn').forEach(function(b) {
+                    document.querySelectorAll('.anamnese-textblock-ignis-btn').forEach(function(b) {
                         b.classList.remove('active');
                     });
 
@@ -221,15 +221,15 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             });
 
             // Sub-Menü Buttons: Text einfügen
-            document.querySelectorAll('.anamnese-subblock-btn').forEach(function(btn) {
-                btn.addEventListener('click', function(e) {
+            document.querySelectorAll('.anamnese-subblock-ignis-btn').forEach(function(ignis-btn) {
+                ignis-btn.addEventListener('click', function(e) {
                     e.preventDefault();
                     insertTextAtCursor(this.getAttribute('data-text'));
                 });
             });
 
             // OK-Button: Speichern + Zurück zur Übersicht
-            var saveBtn = document.getElementById('save-anamnese-btn');
+            var saveBtn = document.getElementById('save-anamnese-ignis-btn');
             if (saveBtn) {
                 saveBtn.addEventListener('click', function() {
                     $.ajax({

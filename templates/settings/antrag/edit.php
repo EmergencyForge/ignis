@@ -53,7 +53,7 @@ use App\Helpers\Flash;
                                 <?= $typ['aktiv'] ? 'checked' : '' ?>><span><strong>Antragstyp aktiviert</strong></span></label>
                     </div>
 
-                    <button type="submit" name="update_typ" class="ignis-btn ignis-btn--soft-primary">
+                    <button type="submit" name="update_typ" class="ignis-ignis-btn ignis-btn--soft-primary">
                         <i class="fa-solid fa-save mr-2"></i>Speichern
                     </button>
                 </form>
@@ -63,7 +63,7 @@ use App\Helpers\Flash;
             <div class="intra__tile mb-4 p-4">
                 <div class="mb-4 flex items-center justify-between">
                     <h4><i class="fa-solid fa-list mr-2"></i>Formularfelder (<?= count($felder) ?>)</h4>
-                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#addFeldModal">
+                    <button type="button" class="ignis-ignis-btn ignis-btn--success ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#addFeldModal">
                         <i class="fa-solid fa-plus mr-1"></i>Feld hinzufügen
                     </button>
                 </div>
@@ -122,7 +122,7 @@ use App\Helpers\Flash;
                                             </td>
                                             <td class="text-right">
                                                 <a href="?id=<?= (int)$id ?>&delete_feld=<?= (int)$feld['id'] ?>"
-                                                    class="ignis-btn ignis-btn--outline-danger ignis-btn--sm btn-icon no-underline hover:no-underline"
+                                                    class="ignis-ignis-btn ignis-btn--outline-danger ignis-btn--sm ignis-btn--icon no-underline hover:no-underline"
                                                     onclick="event.preventDefault(); showConfirm('Feld wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Feld löschen'}).then(result => { if(result) window.location.href = this.href; });">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </a>
@@ -132,14 +132,14 @@ use App\Helpers\Flash;
                                 </tbody>
                             </table>
                         </div>
-                        <button type="submit" name="update_felder_sortierung" class="ignis-btn ignis-btn--soft-primary mt-2">
+                        <button type="submit" name="update_felder_sortierung" class="ignis-ignis-btn ignis-btn--soft-primary mt-2">
                             <i class="fa-solid fa-save mr-2"></i>Sortierung speichern
                         </button>
                     </form>
                 <?php endif; ?>
             </div>
 
-            <a href="<?= BASE_PATH ?>settings/antrag/list" class="ignis-btn ignis-btn--ghost mb-6 no-underline hover:no-underline">
+            <a href="<?= BASE_PATH ?>settings/antrag/list" class="ignis-ignis-btn ignis-btn--ghost mb-6 no-underline hover:no-underline">
                 <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Übersicht
             </a>
         </div>
@@ -229,8 +229,8 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" name="add_feld" class="ignis-btn ignis-btn--success">
+                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" name="add_feld" class="ignis-ignis-btn ignis-btn--success">
                             <i class="fa-solid fa-plus mr-2"></i>Feld hinzufügen
                         </button>
                     </div>

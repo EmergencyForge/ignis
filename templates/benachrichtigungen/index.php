@@ -149,15 +149,15 @@ foreach ($notifications as $n) {
 
             <div class="my-3 flex items-center justify-between">
                 <div class="flex flex-wrap items-center gap-1">
-                    <a href="<?= notifFilterUrl(['filter' => 'all', 'type' => null]) ?>" class="ignis-btn ignis-btn--sm no-underline hover:no-underline <?= $filter === 'all' && !$typeFilter ? 'btn-soft-primary' : 'btn-outline-secondary' ?>">
+                    <a href="<?= notifFilterUrl(['filter' => 'all', 'type' => null]) ?>" class="ignis-ignis-btn ignis-btn--sm no-underline hover:no-underline <?= $filter === 'all' && !$typeFilter ? 'ignis-btn--soft-primary' : 'ignis-btn--outline-secondary' ?>">
                         Alle
                     </a>
-                    <a href="<?= notifFilterUrl(['filter' => 'unread', 'type' => null]) ?>" class="ignis-btn ignis-btn--sm no-underline hover:no-underline <?= $filter === 'unread' && !$typeFilter ? 'btn-soft-primary' : 'btn-outline-secondary' ?>">
+                    <a href="<?= notifFilterUrl(['filter' => 'unread', 'type' => null]) ?>" class="ignis-ignis-btn ignis-btn--sm no-underline hover:no-underline <?= $filter === 'unread' && !$typeFilter ? 'ignis-btn--soft-primary' : 'ignis-btn--outline-secondary' ?>">
                         Ungelesen (<?= (int) $unreadCount ?>)
                     </a>
                     <span class="mx-2 inline-block h-5 align-middle" style="border-left: 1px solid var(--border-color);"></span>
                     <?php foreach ($typeLabels as $typeKey => $typeInfo): ?>
-                        <a href="<?= notifFilterUrl(['type' => $typeKey]) ?>" class="ignis-btn ignis-btn--sm no-underline hover:no-underline <?= $typeFilter === $typeKey ? 'btn-soft-primary' : 'btn-outline-secondary' ?>" title="<?= $typeInfo['label'] ?>">
+                        <a href="<?= notifFilterUrl(['type' => $typeKey]) ?>" class="ignis-ignis-btn ignis-btn--sm no-underline hover:no-underline <?= $typeFilter === $typeKey ? 'ignis-btn--soft-primary' : 'ignis-btn--outline-secondary' ?>" title="<?= $typeInfo['label'] ?>">
                             <i class="fa-solid <?= $typeInfo['icon'] ?> mr-1"></i><?= $typeInfo['label'] ?>
                         </a>
                     <?php endforeach; ?>
@@ -165,7 +165,7 @@ foreach ($notifications as $n) {
                 <?php if ($unreadCount > 0): ?>
                     <form method="POST" class="inline">
                         <input type="hidden" name="action" value="mark_all_read">
-                        <button type="submit" class="ignis-btn ignis-btn--sm btn-outline-light">
+                        <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary">
                             <i class="fa-solid fa-check mr-1"></i> Alle als gelesen markieren
                         </button>
                     </form>
@@ -218,7 +218,7 @@ foreach ($notifications as $n) {
                                                     <div class="notification-actions ml-2" style="opacity: 1;">
                                                         <?php if ($notification['link']): ?>
                                                             <a href="<?= htmlspecialchars($notification['link']) ?>"
-                                                                class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon notification-open-link no-underline hover:no-underline"
+                                                                class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon notification-open-link no-underline hover:no-underline"
                                                                 title="Öffnen"
                                                                 <?= $isUnread ? 'data-notification-id="' . (int) $notification['id'] . '"' : '' ?>>
                                                                 <i class="fa-solid fa-external-link-alt"></i>
@@ -263,7 +263,7 @@ foreach ($notifications as $n) {
                                             <div class="notification-actions shrink-0">
                                                 <?php if ($notification['link']): ?>
                                                     <a href="<?= htmlspecialchars($notification['link']) ?>"
-                                                        class="ignis-btn ignis-btn--sm ignis-btn--soft-primary mr-1 notification-open-link no-underline hover:no-underline"
+                                                        class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary mr-1 notification-open-link no-underline hover:no-underline"
                                                         title="Öffnen"
                                                         <?= $isUnread ? 'data-notification-id="' . (int) $notification['id'] . '"' : '' ?>>
                                                         <i class="fa-solid fa-external-link-alt"></i>
@@ -273,7 +273,7 @@ foreach ($notifications as $n) {
                                                     <form method="POST" class="inline">
                                                         <input type="hidden" name="action" value="mark_read">
                                                         <input type="hidden" name="id" value="<?= (int) $notification['id'] ?>">
-                                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary ignis-btn--icon mr-1" title="Als gelesen markieren">
+                                                        <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary ignis-btn--icon mr-1" title="Als gelesen markieren">
                                                             <i class="fa-solid fa-check"></i>
                                                         </button>
                                                     </form>
@@ -281,7 +281,7 @@ foreach ($notifications as $n) {
                                                 <form method="POST" class="inline" onsubmit="event.preventDefault(); showConfirm('Benachrichtigung wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Benachrichtigung löschen'}).then(result => { if(result) this.submit(); });">
                                                     <input type="hidden" name="action" value="delete">
                                                     <input type="hidden" name="id" value="<?= (int) $notification['id'] ?>">
-                                                    <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" title="Löschen">
+                                                    <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" title="Löschen">
                                                         <i class="fa-solid fa-trash"></i>
                                                     </button>
                                                 </form>
@@ -297,7 +297,7 @@ foreach ($notifications as $n) {
 
             <?php if ($hasMore): ?>
                 <div class="my-3 text-center">
-                    <a href="<?= notifFilterUrl(['offset' => $offset + $pageSize]) ?>" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary no-underline hover:no-underline">
+                    <a href="<?= notifFilterUrl(['offset' => $offset + $pageSize]) ?>" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary no-underline hover:no-underline">
                         <i class="fa-solid fa-chevron-down mr-1"></i>Mehr laden
                     </a>
                 </div>

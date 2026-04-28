@@ -21,7 +21,7 @@ use App\Helpers\Flash;
         <div class="container mx-auto">
             <div class="mb-4 flex items-center justify-between">
                 <h1>Antragstypen verwalten</h1>
-                <a href="<?= BASE_PATH ?>settings/antrag/create" class="ignis-btn ignis-btn--success no-underline hover:no-underline">
+                <a href="<?= BASE_PATH ?>settings/antrag/create" class="ignis-ignis-btn ignis-btn--success no-underline hover:no-underline">
                     <i class="fa-solid fa-plus mr-2"></i>Neuer Antragstyp
                 </a>
             </div>
@@ -87,14 +87,14 @@ use App\Helpers\Flash;
                                             </td>
                                             <td class="text-right">
                                                 <div class="btn-group btn-group-sm">
-                                                    <a href="<?= BASE_PATH ?>settings/antrag/edit?id=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--icon mx-1 no-underline hover:no-underline" title="Bearbeiten">
+                                                    <a href="<?= BASE_PATH ?>settings/antrag/edit?id=<?= (int)$typ['id'] ?>" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--icon mx-1 no-underline hover:no-underline" title="Bearbeiten">
                                                         <i class="fa-solid fa-edit"></i>
                                                     </a>
-                                                    <a href="?toggle=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--soft-warning btn-icon mx-1 no-underline hover:no-underline" title="<?= $typ['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>">
+                                                    <a href="?toggle=<?= (int)$typ['id'] ?>" class="ignis-ignis-btn ignis-btn--soft-warning ignis-btn--icon mx-1 no-underline hover:no-underline" title="<?= $typ['aktiv'] ? 'Deaktivieren' : 'Aktivieren' ?>">
                                                         <i class="fa-solid fa-power-off"></i>
                                                     </a>
                                                     <?php if ((int)$typ['anzahl_antraege'] === 0): ?>
-                                                        <a href="?delete=<?= (int)$typ['id'] ?>" class="ignis-btn ignis-btn--outline-danger mx-1 no-underline hover:no-underline" title="Löschen"
+                                                        <a href="?delete=<?= (int)$typ['id'] ?>" class="ignis-ignis-btn ignis-btn--outline-danger mx-1 no-underline hover:no-underline" title="Löschen"
                                                             onclick="event.preventDefault(); showConfirm('Antragstyp wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Antragstyp löschen'}).then(result => { if(result) window.location.href = this.href; });">
                                                             <i class="fa-solid fa-trash"></i>
                                                         </a>
@@ -108,7 +108,7 @@ use App\Helpers\Flash;
                         </div>
 
                         <div class="mt-4">
-                            <button type="submit" name="update_sortierung" class="ignis-btn ignis-btn--soft-primary">
+                            <button type="submit" name="update_sortierung" class="ignis-ignis-btn ignis-btn--soft-primary">
                                 <i class="fa-solid fa-save mr-2"></i>Sortierung speichern
                             </button>
                         </div>
@@ -117,7 +117,7 @@ use App\Helpers\Flash;
             <?php endif; ?>
 
             <div class="mt-4">
-                <a href="<?= BASE_PATH ?>antrag/admin/list" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                <a href="<?= BASE_PATH ?>antrag/admin/list" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                     <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Antragsübersicht
                 </a>
             </div>

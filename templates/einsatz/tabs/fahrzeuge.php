@@ -73,7 +73,7 @@
                                         <input type="hidden" name="incident_id" value="<?= $id ?>">
                                         <input type="hidden" name="return_tab" value="fahrzeuge">
                                         <input type="hidden" name="vehicle_row_id" value="<?= (int)$av['id'] ?>">
-                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich entfernen?', {danger: true, confirmText: 'Entfernen', title: 'Fahrzeug entfernen'}).then(result => { if(result) this.closest('form').submit(); });">
+                                        <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-danger" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich entfernen?', {danger: true, confirmText: 'Entfernen', title: 'Fahrzeug entfernen'}).then(result => { if(result) this.closest('form').submit(); });">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
@@ -123,7 +123,7 @@
                     <input type="text" name="vehicle_identifier" class="ignis-input" placeholder="Kennzeichen oder ID">
                 </div>
                 <div class="flex justify-end md:col-span-2">
-                    <button type="submit" class="ignis-btn ignis-btn--primary">
+                    <button type="submit" class="ignis-ignis-btn ignis-btn--primary">
                         <i class="fa-solid fa-plus mr-1"></i>Fahrzeug hinzufügen
                     </button>
                 </div>

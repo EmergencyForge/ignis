@@ -16,7 +16,7 @@ $mitarbeiterUrl = $mitarbeiter !== null
     ? (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id
     : null;
 ?>
-<div class="user-hover-card">
+<div class="user-hover-ignis-card">
     <div class="user-hover-card__header">
         <div class="user-hover-card__avatar">
             <?= strtoupper(substr($user->username ?? 'U', 0, 1)) ?>
@@ -48,7 +48,7 @@ $mitarbeiterUrl = $mitarbeiter !== null
         </dd>
     </dl>
 
-    <a href="<?= htmlspecialchars($editUrl) ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
+    <a href="<?= htmlspecialchars($editUrl) ?>" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> User bearbeiten
     </a>
 </div>

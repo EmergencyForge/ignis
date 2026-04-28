@@ -225,7 +225,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
                             </div>
                             <div class="col">
-                                <a href="#" id="save-address-btn">speichern</a>
+                                <a href="#" id="save-address-ignis-btn">speichern</a>
                             </div>
                         </div>
                     </div>
@@ -389,7 +389,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         });
 
         // Speichern-Button Handler
-        document.getElementById('save-address-btn').addEventListener('click', function(e) {
+        document.getElementById('save-address-ignis-btn').addEventListener('click', function(e) {
             e.preventDefault();
 
             const enr = <?= json_encode($enr) ?>;
@@ -467,11 +467,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
     <script>
         // Sonderrechte Anfahrt Tri-State Toggle: leer → nein → ja → leer
         (function() {
-            var btn = document.getElementById('btn-sonderrechte-anfahrt');
+            var ignis-btn = document.getElementById('btn-sonderrechte-anfahrt');
             var icon = document.getElementById('icon-sonderrechte-anfahrt');
             var currentValue = <?= json_encode($daten['sonderrechte_anfahrt'] ?? null) ?>;
 
-            btn.addEventListener('click', function() {
+            ignis-btn.addEventListener('click', function() {
                 if (currentValue === null || currentValue === '') {
                     currentValue = 'nein';
                 } else if (currentValue === 'nein') {
@@ -485,13 +485,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
             function updateButton() {
                 if (currentValue === 'ja') {
-                    btn.textContent = 'ja';
+                    ignis-btn.textContent = 'ja';
                     icon.style.display = 'none';
                 } else if (currentValue === 'nein') {
-                    btn.textContent = 'nein';
+                    ignis-btn.textContent = 'nein';
                     icon.style.display = 'none';
                 } else {
-                    btn.textContent = '\u2014';
+                    ignis-btn.textContent = '\u2014';
                     icon.style.display = '';
                 }
             }

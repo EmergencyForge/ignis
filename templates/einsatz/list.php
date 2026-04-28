@@ -77,10 +77,10 @@ function einsatz_fmt_dt(?string $ts): string
                                 [$statusBadge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
                             }
                             ?>
-                            <div class="card incident-card h-full">
-                                <div class="card-body">
+                            <div class="ignis-card incident-card h-full">
+                                <div class="ignis-card__body">
                                     <div class="mb-2 flex items-start justify-between">
-                                        <h5 class="card-title mb-0">
+                                        <h5 class="ignis-card__title mb-0">
                                             #<?= htmlspecialchars($inc['incident_number'] ?? 'Keine Nummer') ?>
                                         </h5>
                                         <span class="badge <?= $statusBadge ?> status-badge">
@@ -130,7 +130,7 @@ function einsatz_fmt_dt(?string $ts): string
                                         </span>
                                     </div>
 
-                                    <a href="<?= BASE_PATH ?>einsatz/view?id=<?= (int) $inc['id'] ?>" class="btn btn-main-color w-full no-underline hover:no-underline">
+                                    <a href="<?= BASE_PATH ?>einsatz/view?id=<?= (int) $inc['id'] ?>" class="ignis-btn ignis-btn--primary w-full no-underline hover:no-underline">
                                         <i class="fa-solid fa-eye mr-1"></i>
                                         Einsatz öffnen
                                     </a>

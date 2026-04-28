@@ -13,7 +13,7 @@ $dienstgrad = trim($mitarbeiter->dienstgradLabel());
 $rdQuali    = trim($mitarbeiter->rdQualiLabel());
 $fwQuali    = trim($mitarbeiter->fwQualiLabel());
 ?>
-<div class="user-hover-card">
+<div class="user-hover-ignis-card">
     <div class="user-hover-card__header">
         <div class="user-hover-card__avatar">
             <?= strtoupper(substr($mitarbeiter->fullname ?? 'M', 0, 1)) ?>
@@ -41,7 +41,7 @@ $fwQuali    = trim($mitarbeiter->fwQualiLabel());
         <?php endif; ?>
     </dl>
 
-    <a href="<?= htmlspecialchars($profileUrl) ?>" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
+    <a href="<?= htmlspecialchars($profileUrl) ?>" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> Profil öffnen
     </a>
 </div>

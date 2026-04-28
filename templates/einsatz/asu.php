@@ -59,11 +59,11 @@
                         <input type="hidden" id="asuId" value="<?= htmlspecialchars($asuId ?? '') ?>">
 
                         <!-- Einsatzinformationen -->
-                        <div class="card bg-[rgba(0,0,0,0.3)] mb-3">
-                            <div class="card-header">
+                        <div class="ignis-card bg-[rgba(0,0,0,0.3)] mb-3">
+                            <div class="ignis-card__header">
                                 <h5 class="mb-0">Einsatzinformationen</h5>
                             </div>
-                            <div class="card-body">
+                            <div class="ignis-card__body">
                                 <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
                                     <div>
                                         <label class="ignis-field__label">Einsatznummer *</label>
@@ -103,7 +103,7 @@
                 <div class="modal-body" id="asuProtocolView">
                 </div>
                 <div class="modal-footer border-secondary">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                 </div>
             </div>
         </div>

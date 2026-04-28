@@ -26,7 +26,7 @@ if (!isset($showPreview)) {
             <select class="form-select form-select-sm" data-custom-dropdown="true" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
                 <option value="">Vorlage laden...</option>
             </select>
-            <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="<?= $prefix ?>tz-save-template-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
+            <button type="button" class="ignis-ignis-btn ignis-btn--ghost ignis-btn--sm" id="<?= $prefix ?>tz-save-template-ignis-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
         </div>
@@ -40,7 +40,7 @@ if (!isset($showPreview)) {
                     <span style="font-size: 48px; color: #999;">Kein Symbol</span>
                 </div>
             </div>
-            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2 w-full" id="<?= $prefix ?>preview-btn">
+            <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2 w-full" id="<?= $prefix ?>preview-ignis-btn">
                 <i class="fa-solid fa-eye mr-1"></i>Vorschau aktualisieren
             </button>
         </div>
@@ -205,7 +205,7 @@ if (!isset($showPreview)) {
 
         window.erzeugeTaktischesZeichen = window.erzeugeTaktischesZeichen || erzeugeTaktischesZeichen;
 
-        document.getElementById('<?= $prefix ?>preview-btn')?.addEventListener('click', function() {
+        document.getElementById('<?= $prefix ?>preview-ignis-btn')?.addEventListener('click', function() {
             const grundzeichen = document.getElementById('<?= $prefix ?>grundzeichen').value;
             const organisation = document.getElementById('<?= $prefix ?>organisation').value;
             const fachaufgabe = document.getElementById('<?= $prefix ?>fachaufgabe').value;
@@ -255,7 +255,7 @@ if (!isset($showPreview)) {
     const tzFields = ['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 'typ', 'text'];
     const TZ_API = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '<?= BASE_PATH ?>') + 'api/vehicles/tz-templates';
     const select = document.getElementById(prefix + 'tz-template-select');
-    const saveBtn = document.getElementById(prefix + 'tz-save-template-btn');
+    const saveBtn = document.getElementById(prefix + 'tz-save-template-ignis-btn');
 
     // Vorlagen laden
     function loadTemplates() {
@@ -288,7 +288,7 @@ if (!isset($showPreview)) {
         });
         // tz_name wird NICHT überschrieben (bleibt individuell)
         // Vorschau triggern
-        document.getElementById(prefix + 'preview-btn')?.click();
+        document.getElementById(prefix + 'preview-ignis-btn')?.click();
         // Dropdown zurücksetzen
         this.value = '';
     });

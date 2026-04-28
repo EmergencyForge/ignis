@@ -104,7 +104,7 @@ $SITE_TITLE = htmlspecialchars($typLabel);
             text-overflow: ellipsis;
         }
 
-        .doc-actions .btn {
+        .doc-actions .ignis-btn {
             font-size: 0.8rem;
             padding: 0.25rem 0.5rem;
         }
@@ -116,7 +116,7 @@ $SITE_TITLE = htmlspecialchars($typLabel);
     <div class="doc-topbar">
         <!-- Zeile 1: Navigation + Titel + Aktionen -->
         <div class="doc-topbar-row">
-            <a href="<?= htmlspecialchars($backUrl) ?>" class="ignis-btn ignis-btn--sm ignis-btn--ghost" title="Zurück">
+            <a href="<?= htmlspecialchars($backUrl) ?>" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost" title="Zurück">
                 <i class="fa-solid fa-arrow-left"></i>
             </a>
 
@@ -134,14 +134,14 @@ $SITE_TITLE = htmlspecialchars($typLabel);
 
             <div class="doc-actions ml-auto flex gap-1">
                 <?php if ($pdfExists): ?>
-                    <a href="<?= htmlspecialchars($pdfUrl) ?>" download class="ignis-btn ignis-btn--outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>
-                    <a href="<?= htmlspecialchars($pdfUrl) ?>" target="_blank" class="ignis-btn ignis-btn--ghost" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>
+                    <a href="<?= htmlspecialchars($pdfUrl) ?>" download class="ignis-ignis-btn ignis-btn--outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>
+                    <a href="<?= htmlspecialchars($pdfUrl) ?>" target="_blank" class="ignis-ignis-btn ignis-btn--ghost" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>
                 <?php endif; ?>
                 <?php if ($canManage): ?>
-                    <button class="ignis-btn ignis-btn--outline-secondary" id="btn-toggle-archive" title="<?= $isArchived ? 'Wiederherstellen' : 'Archivieren' ?>">
+                    <button class="ignis-ignis-btn ignis-btn--outline-secondary" id="btn-toggle-archive" title="<?= $isArchived ? 'Wiederherstellen' : 'Archivieren' ?>">
                         <i class="fa-solid <?= $isArchived ? 'fa-box-open' : 'fa-box-archive' ?>"></i>
                     </button>
-                    <button class="ignis-btn ignis-btn--outline-danger" id="btn-delete-doc" title="Endgültig löschen">
+                    <button class="ignis-ignis-btn ignis-btn--outline-danger" id="btn-delete-doc" title="Endgültig löschen">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 <?php endif; ?>

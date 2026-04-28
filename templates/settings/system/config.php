@@ -153,9 +153,9 @@ $configByCategory = $configManager->getConfigByCategory();
 
                     <div class="mb-4">
                         <div class="btn-toolbar-group" id="categoryFilter">
-                            <button class="btn active" data-category="">Alle</button>
+                            <button class="ignis-btn active" data-category="">Alle</button>
                             <?php foreach ($configByCategory as $category => $configs): ?>
-                                <button class="btn" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
+                                <button class="ignis-btn" data-category="<?= htmlspecialchars($category) ?>"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></button>
                             <?php endforeach; ?>
                         </div>
                     </div>
@@ -163,11 +163,11 @@ $configByCategory = $configManager->getConfigByCategory();
                     <form method="post" id="configForm">
                         <?php foreach ($configByCategory as $category => $configs): ?>
                             <div class="config-section" data-config-category="<?= htmlspecialchars($category) ?>">
-                                <div class="card mb-4">
-                                    <div class="card-header">
+                                <div class="ignis-card mb-4">
+                                    <div class="ignis-card__header">
                                         <h5 class="mb-0"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></h5>
                                     </div>
-                                    <div class="card-body">
+                                    <div class="ignis-card__body">
                                         <?php foreach ($configs as $config): ?>
                                             <div class="mb-4">
                                                 <label for="<?= htmlspecialchars($config['config_key']) ?>" class="ignis-field__label">
@@ -184,7 +184,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                             readonly>
                                                         <button
                                                             type="button"
-                                                            class="ignis-btn ignis-btn--outline-secondary ignis-btn--icon"
+                                                            class="ignis-ignis-btn ignis-btn--outline-secondary ignis-btn--icon"
                                                             onclick="toggleApiKeyVisibility()"
                                                             title="API-Schlüssel anzeigen/verbergen"
                                                             id="toggleApiKeyBtn">
@@ -192,14 +192,14 @@ $configByCategory = $configManager->getConfigByCategory();
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            class="ignis-btn ignis-btn--outline-primary ignis-btn--icon"
+                                                            class="ignis-ignis-btn ignis-btn--outline-primary ignis-btn--icon"
                                                             onclick="copyApiKey()"
                                                             title="API-Schlüssel kopieren">
                                                             <i class="fa-solid fa-copy"></i>
                                                         </button>
                                                         <button
                                                             type="button"
-                                                            class="ignis-btn ignis-btn--soft-warning btn-icon"
+                                                            class="ignis-ignis-btn ignis-btn--soft-warning ignis-btn--icon"
                                                             onclick="regenerateApiKey(event)"
                                                             title="API-Schlüssel neu generieren">
                                                             <i class="fa-solid fa-rotate"></i>
@@ -312,7 +312,7 @@ $configByCategory = $configManager->getConfigByCategory();
                         <?php endforeach; ?>
 
                         <div class="mb-6 flex flex-col gap-2 md:flex-row md:justify-end">
-                            <button type="submit" name="save_config" class="ignis-btn ignis-btn--soft-primary btn-lg">
+                            <button type="submit" name="save_config" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--lg">
                                 <i class="fa-solid fa-save"></i> Änderungen speichern
                             </button>
                         </div>
@@ -324,9 +324,9 @@ $configByCategory = $configManager->getConfigByCategory();
 
     <script>
         // Category segmented control filtering
-        document.querySelectorAll('#categoryFilter .btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('#categoryFilter .btn').forEach(function(b) { b.classList.remove('active'); });
+        document.querySelectorAll('#categoryFilter .ignis-btn').forEach(function(ignis-btn) {
+            ignis-btn.addEventListener('click', function() {
+                document.querySelectorAll('#categoryFilter .ignis-btn').forEach(function(b) { b.classList.remove('active'); });
                 this.classList.add('active');
                 var cat = this.dataset.category;
                 document.querySelectorAll('.config-section').forEach(function(section) {

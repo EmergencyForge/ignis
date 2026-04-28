@@ -26,7 +26,7 @@ use App\Helpers\Flash;
                         <p class="text-[var(--text-dimmed,#818189)] mb-0">Verwalten Sie die Zugangscodes für das Verfügbarkeits-Portal</p>
                     </div>
 
-                    <a href="<?= BASE_PATH ?>settings/pois/index" class="ignis-btn ignis-btn--sm ignis-btn--ghost mb-3">
+                    <a href="<?= BASE_PATH ?>settings/pois/index" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost mb-3">
                         <i class="fa-solid fa-arrow-left"></i> Zurück zur POI-Verwaltung
                     </a>
 
@@ -61,7 +61,7 @@ use App\Helpers\Flash;
                                             <?php if ($hospital['code']): ?>
                                                 <div class="flex items-center gap-2">
                                                     <code class="text-[#6abf76]"><?= htmlspecialchars($hospital['code']) ?></code>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary copy-code-btn"
+                                                    <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary copy-code-ignis-btn"
                                                             data-code="<?= htmlspecialchars($hospital['code']) ?>"
                                                             title="Code kopieren">
                                                         <i class="fa-solid fa-copy"></i>
@@ -75,7 +75,7 @@ use App\Helpers\Flash;
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary generate-code-btn"
+                                            <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary generate-code-ignis-btn"
                                                     data-id="<?= (int)$hospital['id'] ?>"
                                                     data-name="<?= htmlspecialchars($hospital['name']) ?>">
                                                 <i class="fa-solid fa-key"></i>
@@ -120,7 +120,7 @@ use App\Helpers\Flash;
                             <label for="new-code" class="ignis-field__label">Zugangscode</label>
                             <div class="input-group">
                                 <input type="text" class="ignis-input" name="new_code" id="new-code" required readonly>
-                                <button type="button" class="ignis-btn ignis-btn--outline-secondary" id="regenerate-btn">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--outline-secondary" id="regenerate-ignis-btn">
                                     <i class="fa-solid fa-rotate"></i> Neu generieren
                                 </button>
                             </div>
@@ -132,8 +132,8 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-btn ignis-btn--soft-primary">
+                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">
                             <i class="fa-solid fa-floppy-disk"></i> Speichern
                         </button>
                     </div>
@@ -159,7 +159,7 @@ use App\Helpers\Flash;
                 return result;
             }
 
-            $('.generate-code-btn').on('click', function() {
+            $('.generate-code-ignis-btn').on('click', function() {
                 const id = $(this).data('id');
                 const name = $(this).data('name');
                 $('#generate-poi-id').val(id);
@@ -168,11 +168,11 @@ use App\Helpers\Flash;
                 new bootstrap.Modal($('#generateCodeModal')).show();
             });
 
-            $('#regenerate-btn').on('click', function() {
+            $('#regenerate-ignis-btn').on('click', function() {
                 $('#new-code').val(generateRandomCode());
             });
 
-            $('.copy-code-btn').on('click', function() {
+            $('.copy-code-ignis-btn').on('click', function() {
                 const code = $(this).data('code');
                 navigator.clipboard.writeText(code).then(() => {
                     showToast('Code kopiert', 'success');

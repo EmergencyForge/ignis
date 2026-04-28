@@ -15,7 +15,7 @@ $identifier = (string) ($vehicle->identifier ?? '');
 $kennz      = (string) ($vehicle->kennzeichen ?? '');
 $vehType    = (string) ($vehicle->veh_type ?? '');
 ?>
-<div class="user-hover-card">
+<div class="user-hover-ignis-card">
     <div class="user-hover-card__header">
         <div class="user-hover-card__avatar" aria-hidden="true">
             <i class="fa-solid fa-truck-medical"></i>
@@ -59,7 +59,7 @@ $vehType    = (string) ($vehicle->veh_type ?? '');
     </dl>
 
     <a href="<?= htmlspecialchars($base . 'settings/fahrzeuge/defekte/index?vehicle=' . (int) $vehicle->id) ?>"
-       class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
+       class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> Defekte ansehen
     </a>
 </div>

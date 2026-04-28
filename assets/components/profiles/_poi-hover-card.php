@@ -32,7 +32,7 @@ foreach ($departments as $d) {
     }
 }
 ?>
-<div class="user-hover-card">
+<div class="user-hover-ignis-card">
     <div class="user-hover-card__header">
         <div class="user-hover-card__avatar" aria-hidden="true">
             <i class="fa-solid fa-hospital"></i>
@@ -78,7 +78,7 @@ foreach ($departments as $d) {
     </dl>
 
     <a href="<?= htmlspecialchars($base . 'settings/pois/departments?poi_id=' . (int) $poi->id) ?>"
-       class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
+       class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> Abteilungen verwalten
     </a>
 </div>

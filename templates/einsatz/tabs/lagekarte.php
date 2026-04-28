@@ -390,13 +390,13 @@ try {
                 <h4>Lagekarte</h4>
             </div>
             <div class="flex-1 text-right px-3">
-                <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="toggleMarkerMode">
+                <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="toggleMarkerMode">
                     <i class="fa-solid fa-plus mr-1"></i>Marker hinzufügen
                 </button>
-                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" id="toggleZoneMode">
+                <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-info" id="toggleZoneMode">
                     <i class="fa-solid fa-draw-polygon mr-1"></i>Zone zeichnen
                 </button>
-                <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="refreshMap">
+                <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="refreshMap">
                     <i class="fa-solid fa-sync-alt mr-1"></i>Aktualisieren
                 </button>
             </div>
@@ -520,7 +520,7 @@ try {
                                     <td><?= fmt_dt($marker['created_at']) ?></td>
                                     <td>
                                         <?php if (!$incident['finalized']): ?>
-                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-marker-btn"
+                                            <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-marker-ignis-btn"
                                                 data-marker-id="<?= $marker['id'] ?>">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
@@ -574,7 +574,7 @@ try {
                                     <td><?= fmt_dt($zone['created_at']) ?></td>
                                     <td>
                                         <?php if (!$incident['finalized']): ?>
-                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-zone-btn"
+                                            <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-zone-ignis-btn"
                                                 data-zone-id="<?= $zone['id'] ?>">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
@@ -807,7 +807,7 @@ try {
                         </div>
 
                         <div class="text-center mb-3">
-                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-info" id="previewCustomSymbol">
+                            <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-info" id="previewCustomSymbol">
                                 <i class="fa-solid fa-eye mr-1"></i>Vorschau
                             </button>
                         </div>
@@ -815,8 +815,8 @@ try {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="ignis-btn ignis-btn--primary" id="saveMarkerBtn">
+                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="ignis-ignis-btn ignis-btn--primary" id="saveMarkerBtn">
                     <i class="fa-solid fa-save mr-1"></i>Marker speichern
                 </button>
             </div>
@@ -866,8 +866,8 @@ try {
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="ignis-btn ignis-btn--primary" id="saveZoneBtn">
+                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="ignis-ignis-btn ignis-btn--primary" id="saveZoneBtn">
                     <i class="fa-solid fa-save mr-1"></i>Speichern
                 </button>
             </div>
@@ -1486,8 +1486,8 @@ try {
             this.innerHTML = markerMode ?
                 '<i class="fa-solid fa-times mr-1"></i>Abbrechen' :
                 '<i class="fa-solid fa-plus mr-1"></i>Marker hinzufügen';
-            this.classList.toggle('btn-outline-light');
-            this.classList.toggle('btn-warning');
+            this.classList.toggle('ignis-btn--outline-secondary');
+            this.classList.toggle('ignis-btn--warning');
 
             if (!markerMode) {
                 selectedMarkerType = null;
@@ -1548,8 +1548,8 @@ try {
             this.innerHTML = zoneMode ?
                 '<i class="fa-solid fa-times mr-1"></i>Abbrechen' :
                 '<i class="fa-solid fa-draw-polygon mr-1"></i>Zone zeichnen';
-            this.classList.toggle('btn-outline-info');
-            this.classList.toggle('btn-warning');
+            this.classList.toggle('ignis-btn--outline-info');
+            this.classList.toggle('ignis-btn--warning');
 
             if (zoneMode) {
                 // Disable marker mode
@@ -1570,7 +1570,7 @@ try {
                 if (!finishBtn) {
                     finishBtn = document.createElement('button');
                     finishBtn.id = 'finishZoneBtn';
-                    finishBtn.className = 'btn btn-success btn-sm';
+                    finishBtn.className = 'ignis-btn ignis-btn--success ignis-btn--sm';
                     finishBtn.style.cssText = 'position:absolute;top:65px;left:20px;z-index:1050;background-color:rgba(25,135,84,0.6);border-color:rgba(25,135,84,0.6);backdrop-filter:blur(4px);';
                     finishBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>Zone erstellen';
                     finishBtn.addEventListener('click', finishZoneDrawing);
@@ -1832,8 +1832,8 @@ try {
     // ========================================================================
     function initDeleteButtons() {
         // Delete marker
-        document.querySelectorAll('.delete-marker-btn').forEach(btn => {
-            btn.addEventListener('click', async function() {
+        document.querySelectorAll('.delete-marker-ignis-btn').forEach(ignis-btn => {
+            ignis-btn.addEventListener('click', async function() {
                 const confirmed = await showConfirm(
                     'Marker löschen',
                     'Möchten Sie diesen Marker wirklich löschen?',
@@ -1868,8 +1868,8 @@ try {
         });
 
         // Delete zone
-        document.querySelectorAll('.delete-zone-btn').forEach(btn => {
-            btn.addEventListener('click', async function() {
+        document.querySelectorAll('.delete-zone-ignis-btn').forEach(ignis-btn => {
+            ignis-btn.addEventListener('click', async function() {
                 const confirmed = await showConfirm(
                     'Zone löschen',
                     'Möchten Sie diese Zone wirklich löschen?',

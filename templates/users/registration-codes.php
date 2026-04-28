@@ -39,7 +39,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                         </div>
                         <?php if ($registrationMode === 'code'): ?>
                             <div class="flex-1 text-right px-3">
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createInviteModal">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createInviteModal">
                                     <i class="fa-solid fa-plus"></i> Einladung erstellen
                                 </button>
                             </div>
@@ -128,7 +128,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                                         <td>
                                             <div class="flex gap-1">
                                                 <?php if (!$code->is_used && !$isExpired): ?>
-                                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Link kopieren" onclick="copyInviteLink('<?= htmlspecialchars($inviteUrl, ENT_QUOTES) ?>')">
+                                                    <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Link kopieren" onclick="copyInviteLink('<?= htmlspecialchars($inviteUrl, ENT_QUOTES) ?>')">
                                                         <i class="fa-solid fa-copy"></i>
                                                     </button>
                                                 <?php endif; ?>
@@ -136,7 +136,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                                                     <form method="POST" class="inline" onsubmit="event.preventDefault(); showConfirm('Diese Einladung wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Einladung löschen'}).then(result => { if(result) this.submit(); });">
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="code_id" value="<?= (int) $code->id ?>">
-                                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" data-ignis-tooltip="Löschen">
+                                                        <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" data-ignis-tooltip="Löschen">
                                                             <i class="fa-solid fa-trash"></i>
                                                         </button>
                                                     </form>
@@ -178,8 +178,8 @@ $SITE_TITLE = 'Einladungen verwalten';
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-link"></i> Einladungslink erstellen</button>
+                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-ignis-btn ignis-btn--primary"><i class="fa-solid fa-link"></i> Einladungslink erstellen</button>
                     </div>
                 </form>
             </div>

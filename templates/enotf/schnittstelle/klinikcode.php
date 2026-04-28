@@ -255,7 +255,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-submit">
+                        <button type="submit" class="ignis-btn btn-submit">
                             <i class="fa-solid fa-arrow-right"></i>
                             Protokoll öffnen
                         </button>

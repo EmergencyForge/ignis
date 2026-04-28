@@ -26,7 +26,7 @@ use App\Helpers\Flash;
             width: 100%;
         }
 
-        .status-btn {
+        .status-ignis-btn {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -43,27 +43,27 @@ use App\Helpers\Flash;
             color: var(--bs-body-color);
         }
 
-        .status-btn:hover {
+        .status-ignis-btn:hover {
             transform: scale(1.03);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
-        .status-btn:active {
+        .status-ignis-btn:active {
             transform: scale(0.97);
         }
 
-        .status-btn.active {
+        .status-ignis-btn.active {
             border: 3px solid #ffffff;
             box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4), 0 4px 15px rgba(0, 0, 0, 0.4);
         }
 
-        .status-btn .status-number {
+        .status-ignis-btn .status-number {
             font-size: 2rem;
             font-weight: bold;
             line-height: 1;
         }
 
-        .status-btn .status-label {
+        .status-ignis-btn .status-label {
             font-size: 0.85rem;
             margin-top: 6px;
             font-weight: 500;
@@ -85,7 +85,7 @@ use App\Helpers\Flash;
             border-radius: 8px;
         }
 
-        .status-btn.sending {
+        .status-ignis-btn.sending {
             opacity: 0.6;
             pointer-events: none;
         }
@@ -154,7 +154,7 @@ use App\Helpers\Flash;
                                 $cfg = $statusConfig[$code];
                                 $isActive = $currentStatus === $code;
                                 ?>
-                                <div class="status-btn <?= $isActive ? 'active' : '' ?>"
+                                <div class="status-ignis-btn <?= $isActive ? 'active' : '' ?>"
                                     data-status="<?= $code ?>"
                                     data-bg="<?= $cfg['bg'] ?>" data-color="<?= $cfg['color'] ?>"
                                     <?= $isActive ? 'style="background-color: ' . $cfg['bg'] . '; color: ' . $cfg['color'] . ';"' : '' ?>
@@ -168,7 +168,7 @@ use App\Helpers\Flash;
                             $cfg0 = $statusConfig['0'];
                             $isActive0 = $currentStatus === '0';
                             ?>
-                            <div class="status-btn status-btn-full <?= $isActive0 ? 'active' : '' ?>"
+                            <div class="status-ignis-btn status-btn-full <?= $isActive0 ? 'active' : '' ?>"
                                 data-status="0"
                                 data-bg="<?= $cfg0['bg'] ?>" data-color="<?= $cfg0['color'] ?>"
                                 <?= $isActive0 ? 'style="background-color: ' . $cfg0['bg'] . '; color: ' . $cfg0['color'] . ';"' : '' ?>
@@ -201,12 +201,12 @@ use App\Helpers\Flash;
                     currentStatus = data.current_status;
                     statusSource = data.status_source || null;
 
-                    document.querySelectorAll('.status-btn').forEach(b => {
+                    document.querySelectorAll('.status-ignis-btn').forEach(b => {
                         b.classList.remove('active');
                         b.style.backgroundColor = '';
                         b.style.color = '';
                     });
-                    const activeBtn = document.querySelector(`.status-btn[data-status="${currentStatus}"]`);
+                    const activeBtn = document.querySelector(`.status-ignis-btn[data-status="${currentStatus}"]`);
                     if (activeBtn) {
                         activeBtn.classList.add('active');
                         activeBtn.style.backgroundColor = activeBtn.dataset.bg;
@@ -233,8 +233,8 @@ use App\Helpers\Flash;
             if (!activeIncidentId) return;
             if (newStatus === currentStatus) return;
 
-            const btn = document.querySelector(`.status-btn[data-status="${newStatus}"]`);
-            if (btn) btn.classList.add('sending');
+            const ignis-btn = document.querySelector(`.status-ignis-btn[data-status="${newStatus}"]`);
+            if (ignis-btn) ignis-btn.classList.add('sending');
 
             fetch(basePath + 'api/fire/status', {
                 method: 'POST',
@@ -248,16 +248,16 @@ use App\Helpers\Flash;
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        document.querySelectorAll('.status-btn').forEach(b => {
+                        document.querySelectorAll('.status-ignis-btn').forEach(b => {
                             b.classList.remove('active');
                             b.style.backgroundColor = '';
                             b.style.color = '';
                         });
 
-                        if (btn) {
-                            btn.classList.add('active');
-                            btn.style.backgroundColor = btn.dataset.bg;
-                            btn.style.color = btn.dataset.color;
+                        if (ignis-btn) {
+                            ignis-btn.classList.add('active');
+                            ignis-btn.style.backgroundColor = ignis-btn.dataset.bg;
+                            ignis-btn.style.color = ignis-btn.dataset.color;
                         }
 
                         currentStatus = newStatus;
@@ -282,7 +282,7 @@ use App\Helpers\Flash;
                     alert('Verbindungsfehler beim Senden des Status.');
                 })
                 .finally(() => {
-                    if (btn) btn.classList.remove('sending');
+                    if (ignis-btn) ignis-btn.classList.remove('sending');
                 });
         }
     </script>

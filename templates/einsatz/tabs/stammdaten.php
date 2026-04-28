@@ -75,7 +75,7 @@ $startTime = $dtStart ? $dtStart->format('H:i') : '';
             </div>
             <?php if (!$incident['finalized']): ?>
                 <div class="mt-3 flex justify-end md:col-span-12">
-                    <button type="submit" class="ignis-btn ignis-btn--primary">
+                    <button type="submit" class="ignis-ignis-btn ignis-btn--primary">
                         <i class="fa-solid fa-save mr-1"></i>Änderungen speichern
                     </button>
                 </div>

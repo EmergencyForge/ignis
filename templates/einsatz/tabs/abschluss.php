@@ -25,10 +25,10 @@ if ($incident) {
         </div>
 
         <div class="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div class="card bg-[rgba(0,0,0,0.3)]">
-                <div class="card-body">
-                    <h6 class="card-title">Abgeschlossen am</h6>
-                    <p class="card-text">
+            <div class="ignis-card bg-[rgba(0,0,0,0.3)]">
+                <div class="ignis-card__body">
+                    <h6 class="ignis-card__title">Abgeschlossen am</h6>
+                    <p class="ignis-card__text">
                         <?php
                         if ($incident['finalized_at']) {
                             $dt = new DateTime($incident['finalized_at'], new DateTimeZone('UTC'));
@@ -41,10 +41,10 @@ if ($incident) {
                     </p>
                 </div>
             </div>
-            <div class="card bg-[rgba(0,0,0,0.3)]">
-                <div class="card-body">
-                    <h6 class="card-title">QM-Status</h6>
-                    <p class="card-text">
+            <div class="ignis-card bg-[rgba(0,0,0,0.3)]">
+                <div class="ignis-card__body">
+                    <h6 class="ignis-card__title">QM-Status</h6>
+                    <p class="ignis-card__text">
                         <?php
                         $statusMap = [
                             0 => ['bg-secondary', 'Ungesehen'],
@@ -90,9 +90,9 @@ if ($incident) {
             </div>
         <?php endif; ?>
 
-        <div class="card bg-[rgba(0,0,0,0.3)] mt-4">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Was passiert beim Abschluss?</h5>
+        <div class="ignis-card bg-[rgba(0,0,0,0.3)] mt-4">
+            <div class="ignis-card__body">
+                <h5 class="ignis-card__title mb-3">Was passiert beim Abschluss?</h5>
                 <ul class="mb-0">
                     <li>Das Protokoll wird zur <strong>QM-Sichtung</strong> markiert</li>
                     <li>Alle Daten werden <strong>gesperrt</strong> und können nicht mehr bearbeitet werden</li>
@@ -103,7 +103,7 @@ if ($incident) {
         </div>
 
         <div class="mt-4 flex justify-center">
-            <button type="button" class="ignis-btn ignis-btn--success btn-lg" data-bs-toggle="modal" data-bs-target="#finalizeConfirmModal" <?= $canFinalize ? '' : 'disabled' ?>>
+            <button type="button" class="ignis-ignis-btn ignis-btn--success ignis-btn--lg" data-bs-toggle="modal" data-bs-target="#finalizeConfirmModal" <?= $canFinalize ? '' : 'disabled' ?>>
                 <i class="fa-solid fa-check-circle mr-2"></i>
                 Einsatz jetzt abschließen
             </button>

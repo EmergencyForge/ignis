@@ -91,7 +91,7 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
             gap: 10px;
         }
 
-        .keypad-btn {
+        .keypad-ignis-btn {
             background: #474747;
             color: #fff;
             border: none;
@@ -103,15 +103,15 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
             transition: all 0.2s;
         }
 
-        .keypad-btn:hover {
+        .keypad-ignis-btn:hover {
             background: #5f5f5f;
         }
 
-        .keypad-btn:active {
+        .keypad-ignis-btn:active {
             transform: scale(0.95);
         }
 
-        .keypad-btn.wide {
+        .keypad-ignis-btn.wide {
             grid-column: span 1;
         }
 
@@ -143,23 +143,23 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
                     <input type="hidden" name="pin" id="pinInput" value="">
 
                     <div class="keypad-grid">
-                        <button type="button" class="keypad-btn" onclick="addDigit('1')">1</button>
-                        <button type="button" class="keypad-btn" onclick="addDigit('2')">2</button>
-                        <button type="button" class="keypad-btn" onclick="addDigit('3')">3</button>
+                        <button type="button" class="keypad-ignis-btn" onclick="addDigit('1')">1</button>
+                        <button type="button" class="keypad-ignis-btn" onclick="addDigit('2')">2</button>
+                        <button type="button" class="keypad-ignis-btn" onclick="addDigit('3')">3</button>
 
-                        <button type="button" class="keypad-btn" onclick="addDigit('4')">4</button>
-                        <button type="button" class="keypad-btn" onclick="addDigit('5')">5</button>
-                        <button type="button" class="keypad-btn" onclick="addDigit('6')">6</button>
+                        <button type="button" class="keypad-ignis-btn" onclick="addDigit('4')">4</button>
+                        <button type="button" class="keypad-ignis-btn" onclick="addDigit('5')">5</button>
+                        <button type="button" class="keypad-ignis-btn" onclick="addDigit('6')">6</button>
 
-                        <button type="button" class="keypad-btn" onclick="addDigit('7')">7</button>
-                        <button type="button" class="keypad-btn" onclick="addDigit('8')">8</button>
-                        <button type="button" class="keypad-btn" onclick="addDigit('9')">9</button>
+                        <button type="button" class="keypad-ignis-btn" onclick="addDigit('7')">7</button>
+                        <button type="button" class="keypad-ignis-btn" onclick="addDigit('8')">8</button>
+                        <button type="button" class="keypad-ignis-btn" onclick="addDigit('9')">9</button>
 
-                        <button type="button" class="keypad-btn" onclick="deleteDigit()">
+                        <button type="button" class="keypad-ignis-btn" onclick="deleteDigit()">
                             <i class="fa-solid fa-backspace"></i>
                         </button>
-                        <button type="button" class="keypad-btn" onclick="addDigit('0')">0</button>
-                        <button type="button" class="keypad-btn" style="background: var(--main-color);" onclick="submitPin()">
+                        <button type="button" class="keypad-ignis-btn" onclick="addDigit('0')">0</button>
+                        <button type="button" class="keypad-ignis-btn" style="background: var(--main-color);" onclick="submitPin()">
                             <i class="fa-solid fa-check"></i>
                         </button>
                     </div>

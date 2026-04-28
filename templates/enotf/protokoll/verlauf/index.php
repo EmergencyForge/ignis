@@ -235,7 +235,7 @@ $totalVitals = $stmtCount->fetch(PDO::FETCH_ASSOC)['count'];
                     <div class="col">
                         <div class="flex justify-content-between align-items-center">
                             <div class="flex gap-2">
-                                <a href="list?enr=<?= $enr ?>&action=manage" class="ignis-btn ignis-btn--ghost">
+                                <a href="list?enr=<?= $enr ?>&action=manage" class="ignis-ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-list"></i> Verlauf bearbeiten
                                 </a>
                             </div>

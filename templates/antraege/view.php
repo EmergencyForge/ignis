@@ -183,11 +183,11 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                     <div class="intra__tile p-3">
                         <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Aktionen</h6>
                         <div class="flex flex-col gap-2">
-                            <a href="<?= BASE_PATH ?>index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                            <a href="<?= BASE_PATH ?>index" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                                 <i class="fas fa-arrow-left mr-2"></i>Zurück zum Dashboard
                             </a>
                             <?php if (Gate::allows('antrag.decide', $antrag)): ?>
-                                <a href="<?= BASE_PATH ?>antrag/admin/view?antrag=<?= htmlspecialchars($caseId) ?>" class="ignis-btn ignis-btn--soft-primary no-underline hover:no-underline">
+                                <a href="<?= BASE_PATH ?>antrag/admin/view?antrag=<?= htmlspecialchars($caseId) ?>" class="ignis-ignis-btn ignis-btn--soft-primary no-underline hover:no-underline">
                                     <i class="fas fa-edit mr-2"></i>Bearbeiten
                                 </a>
                             <?php endif; ?>

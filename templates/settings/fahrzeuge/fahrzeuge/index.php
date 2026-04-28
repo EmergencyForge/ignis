@@ -31,18 +31,18 @@ use App\Helpers\Flash;
                     <div class="page-header mb-4">
                         <h1>Fahrzeugverwaltung</h1>
                         <div class="header-actions">
-                            <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index" class="ignis-btn ignis-btn--outline-warning">
+                            <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index" class="ignis-ignis-btn ignis-btn--outline-warning">
                                 <i class="fa-solid fa-triangle-exclamation"></i> Defekt-Meldungen
                             </a>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" onclick="openTzTemplateManager()">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" onclick="openTzTemplateManager()">
                                     <i class="fa-solid fa-shapes"></i> TZ-Vorlagen
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="openVehicleImport()">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary" onclick="openVehicleImport()">
                                     <i class="fa-solid fa-satellite-dish"></i> EMD-Import
                                     <span class="ignis-chip ignis-chip--danger ml-1 hidden" id="importBadge">0</span>
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
+                                <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
                                     <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
                                 </button>
                             <?php endif; ?>
@@ -137,8 +137,8 @@ use App\Helpers\Flash;
                                             $dataStr .= " data-{$key}='" . htmlspecialchars($val, ENT_QUOTES) . "'";
                                         }
 
-                                        $actions .= "<a title='Fahrzeug bearbeiten' href='#' class='btn btn-sm btn-soft-primary btn-icon edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal'{$dataStr}><i class='fa-solid fa-pen'></i></a> ";
-                                        $actions .= "<a title='Fahrzeug kopieren' href='#' class='btn btn-sm btn-soft-success btn-icon copy-btn'{$dataStr}><i class='fa-solid fa-copy'></i></a>";
+                                        $actions .= "<a title='Fahrzeug bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal'{$dataStr}><i class='fa-solid fa-pen'></i></a> ";
+                                        $actions .= "<a title='Fahrzeug kopieren' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-success ignis-btn--icon copy-ignis-btn'{$dataStr}><i class='fa-solid fa-copy'></i></a>";
                                     }
 
                                     $openDefects = (int)($row['open_defects'] ?? 0);
@@ -233,11 +233,11 @@ use App\Helpers\Flash;
 
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-fahrzeug-ignis-btn">Löschen</button>
 
                             <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -313,8 +313,8 @@ use App\Helpers\Flash;
 
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

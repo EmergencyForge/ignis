@@ -39,11 +39,11 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
             <?php endif; ?>
 
             <form method="POST" action="">
-                <div class="card mb-4">
-                    <div class="card-header">
+                <div class="ignis-card mb-4">
+                    <div class="ignis-card__header">
                         <h5 class="mb-0">Personalien</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="ignis-card__body">
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
                                 <label for="name" class="ignis-field__label">Name</label>
@@ -70,11 +70,11 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                 </div>
 
-                <div class="card mb-4">
-                    <div class="card-header">
+                <div class="ignis-card mb-4">
+                    <div class="ignis-card__header">
                         <h5 class="mb-0">Sichtungskategorie</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="ignis-card__body">
                         <div class="mb-4">
                             <label for="sichtungskategorie" class="ignis-field__label">Kategorie *</label>
                             <select class="ignis-input form-control-lg" id="sichtungskategorie" name="sichtungskategorie" required>
@@ -100,11 +100,11 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                 </div>
 
-                <div class="card mb-4">
-                    <div class="card-header">
+                <div class="ignis-card mb-4">
+                    <div class="ignis-card__header">
                         <h5 class="mb-0">Transport</h5>
                     </div>
-                    <div class="card-body space-y-4">
+                    <div class="ignis-card__body space-y-4">
                         <div>
                             <label for="transportmittel_id" class="ignis-field__label">Zugewiesenes Fahrzeug</label>
                             <select class="ignis-input" id="transportmittel_id" name="transportmittel_id">
@@ -148,11 +148,11 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                 </div>
 
-                <div class="card mb-4">
-                    <div class="card-header">
+                <div class="ignis-card mb-4">
+                    <div class="ignis-card__header">
                         <h5 class="mb-0">Medizinische Informationen</h5>
                     </div>
-                    <div class="card-body space-y-4">
+                    <div class="ignis-card__body space-y-4">
                         <div>
                             <label for="verletzungen" class="ignis-field__label">Verletzungen / Diagnose</label>
                             <textarea class="ignis-input" id="verletzungen" name="verletzungen" rows="3" placeholder="Beschreibung der Verletzungen..."></textarea>
@@ -165,10 +165,10 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="<?= BASE_PATH ?>manv/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/board?id=<?= $lageId ?>" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>
-                    <button type="submit" class="ignis-btn ignis-btn--soft-primary btn-lg">
+                    <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--lg">
                         <i class="fas fa-save mr-2"></i>Patient anlegen
                     </button>
                 </div>

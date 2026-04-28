@@ -30,7 +30,7 @@ $SITE_TITLE = 'Antragsübersicht';
                         <i class="fa-solid fa-clipboard-list mr-2"></i>Antragsübersicht
                     </h1>
                     <?php if (Gate::allows('antrag.decide')): ?>
-                        <a href="<?= BASE_PATH ?>settings/antrag/list" class="ignis-btn ignis-btn--soft-primary">
+                        <a href="<?= BASE_PATH ?>settings/antrag/list" class="ignis-ignis-btn ignis-btn--soft-primary">
                             <i class="fa-solid fa-gear mr-2"></i>Antragstypen verwalten
                         </a>
                     <?php endif; ?>
@@ -77,7 +77,7 @@ $SITE_TITLE = 'Antragsübersicht';
                                             <?= $createdAt ? $createdAt->format('d.m.Y | H:i') : '' ?>
                                         </td>
                                         <td>
-                                            <a class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" href="<?= $viewUrl ?>">
+                                            <a class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm" href="<?= $viewUrl ?>">
                                                 <i class="fa-solid fa-eye mr-1"></i>Öffnen
                                             </a>
                                         </td>
