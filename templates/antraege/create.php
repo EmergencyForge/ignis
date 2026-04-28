@@ -123,10 +123,10 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
                     <hr class="my-6 border-white/20">
 
                     <div class="flex justify-between">
-                        <a href="<?= BASE_PATH ?>index" class="ignis-ignis-btn ignis-btn--ghost">
+                        <a href="<?= BASE_PATH ?>index" class="ignis-btn ignis-btn--ghost">
                             <i class="fa-solid fa-xmark mr-2"></i>Abbrechen
                         </a>
-                        <button type="submit" name="submit_antrag" class="ignis-ignis-btn ignis-btn--success">
+                        <button type="submit" name="submit_antrag" class="ignis-btn ignis-btn--success">
                             <i class="fa-solid fa-paper-plane mr-2"></i>Antrag absenden
                         </button>
                     </div>

@@ -213,7 +213,7 @@ function logs_level_badge(string $level): string
                     <div class="page-header mb-4">
                         <h1>Fehlerprotokoll</h1>
                         <div class="header-actions">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" id="refreshBtn">
+                            <button type="button" class="ignis-btn ignis-btn--ghost" id="refreshBtn">
                                 <i class="fa-solid fa-rotate mr-1"></i>Aktualisieren
                             </button>
                         </div>
@@ -239,7 +239,7 @@ function logs_level_badge(string $level): string
                                            autocomplete="off"
                                            pattern="[A-Fa-f0-9]{8}"
                                            autofocus>
-                                    <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary" id="errorIdLookupBtn">
+                                    <button type="button" class="ignis-btn ignis-btn--soft-primary" id="errorIdLookupBtn">
                                         <i class="fa-solid fa-magnifying-glass mr-1"></i>Suchen
                                     </button>
                                 </div>
@@ -305,10 +305,10 @@ function logs_level_badge(string $level): string
                                 </select>
                             </div>
                             <div class="flex gap-1">
-                                <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary" id="searchBtn">
+                                <button type="button" class="ignis-btn ignis-btn--soft-primary" id="searchBtn">
                                     <i class="fa-solid fa-magnifying-glass mr-1"></i>Suchen
                                 </button>
-                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" id="resetBtn" title="Zurück zur Inbox">
+                                <button type="button" class="ignis-btn ignis-btn--ghost" id="resetBtn" title="Zurück zur Inbox">
                                     <i class="fa-solid fa-rotate-left"></i>
                                 </button>
                             </div>
@@ -347,14 +347,14 @@ function logs_level_badge(string $level): string
                                 <?php endif; ?>
                             </div>
                             <div class="btn-toolbar-group">
-                                <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost" id="refreshFailedJobsBtn" title="Liste neu laden">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="refreshFailedJobsBtn" title="Liste neu laden">
                                     <i class="fa-solid fa-rotate"></i>
                                 </button>
                                 <?php if ($failedTotal > 0): ?>
-                                    <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="retryAllFailedJobsBtn">
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="retryAllFailedJobsBtn">
                                         <i class="fa-solid fa-arrows-rotate mr-1"></i>Alle erneut versuchen
                                     </button>
-                                    <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" id="deleteAllFailedJobsBtn">
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" id="deleteAllFailedJobsBtn">
                                         <i class="fa-solid fa-trash mr-1"></i>Alle löschen
                                     </button>
                                 <?php endif; ?>
@@ -387,13 +387,13 @@ function logs_level_badge(string $level): string
                                         </div>
                                         <div class="logs-detail" data-rendered="1">
                                             <div class="logs-detail-actions">
-                                                <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm failed-retry-ignis-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm failed-retry-ignis-btn" data-id="<?= (int) $fj['id'] ?>">
                                                     <i class="fa-solid fa-arrows-rotate mr-1"></i>Erneut versuchen
                                                 </button>
-                                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost ignis-btn--sm text-[#d46b6b] failed-delete-ignis-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm text-[#d46b6b] failed-delete-ignis-btn" data-id="<?= (int) $fj['id'] ?>">
                                                     <i class="fa-solid fa-trash mr-1"></i>Löschen
                                                 </button>
-                                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost ignis-btn--sm copy-ignis-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
+                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-ignis-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
                                                     <i class="fa-regular fa-copy"></i> UUID
                                                 </button>
                                             </div>
@@ -459,7 +459,7 @@ function logs_level_badge(string $level): string
                                         </td>
                                         <td><?= date('d.m.Y H:i', $f['mtime']) ?></td>
                                         <td class="text-right">
-                                            <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary tail-ignis-btn" data-file="<?= htmlspecialchars($f['name']) ?>">
+                                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary tail-ignis-btn" data-file="<?= htmlspecialchars($f['name']) ?>">
                                                 <i class="fa-solid fa-eye mr-1"></i>Letzte 100
                                             </button>
                                         </td>

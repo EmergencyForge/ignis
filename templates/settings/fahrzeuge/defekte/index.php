@@ -123,7 +123,7 @@ $statusLabels = [
                     <div class="page-header mb-4">
                         <h1>Defekt-Meldungen</h1>
                         <div class="header-actions">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDefectModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDefectModal">
                                 <i class="fa-solid fa-plus"></i> Defekt melden
                             </button>
                         </div>
@@ -187,8 +187,8 @@ $statusLabels = [
                                 </select>
                             </div>
                             <div class="flex gap-2">
-                                <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
-                                <a href="?" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost no-underline hover:no-underline">Zurücksetzen</a>
+                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
+                                <a href="?" class="ignis-btn ignis-btn--sm ignis-btn--ghost no-underline hover:no-underline">Zurücksetzen</a>
                             </div>
                         </form>
                     </div>
@@ -265,7 +265,7 @@ $statusLabels = [
                                         <?php if ($canManage && !$isResolved): ?>
                                             <div class="defect-actions mt-2">
                                                 <?php if ($d['status'] === 'open' || $d['status'] === 'deferred'): ?>
-                                                    <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-warning defect-status-ignis-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-warning defect-status-ignis-btn"
                                                             data-id="<?= $d['id'] ?>"
                                                             data-title="<?= htmlspecialchars($d['title']) ?>"
                                                             data-status="in_progress"
@@ -276,7 +276,7 @@ $statusLabels = [
                                                     </button>
                                                 <?php endif; ?>
                                                 <?php if ($d['status'] === 'open' || $d['status'] === 'in_progress'): ?>
-                                                    <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary defect-status-ignis-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary defect-status-ignis-btn"
                                                             data-id="<?= $d['id'] ?>"
                                                             data-title="<?= htmlspecialchars($d['title']) ?>"
                                                             data-status="deferred"
@@ -286,7 +286,7 @@ $statusLabels = [
                                                         <i class="fa-solid fa-clock"></i> Aufschieben
                                                     </button>
                                                 <?php endif; ?>
-                                                <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-success defect-resolve-ignis-btn"
+                                                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-success defect-resolve-ignis-btn"
                                                         data-id="<?= $d['id'] ?>"
                                                         data-title="<?= htmlspecialchars($d['title']) ?>"
                                                         title="Als gelöst markieren">
@@ -351,8 +351,8 @@ $statusLabels = [
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-ignis-btn ignis-btn--success"><i class="fa-solid fa-paper-plane"></i> Melden</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-paper-plane"></i> Melden</button>
                     </div>
                 </form>
             </div>
@@ -377,8 +377,8 @@ $statusLabels = [
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-ignis-btn ignis-btn--success"><i class="fa-solid fa-check"></i> Als gelöst markieren</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-check"></i> Als gelöst markieren</button>
                     </div>
                 </form>
             </div>
@@ -404,7 +404,7 @@ $statusLabels = [
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
                         <button type="submit" class="ignis-btn" id="status-change-submit">Bestätigen</button>
                     </div>
                 </form>
@@ -471,10 +471,10 @@ $statusLabels = [
                                     <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['fullname']) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <button class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="detail-assign-ignis-btn">Zuweisen</button>
+                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="detail-assign-ignis-btn">Zuweisen</button>
                         </div>
                     <?php endif; ?>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                 </div>
             </div>
         </div>

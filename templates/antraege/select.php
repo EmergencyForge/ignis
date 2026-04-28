@@ -70,7 +70,7 @@ $SITE_TITLE = "Antrag einreichen";
                                 <?php endif; ?>
 
                                 <div class="mt-4">
-                                    <button class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm">
+                                    <button class="ignis-btn ignis-btn--soft-primary ignis-btn--sm">
                                         <i class="fa-solid fa-arrow-right mr-1"></i>
                                         Antrag stellen
                                     </button>
@@ -82,7 +82,7 @@ $SITE_TITLE = "Antrag einreichen";
             <?php endif; ?>
 
             <div class="mt-6">
-                <a href="<?= BASE_PATH ?>index" class="ignis-ignis-btn ignis-btn--ghost">
+                <a href="<?= BASE_PATH ?>index" class="ignis-btn ignis-btn--ghost">
                     <i class="fas fa-arrow-left mr-2"></i>Zurück zum Dashboard
                 </a>
             </div>

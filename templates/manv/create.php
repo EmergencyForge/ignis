@@ -116,10 +116,10 @@ $SITE_TITLE = 'Neue MANV-Lage anlegen';
                 </div>
 
                 <div class="mb-4 flex items-center justify-between">
-                    <a href="<?= BASE_PATH ?>manv/index" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                    <a href="<?= BASE_PATH ?>manv/index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück
                     </a>
-                    <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--lg">
+                    <button type="submit" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg">
                         <i class="fas fa-save mr-2"></i>MANV-Lage anlegen
                     </button>
                 </div>

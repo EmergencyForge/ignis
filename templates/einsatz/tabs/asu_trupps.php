@@ -73,10 +73,10 @@
             <div class="ignis-card__header flex items-center justify-between">
                 <h5 class="mb-0">1. Trupp</h5>
                 <div class="btn-group btn-group-sm">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--success" onclick="startTrupp(1)">
+                    <button type="button" class="ignis-btn ignis-btn--success" onclick="startTrupp(1)">
                         <i class="fa-solid fa-play"></i>
                     </button>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--danger" onclick="stopTrupp(1)">
+                    <button type="button" class="ignis-btn ignis-btn--danger" onclick="stopTrupp(1)">
                         <i class="fa-solid fa-stop"></i>
                     </button>
                 </div>
@@ -194,10 +194,10 @@
             <div class="ignis-card__header flex items-center justify-between">
                 <h5 class="mb-0">2. Trupp</h5>
                 <div class="btn-group btn-group-sm">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--success" onclick="startTrupp(2)">
+                    <button type="button" class="ignis-btn ignis-btn--success" onclick="startTrupp(2)">
                         <i class="fa-solid fa-play"></i>
                     </button>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--danger" onclick="stopTrupp(2)">
+                    <button type="button" class="ignis-btn ignis-btn--danger" onclick="stopTrupp(2)">
                         <i class="fa-solid fa-stop"></i>
                     </button>
                 </div>
@@ -315,10 +315,10 @@
             <div class="ignis-card__header flex items-center justify-between">
                 <h5 class="mb-0">Sicherheitstrupp</h5>
                 <div class="btn-group btn-group-sm">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--success" onclick="startTrupp(3)">
+                    <button type="button" class="ignis-btn ignis-btn--success" onclick="startTrupp(3)">
                         <i class="fa-solid fa-play"></i>
                     </button>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--danger" onclick="stopTrupp(3)">
+                    <button type="button" class="ignis-btn ignis-btn--danger" onclick="stopTrupp(3)">
                         <i class="fa-solid fa-stop"></i>
                     </button>
                 </div>
@@ -433,10 +433,10 @@
 
 <!-- Action Buttons -->
 <div class="flex justify-between mt-3">
-    <button type="button" class="ignis-ignis-btn" onclick="clearAll()">
+    <button type="button" class="ignis-btn" onclick="clearAll()">
         <i class="fa-solid fa-eraser mr-1"></i>Alle Felder leeren
     </button>
-    <button type="button" class="ignis-ignis-btn ignis-btn--primary" onclick="sendData()">
+    <button type="button" class="ignis-btn ignis-btn--primary" onclick="sendData()">
         <i class="fa-solid fa-save mr-1"></i>Protokoll speichern
     </button>
 </div>

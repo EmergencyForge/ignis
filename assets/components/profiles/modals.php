@@ -18,7 +18,7 @@ use App\Security\CsrfProtection;
                         <h6 class="mb-0 truncate" id="docViewer-title" style="font-size:0.88rem;"></h6>
                     </div>
                     <div class="flex items-center gap-1 shrink-0">
-                        <a href="#" id="docViewer-detailLink" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost" title="Detailseite"><i class="fa-solid fa-up-right-from-square"></i></a>
+                        <a href="#" id="docViewer-detailLink" class="ignis-btn ignis-btn--sm ignis-btn--ghost" title="Detailseite"><i class="fa-solid fa-up-right-from-square"></i></a>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                 </div>
@@ -101,15 +101,15 @@ function openDocumentViewer(docid) {
             // Aktions-Buttons (rechts im Footer, als Icon-Buttons)
             let btns = '';
             if (doc.pdf_exists) {
-                btns += '<a href="' + esc(doc.pdf_url) + '" download class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>';
-                btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>';
+                btns += '<a href="' + esc(doc.pdf_url) + '" download class="ignis-btn ignis-btn--sm ignis-btn--outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>';
+                btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>';
             }
-            btns += '<a href="<?= BASE_PATH ?>mitarbeiter/dokument-view?docid=' + doc.docid + '" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="Detailseite"><i class="fa-solid fa-file-lines"></i></a>';
+            btns += '<a href="<?= BASE_PATH ?>mitarbeiter/dokument-view?docid=' + doc.docid + '" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="Detailseite"><i class="fa-solid fa-file-lines"></i></a>';
 
             <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
             const archIcon = doc.is_archived ? 'fa-box-open' : 'fa-box-archive';
             const archTitle = doc.is_archived ? 'Wiederherstellen' : 'Archivieren';
-            btns += '<button class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="' + archTitle + '" onclick="toggleArchiveFromViewer(\'' + doc.docid + '\', ' + !doc.is_archived + ')"><i class="fa-solid ' + archIcon + '"></i></button>';
+            btns += '<button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="' + archTitle + '" onclick="toggleArchiveFromViewer(\'' + doc.docid + '\', ' + !doc.is_archived + ')"><i class="fa-solid ' + archIcon + '"></i></button>';
             <?php endif; ?>
 
             buttonsEl.innerHTML = btns;
@@ -185,9 +185,9 @@ async function toggleArchiveFromViewer(docid, archive) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                     <?php if (Permissions::check(['admin', 'personnel.edit'])) { ?>
-                        <button type="button" class="ignis-ignis-btn ignis-btn--success" id="fdq-save" onclick="document.getElementById('fdqualiForm').submit()">Speichern</button>
+                        <button type="button" class="ignis-btn ignis-btn--success" id="fdq-save" onclick="document.getElementById('fdqualiForm').submit()">Speichern</button>
                     <?php } ?>
                 </div>
             </form>
@@ -217,9 +217,9 @@ async function toggleArchiveFromViewer(docid, archive) {
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                     <?php if (Permissions::check(['admin', 'personnel.view'])) { ?>
-                        <button type="button" class="ignis-ignis-btn ignis-btn--success" id="fdq-save" onclick="document.getElementById('newNoteForm').submit()">Speichern</button>
+                        <button type="button" class="ignis-btn ignis-btn--success" id="fdq-save" onclick="document.getElementById('newNoteForm').submit()">Speichern</button>
                     <?php } ?>
                 </div>
             </form>
@@ -276,11 +276,11 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="button" class="ignis-ignis-btn ignis-btn--outline-info" id="btn-preview-doc" title="PDF-Vorschau mit den aktuell eingegebenen Daten">
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="ignis-btn ignis-btn--outline-info" id="btn-preview-doc" title="PDF-Vorschau mit den aktuell eingegebenen Daten">
                             <i class="fa-solid fa-eye mr-1"></i>Vorschau
                         </button>
-                        <button type="submit" class="ignis-ignis-btn ignis-btn--success" id="fdq-save">Erstellen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--success" id="fdq-save">Erstellen</button>
                     </div>
                 </form>
             </div>
@@ -638,8 +638,8 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 <p>Möchtest du diesen Mitarbeiter wirklich unwiderruflich löschen?</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <a href="<?= BASE_PATH ?>mitarbeiter/delete?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>" class="ignis-ignis-btn ignis-btn--danger">Löschen</a>
+                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                <a href="<?= BASE_PATH ?>mitarbeiter/delete?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>" class="ignis-btn ignis-btn--danger">Löschen</a>
             </div>
         </div>
     </div>

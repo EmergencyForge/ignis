@@ -132,7 +132,7 @@ use App\Helpers\Flash;
 
         <div class="mb-4 flex items-center justify-between">
             <h1 class="mb-0">Performance-Dashboard</h1>
-            <button class="ignis-ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="refreshBtn" onclick="loadData()">
+            <button class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="refreshBtn" onclick="loadData()">
                 <i class="fa-solid fa-arrows-rotate"></i> Aktualisieren
             </button>
         </div>

@@ -38,7 +38,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                     <h1>Fahrtenbuch</h1>
                     <?php if ($canManage): ?>
                         <div class="header-actions">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--success" id="toggleCreateForm">
+                            <button type="button" class="ignis-btn ignis-btn--success" id="toggleCreateForm">
                                 <i class="fa-solid fa-plus"></i> Neuer Eintrag
                             </button>
                         </div>
@@ -86,8 +86,8 @@ $SITE_TITLE = 'Fahrtenbuch';
                         ?>
 
                         <div class="mt-4 flex gap-2">
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
-                            <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost" id="cancelCreateForm">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="cancelCreateForm">Abbrechen</button>
                         </div>
                     </form>
                 </div>
@@ -107,8 +107,8 @@ $SITE_TITLE = 'Fahrtenbuch';
                         ?>
 
                         <div class="mt-4 flex gap-2">
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
-                            <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost" id="cancelEditForm">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="cancelEditForm">Abbrechen</button>
                         </div>
                     </form>
                 </div>
@@ -148,8 +148,8 @@ $SITE_TITLE = 'Fahrtenbuch';
                             <input type="date" name="date_to" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateTo) ?>">
                         </div>
                         <div class="flex gap-2">
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
-                            <a href="?" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost no-underline hover:no-underline">Zurücksetzen</a>
+                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
+                            <a href="?" class="ignis-btn ignis-btn--sm ignis-btn--ghost no-underline hover:no-underline">Zurücksetzen</a>
                         </div>
                     </form>
                 </div>
@@ -216,7 +216,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                                                 <td><span class="ignis-chip"><?= htmlspecialchars($sourceLabels[$e['source']] ?? $e['source']) ?></span></td>
                                                 <?php if ($canManage): ?>
                                                     <td class="whitespace-nowrap text-right">
-                                                        <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost fb-edit-ignis-btn"
+                                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost fb-edit-ignis-btn"
                                                                 data-id="<?= (int) $e['id'] ?>"
                                                                 data-datum="<?= htmlspecialchars($e['datum']) ?>"
                                                                 data-abfahrt="<?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?>"
@@ -236,7 +236,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                                                             <input type="hidden" name="action" value="delete">
                                                             <input type="hidden" name="id" value="<?= (int) $e['id'] ?>">
                                                             <input type="hidden" name="return_to" value="admin">
-                                                            <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" title="Löschen">
+                                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" title="Löschen">
                                                                 <i class="fa-solid fa-trash"></i>
                                                             </button>
                                                         </form>

@@ -36,7 +36,7 @@ use App\Helpers\Flash;
                             <a href="?view=1" class="ignis-btn <?= (isset($_GET['view']) && $_GET['view'] == 1) ? 'active' : '' ?>">Unbearbeitet</a>
                         </div>
                         <?php if (Permissions::check(['admin', 'edivi.edit'])) { ?>
-                            <button onclick="showBulkDeleteModal()" class="ignis-ignis-btn ignis-btn--outline-danger ignis-btn--sm">
+                            <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--outline-danger ignis-btn--sm">
                                 <i class="fa-solid fa-trash-can"></i> Leere Protokolle löschen
                             </button>
                         <?php } ?>
@@ -226,8 +226,8 @@ use App\Helpers\Flash;
                     </div>
                 </div>
                 <div class="modal-footer" id="bulkDeleteFooter" style="display: none;">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete()">
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete()">
                         <i class="fa-solid fa-trash"></i> Jetzt löschen
                     </button>
                 </div>
@@ -411,7 +411,7 @@ use App\Helpers\Flash;
                                     <label class="ignis-field__label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
-                                <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
+                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
                                     <i class="fa-solid fa-search"></i> Vorschau anzeigen
                                 </button>
                             </form>
@@ -472,7 +472,7 @@ use App\Helpers\Flash;
                                     <strong>Keine leeren Protokolle gefunden</strong>
                                     <p class="mb-0 mt-2">Es wurden keine Protokolle gefunden, die alle ausgewählten Kriterien erfüllen.</p>
                                 </div>
-                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
+                                <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
                                     <i class="fa-solid fa-arrow-left"></i> Zurück
                                 </button>
                             `;
@@ -528,7 +528,7 @@ use App\Helpers\Flash;
                                 <i class="fa-solid fa-exclamation-circle"></i> 
                                 Fehler: ${data.message || 'Unbekannter Fehler'}
                             </div>
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
+                            <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
                                 <i class="fa-solid fa-arrow-left"></i> Zurück
                             </button>
                         `;
@@ -540,7 +540,7 @@ use App\Helpers\Flash;
                             <i class="fa-solid fa-exclamation-circle"></i> 
                             Fehler: ${error.message}
                         </div>
-                        <button type="button" class="ignis-ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
+                        <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()">
                             <i class="fa-solid fa-arrow-left"></i> Zurück
                         </button>
                     `;

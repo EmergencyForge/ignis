@@ -102,7 +102,7 @@ $currentDate = date('d.m.Y');
                             <div class="vehicle-info-card p-4 mb-4">
                                 <div class="mb-3 flex align-items-center justify-content-between">
                                     <h5 class="text-light mb-0">Defekt-Meldungen</h5>
-                                    <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-warning" id="toggleDefectForm">
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-warning" id="toggleDefectForm">
                                         <i class="fa-solid fa-triangle-exclamation"></i> Defekt melden
                                     </button>
                                 </div>
@@ -168,8 +168,8 @@ $currentDate = date('d.m.Y');
                                             </div>
                                         </div>
                                         <div class="flex gap-2">
-                                            <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--warning"><i class="fa-solid fa-paper-plane"></i> Absenden</button>
-                                            <button type="button" class="ignis-ignis-btn ignis-btn--sm btn-outline-light" id="cancelDefectForm">Abbrechen</button>
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--warning"><i class="fa-solid fa-paper-plane"></i> Absenden</button>
+                                            <button type="button" class="ignis-btn ignis-btn--sm btn-outline-light" id="cancelDefectForm">Abbrechen</button>
                                         </div>
                                     </form>
                                 </div>
@@ -406,8 +406,8 @@ $currentDate = date('d.m.Y');
                     Wie möchten Sie sich abmelden?
                 </div>
                 <div class="modal-footer">
-                    <a href="loggedout?mode=self" class="ignis-ignis-btn">Mich abmelden</a>
-                    <a href="loggedout?mode=all" class="ignis-ignis-btn ignis-btn--danger">Alle abmelden</a>
+                    <a href="loggedout?mode=self" class="ignis-btn">Mich abmelden</a>
+                    <a href="loggedout?mode=all" class="ignis-btn ignis-btn--danger">Alle abmelden</a>
                 </div>
             </div>
         </div>

@@ -178,10 +178,10 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                         <div class="intra__tile p-3">
                             <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Aktionen</h6>
                             <div class="flex flex-col gap-2">
-                                <button type="submit" name="save" class="ignis-ignis-btn ignis-btn--success">
+                                <button type="submit" name="save" class="ignis-btn ignis-btn--success">
                                     <i class="fa-solid fa-floppy-disk mr-2"></i>Änderungen speichern
                                 </button>
-                                <a href="<?= BASE_PATH ?>antrag/admin/list" class="ignis-ignis-btn ignis-btn--ghost no-underline hover:no-underline">
+                                <a href="<?= BASE_PATH ?>antrag/admin/list" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                                     <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Übersicht
                                 </a>
                             </div>

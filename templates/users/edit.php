@@ -40,12 +40,12 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                         <?php if (Gate::allows('user.delete', $target)): ?>
                             <div class="ml-auto flex flex-wrap gap-2">
                                 <?php if ($target->is_active): ?>
-                                    <button class="ignis-ignis-btn ignis-btn--outline-warning ignis-btn--sm" id="btnDeactivate"><i class="fa-solid fa-user-slash"></i> Deaktivieren</button>
+                                    <button class="ignis-btn ignis-btn--outline-warning ignis-btn--sm" id="btnDeactivate"><i class="fa-solid fa-user-slash"></i> Deaktivieren</button>
                                 <?php else: ?>
                                     <span class="ignis-chip">Deaktiviert</span>
-                                    <button class="ignis-ignis-btn ignis-btn--outline-success ignis-btn--sm" id="btnReactivate"><i class="fa-solid fa-user-check"></i> Reaktivieren</button>
+                                    <button class="ignis-btn ignis-btn--outline-success ignis-btn--sm" id="btnReactivate"><i class="fa-solid fa-user-check"></i> Reaktivieren</button>
                                 <?php endif; ?>
-                                <button class="ignis-ignis-btn ignis-btn--outline-danger ignis-btn--sm" id="btnDeleteUser"><i class="fa-solid fa-trash"></i> Endgültig löschen</button>
+                                <button class="ignis-btn ignis-btn--outline-danger ignis-btn--sm" id="btnDeleteUser"><i class="fa-solid fa-trash"></i> Endgültig löschen</button>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -87,7 +87,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                         </div>
                         <div class="flex flex-wrap -mx-3">
                             <div class="flex-1 mb-3 mx-auto px-3">
-                                <button type="submit" name="submit" class="mt-4 ignis-ignis-btn ignis-btn--success ignis-btn--sm">Änderungen speichern</button>
+                                <button type="submit" name="submit" class="mt-4 ignis-btn ignis-btn--success ignis-btn--sm">Änderungen speichern</button>
                             </div>
                         </div>
                     </form>

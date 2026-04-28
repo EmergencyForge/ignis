@@ -113,10 +113,10 @@ use App\Helpers\Flash;
                             </div>
 
                             <div class="flex justify-between">
-                                <a href="<?= BASE_PATH ?>settings/antrag/list" class="ignis-ignis-btn ignis-btn--ghost">
+                                <a href="<?= BASE_PATH ?>settings/antrag/list" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-xmark mr-2"></i>Abbrechen
                                 </a>
-                                <button type="submit" name="submit" class="ignis-ignis-btn ignis-btn--success">
+                                <button type="submit" name="submit" class="ignis-btn ignis-btn--success">
                                     <i class="fa-solid fa-floppy-disk mr-2"></i>Antragstyp erstellen
                                 </button>
                             </div>

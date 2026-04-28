@@ -25,7 +25,7 @@ use App\Helpers\Flash;
                     <div class="flex justify-between items-center mb-5">
                         <h1 class="mb-0">FW Qualifikationen verwalten</h1>
                         <?php if (Permissions::check('admin')) : ?>
-                            <button type="button" class="ignis-ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
                                 <i class="fa-solid fa-plus"></i> Qualifikation erstellen
                             </button>
                         <?php endif; ?>
@@ -108,10 +108,10 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="dienstgrad-none"><input type="checkbox" name="none" id="dienstgrad-none"><span>Leer?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-ignis-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-ignis-btn">Löschen</button>
                             <div>
-                                <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-ignis-btn ignis-btn--soft-primary">Speichern</button>
+                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
                             </div>
                         </div>
                     </form>
@@ -155,8 +155,8 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="new-dienstgrad-none"><input type="checkbox" name="none" id="new-dienstgrad-none"><span>Leer?</span></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-ignis-btn ignis-btn--success">Erstellen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
                         </div>
                     </form>
                 </div>

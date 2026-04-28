@@ -176,15 +176,15 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="flex justify-between items-center mb-4">
                 <h1 class="mb-0">Dokumenten-Templates</h1>
                 <div class="flex gap-2">
-                    <button class="ignis-ignis-btn ignis-btn--outline-info ignis-btn--sm" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
+                    <button class="ignis-btn ignis-btn--outline-info ignis-btn--sm" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
                         <i class="fa-solid fa-arrows-rotate mr-1"></i> Aus Vorlagen neu generieren
                     </button>
                     <?php if (($_ENV['APP_ENV'] ?? 'production') === 'development'): ?>
-                        <button class="ignis-ignis-btn ignis-btn--outline-warning ignis-btn--sm" id="btn-regenerate-all" title="Alle Twig-Dateien neu generieren (Dev)">
+                        <button class="ignis-btn ignis-btn--outline-warning ignis-btn--sm" id="btn-regenerate-all" title="Alle Twig-Dateien neu generieren (Dev)">
                             <i class="fa-solid fa-flask mr-1"></i> Twig regenerieren
                         </button>
                     <?php endif; ?>
-                    <button class="ignis-ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="btn-new-template">
+                    <button class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="btn-new-template">
                         <i class="fa-solid fa-plus mr-1"></i> Neues Template
                     </button>
                 </div>
@@ -255,7 +255,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="flex justify-between items-center mb-3">
                             <h6 class="mb-0">Formularfelder</h6>
-                            <button type="button" class="ignis-ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="addFieldBtn">
+                            <button type="button" class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="addFieldBtn">
                                 <i class="fa-solid fa-plus mr-1"></i> Feld hinzufügen
                             </button>
                         </div>
@@ -264,9 +264,9 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--outline-secondary" id="previewBtn">Vorschau</button>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary" id="saveTemplateBtn">
+                    <button type="button" class="ignis-btn ignis-btn--outline-secondary" id="previewBtn">Vorschau</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--soft-primary" id="saveTemplateBtn">
                         <i class="fa-solid fa-floppy-disk mr-1"></i> Template speichern
                     </button>
                 </div>
@@ -342,7 +342,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                         <div id="optionsContainer" class="mb-3" style="display: none;">
                             <label class="ignis-field__label">Auswahloptionen</label>
                             <div id="optionsList"></div>
-                            <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2" id="addOptionBtn">
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2" id="addOptionBtn">
                                 + Option hinzufügen
                             </button>
                         </div>
@@ -361,8 +361,8 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--soft-primary" id="saveFieldBtn">Feld speichern</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--soft-primary" id="saveFieldBtn">Feld speichern</button>
                 </div>
             </div>
         </div>

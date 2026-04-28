@@ -77,7 +77,7 @@
                     <textarea name="text" class="ignis-input" rows="4" required placeholder="Text der Lagemeldung..."></textarea>
                 </div>
                 <div class="flex justify-end md:col-span-12">
-                    <button type="submit" class="ignis-ignis-btn ignis-btn--primary" <?= empty($attachedVehicles) ? 'disabled' : '' ?>>
+                    <button type="submit" class="ignis-btn ignis-btn--primary" <?= empty($attachedVehicles) ? 'disabled' : '' ?>>
                         <i class="fa-solid fa-plus mr-1"></i>Lagemeldung speichern
                     </button>
                 </div>

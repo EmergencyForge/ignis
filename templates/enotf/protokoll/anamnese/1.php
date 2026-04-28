@@ -69,7 +69,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                         <?php if (!$ist_freigegeben) : ?>
                             <div class="col">
                                 <div class="flex justify-center align-items-center" style="margin: 10px 0; height: 80px;">
-                                    <button type="button" id="save-anamnese-ignis-btn" class="ignis-ignis-btn ignis-btn--success px-4 w-100 h-full" style="font-size:1.4rem">OK</button>
+                                    <button type="button" id="save-anamnese-ignis-btn" class="ignis-btn ignis-btn--success px-4 w-100 h-full" style="font-size:1.4rem">OK</button>
                                 </div>
                             </div>
                         <?php endif; ?>

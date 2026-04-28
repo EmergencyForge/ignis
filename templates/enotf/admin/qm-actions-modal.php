@@ -160,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <textarea name="qmkommentar" id="qmkommentar" rows="8" class="ignis-input w-100" style="resize: none;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
         </div>
         <div class="mb-2 mt-4 text-center">
-            <input class="ignis-ignis-btn ignis-btn--success" name="submit" type="submit" value="Speichern" />
+            <input class="ignis-btn ignis-btn--success" name="submit" type="submit" value="Speichern" />
         </div>
     </form>
 </div>

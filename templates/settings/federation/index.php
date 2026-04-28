@@ -275,7 +275,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                             <form method="post" class="inline">
                                 <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                 <input type="hidden" name="action" value="toggle_federation">
-                                <button type="submit" class="ignis-ignis-btn ignis-btn--sm <?= $federationEnabled ? 'ignis-btn--outline-danger' : 'ignis-btn--outline-success' ?>">
+                                <button type="submit" class="ignis-btn ignis-btn--sm <?= $federationEnabled ? 'ignis-btn--outline-danger' : 'ignis-btn--outline-success' ?>">
                                     <?= $federationEnabled ? '<i class="fa-solid fa-power-off"></i> Deaktivieren' : '<i class="fa-solid fa-power-off"></i> Aktivieren' ?>
                                 </button>
                             </form>
@@ -300,7 +300,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                                        value="<?= htmlspecialchars($instanceName) ?>"
                                                        placeholder="z.B. Berufsfeuerwehr Berlin">
                                             </div>
-                                            <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-primary whitespace-nowrap">Speichern</button>
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary whitespace-nowrap">Speichern</button>
                                         </form>
                                     </div>
                                 </div>
@@ -341,7 +341,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         <form method="post">
                                             <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                             <input type="hidden" name="action" value="generate_token">
-                                            <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-primary">
+                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
                                                 <i class="fa-solid fa-wand-magic-sparkles"></i> Schlüssel generieren
                                             </button>
                                         </form>
@@ -365,7 +365,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         <textarea name="connection_token" class="ignis-input ignis-input ignis-input--sm mb-2" rows="3"
                                                   placeholder="Verbindungsschlüssel einfügen..."
                                                   style="font-family:var(--font-mono);font-size:var(--fs-xs);"></textarea>
-                                        <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-success">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-success">
                                             <i class="fa-solid fa-handshake"></i> Verbinden
                                         </button>
                                     </form>
@@ -474,7 +474,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                             <input class="form-check-input" type="checkbox" name="is_active" id="is_active_<?= $link['id'] ?>" <?= $link['is_active'] ? 'checked' : '' ?>>
                                             <label class="form-check-label" for="is_active_<?= $link['id'] ?>" style="font-size:var(--fs-xs);">Aktiv</label>
                                         </div>
-                                        <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-primary">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
                                             <i class="fa-solid fa-floppy-disk"></i> Speichern
                                         </button>
                                     </div>
@@ -486,7 +486,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                         <input type="hidden" name="action" value="sync_now">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
-                                        <button type="submit" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-primary">
+                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--outline-primary">
                                             <i class="fa-solid fa-arrows-rotate"></i> Jetzt synchronisieren
                                         </button>
                                     </form>
@@ -495,7 +495,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                                         <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>">
                                         <input type="hidden" name="action" value="delete_link">
                                         <input type="hidden" name="link_id" value="<?= $link['id'] ?>">
-                                        <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-danger"
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger"
                                                 onclick="showConfirm('Verbindung und alle gecachten Daten dieser Instanz wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Verbindung löschen'}).then(r => { if(r) this.closest('form').submit(); });">
                                             <i class="fa-solid fa-trash"></i> Verbindung löschen
                                         </button>

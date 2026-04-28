@@ -26,7 +26,7 @@ if (!isset($showPreview)) {
             <select class="form-select form-select-sm" data-custom-dropdown="true" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
                 <option value="">Vorlage laden...</option>
             </select>
-            <button type="button" class="ignis-ignis-btn ignis-btn--ghost ignis-btn--sm" id="<?= $prefix ?>tz-save-template-ignis-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
+            <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="<?= $prefix ?>tz-save-template-ignis-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
         </div>
@@ -40,7 +40,7 @@ if (!isset($showPreview)) {
                     <span style="font-size: 48px; color: #999;">Kein Symbol</span>
                 </div>
             </div>
-            <button type="button" class="ignis-ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2 w-full" id="<?= $prefix ?>preview-ignis-btn">
+            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2 w-full" id="<?= $prefix ?>preview-ignis-btn">
                 <i class="fa-solid fa-eye mr-1"></i>Vorschau aktualisieren
             </button>
         </div>

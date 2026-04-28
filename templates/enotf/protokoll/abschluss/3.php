@@ -133,8 +133,8 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                    <button type="button" class="ignis-ignis-btn ignis-btn--primary" id="copyCodeButton" disabled>Code kopieren</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
+                    <button type="button" class="ignis-btn ignis-btn--primary" id="copyCodeButton" disabled>Code kopieren</button>
                 </div>
             </div>
         </div>

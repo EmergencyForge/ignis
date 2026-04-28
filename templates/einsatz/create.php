@@ -104,7 +104,7 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <div class="mt-4 flex justify-end">
-                        <button type="submit" class="ignis-ignis-btn ignis-btn--primary">Einsatz erstellen</button>
+                        <button type="submit" class="ignis-btn ignis-btn--primary">Einsatz erstellen</button>
                     </div>
                 </form>
             </div>
