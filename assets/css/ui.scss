@@ -215,6 +215,36 @@
 
       &:hover { background: rgba(255, 255, 255, 0.12); }
     }
+
+    &--success {
+      background: #2d8054;
+      color: #fff;
+
+      &:hover { background: #339161; }
+    }
+
+    &--soft-primary {
+      background: rgba(var(--main-color-rgb, 255, 77, 0), 0.18);
+      color: var(--main-color);
+
+      &:hover { background: rgba(var(--main-color-rgb, 255, 77, 0), 0.26); }
+    }
+
+    &--ghost-danger {
+      background: transparent;
+      color: #c44545;
+
+      &:hover {
+        background: rgba(196, 69, 69, 0.12);
+        color: #e05555;
+      }
+    }
+
+    // pullLeft schiebt einen Action-Button (typischerweise eine Loesch-Action)
+    // an den linken Rand des Footers; der Rest landet rechtsbuendig.
+    &[data-dialog-pull-left="true"] {
+      margin-right: auto;
+    }
   }
 }
 

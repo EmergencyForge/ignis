@@ -300,18 +300,27 @@ export class Dialog {
             }
         };
 
+        const actions = [];
+        if (opts.dangerAction) {
+            actions.push({
+                label: opts.dangerAction.label,
+                variant: opts.dangerAction.variant || 'ghost-danger',
+                pullLeft: true,
+                onClick: opts.dangerAction.onClick,
+            });
+        }
+        actions.push({
+            label: opts.cancelLabel || 'Abbrechen',
+            variant: 'ghost',
+            onClick: (d) => d.close(null),
+        });
+        actions.push(submitAction);
+
         const dlg = new Dialog({
             title: opts.title,
             size: opts.size || 'md',
             body: body,
-            actions: [
-                {
-                    label: opts.cancelLabel || 'Abbrechen',
-                    variant: 'ghost',
-                    onClick: (d) => d.close(null),
-                },
-                submitAction,
-            ],
+            actions: actions,
             closeOnBackdrop: opts.closeOnBackdrop !== false,
             closeOnEscape: opts.closeOnEscape !== false,
             onOpen: opts.onOpen,
@@ -400,13 +409,17 @@ export class Dialog {
 
     _renderAction(action, index) {
         const variant = action.variant ?? 'primary';
-        const attrs = action.primary ? 'data-dialog-primary="true"' : '';
+        const primaryAttr = action.primary ? 'data-dialog-primary="true"' : '';
+        // pullLeft schiebt den Button an den linken Rand des Footers — fuer
+        // CRUD-Modals, in denen die Loesch-Action visuell vom Save-Pair
+        // getrennt sein soll.
+        const pullAttr = action.pullLeft ? 'data-dialog-pull-left="true"' : '';
         // labelHtml ist ein opt-in für Icons o.ä. — Caller verantwortlich für
         // sichere HTML-Quelle. Default-Pfad escaped wie zuvor.
         const inner = action.labelHtml ?? escape(action.label);
         return `<button type="button"
                     class="ignis-dialog__action ignis-dialog__action--${variant}"
-                    data-dialog-action="${index}" ${attrs}>
+                    data-dialog-action="${index}" ${primaryAttr} ${pullAttr}>
                 ${inner}
             </button>`;
     }
