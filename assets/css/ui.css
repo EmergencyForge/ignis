@@ -195,6 +195,31 @@
 .ignis-dialog .ignis-dialog__action--secondary:hover {
   background: rgba(255, 255, 255, 0.12);
 }
+.ignis-dialog .ignis-dialog__action--success {
+  background: #2d8054;
+  color: #fff;
+}
+.ignis-dialog .ignis-dialog__action--success:hover {
+  background: #339161;
+}
+.ignis-dialog .ignis-dialog__action--soft-primary {
+  background: rgba(var(--main-color-rgb, 255, 77, 0), 0.18);
+  color: var(--main-color);
+}
+.ignis-dialog .ignis-dialog__action--soft-primary:hover {
+  background: rgba(var(--main-color-rgb, 255, 77, 0), 0.26);
+}
+.ignis-dialog .ignis-dialog__action--ghost-danger {
+  background: transparent;
+  color: #c44545;
+}
+.ignis-dialog .ignis-dialog__action--ghost-danger:hover {
+  background: rgba(196, 69, 69, 0.12);
+  color: #e05555;
+}
+.ignis-dialog .ignis-dialog__action[data-dialog-pull-left=true] {
+  margin-right: auto;
+}
 
 body:has(.ignis-dialog-backdrop.is-open) {
   overflow: hidden;
