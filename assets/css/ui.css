@@ -286,7 +286,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
 .ignis-dropdown.is-open .ignis-dropdown__chevron {
   transform: rotate(180deg);
 }
-.ignis-dropdown .ignis-dropdown__panel {
+.ignis-dropdown.is-open .ignis-dropdown__panel:not(.ignis-dropdown__panel--floating) {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.ignis-dropdown__panel {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
@@ -305,17 +311,22 @@ body:has(.ignis-dialog-backdrop.is-open) {
   pointer-events: none;
   transition: opacity 0.14s ease, transform 0.14s var(--ease-out-quint, ease);
 }
-.ignis-dropdown .ignis-dropdown__panel.is-above {
+.ignis-dropdown__panel.is-above {
   top: auto;
   bottom: calc(100% + 4px);
   transform: translateY(4px);
 }
-.ignis-dropdown.is-open .ignis-dropdown__panel {
+.ignis-dropdown__panel--floating {
+  position: fixed;
+  right: auto;
+  z-index: 2000;
+}
+.ignis-dropdown__panel--floating.is-active {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
-.ignis-dropdown .ignis-dropdown__search {
+.ignis-dropdown__panel .ignis-dropdown__search {
   width: 100%;
   padding: 0.5rem 0.75rem;
   background: var(--input-bg, #161616);
@@ -325,13 +336,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-size: var(--fs-sm, 0.88rem);
   outline: none;
 }
-.ignis-dropdown .ignis-dropdown__search::placeholder {
+.ignis-dropdown__panel .ignis-dropdown__search::placeholder {
   color: var(--text-dimmed, #818189);
 }
-.ignis-dropdown .ignis-dropdown__search:focus {
+.ignis-dropdown__panel .ignis-dropdown__search:focus {
   background: rgba(var(--main-color-rgb, 255, 77, 0), 0.04);
 }
-.ignis-dropdown .ignis-dropdown__options {
+.ignis-dropdown__panel .ignis-dropdown__options {
   list-style: none;
   margin: 0;
   padding: 0.25rem;
@@ -340,7 +351,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   scrollbar-width: thin;
   scrollbar-color: var(--darkgray, #2a2a2a) transparent;
 }
-.ignis-dropdown .ignis-dropdown__options li {
+.ignis-dropdown__panel .ignis-dropdown__options li {
   display: flex;
   align-items: center;
   gap: 0.55rem;
@@ -352,45 +363,34 @@ body:has(.ignis-dialog-backdrop.is-open) {
   line-height: 1.3;
   transition: background 0.1s ease, color 0.1s ease;
 }
-.ignis-dropdown .ignis-dropdown__options li:hover, .ignis-dropdown .ignis-dropdown__options li:focus {
+.ignis-dropdown__panel .ignis-dropdown__options li:hover, .ignis-dropdown__panel .ignis-dropdown__options li:focus {
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
   outline: none;
 }
-.ignis-dropdown .ignis-dropdown__options li.is-selected {
+.ignis-dropdown__panel .ignis-dropdown__options li.is-selected {
   color: #fff;
   background: rgba(var(--main-color-rgb, 255, 77, 0), 0.12);
 }
-.ignis-dropdown .ignis-dropdown__options li[aria-disabled=true] {
+.ignis-dropdown__panel .ignis-dropdown__options li[aria-disabled=true] {
   color: var(--text-dimmed, #818189);
   cursor: default;
 }
-.ignis-dropdown .ignis-dropdown__options li[aria-disabled=true]:hover {
+.ignis-dropdown__panel .ignis-dropdown__options li[aria-disabled=true]:hover {
   background: transparent;
 }
-.ignis-dropdown .ignis-dropdown__option-icon {
+.ignis-dropdown__panel .ignis-dropdown__option-icon {
   color: var(--main-color);
   width: 1em;
   flex-shrink: 0;
   font-size: 0.85em;
 }
-.ignis-dropdown .ignis-dropdown__empty {
+.ignis-dropdown__panel .ignis-dropdown__empty {
   padding: 0.75rem;
   text-align: center;
   color: var(--text-dimmed, #818189);
   font-size: var(--fs-sm, 0.88rem);
   font-style: italic;
-}
-
-.ignis-dropdown__panel--floating {
-  position: fixed;
-  right: auto;
-  z-index: 2000;
-}
-.ignis-dropdown__panel--floating.is-active {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
 }
 
 .ignis-input,
@@ -973,7 +973,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
 .ignis-datepicker .ignis-datepicker__label.is-placeholder {
   color: var(--text-dimmed, #818189);
 }
-.ignis-datepicker .ignis-datepicker__panel {
+.ignis-datepicker.is-open .ignis-datepicker__panel:not(.ignis-datepicker__panel--floating) {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.ignis-datepicker__panel {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
@@ -989,24 +995,11 @@ body:has(.ignis-dialog-backdrop.is-open) {
   pointer-events: none;
   transition: opacity 0.16s ease, transform 0.16s var(--ease-out-quint, ease);
 }
-.ignis-datepicker .ignis-datepicker__panel.is-above {
+.ignis-datepicker__panel.is-above {
   top: auto;
   bottom: calc(100% + 6px);
   transform: translateY(4px);
 }
-.ignis-datepicker.is-open .ignis-datepicker__panel {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-.ignis-datepicker .ignis-datepicker__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  gap: 0.3rem;
-}
-
 .ignis-datepicker__panel--floating {
   position: fixed;
   z-index: 2100;
@@ -1014,8 +1007,14 @@ body:has(.ignis-dialog-backdrop.is-open) {
   transform: translateY(0);
   pointer-events: auto;
 }
-
-.ignis-datepicker .ignis-datepicker__nav {
+.ignis-datepicker__panel .ignis-datepicker__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  gap: 0.3rem;
+}
+.ignis-datepicker__panel .ignis-datepicker__nav {
   width: 28px;
   height: 28px;
   border: 0;
@@ -1026,15 +1025,15 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-size: 0.75rem;
   transition: color 0.12s ease, background 0.12s ease;
 }
-.ignis-datepicker .ignis-datepicker__nav:hover {
+.ignis-datepicker__panel .ignis-datepicker__nav:hover {
   color: #fff;
   background: rgba(255, 255, 255, 0.06);
 }
-.ignis-datepicker .ignis-datepicker__nav:focus-visible {
+.ignis-datepicker__panel .ignis-datepicker__nav:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: 1px;
 }
-.ignis-datepicker .ignis-datepicker__title {
+.ignis-datepicker__panel .ignis-datepicker__title {
   flex: 1 1 auto;
   text-align: center;
   font-size: 0.88rem;
@@ -1044,26 +1043,26 @@ body:has(.ignis-dialog-backdrop.is-open) {
   border: 0;
   background: transparent;
 }
-.ignis-datepicker .ignis-datepicker__title--btn {
+.ignis-datepicker__panel .ignis-datepicker__title--btn {
   cursor: pointer;
   border-radius: var(--radius-sm, 4px);
   font-family: inherit;
   transition: background 0.12s ease;
 }
-.ignis-datepicker .ignis-datepicker__title--btn:hover {
+.ignis-datepicker__panel .ignis-datepicker__title--btn:hover {
   background: rgba(255, 255, 255, 0.05);
 }
-.ignis-datepicker .ignis-datepicker__title--btn:focus-visible {
+.ignis-datepicker__panel .ignis-datepicker__title--btn:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: 1px;
 }
-.ignis-datepicker .ignis-datepicker__weekdays {
+.ignis-datepicker__panel .ignis-datepicker__weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
   margin-bottom: 4px;
 }
-.ignis-datepicker .ignis-datepicker__weekdays span {
+.ignis-datepicker__panel .ignis-datepicker__weekdays span {
   text-align: center;
   font-size: 0.66rem;
   font-weight: 600;
@@ -1071,12 +1070,12 @@ body:has(.ignis-dialog-backdrop.is-open) {
   letter-spacing: 0.4px;
   padding: 0.2rem 0;
 }
-.ignis-datepicker .ignis-datepicker__days {
+.ignis-datepicker__panel .ignis-datepicker__days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
 }
-.ignis-datepicker .ignis-datepicker__day {
+.ignis-datepicker__panel .ignis-datepicker__day {
   aspect-ratio: 1/1;
   min-height: 32px;
   border: 0;
@@ -1092,22 +1091,22 @@ body:has(.ignis-dialog-backdrop.is-open) {
   transition: background 0.1s ease, color 0.1s ease;
   position: relative;
 }
-.ignis-datepicker .ignis-datepicker__day--blank {
+.ignis-datepicker__panel .ignis-datepicker__day--blank {
   cursor: default;
 }
-.ignis-datepicker .ignis-datepicker__day:hover:not(.is-disabled):not(.is-selected) {
+.ignis-datepicker__panel .ignis-datepicker__day:hover:not(.is-disabled):not(.is-selected) {
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
 }
-.ignis-datepicker .ignis-datepicker__day:focus-visible {
+.ignis-datepicker__panel .ignis-datepicker__day:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: -2px;
 }
-.ignis-datepicker .ignis-datepicker__day.is-today:not(.is-selected) {
+.ignis-datepicker__panel .ignis-datepicker__day.is-today:not(.is-selected) {
   color: var(--main-color);
   font-weight: 600;
 }
-.ignis-datepicker .ignis-datepicker__day.is-today:not(.is-selected)::after {
+.ignis-datepicker__panel .ignis-datepicker__day.is-today:not(.is-selected)::after {
   content: "";
   position: absolute;
   bottom: 3px;
@@ -1118,23 +1117,23 @@ body:has(.ignis-dialog-backdrop.is-open) {
   border-radius: 50%;
   background: var(--main-color);
 }
-.ignis-datepicker .ignis-datepicker__day.is-selected {
+.ignis-datepicker__panel .ignis-datepicker__day.is-selected {
   background: var(--main-color);
   color: #fff;
   font-weight: 600;
 }
-.ignis-datepicker .ignis-datepicker__day.is-disabled {
+.ignis-datepicker__panel .ignis-datepicker__day.is-disabled {
   opacity: 0.25;
   cursor: not-allowed;
 }
-.ignis-datepicker .ignis-datepicker__months,
-.ignis-datepicker .ignis-datepicker__years {
+.ignis-datepicker__panel .ignis-datepicker__months,
+.ignis-datepicker__panel .ignis-datepicker__years {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 4px;
 }
-.ignis-datepicker .ignis-datepicker__month,
-.ignis-datepicker .ignis-datepicker__year {
+.ignis-datepicker__panel .ignis-datepicker__month,
+.ignis-datepicker__panel .ignis-datepicker__year {
   padding: 0.6rem 0.4rem;
   background: transparent;
   border: 0;
@@ -1145,23 +1144,23 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-family: inherit;
   transition: background 0.1s ease;
 }
-.ignis-datepicker .ignis-datepicker__month:hover:not(.is-selected),
-.ignis-datepicker .ignis-datepicker__year:hover:not(.is-selected) {
+.ignis-datepicker__panel .ignis-datepicker__month:hover:not(.is-selected),
+.ignis-datepicker__panel .ignis-datepicker__year:hover:not(.is-selected) {
   background: rgba(255, 255, 255, 0.06);
   color: #fff;
 }
-.ignis-datepicker .ignis-datepicker__month.is-selected,
-.ignis-datepicker .ignis-datepicker__year.is-selected {
+.ignis-datepicker__panel .ignis-datepicker__month.is-selected,
+.ignis-datepicker__panel .ignis-datepicker__year.is-selected {
   background: var(--main-color);
   color: #fff;
   font-weight: 600;
 }
-.ignis-datepicker .ignis-datepicker__month:focus-visible,
-.ignis-datepicker .ignis-datepicker__year:focus-visible {
+.ignis-datepicker__panel .ignis-datepicker__month:focus-visible,
+.ignis-datepicker__panel .ignis-datepicker__year:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: -2px;
 }
-.ignis-datepicker .ignis-datepicker__footer {
+.ignis-datepicker__panel .ignis-datepicker__footer {
   display: flex;
   justify-content: space-between;
   gap: 0.4rem;
@@ -1169,7 +1168,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   padding-top: 0.6rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
-.ignis-datepicker .ignis-datepicker__footer-btn {
+.ignis-datepicker__panel .ignis-datepicker__footer-btn {
   flex: 1;
   padding: 0.4rem 0.6rem;
   border: 0;
@@ -1182,19 +1181,19 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-family: inherit;
   transition: filter 0.1s ease;
 }
-.ignis-datepicker .ignis-datepicker__footer-btn:hover {
+.ignis-datepicker__panel .ignis-datepicker__footer-btn:hover {
   filter: brightness(1.1);
 }
-.ignis-datepicker .ignis-datepicker__footer-btn--ghost {
+.ignis-datepicker__panel .ignis-datepicker__footer-btn--ghost {
   background: transparent;
   color: var(--text-dimmed, #818189);
   border: 1px solid var(--darkgray, #2a2a2a);
 }
-.ignis-datepicker .ignis-datepicker__footer-btn--ghost:hover {
+.ignis-datepicker__panel .ignis-datepicker__footer-btn--ghost:hover {
   background: rgba(255, 255, 255, 0.04);
   color: #fff;
 }
-.ignis-datepicker .ignis-datepicker__footer-btn:focus-visible {
+.ignis-datepicker__panel .ignis-datepicker__footer-btn:focus-visible {
   outline: 2px solid var(--main-color);
   outline-offset: 1px;
 }
