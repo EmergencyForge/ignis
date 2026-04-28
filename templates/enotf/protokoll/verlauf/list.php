@@ -313,9 +313,9 @@ $prot_url = "https://" . SYSTEM_URL . "/enotf/prot/index.php?enr=" . $enr;
                 <?php if (!empty($message)): ?>
                     <div class="row mb-3">
                         <div class="col">
-                            <div class="alert alert-<?= $messageType ?> alert-dismissible fade show" role="alert">
-                                <?= htmlspecialchars($message) ?>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <div class="ignis-alert ignis-alert--<?= $messageType ?>" role="alert">
+                                <span class="ignis-alert__body"><?= htmlspecialchars($message) ?></span>
+                                <button type="button" class="ignis-alert__close" aria-label="Schließen" onclick="this.parentElement.remove()">×</button>
                             </div>
                         </div>
                     </div>

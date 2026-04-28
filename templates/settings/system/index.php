@@ -392,8 +392,8 @@ if ($isDevMode) {
                                     ];
                                     $alertClass = $urgencyColors[$urgency] ?? 'success';
                                     ?>
-                                    <div class="alert alert-<?= $alertClass ?>">
-                                        <h5><i class="fa-solid fa-check-circle"></i> Neues Update verfügbar!</h5>
+                                    <div class="ignis-alert ignis-alert--<?= $alertClass ?>">
+                                        <h5 class="ignis-alert__title"><i class="fa-solid fa-check-circle"></i> Neues Update verfügbar!</h5>
                                         <p class="mb-0">
                                             Eine neue Version ist verfügbar: <strong><?= htmlspecialchars($updateInfo['latest_version']) ?></strong>
                                             <?php if (isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease']): ?>
