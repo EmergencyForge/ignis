@@ -290,6 +290,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  max-height: 280px;
 }
 
 .ignis-dropdown__panel {
@@ -298,7 +299,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   left: 0;
   right: 0;
   z-index: 1500;
-  max-height: 280px;
+  max-height: 0;
   display: flex;
   flex-direction: column;
   background: var(--body-bg-lighter, #161616);
@@ -325,6 +326,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  max-height: 280px;
 }
 .ignis-dropdown__panel .ignis-dropdown__search {
   width: 100%;
@@ -977,6 +979,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  max-height: none;
+  overflow: visible;
 }
 
 .ignis-datepicker__panel {
@@ -994,6 +998,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
   transform: translateY(-4px);
   pointer-events: none;
   transition: opacity 0.16s ease, transform 0.16s var(--ease-out-quint, ease);
+  max-height: 0;
+  overflow: hidden;
 }
 .ignis-datepicker__panel.is-above {
   top: auto;
@@ -1006,6 +1012,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  max-height: none;
+  overflow: visible;
 }
 .ignis-datepicker__panel .ignis-datepicker__header {
   display: flex;
