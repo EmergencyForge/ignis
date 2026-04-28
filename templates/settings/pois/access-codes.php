@@ -103,44 +103,24 @@ use App\Helpers\Flash;
         </div>
     </div>
 
-    <!-- Generate Code Modal -->
-    <div class="modal fade" id="generateCodeModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="POST">
-                    <input type="hidden" name="generate_code" value="1">
-                    <input type="hidden" name="poi_id" id="generate-poi-id">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Zugangscode generieren</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Krankenhaus: <strong id="generate-hospital-name"></strong></p>
-                        <div class="mb-3">
-                            <label for="new-code" class="ignis-field__label">Zugangscode</label>
-                            <div class="input-group">
-                                <input type="text" class="ignis-input" name="new_code" id="new-code" required readonly>
-                                <button type="button" class="ignis-btn ignis-btn--outline-secondary" id="regenerate-btn">
-                                    <i class="fa-solid fa-rotate"></i> Neu generieren
-                                </button>
-                            </div>
-                            <div class="ignis-field__hint">Der Code wird im Klartext gespeichert und kann jederzeit eingesehen werden.</div>
-                        </div>
-                        <div class="ignis-alert ignis-alert--info">
-                            <i class="fa-solid fa-info-circle mr-2"></i>
-                            <strong>Hinweis:</strong> Geben Sie diesen Code an das Krankenhaus weiter. Der Code kann jederzeit neu generiert werden.
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-btn ignis-btn--soft-primary">
-                            <i class="fa-solid fa-floppy-disk"></i> Speichern
-                        </button>
-                    </div>
-                </form>
+    <!-- Form-Body als inertes <template>; Dialog wird in JS programmatisch erstellt -->
+    <template id="generateCodeFormTemplate">
+        <p>Krankenhaus: <strong id="generate-hospital-name"></strong></p>
+        <div class="mb-3">
+            <label for="new-code" class="ignis-field__label">Zugangscode</label>
+            <div class="input-group">
+                <input type="text" class="ignis-input" name="new_code" id="new-code" required readonly>
+                <button type="button" class="ignis-btn ignis-btn--outline-secondary" id="regenerate-btn">
+                    <i class="fa-solid fa-rotate"></i> Neu generieren
+                </button>
             </div>
+            <div class="ignis-field__hint">Der Code wird im Klartext gespeichert und kann jederzeit eingesehen werden.</div>
         </div>
-    </div>
+        <div class="ignis-alert ignis-alert--info">
+            <i class="fa-solid fa-info-circle mr-2"></i>
+            <strong>Hinweis:</strong> Geben Sie diesen Code an das Krankenhaus weiter. Der Code kann jederzeit neu generiert werden.
+        </div>
+    </template>
 
     <script>
         $(document).ready(function() {
@@ -160,16 +140,30 @@ use App\Helpers\Flash;
             }
 
             $('.generate-code-btn').on('click', function() {
-                const id = $(this).data('id');
+                const id   = $(this).data('id');
                 const name = $(this).data('name');
-                $('#generate-poi-id').val(id);
-                $('#generate-hospital-name').text(name);
-                $('#new-code').val(generateRandomCode());
-                new bootstrap.Modal($('#generateCodeModal')).show();
-            });
 
-            $('#regenerate-btn').on('click', function() {
-                $('#new-code').val(generateRandomCode());
+                Dialog.form({
+                    title:        'Zugangscode generieren',
+                    template:     'generateCodeFormTemplate',
+                    formAction:   '',
+                    hiddenFields: { generate_code: '1', poi_id: String(id) },
+                    submitLabel:  'Speichern',
+                    submitIcon:   'fa-solid fa-floppy-disk',
+                    submitVariant:'soft-primary',
+                    onOpen:       function (dlg) {
+                        // Felder im frisch geklonten Template-Inhalt befüllen
+                        // und den Regenerate-Handler binden — beides muss
+                        // pro Open neu passieren, weil der Body bei jedem
+                        // Open neu erstellt wird.
+                        const $body = $(dlg.element);
+                        $body.find('#generate-hospital-name').text(name);
+                        $body.find('#new-code').val(generateRandomCode());
+                        $body.find('#regenerate-btn').on('click', function () {
+                            $body.find('#new-code').val(generateRandomCode());
+                        });
+                    },
+                });
             });
 
             $('.copy-code-btn').on('click', function() {

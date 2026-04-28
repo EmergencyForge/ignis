@@ -173,35 +173,14 @@ $SITE_TITLE = 'Einladungen verwalten';
 
     <script>
         function openCreateInviteModal() {
-            var tpl = document.getElementById('createInviteFormTemplate');
-            if (!tpl) return;
-
-            var form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '';
-
-            var actionInput = document.createElement('input');
-            actionInput.type = 'hidden';
-            actionInput.name = 'action';
-            actionInput.value = 'generate';
-            form.appendChild(actionInput);
-
-            form.appendChild(tpl.content.cloneNode(true));
-
-            new Dialog({
-                title: 'Neue Einladung erstellen',
-                size: 'md',
-                body: form,
-                actions: [
-                    { label: 'Abbrechen', variant: 'ghost', onClick: function (d) { d.close(null); } },
-                    {
-                        labelHtml: '<i class="fa-solid fa-link"></i> Einladungslink erstellen',
-                        variant: 'primary',
-                        primary: true,
-                        onClick: function () { form.requestSubmit(); },
-                    },
-                ],
-            }).open();
+            Dialog.form({
+                title:        'Neue Einladung erstellen',
+                template:     'createInviteFormTemplate',
+                formAction:   '',
+                hiddenFields: { action: 'generate' },
+                submitLabel:  'Einladungslink erstellen',
+                submitIcon:   'fa-solid fa-link',
+            });
         }
 
         function copyInviteLink(url) {

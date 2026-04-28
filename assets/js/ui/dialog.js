@@ -222,6 +222,106 @@ export class Dialog {
         return d.open();
     }
 
+    /**
+     * Form-Dialog: ein Dialog, der den Body-Inhalt aus einem inerten
+     * <template>-Element klont und Cancel/Submit-Actions anbietet.
+     *
+     * Zwei Modi:
+     *   - Server-Submit (formAction gesetzt): Body ist ein <form>, Submit
+     *     ruft form.requestSubmit() — HTML5-Validation greift.
+     *   - AJAX (onSubmit gesetzt): Body ist ein <div>, Submit ruft den
+     *     Callback mit (bodyElement, dialogInstance). Caller schließt
+     *     den Dialog selbst nach erfolgreichem AJAX.
+     *
+     * Opts:
+     *   title:          string       Dialog-Titel
+     *   template:       string|HTMLTemplateElement   ID oder Element
+     *   size:           'sm'|'md'|'lg'|'xl'  (default: 'md')
+     *   formAction:     string?      URL für POST (server-form-modus)
+     *   formMethod:     string?      Default 'POST'
+     *   hiddenFields:   {[name]: value}   Hidden-Inputs vor dem Template-Inhalt
+     *   submitLabel:    string?      Default 'Speichern'
+     *   submitIcon:     string?      Font-Awesome-Klassenname, z.B. 'fa-solid fa-link'
+     *   submitVariant:  'primary'|'success'|'danger'|'soft-primary'|...
+     *   cancelLabel:    string?      Default 'Abbrechen'
+     *   onSubmit:       (body, dlg) => void   Custom-Submit-Handler (AJAX)
+     *   onOpen:         (dlg) => void   Wird nach dem Open gerufen,
+     *                                    z.B. für Field-Prefill
+     *   onClose:        (result) => void
+     *   closeOnBackdrop / closeOnEscape: wie bei Dialog (default true)
+     */
+    static form(opts = {}) {
+        const tpl = typeof opts.template === 'string'
+            ? document.getElementById(opts.template)
+            : opts.template;
+        if (!tpl || !(tpl instanceof HTMLTemplateElement)) {
+            console.error('Dialog.form: template not found or not a <template>:', opts.template);
+            return null;
+        }
+
+        // Body: <form> wenn formAction gesetzt, sonst <div>. Beim AJAX-Pfad
+        // brauchen wir kein <form>, weil der Submit-Handler manuell läuft.
+        const isFormSubmit = typeof opts.formAction === 'string';
+        const body = document.createElement(isFormSubmit ? 'form' : 'div');
+        if (isFormSubmit) {
+            body.method = opts.formMethod || 'POST';
+            body.action = opts.formAction;
+        }
+
+        if (opts.hiddenFields) {
+            Object.keys(opts.hiddenFields).forEach((name) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = opts.hiddenFields[name];
+                body.appendChild(input);
+            });
+        }
+
+        body.appendChild(tpl.content.cloneNode(true));
+
+        const submitAction = {
+            variant: opts.submitVariant || 'primary',
+            primary: true,
+        };
+        if (opts.submitIcon) {
+            submitAction.labelHtml =
+                '<i class="' + opts.submitIcon + '"></i> ' + escape(opts.submitLabel || 'Speichern');
+        } else {
+            submitAction.label = opts.submitLabel || 'Speichern';
+        }
+        submitAction.onClick = (dlg) => {
+            if (typeof opts.onSubmit === 'function') {
+                opts.onSubmit(body, dlg);
+            } else if (isFormSubmit) {
+                body.requestSubmit();
+            } else {
+                dlg.close('submit');
+            }
+        };
+
+        const dlg = new Dialog({
+            title: opts.title,
+            size: opts.size || 'md',
+            body: body,
+            actions: [
+                {
+                    label: opts.cancelLabel || 'Abbrechen',
+                    variant: 'ghost',
+                    onClick: (d) => d.close(null),
+                },
+                submitAction,
+            ],
+            closeOnBackdrop: opts.closeOnBackdrop !== false,
+            closeOnEscape: opts.closeOnEscape !== false,
+            onOpen: opts.onOpen,
+            onClose: opts.onClose,
+        });
+
+        dlg.open();
+        return dlg;
+    }
+
     // ───────────────────────────────────────────────────────────────────
     // Internal
     // ───────────────────────────────────────────────────────────────────
