@@ -63,7 +63,7 @@ use App\Helpers\Flash;
             <div class="intra__tile mb-4 p-4">
                 <div class="mb-4 flex items-center justify-between">
                     <h4><i class="fa-solid fa-list mr-2"></i>Formularfelder (<?= count($felder) ?>)</h4>
-                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#addFeldModal">
+                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" onclick="openAddFeldModal()">
                         <i class="fa-solid fa-plus mr-1"></i>Feld hinzufügen
                     </button>
                 </div>
@@ -145,108 +145,110 @@ use App\Helpers\Flash;
         </div>
     </div>
 
-    <!-- Modal: Feld hinzufügen -->
-    <div class="modal fade" id="addFeldModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content bg-[rgba(0,0,0,0.3)]">
-                <form method="post">
-                    <div class="modal-header">
-                        <h5 class="modal-title"><i class="fa-solid fa-plus mr-2"></i>Neues Feld hinzufügen</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div>
-                                <label for="feldname" class="ignis-field__label font-bold">Feldname (technisch) <span class="text-red-500">*</span></label>
-                                <input type="text" class="ignis-input" id="feldname" name="feldname" placeholder="z.B. von_datum, grund" required>
-                                <small class="mt-1 block text-xs text-gray-400">Nur Kleinbuchstaben, Zahlen und Unterstriche</small>
-                            </div>
-                            <div>
-                                <label for="label" class="ignis-field__label font-bold">Label (Anzeige) <span class="text-red-500">*</span></label>
-                                <input type="text" class="ignis-input" id="label" name="label" placeholder="z.B. Urlaub von" required>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                            <div>
-                                <label for="feldtyp" class="ignis-field__label font-bold">Feldtyp <span class="text-red-500">*</span></label>
-                                <select class="form-select" id="feldtyp" name="feldtyp" required>
-                                    <option value="text">Text (einzeilig)</option>
-                                    <option value="textarea">Textarea (mehrzeilig)</option>
-                                    <option value="number">Zahl</option>
-                                    <option value="date">Datum</option>
-                                    <option value="time">Uhrzeit</option>
-                                    <option value="email">E-Mail</option>
-                                    <option value="tel">Telefon</option>
-                                    <option value="select">Auswahlfeld</option>
-                                    <option value="checkbox">Checkbox</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="breite" class="ignis-field__label font-bold">Feldbreite</label>
-                                <select class="form-select" id="breite" name="breite">
-                                    <option value="full">Volle Breite</option>
-                                    <option value="half">Halbe Breite</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="auto_fill" class="ignis-field__label font-bold">Auto-Fill</label>
-                                <select class="form-select" id="auto_fill" name="auto_fill">
-                                    <option value="">Kein Auto-Fill</option>
-                                    <option value="fullname_dienstnr">Name + Dienstnr.</option>
-                                    <option value="fullname">Name</option>
-                                    <option value="dienstnr">Dienstnummer</option>
-                                    <option value="dienstgrad">Dienstgrad</option>
-                                    <option value="discordtag">Discord-Tag</option>
-                                </select>
-                                <small class="mt-1 block text-xs text-gray-400">Automatisch ausfüllen</small>
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            <label for="platzhalter" class="ignis-field__label font-bold">Platzhalter-Text</label>
-                            <input type="text" class="ignis-input" id="platzhalter" name="platzhalter" placeholder="z.B. TT.MM.JJJJ">
-                        </div>
-
-                        <div class="mt-4" id="optionen-container" style="display: none;">
-                            <label for="optionen" class="ignis-field__label font-bold">Optionen (für Select)</label>
-                            <textarea class="ignis-input" id="optionen" name="optionen" rows="3" placeholder="Eine Option pro Zeile"></textarea>
-                            <small class="mt-1 block text-xs text-gray-400">Jede Zeile wird zu einer Auswahloption</small>
-                        </div>
-
-                        <div class="mt-4">
-                            <label for="hinweistext" class="ignis-field__label font-bold">Hinweistext</label>
-                            <textarea class="ignis-input" id="hinweistext" name="hinweistext" rows="2" placeholder="Optionaler Hinweis, der unter dem Feld angezeigt wird"></textarea>
-                        </div>
-
-                        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <label class="ignis-checkbox" for="pflichtfeld"><input type="checkbox" id="pflichtfeld" name="pflichtfeld"><span>
-                                    <strong>Pflichtfeld</strong>
-                                </span></label>
-                            <label class="ignis-checkbox" for="readonly"><input type="checkbox" id="readonly" name="readonly"><span>
-                                    <strong>Nur lesbar (Readonly)</strong>
-                                </span></label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" name="add_feld" class="ignis-btn ignis-btn--success">
-                            <i class="fa-solid fa-plus mr-2"></i>Feld hinzufügen
-                        </button>
-                    </div>
-                </form>
+    <!-- Form-Body als inertes <template>; Dialog wird in JS programmatisch erstellt -->
+    <template id="addFeldFormTemplate">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+                <label for="feldname" class="ignis-field__label font-bold">Feldname (technisch) <span class="text-red-500">*</span></label>
+                <input type="text" class="ignis-input" id="feldname" name="feldname" placeholder="z.B. von_datum, grund" required>
+                <small class="mt-1 block text-xs text-gray-400">Nur Kleinbuchstaben, Zahlen und Unterstriche</small>
+            </div>
+            <div>
+                <label for="label" class="ignis-field__label font-bold">Label (Anzeige) <span class="text-red-500">*</span></label>
+                <input type="text" class="ignis-input" id="label" name="label" placeholder="z.B. Urlaub von" required>
             </div>
         </div>
-    </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div>
+                <label for="feldtyp" class="ignis-field__label font-bold">Feldtyp <span class="text-red-500">*</span></label>
+                <select class="form-select" id="feldtyp" name="feldtyp" required>
+                    <option value="text">Text (einzeilig)</option>
+                    <option value="textarea">Textarea (mehrzeilig)</option>
+                    <option value="number">Zahl</option>
+                    <option value="date">Datum</option>
+                    <option value="time">Uhrzeit</option>
+                    <option value="email">E-Mail</option>
+                    <option value="tel">Telefon</option>
+                    <option value="select">Auswahlfeld</option>
+                    <option value="checkbox">Checkbox</option>
+                </select>
+            </div>
+            <div>
+                <label for="breite" class="ignis-field__label font-bold">Feldbreite</label>
+                <select class="form-select" id="breite" name="breite">
+                    <option value="full">Volle Breite</option>
+                    <option value="half">Halbe Breite</option>
+                </select>
+            </div>
+            <div>
+                <label for="auto_fill" class="ignis-field__label font-bold">Auto-Fill</label>
+                <select class="form-select" id="auto_fill" name="auto_fill">
+                    <option value="">Kein Auto-Fill</option>
+                    <option value="fullname_dienstnr">Name + Dienstnr.</option>
+                    <option value="fullname">Name</option>
+                    <option value="dienstnr">Dienstnummer</option>
+                    <option value="dienstgrad">Dienstgrad</option>
+                    <option value="discordtag">Discord-Tag</option>
+                </select>
+                <small class="mt-1 block text-xs text-gray-400">Automatisch ausfüllen</small>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <label for="platzhalter" class="ignis-field__label font-bold">Platzhalter-Text</label>
+            <input type="text" class="ignis-input" id="platzhalter" name="platzhalter" placeholder="z.B. TT.MM.JJJJ">
+        </div>
+
+        <div class="mt-4" id="optionen-container" style="display: none;">
+            <label for="optionen" class="ignis-field__label font-bold">Optionen (für Select)</label>
+            <textarea class="ignis-input" id="optionen" name="optionen" rows="3" placeholder="Eine Option pro Zeile"></textarea>
+            <small class="mt-1 block text-xs text-gray-400">Jede Zeile wird zu einer Auswahloption</small>
+        </div>
+
+        <div class="mt-4">
+            <label for="hinweistext" class="ignis-field__label font-bold">Hinweistext</label>
+            <textarea class="ignis-input" id="hinweistext" name="hinweistext" rows="2" placeholder="Optionaler Hinweis, der unter dem Feld angezeigt wird"></textarea>
+        </div>
+
+        <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <label class="ignis-checkbox" for="pflichtfeld"><input type="checkbox" id="pflichtfeld" name="pflichtfeld"><span>
+                    <strong>Pflichtfeld</strong>
+                </span></label>
+            <label class="ignis-checkbox" for="readonly"><input type="checkbox" id="readonly" name="readonly"><span>
+                    <strong>Nur lesbar (Readonly)</strong>
+                </span></label>
+        </div>
+    </template>
 
     <script>
-        $('#feldtyp').on('change', function() {
-            if ($(this).val() === 'select') {
-                $('#optionen-container').show();
-            } else {
-                $('#optionen-container').hide();
-            }
-        });
+        function openAddFeldModal() {
+            Dialog.form({
+                title:        'Neues Feld hinzufügen',
+                template:     'addFeldFormTemplate',
+                size:         'lg',
+                formAction:   '',
+                // add_feld als Hidden, weil der Submit ueber Dialog-Action
+                // laeuft und kein <button name="add_feld"> mehr existiert
+                // (PHP-Controller wertet $_POST['add_feld'] aus).
+                hiddenFields: { add_feld: '1' },
+                submitLabel:  'Feld hinzufügen',
+                submitIcon:   'fa-solid fa-plus',
+                submitVariant:'success',
+                onOpen: function (dlg) {
+                    // Optionen-Container nur zeigen wenn Feldtyp = select.
+                    // Body wird pro Open neu gebaut, also Handler hier binden.
+                    var $body = $(dlg.element);
+                    $body.find('#feldtyp').on('change', function () {
+                        if ($(this).val() === 'select') {
+                            $body.find('#optionen-container').show();
+                        } else {
+                            $body.find('#optionen-container').hide();
+                        }
+                    });
+                },
+            });
+        }
     </script>
 
     <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
