@@ -231,9 +231,9 @@ $cacheInfo = $announcements->getCacheInfo();
                     </script>
 
                     <?php if ($message): ?>
-                        <div class="alert alert-<?= $messageType ?> alert-dismissible fade show">
-                            <?= htmlspecialchars($message) ?>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        <div class="ignis-alert ignis-alert--<?= $messageType ?>">
+                            <span class="ignis-alert__body"><?= htmlspecialchars($message) ?></span>
+                            <button type="button" class="ignis-alert__close" aria-label="Schließen" onclick="this.parentElement.remove()">×</button>
                         </div>
                     <?php endif; ?>
 

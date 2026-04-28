@@ -72,7 +72,7 @@ if ($incident) {
 
         <?php if (!$canFinalize): ?>
             <div class="ignis-alert ignis-alert--warning">
-                <h5 class="alert-heading">
+                <h5 class="ignis-alert__title">
                     <i class="fa-solid fa-exclamation-triangle mr-2"></i>
                     Abschluss nicht möglich
                 </h5>
