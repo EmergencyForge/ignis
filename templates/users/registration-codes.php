@@ -39,7 +39,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                         </div>
                         <?php if ($registrationMode === 'code'): ?>
                             <div class="flex-1 text-right px-3">
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createInviteModal">
+                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="openCreateInviteModal()">
                                     <i class="fa-solid fa-plus"></i> Einladung erstellen
                                 </button>
                             </div>
@@ -153,42 +153,57 @@ $SITE_TITLE = 'Einladungen verwalten';
         </div>
     </div>
 
-    <!-- Einladung erstellen Modal -->
-    <div class="modal fade" id="createInviteModal" tabindex="-1" aria-labelledby="createInviteModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="POST">
-                    <input type="hidden" name="action" value="generate">
-                    <div class="modal-header">
-                        <h1 class="modal-title text-lg" id="createInviteModalLabel">Neue Einladung erstellen</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="ignis-field mb-3">
-                            <label for="label" class="ignis-field__label">Bezeichnung <span class="ignis-field__hint" style="display:inline;">(optional)</span></label>
-                            <input type="text" class="ignis-input" id="label" name="label" placeholder="z.B. Einladung für Max Mustermann">
-                            <span class="ignis-field__hint">Hilft dir zu erkennen, für wen die Einladung erstellt wurde.</span>
-                        </div>
-                        <div class="ignis-field mb-3">
-                            <label for="expires_at" class="ignis-field__label">Gültig bis <span class="ignis-field__hint" style="display:inline;">(optional)</span></label>
-                            <div data-ignis-datetimepicker
-                                 data-name="expires_at"
-                                 class="ignis-datetimepicker"></div>
-                            <span class="ignis-field__hint">Leer lassen für unbegrenzte Gültigkeit.</span>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-link"></i> Einladungslink erstellen</button>
-                    </div>
-                </form>
-            </div>
+    <!-- Form-Body als inertes <template>; Dialog wird in JS programmatisch erstellt -->
+    <template id="createInviteFormTemplate">
+        <div class="ignis-field mb-3">
+            <label for="label" class="ignis-field__label">Bezeichnung <span class="ignis-field__hint" style="display:inline;">(optional)</span></label>
+            <input type="text" class="ignis-input" id="label" name="label" placeholder="z.B. Einladung für Max Mustermann">
+            <span class="ignis-field__hint">Hilft dir zu erkennen, für wen die Einladung erstellt wurde.</span>
         </div>
-    </div>
+        <div class="ignis-field mb-3">
+            <label for="expires_at" class="ignis-field__label">Gültig bis <span class="ignis-field__hint" style="display:inline;">(optional)</span></label>
+            <div data-ignis-datetimepicker
+                 data-name="expires_at"
+                 class="ignis-datetimepicker"></div>
+            <span class="ignis-field__hint">Leer lassen für unbegrenzte Gültigkeit.</span>
+        </div>
+    </template>
 
     <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
     <script>
+        function openCreateInviteModal() {
+            var tpl = document.getElementById('createInviteFormTemplate');
+            if (!tpl) return;
+
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '';
+
+            var actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'generate';
+            form.appendChild(actionInput);
+
+            form.appendChild(tpl.content.cloneNode(true));
+
+            new Dialog({
+                title: 'Neue Einladung erstellen',
+                size: 'md',
+                body: form,
+                actions: [
+                    { label: 'Abbrechen', variant: 'ghost', onClick: function (d) { d.close(null); } },
+                    {
+                        labelHtml: '<i class="fa-solid fa-link"></i> Einladungslink erstellen',
+                        variant: 'primary',
+                        primary: true,
+                        onClick: function () { form.requestSubmit(); },
+                    },
+                ],
+            }).open();
+        }
+
         function copyInviteLink(url) {
             navigator.clipboard.writeText(url).then(function() {
                 showToast('Einladungslink in die Zwischenablage kopiert!', 'success');

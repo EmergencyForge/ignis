@@ -301,10 +301,13 @@ export class Dialog {
     _renderAction(action, index) {
         const variant = action.variant ?? 'primary';
         const attrs = action.primary ? 'data-dialog-primary="true"' : '';
+        // labelHtml ist ein opt-in für Icons o.ä. — Caller verantwortlich für
+        // sichere HTML-Quelle. Default-Pfad escaped wie zuvor.
+        const inner = action.labelHtml ?? escape(action.label);
         return `<button type="button"
                     class="ignis-dialog__action ignis-dialog__action--${variant}"
                     data-dialog-action="${index}" ${attrs}>
-                ${escape(action.label)}
+                ${inner}
             </button>`;
     }
 

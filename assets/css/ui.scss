@@ -1196,7 +1196,22 @@ body:has(.ignis-dialog-backdrop.is-open) {
     margin-bottom: 0.5rem;
     gap: 0.3rem;
   }
+}
 
+// Floating-Variante: Panel ist zu <body> portiert, damit overflow-hidden
+// Container (Dialog, Tile, Card) den Kalender nicht abschneiden. Position
+// kommt per inline-Style aus _positionPanel(), Sichtbarkeit wird allein
+// durch das Vorhandensein der Klasse aktiviert (im portierten Zustand
+// greift die Wrapper-basierte `.is-open`-Regel nicht mehr).
+.ignis-datepicker__panel--floating {
+  position: fixed;
+  z-index: 2100;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.ignis-datepicker {
   .ignis-datepicker__nav {
     width: 28px;
     height: 28px;
