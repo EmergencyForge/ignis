@@ -5,9 +5,9 @@ use App\Auth\Permissions;
 
 <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
 <div class="flex justify-end mb-2">
-    <label class="form-check form-check-inline mb-0" style="font-size:0.78rem;">
-        <input class="form-check-input" type="checkbox" id="chk-show-archived" onchange="document.querySelectorAll('.doc-archived').forEach(r => r.style.display = this.checked ? '' : 'none');">
-        <span class="form-check-label text-[var(--text-dimmed,#818189)]">Archivierte anzeigen</span>
+    <label class="ignis-checkbox mb-0" style="font-size:0.78rem;">
+        <input type="checkbox" id="chk-show-archived" onchange="document.querySelectorAll('.doc-archived').forEach(r => r.style.display = this.checked ? '' : 'none');">
+        <span class="text-[var(--text-dimmed,#818189)]">Archivierte anzeigen</span>
     </label>
 </div>
 <?php endif; ?>

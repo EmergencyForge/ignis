@@ -328,9 +328,9 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
 
                         <div class="mb-3" id="genderSpecificContainer" style="display: none;">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="genderSpecific">
-                                <label class="form-check-label" for="genderSpecific">
+                            <div class="ignis-checkbox">
+                                <input type="checkbox" id="genderSpecific">
+                                <label for="genderSpecific">
                                     Geschlechtsspezifische Optionen
                                 </label>
                                 <small class="ignis-field__hint text-[var(--text-dimmed,#818189)] block">
@@ -352,9 +352,9 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                             Die geschlechtsspezifischen Varianten werden automatisch berücksichtigt.
                         </div>
 
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="fieldRequired">
-                            <label class="form-check-label" for="fieldRequired">
+                        <div class="ignis-checkbox mb-3">
+                            <input type="checkbox" id="fieldRequired">
+                            <label for="fieldRequired">
                                 Pflichtfeld
                             </label>
                         </div>

@@ -88,15 +88,14 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
                                     </select>
 
                                 <?php elseif ($feld->feldtyp === 'checkbox'): ?>
-                                    <div class="form-check">
+                                    <div class="ignis-checkbox">
                                         <input
-                                            class="form-check-input"
                                             type="checkbox"
                                             id="<?= htmlspecialchars($feld->feldname) ?>"
                                             name="<?= htmlspecialchars($feld->feldname) ?>"
                                             value="1"
                                             <?= $feld->readonly ? 'disabled' : '' ?>>
-                                        <label class="form-check-label" for="<?= htmlspecialchars($feld->feldname) ?>">
+                                        <label for="<?= htmlspecialchars($feld->feldname) ?>">
                                             <?= htmlspecialchars($feld->platzhalter ?? '') ?>
                                         </label>
                                     </div>

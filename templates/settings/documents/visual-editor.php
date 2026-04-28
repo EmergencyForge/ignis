@@ -47,8 +47,8 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         .editor-toolbar { flex-wrap: nowrap; overflow-x: auto; min-height: 38px; gap: 0.35rem; padding: 0.3rem 0.75rem; }
         .editor-toolbar .ignis-btn { font-size: 0.8rem; padding: 0.2rem 0.5rem; }
         .editor-toolbar .separator { width: 1px; height: 22px; background: var(--bs-border-color); margin: 0 0.15rem; }
-        .editor-toolbar .form-check { margin: 0; display: flex; align-items: center; gap: 0.25rem; }
-        .editor-toolbar .form-check-label { line-height: 1; }
+        .editor-toolbar .ignis-checkbox { margin: 0; display: flex; align-items: center; gap: 0.25rem; }
+        .editor-toolbar .{ line-height: 1; }
         .editor-toolbar .form-select { height: auto; padding-top: 0.2rem; padding-bottom: 0.2rem; }
         .element-item.field-placed { opacity: 0.5; }
         .element-item.field-placed::after { content: '\f00c'; font-family: 'Font Awesome 7 Free'; font-weight: 900; font-size: 0.6rem; color: var(--bs-success); margin-left: auto; }
@@ -69,9 +69,9 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
             $templateConfig = json_decode($template['config'] ?? '{}', true) ?: [];
             $isDraft = !empty($templateConfig['is_draft']);
         ?>
-        <label class="form-check form-check-inline mb-0 ml-2" style="font-size:0.72rem;" title="Entwurfs-Wasserzeichen auf PDFs anzeigen">
-            <input class="form-check-input" type="checkbox" id="chk-draft" style="width:0.85em;height:0.85em;"<?= $isDraft ? ' checked' : '' ?>>
-            <span class="form-check-label text-[#ddb84a]">Entwurf</span>
+        <label class="ignis-checkbox mb-0 ml-2" style="font-size:0.72rem;" title="Entwurfs-Wasserzeichen auf PDFs anzeigen">
+            <input type="checkbox" id="chk-draft" style="width:0.85em;height:0.85em;"<?= $isDraft ? ' checked' : '' ?>>
+            <span class="text-[#ddb84a]">Entwurf</span>
         </label>
 
         <div class="separator"></div>
@@ -163,22 +163,22 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
         <div class="separator"></div>
 
-        <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;">
-            <input class="form-check-input" type="checkbox" id="chk-snap-grid" style="width:0.85em;height:0.85em;">
-            <span class="form-check-label">Snap</span>
+        <label class="ignis-checkbox mb-0" style="font-size:0.75rem;">
+            <input type="checkbox" id="chk-snap-grid" style="width:0.85em;height:0.85em;">
+            <span>Snap</span>
         </label>
-        <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;">
-            <input class="form-check-input" type="checkbox" id="chk-grid-overlay" style="width:0.85em;height:0.85em;">
-            <span class="form-check-label">Raster</span>
+        <label class="ignis-checkbox mb-0" style="font-size:0.75rem;">
+            <input type="checkbox" id="chk-grid-overlay" style="width:0.85em;height:0.85em;">
+            <span>Raster</span>
         </label>
-        <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;">
-            <input class="form-check-input" type="checkbox" id="chk-guides" style="width:0.85em;height:0.85em;">
-            <span class="form-check-label">Guides</span>
+        <label class="ignis-checkbox mb-0" style="font-size:0.75rem;">
+            <input type="checkbox" id="chk-guides" style="width:0.85em;height:0.85em;">
+            <span>Guides</span>
         </label>
         <div class="separator"></div>
-        <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;" title="Platzhalter durch Beispieldaten ersetzen">
-            <input class="form-check-input" type="checkbox" id="chk-preview-data" style="width:0.85em;height:0.85em;">
-            <span class="form-check-label">Vorschau</span>
+        <label class="ignis-checkbox mb-0" style="font-size:0.75rem;" title="Platzhalter durch Beispieldaten ersetzen">
+            <input type="checkbox" id="chk-preview-data" style="width:0.85em;height:0.85em;">
+            <span>Vorschau</span>
         </label>
 
         <select class="form-select form-select-sm" data-custom-dropdown="true" id="sel-margins" style="width:auto;font-size:0.75rem;padding:0.25rem 2rem 0.25rem 0.5rem;">
@@ -188,9 +188,9 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         </select>
 
         <div class="ml-auto flex items-center gap-1">
-            <label class="form-check form-check-inline mb-0" style="font-size:0.75rem;" title="Automatisches Speichern aktivieren/deaktivieren">
-                <input class="form-check-input" type="checkbox" id="chk-autosave" style="width:0.85em;height:0.85em;" checked>
-                <span class="form-check-label">Auto-Save</span>
+            <label class="ignis-checkbox mb-0" style="font-size:0.75rem;" title="Automatisches Speichern aktivieren/deaktivieren">
+                <input type="checkbox" id="chk-autosave" style="width:0.85em;height:0.85em;" checked>
+                <span>Auto-Save</span>
             </label>
             <span id="autosave-indicator" class="text-gray-400" style="font-size:0.68rem;white-space:nowrap;"></span>
             <button class="ignis-btn ignis-btn--sm ignis-btn--outline-info" id="btn-preview" title="Vorschau">

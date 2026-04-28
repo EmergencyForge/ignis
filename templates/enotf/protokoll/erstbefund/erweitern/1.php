@@ -643,7 +643,7 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             if (detailPanel) detailPanel.style.display = 'none';
             document.querySelectorAll('input, textarea').forEach(function(e) { e.setAttribute('readonly', 'readonly'); });
             document.querySelectorAll('select').forEach(function(e) { e.setAttribute('disabled', 'disabled'); });
-            document.querySelectorAll('.btn-check, .form-check-input').forEach(function(e) { e.setAttribute('disabled', 'disabled'); });
+            document.querySelectorAll('.btn-check, .').forEach(function(e) { e.setAttribute('disabled', 'disabled'); });
         </script>
     <?php endif; ?>
     <script src="<?= BASE_PATH ?>assets/js/pin_activity.js"></script>
