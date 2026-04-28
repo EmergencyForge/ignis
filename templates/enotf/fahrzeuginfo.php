@@ -234,7 +234,7 @@ $currentDate = date('d.m.Y');
                                                     <div class="flex flex-wrap align-items-center gap-2">
                                                         <strong class="text-light" style="font-size:0.9rem;"><?= htmlspecialchars($def['title']) ?></strong>
                                                         <span class="ignis-chip" style="font-size:0.6rem;"><?= htmlspecialchars($catLabel) ?></span>
-                                                        <span class="badge text-bg-<?= $stat[1] ?>" style="font-size:0.6rem;"><?= $stat[0] ?></span>
+                                                        <span class="ignis-chip ignis-chip--<?= $stat[1] ?>" style="font-size:0.6rem;"><?= $stat[0] ?></span>
                                                         <?php if (!$operable): ?>
                                                             <span class="ignis-chip ignis-chip--danger" style="font-size:0.6rem;"><i class="fa-solid fa-ban"></i> Nicht einsatzfähig</span>
                                                         <?php endif; ?>

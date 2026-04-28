@@ -204,13 +204,13 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
     <!-- Floating Text-Toolbar (erscheint beim Bearbeiten von Text) -->
     <div id="text-floating-toolbar" class="text-floating-toolbar" style="display:none;">
-        <button class="tft-ignis-btn" data-tft-action="bold" title="Fett (Ctrl+B)"><i class="fa-solid fa-bold"></i></button>
-        <button class="tft-ignis-btn" data-tft-action="italic" title="Kursiv (Ctrl+I)"><i class="fa-solid fa-italic"></i></button>
-        <button class="tft-ignis-btn" data-tft-action="underline" title="Unterstrichen (Ctrl+U)"><i class="fa-solid fa-underline"></i></button>
+        <button class="tft-btn" data-tft-action="bold" title="Fett (Ctrl+B)"><i class="fa-solid fa-bold"></i></button>
+        <button class="tft-btn" data-tft-action="italic" title="Kursiv (Ctrl+I)"><i class="fa-solid fa-italic"></i></button>
+        <button class="tft-btn" data-tft-action="underline" title="Unterstrichen (Ctrl+U)"><i class="fa-solid fa-underline"></i></button>
         <span class="tft-sep"></span>
-        <button class="tft-ignis-btn" data-tft-action="align-left" title="Links"><i class="fa-solid fa-align-left"></i></button>
-        <button class="tft-ignis-btn" data-tft-action="align-center" title="Zentriert"><i class="fa-solid fa-align-center"></i></button>
-        <button class="tft-ignis-btn" data-tft-action="align-right" title="Rechts"><i class="fa-solid fa-align-right"></i></button>
+        <button class="tft-btn" data-tft-action="align-left" title="Links"><i class="fa-solid fa-align-left"></i></button>
+        <button class="tft-btn" data-tft-action="align-center" title="Zentriert"><i class="fa-solid fa-align-center"></i></button>
+        <button class="tft-btn" data-tft-action="align-right" title="Rechts"><i class="fa-solid fa-align-right"></i></button>
         <span class="tft-sep"></span>
         <select class="tft-select" data-tft-action="fontSize" title="Schriftgr&ouml;&szlig;e">
             <option value="8">8</option><option value="9">9</option><option value="10">10</option>
@@ -221,7 +221,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         <span class="tft-sep"></span>
         <!-- Variable einfuegen Dropdown -->
         <div class="dropdown" style="display:inline-flex;">
-            <button class="tft-ignis-btn dropdown-toggle" data-bs-toggle="dropdown" title="Variable einf&uuml;gen" style="width:auto;padding:0 6px;">
+            <button class="tft-btn dropdown-toggle" data-bs-toggle="dropdown" title="Variable einf&uuml;gen" style="width:auto;padding:0 6px;">
                 <i class="fa-solid fa-code" style="font-size:0.7rem;"></i>
             </button>
             <ul class="dropdown-menu dropdown-menu-dark" id="tft-var-dropdown" style="font-size:0.78rem;max-height:250px;overflow-y:auto;">

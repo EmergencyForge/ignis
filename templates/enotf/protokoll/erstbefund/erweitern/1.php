@@ -537,10 +537,10 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             document.getElementById('bodymap-detail-title').textContent = fieldLabels[field] || field;
 
             var currentSeverity = getSeverity(field);
-            document.getElementById('bodymap-severity-btns').querySelectorAll('button').forEach(function(ignis-btn) {
-                ignis-btn.className = '';
-                if (ignis-btn.getAttribute('data-value') === currentSeverity) {
-                    ignis-btn.classList.add(severityClasses[currentSeverity] || '');
+            document.getElementById('bodymap-severity-btns').querySelectorAll('button').forEach(function(btn) {
+                btn.className = '';
+                if (btn.getAttribute('data-value') === currentSeverity) {
+                    btn.classList.add(severityClasses[currentSeverity] || '');
                 }
             });
 
@@ -551,8 +551,8 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
             if (isInjured) {
                 var woundField = woundTypeMap[field];
                 var currentWound = window.__dynamicDaten ? String(window.__dynamicDaten[woundField] || '') : '';
-                woundBtns.querySelectorAll('button').forEach(function(ignis-btn) {
-                    ignis-btn.classList.toggle('active', ignis-btn.getAttribute('data-value') === currentWound);
+                woundBtns.querySelectorAll('button').forEach(function(btn) {
+                    btn.classList.toggle('active', btn.getAttribute('data-value') === currentWound);
                 });
             }
         }
@@ -568,10 +568,10 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
 
         // Severity buttons
         document.getElementById('bodymap-severity-btns').addEventListener('click', function(e) {
-            var ignis-btn = e.target.closest('button');
-            if (!ignis-btn || !selectedField) return;
+            var btn = e.target.closest('button');
+            if (!btn || !selectedField) return;
 
-            var value = ignis-btn.getAttribute('data-value');
+            var value = btn.getAttribute('data-value');
             var label = fieldLabels[selectedField] || selectedField;
 
             // Update local data immediately so showDetail sees the new value
@@ -590,14 +590,14 @@ $bodyPath = "M104.265,117.959c-0.304,3.58,2.126,22.529,3.38,29.959c0.597,3.52,2.
 
         // Wound type buttons
         document.getElementById('bodymap-woundtype-btns').addEventListener('click', function(e) {
-            var ignis-btn = e.target.closest('button');
-            if (!ignis-btn || !selectedField) return;
+            var btn = e.target.closest('button');
+            if (!btn || !selectedField) return;
 
-            saveField(woundTypeMap[selectedField], ignis-btn.getAttribute('data-value'),
+            saveField(woundTypeMap[selectedField], btn.getAttribute('data-value'),
                 (fieldLabels[selectedField] || selectedField) + ' (Wundart)', false);
 
             document.getElementById('bodymap-woundtype-btns').querySelectorAll('button').forEach(function(b) {
-                b.classList.toggle('active', b === ignis-btn);
+                b.classList.toggle('active', b === btn);
             });
         });
 

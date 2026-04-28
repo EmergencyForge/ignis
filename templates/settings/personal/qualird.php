@@ -62,7 +62,7 @@ use App\Helpers\Flash;
                                     $abkDisplay = $abk !== '' ? htmlspecialchars($abk) : "<span style='opacity:.5'>-</span>";
 
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Qualifikation bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-abkuerzung='" . htmlspecialchars($abk) . "' data-priority='{$row['priority']}' data-none='{$row['none']}' data-trainable='{$row['trainable']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<a title='Qualifikation bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-abkuerzung='" . htmlspecialchars($abk) . "' data-priority='{$row['priority']}' data-none='{$row['none']}' data-trainable='{$row['trainable']}'><i class='fa-solid fa-pen'></i></a>"
                                         : '';
                                 ?>
                                     <tr>
@@ -120,7 +120,7 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="dienstgrad-trainable"><input type="checkbox" name="trainable" id="dienstgrad-trainable"><span>Zertifiziert?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-ignis-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
                             <div>
                                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                                 <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
@@ -191,7 +191,7 @@ use App\Helpers\Flash;
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.edit-ignis-btn').forEach(button => {
+            document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     document.getElementById('dienstgrad-id').value = this.dataset.id;
                     document.getElementById('dienstgrad-name').value = this.dataset.name;
@@ -205,7 +205,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            const delBtn = document.getElementById('delete-dienstgrad-ignis-btn');
+            const delBtn = document.getElementById('delete-dienstgrad-btn');
             if (delBtn) {
                 delBtn.addEventListener('click', function() {
                     showConfirm('Möchtest du diese Qualifikation wirklich löschen?', { danger: true, confirmText: 'Löschen', title: 'Qualifikation löschen' }).then(result => {

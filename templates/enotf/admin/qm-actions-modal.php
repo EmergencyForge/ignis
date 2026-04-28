@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     switch ($protokoll_status) {
         case 0:
             $status_klar = "Ungesehen";
-            $statusstring = '<span class="badge">Ungesehen</span>';
+            $statusstring = '<span class="ignis-chip">Ungesehen</span>';
             break;
         case 1:
             $status_klar = "in Prüfung";

@@ -121,22 +121,22 @@ use App\Helpers\Flash;
             });
         }
 
-        document.querySelectorAll('.fb-edit-ignis-btn').forEach(function(ignis-btn) {
-            ignis-btn.addEventListener('click', function() {
+        document.querySelectorAll('.fb-edit-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
                 createWrap.style.display = 'none';
                 editWrap.style.display = 'block';
 
-                document.getElementById('edit_id').value = ignis-btn.dataset.id;
+                document.getElementById('edit_id').value = btn.dataset.id;
 
                 var form = document.getElementById('editForm');
                 var fields = {
-                    'datum': ignis-btn.dataset.datum,
-                    'abfahrt': ignis-btn.dataset.abfahrt,
-                    'ankunft': ignis-btn.dataset.ankunft || '',
-                    'fahrttyp': ignis-btn.dataset.fahrttyp,
-                    'kilometer': ignis-btn.dataset.kilometer || '',
-                    'stationierungsort': ignis-btn.dataset.stationierungsort || '',
-                    'grund': ignis-btn.dataset.grund || ''
+                    'datum': btn.dataset.datum,
+                    'abfahrt': btn.dataset.abfahrt,
+                    'ankunft': btn.dataset.ankunft || '',
+                    'fahrttyp': btn.dataset.fahrttyp,
+                    'kilometer': btn.dataset.kilometer || '',
+                    'stationierungsort': btn.dataset.stationierungsort || '',
+                    'grund': btn.dataset.grund || ''
                 };
 
                 for (var key in fields) {

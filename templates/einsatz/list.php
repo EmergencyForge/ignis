@@ -83,7 +83,7 @@ function einsatz_fmt_dt(?string $ts): string
                                         <h5 class="ignis-card__title mb-0">
                                             #<?= htmlspecialchars($inc['incident_number'] ?? 'Keine Nummer') ?>
                                         </h5>
-                                        <span class="badge <?= $statusBadge ?> status-badge">
+                                        <span class="ignis-chip <?= $statusBadge ?> status-badge">
                                             <?= $statusText ?>
                                         </span>
                                     </div>

@@ -201,11 +201,11 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
             $('#copyCodeButton').on('click', function() {
                 const code = $('#codeDisplay').text();
                 navigator.clipboard.writeText(code).then(function() {
-                    const ignis-btn = $('#copyCodeButton');
-                    const originalText = ignis-btn.text();
-                    ignis-btn.text('✓ Kopiert!');
+                    const btn = $('#copyCodeButton');
+                    const originalText = btn.text();
+                    btn.text('✓ Kopiert!');
                     setTimeout(function() {
-                        ignis-btn.text(originalText);
+                        btn.text(originalText);
                     }, 2000);
                 });
             });

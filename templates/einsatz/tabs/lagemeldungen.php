@@ -22,7 +22,7 @@
                                 <strong><i class="fa-solid fa-clock mr-1"></i><?= fmt_dt($sr['report_time']) ?></strong>
                                 <?php if ($sr['vehicle_radio_name']): ?>
                                     <?php $badgeClass = (isset($sr['source']) && $sr['source'] === 'leitstelle') ? 'bg-warning text-dark' : 'bg-primary'; ?>
-                                    <span class="badge <?= $badgeClass ?> ml-2"><?= htmlspecialchars($sr['vehicle_radio_name']) ?></span>
+                                    <span class="ignis-chip <?= $badgeClass ?> ml-2"><?= htmlspecialchars($sr['vehicle_radio_name']) ?></span>
                                 <?php endif; ?>
                                 <?php if ($sr['sys_name']): ?>
                                     <span class="ignis-chip ignis-chip--info ml-2"><?= htmlspecialchars($sr['sys_name']) ?></span>

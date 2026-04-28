@@ -330,7 +330,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
         }
 
         /* Buttons matching admin.css */
-        .err-ignis-btn {
+        .err-btn {
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
@@ -344,11 +344,11 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
             transition: all 0.15s ease;
             font-family: inherit;
         }
-        .err-ignis-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.25); text-decoration: none; }
+        .err-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.25); text-decoration: none; }
         .err-btn-main { background: var(--main-color); color: #fff; }
         .err-btn-main:hover { color: #fff; }
-        .err-ignis-btn--secondary { background: var(--darkgray); color: #fff; }
-        .err-ignis-btn--secondary:hover { background: #4a4752; color: #fff; }
+        .err-btn--secondary { background: var(--darkgray); color: #fff; }
+        .err-btn--secondary:hover { background: #4a4752; color: #fff; }
         .err-btn-ghost {
             background: transparent;
             border: none;
@@ -420,20 +420,20 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
         <div class="container">
             <?php if ($isDev): ?>
                 <div class="flex flex-wrap items-center gap-2 mb-3">
-                    <span class="err-badge err-badge-danger">500</span>
-                    <span class="err-badge err-badge-primary"><?= htmlspecialchars($requestMethod) ?></span>
-                    <span class="err-badge err-badge-warning">UNHANDLED</span>
-                    <span class="err-badge err-badge-dark">ıgnıs <?= htmlspecialchars($appVersion) ?></span>
-                    <span class="err-badge err-badge-secondary">PHP <?= htmlspecialchars($phpVersion) ?></span>
+                    <span class="err-ignis-chip err-badge-danger">500</span>
+                    <span class="err-ignis-chip err-badge-primary"><?= htmlspecialchars($requestMethod) ?></span>
+                    <span class="err-ignis-chip err-badge-warning">UNHANDLED</span>
+                    <span class="err-ignis-chip err-badge-dark">ıgnıs <?= htmlspecialchars($appVersion) ?></span>
+                    <span class="err-ignis-chip err-badge-secondary">PHP <?= htmlspecialchars($phpVersion) ?></span>
                     <?php if ($exceptionCode): ?>
-                        <span class="err-badge err-badge-danger">CODE <?= htmlspecialchars((string)$exceptionCode) ?></span>
+                        <span class="err-ignis-chip err-badge-danger">CODE <?= htmlspecialchars((string)$exceptionCode) ?></span>
                     <?php endif; ?>
                 </div>
                 <div class="err-exception-name"><?= htmlspecialchars(_err_classBasename($exceptionClass)) ?></div>
                 <div class="err-exception-fqcn"><?= htmlspecialchars($exceptionClass) ?></div>
                 <div class="err-message"><?= htmlspecialchars($errorMessage) ?></div>
                 <div class="err-url-bar">
-                    <span class="err-badge err-badge-danger" style="font-size:0.7em"><?= htmlspecialchars($requestMethod) ?></span>
+                    <span class="err-ignis-chip err-badge-danger" style="font-size:0.7em"><?= htmlspecialchars($requestMethod) ?></span>
                     <?= htmlspecialchars($requestUrl) ?>
                 </div>
                 <div class="flex gap-2 mt-3">
@@ -448,8 +448,8 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                 </div>
             <?php else: ?>
                 <div class="flex flex-wrap items-center gap-2 mb-3">
-                    <span class="err-badge err-badge-danger">500</span>
-                    <span class="err-badge err-badge-dark">ıgnıs <?= htmlspecialchars($appVersion) ?></span>
+                    <span class="err-ignis-chip err-badge-danger">500</span>
+                    <span class="err-ignis-chip err-badge-dark">ıgnıs <?= htmlspecialchars($appVersion) ?></span>
                 </div>
                 <div class="err-exception-name">Serverfehler</div>
                 <div class="err-message">Es ist ein interner Fehler aufgetreten.</div>
@@ -493,10 +493,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                 </div>
 
                 <div class="flex gap-2 justify-center">
-                    <a href="javascript:history.back()" class="err-ignis-btn err-btn-main">
+                    <a href="javascript:history.back()" class="err-btn err-btn-main">
                         <i class="fa-solid fa-arrow-left"></i> Zurück
                     </a>
-                    <a href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>" class="err-ignis-btn err-ignis-btn--secondary">
+                    <a href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>" class="err-btn err-btn--secondary">
                         <i class="fa-solid fa-house"></i> Startseite
                     </a>
                 </div>
@@ -719,10 +719,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
         function copyErrorId() {
             const id = document.getElementById('errorIdValue').textContent;
             navigator.clipboard.writeText(id).then(() => {
-                const ignis-btn = document.getElementById('copyIdBtn');
-                const orig = ignis-btn.innerHTML;
-                ignis-btn.innerHTML = '<i class="fa-solid fa-check"></i> Kopiert!';
-                setTimeout(() => ignis-btn.innerHTML = orig, 1500);
+                const btn = document.getElementById('copyIdBtn');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Kopiert!';
+                setTimeout(() => btn.innerHTML = orig, 1500);
             });
         }
     </script>
@@ -827,10 +827,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
             const dataEl = document.getElementById('errorMarkdownData');
             const md = dataEl ? JSON.parse(dataEl.textContent) : '';
             navigator.clipboard.writeText(md).then(() => {
-                const ignis-btn = document.getElementById('copyMarkdownBtn');
-                const orig = ignis-btn.innerHTML;
-                ignis-btn.innerHTML = '<i class="fa-solid fa-check"></i> Markdown kopiert';
-                setTimeout(() => ignis-btn.innerHTML = orig, 1800);
+                const btn = document.getElementById('copyMarkdownBtn');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Markdown kopiert';
+                setTimeout(() => btn.innerHTML = orig, 1800);
             }).catch(err => {
                 console.error('Clipboard write failed:', err);
                 // Fallback: Textarea + execCommand
@@ -842,28 +842,28 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                 ta.select();
                 try { document.execCommand('copy'); } catch (e) {}
                 document.body.removeChild(ta);
-                const ignis-btn = document.getElementById('copyMarkdownBtn');
-                ignis-btn.innerHTML = '<i class="fa-solid fa-check"></i> Markdown kopiert';
-                setTimeout(() => ignis-btn.innerHTML = '<i class="fa-brands fa-markdown"></i> Als Markdown kopieren', 1800);
+                const btn = document.getElementById('copyMarkdownBtn');
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Markdown kopiert';
+                setTimeout(() => btn.innerHTML = '<i class="fa-brands fa-markdown"></i> Als Markdown kopieren', 1800);
             });
         }
         function copyDevErrorId() {
-            const ignis-btn = document.getElementById('copyDevIdBtn');
-            const id = ignis-btn.textContent.trim();
+            const btn = document.getElementById('copyDevIdBtn');
+            const id = btn.textContent.trim();
             navigator.clipboard.writeText(id).then(() => {
-                const orig = ignis-btn.innerHTML;
-                ignis-btn.innerHTML = '<i class="fa-solid fa-check"></i> Kopiert';
-                setTimeout(() => ignis-btn.innerHTML = orig, 1500);
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Kopiert';
+                setTimeout(() => btn.innerHTML = orig, 1500);
             });
         }
     </script>
     <script>
-        document.querySelectorAll('.err-tab').forEach(ignis-btn => {
-            ignis-btn.addEventListener('click', () => {
+        document.querySelectorAll('.err-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
                 document.querySelectorAll('.err-tab').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.err-tab-content').forEach(c => c.classList.remove('active'));
-                ignis-btn.classList.add('active');
-                document.getElementById('tab-' + ignis-btn.dataset.tab).classList.add('active');
+                btn.classList.add('active');
+                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
             });
         });
 
@@ -896,10 +896,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
             const lines = document.querySelectorAll('#srcCode .err-src-text');
             const text = Array.from(lines).map(l => l.textContent).join('\n');
             navigator.clipboard.writeText(text).then(() => {
-                const ignis-btn = document.querySelector('.err-btn-ghost');
-                const orig = ignis-btn.innerHTML;
-                ignis-btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-                setTimeout(() => ignis-btn.innerHTML = orig, 1500);
+                const btn = document.querySelector('.err-btn-ghost');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+                setTimeout(() => btn.innerHTML = orig, 1500);
             });
         }
 

@@ -262,7 +262,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
                     </form>
 
                     <div class="security-info">
-                        <span class="security-badge">
+                        <span class="security-ignis-chip">
                             <i class="fa-solid fa-shield-halved"></i>
                             <span>Zugriff nur mit gültigem Code möglich</span>
                         </span>

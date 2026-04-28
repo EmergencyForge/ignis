@@ -520,7 +520,7 @@ try {
                                     <td><?= fmt_dt($marker['created_at']) ?></td>
                                     <td>
                                         <?php if (!$incident['finalized']): ?>
-                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-marker-ignis-btn"
+                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-marker-btn"
                                                 data-marker-id="<?= $marker['id'] ?>">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
@@ -561,7 +561,7 @@ try {
                             <?php foreach ($zones as $zone): ?>
                                 <tr data-zone-id="<?= $zone['id'] ?>">
                                     <td>
-                                        <span class="badge" style="background-color: <?= htmlspecialchars($zone['color']) ?>;">
+                                        <span class="ignis-chip" style="background-color: <?= htmlspecialchars($zone['color']) ?>;">
                                             <?= htmlspecialchars($zone['name']) ?>
                                         </span>
                                     </td>
@@ -574,7 +574,7 @@ try {
                                     <td><?= fmt_dt($zone['created_at']) ?></td>
                                     <td>
                                         <?php if (!$incident['finalized']): ?>
-                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-zone-ignis-btn"
+                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-zone-btn"
                                                 data-zone-id="<?= $zone['id'] ?>">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
@@ -1832,8 +1832,8 @@ try {
     // ========================================================================
     function initDeleteButtons() {
         // Delete marker
-        document.querySelectorAll('.delete-marker-ignis-btn').forEach(ignis-btn => {
-            ignis-btn.addEventListener('click', async function() {
+        document.querySelectorAll('.delete-marker-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
                 const confirmed = await showConfirm(
                     'Marker löschen',
                     'Möchten Sie diesen Marker wirklich löschen?',
@@ -1868,8 +1868,8 @@ try {
         });
 
         // Delete zone
-        document.querySelectorAll('.delete-zone-ignis-btn').forEach(ignis-btn => {
-            ignis-btn.addEventListener('click', async function() {
+        document.querySelectorAll('.delete-zone-btn').forEach(btn => {
+            btn.addEventListener('click', async function() {
                 const confirmed = await showConfirm(
                     'Zone löschen',
                     'Möchten Sie diese Zone wirklich löschen?',

@@ -75,7 +75,7 @@ $actionTypeLabels = [
                                     </small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-<?= $typeInfo['color'] ?>">
+                                    <span class="ignis-chip ignis-chip--<?= $typeInfo['color'] ?>">
                                         <i class="fas <?= $typeInfo['icon'] ?> mr-1"></i>
                                         <?= htmlspecialchars($typeInfo['label']) ?>
                                     </span>
@@ -94,7 +94,7 @@ $actionTypeLabels = [
                                         <i class="fas fa-user mr-1 text-gray-400"></i>
                                         <?= htmlspecialchars($entry['operator_name']) ?>
                                     <?php elseif ($entry['created_by'] === null): ?>
-                                        <span class="badge system-badge">
+                                        <span class="ignis-chip system-badge">
                                             <i class="fas fa-cog mr-1"></i>
                                             System
                                         </span>

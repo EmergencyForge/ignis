@@ -140,10 +140,10 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <a href="<?= Redirects::getRedirectUrl($defaultUrl); ?>">zurück</a>
                             </div>
                             <div class="col">
-                                <a href="#" id="delete-ignis-btn">Löschen</a>
+                                <a href="#" id="delete-btn">Löschen</a>
                             </div>
                             <div class="col">
-                                <a href="#" id="save-ignis-btn">Speichern</a>
+                                <a href="#" id="save-btn">Speichern</a>
                             </div>
                         </div>
                     </div>
@@ -241,7 +241,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
 
             loadMedikamente();
 
-            const saveButton = document.getElementById('save-ignis-btn');
+            const saveButton = document.getElementById('save-btn');
             if (saveButton) {
                 saveButton.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -249,7 +249,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 });
             }
 
-            const deleteButton = document.getElementById('delete-ignis-btn');
+            const deleteButton = document.getElementById('delete-btn');
             if (deleteButton) {
                 deleteButton.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -432,7 +432,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                 timestamp: new Date().getTime()
             };
 
-            const saveButton = document.getElementById('save-ignis-btn');
+            const saveButton = document.getElementById('save-btn');
             const originalText = saveButton.textContent;
             saveButton.textContent = 'Speichert...';
             saveButton.style.pointerEvents = 'none';

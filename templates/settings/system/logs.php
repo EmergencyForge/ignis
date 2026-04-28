@@ -186,13 +186,13 @@ function logs_level_badge(string $level): string
         .logs-empty > h6 { margin-bottom: 0.5rem; }
         .logs-empty > small { max-width: 560px; line-height: 1.5; }
 
-        .copy-ignis-btn {
+        .copy-btn {
             cursor: pointer;
             opacity: 0.4;
             margin-left: 6px;
             transition: opacity 0.15s;
         }
-        .copy-ignis-btn:hover { opacity: 1; }
+        .copy-btn:hover { opacity: 1; }
 
         @media (max-width: 768px) {
             .logs-group-row {
@@ -387,13 +387,13 @@ function logs_level_badge(string $level): string
                                         </div>
                                         <div class="logs-detail" data-rendered="1">
                                             <div class="logs-detail-actions">
-                                                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm failed-retry-ignis-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm failed-retry-btn" data-id="<?= (int) $fj['id'] ?>">
                                                     <i class="fa-solid fa-arrows-rotate mr-1"></i>Erneut versuchen
                                                 </button>
-                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm text-[#d46b6b] failed-delete-ignis-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm text-[#d46b6b] failed-delete-btn" data-id="<?= (int) $fj['id'] ?>">
                                                     <i class="fa-solid fa-trash mr-1"></i>Löschen
                                                 </button>
-                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-ignis-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
+                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
                                                     <i class="fa-regular fa-copy"></i> UUID
                                                 </button>
                                             </div>
@@ -459,7 +459,7 @@ function logs_level_badge(string $level): string
                                         </td>
                                         <td><?= date('d.m.Y H:i', $f['mtime']) ?></td>
                                         <td class="text-right">
-                                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary tail-ignis-btn" data-file="<?= htmlspecialchars($f['name']) ?>">
+                                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary tail-btn" data-file="<?= htmlspecialchars($f['name']) ?>">
                                                 <i class="fa-solid fa-eye mr-1"></i>Letzte 100
                                             </button>
                                         </td>

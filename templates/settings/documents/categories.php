@@ -64,7 +64,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <tr>
                                     <td class="text-center"><?= (int)$kat['sort_order'] ?></td>
                                     <td><?= htmlspecialchars($kat['name']) ?></td>
-                                    <td><span class="badge <?= htmlspecialchars($kat['color']) ?>"><?= htmlspecialchars($kat['name']) ?></span></td>
+                                    <td><span class="ignis-chip <?= htmlspecialchars($kat['color']) ?>"><?= htmlspecialchars($kat['name']) ?></span></td>
                                     <td>
                                         <?php if (!empty($kat['icon'])): ?>
                                             <i class="<?= htmlspecialchars($kat['icon']) ?>"></i>
@@ -135,7 +135,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <option value="text-bg-dark">Dunkel</option>
                         </select>
                         <div class="mt-2">
-                            <span class="badge" id="colorPreview">Vorschau</span>
+                            <span class="ignis-chip" id="colorPreview">Vorschau</span>
                         </div>
                     </div>
                     <div class="mb-3">

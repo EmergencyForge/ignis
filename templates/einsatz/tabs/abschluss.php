@@ -56,7 +56,7 @@ if ($incident) {
                         $s = (int)$incident['status'];
                         [$badge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
                         ?>
-                        <span class="badge <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
+                        <span class="ignis-chip <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
                     </p>
                 </div>
             </div>

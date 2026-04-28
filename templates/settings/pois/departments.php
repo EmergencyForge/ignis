@@ -35,7 +35,7 @@ use App\Helpers\Flash;
                         </div>
                         <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
                             <div class="flex gap-2">
-                                <button type="button" class="ignis-btn ignis-btn--soft-warning" id="reset-availability-ignis-btn">
+                                <button type="button" class="ignis-btn ignis-btn--soft-warning" id="reset-availability-btn">
                                     <i class="fa-solid fa-rotate-left"></i> Alle auf "Nicht besetzt"
                                 </button>
                                 <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDepartmentModal">
@@ -70,13 +70,13 @@ use App\Helpers\Flash;
                                             <td><?= \App\Helpers\DateTimeHelper::formatShortLocal($dept['created_at']) ?></td>
                                             <td>
                                                 <?php if (Permissions::check(['admin', 'pois.manage'])): ?>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-dept-ignis-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-dept-btn"
                                                             data-id="<?= (int)$dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>"
                                                             data-sort-order="<?= (int)$dept['sort_order'] ?>">
                                                         <i class="fa-solid fa-pen"></i>
                                                     </button>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon delete-dept-ignis-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon delete-dept-btn"
                                                             data-id="<?= (int)$dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>">
                                                         <i class="fa-solid fa-trash"></i>
@@ -185,7 +185,7 @@ use App\Helpers\Flash;
             });
             <?php endif; ?>
 
-            document.querySelectorAll('.edit-dept-ignis-btn').forEach(button => {
+            document.querySelectorAll('.edit-dept-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     document.getElementById('edit-dept-id').value = this.dataset.id;
                     document.getElementById('edit-dept-name').value = this.dataset.name;
@@ -194,7 +194,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            document.querySelectorAll('.delete-dept-ignis-btn').forEach(button => {
+            document.querySelectorAll('.delete-dept-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const id = this.dataset.id;
                     const name = this.dataset.name;
@@ -207,7 +207,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            const resetBtn = document.getElementById('reset-availability-ignis-btn');
+            const resetBtn = document.getElementById('reset-availability-btn');
             if (resetBtn) {
                 resetBtn.addEventListener('click', function() {
                     showConfirm('Möchtest du wirklich alle Fachrichtungen auf "Nicht besetzt" zurücksetzen?', { danger: true, confirmText: 'Zurücksetzen', title: 'Verfügbarkeiten zurücksetzen' }).then(result => {

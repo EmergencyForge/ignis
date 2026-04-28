@@ -136,7 +136,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     }
 
     /* Search Button in User Row */
-    .sidebar-search-ignis-btn {
+    .sidebar-search-btn {
         width: 32px;
         height: 32px;
         border-radius: 8px;
@@ -153,7 +153,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         transition: all 0.15s;
     }
 
-    .sidebar-search-ignis-btn:hover {
+    .sidebar-search-btn:hover {
         background: var(--sidebar-hover-bg);
         color: #fff;
     }
@@ -334,7 +334,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     /* ========================================
        THEME PICKER
        ======================================== */
-    .sidebar-theme-ignis-btn {
+    .sidebar-theme-btn {
         width: 32px;
         height: 32px;
         border-radius: 8px;
@@ -351,7 +351,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         position: relative;
     }
 
-    .sidebar-theme-ignis-btn:hover {
+    .sidebar-theme-btn:hover {
         background: var(--sidebar-hover-bg);
         color: #fff;
     }
@@ -753,7 +753,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         display: none;
     }
 
-    .sidebar-toggle-ignis-btn {
+    .sidebar-toggle-btn {
         background: none;
         border: none;
         color: #fff;
@@ -769,7 +769,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         flex-shrink: 0;
     }
 
-    .sidebar-toggle-ignis-btn:hover {
+    .sidebar-toggle-btn:hover {
         background: var(--sidebar-hover-bg);
     }
 
@@ -827,7 +827,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         gap: 0.25rem;
     }
 
-    .topbar-icon-ignis-btn {
+    .topbar-icon-btn {
         position: relative;
         width: 40px;
         height: 40px;
@@ -843,14 +843,14 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         font-size: 1rem;
     }
 
-    .topbar-icon-ignis-btn:hover,
-    .topbar-icon-ignis-btn.open {
+    .topbar-icon-btn:hover,
+    .topbar-icon-btn.open {
         background: var(--sidebar-hover-bg);
         color: #fff;
         text-decoration: none;
     }
 
-    .topbar-icon-ignis-btn .topbar-badge {
+    .topbar-icon-btn .topbar-badge {
         position: absolute;
         top: 6px;
         right: 6px;
@@ -868,7 +868,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     }
 
     /* User avatar trigger */
-    .topbar-user-ignis-btn {
+    .topbar-user-btn {
         display: flex;
         align-items: center;
         gap: 0.5rem;
@@ -882,8 +882,8 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         transition: background 0.15s;
     }
 
-    .topbar-user-ignis-btn:hover,
-    .topbar-user-ignis-btn.open {
+    .topbar-user-btn:hover,
+    .topbar-user-btn.open {
         background: var(--sidebar-hover-bg);
     }
 
@@ -917,7 +917,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         transition: transform 0.2s var(--spring-gentle);
     }
 
-    .topbar-user-ignis-btn.open .topbar-user-chevron {
+    .topbar-user-btn.open .topbar-user-chevron {
         transform: rotate(180deg);
     }
 
@@ -1502,7 +1502,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
 <!-- TOPBAR (Desktop + Mobile) -->
 <!-- ===================== -->
 <header class="intra-topbar">
-    <button class="sidebar-toggle-ignis-btn topbar-mobile-hamburger" id="sidebarToggle" aria-label="Menü öffnen">
+    <button class="sidebar-toggle-btn topbar-mobile-hamburger" id="sidebarToggle" aria-label="Menü öffnen">
         <i class="fa-solid fa-bars"></i>
     </button>
     <a href="<?= BASE_PATH ?>index" class="topbar-mobile-brand">
@@ -1518,9 +1518,9 @@ $topbarTimeAgo = static function (string $createdAt): string {
     <div class="topbar-actions">
         <!-- Notifications -->
         <div style="position:relative;">
-            <button type="button" class="topbar-icon-ignis-btn" id="topbarNotifBtn" aria-label="Benachrichtigungen" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="topbar-icon-btn" id="topbarNotifBtn" aria-label="Benachrichtigungen" aria-haspopup="true" aria-expanded="false">
                 <i class="fa-solid fa-bell"></i>
-                <span class="topbar-badge notification-poll-badge" style="<?= $unreadCount > 0 ? '' : 'display:none;' ?>"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
+                <span class="topbar-ignis-chip notification-poll-badge" style="<?= $unreadCount > 0 ? '' : 'display:none;' ?>"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
             </button>
             <div class="topbar-flyout notifications-flyout" id="topbarNotifFlyout" role="menu">
                 <div class="notifications-flyout-header">
@@ -1562,7 +1562,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
 
         <!-- User -->
         <div style="position:relative;">
-            <button type="button" class="topbar-user-ignis-btn" id="topbarUserBtn" aria-label="Benutzermenü" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="topbar-user-btn" id="topbarUserBtn" aria-label="Benutzermenü" aria-haspopup="true" aria-expanded="false">
                 <span class="topbar-user-avatar"><?= htmlspecialchars($sidebarInitials) ?></span>
                 <span class="topbar-user-name"><?= htmlspecialchars($sidebarUsername) ?></span>
                 <i class="fa-solid fa-chevron-down topbar-user-chevron"></i>
@@ -1780,7 +1780,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
         }
 
         // Open triggers
-        $("#globalSearchOpen, .global-search-mobile-ignis-btn").on("click", openSearch);
+        $("#globalSearchOpen, .global-search-mobile-btn").on("click", openSearch);
 
         // Close on overlay background click
         $overlay.on("click", function(e) {

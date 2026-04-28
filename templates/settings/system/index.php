@@ -399,7 +399,7 @@ if ($isDevMode) {
                                             <?php if (isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease']): ?>
                                                 <span class="ignis-chip ignis-chip--warning text-black ml-1"><i class="fa-solid fa-flask"></i> Pre-Release</span>
                                             <?php endif; ?>
-                                            <span class="badge bg-<?= $alertClass ?> ml-2"><?= $urgencyLabels[$urgency] ?? 'Update verfügbar' ?></span>
+                                            <span class="ignis-chip ignis-chip--<?= $alertClass ?> ml-2"><?= $urgencyLabels[$urgency] ?? 'Update verfügbar' ?></span>
                                             <?php if (isset($updateInfo['cached']) && $updateInfo['cached']): ?>
                                                 <span class="ignis-chip ml-1" title="Gecachte Daten"><i class="fa-solid fa-clock"></i> Gecacht</span>
                                             <?php endif; ?>
@@ -451,7 +451,7 @@ if ($isDevMode) {
                                                 <input type="hidden" name="download_url_fallback" value="<?= htmlspecialchars($updateInfo['download_url_fallback'] ?? '') ?>">
                                                 <input type="hidden" name="new_version" value="<?= htmlspecialchars($updateInfo['latest_version']) ?>">
                                                 <input type="hidden" name="is_prerelease" value="<?= isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] ? '1' : '0' ?>">
-                                                <button type="button" id="install-update-ignis-btn" class="ignis-btn ignis-btn--success w-full">
+                                                <button type="button" id="install-update-btn" class="ignis-btn ignis-btn--success w-full">
                                                     <i class="fa-solid fa-download"></i> Update jetzt installieren
                                                 </button>
                                             </form>
@@ -566,7 +566,7 @@ if ($isDevMode) {
                                                         <input type="hidden" name="dev_install_branch" value="1">
                                                         <input type="hidden" name="dev_branch" value="<?= htmlspecialchars($selectedBranch) ?>">
                                                         <input type="hidden" name="dev_commit_sha" value="<?= htmlspecialchars($devBranchInfo['sha']) ?>">
-                                                        <button type="button" id="dev-install-ignis-btn" class="ignis-btn ignis-btn--warning w-full">
+                                                        <button type="button" id="dev-install-btn" class="ignis-btn ignis-btn--warning w-full">
                                                             <i class="fa-solid fa-download"></i> Commit installieren (<?= htmlspecialchars(substr($devBranchInfo['sha'], 0, 8)) ?>)
                                                         </button>
                                                     </form>
@@ -610,7 +610,7 @@ if ($isDevMode) {
         showComposerOnLoad: <?= $composerPendingOnLoad ? 'true' : 'false' ?>,
         <?php if (!empty($updateInfo['latest_version'])): ?>
         installButton: {
-            buttonId:   'install-update-ignis-btn',
+            buttonId:   'install-update-btn',
             formId:     'install-update-form',
             newVersion: <?= json_encode($updateInfo['latest_version']) ?>,
         },
@@ -622,7 +622,7 @@ if ($isDevMode) {
         ?>
         <?php if (!$devSameCommit): ?>
         devInstallButton: {
-            buttonId:   'dev-install-ignis-btn',
+            buttonId:   'dev-install-btn',
             formId:     'dev-install-form',
             branch:     <?= json_encode($selectedBranch) ?>,
             sha:        <?= json_encode(substr($devBranchInfo['sha'], 0, 8)) ?>,

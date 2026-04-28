@@ -45,16 +45,16 @@
 
                 // Status Badge
                 if (!$row['finalized']) {
-                    $status = "<span class='badge text-bg-secondary'>In Bearbeitung</span>";
+                    $status = "<span class='ignis-chip ignis-chip--secondary'>In Bearbeitung</span>";
                 } else {
                     $statusMap = [
-                        0 => "<span class='badge'>Ungesehen</span>",
-                        1 => "<span class='badge text-bg-warning'>In Prüfung</span>",
-                        2 => "<span class='badge text-bg-success'>Freigegeben</span>",
-                        3 => "<span class='badge text-bg-danger'>Ungenügend</span>",
-                        4 => "<span class='badge text-bg-dark'>Ausgeblendet</span>",
+                        0 => "<span class='ignis-chip'>Ungesehen</span>",
+                        1 => "<span class='ignis-chip ignis-chip--warning'>In Prüfung</span>",
+                        2 => "<span class='ignis-chip ignis-chip--success'>Freigegeben</span>",
+                        3 => "<span class='ignis-chip ignis-chip--danger'>Ungenügend</span>",
+                        4 => "<span class='ignis-chip ignis-chip--dark'>Ausgeblendet</span>",
                     ];
-                    $status = $statusMap[(int)$row['status']] ?? "<span class='badge text-bg-secondary'>Unbekannt</span>";
+                    $status = $statusMap[(int)$row['status']] ?? "<span class='ignis-chip ignis-chip--secondary'>Unbekannt</span>";
                 }
 
                 echo "<tr>";

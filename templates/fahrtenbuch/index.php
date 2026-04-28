@@ -205,7 +205,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                                                 <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-gray-400">—</span>' ?></td>
                                                 <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
                                                 <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
-                                                <td><span class="badge text-bg-<?= htmlspecialchars($typBadge) ?>"><?= htmlspecialchars($typLabel) ?></span></td>
+                                                <td><span class="ignis-chip ignis-chip--<?= htmlspecialchars($typBadge) ?>"><?= htmlspecialchars($typLabel) ?></span></td>
                                                 <td><?= $e['kilometer'] !== null ? number_format((float) $e['kilometer'], 1, ',', '.') : '—' ?></td>
                                                 <td class="truncate" style="max-width:150px;" title="<?= htmlspecialchars($e['stationierungsort'] ?? '') ?>">
                                                     <?= htmlspecialchars($e['stationierungsort'] ?? '') ?: '—' ?>
@@ -216,7 +216,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                                                 <td><span class="ignis-chip"><?= htmlspecialchars($sourceLabels[$e['source']] ?? $e['source']) ?></span></td>
                                                 <?php if ($canManage): ?>
                                                     <td class="whitespace-nowrap text-right">
-                                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost fb-edit-ignis-btn"
+                                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost fb-edit-btn"
                                                                 data-id="<?= (int) $e['id'] ?>"
                                                                 data-datum="<?= htmlspecialchars($e['datum']) ?>"
                                                                 data-abfahrt="<?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?>"
@@ -282,29 +282,29 @@ $SITE_TITLE = 'Fahrtenbuch';
         }
 
         // Edit buttons
-        document.querySelectorAll('.fb-edit-ignis-btn').forEach(function(ignis-btn) {
-            ignis-btn.addEventListener('click', function() {
+        document.querySelectorAll('.fb-edit-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
                 if (createWrap) createWrap.style.display = 'none';
                 editWrap.style.display = 'block';
 
-                document.getElementById('edit_id').value = ignis-btn.dataset.id;
+                document.getElementById('edit_id').value = btn.dataset.id;
 
                 var form = document.getElementById('editForm');
                 var fields = {
-                    'datum': ignis-btn.dataset.datum,
-                    'abfahrt': ignis-btn.dataset.abfahrt,
-                    'ankunft': ignis-btn.dataset.ankunft || '',
-                    'fahrttyp': ignis-btn.dataset.fahrttyp,
-                    'kilometer': ignis-btn.dataset.kilometer || '',
-                    'stationierungsort': ignis-btn.dataset.stationierungsort || '',
-                    'grund': ignis-btn.dataset.grund || '',
-                    'fahrer_name': ignis-btn.dataset.fahrerName || ''
+                    'datum': btn.dataset.datum,
+                    'abfahrt': btn.dataset.abfahrt,
+                    'ankunft': btn.dataset.ankunft || '',
+                    'fahrttyp': btn.dataset.fahrttyp,
+                    'kilometer': btn.dataset.kilometer || '',
+                    'stationierungsort': btn.dataset.stationierungsort || '',
+                    'grund': btn.dataset.grund || '',
+                    'fahrer_name': btn.dataset.fahrerName || ''
                 };
 
                 // Set vehicle dropdown
                 var vehicleSelect = form.querySelector('[name="vehicle_id"]');
                 if (vehicleSelect && vehicleSelect.tagName === 'SELECT') {
-                    vehicleSelect.value = ignis-btn.dataset.vehicleId || '';
+                    vehicleSelect.value = btn.dataset.vehicleId || '';
                     vehicleSelect.dispatchEvent(new Event('change'));
                 }
 

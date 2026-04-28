@@ -79,7 +79,7 @@ use App\Helpers\Flash;
                                         if ($row['typ'] === 'Krankenhaus' || $row['typ'] === 'Klinik') {
                                             $actions .= "<a title='Fachrichtungen verwalten' href='" . BASE_PATH . "settings/pois/departments?poi_id={$row['id']}' class='ignis-btn ignis-btn--sm ignis-btn--outline-secondary ignis-btn--icon mr-1'><i class='fa-solid fa-hospital'></i></a>";
                                         }
-                                        $actions .= "<a title='POI bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-ignis-btn' data-bs-toggle='modal' data-bs-target='#editPoiModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>";
+                                        $actions .= "<a title='POI bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-bs-toggle='modal' data-bs-target='#editPoiModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-strasse='" . htmlspecialchars($row['strasse'] ?? '') . "' data-hnr='" . htmlspecialchars($row['hnr'] ?? '') . "' data-ort='" . htmlspecialchars($row['ort']) . "' data-ortsteil='" . htmlspecialchars($row['ortsteil'] ?? '') . "' data-typ='" . htmlspecialchars($row['typ'] ?? '') . "' data-active='{$row['active']}'><i class='fa-solid fa-pen'></i></a>";
                                     }
                                 ?>
                                     <tr>
@@ -139,7 +139,7 @@ use App\Helpers\Flash;
                             <label class="ignis-checkbox" for="poi-active"><input type="checkbox" name="active" id="poi-active"><span>Aktiv?</span></label>
                         </div>
                         <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-poi-ignis-btn">Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-poi-btn">Löschen</button>
                             <div>
                                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
                                 <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
@@ -202,8 +202,8 @@ use App\Helpers\Flash;
                 language: window.IgnisDataTableLang('POIs')
             });
 
-            document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(ignis-btn) {
-                ignis-btn.addEventListener('click', function() {
+            document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
                     document.querySelectorAll('#statusFilter .ignis-btn').forEach(function(b) { b.classList.remove('active'); });
                     this.classList.add('active');
                     table.column(6).search(this.dataset.filter).draw();
@@ -212,7 +212,7 @@ use App\Helpers\Flash;
         });
 
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.edit-ignis-btn').forEach(button => {
+            document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', function() {
                     const id = this.dataset.id;
                     document.getElementById('poi-id').value = id;
@@ -228,7 +228,7 @@ use App\Helpers\Flash;
                 });
             });
 
-            const delBtn = document.getElementById('delete-poi-ignis-btn');
+            const delBtn = document.getElementById('delete-poi-btn');
             if (delBtn) {
                 delBtn.addEventListener('click', function() {
                     showConfirm('Möchtest du diesen POI wirklich löschen?', { danger: true, confirmText: 'Löschen', title: 'POI löschen' }).then(result => {

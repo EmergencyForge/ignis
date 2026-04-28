@@ -33,7 +33,7 @@
                         <strong>Erfolg!</strong> Composer-Abhängigkeiten wurden erfolgreich installiert.
                     </div>
                     <p class="mb-3">Das Update ist vollständig abgeschlossen. Bitte laden Sie die Seite neu, um die Änderungen zu übernehmen.</p>
-                    <button type="button" id="reload-page-ignis-btn" class="ignis-btn ignis-btn--soft-primary w-full">
+                    <button type="button" id="reload-page-btn" class="ignis-btn ignis-btn--soft-primary w-full">
                         <i class="fa-solid fa-sync mr-2"></i>Seite neu laden
                     </button>
                 </div>
@@ -49,10 +49,10 @@
                         Bitte führen Sie im Terminal im Anwendungsverzeichnis aus:<br>
                         <code>composer install --no-dev --optimize-autoloader</code>
                     </p>
-                    <button type="button" id="retry-composer-ignis-btn" class="ignis-btn ignis-btn--outline-secondary w-full mb-2">
+                    <button type="button" id="retry-composer-btn" class="ignis-btn ignis-btn--outline-secondary w-full mb-2">
                         <i class="fa-solid fa-rotate-right mr-2"></i>Erneut versuchen
                     </button>
-                    <button type="button" id="dismiss-composer-ignis-btn" class="ignis-btn ignis-btn--outline-secondary w-full">
+                    <button type="button" id="dismiss-composer-btn" class="ignis-btn ignis-btn--outline-secondary w-full">
                         <i class="fa-solid fa-times mr-2"></i>Schließen (Update manuell abschließen)
                     </button>
                 </div>

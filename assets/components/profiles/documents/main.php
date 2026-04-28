@@ -101,8 +101,8 @@ use App\Auth\Permissions;
             $rowStyle = $isArchived ? 'display:none;opacity:0.5;' : '';
 
             echo "<tr class='{$rowClass}' style='{$rowStyle}'>";
-            echo "<td><span class='badge $bg'>" . htmlspecialchars($docart) . "</span>";
-            if ($isArchived) echo " <span class='badge text-bg-secondary' style='font-size:0.6rem;'>Archiviert</span>";
+            echo "<td><span class='ignis-chip $bg'>" . htmlspecialchars($docart) . "</span>";
+            if ($isArchived) echo " <span class='ignis-chip ignis-chip--secondary' style='font-size:0.6rem;'>Archiviert</span>";
             echo "</td>";
             echo "<td>" . htmlspecialchars($doks['docid']) .  "</td>";
             echo "<td>" . htmlspecialchars($doks['ersteller_name']) . "</td>";

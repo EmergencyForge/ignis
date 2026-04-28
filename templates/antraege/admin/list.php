@@ -70,7 +70,7 @@ $SITE_TITLE = 'Antragsübersicht';
                                         </td>
                                         <td><?= htmlspecialchars($antrag->name_dn) ?></td>
                                         <td>
-                                            <span class="badge bg-<?= $status['class'] ?>"><?= htmlspecialchars($status['text']) ?></span>
+                                            <span class="ignis-chip ignis-chip--<?= $status['class'] ?>"><?= htmlspecialchars($status['text']) ?></span>
                                         </td>
                                         <td>
                                             <span style="display:none"><?= $createdAt ? $createdAt->format('Y-m-d H:i:s') : '' ?></span>
