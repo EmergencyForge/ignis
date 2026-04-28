@@ -264,7 +264,7 @@ if (!empty($diagnose_weitere_array)) {
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="diagnose_fuehrend" class="edivi__description" style="display: none;">Diagnose (führend)</label>
-                                                    <input type="text" name="diagnose_fuehrend" id="diagnose_fuehrend" class="w-100 form-control edivi__input-check" value="<?= !empty($diagnose_haupt_text) ? $diagnose_haupt_text : '' ?>" readonly>
+                                                    <input type="text" name="diagnose_fuehrend" id="diagnose_fuehrend" class="w-100 ignis-input edivi__input-check" value="<?= !empty($diagnose_haupt_text) ? $diagnose_haupt_text : '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -277,7 +277,7 @@ if (!empty($diagnose_weitere_array)) {
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="diagnose_weitere" class="edivi__description" style="display: none;">Diagnose (weitere)</label>
-                                                    <input type="text" name="diagnose_weitere" id="diagnose_weitere" class="w-100 form-control" value="<?= !empty($diagnose_weitere_text) ? $diagnose_weitere_text : '' ?>" readonly>
+                                                    <input type="text" name="diagnose_weitere" id="diagnose_weitere" class="w-100 ignis-input" value="<?= !empty($diagnose_weitere_text) ? $diagnose_weitere_text : '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -292,7 +292,7 @@ if (!empty($diagnose_weitere_array)) {
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="diagnose_text" class="edivi__description" style="display: none;">Diagnose Text</label>
-                                                    <textarea name="diagnose_text" id="diagnose_text" rows="5" class="w-100 form-control" style="resize: none" readonly><?= $daten['diagnose'] ?></textarea>
+                                                    <textarea name="diagnose_text" id="diagnose_text" rows="5" class="w-100 ignis-input" style="resize: none" readonly><?= $daten['diagnose'] ?></textarea>
                                                 </div>
                                             </div>
                                         </div>

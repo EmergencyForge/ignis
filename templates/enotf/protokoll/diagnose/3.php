@@ -84,7 +84,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                 <div class="col">
                                     <div class="row my-2">
                                         <div class="col">
-                                            <textarea name="diagnose" id="diagnose" rows="5" class="w-100 form-control" style="resize: none" placeholder="..."><?= $daten['diagnose'] ?></textarea>
+                                            <textarea name="diagnose" id="diagnose" rows="5" class="w-100 ignis-input" style="resize: none" placeholder="..."><?= $daten['diagnose'] ?></textarea>
                                         </div>
                                     </div>
                                 </div>

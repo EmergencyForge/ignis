@@ -25,7 +25,7 @@
             <input type="hidden" name="action" value="update_notes">
             <input type="hidden" name="incident_id" value="<?= $id ?>">
             <input type="hidden" name="return_tab" value="bericht">
-            <textarea name="notes" class="form-control mb-2" rows="5" placeholder="Beschreiben Sie hier das Einsatzgeschehen..."><?= htmlspecialchars($incident['notes'] ?? '') ?></textarea>
+            <textarea name="notes" class="ignis-input mb-2" rows="5" placeholder="Beschreiben Sie hier das Einsatzgeschehen..."><?= htmlspecialchars($incident['notes'] ?? '') ?></textarea>
             <div class="text-right">
                 <button type="submit" class="ignis-btn ignis-btn--primary ignis-btn--sm">
                     <i class="fa-solid fa-save mr-1"></i>Speichern

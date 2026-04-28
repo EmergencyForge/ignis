@@ -143,7 +143,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form id="qmActionsForm" action="<?= BASE_PATH ?>enotf/admin/qm-actions-modal?id=<?= $_GET['id'] ?>" method="post">
         <div class="mb-1 mt-2 grid grid-cols-[120px_1fr] align-items-center gap-3">
             <div class="fw-bold">Gesichtet von</div>
-            <input type="text" name="bearbeiter" id="bearbeiter" class="form-control w-100" value="<?= htmlspecialchars($userHelper->getCurrentUserFullnameForAction()) ?>" readonly>
+            <input type="text" name="bearbeiter" id="bearbeiter" class="ignis-input w-100" value="<?= htmlspecialchars($userHelper->getCurrentUserFullnameForAction()) ?>" readonly>
         </div>
         <div class="mt-3 grid grid-cols-[120px_1fr] align-items-center gap-3">
             <div class="fw-bold">Status</div>
@@ -157,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="mt-3 grid grid-cols-[120px_1fr] align-items-start gap-3">
             <div class="pt-2 fw-bold">Bemerkung</div>
-            <textarea name="qmkommentar" id="qmkommentar" rows="8" class="form-control w-100" style="resize: none;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
+            <textarea name="qmkommentar" id="qmkommentar" rows="8" class="ignis-input w-100" style="resize: none;" placeholder="Optionale Bemerkung hinzufügen..."></textarea>
         </div>
         <div class="mb-2 mt-4 text-center">
             <input class="ignis-btn ignis-btn--success" name="submit" type="submit" value="Speichern" />

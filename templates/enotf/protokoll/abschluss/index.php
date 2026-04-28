@@ -266,21 +266,21 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 </div>
                                                 <div class="col">
                                                     <label for="fzg_transp_perso" class="edivi__description">Besatzung Transpormittel</label>
-                                                    <input type="text" name="fzg_transp_perso" id="fzg_transp_perso" class="w-100 form-control" placeholder="Transportführer RTW/KTW" value="<?= $daten['fzg_transp_perso'] ?>">
+                                                    <input type="text" name="fzg_transp_perso" id="fzg_transp_perso" class="w-100 ignis-input" placeholder="Transportführer RTW/KTW" value="<?= $daten['fzg_transp_perso'] ?>">
                                                 </div>
                                             </div>
                                             <div class="row mb-2" id="fzg_transp_row_2">
                                                 <div class="col-5">
                                                 </div>
                                                 <div class="col">
-                                                    <input type="text" name="fzg_transp_perso_2" id="fzg_transp_perso_2" class="w-100 form-control" placeholder="Fahrzeugführer RTW/KTW" value="<?= $daten['fzg_transp_perso_2'] ?>">
+                                                    <input type="text" name="fzg_transp_perso_2" id="fzg_transp_perso_2" class="w-100 ignis-input" placeholder="Fahrzeugführer RTW/KTW" value="<?= $daten['fzg_transp_perso_2'] ?>">
                                                 </div>
                                             </div>
                                             <div class="row mb-2" id="fzg_transp_row_3">
                                                 <div class="col-5">
                                                 </div>
                                                 <div class="col">
-                                                    <input type="text" name="fzg_transp_perso_3" id="fzg_transp_perso_3" class="w-100 form-control" placeholder="Praktikant RTW/KTW" value="<?= $daten['fzg_transp_perso_3'] ?>">
+                                                    <input type="text" name="fzg_transp_perso_3" id="fzg_transp_perso_3" class="w-100 ignis-input" placeholder="Praktikant RTW/KTW" value="<?= $daten['fzg_transp_perso_3'] ?>">
                                                 </div>
                                             </div>
                                             <div class="row mt-2" id="fzg_na_row">
@@ -327,27 +327,27 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 </div>
                                                 <div class="col">
                                                     <label for="fzg_na_perso" class="edivi__description">Besatzung Notarztzubringer</label>
-                                                    <input type="text" name="fzg_na_perso" id="fzg_na_perso" class="w-100 form-control" placeholder="Notarzt" value="<?= $daten['fzg_na_perso'] ?>">
+                                                    <input type="text" name="fzg_na_perso" id="fzg_na_perso" class="w-100 ignis-input" placeholder="Notarzt" value="<?= $daten['fzg_na_perso'] ?>">
                                                 </div>
                                             </div>
                                             <div class="row mb-2" id="fzg_na_row_2">
                                                 <div class="col-5">
                                                 </div>
                                                 <div class="col">
-                                                    <input type="text" name="fzg_na_perso_2" id="fzg_na_perso_2" class="w-100 form-control" placeholder="Fahrzeugführer NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_2'] ?>">
+                                                    <input type="text" name="fzg_na_perso_2" id="fzg_na_perso_2" class="w-100 ignis-input" placeholder="Fahrzeugführer NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_2'] ?>">
                                                 </div>
                                             </div>
                                             <div class="row mb-2" id="fzg_na_row_3">
                                                 <div class="col-5">
                                                 </div>
                                                 <div class="col">
-                                                    <input type="text" name="fzg_na_perso_3" id="fzg_na_perso_3" class="w-100 form-control" placeholder="Praktikant NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_3'] ?>">
+                                                    <input type="text" name="fzg_na_perso_3" id="fzg_na_perso_3" class="w-100 ignis-input" placeholder="Praktikant NEF/HEMS-TC" value="<?= $daten['fzg_na_perso_3'] ?>">
                                                 </div>
                                             </div>
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="fzg_sonst" class="edivi__description">Sonstige Fahrzeuge</label>
-                                                    <input type="text" name="fzg_sonst" id="fzg_sonst" class="w-100 form-control" placeholder="Weitere Rettungsmittel" value="<?= $daten['fzg_sonst'] ?>">
+                                                    <input type="text" name="fzg_sonst" id="fzg_sonst" class="w-100 ignis-input" placeholder="Weitere Rettungsmittel" value="<?= $daten['fzg_sonst'] ?>">
                                                 </div>
                                             </div>
                                         </div>
@@ -366,7 +366,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                 <div class="col">
                                                     <label for="pfname" class="edivi__description">Protokollant</label>
                                                     <div class="name-autocomplete-wrapper" style="position: relative;">
-                                                        <input type="text" class="w-100 form-control edivi__input-check" name="pfname" id="pfname" value="<?= htmlspecialchars($currentValue) ?>" required autocomplete="off" />
+                                                        <input type="text" class="w-100 ignis-input edivi__input-check" name="pfname" id="pfname" value="<?= htmlspecialchars($currentValue) ?>" required autocomplete="off" />
                                                         <div class="name-dropdown" id="pfname-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; background-color: #444; border: 1px solid #555; border-radius: 4px; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);"></div>
                                                     </div>
                                                 </div>
@@ -393,13 +393,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="uebergabeort" class="edivi__description">Übergabe-Ort</label>
-                                                    <input type="text" name="uebergabeort" id="uebergabeort" class="w-100 form-control" value="<?= $uebergabeortLabels[$daten['uebergabe_ort'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="uebergabeort" id="uebergabeort" class="w-100 ignis-input" value="<?= $uebergabeortLabels[$daten['uebergabe_ort'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="uebergabean" class="edivi__description">Übergabe an</label>
-                                                    <input type="text" name="uebergabean" id="uebergabean" class="w-100 form-control" value="<?= $uebergabeanLabels[$daten['uebergabe_an'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="uebergabean" id="uebergabean" class="w-100 ignis-input" value="<?= $uebergabeanLabels[$daten['uebergabe_an'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -410,7 +410,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="einsatzverlauf_besonderheiten" class="edivi__description">Besonderheiten</label>
-                                                    <input type="text" name="einsatzverlauf_besonderheiten" id="einsatzverlauf_besonderheiten" class="w-100 form-control edivi__input-check" value="<?= !empty($ebesonderheitenDisplay) ? htmlspecialchars($ebesonderheitenDisplay) : '' ?>" readonly>
+                                                    <input type="text" name="einsatzverlauf_besonderheiten" id="einsatzverlauf_besonderheiten" class="w-100 ignis-input edivi__input-check" value="<?= !empty($ebesonderheitenDisplay) ? htmlspecialchars($ebesonderheitenDisplay) : '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>

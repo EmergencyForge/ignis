@@ -184,7 +184,7 @@ $hasPrefill = !empty($prefill);
                                 <div class="row mb-2">
                                     <div class="col">
                                         <div class="name-autocomplete-wrapper">
-                                            <input type="text" class="form-control my-2" name="fahrername" id="fahrername" autocomplete="off" required value="<?= htmlspecialchars($prefill['fahrername'] ?? '') ?>" <?= $fahrerRo ?> />
+                                            <input type="text" class="ignis-input my-2" name="fahrername" id="fahrername" autocomplete="off" required value="<?= htmlspecialchars($prefill['fahrername'] ?? '') ?>" <?= $fahrerRo ?> />
                                             <div class="name-dropdown" id="fahrername-dropdown"></div>
                                         </div>
                                         <label for="fahrername">Fahrer-Name</label>
@@ -202,7 +202,7 @@ $hasPrefill = !empty($prefill);
                                 <div class="row mb-2">
                                     <div class="col">
                                         <div class="name-autocomplete-wrapper">
-                                            <input type="text" class="form-control my-2" name="beifahrername" id="beifahrername" autocomplete="off" value="<?= htmlspecialchars($prefill['beifahrername'] ?? '') ?>" <?= $beifahrerRo ?> />
+                                            <input type="text" class="ignis-input my-2" name="beifahrername" id="beifahrername" autocomplete="off" value="<?= htmlspecialchars($prefill['beifahrername'] ?? '') ?>" <?= $beifahrerRo ?> />
                                             <div class="name-dropdown" id="beifahrername-dropdown"></div>
                                         </div>
                                         <label for="beifahrername">Beifahrer-Name</label>
@@ -220,7 +220,7 @@ $hasPrefill = !empty($prefill);
                                 <div class="row mb-2">
                                     <div class="col">
                                         <div class="name-autocomplete-wrapper">
-                                            <input type="text" class="form-control my-2" name="praktikantname" id="praktikantname" autocomplete="off" value="<?= htmlspecialchars($prefill['praktikantname'] ?? '') ?>" />
+                                            <input type="text" class="ignis-input my-2" name="praktikantname" id="praktikantname" autocomplete="off" value="<?= htmlspecialchars($prefill['praktikantname'] ?? '') ?>" />
                                             <div class="name-dropdown" id="praktikantname-dropdown"></div>
                                         </div>
                                         <label for="praktikantname">Praktikant-Name</label>

@@ -163,7 +163,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="sichtungskategorie" class="ignis-field__label">Kategorie</label>
-                                    <select class="form-control form-control-lg" id="sichtungskategorie" name="sichtungskategorie">
+                                    <select class="ignis-input form-control-lg" id="sichtungskategorie" name="sichtungskategorie">
                                         <option value="SK1" <?= ($patient['sichtungskategorie'] ?? '') === 'SK1' ? 'selected' : '' ?> class="text-[#d46b6b]">SK1 - Rot</option>
                                         <option value="SK2" <?= ($patient['sichtungskategorie'] ?? '') === 'SK2' ? 'selected' : '' ?> class="text-[#ddb84a]">SK2 - Gelb</option>
                                         <option value="SK3" <?= ($patient['sichtungskategorie'] ?? '') === 'SK3' ? 'selected' : '' ?> class="text-[#6abf76]">SK3 - Grün</option>

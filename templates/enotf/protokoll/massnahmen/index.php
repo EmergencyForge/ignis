@@ -430,7 +430,7 @@ if (!empty($daten['rettungstechnik'])) {
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="atemwegssicherung" class="edivi__description">Atemwegssicherung</label>
-                                                    <input type="text" name="atemwegssicherung" id="atemwegssicherung" class="w-100 form-control edivi__input-check" value="<?= $awsicherung_neu_labels[$daten['awsicherung_neu'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="atemwegssicherung" id="atemwegssicherung" class="w-100 ignis-input edivi__input-check" value="<?= $awsicherung_neu_labels[$daten['awsicherung_neu'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -445,7 +445,7 @@ if (!empty($daten['rettungstechnik'])) {
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="beatmung" class="edivi__description">Beatmung</label>
-                                                            <input type="text" name="beatmung" id="beatmung" class="w-100 form-control edivi__input-check" value="<?= $b_beatmung_labels[$daten['b_beatmung'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="beatmung" id="beatmung" class="w-100 ignis-input edivi__input-check" value="<?= $b_beatmung_labels[$daten['b_beatmung'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -453,7 +453,7 @@ if (!empty($daten['rettungstechnik'])) {
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="o2gabe" class="edivi__description">O2-Gabe</label>
-                                                            <input type="text" name="o2gabe" id="o2gabe" class="w-100 form-control" value="<?= $o2gabe_labels[$daten['o2gabe'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="o2gabe" id="o2gabe" class="w-100 ignis-input" value="<?= $o2gabe_labels[$daten['o2gabe'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -473,7 +473,7 @@ if (!empty($daten['rettungstechnik'])) {
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="pvk" class="edivi__description">PVK</label>
-                                                            <textarea name="pvk" id="pvk" class="w-100 form-control" style="height: 200px; overflow-y: auto; resize: vertical;" readonly><?= displayZugaengeByArtText($daten['c_zugang'] ?? '', 'pvk') ?></textarea>
+                                                            <textarea name="pvk" id="pvk" class="w-100 ignis-input" style="height: 200px; overflow-y: auto; resize: vertical;" readonly><?= displayZugaengeByArtText($daten['c_zugang'] ?? '', 'pvk') ?></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -481,7 +481,7 @@ if (!empty($daten['rettungstechnik'])) {
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="io" class="edivi__description">intraossär</label>
-                                                            <textarea name="io" id="io" class="w-100 form-control" style="height: 200px; overflow-y: auto; resize: vertical;" readonly><?= displayZugaengeByArtText($daten['c_zugang'] ?? '', 'io') ?></textarea>
+                                                            <textarea name="io" id="io" class="w-100 ignis-input" style="height: 200px; overflow-y: auto; resize: vertical;" readonly><?= displayZugaengeByArtText($daten['c_zugang'] ?? '', 'io') ?></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -500,7 +500,7 @@ if (!empty($daten['rettungstechnik'])) {
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="medikamente" class="edivi__description" style="display: none;">Medikamente</label>
-                                                            <textarea name="medikamente" id="medikamente" class="w-100 form-control edivi__input-check" style="height: 36vh; overflow-y: auto; resize: vertical;" readonly><?= displayAllMedikamente($daten['medis'] ?? '') ?></textarea>
+                                                            <textarea name="medikamente" id="medikamente" class="w-100 ignis-input edivi__input-check" style="height: 36vh; overflow-y: auto; resize: vertical;" readonly><?= displayAllMedikamente($daten['medis'] ?? '') ?></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -519,7 +519,7 @@ if (!empty($daten['rettungstechnik'])) {
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="lagerung" class="edivi__description">Lagerung</label>
-                                                            <input type="text" name="lagerung" id="lagerung" class="w-100 form-control" value="<?= $lagerung_labels[$daten['lagerung'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="lagerung" id="lagerung" class="w-100 ignis-input" value="<?= $lagerung_labels[$daten['lagerung'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -527,7 +527,7 @@ if (!empty($daten['rettungstechnik'])) {
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="rettungstechnik" class="edivi__description">Rettungstechnik</label>
-                                                            <input type="text" name="rettungstechnik" id="rettungstechnik" class="w-100 form-control" value="<?= $rettungstechnikDisplay ?>" readonly>
+                                                            <input type="text" name="rettungstechnik" id="rettungstechnik" class="w-100 ignis-input" value="<?= $rettungstechnikDisplay ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>

@@ -384,7 +384,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                     break;
 
                 case 'richtext':
-                    html += `<textarea class="form-control ckeditor-field" id="field_${fieldName}" name="${fieldName}" rows="6" ${required}></textarea>`;
+                    html += `<textarea class="ignis-input ckeditor-field" id="field_${fieldName}" name="${fieldName}" rows="6" ${required}></textarea>`;
                     break;
 
                 case 'date':

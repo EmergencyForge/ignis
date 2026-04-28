@@ -264,13 +264,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="atemwegszustand" class="edivi__description">Atemwegszustand</label>
-                                                    <input type="text" name="atemwegszustand" id="atemwegszustand" class="w-100 form-control edivi__input-check" value="<?= $awfrei_labels[$daten['awfrei_1'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="atemwegszustand" id="atemwegszustand" class="w-100 ignis-input edivi__input-check" value="<?= $awfrei_labels[$daten['awfrei_1'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="zyanose" class="edivi__description">Zyanose</label>
-                                                    <input type="text" name="zyanose" id="zyanose" class="w-100 form-control edivi__input-check" value="<?= $zyanose_labels[$daten['zyanose_1'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="zyanose" id="zyanose" class="w-100 ignis-input edivi__input-check" value="<?= $zyanose_labels[$daten['zyanose_1'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -283,13 +283,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="beurteilung_atmung" class="edivi__description">Beurteilung Atmung</label>
-                                                    <input type="text" name="beurteilung_atmung" id="beurteilung_atmung" class="w-100 form-control edivi__input-check" value="<?= $b_symptome_labels[$daten['b_symptome'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="beurteilung_atmung" id="beurteilung_atmung" class="w-100 ignis-input edivi__input-check" value="<?= $b_symptome_labels[$daten['b_symptome'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="auskultation" class="edivi__description">Auskultation</label>
-                                                    <input type="text" name="auskultation" id="auskultation" class="w-100 form-control edivi__input-check" value="<?= $b_auskult_labels[$daten['b_auskult'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="auskultation" id="auskultation" class="w-100 ignis-input edivi__input-check" value="<?= $b_auskult_labels[$daten['b_auskult'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -306,7 +306,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="patientenzustand" class="edivi__description">Patientenzustand</label>
-                                                            <input type="text" name="patientenzustand" id="patientenzustand" class="w-100 form-control edivi__input-check" value="<?= $c_kreislauf_labels[$daten['c_kreislauf'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="patientenzustand" id="patientenzustand" class="w-100 ignis-input edivi__input-check" value="<?= $c_kreislauf_labels[$daten['c_kreislauf'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -314,7 +314,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="rekap" class="edivi__description">Rekap. Zeit</label>
-                                                            <input type="text" name="rekap" id="rekap" class="w-100 form-control edivi__input-check" value="<?= $c_rekap_labels[$daten['c_rekap'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="rekap" id="rekap" class="w-100 ignis-input edivi__input-check" value="<?= $c_rekap_labels[$daten['c_rekap'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -322,7 +322,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="ekgbefund" class="edivi__description">EKG-Befund</label>
-                                                            <input type="text" name="ekgbefund" id="ekgbefund" class="w-100 form-control edivi__input-check" value="<?= $c_ekg_labels[$daten['c_ekg'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="ekgbefund" id="ekgbefund" class="w-100 ignis-input edivi__input-check" value="<?= $c_ekg_labels[$daten['c_ekg'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -332,7 +332,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="pulsregelmaessig" class="edivi__description">Pulsqualität</label>
-                                                            <input type="text" name="pulsregelmaessig" id="pulsregelmaessig" class="w-100 form-control edivi__input-check" value="<?= $c_puls_reg_labels[$daten['c_puls_reg'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="pulsregelmaessig" id="pulsregelmaessig" class="w-100 ignis-input edivi__input-check" value="<?= $c_puls_reg_labels[$daten['c_puls_reg'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -340,7 +340,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="radialispuls" class="edivi__description">Radialispuls</label>
-                                                            <input type="text" name="radialispuls" id="radialispuls" class="w-100 form-control edivi__input-check" value="<?= $c_puls_rad_labels[$daten['c_puls_rad'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="radialispuls" id="radialispuls" class="w-100 ignis-input edivi__input-check" value="<?= $c_puls_rad_labels[$daten['c_puls_rad'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -348,7 +348,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="blutung" class="edivi__description">starke Blutung</label>
-                                                            <input type="text" name="blutung" id="blutung" class="w-100 form-control edivi__input-check" value="<?= $c_blutung_labels[$daten['c_blutung'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="blutung" id="blutung" class="w-100 ignis-input edivi__input-check" value="<?= $c_blutung_labels[$daten['c_blutung'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -365,7 +365,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="bewusstseinslage" class="edivi__description">Bewusstseinslage</label>
-                                                            <input type="text" name="bewusstseinslage" id="bewusstseinslage" class="w-100 form-control edivi__input-check" value="<?= $d_bewusstsein_labels[$daten['d_bewusstsein'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="bewusstseinslage" id="bewusstseinslage" class="w-100 ignis-input edivi__input-check" value="<?= $d_bewusstsein_labels[$daten['d_bewusstsein'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -373,7 +373,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="extremitaetenbewegung" class="edivi__description">Extremitätenbewegung</label>
-                                                            <input type="text" name="extremitaetenbewegung" id="extremitaetenbewegung" class="w-100 form-control edivi__input-check" value="<?= $d_ex_1_labels[$daten['d_ex_1'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="extremitaetenbewegung" id="extremitaetenbewegung" class="w-100 ignis-input edivi__input-check" value="<?= $d_ex_1_labels[$daten['d_ex_1'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -394,7 +394,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                             }
                                                             ?>
                                                             <label for="_GCS_" class="edivi__description">GCS</label>
-                                                            <input type="text" name="_GCS_" id="_GCS_" class="w-100 form-control" value="<?= $gcs_value ?>" readonly>
+                                                            <input type="text" name="_GCS_" id="_GCS_" class="w-100 ignis-input" value="<?= $gcs_value ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -404,7 +404,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="pupillenweite_li" class="edivi__description">Pupillenweite li</label>
-                                                            <input type="text" name="pupillenweite_li" id="pupillenweite_li" class="w-100 form-control edivi__input-check" value="<?= $d_pupillenw_1_labels[$daten['d_pupillenw_1'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="pupillenweite_li" id="pupillenweite_li" class="w-100 ignis-input edivi__input-check" value="<?= $d_pupillenw_1_labels[$daten['d_pupillenw_1'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -412,7 +412,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="pupillenweite_re" class="edivi__description">re</label>
-                                                            <input type="text" name="pupillenweite_re" id="pupillenweite_re" class="w-100 form-control edivi__input-check" value="<?= $d_pupillenw_1_labels[$daten['d_pupillenw_2'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="pupillenweite_re" id="pupillenweite_re" class="w-100 ignis-input edivi__input-check" value="<?= $d_pupillenw_1_labels[$daten['d_pupillenw_2'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -420,7 +420,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="lichtreaktion_li" class="edivi__description">Lichtreaktion li</label>
-                                                            <input type="text" name="lichtreaktion_li" id="lichtreaktion_li" class="w-100 form-control edivi__input-check" value="<?= $d_lichtreakt_1_labels[$daten['d_lichtreakt_1'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="lichtreaktion_li" id="lichtreaktion_li" class="w-100 ignis-input edivi__input-check" value="<?= $d_lichtreakt_1_labels[$daten['d_lichtreakt_1'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -428,7 +428,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="lichtreaktion_re" class="edivi__description">re</label>
-                                                            <input type="text" name="lichtreaktion_re" id="lichtreaktion_re" class="w-100 form-control edivi__input-check" value="<?= $d_lichtreakt_1_labels[$daten['d_lichtreakt_2'] ?? ''] ?? '' ?>" readonly>
+                                                            <input type="text" name="lichtreaktion_re" id="lichtreaktion_re" class="w-100 ignis-input edivi__input-check" value="<?= $d_lichtreakt_1_labels[$daten['d_lichtreakt_2'] ?? ''] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -447,7 +447,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="schädel_hirn" class="edivi__description">Schädel-Hirn</label>
-                                                            <input type="text" name="schädel_hirn" id="schädel_hirn" class="w-100 form-control edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_k'] ?? ''] ?? '') . (!empty($daten['v_muster_k1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_k1'] ?? ''] ?? '') : '') ?>" readonly>
+                                                            <input type="text" name="schädel_hirn" id="schädel_hirn" class="w-100 ignis-input edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_k'] ?? ''] ?? '') . (!empty($daten['v_muster_k1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_k1'] ?? ''] ?? '') : '') ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -455,7 +455,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="wirbelsaeule" class="edivi__description">Wirbelsäule</label>
-                                                            <input type="text" name="wirbelsaeule" id="wirbelsaeule" class="w-100 form-control edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_w'] ?? ''] ?? '') . (!empty($daten['v_musterw1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_w1'] ?? ''] ?? '') : '') ?>" readonly>
+                                                            <input type="text" name="wirbelsaeule" id="wirbelsaeule" class="w-100 ignis-input edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_w'] ?? ''] ?? '') . (!empty($daten['v_musterw1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_w1'] ?? ''] ?? '') : '') ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -463,7 +463,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="thorax" class="edivi__description">Thorax</label>
-                                                            <input type="text" name="thorax" id="thorax" class="w-100 form-control edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_t'] ?? ''] ?? '') . (!empty($daten['v_muster_t1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_t1'] ?? ''] ?? '') : '') ?>" readonly>
+                                                            <input type="text" name="thorax" id="thorax" class="w-100 ignis-input edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_t'] ?? ''] ?? '') . (!empty($daten['v_muster_t1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_t1'] ?? ''] ?? '') : '') ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -471,7 +471,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="abdomen" class="edivi__description">Abdomen</label>
-                                                            <input type="text" name="abdomen" id="abdomen" class="w-100 form-control edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_a'] ?? ''] ?? '') . (!empty($daten['v_muster_a1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_a1'] ?? ''] ?? '') : '') ?>" readonly>
+                                                            <input type="text" name="abdomen" id="abdomen" class="w-100 ignis-input edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_a'] ?? ''] ?? '') . (!empty($daten['v_muster_a1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_a1'] ?? ''] ?? '') : '') ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -481,7 +481,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="obere_extremitaeten" class="edivi__description">Obere Extremitäten</label>
-                                                            <input type="text" name="obere_extremitaeten" id="obere_extremitaeten" class="w-100 form-control edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_al'] ?? ''] ?? '') . (!empty($daten['v_muster_al1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_al1'] ?? ''] ?? '') : '') ?>" readonly>
+                                                            <input type="text" name="obere_extremitaeten" id="obere_extremitaeten" class="w-100 ignis-input edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_al'] ?? ''] ?? '') . (!empty($daten['v_muster_al1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_al1'] ?? ''] ?? '') : '') ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -489,7 +489,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="untere_extremitaeten" class="edivi__description">Untere Extremitäten</label>
-                                                            <input type="text" name="untere_extremitaeten" id="untere_extremitaeten" class="w-100 form-control edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_bl'] ?? ''] ?? '') . (!empty($daten['v_musterbl1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_bl1'] ?? ''] ?? '') : '') ?>" readonly>
+                                                            <input type="text" name="untere_extremitaeten" id="untere_extremitaeten" class="w-100 ignis-input edivi__input-check" value="<?= ($v_muster_k_labels[$daten['v_muster_bl'] ?? ''] ?? '') . (!empty($daten['v_musterbl1']) ? ' / ' . ($v_muster_k1_labels[$daten['v_muster_bl1'] ?? ''] ?? '') : '') ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -504,13 +504,13 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="intensitaet" class="edivi__description">Intensität</label>
-                                                    <input type="text" name="intensitaet" id="intensitaet" class="w-100 form-control" value="<?= $sz_nrs_labels[$daten['sz_nrs'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="intensitaet" id="intensitaet" class="w-100 ignis-input" value="<?= $sz_nrs_labels[$daten['sz_nrs'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="toleranz" class="edivi__description">Toleranz</label>
-                                                    <input type="text" name="ekgbefund" id="ekgbefund" class="w-100 form-control" value="<?= $sz_toleranz_1_labels[$daten['sz_toleranz_1'] ?? ''] ?? '' ?>" readonly>
+                                                    <input type="text" name="ekgbefund" id="ekgbefund" class="w-100 ignis-input" value="<?= $sz_toleranz_1_labels[$daten['sz_toleranz_1'] ?? ''] ?? '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -525,7 +525,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                             <div class="row my-2">
                                                 <div class="col">
                                                     <label for="psychischer_zustand" class="edivi__description">Psychischer Zustand</label>
-                                                    <input type="text" name="psychischer_zustand" id="psychischer_zustand" class="w-100 form-control edivi__input-check" value="<?= !empty($psychDisplay) ? htmlspecialchars($psychDisplay) : '' ?>" readonly>
+                                                    <input type="text" name="psychischer_zustand" id="psychischer_zustand" class="w-100 ignis-input edivi__input-check" value="<?= !empty($psychDisplay) ? htmlspecialchars($psychDisplay) : '' ?>" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -540,7 +540,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="spo2" class="edivi__description">SpO<sub>2</sub></label>
-                                                            <input type="text" name="spo2" id="spo2" class="w-100 form-control edivi__input-check" value="<?= $daten['spo2'] ?? '' ?>" readonly>
+                                                            <input type="text" name="spo2" id="spo2" class="w-100 ignis-input edivi__input-check" value="<?= $daten['spo2'] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -548,7 +548,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="af" class="edivi__description">AF</label>
-                                                            <input type="text" name="af" id="af" class="w-100 form-control edivi__input-check" value="<?= $daten['atemfreq'] ?? '' ?>" readonly>
+                                                            <input type="text" name="af" id="af" class="w-100 ignis-input edivi__input-check" value="<?= $daten['atemfreq'] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -556,7 +556,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="etco2" class="edivi__description">etCO<sub>2</sub></label>
-                                                            <input type="text" name="etco2" id="etco2" class="w-100 form-control" value="<?= $daten['etco2'] ?? '' ?>" readonly>
+                                                            <input type="text" name="etco2" id="etco2" class="w-100 ignis-input" value="<?= $daten['etco2'] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -564,7 +564,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="hf" class="edivi__description">HF</label>
-                                                            <input type="text" name="hf" id="hf" class="w-100 form-control edivi__input-check" value="<?= $daten['herzfreq'] ?? '' ?>" readonly>
+                                                            <input type="text" name="hf" id="hf" class="w-100 ignis-input edivi__input-check" value="<?= $daten['herzfreq'] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -572,7 +572,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="rrsys" class="edivi__description">RR<sub>sys</sub></label>
-                                                            <input type="text" name="rrsys" id="rrsys" class="w-100 form-control edivi__input-check" value="<?= $daten['rrsys'] ?? '' ?>" readonly>
+                                                            <input type="text" name="rrsys" id="rrsys" class="w-100 ignis-input edivi__input-check" value="<?= $daten['rrsys'] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -580,7 +580,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="rrdia" class="edivi__description">RR<sub>dia</sub></label>
-                                                            <input type="text" name="rrdia" id="rrdia" class="w-100 form-control" value="<?= $daten['rrdias'] ?? '' ?>" readonly>
+                                                            <input type="text" name="rrdia" id="rrdia" class="w-100 ignis-input" value="<?= $daten['rrdias'] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -588,7 +588,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="bz" class="edivi__description">BZ</label>
-                                                            <input type="text" name="bz" id="bz" class="w-100 form-control edivi__input-check" value="<?= $daten['bz'] ?? '' ?>" readonly>
+                                                            <input type="text" name="bz" id="bz" class="w-100 ignis-input edivi__input-check" value="<?= $daten['bz'] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -596,7 +596,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
                                                     <div class="row my-2">
                                                         <div class="col">
                                                             <label for="temp" class="edivi__description">Temp</label>
-                                                            <input type="text" name="temp" id="temp" class="w-100 form-control" value="<?= $daten['temp'] ?? '' ?>" readonly>
+                                                            <input type="text" name="temp" id="temp" class="w-100 ignis-input" value="<?= $daten['temp'] ?? '' ?>" readonly>
                                                         </div>
                                                     </div>
                                                 </div>

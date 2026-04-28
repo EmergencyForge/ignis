@@ -240,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
                             </label>
                             <input
                                 type="text"
-                                class="form-control code-input"
+                                class="ignis-input code-input"
                                 id="code"
                                 name="code"
                                 maxlength="6"

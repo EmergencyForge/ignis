@@ -345,7 +345,7 @@ $status_config = [
                         </label>
                         <input
                             type="password"
-                            class="form-control code-input"
+                            class="ignis-input code-input"
                             id="code"
                             name="code"
                             placeholder="••••••••"

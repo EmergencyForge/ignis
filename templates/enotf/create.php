@@ -36,7 +36,7 @@ $currentDate = date('d.m.Y');
                 <div id="edivi__content">
                     <div class="hr my-6" style="color:transparent"></div>
                     <div class="mx-5">
-                        <input type="text" class="form-control mb-3" name="enr" id="enr" placeholder="Einsatznummer" required />
+                        <input type="text" class="ignis-input mb-3" name="enr" id="enr" placeholder="Einsatznummer" required />
                     </div>
                     <div class="mx-5 my-6">
                         <button class="edivi__nidabutton flex w-100 align-items-center" style="border-top:3px solid #dc3545;padding:16px 20px;" id="rdprot" name="rdprot" onclick="setProtBy(0)"><span style="color:#dc3545;font-weight:bold;font-size:1.3rem;margin-right:12px;">NF</span> Notfallprotokoll</button>
