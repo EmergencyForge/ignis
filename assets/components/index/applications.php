@@ -39,24 +39,24 @@
             foreach ($appresult as $row) {
                 $adddat = date("d.m.Y | H:i", strtotime($row['time_added']));
                 $cirs_state = "Unbekannt";
-                $badge_color = "text-bg-dark";
+                $badge_color = "ignis-chip--dark";
 
                 switch ($row['cirs_status']) {
                     case 0:
                         $cirs_state = "In Bearbeitung";
-                        $badge_color = "text-bg-info";
+                        $badge_color = "ignis-chip--info";
                         break;
                     case 1:
                         $cirs_state = "Abgelehnt";
-                        $badge_color = "text-bg-danger";
+                        $badge_color = "ignis-chip--danger";
                         break;
                     case 2:
                         $cirs_state = "Aufgeschoben";
-                        $badge_color = "text-bg-warning";
+                        $badge_color = "ignis-chip--warning";
                         break;
                     case 3:
                         $cirs_state = "Angenommen";
-                        $badge_color = "text-bg-success";
+                        $badge_color = "ignis-chip--success";
                         break;
                 }
 
