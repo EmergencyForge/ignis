@@ -339,6 +339,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+    max-height: 280px;
   }
 }
 
@@ -352,7 +353,11 @@ body:has(.ignis-dialog-backdrop.is-open) {
   left: 0;
   right: 0;
   z-index: 1500;
-  max-height: 280px;
+  // Im geschlossenen Zustand keine Bounding-Box: sonst zählt der Browser
+  // das absolut positionierte Panel als Overflow-Descendant des Wrappers,
+  // und ein umgebendes overflow:auto würde fälschlich eine Scrollbar zeigen.
+  // .is-open / --floating heben den Wert auf den Original-Wert von 280px.
+  max-height: 0;
   display: flex;
   flex-direction: column;
   background: var(--body-bg-lighter, #161616);
@@ -383,6 +388,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
+      max-height: 280px;
     }
   }
 
@@ -1171,6 +1177,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+    max-height: none;
+    overflow: visible;
   }
 }
 
@@ -1191,6 +1199,12 @@ body:has(.ignis-dialog-backdrop.is-open) {
   transform: translateY(-4px);
   pointer-events: none;
   transition: opacity 0.16s ease, transform 0.16s var(--ease-out-quint, ease);
+  // Im geschlossenen Zustand keine Bounding-Box: sonst zählt der Browser
+  // das absolut positionierte Panel als Overflow-Descendant des Wrappers,
+  // und ein umgebendes overflow:auto (z.B. .ignis-dialog__body) zeigt
+  // fälschlich eine Scrollbar an, obwohl das Panel unsichtbar ist.
+  max-height: 0;
+  overflow: hidden;
 
   &.is-above {
     top: auto;
@@ -1207,6 +1221,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
+    max-height: none;
+    overflow: visible;
   }
 
   .ignis-datepicker__header {
