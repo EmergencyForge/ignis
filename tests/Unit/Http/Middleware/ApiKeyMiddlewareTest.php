@@ -26,15 +26,49 @@ class ApiKeyMiddlewareTest extends TestCase
     }
 
     #[Test]
-    public function allows_request_from_localhost_without_key(): void
+    public function allows_request_from_localhost_without_key_in_development(): void
     {
-        $mw  = new ApiKeyMiddleware();
-        $req = new Request('POST', '/api/fivem/foo', server: ['REMOTE_ADDR' => '127.0.0.1']);
+        $previous = $_ENV['APP_ENV'] ?? null;
+        $_ENV['APP_ENV'] = 'development';
 
-        $res = $mw->process($req, $this->ok());
+        try {
+            $mw  = new ApiKeyMiddleware();
+            $req = new Request('POST', '/api/fivem/foo', server: ['REMOTE_ADDR' => '127.0.0.1']);
 
-        $this->assertSame(200, $res->status);
-        $this->assertStringContainsString('"source":"localhost"', $res->body);
+            $res = $mw->process($req, $this->ok());
+
+            $this->assertSame(200, $res->status);
+            $this->assertStringContainsString('"source":"localhost"', $res->body);
+        } finally {
+            if ($previous === null) {
+                unset($_ENV['APP_ENV']);
+            } else {
+                $_ENV['APP_ENV'] = $previous;
+            }
+        }
+    }
+
+    #[Test]
+    public function rejects_request_from_localhost_without_key_in_production(): void
+    {
+        // Ohne APP_ENV=development verlangt die Middleware den API-Key
+        // auch fuer 127.0.0.1 — Schutz vor Shared-Hosting-Nachbarn,
+        // kompromittierten lokalen Scripts und gespoofter REMOTE_ADDR.
+        $previous = $_ENV['APP_ENV'] ?? null;
+        unset($_ENV['APP_ENV']);
+
+        try {
+            $mw  = new ApiKeyMiddleware();
+            $req = new Request('POST', '/api/fivem/foo', server: ['REMOTE_ADDR' => '127.0.0.1']);
+
+            $res = $mw->process($req, $this->ok());
+
+            $this->assertSame(403, $res->status);
+        } finally {
+            if ($previous !== null) {
+                $_ENV['APP_ENV'] = $previous;
+            }
+        }
     }
 
     #[Test]
