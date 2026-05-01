@@ -7,12 +7,16 @@
  *   data-mitarbeiter-card="42"  → /api/v1/mitarbeiter/42/card
  *   data-user-card="42"         → /api/v1/users/42/card
  *   data-poi-card="3"           → /api/v1/pois/3/card
+ *   data-vehicle-card="7"       → /api/v1/vehicles/7/card
+ *   data-dienstnr-card="042"    → /api/v1/mitarbeiter/by-dienstnr/042/card
  *
  * Beispiel:
  *   <a href="/mitarbeiter/profile?id=42"
  *      data-mitarbeiter-card="42">Max Mustermann</a>
  *
  *   <span data-poi-card="3">Klinikum Süd</span>
+ *
+ *   <span data-dienstnr-card="042">DNr 042</span>
  *
  * Erste Anforderung lädt das Markup vom Server, nachfolgende Hovers
  * nutzen den per-Source+ID gesplitteten Cache. 300 ms Hover-Delay
@@ -31,6 +35,7 @@ const SOURCES = [
     { attr: 'data-user-card',        kind: 'user',        path: (id) => '/api/v1/users/'       + encodeURIComponent(id) + '/card' },
     { attr: 'data-poi-card',         kind: 'poi',         path: (id) => '/api/v1/pois/'        + encodeURIComponent(id) + '/card' },
     { attr: 'data-vehicle-card',     kind: 'vehicle',     path: (id) => '/api/v1/vehicles/'    + encodeURIComponent(id) + '/card' },
+    { attr: 'data-dienstnr-card',    kind: 'dienstnr',    path: (nr) => '/api/v1/mitarbeiter/by-dienstnr/' + encodeURIComponent(nr) + '/card' },
 ];
 const ANCHOR_SELECTOR = SOURCES.map((s) => '[' + s.attr + ']').join(', ');
 

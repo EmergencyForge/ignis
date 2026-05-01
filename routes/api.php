@@ -98,6 +98,14 @@ $router->get('/api/mitarbeiter/{id:\d+}/card',
     [new AuthMiddleware()]
 );
 
+// Dienstnummer-Lookup-Variante: erlaubt Hover-Card auf Dienstnr-Strings,
+// ohne dass das Template die Mitarbeiter-ID kennt. Regex erlaubt Zahlen,
+// Buchstaben, Bindestrich, Unterstrich (typische DNr-Schemata).
+$router->get('/api/mitarbeiter/by-dienstnr/{nr:[A-Za-z0-9_\-]+}/card',
+    [\App\Http\Controllers\MitarbeiterController::class, 'cardByDienstnr'],
+    [new AuthMiddleware()]
+);
+
 $router->get('/api/users/{id:\d+}/card',
     [\App\Http\Controllers\UserController::class, 'card'],
     [new AuthMiddleware()]
