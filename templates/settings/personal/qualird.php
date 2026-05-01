@@ -25,7 +25,7 @@ use App\Helpers\Flash;
                     <div class="flex justify-between items-center mb-5">
                         <h1 class="mb-0">RD Qualifikationen verwalten</h1>
                         <?php if (Permissions::check('admin')) : ?>
-                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateQualirdModal()">
                                 <i class="fa-solid fa-plus"></i> Qualifikation erstellen
                             </button>
                         <?php endif; ?>
@@ -62,7 +62,7 @@ use App\Helpers\Flash;
                                     $abkDisplay = $abk !== '' ? htmlspecialchars($abk) : "<span style='opacity:.5'>-</span>";
 
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Qualifikation bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-abkuerzung='" . htmlspecialchars($abk) . "' data-priority='{$row['priority']}' data-none='{$row['none']}' data-trainable='{$row['trainable']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<button type='button' title='Qualifikation bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon' onclick='openEditQualirdModal(this)' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-abkuerzung='" . htmlspecialchars($abk) . "' data-priority='{$row['priority']}' data-none='{$row['none']}' data-trainable='{$row['trainable']}'><i class='fa-solid fa-pen'></i></button>"
                                         : '';
                                 ?>
                                     <tr>
@@ -85,96 +85,34 @@ use App\Helpers\Flash;
     </div>
 
     <?php if (Permissions::check('admin')) : ?>
-        <!-- Edit Modal -->
-        <div class="modal fade" id="editDienstgradModal" tabindex="-1" aria-labelledby="editDienstgradModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/personal/qualird/update" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editDienstgradModalLabel">RD Qualifikation bearbeiten</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" name="id" id="dienstgrad-id">
-                            <div class="mb-3">
-                                <label for="dienstgrad-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
-                                <input type="text" class="ignis-input" name="name" id="dienstgrad-name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="dienstgrad-name_m" class="ignis-field__label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
-                                <input type="text" class="ignis-input" name="name_m" id="dienstgrad-name_m" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="dienstgrad-name_w" class="ignis-field__label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
-                                <input type="text" class="ignis-input" name="name_w" id="dienstgrad-name_w" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="dienstgrad-abkuerzung" class="ignis-field__label">Abkürzung <small class="form-hint">(für eNOTF, optional)</small></label>
-                                <input type="text" class="ignis-input" name="abkuerzung" id="dienstgrad-abkuerzung" placeholder="z.B. RettSan, NotSan i.A.">
-                            </div>
-                            <div class="mb-3">
-                                <label for="dienstgrad-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="ignis-input" name="priority" id="dienstgrad-priority" required>
-                            </div>
-                            <label class="ignis-checkbox" for="dienstgrad-none"><input type="checkbox" name="none" id="dienstgrad-none"><span>Leer?</span></label>
-                            <label class="ignis-checkbox" for="dienstgrad-trainable"><input type="checkbox" name="trainable" id="dienstgrad-trainable"><span>Zertifiziert?</span></label>
-                        </div>
-                        <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
-                            <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                            </div>
-                        </div>
-                    </form>
-                    <form id="delete-dienstgrad-form" action="<?= BASE_PATH ?>settings/personal/qualird/delete" method="POST" style="display:none;">
-                        <input type="hidden" name="id" id="dienstgrad-delete-id">
-                    </form>
-                </div>
+        <template id="qualirdFormTemplate">
+            <div class="mb-3">
+                <label for="qualird-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
+                <input type="text" class="ignis-input" name="name" id="qualird-name" required>
             </div>
-        </div>
+            <div class="mb-3">
+                <label for="qualird-name_m" class="ignis-field__label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
+                <input type="text" class="ignis-input" name="name_m" id="qualird-name_m" required>
+            </div>
+            <div class="mb-3">
+                <label for="qualird-name_w" class="ignis-field__label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
+                <input type="text" class="ignis-input" name="name_w" id="qualird-name_w" required>
+            </div>
+            <div class="mb-3">
+                <label for="qualird-abkuerzung" class="ignis-field__label">Abkürzung <small class="form-hint">(für eNOTF, optional)</small></label>
+                <input type="text" class="ignis-input" name="abkuerzung" id="qualird-abkuerzung" placeholder="z.B. RettSan, NotSan i.A.">
+            </div>
+            <div class="mb-3">
+                <label for="qualird-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                <input type="number" class="ignis-input" name="priority" id="qualird-priority" value="0" required>
+            </div>
+            <label class="ignis-checkbox" for="qualird-none"><input type="checkbox" name="none" id="qualird-none"><span>Leer?</span></label>
+            <label class="ignis-checkbox" for="qualird-trainable"><input type="checkbox" name="trainable" id="qualird-trainable"><span>Zertifiziert?</span></label>
+        </template>
 
-        <!-- Create Modal -->
-        <div class="modal fade" id="createDienstgradModal" tabindex="-1" aria-labelledby="createDienstgradModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/personal/qualird/create" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="createDienstgradModalLabel">RD Qualifikation anlegen</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
-                                <input type="text" class="ignis-input" name="name" id="new-dienstgrad-name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-name_m" class="ignis-field__label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
-                                <input type="text" class="ignis-input" name="name_m" id="new-dienstgrad-name_m" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-name_w" class="ignis-field__label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
-                                <input type="text" class="ignis-input" name="name_w" id="new-dienstgrad-name_w" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-abkuerzung" class="ignis-field__label">Abkürzung <small class="form-hint">(für eNOTF, optional)</small></label>
-                                <input type="text" class="ignis-input" name="abkuerzung" id="new-dienstgrad-abkuerzung" placeholder="z.B. RettSan, NotSan i.A.">
-                            </div>
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-priority" class="ignis-field__label">Priorität <small class="form-hint">(je niedriger, desto höher)</small></label>
-                                <input type="number" class="ignis-input" name="priority" id="new-dienstgrad-priority" value="0" required>
-                            </div>
-                            <label class="ignis-checkbox" for="new-dienstgrad-none"><input type="checkbox" name="none" id="new-dienstgrad-none"><span>Leer?</span></label>
-                            <label class="ignis-checkbox" for="new-dienstgrad-trainable"><input type="checkbox" name="trainable" id="new-dienstgrad-trainable"><span>Zertifiziert?</span></label>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        <form id="delete-qualird-form" action="<?= BASE_PATH ?>settings/personal/qualird/delete" method="POST" style="display:none;">
+            <input type="hidden" name="id" id="qualird-delete-id">
+        </form>
     <?php endif; ?>
 
     <script>
@@ -190,32 +128,51 @@ use App\Helpers\Flash;
             });
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    document.getElementById('dienstgrad-id').value = this.dataset.id;
-                    document.getElementById('dienstgrad-name').value = this.dataset.name;
-                    document.getElementById('dienstgrad-name_m').value = this.dataset.name_m;
-                    document.getElementById('dienstgrad-name_w').value = this.dataset.name_w;
-                    document.getElementById('dienstgrad-abkuerzung').value = this.dataset.abkuerzung || '';
-                    document.getElementById('dienstgrad-priority').value = this.dataset.priority;
-                    document.getElementById('dienstgrad-none').checked = this.dataset.none == 1;
-                    document.getElementById('dienstgrad-trainable').checked = this.dataset.trainable == 1;
-                    document.getElementById('dienstgrad-delete-id').value = this.dataset.id;
-                });
+        function openCreateQualirdModal() {
+            Dialog.form({
+                title:        'RD Qualifikation anlegen',
+                template:     'qualirdFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/personal/qualird/create',
+                submitLabel:  'Erstellen',
+                submitVariant:'success',
             });
+        }
 
-            const delBtn = document.getElementById('delete-dienstgrad-btn');
-            if (delBtn) {
-                delBtn.addEventListener('click', function() {
-                    showConfirm('Möchtest du diese Qualifikation wirklich löschen?', { danger: true, confirmText: 'Löschen', title: 'Qualifikation löschen' }).then(result => {
-                        if (result) {
-                            document.getElementById('delete-dienstgrad-form').submit();
-                        }
-                    });
-                });
-            }
-        });
+        function openEditQualirdModal(btn) {
+            var data = btn.dataset;
+            document.getElementById('qualird-delete-id').value = data.id;
+
+            Dialog.form({
+                title:        'RD Qualifikation bearbeiten',
+                template:     'qualirdFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/personal/qualird/update',
+                hiddenFields: { id: data.id },
+                submitLabel:  'Speichern',
+                submitVariant:'soft-primary',
+                dangerAction: {
+                    label:   'Löschen',
+                    onClick: function () {
+                        showConfirm('Möchtest du diese Qualifikation wirklich löschen?', {
+                            danger:      true,
+                            confirmText: 'Löschen',
+                            title:       'Qualifikation löschen',
+                        }).then(function (ok) {
+                            if (ok) document.getElementById('delete-qualird-form').submit();
+                        });
+                    },
+                },
+                onOpen: function (dlg) {
+                    var $body = $(dlg.element);
+                    $body.find('#qualird-name').val(data.name);
+                    $body.find('#qualird-name_m').val(data.name_m);
+                    $body.find('#qualird-name_w').val(data.name_w);
+                    $body.find('#qualird-abkuerzung').val(data.abkuerzung || '');
+                    $body.find('#qualird-priority').val(data.priority);
+                    $body.find('#qualird-none').prop('checked', data.none == 1);
+                    $body.find('#qualird-trainable').prop('checked', data.trainable == 1);
+                },
+            });
+        }
     </script>
 
     <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
