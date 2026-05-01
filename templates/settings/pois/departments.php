@@ -38,7 +38,7 @@ use App\Helpers\Flash;
                                 <button type="button" class="ignis-btn ignis-btn--soft-warning" id="reset-availability-btn">
                                     <i class="fa-solid fa-rotate-left"></i> Alle auf "Nicht besetzt"
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDepartmentModal">
+                                <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateDepartmentModal()">
                                     <i class="fa-solid fa-plus"></i> Fachrichtung hinzufügen
                                 </button>
                             </div>
@@ -70,7 +70,8 @@ use App\Helpers\Flash;
                                             <td><?= \App\Helpers\DateTimeHelper::formatShortLocal($dept['created_at']) ?></td>
                                             <td>
                                                 <?php if (Permissions::check(['admin', 'pois.manage'])): ?>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-dept-btn"
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1"
+                                                            onclick="openEditDepartmentModal(this)"
                                                             data-id="<?= (int)$dept['id'] ?>"
                                                             data-name="<?= htmlspecialchars($dept['name']) ?>"
                                                             data-sort-order="<?= (int)$dept['sort_order'] ?>">
@@ -98,72 +99,18 @@ use App\Helpers\Flash;
         </div>
     </div>
 
-    <?php if (Permissions::check('admin')) : ?>
-        <!-- Create Modal -->
-        <div class="modal fade" id="createDepartmentModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/pois/departments-create" method="POST">
-                        <input type="hidden" name="poi_id" value="<?= (int)$poi_id ?>">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Fachrichtung hinzufügen</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="dept-name" class="ignis-field__label">Fachrichtung *</label>
-                                <input type="text" class="ignis-input" name="name" id="dept-name" placeholder="z.B. ZNA/INA, Schockraum, Intensivstation" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="dept-sort-order" class="ignis-field__label">Sortierung</label>
-                                <input type="number" class="ignis-input" name="sort_order" id="dept-sort-order" value="999" min="0" step="1">
-                                <small class="text-[var(--text-dimmed,#818189)]">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
-                            </div>
-                            <p class="text-[var(--text-dimmed,#818189)] text-sm">
-                                <i class="fa-solid fa-info-circle"></i> Beispiele: ZNA/INA, Schockraum, Intensivstation, Notaufnahme, CT, Herzkatheter
-                            </p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Hinzufügen</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    <?php endif; ?>
-
     <?php if (Permissions::check(['admin', 'pois.manage'])) : ?>
-        <!-- Edit Modal -->
-        <div class="modal fade" id="editDepartmentModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/pois/departments-update" method="POST">
-                        <input type="hidden" name="id" id="edit-dept-id">
-                        <input type="hidden" name="poi_id" value="<?= (int)$poi_id ?>">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Fachrichtung bearbeiten</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="edit-dept-name" class="ignis-field__label">Fachrichtung *</label>
-                                <input type="text" class="ignis-input" name="name" id="edit-dept-name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit-dept-sort-order" class="ignis-field__label">Sortierung</label>
-                                <input type="number" class="ignis-input" name="sort_order" id="edit-dept-sort-order" min="0" step="1" required>
-                                <small class="text-[var(--text-dimmed,#818189)]">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                        </div>
-                    </form>
-                </div>
+        <template id="departmentFormTemplate">
+            <div class="mb-3">
+                <label for="dept-name" class="ignis-field__label">Fachrichtung *</label>
+                <input type="text" class="ignis-input" name="name" id="dept-name" placeholder="z.B. ZNA/INA, Schockraum, Intensivstation" required>
             </div>
-        </div>
+            <div class="mb-3">
+                <label for="dept-sort-order" class="ignis-field__label">Sortierung</label>
+                <input type="number" class="ignis-input" name="sort_order" id="dept-sort-order" value="999" min="0" step="1">
+                <small class="text-[var(--text-dimmed,#818189)]">Je niedriger die Zahl, desto weiter oben wird die Fachrichtung angezeigt.</small>
+            </div>
+        </template>
     <?php endif; ?>
 
     <form id="delete-dept-form" action="<?= BASE_PATH ?>settings/pois/departments-delete" method="POST" style="display:none;">
@@ -176,6 +123,34 @@ use App\Helpers\Flash;
     </form>
 
     <script>
+        function openCreateDepartmentModal() {
+            Dialog.form({
+                title:        'Fachrichtung hinzufügen',
+                template:     'departmentFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/pois/departments-create',
+                hiddenFields: { poi_id: '<?= (int)$poi_id ?>' },
+                submitLabel:  'Hinzufügen',
+                submitVariant:'success',
+            });
+        }
+
+        function openEditDepartmentModal(btn) {
+            var data = btn.dataset;
+            Dialog.form({
+                title:        'Fachrichtung bearbeiten',
+                template:     'departmentFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/pois/departments-update',
+                hiddenFields: { id: data.id, poi_id: '<?= (int)$poi_id ?>' },
+                submitLabel:  'Speichern',
+                submitVariant:'soft-primary',
+                onOpen: function (dlg) {
+                    var $body = $(dlg.element);
+                    $body.find('#dept-name').val(data.name);
+                    $body.find('#dept-sort-order').val(data.sortOrder);
+                },
+            });
+        }
+
         $(document).ready(function() {
             <?php if (!empty($departments)): ?>
             $('#table-departments').DataTable({
@@ -184,15 +159,6 @@ use App\Helpers\Flash;
                 columnDefs: [{ orderable: false, targets: -1 }]
             });
             <?php endif; ?>
-
-            document.querySelectorAll('.edit-dept-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    document.getElementById('edit-dept-id').value = this.dataset.id;
-                    document.getElementById('edit-dept-name').value = this.dataset.name;
-                    document.getElementById('edit-dept-sort-order').value = this.dataset.sortOrder;
-                    new bootstrap.Modal(document.getElementById('editDepartmentModal')).show();
-                });
-            });
 
             document.querySelectorAll('.delete-dept-btn').forEach(button => {
                 button.addEventListener('click', function() {
