@@ -221,19 +221,23 @@
   // der User auf eine Seite navigiert ist, auf der das Modal erst bei
   // Page-Load verfügbar wird.
 
-  const QUICK_ACTION_MODAL_MAP = {
-    'registration-invite-create': '#createInviteModal',
-    'role-create':                '#createRoleModal',
-    'mitarbeiter-create':         '#modalCreateMitarbeiter',
-    'fahrzeug-create':            '#createFahrzeugModal',
-    'defekt-create':              '#createDefectModal',
-    'dienstgrad-create':          '#createDienstgradModal',
-    'qualifw-create':             '#createDienstgradModal',
-    'qualird-create':             '#createDienstgradModal',
-    'qualifd-create':             '#createDienstgradModal',
-    'poi-create':                 '#createPoiModal',
-    'medikament-create':          '#createMedikamentModal',
-    'schnellzugriff-link-create': '#createQuicklinkModal',
+  // Pro Quick-Action-Target: entweder ein Bootstrap-Modal-Selektor (Legacy)
+  // oder ein globaler Function-Name (post-A20-Migration). Beim Dispatch
+  // probieren wir erst die Funktion (falls vorhanden), dann den Selektor —
+  // so funktionieren beide Pfade waehrend der laufenden Modal-Migration.
+  const QUICK_ACTION_MAP = {
+    'registration-invite-create': { fn: 'openCreateInviteModal',     selector: '#createInviteModal'     },
+    'role-create':                { fn: 'openCreateRoleModal',       selector: '#createRoleModal'       },
+    'mitarbeiter-create':         { fn: null,                        selector: '#modalCreateMitarbeiter' },
+    'fahrzeug-create':            { fn: null,                        selector: '#createFahrzeugModal'   },
+    'defekt-create':              { fn: null,                        selector: '#createDefectModal'     },
+    'dienstgrad-create':          { fn: 'openCreateDienstgradModal', selector: '#createDienstgradModal' },
+    'qualifw-create':             { fn: 'openCreateQualifwModal',    selector: '#createDienstgradModal' },
+    'qualird-create':             { fn: 'openCreateQualirdModal',    selector: '#createDienstgradModal' },
+    'qualifd-create':             { fn: 'openCreateQualifdModal',    selector: '#createDienstgradModal' },
+    'poi-create':                 { fn: null,                        selector: '#createPoiModal'        },
+    'medikament-create':          { fn: null,                        selector: '#createMedikamentModal' },
+    'schnellzugriff-link-create': { fn: null,                        selector: '#createQuicklinkModal'  },
   };
 
   const openBootstrapModal = (selector) => {
@@ -249,8 +253,15 @@
 
   const dispatchQuickAction = (target) => {
     if (!target) return;
-    const selector = QUICK_ACTION_MODAL_MAP[target];
-    openBootstrapModal(selector);
+    const entry = QUICK_ACTION_MAP[target];
+    if (!entry) return;
+    // Migrated path: globale openXModal()-Funktion. Vorrang vor Selektor,
+    // weil das Bootstrap-Markup nach Migration entfernt wird.
+    if (entry.fn && typeof window[entry.fn] === 'function') {
+      window[entry.fn]();
+      return;
+    }
+    openBootstrapModal(entry.selector);
   };
 
   Object.keys(QUICK_ACTION_MODAL_MAP).forEach((target) => {

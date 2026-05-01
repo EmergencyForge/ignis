@@ -25,7 +25,7 @@ use App\Helpers\Flash;
                     <div class="flex justify-between items-center mb-5">
                         <h1 class="mb-0">FW Qualifikationen verwalten</h1>
                         <?php if (Permissions::check('admin')) : ?>
-                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateQualifwModal()">
                                 <i class="fa-solid fa-plus"></i> Qualifikation erstellen
                             </button>
                         <?php endif; ?>
@@ -53,7 +53,7 @@ use App\Helpers\Flash;
                                         $dimmed = "style='color:var(--tag-color)'";
                                     }
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Qualifikation bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-shortname='" . htmlspecialchars($row['shortname']) . "' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<button type='button' title='Qualifikation bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon' onclick='openEditQualifwModal(this)' data-id='{$row['id']}' data-shortname='" . htmlspecialchars($row['shortname']) . "' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-priority='{$row['priority']}' data-none='{$row['none']}'><i class='fa-solid fa-pen'></i></button>"
                                         : '';
                                 ?>
                                     <tr>
@@ -74,94 +74,33 @@ use App\Helpers\Flash;
     </div>
 
     <?php if (Permissions::check('admin')) : ?>
-        <!-- Edit Modal -->
-        <div class="modal fade" id="editDienstgradModal" tabindex="-1" aria-labelledby="editDienstgradModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/personal/qualifw/update" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editDienstgradModalLabel">FW Qualifikation bearbeiten</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" name="id" id="dienstgrad-id">
-                            <div class="mb-3">
-                                <label for="dienstgrad-shortname" class="ignis-field__label">Kurzbezeichnung <small class="form-hint">(z.B. B1,B2 etc.)</small></label>
-                                <input type="text" class="ignis-input" name="shortname" id="dienstgrad-shortname" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="dienstgrad-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
-                                <input type="text" class="ignis-input" name="name" id="dienstgrad-name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="dienstgrad-name_m" class="ignis-field__label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
-                                <input type="text" class="ignis-input" name="name_m" id="dienstgrad-name_m" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="dienstgrad-name_w" class="ignis-field__label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
-                                <input type="text" class="ignis-input" name="name_w" id="dienstgrad-name_w" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="dienstgrad-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="ignis-input" name="priority" id="dienstgrad-priority" required>
-                            </div>
-                            <label class="ignis-checkbox" for="dienstgrad-none"><input type="checkbox" name="none" id="dienstgrad-none"><span>Leer?</span></label>
-                        </div>
-                        <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
-                            <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                            </div>
-                        </div>
-                    </form>
-                    <form id="delete-dienstgrad-form" action="<?= BASE_PATH ?>settings/personal/qualifw/delete" method="POST" style="display:none;">
-                        <input type="hidden" name="id" id="dienstgrad-delete-id">
-                    </form>
-                </div>
+        <template id="qualifwFormTemplate">
+            <div class="mb-3">
+                <label for="qualifw-shortname" class="ignis-field__label">Kurzbezeichnung <small class="form-hint">(z.B. B1,B2 etc.)</small></label>
+                <input type="text" class="ignis-input" name="shortname" id="qualifw-shortname" required>
             </div>
-        </div>
+            <div class="mb-3">
+                <label for="qualifw-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
+                <input type="text" class="ignis-input" name="name" id="qualifw-name" required>
+            </div>
+            <div class="mb-3">
+                <label for="qualifw-name_m" class="ignis-field__label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
+                <input type="text" class="ignis-input" name="name_m" id="qualifw-name_m" required>
+            </div>
+            <div class="mb-3">
+                <label for="qualifw-name_w" class="ignis-field__label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
+                <input type="text" class="ignis-input" name="name_w" id="qualifw-name_w" required>
+            </div>
+            <div class="mb-3">
+                <label for="qualifw-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                <input type="number" class="ignis-input" name="priority" id="qualifw-priority" value="0" required>
+            </div>
+            <label class="ignis-checkbox" for="qualifw-none"><input type="checkbox" name="none" id="qualifw-none"><span>Leer?</span></label>
+        </template>
 
-        <!-- Create Modal -->
-        <div class="modal fade" id="createDienstgradModal" tabindex="-1" aria-labelledby="createDienstgradModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/personal/qualifw/create" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="createDienstgradModalLabel">FW Qualifikation anlegen</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-shortname" class="ignis-field__label">Kurzbezeichnung <small class="form-hint">(z.B. B1,B2 etc.)</small></label>
-                                <input type="text" class="ignis-input" name="shortname" id="new-dienstgrad-shortname" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(Allgemein)</small></label>
-                                <input type="text" class="ignis-input" name="name" id="new-dienstgrad-name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-name_m" class="ignis-field__label">Bezeichnung <small class="form-hint">(Männlich)</small></label>
-                                <input type="text" class="ignis-input" name="name_m" id="new-dienstgrad-name_m" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-name_w" class="ignis-field__label">Bezeichnung <small class="form-hint">(Weiblich)</small></label>
-                                <input type="text" class="ignis-input" name="name_w" id="new-dienstgrad-name_w" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-priority" class="ignis-field__label">Priorität <small class="form-hint">(je niedriger, desto höher)</small></label>
-                                <input type="number" class="ignis-input" name="priority" id="new-dienstgrad-priority" value="0" required>
-                            </div>
-                            <label class="ignis-checkbox" for="new-dienstgrad-none"><input type="checkbox" name="none" id="new-dienstgrad-none"><span>Leer?</span></label>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        <form id="delete-qualifw-form" action="<?= BASE_PATH ?>settings/personal/qualifw/delete" method="POST" style="display:none;">
+            <input type="hidden" name="id" id="qualifw-delete-id">
+        </form>
     <?php endif; ?>
 
     <script>
@@ -177,31 +116,50 @@ use App\Helpers\Flash;
             });
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    document.getElementById('dienstgrad-id').value = this.dataset.id;
-                    document.getElementById('dienstgrad-name').value = this.dataset.name;
-                    document.getElementById('dienstgrad-name_m').value = this.dataset.name_m;
-                    document.getElementById('dienstgrad-name_w').value = this.dataset.name_w;
-                    document.getElementById('dienstgrad-priority').value = this.dataset.priority;
-                    document.getElementById('dienstgrad-shortname').value = this.dataset.shortname;
-                    document.getElementById('dienstgrad-none').checked = this.dataset.none == 1;
-                    document.getElementById('dienstgrad-delete-id').value = this.dataset.id;
-                });
+        function openCreateQualifwModal() {
+            Dialog.form({
+                title:        'FW Qualifikation anlegen',
+                template:     'qualifwFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/personal/qualifw/create',
+                submitLabel:  'Erstellen',
+                submitVariant:'success',
             });
+        }
 
-            const delBtn = document.getElementById('delete-dienstgrad-btn');
-            if (delBtn) {
-                delBtn.addEventListener('click', function() {
-                    showConfirm('Möchtest du diese Qualifikation wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Qualifikation löschen'}).then(result => {
-                        if (result) {
-                            document.getElementById('delete-dienstgrad-form').submit();
-                        }
-                    });
-                });
-            }
-        });
+        function openEditQualifwModal(btn) {
+            var data = btn.dataset;
+            document.getElementById('qualifw-delete-id').value = data.id;
+
+            Dialog.form({
+                title:        'FW Qualifikation bearbeiten',
+                template:     'qualifwFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/personal/qualifw/update',
+                hiddenFields: { id: data.id },
+                submitLabel:  'Speichern',
+                submitVariant:'soft-primary',
+                dangerAction: {
+                    label:   'Löschen',
+                    onClick: function () {
+                        showConfirm('Möchtest du diese Qualifikation wirklich löschen?', {
+                            danger:      true,
+                            confirmText: 'Löschen',
+                            title:       'Qualifikation löschen',
+                        }).then(function (ok) {
+                            if (ok) document.getElementById('delete-qualifw-form').submit();
+                        });
+                    },
+                },
+                onOpen: function (dlg) {
+                    var $body = $(dlg.element);
+                    $body.find('#qualifw-shortname').val(data.shortname);
+                    $body.find('#qualifw-name').val(data.name);
+                    $body.find('#qualifw-name_m').val(data.name_m);
+                    $body.find('#qualifw-name_w').val(data.name_w);
+                    $body.find('#qualifw-priority').val(data.priority);
+                    $body.find('#qualifw-none').prop('checked', data.none == 1);
+                },
+            });
+        }
     </script>
 
     <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>

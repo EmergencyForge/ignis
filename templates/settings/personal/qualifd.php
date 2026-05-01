@@ -25,7 +25,7 @@ use App\Helpers\Flash;
                     <div class="flex justify-between items-center mb-5">
                         <h1 class="mb-0">Fachdienste verwalten</h1>
                         <?php if (Permissions::check('admin')) : ?>
-                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDienstgradModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateQualifdModal()">
                                 <i class="fa-solid fa-plus"></i> Fachdienst erstellen
                             </button>
                         <?php endif; ?>
@@ -51,7 +51,7 @@ use App\Helpers\Flash;
                                         $dimmed = "style='color:var(--tag-color)'";
                                     }
                                     $actions = Permissions::check('admin')
-                                        ? "<a title='Fachdienst bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-bs-toggle='modal' data-bs-target='#editDienstgradModal' data-id='{$row['id']}' data-sgnr='{$row['sgnr']}' data-sgname='" . htmlspecialchars($row['sgname']) . "' data-disabled='{$row['disabled']}'><i class='fa-solid fa-pen'></i></a>"
+                                        ? "<button type='button' title='Fachdienst bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon' onclick='openEditQualifdModal(this)' data-id='{$row['id']}' data-sgnr='{$row['sgnr']}' data-sgname='" . htmlspecialchars($row['sgname']) . "' data-disabled='{$row['disabled']}'><i class='fa-solid fa-pen'></i></button>"
                                         : '';
                                 ?>
                                     <tr>
@@ -70,70 +70,23 @@ use App\Helpers\Flash;
     </div>
 
     <?php if (Permissions::check('admin')) : ?>
-        <!-- Edit Modal -->
-        <div class="modal fade" id="editDienstgradModal" tabindex="-1" aria-labelledby="editDienstgradModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/personal/qualifd/update" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editDienstgradModalLabel">Fachdienst bearbeiten</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" name="id" id="dienstgrad-id">
-                            <div class="mb-3">
-                                <label for="dienstgrad-sgnr" class="ignis-field__label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
-                                <input type="number" class="ignis-input" name="sgnr" id="dienstgrad-sgnr" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="dienstgrad-sgname" class="ignis-field__label">Bezeichnung</label>
-                                <input type="text" class="ignis-input" name="sgname" id="dienstgrad-sgname" required>
-                            </div>
-                            <label class="ignis-checkbox" for="dienstgrad-disabled"><input type="checkbox" name="disabled" id="dienstgrad-disabled"><span>Inaktiv?</span></label>
-                        </div>
-                        <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-dienstgrad-btn">Löschen</button>
-                            <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                            </div>
-                        </div>
-                    </form>
-                    <form id="delete-dienstgrad-form" action="<?= BASE_PATH ?>settings/personal/qualifd/delete" method="POST" style="display:none;">
-                        <input type="hidden" name="id" id="dienstgrad-delete-id">
-                    </form>
-                </div>
+        <!-- Form-Body (geteilt zwischen Edit + Create) als inertes <template>. -->
+        <template id="qualifdFormTemplate">
+            <div class="mb-3">
+                <label for="qualifd-sgnr" class="ignis-field__label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
+                <input type="number" class="ignis-input" name="sgnr" id="qualifd-sgnr" required>
             </div>
-        </div>
+            <div class="mb-3">
+                <label for="qualifd-sgname" class="ignis-field__label">Bezeichnung</label>
+                <input type="text" class="ignis-input" name="sgname" id="qualifd-sgname" required>
+            </div>
+            <label class="ignis-checkbox" for="qualifd-disabled"><input type="checkbox" name="disabled" id="qualifd-disabled"><span>Inaktiv?</span></label>
+        </template>
 
-        <!-- Create Modal -->
-        <div class="modal fade" id="createDienstgradModal" tabindex="-1" aria-labelledby="createDienstgradModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/personal/qualifd/create" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="createDienstgradModalLabel">Fachdienst anlegen</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-sgnr" class="ignis-field__label">Sachgebiet <small class="form-hint">(z.B. 111, 112, 224 etc.)</small></label>
-                                <input type="number" class="ignis-input" name="sgnr" id="new-dienstgrad-sgnr" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="new-dienstgrad-sgname" class="ignis-field__label">Bezeichnung</label>
-                                <input type="text" class="ignis-input" name="sgname" id="new-dienstgrad-sgname" required>
-                            </div>
-                            <label class="ignis-checkbox" for="new-dienstgrad-disabled"><input type="checkbox" name="disabled" id="new-dienstgrad-disabled"><span>Inaktiv?</span></label>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        <!-- Hidden Delete-Form fuer den Loesch-Action im Edit-Dialog. -->
+        <form id="delete-qualifd-form" action="<?= BASE_PATH ?>settings/personal/qualifd/delete" method="POST" style="display:none;">
+            <input type="hidden" name="id" id="qualifd-delete-id">
+        </form>
     <?php endif; ?>
 
     <script>
@@ -149,28 +102,47 @@ use App\Helpers\Flash;
             });
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    document.getElementById('dienstgrad-id').value = this.dataset.id;
-                    document.getElementById('dienstgrad-sgnr').value = this.dataset.sgnr;
-                    document.getElementById('dienstgrad-sgname').value = this.dataset.sgname;
-                    document.getElementById('dienstgrad-disabled').checked = this.dataset.disabled == 1;
-                    document.getElementById('dienstgrad-delete-id').value = this.dataset.id;
-                });
+        function openCreateQualifdModal() {
+            Dialog.form({
+                title:        'Fachdienst anlegen',
+                template:     'qualifdFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/personal/qualifd/create',
+                submitLabel:  'Erstellen',
+                submitVariant:'success',
             });
+        }
 
-            const delBtn = document.getElementById('delete-dienstgrad-btn');
-            if (delBtn) {
-                delBtn.addEventListener('click', function() {
-                    showConfirm('Möchtest du diese Qualifikation wirklich löschen?', { danger: true, confirmText: 'Löschen', title: 'Qualifikation löschen' }).then(result => {
-                        if (result) {
-                            document.getElementById('delete-dienstgrad-form').submit();
-                        }
-                    });
-                });
-            }
-        });
+        function openEditQualifdModal(btn) {
+            var data = btn.dataset;
+            document.getElementById('qualifd-delete-id').value = data.id;
+
+            Dialog.form({
+                title:        'Fachdienst bearbeiten',
+                template:     'qualifdFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/personal/qualifd/update',
+                hiddenFields: { id: data.id },
+                submitLabel:  'Speichern',
+                submitVariant:'soft-primary',
+                dangerAction: {
+                    label:   'Löschen',
+                    onClick: function () {
+                        showConfirm('Möchtest du diese Qualifikation wirklich löschen?', {
+                            danger:      true,
+                            confirmText: 'Löschen',
+                            title:       'Qualifikation löschen',
+                        }).then(function (ok) {
+                            if (ok) document.getElementById('delete-qualifd-form').submit();
+                        });
+                    },
+                },
+                onOpen: function (dlg) {
+                    var $body = $(dlg.element);
+                    $body.find('#qualifd-sgnr').val(data.sgnr);
+                    $body.find('#qualifd-sgname').val(data.sgname);
+                    $body.find('#qualifd-disabled').prop('checked', data.disabled == 1);
+                },
+            });
+        }
     </script>
 
     <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
