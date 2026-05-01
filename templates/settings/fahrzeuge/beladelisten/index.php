@@ -90,10 +90,10 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <h2>Beladelisten</h2>
                         <div>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-                                <button class="ignis-btn ignis-btn--success mr-2" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <button class="ignis-btn ignis-btn--success mr-2" onclick="openAddBeladungCategoryModal()">
                                     <i class="fa-solid fa-plus"></i> Neue Kategorie
                                 </button>
-                                <button class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#addTileModal">
+                                <button class="ignis-btn ignis-btn--soft-primary" onclick="openAddBeladungTileModal()">
                                     <i class="fa-solid fa-plus"></i> Neuer Gegenstand
                                 </button>
                             <?php endif; ?>
@@ -180,191 +180,58 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-        <!-- Kategorie hinzufügen Modal -->
-        <div class="modal fade" id="addCategoryModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form id="addCategoryForm" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Neue Kategorie</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="category-title" class="ignis-field__label">Titel</label>
-                                <input type="text" class="ignis-input" id="category-title" name="title" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="category-type" class="ignis-field__label">Typ</label>
-                                <select class="ignis-input" id="category-type" name="type">
-                                    <option value="0">Notfallrucksack</option>
-                                    <option value="1">Innenfach</option>
-                                    <option value="2">Außenfach</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="category-veh_type" class="ignis-field__label">Fahrzeugtyp (nur bei fahrzeugspezifisch)</label>
-                                <input type="text" class="ignis-input" id="category-veh_type" name="veh_type" placeholder="z.B. RTW, NEF, KTW" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="category-priority" class="ignis-field__label">Priorität</label>
-                                <input type="number" class="ignis-input" id="category-priority" name="priority" value="0">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Speichern</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- Category-Form-Body (geteilt zwischen Add + Edit). -->
+    <template id="beladungCategoryFormTemplate">
+        <div class="mb-3">
+            <label for="bel-category-title" class="ignis-field__label">Titel</label>
+            <input type="text" class="ignis-input" id="bel-category-title" name="title" required>
         </div>
+        <div class="mb-3">
+            <label for="bel-category-type" class="ignis-field__label">Typ</label>
+            <select class="ignis-input" id="bel-category-type" name="type">
+                <option value="0">Notfallrucksack</option>
+                <option value="1">Innenfach</option>
+                <option value="2">Außenfach</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="bel-category-veh_type" class="ignis-field__label">Fahrzeugtyp</label>
+            <input type="text" class="ignis-input" id="bel-category-veh_type" name="veh_type" placeholder="z.B. RTW, NEF, KTW" required>
+        </div>
+        <div class="mb-3">
+            <label for="bel-category-priority" class="ignis-field__label">Priorität</label>
+            <input type="number" class="ignis-input" id="bel-category-priority" name="priority" value="0">
+        </div>
+    </template>
 
-        <!-- Kategorie bearbeiten Modal -->
-        <div class="modal fade" id="editCategoryModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form id="editCategoryForm" method="POST">
-                        <input type="hidden" id="edit-category-id" name="id">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Kategorie bearbeiten</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="edit-category-title" class="ignis-field__label">Titel</label>
-                                <input type="text" class="ignis-input" id="edit-category-title" name="title" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit-category-type" class="ignis-field__label">Typ</label>
-                                <select class="ignis-input" id="edit-category-type" name="type">
-                                    <option value="0">Notfallrucksack</option>
-                                    <option value="1">Innenfach</option>
-                                    <option value="2">Außenfach</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit-category-veh_type" class="ignis-field__label">Fahrzeugtyp</label>
-                                <input type="text" class="ignis-input" id="edit-category-veh_type" name="veh_type" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit-category-priority" class="ignis-field__label">Priorität</label>
-                                <input type="number" class="ignis-input" id="edit-category-priority" name="priority">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- Tile-Form-Body (geteilt zwischen Add + Edit). -->
+    <template id="beladungTileFormTemplate">
+        <div class="mb-3">
+            <label for="bel-tile-category" class="ignis-field__label">Kategorie</label>
+            <select class="ignis-input" id="bel-tile-category" name="category" required>
+                <?php
+                foreach ($categories as $cat) {
+                    switch ($cat['type']) {
+                        case 0: $catTypeText = 'Notfallrucksack'; break;
+                        case 1: $catTypeText = 'Innenfach';       break;
+                        case 2: $catTypeText = 'Außenfach';       break;
+                        default: $catTypeText = 'Unbekannt';
+                    }
+                    $vehType = $cat['veh_type'] ? " - {$cat['veh_type']}" : '';
+                    echo "<option value='{$cat['id']}'>" . htmlspecialchars($cat['title']) . " ({$catTypeText}){$vehType}</option>";
+                }
+                ?>
+            </select>
         </div>
-
-        <!-- Gegenstand hinzufügen Modal -->
-        <div class="modal fade" id="addTileModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form id="addTileForm" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Neuer Gegenstand</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="tile-category" class="ignis-field__label">Kategorie</label>
-                                <select class="ignis-input" id="tile-category" name="category" required>
-                                    <?php
-                                    foreach ($categories as $cat) {
-                                        switch ($cat['type']) {
-                                            case 0:
-                                                $catTypeText = 'Notfallrucksack';
-                                                break;
-                                            case 1:
-                                                $catTypeText = 'Innenfach';
-                                                break;
-                                            case 2:
-                                                $catTypeText = 'Außenfach';
-                                                break;
-                                            default:
-                                                $catTypeText = 'Unbekannt';
-                                        }
-                                        $vehType = $cat['veh_type'] ? " - {$cat['veh_type']}" : '';
-                                        echo "<option value='{$cat['id']}'>" . htmlspecialchars($cat['title']) . " ({$catTypeText}){$vehType}</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="tile-title" class="ignis-field__label">Bezeichnung</label>
-                                <input type="text" class="ignis-input" id="tile-title" name="title" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="tile-amount" class="ignis-field__label">Anzahl</label>
-                                <input type="number" class="ignis-input" id="tile-amount" name="amount" value="1" min="0">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="mb-3">
+            <label for="bel-tile-title" class="ignis-field__label">Bezeichnung</label>
+            <input type="text" class="ignis-input" id="bel-tile-title" name="title" required>
         </div>
-
-        <!-- Gegenstand bearbeiten Modal -->
-        <div class="modal fade" id="editTileModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form id="editTileForm" method="POST">
-                        <input type="hidden" id="edit-tile-id" name="id">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Gegenstand bearbeiten</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="edit-tile-category" class="ignis-field__label">Kategorie</label>
-                                <select class="ignis-input" id="edit-tile-category" name="category" required>
-                                    <?php
-                                    foreach ($categories as $cat) {
-                                        switch ($cat['type']) {
-                                            case 0:
-                                                $catTypeText = 'Notfallrucksack';
-                                                break;
-                                            case 1:
-                                                $catTypeText = 'Innenfach';
-                                                break;
-                                            case 2:
-                                                $catTypeText = 'Außenfach';
-                                                break;
-                                            default:
-                                                $catTypeText = 'Unbekannt';
-                                        }
-                                        $vehType = $cat['veh_type'] ? " - {$cat['veh_type']}" : '';
-                                        echo "<option value='{$cat['id']}'>" . htmlspecialchars($cat['title']) . " ({$catTypeText}){$vehType}</option>";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit-tile-title" class="ignis-field__label">Bezeichnung</label>
-                                <input type="text" class="ignis-input" id="edit-tile-title" name="title" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit-tile-amount" class="ignis-field__label">Anzahl</label>
-                                <input type="number" class="ignis-input" id="edit-tile-amount" name="amount" min="0">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="mb-3">
+            <label for="bel-tile-amount" class="ignis-field__label">Anzahl</label>
+            <input type="number" class="ignis-input" id="bel-tile-amount" name="amount" value="1" min="0">
         </div>
+    </template>
     </div>
 
     <script>
@@ -493,24 +360,13 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             document.querySelectorAll('.edit-category-btn').forEach(button => {
                 button.addEventListener('click', function() {
-                    const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
-                    document.getElementById('edit-category-id').value = this.dataset.id;
-                    document.getElementById('edit-category-title').value = this.dataset.title;
-                    document.getElementById('edit-category-type').value = this.dataset.type;
-                    document.getElementById('edit-category-priority').value = this.dataset.priority;
-                    document.getElementById('edit-category-veh_type').value = this.dataset.veh_type || '';
-                    modal.show();
+                    openEditBeladungCategoryModal(this);
                 });
             });
 
             document.querySelectorAll('.edit-tile-btn').forEach(button => {
                 button.addEventListener('click', function() {
-                    const modal = new bootstrap.Modal(document.getElementById('editTileModal'));
-                    document.getElementById('edit-tile-id').value = this.dataset.id;
-                    document.getElementById('edit-tile-category').value = this.dataset.category;
-                    document.getElementById('edit-tile-title').value = this.dataset.title;
-                    document.getElementById('edit-tile-amount').value = this.dataset.amount;
-                    modal.show();
+                    openEditBeladungTileModal(this);
                 });
             });
 
@@ -534,102 +390,117 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 });
             });
 
-            document.getElementById('addCategoryForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                formData.append('action', 'add_category');
-
-                fetch('beladung_handler', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            bootstrap.Modal.getInstance(document.getElementById('addCategoryModal')).hide();
-                            location.reload();
-                        } else {
-                            showAlert('Fehler: ' + data.message, {type: 'error', title: 'Fehler'});
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showAlert('Ein Fehler ist aufgetreten', {type: 'error', title: 'Fehler'});
-                    });
-            });
-
-            document.getElementById('editCategoryForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                formData.append('action', 'edit_category');
-
-                fetch('beladung_handler', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            bootstrap.Modal.getInstance(document.getElementById('editCategoryModal')).hide();
-                            location.reload();
-                        } else {
-                            showAlert('Fehler: ' + data.message, {type: 'error', title: 'Fehler'});
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showAlert('Ein Fehler ist aufgetreten', {type: 'error', title: 'Fehler'});
-                    });
-            });
-
-            document.getElementById('addTileForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                formData.append('action', 'add_tile');
-
-                fetch('beladung_handler', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            bootstrap.Modal.getInstance(document.getElementById('addTileModal')).hide();
-                            location.reload();
-                        } else {
-                            showAlert('Fehler: ' + data.message, {type: 'error', title: 'Fehler'});
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showAlert('Ein Fehler ist aufgetreten', {type: 'error', title: 'Fehler'});
-                    });
-            });
-
-            document.getElementById('editTileForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                formData.append('action', 'edit_tile');
-
-                fetch('beladung_handler', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            bootstrap.Modal.getInstance(document.getElementById('editTileModal')).hide();
-                            location.reload();
-                        } else {
-                            showAlert('Fehler: ' + data.message, {type: 'error', title: 'Fehler'});
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showAlert('Ein Fehler ist aufgetreten', {type: 'error', title: 'Fehler'});
-                    });
-            });
+            // Form-Submit-Handler entfallen — Dialog.form mit onSubmit ersetzt
+            // sie. Siehe openAdd/openEdit Beladung*Modal-Funktionen weiter unten.
         });
+
+        // ── Beladung-Modal-Helpers (AJAX gegen beladung_handler) ───────
+
+        function postBeladungAction(action, payload) {
+            const formData = new FormData();
+            formData.append('action', action);
+            for (const [k, v] of Object.entries(payload)) formData.append(k, v);
+            return fetch('beladung_handler', {
+                method: 'POST',
+                body:   formData,
+            }).then(r => r.json());
+        }
+
+        function handleBeladungResult(data, dlg) {
+            if (data.success) {
+                dlg.close('saved');
+                setTimeout(() => location.reload(), 200);
+            } else {
+                showAlert('Fehler: ' + data.message, {type: 'error', title: 'Fehler'});
+            }
+        }
+
+        function openAddBeladungCategoryModal() {
+            Dialog.form({
+                title:        'Neue Kategorie',
+                template:     'beladungCategoryFormTemplate',
+                submitLabel:  'Speichern',
+                submitVariant:'success',
+                onSubmit: function (body, dlg) {
+                    postBeladungAction('add_category', {
+                        title:    body.querySelector('#bel-category-title').value,
+                        type:     body.querySelector('#bel-category-type').value,
+                        veh_type: body.querySelector('#bel-category-veh_type').value,
+                        priority: body.querySelector('#bel-category-priority').value,
+                    }).then(data => handleBeladungResult(data, dlg))
+                      .catch(() => showAlert('Ein Fehler ist aufgetreten', {type: 'error', title: 'Fehler'}));
+                },
+            });
+        }
+
+        function openEditBeladungCategoryModal(btn) {
+            const data = btn.dataset;
+            Dialog.form({
+                title:        'Kategorie bearbeiten',
+                template:     'beladungCategoryFormTemplate',
+                submitLabel:  'Speichern',
+                submitVariant:'soft-primary',
+                onOpen: function (dlg) {
+                    const $body = $(dlg.element);
+                    $body.find('#bel-category-title').val(data.title);
+                    $body.find('#bel-category-type').val(data.type);
+                    $body.find('#bel-category-priority').val(data.priority);
+                    $body.find('#bel-category-veh_type').val(data.veh_type || '');
+                },
+                onSubmit: function (body, dlg) {
+                    postBeladungAction('edit_category', {
+                        id:       data.id,
+                        title:    body.querySelector('#bel-category-title').value,
+                        type:     body.querySelector('#bel-category-type').value,
+                        veh_type: body.querySelector('#bel-category-veh_type').value,
+                        priority: body.querySelector('#bel-category-priority').value,
+                    }).then(d => handleBeladungResult(d, dlg))
+                      .catch(() => showAlert('Ein Fehler ist aufgetreten', {type: 'error', title: 'Fehler'}));
+                },
+            });
+        }
+
+        function openAddBeladungTileModal() {
+            Dialog.form({
+                title:        'Neuer Gegenstand',
+                template:     'beladungTileFormTemplate',
+                submitLabel:  'Speichern',
+                submitVariant:'soft-primary',
+                onSubmit: function (body, dlg) {
+                    postBeladungAction('add_tile', {
+                        category: body.querySelector('#bel-tile-category').value,
+                        title:    body.querySelector('#bel-tile-title').value,
+                        amount:   body.querySelector('#bel-tile-amount').value,
+                    }).then(d => handleBeladungResult(d, dlg))
+                      .catch(() => showAlert('Ein Fehler ist aufgetreten', {type: 'error', title: 'Fehler'}));
+                },
+            });
+        }
+
+        function openEditBeladungTileModal(btn) {
+            const data = btn.dataset;
+            Dialog.form({
+                title:        'Gegenstand bearbeiten',
+                template:     'beladungTileFormTemplate',
+                submitLabel:  'Speichern',
+                submitVariant:'soft-primary',
+                onOpen: function (dlg) {
+                    const $body = $(dlg.element);
+                    $body.find('#bel-tile-category').val(data.category);
+                    $body.find('#bel-tile-title').val(data.title);
+                    $body.find('#bel-tile-amount').val(data.amount);
+                },
+                onSubmit: function (body, dlg) {
+                    postBeladungAction('edit_tile', {
+                        id:       data.id,
+                        category: body.querySelector('#bel-tile-category').value,
+                        title:    body.querySelector('#bel-tile-title').value,
+                        amount:   body.querySelector('#bel-tile-amount').value,
+                    }).then(d => handleBeladungResult(d, dlg))
+                      .catch(() => showAlert('Ein Fehler ist aufgetreten', {type: 'error', title: 'Fehler'}));
+                },
+            });
+        }
 
         function deleteCategory(id) {
             const formData = new FormData();
