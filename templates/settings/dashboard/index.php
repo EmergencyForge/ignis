@@ -24,7 +24,7 @@ use App\Helpers\Flash;
                 <h1 class="mb-0">Dashboard-Konfiguration</h1>
                 <div class="flex gap-2">
                     <a href="<?= BASE_PATH ?>dashboard" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline" target="_blank"><i class="fa-solid fa-external-link-alt"></i> Dashboard aufrufen</a>
-                    <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+                    <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateDashboardCategoryModal()">
                         <i class="fa-solid fa-plus"></i> Kategorie erstellen
                     </button>
                 </div>
@@ -42,17 +42,15 @@ use App\Helpers\Flash;
                                 <h2><?= htmlspecialchars($row['title']) ?></h2>
                                 <div class="flex gap-2">
                                     <button type="button"
-                                        class="edit-category-btn ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
+                                        class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
+                                        onclick="openEditDashboardCategoryModal(this)"
                                         data-id="<?= (int)$row['id'] ?>"
                                         data-title="<?= htmlspecialchars($row['title']) ?>"
-                                        data-priority="<?= (int)$row['priority'] ?>"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#editCategoryModal">
+                                        data-priority="<?= (int)$row['priority'] ?>">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <button type="button" class="create-tile-btn ignis-btn ignis-btn--sm ignis-btn--success"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#createTileModal"
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--success"
+                                        onclick="openCreateTileModal(this)"
                                         data-category="<?= (int)$row['id'] ?>">
                                         <i class="fa-solid fa-plus"></i> Neue Verlinkung
                                     </button>
@@ -63,9 +61,8 @@ use App\Helpers\Flash;
                                     <li class="mb-4 flex items-center justify-between">
                                         <h4><i class="<?= htmlspecialchars($tile['icon']) ?>"></i> <?= htmlspecialchars($tile['title']) ?></h4>
                                         <button type="button"
-                                            class="edit-tile-btn ignis-btn ignis-btn--sm ignis-btn--soft-primary whitespace-nowrap"
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#editTileModal"
+                                            class="ignis-btn ignis-btn--sm ignis-btn--soft-primary whitespace-nowrap"
+                                            onclick="openEditTileModal(this)"
                                             data-id="<?= (int)$tile['id'] ?>"
                                             data-category="<?= (int)$tile['category'] ?>"
                                             data-title="<?= htmlspecialchars($tile['title']) ?>"
@@ -84,261 +81,183 @@ use App\Helpers\Flash;
         </div>
     </div>
 
-    <!-- Edit Tile Modal -->
-    <div class="modal fade" id="editTileModal" tabindex="-1" aria-labelledby="editTileModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="<?= BASE_PATH ?>settings/dashboard/tiles/update" method="POST">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editTileModalLabel">Verlinkung bearbeiten</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="id" id="tile-id">
-                        <input type="hidden" name="category" id="tile-category">
-                        <div class="mb-3">
-                            <label for="tile-title" class="ignis-field__label">Titel</label>
-                            <input type="text" class="ignis-input" name="title" id="tile-title" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="tile-url" class="ignis-field__label">URL</label>
-                            <input type="text" class="ignis-input" name="url" id="tile-url" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="tile-icon" class="ignis-field__label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
-                            <div class="input-group">
-                                <input type="text" class="ignis-input" name="icon" id="tile-icon" placeholder="z.B. fa-solid fa-home">
-                                <span class="input-group-text"><i id="tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
-                            </div>
-                            <small class="ignis-field__hint text-[var(--text-dimmed,#818189)]"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
-                            <div id="icon-suggestions" class="border mt-2 p-2 rounded" style="max-height: 200px; overflow-y: auto; display: none;"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="tile-priority" class="ignis-field__label">Priorität</label>
-                            <input type="number" class="ignis-input" name="priority" id="tile-priority" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer flex justify-between">
-                        <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-tile-btn">Löschen</button>
-                        <div>
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                        </div>
-                    </div>
-                </form>
-                <form id="delete-tile-form" action="<?= BASE_PATH ?>settings/dashboard/tiles/delete" method="POST" style="display: none;">
-                    <input type="hidden" name="id" id="delete-tile-id">
-                </form>
-            </div>
+    <!-- Tile-Form-Body (geteilt zwischen Edit + Create). -->
+    <template id="tileFormTemplate">
+        <div class="mb-3">
+            <label for="tile-title" class="ignis-field__label">Titel</label>
+            <input type="text" class="ignis-input" name="title" id="tile-title" required>
         </div>
-    </div>
+        <div class="mb-3">
+            <label for="tile-url" class="ignis-field__label">URL</label>
+            <input type="text" class="ignis-input" name="url" id="tile-url" required>
+        </div>
+        <div class="mb-3">
+            <label for="tile-icon" class="ignis-field__label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
+            <div class="input-group">
+                <input type="text" class="ignis-input" name="icon" id="tile-icon" placeholder="z.B. fa-solid fa-home">
+                <span class="input-group-text"><i id="tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
+            </div>
+            <small class="ignis-field__hint text-[var(--text-dimmed,#818189)]"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
+            <div id="tile-icon-suggestions" class="border mt-2 p-2 rounded" style="max-height: 200px; overflow-y: auto; display: none;"></div>
+        </div>
+        <div class="mb-3">
+            <label for="tile-priority" class="ignis-field__label">Priorität</label>
+            <input type="number" class="ignis-input" name="priority" id="tile-priority" value="0" required>
+        </div>
+    </template>
 
-    <!-- Create Tile Modal -->
-    <div class="modal fade" id="createTileModal" tabindex="-1" aria-labelledby="createTileModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="<?= BASE_PATH ?>settings/dashboard/tiles/create" method="POST">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createTileModalLabel">Neue Verlinkung erstellen</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="category" id="new-tile-category">
-                        <div class="mb-3">
-                            <label for="new-tile-title" class="ignis-field__label">Titel</label>
-                            <input type="text" class="ignis-input" name="title" id="new-tile-title" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="new-tile-url" class="ignis-field__label">URL</label>
-                            <input type="text" class="ignis-input" name="url" id="new-tile-url" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="new-tile-icon" class="ignis-field__label">Icon <small class="form-hint">(z.B. <code>fa-solid fa-external-link-alt</code>)</small></label>
-                            <div class="input-group">
-                                <input type="text" class="ignis-input" name="icon" id="new-tile-icon" placeholder="z.B. fa-solid fa-external-link-alt">
-                                <span class="input-group-text"><i id="new-tile-icon-preview" class="fa-solid fa-external-link-alt"></i></span>
-                            </div>
-                            <small class="ignis-field__hint text-[var(--text-dimmed,#818189)]"><a href="https://fontawesome.com/search?o=r&m=free" target="_blank">Alle Icons ansehen</a></small>
-                            <div id="new-icon-suggestions" class="border mt-2 p-2 rounded shadow-sm" style="max-height: 220px; overflow-y: auto; display: none;"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="new-tile-priority" class="ignis-field__label">Priorität</label>
-                            <input type="number" class="ignis-input" name="priority" id="new-tile-priority" value="0" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                        <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
-                    </div>
-                </form>
-            </div>
+    <!-- Category-Form-Body (geteilt zwischen Edit + Create). -->
+    <template id="dashboardCategoryFormTemplate">
+        <div class="mb-3">
+            <label for="category-title" class="ignis-field__label">Titel</label>
+            <input type="text" class="ignis-input" name="title" id="category-title" required>
         </div>
-    </div>
+        <div class="mb-3">
+            <label for="category-priority" class="ignis-field__label">Priorität</label>
+            <input type="number" class="ignis-input" name="priority" id="category-priority" value="0" required>
+        </div>
+    </template>
 
-    <!-- Edit Category Modal -->
-    <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="<?= BASE_PATH ?>settings/dashboard/categories/update" method="POST">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editCategoryModalLabel">Kategorie bearbeiten</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                    </div>
-                    <div class="modal-body">
-                        <input type="hidden" name="id" id="category-id">
-                        <div class="mb-3">
-                            <label for="category-title" class="ignis-field__label">Titel</label>
-                            <input type="text" class="ignis-input" name="title" id="category-title" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="category-priority" class="ignis-field__label">Priorität</label>
-                            <input type="number" class="ignis-input" name="priority" id="category-priority" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer flex justify-between">
-                        <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-category-btn">Löschen</button>
-                        <div>
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                        </div>
-                    </div>
-                </form>
-                <form id="delete-category-form" action="<?= BASE_PATH ?>settings/dashboard/categories/delete" method="POST" style="display: none;">
-                    <input type="hidden" name="id" id="delete-category-id">
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Category Modal -->
-    <div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form action="<?= BASE_PATH ?>settings/dashboard/categories/create" method="POST">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createCategoryModalLabel">Neue Kategorie erstellen</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="new-category-title" class="ignis-field__label">Titel</label>
-                            <input type="text" class="ignis-input" name="title" id="new-category-title" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="new-category-priority" class="ignis-field__label">Priorität</label>
-                            <input type="number" class="ignis-input" name="priority" id="new-category-priority" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                        <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <!-- Hidden Delete-Forms fuer dangerAction in Edit-Dialogen -->
+    <form id="delete-tile-form" action="<?= BASE_PATH ?>settings/dashboard/tiles/delete" method="POST" style="display: none;">
+        <input type="hidden" name="id" id="delete-tile-id">
+    </form>
+    <form id="delete-category-form" action="<?= BASE_PATH ?>settings/dashboard/categories/delete" method="POST" style="display: none;">
+        <input type="hidden" name="id" id="delete-category-id">
+    </form>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.edit-tile-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    document.getElementById('tile-id').value = this.dataset.id;
-                    document.getElementById('tile-category').value = this.dataset.category;
-                    document.getElementById('tile-title').value = this.dataset.title;
-                    document.getElementById('tile-url').value = this.dataset.url;
-                    document.getElementById('tile-icon').value = this.dataset.icon;
-                    document.getElementById('tile-priority').value = this.dataset.priority;
-                    document.getElementById('delete-tile-id').value = this.dataset.id;
-                });
-            });
+        // Icon-Liste einmalig laden — wird im Tile-Modal pro Open in
+        // den Autocomplete reingereicht.
+        let dashboardAllIcons = [];
+        fetch('<?= BASE_PATH ?>assets/json/fa-free-icons.json')
+            .then(function (res) { return res.json(); })
+            .then(function (data) { dashboardAllIcons = data; });
 
-            document.querySelectorAll('.create-tile-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    document.getElementById('new-tile-category').value = this.dataset.category;
-                });
-            });
+        function bindIconAutocomplete(root) {
+            var input       = root.querySelector('#tile-icon');
+            var preview     = root.querySelector('#tile-icon-preview');
+            var suggestions = root.querySelector('#tile-icon-suggestions');
+            if (!input || !preview || !suggestions) return;
 
-            document.getElementById('delete-tile-btn').addEventListener('click', function() {
-                showConfirm('Möchtest du diese Verlinkung wirklich löschen?', { danger: true, confirmText: 'Löschen', title: 'Verlinkung löschen' }).then(result => {
-                    if (result) document.getElementById('delete-tile-form').submit();
-                });
-            });
-
-            document.querySelectorAll('.edit-category-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    document.getElementById('category-id').value = this.dataset.id;
-                    document.getElementById('category-title').value = this.dataset.title;
-                    document.getElementById('category-priority').value = this.dataset.priority;
-                    document.getElementById('delete-category-id').value = this.dataset.id;
-                });
-            });
-
-            document.getElementById('delete-category-btn').addEventListener('click', function() {
-                showConfirm('Möchtest du diese Kategorie wirklich löschen?', { danger: true, confirmText: 'Löschen', title: 'Kategorie löschen' }).then(result => {
-                    if (result) document.getElementById('delete-category-form').submit();
-                });
-            });
-
-            // Icon autocomplete
-            const iconInputs = [
-                { inputId: 'tile-icon', previewId: 'tile-icon-preview', suggestionsId: 'icon-suggestions' },
-                { inputId: 'new-tile-icon', previewId: 'new-tile-icon-preview', suggestionsId: 'new-icon-suggestions' }
-            ];
-
-            let allIcons = [];
-            fetch('<?= BASE_PATH ?>assets/json/fa-free-icons.json').then(res => res.json()).then(data => allIcons = data);
-
-            iconInputs.forEach(({ inputId, previewId, suggestionsId }) => {
-                const input = document.getElementById(inputId);
-                const preview = document.getElementById(previewId);
-                const suggestions = document.getElementById(suggestionsId);
-                if (!input || !preview || !suggestions) return;
-
-                input.addEventListener('input', function() {
-                    const query = this.value.toLowerCase();
-                    suggestions.innerHTML = '';
-                    if (query.length < 1 || allIcons.length === 0) {
+            input.addEventListener('input', function () {
+                var query = this.value.toLowerCase();
+                suggestions.innerHTML = '';
+                if (query.length < 1 || dashboardAllIcons.length === 0) {
+                    suggestions.style.display = 'none';
+                    return;
+                }
+                var matches = dashboardAllIcons.filter(function (icon) {
+                    return icon.toLowerCase().includes(query);
+                }).slice(0, 50);
+                if (matches.length === 0) {
+                    suggestions.style.display = 'none';
+                    return;
+                }
+                matches.forEach(function (icon) {
+                    var btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'ignis-btn ignis-btn--secondary ignis-btn--sm mr-2 mb-2';
+                    btn.innerHTML = '<i class="' + icon + ' mr-2"></i> ' + icon;
+                    btn.onclick = function () {
+                        input.value = icon;
+                        preview.className = icon;
                         suggestions.style.display = 'none';
-                        return;
-                    }
-                    const matches = allIcons.filter(icon => icon.toLowerCase().includes(query)).slice(0, 50);
-                    if (matches.length === 0) {
-                        suggestions.style.display = 'none';
-                        return;
-                    }
-                    matches.forEach(icon => {
-                        const btn = document.createElement('button');
-                        btn.type = 'button';
-                        btn.className = 'ignis-btn ignis-btn--secondary ignis-btn--sm mr-2 mb-2';
-                        btn.innerHTML = `<i class="${icon} mr-2"></i> ${icon}`;
-                        btn.onclick = () => {
-                            input.value = icon;
-                            preview.className = icon;
-                            suggestions.style.display = 'none';
-                        };
-                        suggestions.appendChild(btn);
-                    });
-                    suggestions.style.display = 'block';
+                    };
+                    suggestions.appendChild(btn);
                 });
-                input.addEventListener('change', function() {
-                    preview.className = this.value;
-                });
+                suggestions.style.display = 'block';
             });
+            input.addEventListener('change', function () {
+                preview.className = this.value;
+            });
+            // Initial-Sync (Edit-Modus, wo der Icon-Wert vorbefuellt ist)
+            if (input.value.trim()) preview.className = input.value.trim();
+        }
 
-            const syncPreview = () => {
-                iconInputs.forEach(({ inputId, previewId }) => {
-                    const input = document.getElementById(inputId);
-                    const preview = document.getElementById(previewId);
-                    if (input && preview && input.value.trim()) {
-                        preview.className = input.value.trim();
-                    }
-                });
-            };
-            syncPreview();
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('shown.bs.modal', syncPreview);
+        function openCreateTileModal(btn) {
+            var categoryId = btn.dataset.category;
+            Dialog.form({
+                title:        'Neue Verlinkung erstellen',
+                template:     'tileFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/dashboard/tiles/create',
+                hiddenFields: { category: categoryId },
+                submitLabel:  'Erstellen',
+                submitVariant:'success',
+                onOpen: function (dlg) { bindIconAutocomplete(dlg.element); },
             });
-        });
+        }
+
+        function openEditTileModal(btn) {
+            var data = btn.dataset;
+            document.getElementById('delete-tile-id').value = data.id;
+
+            Dialog.form({
+                title:        'Verlinkung bearbeiten',
+                template:     'tileFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/dashboard/tiles/update',
+                hiddenFields: { id: data.id, category: data.category },
+                submitLabel:  'Speichern',
+                submitVariant:'soft-primary',
+                dangerAction: {
+                    label:   'Löschen',
+                    onClick: function () {
+                        showConfirm('Möchtest du diese Verlinkung wirklich löschen?', {
+                            danger: true, confirmText: 'Löschen', title: 'Verlinkung löschen',
+                        }).then(function (ok) {
+                            if (ok) document.getElementById('delete-tile-form').submit();
+                        });
+                    },
+                },
+                onOpen: function (dlg) {
+                    var $body = $(dlg.element);
+                    $body.find('#tile-title').val(data.title);
+                    $body.find('#tile-url').val(data.url);
+                    $body.find('#tile-icon').val(data.icon);
+                    $body.find('#tile-priority').val(data.priority);
+                    bindIconAutocomplete(dlg.element);
+                },
+            });
+        }
+
+        function openCreateDashboardCategoryModal() {
+            Dialog.form({
+                title:        'Neue Kategorie erstellen',
+                template:     'dashboardCategoryFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/dashboard/categories/create',
+                submitLabel:  'Erstellen',
+                submitVariant:'success',
+            });
+        }
+
+        function openEditDashboardCategoryModal(btn) {
+            var data = btn.dataset;
+            document.getElementById('delete-category-id').value = data.id;
+
+            Dialog.form({
+                title:        'Kategorie bearbeiten',
+                template:     'dashboardCategoryFormTemplate',
+                formAction:   '<?= BASE_PATH ?>settings/dashboard/categories/update',
+                hiddenFields: { id: data.id },
+                submitLabel:  'Speichern',
+                submitVariant:'soft-primary',
+                dangerAction: {
+                    label:   'Löschen',
+                    onClick: function () {
+                        showConfirm('Möchtest du diese Kategorie wirklich löschen?', {
+                            danger: true, confirmText: 'Löschen', title: 'Kategorie löschen',
+                        }).then(function (ok) {
+                            if (ok) document.getElementById('delete-category-form').submit();
+                        });
+                    },
+                },
+                onOpen: function (dlg) {
+                    var $body = $(dlg.element);
+                    $body.find('#category-title').val(data.title);
+                    $body.find('#category-priority').val(data.priority);
+                },
+            });
+        }
     </script>
 
     <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
