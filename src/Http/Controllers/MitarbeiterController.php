@@ -101,6 +101,43 @@ class MitarbeiterController extends Controller
             return \App\Http\Response::html('Mitarbeiter nicht gefunden.', 404);
         }
 
+        return $this->renderMitarbeiterCard($mitarbeiter);
+    }
+
+    /**
+     * GET /api/mitarbeiter/by-dienstnr/{nr}/card — Hover-Card-Fragment
+     * gelookupt per Dienstnummer statt per Datenbank-ID.
+     *
+     * Verwendung: Templates rendern Dienstnr-Strings (z.B. Tabellen,
+     * Einsatz-Listen) oft ohne ID — die Card wird dann ueber das Attribut
+     * `data-dienstnr-card="042"` getriggert (siehe user-hover-card.js).
+     * Selber Output wie `card()`, einfach ein zweiter Lookup-Pfad.
+     */
+    public function cardByDienstnr(\App\Http\Request $request, string $nr): \App\Http\Response
+    {
+        $this->requireAuth();
+        \App\Auth\Gate::authorize('mitarbeiter.viewList');
+
+        $dienstnr = trim($nr);
+        if ($dienstnr === '') {
+            return \App\Http\Response::html('Ungültige Dienstnummer.', 400);
+        }
+
+        /** @var Mitarbeiter|null $mitarbeiter */
+        $mitarbeiter = Mitarbeiter::query()
+            ->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel'])
+            ->where('dienstnr', $dienstnr)
+            ->first();
+
+        if ($mitarbeiter === null) {
+            return \App\Http\Response::html('Dienstnummer nicht gefunden.', 404);
+        }
+
+        return $this->renderMitarbeiterCard($mitarbeiter);
+    }
+
+    private function renderMitarbeiterCard(Mitarbeiter $mitarbeiter): \App\Http\Response
+    {
         $profileUrl = (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id;
 
         ob_start();
