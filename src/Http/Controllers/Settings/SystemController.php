@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
+use App\Auth\Gate;
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
