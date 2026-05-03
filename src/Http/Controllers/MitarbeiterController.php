@@ -507,13 +507,13 @@ class MitarbeiterController extends Controller
                     'dokument',
                     'Neues Dokument erstellt',
                     "Ein neues Dokument ({$docTypeName} #{$docId}) wurde für Sie erstellt.",
-                    BASE_PATH . "assets/functions/docredir.php?docid={$docId}"
+                    BASE_PATH . "mitarbeiter/dokument-view?docid={$docId}"
                 );
             }
         }
 
-        // Redirect zum docredir, das die PDF generiert.
-        header('Location: ' . BASE_PATH . 'assets/functions/docredir.php?docid=' . $docId, true, 302);
+        // Redirect zum Dokument-Viewer (PDF-Renderer + Toolbar).
+        header('Location: ' . BASE_PATH . 'mitarbeiter/dokument-view?docid=' . $docId, true, 302);
         exit;
     }
 

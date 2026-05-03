@@ -309,6 +309,17 @@ $router->get('/mitarbeiter/delete',     [MitarbeiterController::class, 'destroy'
 
 // Dokument-View (GET — zeigt Dokumenten-Details), dokument-delete (POST mit CSRF)
 $router->get('/mitarbeiter/dokument-view',     [MitarbeiterController::class, 'showDocument'], [new AuthMiddleware()]);
+// Legacy-Alias: alte Notification-Rows + Personal-Log-Eintraege verlinken
+// auf "assets/functions/docredir.php?docid=…", die Datei existiert nicht
+// mehr. Public/index.php strippt das .php-Suffix per 301 ab, weshalb die
+// Route hier OHNE .php registriert ist; sie leitet dann auf den modernen
+// Dokument-Viewer um.
+$router->match(['GET', 'HEAD'], '/assets/functions/docredir', function (\App\Http\Request $request): \App\Http\Response {
+    $docid = (string) ($request->query['docid'] ?? '');
+    $base  = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+    $url   = $base . 'mitarbeiter/dokument-view' . ($docid !== '' ? '?docid=' . rawurlencode($docid) : '');
+    return \App\Http\Response::redirect($url, 308);
+});
 
 $router->post('/mitarbeiter/dokument-delete',     [MitarbeiterController::class, 'deleteDocument'], $mitarbeiterDocsAuth);
 
@@ -490,6 +501,11 @@ $router->post('/settings/fahrzeuge/fahrzeuge/delete',     [\App\Http\Controllers
 $router->get('/settings/fahrzeuge/beladelisten/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladelistenIndex'], $settingsAuth);
 $router->post('/settings/fahrzeuge/beladelisten/beladung_handler',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladungHandler'], $settingsAuth);
 $router->get('/settings/fahrzeuge/defekte/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);
+// Legacy-Alias: alte Notification-Rows verlinken auf die ".../index.php"-Variante.
+// Public/index.php's Auto-Clean-Logik laesst Pfade die auf "index.php" enden
+// als Ausnahme durch (sonst gaebe es Redirect-Loops bei der Frontcontroller-
+// Datei selbst), deshalb braucht's hier einen expliziten Alias.
+$router->get('/settings/fahrzeuge/defekte/index.php', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);
 
 // Federation-Settings
 $router->get('/settings/federation/index',      [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);

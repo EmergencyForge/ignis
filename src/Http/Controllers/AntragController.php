@@ -349,7 +349,7 @@ class AntragController extends Controller
                     'antrag',
                     "Ihr Antrag #{$caseId} wurde bearbeitet",
                     "Status: {$statusName}. Bearbeiter: {$newCirsManager}",
-                    BASE_PATH . "antrag/view.php?antrag={$caseId}"
+                    BASE_PATH . "antrag/view?antrag={$caseId}"
                 );
             }
         }

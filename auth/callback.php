@@ -110,7 +110,7 @@ try {
                 'system',
                 'Willkommen bei intraRP!',
                 'Als erster Benutzer haben Sie Administratorrechte. Bitte besuchen Sie die System-Konfiguration, um wichtige Einstellungen wie den Systemnamen, Logo und weitere Optionen anzupassen.',
-                BASE_PATH . 'settings/system/config.php'
+                BASE_PATH . 'settings/system/config'
             );
         } catch (Exception $e) {
             error_log("Failed to create first user notification: " . $e->getMessage());
