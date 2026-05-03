@@ -54,9 +54,18 @@
     <?php else: ?>
         <div class="flex flex-wrap gap-2">
             <?php foreach ($asuProtocols as $asu): ?>
-                <?php $protocolData = json_decode($asu['data'], true) ?? []; ?>
+                <?php
+                    $protocolData = json_decode($asu['data'], true) ?? [];
+                    $continueUrl  = $incident['finalized']
+                        ? ''
+                        : BASE_PATH . 'einsatz/asu?incident_id=' . $id
+                            . '&incident_number=' . urlencode($incident['incident_number'])
+                            . '&location=' . urlencode($incident['location'])
+                            . '&asu_id=' . (int)$asu['id'];
+                ?>
                 <div>
-                    <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#asuModal<?= (int)$asu['id'] ?>">
+                    <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm"
+                            onclick="openASURecord(<?= (int)$asu['id'] ?>, <?= json_encode($asu['supervisor']) ?>, <?= json_encode($continueUrl) ?>)">
                         <i class="fa-solid fa-shield"></i>
                         <?= htmlspecialchars($asu['supervisor']) ?>
                         <br>
@@ -64,17 +73,10 @@
                     </button>
                 </div>
 
-                <!-- Modal für ASU Protokoll -->
-                <div class="modal fade" id="asuModal<?= (int)$asu['id'] ?>" tabindex="-1" aria-labelledby="asuModalLabel<?= (int)$asu['id'] ?>" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="asuModalLabel<?= (int)$asu['id'] ?>">
-                                    ASU-Protokoll: <?= htmlspecialchars($asu['supervisor']) ?>
-                                </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                            </div>
-                            <div class="modal-body">
+                <!-- Body-Template fuer ASU-Protokoll #<?= (int)$asu['id'] ?>.
+                     Header + Footer kommen vom Dialog-Wrapper (Title + Actions),
+                     hier nur der Inhalt der frueheren modal-body. -->
+                <template id="asuTemplate<?= (int)$asu['id'] ?>">
                                 <!-- Grundinformationen -->
                                 <div class="mb-4">
                                     <h6 class="mb-3">Einsatzinformationen</h6>
@@ -237,19 +239,41 @@
                                         </div>
                                     </div>
                                 <?php endif; ?>
-                            </div>
-                            <div class="modal-footer">
-                                <?php if (!$incident['finalized']): ?>
-                                    <a href="<?= BASE_PATH ?>einsatz/asu?incident_id=<?= $id ?>&incident_number=<?= urlencode($incident['incident_number']) ?>&location=<?= urlencode($incident['location']) ?>&asu_id=<?= (int)$asu['id'] ?>" class="ignis-btn ignis-btn--primary">
-                                        <i class="fa-solid fa-edit mr-1"></i>Protokoll fortführen
-                                    </a>
-                                <?php endif; ?>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                </template>
             <?php endforeach; ?>
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+    // Pro ASU-Row haben wir ein <template id="asuTemplate<id>"> mit dem
+    // Body-Inhalt. openASURecord baut daraus einen ignis-Dialog mit
+    // optionalem "Protokoll fortfuehren"-Action wenn der Incident
+    // noch nicht finalized ist (continueUrl leerstring → keine Action).
+    function openASURecord(asuId, supervisor, continueUrl) {
+        var tpl = document.getElementById('asuTemplate' + asuId);
+        if (!tpl) return;
+        var wrapper = document.createElement('div');
+        wrapper.appendChild(tpl.content.cloneNode(true));
+
+        var actions = [{
+            label:   'Schließen',
+            variant: 'ghost',
+            close:   true,
+        }];
+        if (continueUrl) {
+            actions.unshift({
+                labelHtml: '<i class="fa-solid fa-edit mr-1"></i>Protokoll fortführen',
+                variant:   'primary',
+                onClick:   function () { window.location.href = continueUrl; },
+            });
+        }
+
+        new Dialog({
+            title:   'ASU-Protokoll: ' + supervisor,
+            size:    'lg',
+            body:    wrapper,
+            actions: actions,
+        }).open();
+    }
+</script>
