@@ -591,14 +591,7 @@ try {
 </div>
 
 <!-- Marker Creation Modal -->
-<div class="modal fade" id="markerModal" tabindex="-1" aria-labelledby="markerModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content bg-[rgba(0,0,0,0.3)]">
-            <div class="modal-header">
-                <h5 class="modal-title" id="markerModalLabel">Marker hinzufügen</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
+<div id="markerModal" class="ignis-dialog-park" hidden>
                 <form id="markerForm">
                     <input type="hidden" id="markerPosX" name="pos_x">
                     <input type="hidden" id="markerPosY" name="pos_y">
@@ -813,26 +806,16 @@ try {
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="ignis-btn ignis-btn--primary" id="saveMarkerBtn">
-                    <i class="fa-solid fa-save mr-1"></i>Marker speichern
-                </button>
-            </div>
-        </div>
+    <div class="ignis-dialog-park__footer flex justify-end gap-2 mt-3">
+        <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
+        <button type="button" class="ignis-btn ignis-btn--primary" id="saveMarkerBtn">
+            <i class="fa-solid fa-save mr-1"></i>Marker speichern
+        </button>
     </div>
 </div>
 
-<!-- Zone Creation Modal -->
-<div class="modal fade" id="zoneModal" tabindex="-1" aria-labelledby="zoneModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content bg-[rgba(0,0,0,0.3)]">
-            <div class="modal-header">
-                <h5 class="modal-title" id="zoneModalLabel">Zone benennen</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
+<!-- Zone Creation — Park-Body -->
+<div id="zoneModal" class="ignis-dialog-park" hidden>
                 <form id="zoneForm">
                     <input type="hidden" id="zonePoints" name="points">
                     <input type="hidden" id="zoneColor" name="color" value="#dc3545">
@@ -864,14 +847,11 @@ try {
                         </div>
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="ignis-btn ignis-btn--primary" id="saveZoneBtn">
-                    <i class="fa-solid fa-save mr-1"></i>Speichern
-                </button>
-            </div>
-        </div>
+    <div class="ignis-dialog-park__footer flex justify-end gap-2 mt-3">
+        <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
+        <button type="button" class="ignis-btn ignis-btn--primary" id="saveZoneBtn">
+            <i class="fa-solid fa-save mr-1"></i>Speichern
+        </button>
     </div>
 </div>
 
@@ -978,6 +958,53 @@ try {
 </script>
 
 <script>
+    // ========================================================================
+    // Modal-Adapter: zwei Park-Container (#markerModal, #zoneModal) werden
+    // per ignis-Dialog (preserveBody=true) eingeblendet. .show()/.hide()
+    // bleibt API-kompatibel zur urspruenglichen bootstrap.Modal-Schnittstelle.
+    // ========================================================================
+    function createLagekarteDialogAdapter(parkId, title, opts = {}) {
+        let active = null;
+        return {
+            show() {
+                if (active) return;
+                const parkEl = document.getElementById(parkId);
+                if (!parkEl) return;
+                parkEl.hidden = false;
+                active = new window.Dialog({
+                    title:           title,
+                    body:            parkEl,
+                    size:            opts.size || 'md',
+                    preserveBody:    true,
+                    closeOnBackdrop: opts.closeOnBackdrop !== false,
+                    closeOnEscape:   true,
+                    onClose: () => {
+                        parkEl.hidden = true;
+                        active = null;
+                        if (typeof opts.onHidden === 'function') opts.onHidden();
+                    },
+                });
+                parkEl.querySelectorAll('[data-dialog-dismiss]').forEach((btn) => {
+                    if (btn.dataset.dlgBound === '1') return;
+                    btn.dataset.dlgBound = '1';
+                    btn.addEventListener('click', () => active?.close());
+                });
+                active.open();
+            },
+            hide() { active?.close(); },
+        };
+    }
+
+    // Instanzen werden lazy gerendert; show()/hide() muss API-kompatibel
+    // zur bootstrap.Modal-Schnittstelle bleiben.
+    const markerModalDialog = createLagekarteDialogAdapter('markerModal', 'Marker hinzufügen', { size: 'md' });
+    const zoneModalDialog   = createLagekarteDialogAdapter('zoneModal',   'Zone benennen',    {
+        size:    'md',
+        onHidden: () => {
+            if (typeof zonePoints !== 'undefined' && zonePoints.length > 0) cancelZoneDrawing();
+        },
+    });
+
     // ========================================================================
     // Configuration
     // ========================================================================
@@ -1619,17 +1646,14 @@ try {
             });
         });
 
-        // Zone modal dismissal cleanup
-        document.getElementById('zoneModal').addEventListener('hidden.bs.modal', function() {
-            if (zonePoints.length > 0) cancelZoneDrawing();
-        });
+        // Zone-modal dismissal cleanup wandert in den Adapter-onHidden-Hook
+        // (siehe createLagekarteDialogAdapter weiter oben). Hier nichts mehr zu tun.
 
         // Preview custom tactical symbol
         document.getElementById('previewCustomSymbol').addEventListener('click', previewCustomSymbol);
     }
 
     function showMarkerModal() {
-        const modal = new bootstrap.Modal(document.getElementById('markerModal'));
         const customFields = document.getElementById('customTacticalFields');
         const textFieldContainer = document.getElementById('textFieldContainer');
         const nameFieldContainer = document.getElementById('nameFieldContainer');
@@ -1668,12 +1692,10 @@ try {
             customFields.style.display = 'none';
         }
 
-        modal.show();
+        markerModalDialog.show();
     }
 
     function showZoneModal() {
-        const modal = new bootstrap.Modal(document.getElementById('zoneModal'));
-
         document.getElementById('zonePoints').value = JSON.stringify(pendingZone.points);
         document.getElementById('zoneName').value = '';
         document.getElementById('zoneDescription').value = '';
@@ -1684,7 +1706,7 @@ try {
             if (opt.dataset.color === '#dc3545') opt.classList.add('selected');
         });
 
-        modal.show();
+        zoneModalDialog.show();
     }
 
     function previewCustomSymbol() {
@@ -1784,7 +1806,7 @@ try {
             const result = await response.json();
 
             if (result.success) {
-                bootstrap.Modal.getInstance(document.getElementById('markerModal')).hide();
+                markerModalDialog.hide();
                 form.reset();
                 location.reload();
             } else {
@@ -1814,7 +1836,7 @@ try {
             const result = await response.json();
 
             if (result.success) {
-                bootstrap.Modal.getInstance(document.getElementById('zoneModal')).hide();
+                zoneModalDialog.hide();
                 cancelZoneDrawing();
                 form.reset();
                 location.reload();
