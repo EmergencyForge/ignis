@@ -26,9 +26,46 @@ let editingFieldIndex = null;
 let templates = [];
 let sortable = null;
 
-const fieldModal = new bootstrap.Modal(document.getElementById('fieldModal'));
-const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
-const templateFormModal = new bootstrap.Modal(document.getElementById('templateFormModal'));
+// ──────────────────────────────────────────────────────────────────────────
+// Modal-Adapter: ignis-Dialog (preserveBody=true) wraps die Park-Container
+// aus templates.php. .show()/.hide() bleibt API-kompatibel, dynamische
+// Titel kommen via show(title)-Argument durch.
+// ──────────────────────────────────────────────────────────────────────────
+function createDialogAdapter(parkId, defaultTitle, opts = {}) {
+    let active = null;
+    return {
+        show(titleOverride) {
+            if (active) return;
+            const parkEl = document.getElementById(parkId);
+            if (!parkEl) return;
+            parkEl.hidden = false;
+            active = new window.Dialog({
+                title:           titleOverride ?? defaultTitle,
+                body:            parkEl,
+                size:            opts.size || 'lg',
+                preserveBody:    true,
+                closeOnBackdrop: opts.closeOnBackdrop !== false,
+                closeOnEscape:   true,
+                onClose: () => {
+                    parkEl.hidden = true;
+                    active = null;
+                },
+            });
+            // dismiss-Buttons mit data-dialog-dismiss schliessen Dialog
+            parkEl.querySelectorAll('[data-dialog-dismiss]').forEach((btn) => {
+                if (btn.dataset.dlgBound === '1') return;
+                btn.dataset.dlgBound = '1';
+                btn.addEventListener('click', () => active?.close());
+            });
+            active.open();
+        },
+        hide() { active?.close(); },
+    };
+}
+
+const fieldModal        = createDialogAdapter('fieldModal',        'Feld konfigurieren');
+const previewModal      = createDialogAdapter('previewModal',      'Formular-Vorschau');
+const templateFormModal = createDialogAdapter('templateFormModal', 'Template bearbeiten');
 
 document.getElementById('addFieldBtn').addEventListener('click', () => {
     // Neues leeres Feld am Ende hinzufügen und inline aufklappen
@@ -612,8 +649,7 @@ function renderTemplateList() {
 }
 
 function showFormModal(title) {
-    document.getElementById('formModalTitle').textContent = title || 'Template bearbeiten';
-    templateFormModal.show();
+    templateFormModal.show(title || 'Template bearbeiten');
 }
 
 // "Neues Template" Button
@@ -1271,56 +1307,42 @@ function extractCanvasObjects(doc) {
  */
 function showRegenerateChoice() {
     return new Promise((resolve) => {
-        const id = 'regen-choice-' + Date.now();
-        const html = `
-            <div class="modal fade" id="${id}" tabindex="-1" data-bs-backdrop="static">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title"><i class="fa-solid fa-arrows-rotate mr-2"></i>Aus Vorlagen neu generieren</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p class="mb-3">Wie sollen die visuellen Editor-Layouts aus den Twig-Vorlagen generiert werden?</p>
-                            <div class="grid gap-2">
-                                <button class="ignis-btn ignis-btn--outline-primary text-left px-3 py-2" data-choice="missing">
-                                    <i class="fa-solid fa-plus-circle mr-2"></i>
-                                    <strong>Nur fehlende generieren</strong>
-                                    <br><small style="opacity:0.7;">Nur Templates ohne visuelles Layout werden neu erstellt. Bestehende Layouts bleiben unverändert.</small>
-                                </button>
-                                <button class="ignis-btn ignis-btn--outline-danger text-left px-3 py-2" data-choice="all">
-                                    <i class="fa-solid fa-triangle-exclamation mr-2"></i>
-                                    <strong>Alle überschreiben</strong>
-                                    <br><small style="opacity:0.7;">Alle Layouts werden aus den Twig-Vorlagen komplett neu generiert. Manuelle Änderungen im Editor gehen verloren!</small>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-
-        document.body.insertAdjacentHTML('beforeend', html);
-        const modalEl = document.getElementById(id);
-        const modal = new bootstrap.Modal(modalEl);
         let resolved = false;
-
-        modalEl.querySelectorAll('[data-choice]').forEach(btn => {
-            btn.addEventListener('click', () => {
-                resolved = true;
-                resolve(btn.dataset.choice);
-                modal.hide();
-            });
+        const dlg = new window.Dialog({
+            size: 'md',
+            title: '<i class="fa-solid fa-arrows-rotate mr-2"></i>Aus Vorlagen neu generieren',
+            body: `
+                <p class="mb-3">Wie sollen die visuellen Editor-Layouts aus den Twig-Vorlagen generiert werden?</p>
+                <div class="grid gap-2">
+                    <button type="button" class="ignis-btn ignis-btn--outline-primary text-left px-3 py-2" data-choice="missing">
+                        <i class="fa-solid fa-plus-circle mr-2"></i>
+                        <strong>Nur fehlende generieren</strong>
+                        <br><small style="opacity:0.7;">Nur Templates ohne visuelles Layout werden neu erstellt. Bestehende Layouts bleiben unverändert.</small>
+                    </button>
+                    <button type="button" class="ignis-btn ignis-btn--outline-danger text-left px-3 py-2" data-choice="all">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+                        <strong>Alle überschreiben</strong>
+                        <br><small style="opacity:0.7;">Alle Layouts werden aus den Twig-Vorlagen komplett neu generiert. Manuelle Änderungen im Editor gehen verloren!</small>
+                    </button>
+                </div>`,
+            actions: [
+                { label: 'Abbrechen', variant: 'ghost', onClick: (d) => d.close(null) },
+            ],
+            closeOnBackdrop: false,
+            onClose: (result) => {
+                if (!resolved) resolve(null);
+            },
+            onOpen: (d) => {
+                d.element.querySelectorAll('[data-choice]').forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        resolved = true;
+                        resolve(btn.dataset.choice);
+                        d.close(btn.dataset.choice);
+                    });
+                });
+            },
         });
-
-        modalEl.addEventListener('hidden.bs.modal', () => {
-            if (!resolved) resolve(null);
-            modalEl.remove();
-        });
-
-        modal.show();
+        dlg.open();
     });
 }
 
