@@ -15,10 +15,11 @@
         }
 
         init() {
-            const modalEl = document.getElementById('assetManagerModal');
-            if (!modalEl) return;
-
-            this.modal = new bootstrap.Modal(modalEl);
+            // Dialog-Adapter wurde vom Template-Inline-Script angelegt; faellt
+            // bei Bedarf zurueck auf den globalen Builder, falls Reihenfolge mal
+            // anders waere.
+            this.modal = (window.VisualEditorDialogs && window.VisualEditorDialogs.assetManager) || null;
+            if (!this.modal) return;
 
             // Upload Handler
             document.getElementById('asset-upload-input')?.addEventListener('change', (e) => {
