@@ -123,7 +123,7 @@ $statusLabels = [
                     <div class="page-header mb-4">
                         <h1>Defekt-Meldungen</h1>
                         <div class="header-actions">
-                            <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createDefectModal">
+                            <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateDefectModal()">
                                 <i class="fa-solid fa-plus"></i> Defekt melden
                             </button>
                         </div>
@@ -303,182 +303,120 @@ $statusLabels = [
         </div>
     </div>
 
-    <!-- Neuen Defekt erstellen -->
-    <div class="modal fade" id="createDefectModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="createDefectForm">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Defekt melden</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="ignis-field__label">Fahrzeug</label>
-                            <select name="vehicle_id" class="form-select" required>
-                                <option value="">Bitte wählen...</option>
-                                <?php foreach ($vehicles as $v): ?>
-                                    <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($v['name']) ?> — <?= htmlspecialchars($v['kennzeichen'] ?: $v['identifier']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="ignis-field__label">Titel</label>
-                            <input type="text" name="title" class="ignis-input" placeholder="Kurze Beschreibung des Defekts" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="ignis-field__label">Beschreibung</label>
-                            <textarea name="description" class="ignis-input" rows="3" placeholder="Detaillierte Beschreibung..."></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="ignis-field__label">Kategorie</label>
-                            <select name="category" class="form-select" required>
-                                <option value="" disabled selected>Bitte auswählen...</option>
-                                <?php foreach ($categoryLabels as $key => $label): ?>
-                                    <option value="<?= $key ?>"><?= htmlspecialchars($label) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="ignis-field__label">Fahrzeug noch einsatzfähig?</label>
-                            <div class="flex gap-3">
-                                <label class="ignis-radio" for="operable-yes"><input type="radio" name="vehicle_operable" id="operable-yes" value="1" checked><span>Ja</span></label>
-                                <label class="ignis-radio" for="operable-no"><input type="radio" name="vehicle_operable" id="operable-no" value="0"><span>Nein</span></label>
-                            </div>
-                            <small class="text-gray-400">Bei "Nein" wird das Fahrzeug automatisch als nicht einsatzfähig markiert.</small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-paper-plane"></i> Melden</button>
-                    </div>
-                </form>
+    <!-- Form-Bodies als <template>; Dialoge werden in JS programmatisch erstellt. -->
+    <template id="createDefectFormTemplate">
+        <div class="mb-3">
+            <label class="ignis-field__label">Fahrzeug</label>
+            <select name="vehicle_id" class="form-select" required>
+                <option value="">Bitte wählen...</option>
+                <?php foreach ($vehicles as $v): ?>
+                    <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($v['name']) ?> — <?= htmlspecialchars($v['kennzeichen'] ?: $v['identifier']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="ignis-field__label">Titel</label>
+            <input type="text" name="title" class="ignis-input" placeholder="Kurze Beschreibung des Defekts" required>
+        </div>
+        <div class="mb-3">
+            <label class="ignis-field__label">Beschreibung</label>
+            <textarea name="description" class="ignis-input" rows="3" placeholder="Detaillierte Beschreibung..."></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="ignis-field__label">Kategorie</label>
+            <select name="category" class="form-select" required>
+                <option value="" disabled selected>Bitte auswählen...</option>
+                <?php foreach ($categoryLabels as $key => $label): ?>
+                    <option value="<?= $key ?>"><?= htmlspecialchars($label) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="ignis-field__label">Fahrzeug noch einsatzfähig?</label>
+            <div class="flex gap-3">
+                <label class="ignis-radio"><input type="radio" name="vehicle_operable" value="1" checked><span>Ja</span></label>
+                <label class="ignis-radio"><input type="radio" name="vehicle_operable" value="0"><span>Nein</span></label>
+            </div>
+            <small class="text-gray-400">Bei "Nein" wird das Fahrzeug automatisch als nicht einsatzfähig markiert.</small>
+        </div>
+    </template>
+
+    <template id="resolveDefectFormTemplate">
+        <p class="mb-3">Defekt <strong class="resolve-defect-title-display"></strong> als gelöst markieren?</p>
+        <div class="mb-3">
+            <label class="ignis-field__label">Lösungsnotiz <small class="text-gray-400">(optional)</small></label>
+            <textarea name="resolution_note" class="ignis-input" rows="3" placeholder="Was wurde gemacht?"></textarea>
+        </div>
+    </template>
+
+    <template id="statusChangeFormTemplate">
+        <p class="mb-3">Defekt <strong class="status-change-defect-title-display"></strong> auf <span class="status-change-label-display font-bold"></span> setzen?</p>
+        <div class="mb-3">
+            <label class="ignis-field__label">Notiz <small class="text-gray-400">(optional)</small></label>
+            <textarea name="status_note" class="ignis-input" rows="3" placeholder="z.B. Ersatzteil bestellt, wird nächste Woche geliefert..."></textarea>
+        </div>
+    </template>
+
+    <!-- Detail-Body als <template>; Dialog wird in JS programmatisch instanziiert.
+         Detail-Werte werden via .detail-*-Selektoren statt globaler IDs angesprochen,
+         damit der geklonte Inhalt eindeutig auffindbar bleibt. -->
+    <template id="defectDetailTemplate">
+        <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-12">
+            <div class="md:col-span-6">
+                <small class="text-gray-400">Fahrzeug</small>
+                <div class="detail-vehicle font-bold"></div>
+            </div>
+            <div class="md:col-span-3">
+                <small class="text-gray-400">Kategorie</small>
+                <div class="detail-category"></div>
+            </div>
+            <div class="md:col-span-3">
+                <small class="text-gray-400">Status</small>
+                <div class="detail-status"></div>
             </div>
         </div>
-    </div>
-
-    <!-- Defekt lösen Modal -->
-    <div class="modal fade" id="resolveDefectModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="resolveDefectForm">
-                    <input type="hidden" name="id" id="resolve-defect-id">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Defekt lösen</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p class="mb-3">Defekt <strong id="resolve-defect-title"></strong> als gelöst markieren?</p>
-                        <div class="mb-3">
-                            <label class="ignis-field__label">Lösungsnotiz <small class="text-gray-400">(optional)</small></label>
-                            <textarea name="resolution_note" class="ignis-input" rows="3" placeholder="Was wurde gemacht?"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-check"></i> Als gelöst markieren</button>
-                    </div>
-                </form>
+        <div class="mb-3">
+            <small class="text-gray-400">Beschreibung</small>
+            <div class="detail-description"></div>
+        </div>
+        <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div>
+                <small class="text-gray-400">Gemeldet von</small>
+                <div class="detail-reporter"></div>
+            </div>
+            <div>
+                <small class="text-gray-400">Zugewiesen an</small>
+                <div class="detail-assigned"></div>
+            </div>
+            <div>
+                <small class="text-gray-400">Einsatzfähig?</small>
+                <div class="detail-operable"></div>
             </div>
         </div>
-    </div>
-
-    <!-- Status ändern Modal -->
-    <div class="modal fade" id="statusChangeModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form id="statusChangeForm">
-                    <input type="hidden" name="id" id="status-change-id">
-                    <input type="hidden" name="status" id="status-change-status">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="status-change-title">Status ändern</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p class="mb-3">Defekt <strong id="status-change-defect-title"></strong> auf <span id="status-change-label" class="font-bold"></span> setzen?</p>
-                        <div class="mb-3">
-                            <label class="ignis-field__label">Notiz <small class="text-gray-400">(optional)</small></label>
-                            <textarea name="status_note" class="ignis-input" rows="3" placeholder="z.B. Ersatzteil bestellt, wird nächste Woche geliefert..."></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-btn" id="status-change-submit">Bestätigen</button>
-                    </div>
-                </form>
-            </div>
+        <div class="detail-resolution-wrap mb-3" style="display:none;">
+            <small class="text-gray-400">Lösung</small>
+            <div class="defect-resolution p-2 detail-resolution"></div>
         </div>
-    </div>
 
-    <!-- Defekt-Detail Modal (mit Log) -->
-    <div class="modal fade" id="defectDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detail-title">Defekt-Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-12">
-                        <div class="md:col-span-6">
-                            <small class="text-gray-400">Fahrzeug</small>
-                            <div id="detail-vehicle" class="font-bold"></div>
-                        </div>
-                        <div class="md:col-span-3">
-                            <small class="text-gray-400">Kategorie</small>
-                            <div id="detail-category"></div>
-                        </div>
-                        <div class="md:col-span-3">
-                            <small class="text-gray-400">Status</small>
-                            <div id="detail-status"></div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <small class="text-gray-400">Beschreibung</small>
-                        <div id="detail-description"></div>
-                    </div>
-                    <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-3">
-                        <div>
-                            <small class="text-gray-400">Gemeldet von</small>
-                            <div id="detail-reporter"></div>
-                        </div>
-                        <div>
-                            <small class="text-gray-400">Zugewiesen an</small>
-                            <div id="detail-assigned"></div>
-                        </div>
-                        <div>
-                            <small class="text-gray-400">Einsatzfähig?</small>
-                            <div id="detail-operable"></div>
-                        </div>
-                    </div>
-                    <div id="detail-resolution-wrap" class="mb-3" style="display:none;">
-                        <small class="text-gray-400">Lösung</small>
-                        <div class="defect-resolution p-2" id="detail-resolution"></div>
-                    </div>
+        <hr>
+        <h6><i class="fa-solid fa-clock-rotate-left"></i> Verlauf</h6>
+        <div class="detail-log defect-log-timeline"></div>
 
-                    <hr>
-                    <h6><i class="fa-solid fa-clock-rotate-left"></i> Verlauf</h6>
-                    <div id="detail-log" class="defect-log-timeline"></div>
-                </div>
-                <div class="modal-footer">
-                    <?php if ($canManage): ?>
-                        <div class="mr-auto flex gap-2">
-                            <select id="detail-assign-select" class="form-select form-select-sm" data-custom-dropdown="true" style="width:auto;">
-                                <option value="">Zuweisen an...</option>
-                                <?php foreach ($users as $u): ?>
-                                    <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['fullname']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="detail-assign-btn">Zuweisen</button>
-                        </div>
-                    <?php endif; ?>
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                </div>
+        <?php if ($canManage): ?>
+            <hr>
+            <div class="flex gap-2">
+                <select class="detail-assign-select form-select form-select-sm" data-custom-dropdown="true" style="width:auto;">
+                    <option value="">Zuweisen an...</option>
+                    <?php foreach ($users as $u): ?>
+                        <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['fullname']) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary detail-assign-btn">Zuweisen</button>
             </div>
-        </div>
-    </div>
+        <?php endif; ?>
+    </template>
 
     <style>
         .defect-item {
@@ -587,98 +525,92 @@ $statusLabels = [
     </style>
 
     <script>
+    var handlerUrl = '<?= BASE_PATH ?>api/vehicles/defects-handler';
+    var categoryLabels = <?= json_encode($categoryLabels) ?>;
+    var statusLabels = { open: ['Offen', 'danger'], in_progress: ['In Bearbeitung', 'warning'], deferred: ['Aufgeschoben', 'primary'], resolved: ['Gelöst', 'success'] };
+
+    // Generischer AJAX-POST gegen den defects-handler. data ist ein {key: val}-
+    // Objekt; action wird automatisch ergaenzt.
+    function postDefectAction(action, data) {
+        var fd = new FormData();
+        fd.append('action', action);
+        Object.keys(data || {}).forEach(function (k) { fd.append(k, data[k]); });
+        return fetch(handlerUrl, { method: 'POST', body: fd })
+            .then(function (r) { return r.json(); });
+    }
+    function reloadOnSuccess(data) {
+        if (data.success) location.reload();
+        else alert(data.error || 'Fehler');
+    }
+
+    function openCreateDefectModal() {
+        Dialog.form({
+            title:        'Defekt melden',
+            template:     'createDefectFormTemplate',
+            submitLabel:  'Melden',
+            submitIcon:   'fa-solid fa-paper-plane',
+            submitVariant:'success',
+            onSubmit: function (body, dlg) {
+                var data = {};
+                body.querySelectorAll('input[name], select[name], textarea[name]').forEach(function (el) {
+                    if (el.type === 'radio' && !el.checked) return;
+                    data[el.name] = el.value;
+                });
+                postDefectAction('create', data).then(reloadOnSuccess);
+            },
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-        var handlerUrl = '<?= BASE_PATH ?>api/vehicles/defects-handler';
-        var categoryLabels = <?= json_encode($categoryLabels) ?>;
-        var statusLabels = { open: ['Offen', 'danger'], in_progress: ['In Bearbeitung', 'warning'], deferred: ['Aufgeschoben', 'primary'], resolved: ['Gelöst', 'success'] };
-
-        // Defekt erstellen
-        var createForm = document.getElementById('createDefectForm');
-        if (createForm) {
-            createForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                var fd = new FormData(this);
-                fd.append('action', 'create');
-
-                fetch(handlerUrl, { method: 'POST', body: fd })
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert(data.error || 'Fehler');
-                        }
-                    });
-            });
-        }
-
-        // Status ändern (In Bearbeitung / Aufschieben) — Modal öffnen
+        // Status-Aenderungs-Modal: Title + Submit-Button-Style ist pro Aktion
+        // unterschiedlich (z.B. "In Bearbeitung" warning vs. "Aufschieben" primary).
         document.querySelectorAll('.defect-status-btn').forEach(function(btn) {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                document.getElementById('status-change-id').value = this.dataset.id;
-                document.getElementById('status-change-status').value = this.dataset.status;
-                document.getElementById('status-change-defect-title').textContent = this.dataset.title;
-                document.getElementById('status-change-label').textContent = this.dataset.label;
-                var submitBtn = document.getElementById('status-change-submit');
-                submitBtn.className = 'ignis-btn ' + this.dataset.btnClass;
-                submitBtn.textContent = this.dataset.label;
-                document.querySelector('#statusChangeForm textarea[name="status_note"]').value = '';
-                new bootstrap.Modal(document.getElementById('statusChangeModal')).show();
+                var data = this.dataset;
+                Dialog.form({
+                    title:         'Status ändern',
+                    template:      'statusChangeFormTemplate',
+                    submitLabel:   data.label,
+                    submitVariant: (data.btnClass || 'ignis-btn--primary').replace(/^ignis-btn--/, ''),
+                    onOpen: function (dlg) {
+                        dlg.element.querySelector('.status-change-defect-title-display').textContent = data.title;
+                        dlg.element.querySelector('.status-change-label-display').textContent = data.label;
+                    },
+                    onSubmit: function (body, dlg) {
+                        postDefectAction('update', {
+                            id:          data.id,
+                            status:      data.status,
+                            status_note: body.querySelector('textarea[name="status_note"]').value,
+                        }).then(reloadOnSuccess);
+                    },
+                });
             });
         });
 
-        // Status ändern — Absenden
-        var statusForm = document.getElementById('statusChangeForm');
-        if (statusForm) {
-            statusForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                var fd = new FormData(this);
-                fd.append('action', 'update');
-
-                fetch(handlerUrl, { method: 'POST', body: fd })
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert(data.error || 'Fehler');
-                        }
-                    });
-            });
-        }
-
-        // Lösen-Dialog öffnen
         document.querySelectorAll('.defect-resolve-btn').forEach(function(btn) {
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                document.getElementById('resolve-defect-id').value = this.dataset.id;
-                document.getElementById('resolve-defect-title').textContent = this.dataset.title;
-                new bootstrap.Modal(document.getElementById('resolveDefectModal')).show();
+                var data = this.dataset;
+                Dialog.form({
+                    title:        'Defekt lösen',
+                    template:     'resolveDefectFormTemplate',
+                    submitLabel:  'Als gelöst markieren',
+                    submitIcon:   'fa-solid fa-check',
+                    submitVariant:'success',
+                    onOpen: function (dlg) {
+                        dlg.element.querySelector('.resolve-defect-title-display').textContent = data.title;
+                    },
+                    onSubmit: function (body, dlg) {
+                        postDefectAction('resolve', {
+                            id:              data.id,
+                            resolution_note: body.querySelector('textarea[name="resolution_note"]').value,
+                        }).then(reloadOnSuccess);
+                    },
+                });
             });
         });
 
-        // Defekt lösen
-        var resolveForm = document.getElementById('resolveDefectForm');
-        if (resolveForm) {
-            resolveForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                var fd = new FormData(this);
-                fd.append('action', 'resolve');
-
-                fetch(handlerUrl, { method: 'POST', body: fd })
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        if (data.success) {
-                            location.reload();
-                        } else {
-                            alert(data.error || 'Fehler');
-                        }
-                    });
-            });
-        }
-
-        // Defekt-Detail öffnen bei Klick auf Item
         document.querySelectorAll('.defect-item').forEach(function(item) {
             item.addEventListener('click', function() {
                 var defectId = this.dataset.id;
@@ -689,23 +621,26 @@ $statusLabels = [
                         var d = data.defect;
                         var stat = statusLabels[d.status] || ['?', 'secondary'];
 
-                        document.getElementById('detail-title').textContent = d.title;
-                        document.getElementById('detail-vehicle').textContent = (d.vehicle_name || '') + ' (' + (d.vehicle_identifier || '') + ')';
-                        document.getElementById('detail-category').innerHTML = '<span class="ignis-chip">' + (categoryLabels[d.category] || d.category) + '</span>';
-                        document.getElementById('detail-status').innerHTML = '<span class="ignis-chip text-bg-' + stat[1] + '">' + stat[0] + '</span>';
-                        document.getElementById('detail-description').textContent = d.description || '—';
-                        document.getElementById('detail-reporter').textContent = (d.reporter_name || 'Unbekannt') + ' am ' + formatDate(d.created_at);
-                        document.getElementById('detail-assigned').textContent = d.assigned_name || '—';
-                        document.getElementById('detail-operable').innerHTML = d.vehicle_operable == 1
+                        // Body-Element aus dem Template klonen
+                        var tpl = document.getElementById('defectDetailTemplate');
+                        var wrapper = document.createElement('div');
+                        wrapper.appendChild(tpl.content.cloneNode(true));
+
+                        // Felder befuellen via Klassen-Selektoren
+                        wrapper.querySelector('.detail-vehicle').textContent = (d.vehicle_name || '') + ' (' + (d.vehicle_identifier || '') + ')';
+                        wrapper.querySelector('.detail-category').innerHTML = '<span class="ignis-chip">' + (categoryLabels[d.category] || d.category) + '</span>';
+                        wrapper.querySelector('.detail-status').innerHTML = '<span class="ignis-chip ignis-chip--' + stat[1] + '">' + stat[0] + '</span>';
+                        wrapper.querySelector('.detail-description').textContent = d.description || '—';
+                        wrapper.querySelector('.detail-reporter').textContent = (d.reporter_name || 'Unbekannt') + ' am ' + formatDate(d.created_at);
+                        wrapper.querySelector('.detail-assigned').textContent = d.assigned_name || '—';
+                        wrapper.querySelector('.detail-operable').innerHTML = d.vehicle_operable == 1
                             ? '<span class="text-[#6abf76]"><i class="fa-solid fa-check"></i> Ja</span>'
                             : '<span class="text-[#d46b6b]"><i class="fa-solid fa-ban"></i> Nein</span>';
 
-                        var resWrap = document.getElementById('detail-resolution-wrap');
+                        var resWrap = wrapper.querySelector('.detail-resolution-wrap');
                         if (d.resolution_note) {
                             resWrap.style.display = '';
-                            document.getElementById('detail-resolution').textContent = d.resolution_note;
-                        } else {
-                            resWrap.style.display = 'none';
+                            wrapper.querySelector('.detail-resolution').textContent = d.resolution_note;
                         }
 
                         // Log anzeigen
@@ -721,27 +656,26 @@ $statusLabels = [
                         } else {
                             logHtml = '<div class="text-gray-400">Kein Verlauf vorhanden</div>';
                         }
-                        document.getElementById('detail-log').innerHTML = logHtml;
+                        wrapper.querySelector('.detail-log').innerHTML = logHtml;
 
-                        // Assign Dropdown vorbereiten
-                        var assignSelect = document.getElementById('detail-assign-select');
+                        // Assign-Select vorbereiten (nur wenn canManage → Element vorhanden)
+                        var assignSelect = wrapper.querySelector('.detail-assign-select');
                         if (assignSelect) {
                             assignSelect.value = d.assigned_to || '';
-                            var assignBtn = document.getElementById('detail-assign-btn');
-                            assignBtn.onclick = function() {
-                                var fd = new FormData();
-                                fd.append('action', 'update');
-                                fd.append('id', d.id);
-                                fd.append('assigned_to', assignSelect.value);
-                                fetch(handlerUrl, { method: 'POST', body: fd })
-                                    .then(function(r) { return r.json(); })
-                                    .then(function(res) {
-                                        if (res.success) location.reload();
-                                    });
+                            wrapper.querySelector('.detail-assign-btn').onclick = function() {
+                                postDefectAction('update', {
+                                    id:          d.id,
+                                    assigned_to: assignSelect.value,
+                                }).then(function(res) { if (res.success) location.reload(); });
                             };
                         }
 
-                        new bootstrap.Modal(document.getElementById('defectDetailModal')).show();
+                        new Dialog({
+                            title:   d.title || 'Defekt-Details',
+                            size:    'lg',
+                            body:    wrapper,
+                            actions: [{ label: 'Schließen', variant: 'ghost', close: true }],
+                        }).open();
                     });
             });
         });
