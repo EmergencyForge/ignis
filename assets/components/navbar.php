@@ -1153,6 +1153,44 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         margin-top: 6px;
     }
 
+    /* Mark-as-read-Button am rechten Rand eines unread-Items.
+       Liegt im <a>-Wrapper als <span role="button">, weil Buttons in
+       Links HTML-spec-illegal sind. Klick stoppt die Link-Navigation. */
+    .notification-item-mark-read {
+        flex-shrink: 0;
+        margin-top: 2px;
+        width: 26px;
+        height: 26px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: rgba(var(--main-color-rgb, 255, 77, 0), 0.18);
+        color: var(--main-color);
+        font-size: 0.72rem;
+        cursor: pointer;
+        border: 1px solid rgba(var(--main-color-rgb, 255, 77, 0), 0.35);
+        transition: background 0.12s, color 0.12s, border-color 0.12s, transform 0.12s;
+        opacity: 0.85;
+    }
+    .notification-item-mark-read:hover,
+    .notification-item-mark-read:focus-visible {
+        background: var(--main-color);
+        color: #fff;
+        border-color: var(--main-color);
+        opacity: 1;
+        outline: none;
+        transform: scale(1.05);
+    }
+    .notification-item-mark-read:active {
+        transform: scale(0.95);
+    }
+    .notification-item-mark-read[disabled],
+    .notification-item-mark-read.is-loading {
+        opacity: 0.5;
+        cursor: wait;
+    }
+
     .notifications-flyout-empty {
         padding: 2rem 1rem;
         color: var(--sidebar-icon-color);
@@ -1612,7 +1650,11 @@ $topbarTimeAgo = static function (string $createdAt): string {
                                     <span class="notification-item-title"><?= htmlspecialchars($n['title'] ?? '') ?></span>
                                     <span class="notification-item-meta"><?= htmlspecialchars($timeAgo) ?></span>
                                 </div>
-                                <?php if ($isUnread): ?><span class="notification-item-dot"></span><?php endif; ?>
+                                <?php if ($isUnread): ?>
+                                    <span class="notification-item-mark-read" role="button" tabindex="0" data-mark-read aria-label="Als gelesen markieren" title="Als gelesen markieren">
+                                        <i class="fa-solid fa-check"></i>
+                                    </span>
+                                <?php endif; ?>
                             </a>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -2201,7 +2243,7 @@ $topbarTimeAgo = static function (string $createdAt): string {
                 if (data && data.success) {
                     $notifFlyout.find(".notification-item.unread")
                         .removeClass("unread")
-                        .find(".notification-item-dot").remove();
+                        .find(".notification-item-dot, .notification-item-mark-read").remove();
                     if (typeof window.intraNotifSetCount === 'function') {
                         window.intraNotifSetCount(0);
                     } else {
@@ -2215,6 +2257,84 @@ $topbarTimeAgo = static function (string $createdAt): string {
             }).fail(function() {
                 $markAll.prop("disabled", false);
             });
+        });
+
+        // ────────────────────────────────────────────────────────────
+        // Per-Item Mark-As-Read im Topbar-Flyout
+        //
+        //  • Klick auf den ✓-Button: markiert NUR diese Notification
+        //    als gelesen, Link wird NICHT gefolgt.
+        //  • Klick auf den Rest des Items: feuert mark-read im
+        //    Hintergrund (keepalive) und laesst die Navigation laufen,
+        //    sodass die Verlinkung normal aufgerufen wird.
+        // ────────────────────────────────────────────────────────────
+        function basePathFor(url) {
+            return <?= json_encode(BASE_PATH) ?> + url.replace(/^\//, '');
+        }
+
+        function markNotifRead(id, opts) {
+            var keepalive = !!(opts && opts.keepalive);
+            return fetch(basePathFor('api/notifications/mark-read'), {
+                method:    'POST',
+                headers:   { 'Content-Type': 'application/json' },
+                body:      JSON.stringify({ id: id }),
+                keepalive: keepalive,
+                credentials: 'same-origin'
+            });
+        }
+
+        function applyItemRead($item) {
+            $item.removeClass('unread')
+                 .find('.notification-item-mark-read, .notification-item-dot').remove();
+            // Unread-Counter ums neue Item dekrementieren — solange wir
+            // hier eine Item-Aktion verarbeiten, weiss niemand sonst, dass
+            // der Server-Count sinkt; sonst wuerde der naechste Poll-Tick
+            // das Bell-Highlight stale lassen.
+            var $remaining = $notifFlyout.find('.notification-item.unread');
+            if (typeof window.intraNotifSetCount === 'function') {
+                window.intraNotifSetCount($remaining.length);
+            }
+        }
+
+        // Klick auf den Mark-Read-Button — Item bleibt im Flyout, wird
+        // nur visuell entkennzeichnet.
+        $notifFlyout.on('click keydown', '[data-mark-read]', function(e) {
+            if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            var $btn   = $(this);
+            if ($btn.hasClass('is-loading')) return;
+            var $item  = $btn.closest('.notification-item');
+            var id     = parseInt($item.attr('data-id'), 10);
+            if (!id) return;
+
+            $btn.addClass('is-loading').attr('aria-disabled', 'true');
+            markNotifRead(id, { keepalive: false })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data && data.success) {
+                        applyItemRead($item);
+                    } else {
+                        $btn.removeClass('is-loading').removeAttr('aria-disabled');
+                    }
+                })
+                .catch(function() {
+                    $btn.removeClass('is-loading').removeAttr('aria-disabled');
+                });
+        });
+
+        // Klick aufs Item selbst (nicht auf den Mark-Read-Button) — feuert
+        // mark-read im Hintergrund und navigiert weiter wie gewohnt.
+        $notifFlyout.on('click', '.notification-item.unread', function(e) {
+            // Wenn der Klick aus dem Mark-Read-Button kam, hat dessen
+            // Handler oben preventDefault()/stopPropagation() schon getan;
+            // dieser Handler laeuft dann gar nicht erst.
+            var id = parseInt($(this).attr('data-id'), 10);
+            if (!id) return;
+            // Fire-and-forget; Browser navigiert sofort weiter, der
+            // keepalive-Flag haelt den Request am Leben.
+            markNotifRead(id, { keepalive: true });
         });
     });
 </script>
