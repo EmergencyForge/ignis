@@ -3,10 +3,16 @@
 /**
  * Reusable tactical symbol form fields
  * Include this file in forms that need tactical symbol configuration
- * 
+ *
  * Variables to define before including:
- * - $prefix: string - Form field ID/name prefix (e.g., 'fahrzeug-', 'custom')
- * - $showPreview: bool - Whether to show preview button (default: true)
+ * - $prefix:         string - Form field ID/name prefix (e.g. 'fahrzeug-')
+ * - $showPreview:    bool   - Show preview button (default: true)
+ * - $useGlobalBind:  bool   - Skip the inline-<script>-blocks at the end
+ *                              (default: false). Set to true if you embed the
+ *                              partial in a <template> or dynamically cloned
+ *                              container — the inline scripts wouldn't run
+ *                              there. Bind via window.bindTacticalSymbolForm
+ *                              from assets/js/modules/tactical-symbol-form.js.
  */
 
 if (!isset($prefix)) {
@@ -15,6 +21,10 @@ if (!isset($prefix)) {
 
 if (!isset($showPreview)) {
     $showPreview = true;
+}
+
+if (!isset($useGlobalBind)) {
+    $useGlobalBind = false;
 }
 ?>
 
@@ -197,7 +207,7 @@ if (!isset($showPreview)) {
     </div>
 </div>
 
-<?php if ($showPreview): ?>
+<?php if ($showPreview && !$useGlobalBind): ?>
     <script type="module">
         import {
             erzeugeTaktischesZeichen
@@ -249,6 +259,7 @@ if (!isset($showPreview)) {
     </script>
 <?php endif; ?>
 
+<?php if (!$useGlobalBind): ?>
 <script>
 (function() {
     const prefix = '<?= $prefix ?>';
@@ -341,3 +352,4 @@ if (!isset($showPreview)) {
     setTimeout(loadTemplates, 200);
 })();
 </script>
+<?php endif; ?>

@@ -53,80 +53,88 @@
         });
     }
 
-    function bindEditButtons() {
-        document.querySelectorAll('.edit-btn').forEach((button) => {
-            button.addEventListener('click', function () {
-                const id = this.dataset.id;
-                document.getElementById('fahrzeug-id').value           = id;
-                document.getElementById('fahrzeug-name').value         = this.dataset.name;
-                document.getElementById('fahrzeug-kennzeichen').value  = this.dataset.kennzeichen || '';
-                document.getElementById('fahrzeug-veh_typ').value      = this.dataset.type;
-                document.getElementById('fahrzeug-priority').value     = this.dataset.priority;
-                document.getElementById('fahrzeug-identifier').value   = this.dataset.identifier;
-                document.getElementById('fahrzeug-rd_type').value      = this.dataset.rd_type || '0';
-                document.getElementById('fahrzeug-active').checked     = this.dataset.active == 1;
-                document.getElementById('fahrzeug-allowed_jobs').value = this.dataset.allowed_jobs || '';
+    // Fahrzeug-Dialog (geteilt zwischen Edit, Create und Copy-as-Create).
+    // Templates teilen sich Prefix `fahrzeug-`, weil pro Open immer nur eine
+    // Dialog-Instanz im DOM ist. tactical-symbol-form-Bindings macht
+    // bindTacticalSymbolForm im onOpen.
+    function openFahrzeugDialog(opts) {
+        const { mode, basePath, data } = opts;
+        const isEdit = mode === 'edit';
 
-                const previewContainer = document.getElementById('fahrzeug-tz-preview');
-                if (previewContainer) {
-                    previewContainer.innerHTML = '<span style="font-size: 48px; color: #999;">Kein Symbol</span>';
+        global.Dialog.form({
+            title:        isEdit ? 'Fahrzeug bearbeiten' : 'Neues Fahrzeug anlegen',
+            template:     'fahrzeugFormTemplate',
+            formAction:   basePath + (isEdit ? 'settings/fahrzeuge/fahrzeuge/update' : 'settings/fahrzeuge/fahrzeuge/create'),
+            hiddenFields: isEdit ? { id: data.id } : {},
+            submitLabel:  isEdit ? 'Speichern' : 'Erstellen',
+            submitVariant: isEdit ? 'soft-primary' : 'success',
+            dangerAction: isEdit ? {
+                label:   'Löschen',
+                onClick: function () {
+                    global.showConfirm('Möchtest du dieses Fahrzeug wirklich löschen?', {
+                        danger:      true,
+                        confirmText: 'Löschen',
+                        title:       'Fahrzeug löschen',
+                    }).then((ok) => {
+                        if (!ok) return;
+                        document.getElementById('fahrzeug-delete-id').value = data.id;
+                        document.getElementById('delete-fahrzeug-form').submit();
+                    });
+                },
+            } : null,
+            onOpen: function (dlg) {
+                const root = dlg.element;
+                if (!data) return;
+
+                const setVal = (sel, val) => { const el = root.querySelector(sel); if (el) el.value = val; };
+                const setChk = (sel, on)  => { const el = root.querySelector(sel); if (el) el.checked = on; };
+
+                setVal('#fahrzeug-name',         data.name || '');
+                setVal('#fahrzeug-kennzeichen',  data.kennzeichen || '');
+                setVal('#fahrzeug-veh_typ',      data.type || data.veh_type || '');
+                setVal('#fahrzeug-priority',     data.priority || '0');
+                setVal('#fahrzeug-identifier',   data.identifier || '');
+                setVal('#fahrzeug-rd_type',      data.rd_type || '0');
+                setChk('#fahrzeug-active',       data.active == 1 || mode === 'create');
+                setVal('#fahrzeug-allowed_jobs', data.allowed_jobs || '');
+
+                setVal('#fahrzeug-grundzeichen', data.tzGrundzeichen || '');
+                setVal('#fahrzeug-organisation', data.tzOrganisation || '');
+                setVal('#fahrzeug-fachaufgabe',  data.tzFachaufgabe || '');
+                setVal('#fahrzeug-einheit',      data.tzEinheit || '');
+                setVal('#fahrzeug-symbol',       data.tzSymbol || '');
+                setVal('#fahrzeug-typ',          data.tzTyp || '');
+                setVal('#fahrzeug-text',         data.tzText || '');
+                setVal('#fahrzeug-tz_name',      data.tzName || '');
+
+                if (typeof global.bindTacticalSymbolForm === 'function') {
+                    global.bindTacticalSymbolForm(root, 'fahrzeug-', basePath);
                 }
 
-                document.getElementById('fahrzeug-grundzeichen').value = this.dataset.tzGrundzeichen || '';
-                document.getElementById('fahrzeug-organisation').value = this.dataset.tzOrganisation || '';
-                document.getElementById('fahrzeug-fachaufgabe').value  = this.dataset.tzFachaufgabe || '';
-                document.getElementById('fahrzeug-einheit').value      = this.dataset.tzEinheit || '';
-                document.getElementById('fahrzeug-symbol').value       = this.dataset.tzSymbol || '';
-                document.getElementById('fahrzeug-typ').value          = this.dataset.tzTyp || '';
-                document.getElementById('fahrzeug-text').value         = this.dataset.tzText || '';
-                document.getElementById('fahrzeug-tz_name').value      = this.dataset.tzName || '';
-
-                setTimeout(() => {
-                    if (this.dataset.tzGrundzeichen) {
-                        document.getElementById('fahrzeug-preview-btn')?.click();
-                    }
-                }, 100);
-
-                document.getElementById('fahrzeug-delete-id').value = id;
-            });
+                if (data.tzGrundzeichen) {
+                    setTimeout(() => root.querySelector('#fahrzeug-preview-btn')?.click(), 150);
+                }
+            },
         });
+    }
 
-        const deleteBtn = document.getElementById('delete-fahrzeug-btn');
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', function () {
-                global.showConfirm('Möchtest du dieses Fahrzeug wirklich löschen?', {
-                    danger:      true,
-                    confirmText: 'Löschen',
-                    title:       'Fahrzeug löschen',
-                }).then((result) => {
-                    if (result) document.getElementById('delete-fahrzeug-form').submit();
-                });
-            });
-        }
+    function bindEditButtons(cfg) {
+        const basePath = cfg.basePath;
+
+        global.openEditFahrzeugModal = function (btn) {
+            openFahrzeugDialog({ mode: 'edit', basePath, data: btn.dataset });
+        };
+
+        global.openCreateFahrzeugModal = function () {
+            openFahrzeugDialog({ mode: 'create', basePath, data: { active: 1 } });
+        };
 
         document.querySelectorAll('.copy-btn').forEach((button) => {
             button.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.getElementById('new-fahrzeug-name').value         = this.dataset.name;
-                document.getElementById('new-fahrzeug-kennzeichen').value  = this.dataset.kennzeichen || '';
-                document.getElementById('new-fahrzeug-veh_typ').value      = this.dataset.type;
-                document.getElementById('new-fahrzeug-priority').value     = this.dataset.priority;
-                document.getElementById('new-fahrzeug-identifier').value   = this.dataset.identifier + '(1)';
-                document.getElementById('new-fahrzeug-rd_type').value      = this.dataset.rd_type || '0';
-                document.getElementById('new-fahrzeug-active').checked     = this.dataset.active == 1;
-                document.getElementById('new-fahrzeug-allowed_jobs').value = this.dataset.allowed_jobs || '';
-
-                document.getElementById('new-fahrzeug-grundzeichen').value = this.dataset.tzGrundzeichen || '';
-                document.getElementById('new-fahrzeug-organisation').value = this.dataset.tzOrganisation || '';
-                document.getElementById('new-fahrzeug-fachaufgabe').value  = this.dataset.tzFachaufgabe || '';
-                document.getElementById('new-fahrzeug-einheit').value      = this.dataset.tzEinheit || '';
-                document.getElementById('new-fahrzeug-symbol').value       = this.dataset.tzSymbol || '';
-                document.getElementById('new-fahrzeug-typ').value          = this.dataset.tzTyp || '';
-                document.getElementById('new-fahrzeug-text').value         = this.dataset.tzText || '';
-                document.getElementById('new-fahrzeug-tz_name').value      = this.dataset.tzName || '';
-
-                const createModal = new global.bootstrap.Modal(document.getElementById('createFahrzeugModal'));
-                createModal.show();
+                const data = Object.assign({}, this.dataset);
+                data.identifier = (this.dataset.identifier || '') + '(1)';
+                openFahrzeugDialog({ mode: 'create', basePath, data });
             });
         });
     }
@@ -687,7 +695,7 @@
 
     global.initVehiclesAdminPage = function (config) {
         bindDataTable();
-        bindEditButtons();
+        bindEditButtons(config);
         bindTzTemplateManager(config);
         bindVehicleImport(config);
     };
