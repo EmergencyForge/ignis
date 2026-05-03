@@ -1111,7 +1111,7 @@ select.form-select option {
 .user-hover-card__dnr {
   font-size: 0.7rem;
   color: var(--text-dimmed, #818189);
-  font-family: "Inconsolata", monospace;
+  font-family: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   letter-spacing: 0.04em;
 }
 .user-hover-card__meta {

@@ -62,9 +62,9 @@
 
   .ignis-dialog__title {
     margin: 0;
-    font-family: 'Poppins', system-ui, sans-serif;
+    font-family: 'Geist', system-ui, sans-serif;
     font-size: 1.05rem;
-    font-weight: 600;
+    font-weight: 700;
     color: #fff;
     letter-spacing: -0.01em;
   }
@@ -3304,7 +3304,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   &__hex-readout {
-    font-family: 'Inconsolata', monospace;
+    font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     text-transform: uppercase;
     letter-spacing: 0.02em;
     color: var(--text-dimmed, #818189);
@@ -3405,7 +3405,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: var(--radius-sm, 4px);
       color: var(--text-normal, #bbbac1);
-      font-family: 'Inconsolata', monospace;
+      font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.85rem;
       letter-spacing: 0.02em;
       text-transform: uppercase;

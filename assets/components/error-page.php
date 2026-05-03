@@ -94,7 +94,8 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars(_err_classBasename($exceptionClass)) ?> - Fehler</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/rubik/css/all.min.css">
+    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/geist/css/all.min.css">
+    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/geist-mono/css/all.min.css">
     <style>
         :root {
             --body-bg: #2b2930;
@@ -106,11 +107,11 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
             --text-dimmed: #818189;
             --darkgray: #3d3a44;
             --input-bg: #25242c;
-            --font-mono: 'Inconsolata', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+            --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
         body {
-            font-family: 'Rubik', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            font-family: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
             background: var(--body-bg);
             color: var(--text-normal);
             min-height: 100vh;

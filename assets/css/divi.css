@@ -85,7 +85,7 @@ input[type=time] {
 }
 
 .nt-input {
-  font-family: "Courier New", Courier, monospace;
+  font-family: "Geist Mono", ui-monospace, "Courier New", Courier, monospace;
 }
 
 .form-control {

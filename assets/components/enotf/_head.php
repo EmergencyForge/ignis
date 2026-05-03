@@ -17,9 +17,10 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor-enotf.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/bootstrap-compat.min.css') ?>">
-<!-- eNOTF nutzt den System-Font-Stack (kein Webfont-Load nötig). Maven Pro
-     bleibt für Display-Stellen (Clock, Stempel) optional verfügbar. -->
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
+<!-- Geist Sans + Geist Mono fuer das eNOTF-UI (Clock, Stempel,
+     numerische Display-Stellen profitieren von Geist Mono). -->
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
 <link rel="stylesheet" href="<?= asset('assets/css/divi.min.css') ?>" />
 <!-- admin.min.css für gemeinsame Komponenten (Beladelisten, Hover-Cards,
      DataTables-Styling etc.). Reihenfolge: nach divi (eNOTF-spezifische
