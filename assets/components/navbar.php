@@ -837,10 +837,10 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         background: transparent;
         border: none;
         border-radius: 8px;
-        color: var(--sidebar-icon-color);
+        color: #fff;
         cursor: pointer;
         transition: background 0.15s, color 0.15s;
-        font-size: 1rem;
+        font-size: 1.2rem;
     }
 
     .topbar-icon-btn:hover,
@@ -868,16 +868,16 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     }
 
     /* Notification-Badge ueber dem Bell-Icon (.notification-poll-badge,
-       .topbar-ignis-chip). Position + Style identisch zu .topbar-badge,
-       aber mit Pulsring + Glow im aktiven Zustand. */
+       .topbar-ignis-chip). Quadratisch mit abgerundeten Ecken (kein Pill),
+       Pulsring + Glow im aktiven Zustand. */
     .topbar-icon-btn .topbar-ignis-chip {
         position: absolute;
-        top: 4px;
-        right: 4px;
+        top: 2px;
+        right: 2px;
         min-width: 18px;
         height: 18px;
-        padding: 0 5px;
-        border-radius: 10px;
+        padding: 0 4px;
+        border-radius: 5px;
         background: var(--main-color);
         color: #fff;
         font-size: 0.64rem;
@@ -1628,13 +1628,28 @@ $topbarTimeAgo = static function (string $createdAt): string {
                 <i class="fa-solid fa-chevron-down topbar-user-chevron"></i>
             </button>
             <div class="topbar-flyout user-dropdown" id="topbarUserDropdown" role="menu">
+                <?php
+                // Robust gegen veraltete Sessions: wenn role_name nicht gesetzt
+                // ist (z.B. weil die Session vor dem setRoleDetails-Patch
+                // geboren wurde), aus den permissions ableiten — full_admin
+                // schlaegt alles und wird sonst zu "Benutzer".
+                $displayRoleName = $_SESSION['role_name'] ?? null;
+                if (!$displayRoleName) {
+                    $perms = $_SESSION['permissions'] ?? [];
+                    if (is_array($perms) && in_array('full_admin', $perms, true)) {
+                        $displayRoleName = 'Admin+';
+                    } else {
+                        $displayRoleName = 'Benutzer';
+                    }
+                }
+                ?>
                 <div class="user-dropdown-header">
                     <div class="user-dropdown-avatar"><?= htmlspecialchars($sidebarInitials) ?></div>
                     <div class="user-dropdown-identity">
                         <span class="user-dropdown-name"><?= htmlspecialchars($sidebarUsername) ?></span>
                         <span class="user-dropdown-role">
                             <span class="user-dropdown-role-dot" style="background:<?= $roleHex ?>"></span>
-                            <?= htmlspecialchars($_SESSION['role_name'] ?? 'Benutzer') ?>
+                            <?= htmlspecialchars($displayRoleName) ?>
                         </span>
                     </div>
                 </div>
