@@ -34,7 +34,7 @@ use App\Helpers\Flash;
                         <h1>Mitarbeiterübersicht</h1>
                         <div class="header-actions">
                             <?php if (Gate::allows('mitarbeiter.create') && !$showArchive): ?>
-                                <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" data-bs-toggle="modal" data-bs-target="#modalCreateMitarbeiter">
+                                <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" onclick="openCreateMitarbeiterModal()">
                                     <i class="fa-solid fa-plus mr-1"></i>Neuer Mitarbeiter
                                 </button>
                             <?php endif; ?>
@@ -167,16 +167,8 @@ use App\Helpers\Flash;
     </div>
 
     <?php if (Gate::allows('mitarbeiter.create')): ?>
-    <!-- Modal: Neuer Mitarbeiter -->
-    <div class="modal fade" id="modalCreateMitarbeiter" tabindex="-1" aria-labelledby="modalCreateMitarbeiterLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalCreateMitarbeiterLabel"><i class="fa-solid fa-user-plus mr-2"></i>Neuer Mitarbeiter</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                </div>
-                <form id="createMitarbeiterForm" novalidate>
-                    <div class="modal-body">
+    <!-- Form-Body als <template>; Dialog wird in JS programmatisch geoeffnet. -->
+    <template id="createMitarbeiterFormTemplate">
                         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
                             <div>
                                 <div class="form-floating">
@@ -256,17 +248,7 @@ use App\Helpers\Flash;
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-btn ignis-btn--success ignis-btn--sm" id="cm_submit">
-                            <i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    </template>
     <?php endif; ?>
 
     <script>
@@ -336,73 +318,77 @@ use App\Helpers\Flash;
     <?php if (Gate::allows('mitarbeiter.create')): ?>
     <script src="<?= BASE_PATH ?>assets/js/dienstnr-check.js"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var modalEl = document.getElementById('modalCreateMitarbeiter');
-        if (!modalEl) return;
+        // Form-Reset entfaellt: jeder Open-Aufruf klont das <template> frisch,
+        // sodass das Form leer und ohne validierungs-Flags startet.
+        function openCreateMitarbeiterModal() {
+            var tpl = document.getElementById('createMitarbeiterFormTemplate');
+            if (!tpl) return;
 
-        initDienstnrCheck({ basePath: '<?= BASE_PATH ?>' });
+            var form = document.createElement('form');
+            form.id = 'createMitarbeiterForm';
+            form.noValidate = true;
+            form.appendChild(tpl.content.cloneNode(true));
 
-        var form = document.getElementById('createMitarbeiterForm');
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
+            var dlg = new Dialog({
+                title:   'Neuer Mitarbeiter',
+                size:    'lg',
+                body:    form,
+                actions: [
+                    { label: 'Abbrechen', variant: 'ghost', onClick: function (d) { d.close(null); } },
+                    {
+                        labelHtml: '<i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen',
+                        variant:   'success',
+                        primary:   true,
+                        onClick:   function (d) { submitForm(form, d); },
+                    },
+                ],
+                onOpen: function () {
+                    // Dienstnr-Live-Validation an die geklonten Felder binden.
+                    initDienstnrCheck({ basePath: '<?= BASE_PATH ?>' });
+                },
+            });
+            dlg.open();
+        }
 
+        function submitForm(form, dlg) {
             if (!form.checkValidity()) {
                 form.classList.add('was-validated');
                 return;
             }
 
-            var submitBtn = document.getElementById('cm_submit');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Wird erstellt...';
+            // Action-Button im Footer (zweiter ignis-dialog__action)
+            var submitBtn = dlg.element.querySelector('[data-dialog-primary="true"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Wird erstellt...';
+            }
 
             var formData = new FormData(form);
-
             fetch('<?= BASE_PATH ?>mitarbeiter/create', {
                 method: 'POST',
-                body: formData
+                body:   formData,
             })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
                 if (data.success) {
                     showToast(data.message, 'success');
-                    setTimeout(function() {
-                        window.location.href = data.redirect;
-                    }, 500);
+                    setTimeout(function () { window.location.href = data.redirect; }, 500);
                 } else {
                     showToast(data.message || 'Fehler beim Erstellen', 'danger');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen';
+                    }
+                }
+            })
+            .catch(function () {
+                showToast('Verbindungsfehler', 'danger');
+                if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen';
                 }
-            })
-            .catch(function() {
-                showToast('Verbindungsfehler', 'danger');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen';
             });
-        });
-
-        modalEl.addEventListener('hide.bs.modal', function() {
-            if (modalEl.contains(document.activeElement)) {
-                document.activeElement.blur();
-            }
-        });
-
-        modalEl.addEventListener('hidden.bs.modal', function() {
-            form.reset();
-            form.classList.remove('was-validated');
-            var dnInput = document.getElementById('dienstnr');
-            var dnStatus = document.getElementById('dienstnr-status');
-            var dnFeedback = document.getElementById('dienstnr-feedback');
-            if (dnInput) { dnInput.classList.remove('valid', 'invalid'); }
-            if (dnStatus) { dnStatus.innerHTML = ''; dnStatus.className = 'dienstnr-status'; }
-            if (dnFeedback) { dnFeedback.style.display = 'none'; }
-            var submitBtn = document.getElementById('cm_submit');
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-plus mr-1"></i>Mitarbeiter erstellen';
-            }
-        });
-    });
+        }
     </script>
     <?php endif; ?>
     <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
