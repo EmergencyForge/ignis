@@ -264,7 +264,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                             </button>
                                         </form>
 
-                                        <button type="button" class="ignis-btn ignis-btn--outline-info" data-bs-toggle="modal" data-bs-target="#datenschutzModal">
+                                        <button type="button" class="ignis-btn ignis-btn--outline-info" onclick="openDatenschutzModal()">
                                             <i class="fas fa-shield-alt mr-1"></i> Datenschutz
                                         </button>
 
@@ -422,50 +422,50 @@ $cacheInfo = $announcements->getCacheInfo();
         </div>
     </div>
 
-    <!-- Datenschutz-Modal -->
-    <div class="modal fade" id="datenschutzModal" tabindex="-1" aria-labelledby="datenschutzModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="datenschutzModalLabel">
-                        <i class="fas fa-shield-alt mr-2 text-[#5bb8cc]"></i>Datenschutz
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="text-gray-400 text-sm mb-3">
-                        Wir nehmen den Schutz deiner Daten ernst. Hier siehst du genau, was die Telemetrie überträgt — und was nicht.
-                    </p>
-                    <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-                        <div>
-                            <h6 class="text-[#6abf76]"><i class="fas fa-check mr-1"></i> Was wir sammeln:</h6>
-                            <ul class="text-sm mb-0">
-                                <li>Anonyme Installation-ID (UUID)</li>
-                                <li>Server- und Systemname</li>
-                                <li>ıgnıs- und PHP-Version</li>
-                                <li>Anzahl Mitarbeiter, User, Fahrzeuge</li>
-                                <li>Aktivitätsstatistiken (eNOTF, Einsätze)</li>
-                                <li>Aktive Module</li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h6 class="text-[#d46b6b]"><i class="fas fa-times mr-1"></i> Was wir NICHT sammeln:</h6>
-                            <ul class="text-sm mb-0">
-                                <li>Namen, E-Mails, Discord-IDs</li>
-                                <li>IP-Adressen der Nutzer</li>
-                                <li>Passwörter oder API-Keys</li>
-                                <li>Konkrete Einsatz- oder Protokolldaten</li>
-                                <li>Persönliche Informationen jeglicher Art</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="ignis-btn" data-bs-dismiss="modal">Schließen</button>
-                </div>
+    <!-- Read-only Info-Modal: Body wandert in <template>, Dialog wird in JS gebaut. -->
+    <template id="datenschutzModalTemplate">
+        <p class="text-gray-400 text-sm mb-3">
+            Wir nehmen den Schutz deiner Daten ernst. Hier siehst du genau, was die Telemetrie überträgt — und was nicht.
+        </p>
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+                <h6 class="text-[#6abf76]"><i class="fas fa-check mr-1"></i> Was wir sammeln:</h6>
+                <ul class="text-sm mb-0">
+                    <li>Anonyme Installation-ID (UUID)</li>
+                    <li>Server- und Systemname</li>
+                    <li>ıgnıs- und PHP-Version</li>
+                    <li>Anzahl Mitarbeiter, User, Fahrzeuge</li>
+                    <li>Aktivitätsstatistiken (eNOTF, Einsätze)</li>
+                    <li>Aktive Module</li>
+                </ul>
+            </div>
+            <div>
+                <h6 class="text-[#d46b6b]"><i class="fas fa-times mr-1"></i> Was wir NICHT sammeln:</h6>
+                <ul class="text-sm mb-0">
+                    <li>Namen, E-Mails, Discord-IDs</li>
+                    <li>IP-Adressen der Nutzer</li>
+                    <li>Passwörter oder API-Keys</li>
+                    <li>Konkrete Einsatz- oder Protokolldaten</li>
+                    <li>Persönliche Informationen jeglicher Art</li>
+                </ul>
             </div>
         </div>
-    </div>
+    </template>
+
+    <script>
+        function openDatenschutzModal() {
+            var tpl = document.getElementById('datenschutzModalTemplate');
+            if (!tpl) return;
+            var wrapper = document.createElement('div');
+            wrapper.appendChild(tpl.content.cloneNode(true));
+            new Dialog({
+                title:   'Datenschutz',
+                size:    'lg',
+                body:    wrapper,
+                actions: [{ label: 'Schließen', variant: 'ghost', close: true }],
+            }).open();
+        }
+    </script>
 
     <?php include __DIR__ . "/../../../assets/components/footer.php"; ?>
 </body>

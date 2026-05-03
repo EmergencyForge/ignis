@@ -30,7 +30,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                     <p class="text-gray-400">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
                 </div>
                 <div class="flex flex-col gap-2 lg:flex-row lg:justify-end">
-                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--icon" data-bs-toggle="modal" data-bs-target="#quickAddModal" title="Schnell hinzufügen">
+                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--icon" onclick="openQuickAddRessourceModal()" title="Schnell hinzufügen">
                         <i class="fas fa-bolt"></i>
                     </button>
                     <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createModal">
@@ -74,8 +74,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                                     data-fahrzeugtyp="<?= htmlspecialchars($fzg['fahrzeugtyp'] ?? '') ?>"
                                                     data-lokalisation="<?= htmlspecialchars($fzg['lokalisation'] ?? '') ?>"
                                                     data-notizen="<?= htmlspecialchars($fzg['notizen'] ?? '') ?>"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#editModal">
+                                                    onclick="openEditRessourceModal(this)">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
                                                 <a href="?lage_id=<?= $lageId ?>&delete_id=<?= (int) $fzg['id'] ?>" class="ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon" onclick="event.preventDefault(); showConfirm('Fahrzeug wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Fahrzeug löschen'}).then(result => { if(result) window.location.href=this.href; });">
@@ -98,47 +97,29 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             </div>
         </div>
 
-        <!-- Edit Modal -->
-        <div class="modal fade" id="editModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content bg-[rgba(0,0,0,0.3)]">
-                    <form method="POST" action="">
-                        <input type="hidden" name="action" value="edit">
-                        <input type="hidden" name="ressource_id" id="edit_ressource_id">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Ressource bearbeiten</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="edit_typ" class="ignis-field__label">Typ</label>
-                                <input type="text" class="ignis-input" id="edit_typ" name="typ" readonly>
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_bezeichnung" class="ignis-field__label">Bezeichnung *</label>
-                                <input type="text" class="ignis-input" id="edit_bezeichnung" name="bezeichnung" required>
-                            </div>
-                            <div class="mb-3" id="edit_fahrzeugtyp_group">
-                                <label for="edit_fahrzeugtyp" class="ignis-field__label">Art</label>
-                                <input type="text" class="ignis-input" id="edit_fahrzeugtyp" name="fahrzeugtyp">
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_lokalisation" class="ignis-field__label">Lokalisation an Einsatzstelle</label>
-                                <input type="text" class="ignis-input" id="edit_lokalisation" name="lokalisation">
-                            </div>
-                            <div class="mb-3">
-                                <label for="edit_notizen" class="ignis-field__label">Notizen</label>
-                                <textarea class="ignis-input" id="edit_notizen" name="notizen" rows="2"></textarea>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                        </div>
-                    </form>
-                </div>
+        <!-- Edit-Form-Body als <template>; Dialog wird in JS programmatisch instanziiert. -->
+        <template id="editRessourceFormTemplate">
+            <div class="mb-3">
+                <label for="edit_typ" class="ignis-field__label">Typ</label>
+                <input type="text" class="ignis-input" id="edit_typ" name="typ" readonly>
             </div>
-        </div>
+            <div class="mb-3">
+                <label for="edit_bezeichnung" class="ignis-field__label">Bezeichnung *</label>
+                <input type="text" class="ignis-input" id="edit_bezeichnung" name="bezeichnung" required>
+            </div>
+            <div class="mb-3">
+                <label for="edit_fahrzeugtyp" class="ignis-field__label">Art</label>
+                <input type="text" class="ignis-input" id="edit_fahrzeugtyp" name="fahrzeugtyp">
+            </div>
+            <div class="mb-3">
+                <label for="edit_lokalisation" class="ignis-field__label">Lokalisation an Einsatzstelle</label>
+                <input type="text" class="ignis-input" id="edit_lokalisation" name="lokalisation">
+            </div>
+            <div class="mb-3">
+                <label for="edit_notizen" class="ignis-field__label">Notizen</label>
+                <textarea class="ignis-input" id="edit_notizen" name="notizen" rows="2"></textarea>
+            </div>
+        </template>
 
         <!-- Create Modal -->
         <div class="modal fade" id="createModal" tabindex="-1">
@@ -215,51 +196,33 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             </div>
         </div>
 
-        <!-- Quick Add Modal -->
-        <div class="modal fade" id="quickAddModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content bg-[rgba(0,0,0,0.3)]">
-                    <form method="POST" action="" id="quickAddForm">
-                        <input type="hidden" name="action" value="create">
-                        <input type="hidden" name="typ" value="fahrzeug">
-                        <div class="modal-header">
-                            <h5 class="modal-title"><i class="fas fa-bolt mr-2"></i>Schnell hinzufügen</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <p class="text-gray-400 mb-3">Für schnelles Hinzufügen ohne Systemfahrzeug</p>
-                            <div class="mb-3">
-                                <label for="quick_bezeichnung" class="ignis-field__label">Rufname / Kennung *</label>
-                                <input type="text" class="ignis-input" id="quick_bezeichnung" name="bezeichnung" placeholder="z.B. RTW 1/83-1" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="quick_fahrzeugtyp" class="ignis-field__label">Fahrzeugtyp *</label>
-                                <select class="ignis-input" id="quick_fahrzeugtyp" name="fahrzeugtyp" required>
-                                    <option value="">Bitte wählen...</option>
-                                    <option value="RTW">RTW - Rettungswagen</option>
-                                    <option value="NAW">NAW - Notarztwagen</option>
-                                    <option value="NEF">NEF - Notarzteinsatzfahrzeug</option>
-                                    <option value="KTW">KTW - Krankentransportwagen</option>
-                                    <option value="RTH">RTH - Rettungshubschrauber</option>
-                                    <option value="ITH">ITH - Intensivtransporthubschrauber</option>
-                                    <option value="GW-SAN">GW-SAN - Gerätewagen Sanität</option>
-                                    <option value="ELW">ELW - Einsatzleitwagen</option>
-                                    <option value="Sonstiges">Sonstiges</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="quick_lokalisation" class="ignis-field__label">Lokalisation</label>
-                                <input type="text" class="ignis-input" id="quick_lokalisation" name="lokalisation" placeholder="Position an der Einsatzstelle">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success"><i class="fas fa-bolt mr-2"></i>Schnell hinzufügen</button>
-                        </div>
-                    </form>
-                </div>
+        <!-- Quick-Add-Form-Body als <template> -->
+        <template id="quickAddRessourceFormTemplate">
+            <p class="text-gray-400 mb-3">Für schnelles Hinzufügen ohne Systemfahrzeug</p>
+            <div class="mb-3">
+                <label for="quick_bezeichnung" class="ignis-field__label">Rufname / Kennung *</label>
+                <input type="text" class="ignis-input" id="quick_bezeichnung" name="bezeichnung" placeholder="z.B. RTW 1/83-1" required>
             </div>
-        </div>
+            <div class="mb-3">
+                <label for="quick_fahrzeugtyp" class="ignis-field__label">Fahrzeugtyp *</label>
+                <select class="ignis-input" id="quick_fahrzeugtyp" name="fahrzeugtyp" required>
+                    <option value="">Bitte wählen...</option>
+                    <option value="RTW">RTW - Rettungswagen</option>
+                    <option value="NAW">NAW - Notarztwagen</option>
+                    <option value="NEF">NEF - Notarzteinsatzfahrzeug</option>
+                    <option value="KTW">KTW - Krankentransportwagen</option>
+                    <option value="RTH">RTH - Rettungshubschrauber</option>
+                    <option value="ITH">ITH - Intensivtransporthubschrauber</option>
+                    <option value="GW-SAN">GW-SAN - Gerätewagen Sanität</option>
+                    <option value="ELW">ELW - Einsatzleitwagen</option>
+                    <option value="Sonstiges">Sonstiges</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="quick_lokalisation" class="ignis-field__label">Lokalisation</label>
+                <input type="text" class="ignis-input" id="quick_lokalisation" name="lokalisation" placeholder="Position an der Einsatzstelle">
+            </div>
+        </template>
 
     </div>
     </div>
@@ -370,16 +333,37 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             return String(text).replace(/[&<>"']/g, m => map[m]);
         }
 
-        document.querySelectorAll('.edit-ressource-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.getElementById('edit_ressource_id').value = this.dataset.id;
-                document.getElementById('edit_typ').value = this.dataset.typ;
-                document.getElementById('edit_bezeichnung').value = this.dataset.bezeichnung;
-                document.getElementById('edit_lokalisation').value = this.dataset.lokalisation || '';
-                document.getElementById('edit_notizen').value = this.dataset.notizen || '';
-                document.getElementById('edit_fahrzeugtyp').value = this.dataset.fahrzeugtyp || '';
+        function openEditRessourceModal(btn) {
+            const data = btn.dataset;
+            Dialog.form({
+                title:        'Ressource bearbeiten',
+                template:     'editRessourceFormTemplate',
+                formAction:   '',
+                hiddenFields: { action: 'edit', ressource_id: data.id },
+                submitLabel:  'Speichern',
+                submitVariant:'soft-primary',
+                onOpen: function (dlg) {
+                    const $body = $(dlg.element);
+                    $body.find('#edit_typ').val(data.typ);
+                    $body.find('#edit_bezeichnung').val(data.bezeichnung);
+                    $body.find('#edit_fahrzeugtyp').val(data.fahrzeugtyp || '');
+                    $body.find('#edit_lokalisation').val(data.lokalisation || '');
+                    $body.find('#edit_notizen').val(data.notizen || '');
+                },
             });
-        });
+        }
+
+        function openQuickAddRessourceModal() {
+            Dialog.form({
+                title:        'Schnell hinzufügen',
+                template:     'quickAddRessourceFormTemplate',
+                formAction:   '',
+                hiddenFields: { action: 'create', typ: 'fahrzeug' },
+                submitLabel:  'Schnell hinzufügen',
+                submitIcon:   'fas fa-bolt',
+                submitVariant:'success',
+            });
+        }
 
         document.getElementById('createModal').addEventListener('shown.bs.modal', function() {
             searchInput.focus();

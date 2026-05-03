@@ -34,7 +34,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
         <div class="container mx-auto">
             <div class="mb-6 flex items-center justify-between">
                 <h1 class="mb-0">Cron-Jobs</h1>
-                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createCronJobModal">
+                <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateCronJobModal()">
                     <i class="fa-solid fa-plus"></i> Neuer Job
                 </button>
             </div>
@@ -142,83 +142,49 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
         </div>
     </div>
 
-    <!-- Modal: Neuer Job -->
-    <div class="modal fade" id="createCronJobModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <form action="<?= $base ?>settings/system/cron/create" method="POST">
-                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Neuer Cron-Job</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="flex flex-wrap -mx-3 mb-3">
-                            <div class="flex-1 px-3">
-                                <label class="ignis-field__label">Identifier <small class="form-hint">(eindeutig, keine Leerzeichen)</small></label>
-                                <input type="text" class="ignis-input" name="identifier" pattern="[a-z0-9._-]+" required>
-                            </div>
-                            <div class="flex-1 px-3">
-                                <label class="ignis-field__label">Anzeigename</label>
-                                <input type="text" class="ignis-input" name="name" required>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="ignis-field__label">Beschreibung <small class="form-hint">(optional)</small></label>
-                            <input type="text" class="ignis-input" name="description">
-                        </div>
-                        <div class="flex flex-wrap -mx-3 mb-3">
-                            <div class="flex-1 px-3">
-                                <label class="ignis-field__label">Handler-Typ</label>
-                                <select name="handler_type" class="form-select" required>
-                                    <option value="webhook">Webhook (HTTP-URL)</option>
-                                    <option value="console">Console-Command (aus Allowlist)</option>
-                                    <option value="job">Queue-Job (FQCN dispatchen)</option>
-                                </select>
-                            </div>
-                            <div class="flex-1 px-3">
-                                <label class="ignis-field__label">Schedule <small class="form-hint">(Cron-Expression)</small></label>
-                                <input type="text" class="ignis-input" name="schedule" placeholder="*/5 * * * *" required style="font-family:monospace;">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="ignis-field__label">Handler</label>
-                            <input type="text" class="ignis-input" name="handler" placeholder="https://discord.com/api/webhooks/… | queue:work | App\Jobs\MyJob" required>
-                            <small class="form-hint">Webhook: Ziel-URL · Console: Command-Name · Queue: Job-Klassen-FQCN</small>
-                        </div>
-                        <div class="mb-2">
-                            <label class="ignis-field__label">Config <small class="form-hint">(JSON, optional)</small></label>
-                            <textarea class="ignis-input" name="config" rows="4" style="font-family:monospace;font-size:0.78rem;" placeholder='{"method":"POST","body":{"content":"Wochenstats {{DATE}}"},"timeout":30}'></textarea>
-                            <small class="form-hint">
-                                Platzhalter (Webhook): <code>{{SERVER_NAME}}</code>, <code>{{SERVER_CITY}}</code>, <code>{{SYSTEM_NAME}}</code>, <code>{{DATE}}</code>, <code>{{TIME}}</code>, <code>{{TIMESTAMP}}</code>, <code>{{ISO8601}}</code>
-                            </small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                        <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
-                    </div>
-                </form>
+    <!-- Form-Body fuer Cron-Job-Create. -->
+    <template id="createCronJobFormTemplate">
+        <div class="flex flex-wrap -mx-3 mb-3">
+            <div class="flex-1 px-3">
+                <label class="ignis-field__label">Identifier <small class="form-hint">(eindeutig, keine Leerzeichen)</small></label>
+                <input type="text" class="ignis-input" name="identifier" pattern="[a-z0-9._-]+" required>
+            </div>
+            <div class="flex-1 px-3">
+                <label class="ignis-field__label">Anzeigename</label>
+                <input type="text" class="ignis-input" name="name" required>
             </div>
         </div>
-    </div>
-
-    <!-- Modal: History -->
-    <div class="modal fade" id="cronHistoryModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="cronHistoryTitle">History</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="cronHistoryBody" class="text-sm">
-                        <div class="text-gray-500">Lade…</div>
-                    </div>
-                </div>
+        <div class="mb-3">
+            <label class="ignis-field__label">Beschreibung <small class="form-hint">(optional)</small></label>
+            <input type="text" class="ignis-input" name="description">
+        </div>
+        <div class="flex flex-wrap -mx-3 mb-3">
+            <div class="flex-1 px-3">
+                <label class="ignis-field__label">Handler-Typ</label>
+                <select name="handler_type" class="form-select" required>
+                    <option value="webhook">Webhook (HTTP-URL)</option>
+                    <option value="console">Console-Command (aus Allowlist)</option>
+                    <option value="job">Queue-Job (FQCN dispatchen)</option>
+                </select>
+            </div>
+            <div class="flex-1 px-3">
+                <label class="ignis-field__label">Schedule <small class="form-hint">(Cron-Expression)</small></label>
+                <input type="text" class="ignis-input" name="schedule" placeholder="*/5 * * * *" required style="font-family:monospace;">
             </div>
         </div>
-    </div>
+        <div class="mb-3">
+            <label class="ignis-field__label">Handler</label>
+            <input type="text" class="ignis-input" name="handler" placeholder="https://discord.com/api/webhooks/… | queue:work | App\Jobs\MyJob" required>
+            <small class="form-hint">Webhook: Ziel-URL · Console: Command-Name · Queue: Job-Klassen-FQCN</small>
+        </div>
+        <div class="mb-2">
+            <label class="ignis-field__label">Config <small class="form-hint">(JSON, optional)</small></label>
+            <textarea class="ignis-input" name="config" rows="4" style="font-family:monospace;font-size:0.78rem;" placeholder='{"method":"POST","body":{"content":"Wochenstats {{DATE}}"},"timeout":30}'></textarea>
+            <small class="form-hint">
+                Platzhalter (Webhook): <code>{{SERVER_NAME}}</code>, <code>{{SERVER_CITY}}</code>, <code>{{SYSTEM_NAME}}</code>, <code>{{DATE}}</code>, <code>{{TIME}}</code>, <code>{{TIMESTAMP}}</code>, <code>{{ISO8601}}</code>
+            </small>
+        </div>
+    </template>
 
     <script>
         function runCronJob(id, btn) {
@@ -242,19 +208,38 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
             });
         }
 
+        function openCreateCronJobModal() {
+            Dialog.form({
+                title:        'Neuer Cron-Job',
+                template:     'createCronJobFormTemplate',
+                size:         'lg',
+                formAction:   <?= json_encode($base . 'settings/system/cron/create') ?>,
+                hiddenFields: { csrf_token: <?= json_encode($csrfToken) ?> },
+                submitLabel:  'Erstellen',
+                submitVariant:'success',
+            });
+        }
+
         function showCronHistory(id, name) {
-            document.getElementById('cronHistoryTitle').textContent = 'History — ' + name;
-            const body = document.getElementById('cronHistoryBody');
-            body.innerHTML = '<div class="text-gray-500">Lade…</div>';
-            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('cronHistoryModal'));
-            modal.show();
+            // Body als unbefuelltes Skelett aufbauen, Dialog sofort oeffnen,
+            // dann den Inhalt asynchron via fetch nachschieben.
+            var bodyEl = document.createElement('div');
+            bodyEl.className = 'text-sm';
+            bodyEl.innerHTML = '<div class="text-gray-500">Lade…</div>';
+
+            new Dialog({
+                title:   'History — ' + name,
+                size:    'xl',
+                body:    bodyEl,
+                actions: [{ label: 'Schließen', variant: 'ghost', close: true }],
+            }).open();
 
             fetch(<?= json_encode($base . 'settings/system/cron/history') ?> + '?id=' + id)
                 .then(r => r.json())
                 .then(data => {
-                    if (!data.ok) { body.innerHTML = '<div class="text-[#d46b6b]">Fehler beim Laden</div>'; return; }
+                    if (!data.ok) { bodyEl.innerHTML = '<div class="text-[#d46b6b]">Fehler beim Laden</div>'; return; }
                     if (!data.runs || data.runs.length === 0) {
-                        body.innerHTML = '<div class="text-gray-500">Noch keine Läufe.</div>';
+                        bodyEl.innerHTML = '<div class="text-gray-500">Noch keine Läufe.</div>';
                         return;
                     }
                     const rows = data.runs.map(r => {
@@ -269,7 +254,7 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                                 ${output}
                             </div>`;
                     }).join('');
-                    body.innerHTML = rows;
+                    bodyEl.innerHTML = rows;
                 });
         }
 
