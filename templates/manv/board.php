@@ -211,35 +211,6 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
         </div>
     </div>
 
-    <!-- Transport Abfahrt Modal -->
-    <div class="modal fade" id="transportModal" tabindex="-1" aria-labelledby="transportModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content bg-[rgba(0,0,0,0.3)]">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="transportModalLabel">
-                        <i class="fas fa-truck-loading mr-2"></i>Patient als abgefahren markieren
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Möchten Sie Patient <strong id="modal-patient-nr"></strong> wirklich als abgefahren markieren?</p>
-                    <div class="ignis-alert ignis-alert--info">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        Der Patient wird nicht mehr an der Einsatzstelle angezeigt.
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">
-                        <i class="fas fa-times mr-2"></i>Abbrechen
-                    </button>
-                    <button type="button" class="ignis-btn ignis-btn--success" id="confirmTransportBtn">
-                        <i class="fas fa-check mr-2"></i>Bestätigen
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <?php include __DIR__ . '/../../assets/components/footer.php'; ?>
 
     <script>
@@ -254,38 +225,39 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                 language: window.IgnisDataTableLang('Einträge')
             });
 
-            let currentPatientId = null;
-            let currentPatientNr = null;
-
+            // Transport-Abfahrt-Bestaetigung war frueher ein eigenes Modal mit
+            // einem einzigen Confirm-Button. showConfirm + Inline-AJAX ersetzt
+            // das vollstaendig — kein Modal-Markup, kein currentPatientId-State.
             $('.transport-btn').on('click', function() {
-                currentPatientId = $(this).data('patient-id');
-                currentPatientNr = $(this).data('patient-nr');
-                $('#modal-patient-nr').text(currentPatientNr);
-                $('#transportModal').modal('show');
-            });
+                const patientId = $(this).data('patient-id');
+                const patientNr = $(this).data('patient-nr');
+                if (!patientId) return;
 
-            $('#confirmTransportBtn').on('click', function() {
-                if (currentPatientId) {
+                showConfirm(
+                    'Möchten Sie Patient ' + patientNr + ' wirklich als abgefahren markieren? Der Patient wird nicht mehr an der Einsatzstelle angezeigt.',
+                    {
+                        title:       'Patient als abgefahren markieren',
+                        confirmText: 'Bestätigen',
+                        cancelText:  'Abbrechen',
+                    }
+                ).then(function (ok) {
+                    if (!ok) return;
                     $.ajax({
-                        url: '<?= BASE_PATH ?>api/manv/api',
+                        url:    '<?= BASE_PATH ?>api/manv/api',
                         method: 'POST',
-                        data: {
-                            action: 'transport_abfahrt',
-                            patient_id: currentPatientId
-                        },
-                        success: function(response) {
+                        data:   { action: 'transport_abfahrt', patient_id: patientId },
+                        success: function (response) {
                             if (response.success) {
-                                $('#transportModal').modal('hide');
                                 location.reload();
                             } else {
                                 showToast('Fehler: ' + (response.message || 'Unbekannter Fehler'), 'danger');
                             }
                         },
-                        error: function() {
+                        error: function () {
                             showToast('Fehler bei der Kommunikation mit dem Server', 'danger');
-                        }
+                        },
                     });
-                }
+                });
             });
         });
     </script>
