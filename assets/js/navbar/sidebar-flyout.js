@@ -228,7 +228,7 @@
   const QUICK_ACTION_MAP = {
     'registration-invite-create': { fn: 'openCreateInviteModal',     selector: '#createInviteModal'     },
     'role-create':                { fn: 'openCreateRoleModal',       selector: '#createRoleModal'       },
-    'mitarbeiter-create':         { fn: null,                        selector: '#modalCreateMitarbeiter' },
+    'mitarbeiter-create':         { fn: 'openCreateMitarbeiterModal', selector: '#modalCreateMitarbeiter' },
     'fahrzeug-create':            { fn: null,                        selector: '#createFahrzeugModal'   },
     'defekt-create':              { fn: null,                        selector: '#createDefectModal'     },
     'dienstgrad-create':          { fn: 'openCreateDienstgradModal', selector: '#createDienstgradModal' },
