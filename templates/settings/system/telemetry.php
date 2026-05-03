@@ -161,7 +161,7 @@ $cacheInfo = $announcements->getCacheInfo();
                     <div class="intra__tile uuid-banner mb-4 p-3">
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="shrink-0" style="font-size: 1.1rem; color: var(--bs-primary, #0d6efd);">
-                                <i class="fa-solid fa-id-ignis-card"></i>
+                                <i class="fa-solid fa-id-card"></i>
                             </div>
                             <div class="flex-1" style="min-width: 240px;">
                                 <div class="uuid-label mb-1">Support &amp; Telemetrie — Deine Installations-UUID</div>

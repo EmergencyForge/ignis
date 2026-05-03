@@ -16,7 +16,7 @@ $mitarbeiterUrl = $mitarbeiter !== null
     ? (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id
     : null;
 ?>
-<div class="user-hover-ignis-card">
+<div class="user-hover-card">
     <div class="user-hover-card__header">
         <div class="user-hover-card__avatar">
             <?= strtoupper(substr($user->username ?? 'U', 0, 1)) ?>

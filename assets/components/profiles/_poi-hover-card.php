@@ -32,7 +32,7 @@ foreach ($departments as $d) {
     }
 }
 ?>
-<div class="user-hover-ignis-card">
+<div class="user-hover-card">
     <div class="user-hover-card__header">
         <div class="user-hover-card__avatar" aria-hidden="true">
             <i class="fa-solid fa-hospital"></i>

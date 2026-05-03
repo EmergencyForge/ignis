@@ -34,7 +34,7 @@ foreach ($tiles as $t) {
 }
 ?>
 <article
-    class="beladung-category-ignis-card category-card mb-4"
+    class="beladung-category-card category-card mb-4"
     data-category-id="<?= (int) ($category['id'] ?? 0) ?>"
     data-veh-type="<?= htmlspecialchars($category['veh_type'] ?? 'null') ?>"
     data-category-type="<?= (int) ($category['type'] ?? 0) ?>"

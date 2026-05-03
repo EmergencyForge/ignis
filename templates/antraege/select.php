@@ -60,7 +60,7 @@ $SITE_TITLE = "Antrag einreichen";
                     <?php foreach ($typen as $typ): ?>
                         <a href="<?= BASE_PATH . 'antrag/create?typ=' . (int) $typ->id ?>"
                             class="no-underline hover:no-underline">
-                            <div class="antrag-ignis-card h-full rounded p-6 text-center">
+                            <div class="antrag-card h-full rounded p-6 text-center">
                                 <h4 class="mb-4"><?= htmlspecialchars($typ->name) ?></h4>
 
                                 <?php if (!empty($typ->beschreibung)): ?>

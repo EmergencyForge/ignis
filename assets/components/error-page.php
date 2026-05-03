@@ -461,7 +461,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <div class="container py-4">
     <?php if (!$isDev): ?>
         <!-- ========== PRODUCTION ========== -->
-        <div class="err-prod-ignis-card">
+        <div class="err-prod-card">
             <div class="err-tile text-center">
                 <div class="mb-3">
                     <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: var(--main-color);"></i>
