@@ -219,6 +219,7 @@ $fahrtListAuth   = [new AuthMiddleware(), new PolicyMiddleware('fahrt.viewList')
 
 $router->get('/fahrtenbuch',           [FahrtenbuchController::class, 'index'], $fahrtListAuth);
 $router->get('/fahrtenbuch/',          [FahrtenbuchController::class, 'index'], $fahrtListAuth);
+$router->get('/fahrtenbuch/index',     [FahrtenbuchController::class, 'index'], $fahrtListAuth);
 $router->get('/fahrtenbuch/index.php', [FahrtenbuchController::class, 'index'], $fahrtListAuth);
 
 // POST /fahrtenbuch/actions.php — Multi-Context-Dispatcher.
