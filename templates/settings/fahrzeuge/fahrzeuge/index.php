@@ -42,7 +42,7 @@ use App\Helpers\Flash;
                                     <i class="fa-solid fa-satellite-dish"></i> EMD-Import
                                     <span class="ignis-chip ignis-chip--danger ml-1 hidden" id="importBadge">0</span>
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--success" data-bs-toggle="modal" data-bs-target="#createFahrzeugModal">
+                                <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateFahrzeugModal()">
                                     <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
                                 </button>
                             <?php endif; ?>
@@ -137,7 +137,7 @@ use App\Helpers\Flash;
                                             $dataStr .= " data-{$key}='" . htmlspecialchars($val, ENT_QUOTES) . "'";
                                         }
 
-                                        $actions .= "<a title='Fahrzeug bearbeiten' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' data-bs-toggle='modal' data-bs-target='#editFahrzeugModal'{$dataStr}><i class='fa-solid fa-pen'></i></a> ";
+                                        $actions .= "<button type='button' title='Fahrzeug bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' onclick='openEditFahrzeugModal(this)'{$dataStr}><i class='fa-solid fa-pen'></i></button> ";
                                         $actions .= "<a title='Fahrzeug kopieren' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-success ignis-btn--icon copy-btn'{$dataStr}><i class='fa-solid fa-copy'></i></a>";
                                     }
 
@@ -170,158 +170,59 @@ use App\Helpers\Flash;
         </div>
     </div>
 
-    <!-- MODAL BEGIN -->
     <?php if (Permissions::check('admin')) : ?>
-        <div class="modal fade" id="editFahrzeugModal" tabindex="-1" aria-labelledby="editFahrzeugModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/update" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editFahrzeugModalLabel">Fahrzeug bearbeiten</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" name="id" id="fahrzeug-id">
-
-                            <div class="mb-3">
-                                <label for="fahrzeug-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
-                                <input type="text" class="ignis-input" name="name" id="fahrzeug-name" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="fahrzeug-kennzeichen" class="ignis-field__label">Kennzeichen</label>
-                                <input type="text" class="ignis-input" name="kennzeichen" id="fahrzeug-kennzeichen" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="fahrzeug-identifier" class="ignis-field__label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
-                                <input type="text" class="ignis-input" name="identifier" id="fahrzeug-identifier" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="fahrzeug-veh_typ" class="ignis-field__label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
-                                <input type="text" class="ignis-input" name="veh_type" id="fahrzeug-veh_typ" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="fahrzeug-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="ignis-input" name="priority" id="fahrzeug-priority" required>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="fahrzeug-rd_type">Typ (Rettungsdienstlich)</label>
-                                <select class="ignis-input" name="rd_type" id="fahrzeug-rd_type">
-                                    <option value="0">Andere</option>
-                                    <option value="1">Rettungsdienst mit NA</option>
-                                    <option value="2">Rettungsdienst ohne NA</option>
-                                    <option value="3">Feuerwehr</option>
-                                </select>
-                            </div>
-
-                            <label class="ignis-checkbox" for="fahrzeug-active"><input type="checkbox" name="active" id="fahrzeug-active"><span>Aktiv?</span></label>
-
-                            <div class="mb-3">
-                                <label for="fahrzeug-allowed_jobs" class="ignis-field__label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
-                                <input type="text" class="ignis-input" name="allowed_jobs" id="fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
-                            </div>
-
-                            <?php
-                            $prefix = 'fahrzeug-';
-                            $showPreview = true;
-                            include __DIR__ . '/../../../../assets/components/tactical-symbol-form.php';
-                            ?>
-
-                        </div>
-                        <div class="modal-footer flex justify-between">
-                            <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="delete-fahrzeug-btn">Löschen</button>
-
-                            <div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">Speichern</button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <form id="delete-fahrzeug-form" action="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/delete" method="POST" style="display:none;">
-                        <input type="hidden" name="id" id="fahrzeug-delete-id">
-                    </form>
-
-                </div>
+        <!-- Form-Body als <template>; Edit + Create teilen sich denselben
+             Prefix `fahrzeug-`, weil pro Open nur eine Dialog-Instanz im DOM
+             ist. Die tactical-symbol-form-Partial wird mit useGlobalBind=true
+             eingebunden, damit ihre inline-<script>-Bloecke nicht emittiert
+             werden — die Bindings macht bindTacticalSymbolForm im onOpen. -->
+        <template id="fahrzeugFormTemplate">
+            <div class="mb-3">
+                <label for="fahrzeug-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
+                <input type="text" class="ignis-input" name="name" id="fahrzeug-name" required>
             </div>
-        </div>
-    <?php endif; ?>
-    <!-- MODAL END -->
-    <!-- MODAL 2 BEGIN -->
-    <?php if (Permissions::check('admin')) : ?>
-        <div class="modal fade" id="createFahrzeugModal" tabindex="-1" aria-labelledby="createFahrzeugModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form action="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/create" method="POST">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="createFahrzeugModalLabel">Neues Fahrzeug anlegen</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                        </div>
-                        <div class="modal-body">
-
-                            <div class="mb-3">
-                                <label for="new-fahrzeug-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
-                                <input type="text" class="ignis-input" name="name" id="new-fahrzeug-name" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="new-fahrzeug-kennzeichen" class="ignis-field__label">Kennzeichen</label>
-                                <input type="text" class="ignis-input" name="kennzeichen" id="new-fahrzeug-kennzeichen" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="new-fahrzeug-identifier" class="ignis-field__label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
-                                <input type="text" class="ignis-input" name="identifier" id="new-fahrzeug-identifier" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="new-fahrzeug-veh_typ" class="ignis-field__label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
-                                <input type="text" class="ignis-input" name="veh_type" id="new-fahrzeug-veh_typ" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="new-fahrzeug-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
-                                <input type="number" class="ignis-input" name="priority" id="new-fahrzeug-priority" required>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label for="new-fahrzeug-rd_type">Typ (Rettungsdienstlich)</label>
-                                <select class="ignis-input" name="rd_type" id="new-fahrzeug-rd_type">
-                                    <option value="0">Andere</option>
-                                    <option value="1">Rettungsdienst mit NA</option>
-                                    <option value="2">Rettungsdienst ohne NA</option>
-                                    <option value="3">Feuerwehr</option>
-                                </select>
-                            </div>
-
-                            <label class="ignis-checkbox" for="new-fahrzeug-active"><input type="checkbox" name="active" id="new-fahrzeug-active" checked><span>Aktiv?</span></label>
-
-                            <div class="mb-3">
-                                <label for="new-fahrzeug-allowed_jobs" class="ignis-field__label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
-                                <input type="text" class="ignis-input" name="allowed_jobs" id="new-fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
-                            </div>
-
-                            <?php
-                            $prefix = 'new-fahrzeug-';
-                            $showPreview = true;
-                            include __DIR__ . '/../../../../assets/components/tactical-symbol-form.php';
-                            ?>
-
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--success">Erstellen</button>
-                        </div>
-                    </form>
-                </div>
+            <div class="mb-3">
+                <label for="fahrzeug-kennzeichen" class="ignis-field__label">Kennzeichen</label>
+                <input type="text" class="ignis-input" name="kennzeichen" id="fahrzeug-kennzeichen" required>
             </div>
-        </div>
+            <div class="mb-3">
+                <label for="fahrzeug-identifier" class="ignis-field__label">Identifier <small class="form-hint">(eindeutige interne Kennung)</small></label>
+                <input type="text" class="ignis-input" name="identifier" id="fahrzeug-identifier" required>
+            </div>
+            <div class="mb-3">
+                <label for="fahrzeug-veh_typ" class="ignis-field__label">Typ <small class="form-hint">(RTW,NEF,RTH etc.)</small></label>
+                <input type="text" class="ignis-input" name="veh_type" id="fahrzeug-veh_typ" required>
+            </div>
+            <div class="mb-3">
+                <label for="fahrzeug-priority" class="ignis-field__label">Priorität <small class="form-hint">(Je niedriger die Zahl, desto höher sortiert)</small></label>
+                <input type="number" class="ignis-input" name="priority" id="fahrzeug-priority" value="0" required>
+            </div>
+            <div class="form-group mb-3">
+                <label for="fahrzeug-rd_type">Typ (Rettungsdienstlich)</label>
+                <select class="ignis-input" name="rd_type" id="fahrzeug-rd_type">
+                    <option value="0">Andere</option>
+                    <option value="1">Rettungsdienst mit NA</option>
+                    <option value="2">Rettungsdienst ohne NA</option>
+                    <option value="3">Feuerwehr</option>
+                </select>
+            </div>
+            <label class="ignis-checkbox" for="fahrzeug-active"><input type="checkbox" name="active" id="fahrzeug-active"><span>Aktiv?</span></label>
+            <div class="mb-3">
+                <label for="fahrzeug-allowed_jobs" class="ignis-field__label">Erlaubte Jobs <small class="form-hint">(kommagetrennt, leer = alle)</small></label>
+                <input type="text" class="ignis-input" name="allowed_jobs" id="fahrzeug-allowed_jobs" placeholder="z.B. BF,FF_Stadt">
+            </div>
+            <?php
+            $prefix         = 'fahrzeug-';
+            $showPreview    = true;
+            $useGlobalBind  = true;
+            include __DIR__ . '/../../../../assets/components/tactical-symbol-form.php';
+            ?>
+        </template>
+
+        <form id="delete-fahrzeug-form" action="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/delete" method="POST" style="display:none;">
+            <input type="hidden" name="id" id="fahrzeug-delete-id">
+        </form>
     <?php endif; ?>
-    <!-- MODAL 2 END -->
 
 
     <!-- TZ Template Manager Modal -->
@@ -369,6 +270,7 @@ use App\Helpers\Flash;
     <?php endif; ?>
 
 
+    <script src="<?= BASE_PATH ?>assets/js/modules/tactical-symbol-form.js"></script>
     <script src="<?= BASE_PATH ?>assets/js/modules/vehicles-admin.js"></script>
     <script>
     initVehiclesAdminPage({
