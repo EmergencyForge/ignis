@@ -874,6 +874,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         position: absolute;
         top: 2px;
         right: 2px;
+        box-sizing: border-box;
         min-width: 18px;
         height: 18px;
         padding: 0 4px;
@@ -882,23 +883,19 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         color: #fff;
         font-size: 0.64rem;
         font-weight: 700;
-        line-height: 18px;
-        text-align: center;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         border: 2px solid var(--sidebar-bg);
         box-shadow: 0 0 0 0 rgba(var(--main-color-rgb, 255, 77, 0), 0.55);
         transition: box-shadow 0.2s ease;
         pointer-events: none;
     }
 
-    /* Bell-Icon-Highlight bei ungelesenen Notifications: Brand-Color +
-       sanftes Pulsen, damit das Icon im Topbar-Sichtfeld auffaellt. */
-    .topbar-icon-btn--has-unread {
-        color: var(--main-color);
-    }
-    .topbar-icon-btn--has-unread:hover,
-    .topbar-icon-btn--has-unread.open {
-        color: #fff;
-    }
+    /* Bell-Icon-Highlight bei ungelesenen Notifications: Bell bleibt weiss,
+       nur der Badge pulst sanft (Glow-Ring), damit das Symbol auffaellt
+       ohne wie ein Fehler-Icon zu wirken. */
     .topbar-icon-btn--has-unread .topbar-ignis-chip {
         animation: topbar-notif-pulse 2.4s ease-in-out infinite;
     }
@@ -1078,16 +1075,22 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         padding: 0.55rem 0.6rem;
         border-radius: 8px;
         color: var(--text-normal);
-        text-decoration: none;
+        text-decoration: none !important;
         position: relative;
         transition: background 0.12s;
         border-left: 2px solid transparent;
     }
 
+    .notification-item,
+    .notification-item *,
+    .notification-item:hover,
+    .notification-item:hover * {
+        text-decoration: none !important;
+    }
+
     .notification-item:hover {
         background: var(--sidebar-hover-bg);
         color: #fff;
-        text-decoration: none;
     }
 
     .notification-item.unread {
