@@ -423,7 +423,7 @@ final class DocumentsController
                             'dokument',
                             'Neues Dokument erstellt',
                             "Ein neues Dokument ({$template['name']} #{$documentId}) wurde für Sie erstellt.",
-                            $base . "mitarbeiter/dokument-view.php?docid={$documentId}"
+                            $base . "mitarbeiter/dokument-view?docid={$documentId}"
                         );
                     }
                 }

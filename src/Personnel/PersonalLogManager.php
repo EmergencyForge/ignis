@@ -184,7 +184,7 @@ class PersonalLogManager
         $basePath = $basePath ?? (defined('BASE_PATH') ? BASE_PATH : '');
         
         $content = sprintf(
-            'Ein neues Dokument (<a href="%sassets/functions/docredir.php?docid=%d" target="_blank">#%d</a>) wurde erstellt.',
+            'Ein neues Dokument (<a href="%smitarbeiter/dokument-view?docid=%d" target="_blank">#%d</a>) wurde erstellt.',
             $basePath,
             $documentId,
             $documentId
