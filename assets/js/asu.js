@@ -378,11 +378,10 @@ function sendData() {
     });
 }
 
-// View ASU Protocol
+// View ASU Protocol — baut das Markup als String und uebergibt es als
+// Dialog-Body. Modal-Instanz und viewContainer-Element-Lookup entfallen,
+// weil das alte Bootstrap-Modal-Markup geloescht ist.
 function viewASUProtocol(data) {
-  const modal = new bootstrap.Modal(document.getElementById("viewASUModal"));
-  const viewContainer = document.getElementById("asuProtocolView");
-
   let html = `
     <div class="row mb-3">
       <div class="col-md-3">
@@ -481,8 +480,14 @@ function viewASUProtocol(data) {
     `;
   }
 
-  viewContainer.innerHTML = html;
-  modal.show();
+  // Dialog ersetzt das alte Bootstrap-Modal — Body wird mit dem
+  // JS-gebauten HTML befuellt, ohne Helper-Container im DOM noetig.
+  new Dialog({
+    title: 'ASU-Protokoll Ansicht',
+    size:  'xl',
+    body:  html,
+    actions: [{ label: 'Schließen', variant: 'ghost', close: true }],
+  }).open();
 }
 
 // Delete ASU Protocol
