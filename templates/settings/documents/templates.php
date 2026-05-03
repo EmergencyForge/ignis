@@ -202,169 +202,146 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Template bearbeiten/erstellen Modal -->
-    <div class="modal fade" id="templateFormModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="formModalTitle">Neues Template erstellen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <!--
+        Drei Park-Container: werden zur Laufzeit per ignis-Dialog (preserveBody=true)
+        in den Dialog-Body verschoben und beim Schliessen zurueckgehaengt.
+        Bewusst keine .modal-Klassen mehr — die Dialog-Wrapper bringen ihre
+        eigene Box mit, die Park-Container brauchen keine Bootstrap-Modal-DOM.
+    -->
+
+    <!-- Template bearbeiten/erstellen — Park-Body -->
+    <div id="templateFormModal" class="ignis-dialog-park" hidden>
+        <form id="templateForm">
+            <input type="hidden" id="templateId" name="templateId">
+
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
+                <div class="md:col-span-6">
+                    <div class="mb-3">
+                        <label for="templateName" class="ignis-field__label">Template-Name <span class="text-[#d46b6b]">*</span></label>
+                        <input type="text" class="ignis-input" id="templateName" name="name" required>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="templateForm">
-                        <input type="hidden" id="templateId" name="templateId">
-
-                        <div class="grid grid-cols-1 gap-4 md:grid-cols-12">
-                            <div class="md:col-span-6">
-                                <div class="mb-3">
-                                    <label for="templateName" class="ignis-field__label">Template-Name <span class="text-[#d46b6b]">*</span></label>
-                                    <input type="text" class="ignis-input" id="templateName" name="name" required>
-                                </div>
-                            </div>
-                            <div class="md:col-span-3">
-                                <div class="mb-3">
-                                    <label for="templateCategory" class="ignis-field__label">Kategorie <span class="text-[#d46b6b]">*</span></label>
-                                    <select class="form-select" id="templateCategory" name="category_id" required>
-                                        <option value="">Bitte wählen</option>
-                                        <?php foreach ($kategorien as $kat): ?>
-                                            <option value="<?= (int)$kat['id'] ?>"><?= htmlspecialchars($kat['name']) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <div class="ignis-field__hint">
-                                        <a href="<?= BASE_PATH ?>settings/documents/categories">Kategorien verwalten</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="md:col-span-3">
-                                <div class="mb-3">
-                                    <label for="templateFile" class="ignis-field__label">Dateiname</label>
-                                    <input type="text" class="ignis-input" id="templateFile" name="template_file"
-                                        pattern="[a-z_]+\.html\.twig"
-                                        placeholder="auto">
-                                    <small class="text-[var(--text-dimmed,#818189)]">Automatisch wenn leer</small>
-                                </div>
-                            </div>
+                <div class="md:col-span-3">
+                    <div class="mb-3">
+                        <label for="templateCategory" class="ignis-field__label">Kategorie <span class="text-[#d46b6b]">*</span></label>
+                        <select class="form-select" id="templateCategory" name="category_id" required>
+                            <option value="">Bitte wählen</option>
+                            <?php foreach ($kategorien as $kat): ?>
+                                <option value="<?= (int)$kat['id'] ?>"><?= htmlspecialchars($kat['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="ignis-field__hint">
+                            <a href="<?= BASE_PATH ?>settings/documents/categories">Kategorien verwalten</a>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="templateDescription" class="ignis-field__label">Beschreibung</label>
-                            <textarea class="ignis-input" id="templateDescription" name="description" rows="1"></textarea>
-                        </div>
-
-                        <hr class="my-3">
-
-                        <div class="flex justify-between items-center mb-3">
-                            <h6 class="mb-0">Formularfelder</h6>
-                            <button type="button" class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="addFieldBtn">
-                                <i class="fa-solid fa-plus mr-1"></i> Feld hinzufügen
-                            </button>
-                        </div>
-
-                        <div id="fieldList" class="field-list"></div>
-                    </form>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--outline-secondary" id="previewBtn">Vorschau</button>
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="ignis-btn ignis-btn--soft-primary" id="saveTemplateBtn">
-                        <i class="fa-solid fa-floppy-disk mr-1"></i> Template speichern
-                    </button>
+                <div class="md:col-span-3">
+                    <div class="mb-3">
+                        <label for="templateFile" class="ignis-field__label">Dateiname</label>
+                        <input type="text" class="ignis-input" id="templateFile" name="template_file"
+                            pattern="[a-z_]+\.html\.twig"
+                            placeholder="auto">
+                        <small class="text-[var(--text-dimmed,#818189)]">Automatisch wenn leer</small>
+                    </div>
                 </div>
             </div>
+
+            <div class="mb-3">
+                <label for="templateDescription" class="ignis-field__label">Beschreibung</label>
+                <textarea class="ignis-input" id="templateDescription" name="description" rows="1"></textarea>
+            </div>
+
+            <hr class="my-3">
+
+            <div class="flex justify-between items-center mb-3">
+                <h6 class="mb-0">Formularfelder</h6>
+                <button type="button" class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="addFieldBtn">
+                    <i class="fa-solid fa-plus mr-1"></i> Feld hinzufügen
+                </button>
+            </div>
+
+            <div id="fieldList" class="field-list"></div>
+        </form>
+        <div class="ignis-dialog-park__footer flex justify-end gap-2 mt-3">
+            <button type="button" class="ignis-btn ignis-btn--outline-secondary" id="previewBtn">Vorschau</button>
+            <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
+            <button type="button" class="ignis-btn ignis-btn--soft-primary" id="saveTemplateBtn">
+                <i class="fa-solid fa-floppy-disk mr-1"></i> Template speichern
+            </button>
         </div>
     </div>
 
-    <!-- Modal für Vorschau -->
-    <div class="modal fade" id="previewModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Formular-Vorschau</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="previewContent" class="template-preview"></div>
-                </div>
-            </div>
-        </div>
+    <!-- Vorschau — Park-Body -->
+    <div id="previewModal" class="ignis-dialog-park" hidden>
+        <div id="previewContent" class="template-preview"></div>
     </div>
 
-    <!-- Modal für Feld-Konfiguration -->
-    <div class="modal fade" id="fieldModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Feld konfigurieren</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="fieldForm">
-                        <input type="hidden" id="fieldIndex">
+    <!-- Feld-Konfiguration — Park-Body -->
+    <div id="fieldModal" class="ignis-dialog-park" hidden>
+        <form id="fieldForm">
+            <input type="hidden" id="fieldIndex">
 
-                        <div class="mb-3">
-                            <label for="fieldLabel" class="ignis-field__label">Feld-Label <span class="text-[#d46b6b]">*</span></label>
-                            <input type="text" class="ignis-input" id="fieldLabel" required>
-                        </div>
+            <div class="mb-3">
+                <label for="fieldLabel" class="ignis-field__label">Feld-Label <span class="text-[#d46b6b]">*</span></label>
+                <input type="text" class="ignis-input" id="fieldLabel" required>
+            </div>
 
-                        <div class="mb-3">
-                            <label for="fieldName" class="ignis-field__label">Feld-Name (technisch) <span class="text-[#d46b6b]">*</span></label>
-                            <input type="text" class="ignis-input" id="fieldName" required
-                                pattern="[a-z_]+" title="Nur Kleinbuchstaben und Unterstriche">
-                            <small class="text-[var(--text-dimmed,#818189)]">Nur Kleinbuchstaben und Unterstriche erlaubt</small>
-                        </div>
+            <div class="mb-3">
+                <label for="fieldName" class="ignis-field__label">Feld-Name (technisch) <span class="text-[#d46b6b]">*</span></label>
+                <input type="text" class="ignis-input" id="fieldName" required
+                    pattern="[a-z_]+" title="Nur Kleinbuchstaben und Unterstriche">
+                <small class="text-[var(--text-dimmed,#818189)]">Nur Kleinbuchstaben und Unterstriche erlaubt</small>
+            </div>
 
-                        <div class="mb-3">
-                            <label for="fieldType" class="ignis-field__label">Feld-Typ <span class="text-[#d46b6b]">*</span></label>
-                            <select class="form-select" id="fieldType" required>
-                                <option value="text">Textfeld</option>
-                                <option value="textarea">Mehrzeiliger Text</option>
-                                <option value="richtext">Rich-Text Editor</option>
-                                <option value="date">Datum</option>
-                                <option value="number">Zahl</option>
-                                <option value="select">Auswahlfeld (manuell)</option>
-                                <option value="db_dg">Dienstgrad-Auswahl (aus DB)</option>
-                                <option value="db_rdq">RD-Qualifikation (aus DB)</option>
-                            </select>
-                        </div>
+            <div class="mb-3">
+                <label for="fieldType" class="ignis-field__label">Feld-Typ <span class="text-[#d46b6b]">*</span></label>
+                <select class="form-select" id="fieldType" required>
+                    <option value="text">Textfeld</option>
+                    <option value="textarea">Mehrzeiliger Text</option>
+                    <option value="richtext">Rich-Text Editor</option>
+                    <option value="date">Datum</option>
+                    <option value="number">Zahl</option>
+                    <option value="select">Auswahlfeld (manuell)</option>
+                    <option value="db_dg">Dienstgrad-Auswahl (aus DB)</option>
+                    <option value="db_rdq">RD-Qualifikation (aus DB)</option>
+                </select>
+            </div>
 
-                        <div class="mb-3" id="genderSpecificContainer" style="display: none;">
-                            <div class="ignis-checkbox">
-                                <input type="checkbox" id="genderSpecific">
-                                <label for="genderSpecific">
-                                    Geschlechtsspezifische Optionen
-                                </label>
-                                <small class="ignis-field__hint text-[var(--text-dimmed,#818189)] block">
-                                    Aktivieren für männlich/weiblich/neutral Varianten
-                                </small>
-                            </div>
-                        </div>
-
-                        <div id="optionsContainer" class="mb-3" style="display: none;">
-                            <label class="ignis-field__label">Auswahloptionen</label>
-                            <div id="optionsList"></div>
-                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2" id="addOptionBtn">
-                                + Option hinzufügen
-                            </button>
-                        </div>
-
-                        <div class="ignis-alert ignis-alert--info" id="dbFieldInfo" style="display: none;">
-                            <strong>Hinweis:</strong> Dieses Feld wird automatisch mit Daten aus der Datenbank befüllt.
-                            Die geschlechtsspezifischen Varianten werden automatisch berücksichtigt.
-                        </div>
-
-                        <div class="ignis-checkbox mb-3">
-                            <input type="checkbox" id="fieldRequired">
-                            <label for="fieldRequired">
-                                Pflichtfeld
-                            </label>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="ignis-btn ignis-btn--soft-primary" id="saveFieldBtn">Feld speichern</button>
+            <div class="mb-3" id="genderSpecificContainer" style="display: none;">
+                <div class="ignis-checkbox">
+                    <input type="checkbox" id="genderSpecific">
+                    <label for="genderSpecific">
+                        Geschlechtsspezifische Optionen
+                    </label>
+                    <small class="ignis-field__hint text-[var(--text-dimmed,#818189)] block">
+                        Aktivieren für männlich/weiblich/neutral Varianten
+                    </small>
                 </div>
             </div>
+
+            <div id="optionsContainer" class="mb-3" style="display: none;">
+                <label class="ignis-field__label">Auswahloptionen</label>
+                <div id="optionsList"></div>
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2" id="addOptionBtn">
+                    + Option hinzufügen
+                </button>
+            </div>
+
+            <div class="ignis-alert ignis-alert--info" id="dbFieldInfo" style="display: none;">
+                <strong>Hinweis:</strong> Dieses Feld wird automatisch mit Daten aus der Datenbank befüllt.
+                Die geschlechtsspezifischen Varianten werden automatisch berücksichtigt.
+            </div>
+
+            <div class="ignis-checkbox mb-3">
+                <input type="checkbox" id="fieldRequired">
+                <label for="fieldRequired">
+                    Pflichtfeld
+                </label>
+            </div>
+        </form>
+        <div class="ignis-dialog-park__footer flex justify-end gap-2 mt-3">
+            <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
+            <button type="button" class="ignis-btn ignis-btn--soft-primary" id="saveFieldBtn">Feld speichern</button>
         </div>
     </div>
 

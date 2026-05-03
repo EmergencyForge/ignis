@@ -43,6 +43,10 @@ export class Dialog {
             onOpen: null,
             onClose: null,
             ariaLabel: null,
+            // Wenn body als HTMLElement uebergeben wird und preserveBody=true
+            // gesetzt ist, wird das Element beim close NICHT zerstoert sondern
+            // an den Original-Parent (oder einen versteckten Park) zurueckgehaengt.
+            preserveBody: false,
             ...options,
         };
         this.element = null;
@@ -50,6 +54,8 @@ export class Dialog {
         this.previousFocus = null;
         this._resolve = null;
         this._result = null;
+        this._bodyEl = null;
+        this._bodyOrigin = null;
         this._boundKeyHandler = this._handleKey.bind(this);
     }
 
@@ -93,7 +99,21 @@ export class Dialog {
         const el = this.element;
         const bd = this.backdrop;
 
+        // preserveBody: HTMLElement-Body vor dem Entfernen aus dem Dialog
+        // herausnehmen und (falls vorhanden) an den Original-Parent zurueck.
+        // Sonst hidden auf <body> parken, damit ID-Lookups weiterhin gehen.
+        const preserveEl = this.options.preserveBody && this._bodyEl ? this._bodyEl : null;
+        const origin     = this._bodyOrigin;
+
         setTimeout(() => {
+            if (preserveEl) {
+                if (origin && document.contains(origin)) {
+                    origin.appendChild(preserveEl);
+                } else {
+                    preserveEl.style.display = 'none';
+                    document.body.appendChild(preserveEl);
+                }
+            }
             el.remove();
             bd.remove();
         }, 220);
@@ -381,6 +401,11 @@ export class Dialog {
         const bodyEl = this.element.querySelector('.ignis-dialog__body');
         const body = this.options.body;
         if (body instanceof HTMLElement) {
+            // Original-Parent merken, damit preserveBody das Element zurueck-
+            // haengen kann. Wenn es noch nirgends im DOM ist, ist parentNode
+            // null und wir parken's auf <body>.
+            this._bodyOrigin = body.parentNode;
+            this._bodyEl = body;
             bodyEl.appendChild(body);
         } else if (typeof body === 'string') {
             bodyEl.innerHTML = body;
