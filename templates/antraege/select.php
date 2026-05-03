@@ -16,21 +16,26 @@ $SITE_TITLE = "Antrag einreichen";
 <head>
     <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
     <style>
+        /* Lokale Karten-Optik fuer die Antrag-Auswahl. Nutzt die ignis-Tokens
+           (--body-bg-lighter / --darkgray) statt der Bootstrap-Variablen
+           --bs-light-rgb / --bs-dark-rgb, die im neuen Theme nicht mehr
+           gesetzt sind und vorher zu komplett unsichtbaren Karten fuehrten. */
         .antrag-card {
-            transition: all 0.3s ease;
+            transition: transform 0.18s ease, border-color 0.15s ease, box-shadow 0.18s ease;
             cursor: pointer;
-            border: 2px solid rgba(var(--bs-light-rgb), 0.1);
-            background: rgba(var(--bs-dark-rgb), 0.5);
+            border: 1px solid var(--darkgray, #2a2a2a);
+            background: var(--body-bg-lighter, #161616);
+            border-radius: var(--radius-xl, 10px);
         }
 
         .antrag-card h4 {
-            color: var(--white);
+            color: var(--text-title, #fff);
         }
 
         .antrag-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-3px);
             border-color: var(--main-color);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
         }
 
         .antrag-icon {

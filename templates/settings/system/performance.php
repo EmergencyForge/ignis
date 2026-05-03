@@ -122,12 +122,10 @@ use App\Helpers\Flash;
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container mt-4 mb-5">
 
-        <nav aria-label="breadcrumb" class="mb-3">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?= BASE_PATH ?>index">Dashboard</a></li>
-                <li class="breadcrumb-item">Einstellungen</li>
-                <li class="breadcrumb-item active">Performance</li>
-            </ol>
+        <nav class="ignis-breadcrumb mb-3" aria-label="breadcrumb">
+            <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
+            <span class="ignis-breadcrumb__item">Einstellungen</span>
+            <span class="ignis-breadcrumb__item is-active">Performance</span>
         </nav>
 
         <div class="mb-4 flex items-center justify-between">
