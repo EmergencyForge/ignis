@@ -867,6 +867,66 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         border: 2px solid var(--sidebar-bg);
     }
 
+    /* Notification-Badge ueber dem Bell-Icon (.notification-poll-badge,
+       .topbar-ignis-chip). Position + Style identisch zu .topbar-badge,
+       aber mit Pulsring + Glow im aktiven Zustand. */
+    .topbar-icon-btn .topbar-ignis-chip {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: 10px;
+        background: var(--main-color);
+        color: #fff;
+        font-size: 0.64rem;
+        font-weight: 700;
+        line-height: 18px;
+        text-align: center;
+        border: 2px solid var(--sidebar-bg);
+        box-shadow: 0 0 0 0 rgba(var(--main-color-rgb, 255, 77, 0), 0.55);
+        transition: box-shadow 0.2s ease;
+        pointer-events: none;
+    }
+
+    /* Bell-Icon-Highlight bei ungelesenen Notifications: Brand-Color +
+       sanftes Pulsen, damit das Icon im Topbar-Sichtfeld auffaellt. */
+    .topbar-icon-btn--has-unread {
+        color: var(--main-color);
+    }
+    .topbar-icon-btn--has-unread:hover,
+    .topbar-icon-btn--has-unread.open {
+        color: #fff;
+    }
+    .topbar-icon-btn--has-unread .topbar-ignis-chip {
+        animation: topbar-notif-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes topbar-notif-pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(var(--main-color-rgb, 255, 77, 0), 0.55);
+        }
+        50% {
+            box-shadow: 0 0 0 6px rgba(var(--main-color-rgb, 255, 77, 0), 0);
+        }
+    }
+
+    /* Wiggle bei Eintreffen einer neuen Notification (transient via JS). */
+    .topbar-icon-btn--shake > i {
+        animation: topbar-notif-shake 0.55s cubic-bezier(.36,.07,.19,.97) both;
+        transform-origin: 50% 4px;
+    }
+    @keyframes topbar-notif-shake {
+        10%, 90%   { transform: translate(-1px, 0) rotate(-6deg); }
+        20%, 80%   { transform: translate(1px, 0)  rotate(6deg);  }
+        30%, 50%, 70% { transform: translate(-1px, 0) rotate(-10deg); }
+        40%, 60%   { transform: translate(1px, 0)  rotate(10deg);  }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .topbar-icon-btn--has-unread .topbar-ignis-chip,
+        .topbar-icon-btn--shake > i { animation: none; }
+    }
+
     /* User avatar trigger */
     .topbar-user-btn {
         display: flex;
@@ -2124,9 +2184,13 @@ $topbarTimeAgo = static function (string $createdAt): string {
                     $notifFlyout.find(".notification-item.unread")
                         .removeClass("unread")
                         .find(".notification-item-dot").remove();
-                    $(".notification-poll-badge").each(function() {
-                        $(this).text("0").hide();
-                    });
+                    if (typeof window.intraNotifSetCount === 'function') {
+                        window.intraNotifSetCount(0);
+                    } else {
+                        $(".notification-poll-badge").each(function() {
+                            $(this).text("0").hide();
+                        });
+                    }
                 } else {
                     $markAll.prop("disabled", false);
                 }
@@ -2206,9 +2270,22 @@ $topbarTimeAgo = static function (string $createdAt): string {
         var lastKnownCount = <?= $unreadCount ?>;
         var toastedIds = {};
 
+        // Original-Browsertitel einmalig sichern; Updates passieren als Prefix.
+        var originalDocTitle = document.title;
+
+        function updateBrowserTitle(count) {
+            // Wenn die Seite ihr Titel zwischenzeitlich geaendert hat (z.B.
+            // Tab-Wechsel auf Detailseite), arbeiten wir vom aktuellen Titel
+            // ohne unseren Prefix aus.
+            var stripped = document.title.replace(/^\(\d+\)\s+/, '');
+            originalDocTitle = stripped;
+            document.title = count > 0 ? '(' + (count > 99 ? '99+' : count) + ') ' + stripped : stripped;
+        }
+
         function updateBadges(count) {
             var badges = document.querySelectorAll('.notification-poll-badge');
             var markAllBtn = document.getElementById('topbarNotifMarkAll');
+            var notifBtn = document.getElementById('topbarNotifBtn');
             var text = count > 9 ? '9+' : String(count);
             badges.forEach(function(b) {
                 b.textContent = text;
@@ -2217,6 +2294,34 @@ $topbarTimeAgo = static function (string $createdAt): string {
             if (markAllBtn) {
                 markAllBtn.disabled = count <= 0;
             }
+            if (notifBtn) {
+                notifBtn.classList.toggle('topbar-icon-btn--has-unread', count > 0);
+            }
+            updateBrowserTitle(count);
+        }
+
+        // Initialer Sync: Bell-Highlight + Browser-Titel-Prefix anhand des
+        // serverseitig gerenderten Counts. Vermeidet "blinden" ersten Frame
+        // ohne Highlight, wenn die Seite mit unread > 0 lädt.
+        updateBadges(lastKnownCount);
+
+        // Externer Hook fuer den Mark-All-Handler oben, der ausserhalb
+        // dieses IIFE-Scopes lebt.
+        window.intraNotifSetCount = function (count) {
+            lastKnownCount = count | 0;
+            updateBadges(lastKnownCount);
+        };
+
+        function shakeBell() {
+            var notifBtn = document.getElementById('topbarNotifBtn');
+            if (!notifBtn) return;
+            notifBtn.classList.remove('topbar-icon-btn--shake');
+            // forced reflow → Animation kann erneut starten
+            void notifBtn.offsetWidth;
+            notifBtn.classList.add('topbar-icon-btn--shake');
+            setTimeout(function () {
+                notifBtn.classList.remove('topbar-icon-btn--shake');
+            }, 600);
         }
 
         function poll() {
@@ -2227,9 +2332,11 @@ $topbarTimeAgo = static function (string $createdAt): string {
                 })
                 .then(function(data) {
                     if (!data.success) return;
+                    var increased = data.unreadCount > lastKnownCount;
                     updateBadges(data.unreadCount);
+                    if (increased) shakeBell();
                     // Only toast truly new notifications (count increased + not yet toasted)
-                    if (data.unreadCount > lastKnownCount && data.new && data.new.length > 0) {
+                    if (increased && data.new && data.new.length > 0) {
                         for (var i = 0; i < data.new.length; i++) {
                             var n = data.new[i];
                             if (!toastedIds[n.id]) {
