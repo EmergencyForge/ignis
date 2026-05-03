@@ -103,7 +103,7 @@ if ($incident) {
         </div>
 
         <div class="mt-4 flex justify-center">
-            <button type="button" class="ignis-btn ignis-btn--success ignis-btn--lg" data-bs-toggle="modal" data-bs-target="#finalizeConfirmModal" <?= $canFinalize ? '' : 'disabled' ?>>
+            <button type="button" class="ignis-btn ignis-btn--success ignis-btn--lg" onclick="finalizeEinsatz()" <?= $canFinalize ? '' : 'disabled' ?>>
                 <i class="fa-solid fa-check-circle mr-2"></i>
                 Einsatz jetzt abschließen
             </button>
