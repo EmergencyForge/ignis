@@ -85,7 +85,7 @@ hr {
 }
 
 body {
-  --bs-body-font-family: "Rubik", system-ui, -apple-system, "Segoe UI", Roboto,
+  --bs-body-font-family: "Geist", system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
   font-family: var(--bs-body-font-family);
@@ -105,8 +105,8 @@ h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
   margin-top: 0;
   margin-bottom: 0.5rem;
-  font-family: "Poppins", var(--bs-body-font-family);
-  font-weight: 600;
+  font-family: "Geist", var(--bs-body-font-family);
+  font-weight: 700;
   line-height: 1.2;
   color: var(--text-title);
 }

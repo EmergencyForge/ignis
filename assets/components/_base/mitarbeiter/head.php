@@ -6,14 +6,16 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?php echo $SITE_TITLE; ?> &rsaquo; <?php echo SYSTEM_NAME ?></title>
-<!-- Preload critical font -->
-<link rel="preload" href="<?= BASE_PATH ?>assets/fonts/mavenpro/font/maven-pro-v39-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+<!-- Preload critical fonts: Geist Sans + Geist Mono -->
+<link rel="preload" href="<?= BASE_PATH ?>assets/fonts/geist/fonts/geist-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="<?= BASE_PATH ?>assets/fonts/geist-mono/fonts/geist-mono-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
 <!-- Stylesheets: Bootstrap first, then overrides -->
 <!-- Vendor + App-SCSS zuerst, Tailwind-Utilities zuletzt damit sie bei
      gleicher Spezifität im Cascade-Tie gewinnen. -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/bootstrap-compat.min.css') ?>">
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/ckeditor5/ckeditor5.css" />
 <link rel="stylesheet" href="<?= asset('assets/css/style.min.css') ?>" />
 <link rel="stylesheet" href="<?= asset('assets/css/admin.min.css') ?>" />
