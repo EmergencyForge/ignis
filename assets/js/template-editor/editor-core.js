@@ -334,8 +334,7 @@
 
                 if (e.key === '?' && !inInput) {
                     e.preventDefault();
-                    const helpModal = document.getElementById('shortcutHelpModal');
-                    if (helpModal) bootstrap.Modal.getOrCreateInstance(helpModal).show();
+                    window.VisualEditorDialogs?.shortcutHelp?.show();
                 } else if (e.key === 'Delete' || e.key === 'Backspace') {
                     e.preventDefault();
                     this.deleteSelected();

@@ -318,73 +318,45 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         </div>
     </div>
 
-    <!-- Field selection modal -->
-    <div class="modal fade" id="fieldSelectModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Feld hinzufügen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="list-group" id="field-select-list">
-                        <!-- Wird dynamisch befüllt -->
-                    </div>
-                </div>
-            </div>
+    <!--
+        Vier Park-Container fuer ignis-Dialog (preserveBody=true). Werden
+        beim Öffnen via assets/js/template-editor/*.js in den Dialog-Body
+        gehoben und beim Schliessen zurueckgehaengt — die DOM-IDs muessen
+        also persistent bleiben, damit die Editor-Module auf die Inhalte
+        weiter zugreifen koennen.
+    -->
+
+    <!-- Field-Select-Park -->
+    <div id="fieldSelectModal" class="ignis-dialog-park" hidden>
+        <div class="list-group" id="field-select-list">
+            <!-- Wird dynamisch befüllt -->
         </div>
     </div>
 
-    <!-- Asset manager modal -->
-    <div class="modal fade" id="assetManagerModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Bild auswählen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="ignis-field__label">Neues Bild hochladen</label>
-                        <input type="file" class="ignis-input" id="asset-upload-input" accept="image/png,image/jpeg,image/gif,image/svg+xml">
-                    </div>
-                    <hr>
-                    <div class="sidebar-section-title">Vorhandene Bilder</div>
-                    <div class="grid grid-cols-2 gap-2" id="asset-gallery">
-                        <!-- Wird dynamisch befüllt -->
-                    </div>
-                </div>
-            </div>
+    <!-- Asset-Manager-Park -->
+    <div id="assetManagerModal" class="ignis-dialog-park" hidden>
+        <div class="mb-3">
+            <label class="ignis-field__label">Neues Bild hochladen</label>
+            <input type="file" class="ignis-input" id="asset-upload-input" accept="image/png,image/jpeg,image/gif,image/svg+xml">
+        </div>
+        <hr>
+        <div class="sidebar-section-title">Vorhandene Bilder</div>
+        <div class="grid grid-cols-2 gap-2" id="asset-gallery">
+            <!-- Wird dynamisch befüllt -->
         </div>
     </div>
 
-    <!-- Preview modal -->
-    <div class="modal fade" id="previewModal" tabindex="-1">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">PDF-Vorschau</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0" style="height:80vh;">
-                    <iframe id="preview-iframe" style="width:100%;height:100%;border:none;"></iframe>
-                </div>
-            </div>
+    <!-- Preview-Park (PDF-iframe; xl-Dialog) -->
+    <div id="previewModal" class="ignis-dialog-park" hidden>
+        <div class="p-0" style="height:80vh;">
+            <iframe id="preview-iframe" style="width:100%;height:100%;border:none;"></iframe>
         </div>
     </div>
 
-    <!-- Versions-Modal -->
-    <div class="modal fade" id="versionsModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fa-solid fa-clock-rotate-left mr-2"></i>Versionsverlauf</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0" id="versions-list" style="max-height:400px;overflow-y:auto;">
-                    <div class="text-center p-3"><i class="fa-solid fa-spinner fa-spin"></i></div>
-                </div>
-            </div>
+    <!-- Versions-Park -->
+    <div id="versionsModal" class="ignis-dialog-park" hidden>
+        <div class="p-0" id="versions-list" style="max-height:400px;overflow-y:auto;">
+            <div class="text-center p-3"><i class="fa-solid fa-spinner fa-spin"></i></div>
         </div>
     </div>
 
@@ -482,36 +454,28 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         };
     </script>
 
-    <!-- Shortcut-Hilfe Modal -->
-    <div class="modal fade" id="shortcutHelpModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header py-2">
-                    <h6 class="modal-title"><i class="fa-solid fa-keyboard mr-2"></i>Tastenkürzel</h6>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-0" style="font-size:0.82rem;">
-                    <table class="table table-sm table-striped mb-0">
-                        <tbody>
-                            <tr><td class="pl-3"><kbd>Ctrl+S</kbd></td><td>Speichern</td></tr>
-                            <tr><td class="pl-3"><kbd>Ctrl+Z</kbd></td><td>Rückgängig</td></tr>
-                            <tr><td class="pl-3"><kbd>Ctrl+Y</kbd></td><td>Wiederholen</td></tr>
-                            <tr><td class="pl-3"><kbd>Ctrl+C</kbd> / <kbd>X</kbd> / <kbd>V</kbd></td><td>Kopieren / Ausschneiden / Einfügen</td></tr>
-                            <tr><td class="pl-3"><kbd>Ctrl+D</kbd></td><td>Duplizieren</td></tr>
-                            <tr><td class="pl-3"><kbd>Ctrl+A</kbd></td><td>Alles auswählen</td></tr>
-                            <tr><td class="pl-3"><kbd>Ctrl+G</kbd></td><td>Gruppieren</td></tr>
-                            <tr><td class="pl-3"><kbd>Ctrl+Shift+G</kbd></td><td>Gruppe auflösen</td></tr>
-                            <tr><td class="pl-3"><kbd>Entf</kbd> / <kbd>Backspace</kbd></td><td>Löschen</td></tr>
-                            <tr><td class="pl-3"><kbd>Escape</kbd></td><td>Auswahl aufheben</td></tr>
-                            <tr><td class="pl-3"><kbd>Pfeiltasten</kbd></td><td>Verschieben (1px)</td></tr>
-                            <tr><td class="pl-3"><kbd>Shift</kbd> + Pfeiltasten</td><td>Verschieben (10px)</td></tr>
-                            <tr><td class="pl-3"><kbd>Shift</kbd> + Rotation</td><td>15°-Einrastung</td></tr>
-                            <tr><td class="pl-3"><kbd>Ctrl</kbd> + Mausrad</td><td>Zoom</td></tr>
-                            <tr><td class="pl-3"><kbd>?</kbd></td><td>Diese Hilfe anzeigen</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <!-- Shortcut-Hilfe Park-Body -->
+    <div id="shortcutHelpModal" class="ignis-dialog-park" hidden>
+        <div class="p-0" style="font-size:0.82rem;">
+            <table class="table table-sm table-striped mb-0">
+                <tbody>
+                    <tr><td class="pl-3"><kbd>Ctrl+S</kbd></td><td>Speichern</td></tr>
+                    <tr><td class="pl-3"><kbd>Ctrl+Z</kbd></td><td>Rückgängig</td></tr>
+                    <tr><td class="pl-3"><kbd>Ctrl+Y</kbd></td><td>Wiederholen</td></tr>
+                    <tr><td class="pl-3"><kbd>Ctrl+C</kbd> / <kbd>X</kbd> / <kbd>V</kbd></td><td>Kopieren / Ausschneiden / Einfügen</td></tr>
+                    <tr><td class="pl-3"><kbd>Ctrl+D</kbd></td><td>Duplizieren</td></tr>
+                    <tr><td class="pl-3"><kbd>Ctrl+A</kbd></td><td>Alles auswählen</td></tr>
+                    <tr><td class="pl-3"><kbd>Ctrl+G</kbd></td><td>Gruppieren</td></tr>
+                    <tr><td class="pl-3"><kbd>Ctrl+Shift+G</kbd></td><td>Gruppe auflösen</td></tr>
+                    <tr><td class="pl-3"><kbd>Entf</kbd> / <kbd>Backspace</kbd></td><td>Löschen</td></tr>
+                    <tr><td class="pl-3"><kbd>Escape</kbd></td><td>Auswahl aufheben</td></tr>
+                    <tr><td class="pl-3"><kbd>Pfeiltasten</kbd></td><td>Verschieben (1px)</td></tr>
+                    <tr><td class="pl-3"><kbd>Shift</kbd> + Pfeiltasten</td><td>Verschieben (10px)</td></tr>
+                    <tr><td class="pl-3"><kbd>Shift</kbd> + Rotation</td><td>15°-Einrastung</td></tr>
+                    <tr><td class="pl-3"><kbd>Ctrl</kbd> + Mausrad</td><td>Zoom</td></tr>
+                    <tr><td class="pl-3"><kbd>?</kbd></td><td>Diese Hilfe anzeigen</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -520,6 +484,60 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
     <!-- Fabric.js -->
     <script src="<?= BASE_PATH ?>assets/_ext/fabricjs/fabric.min.js"></script>
+
+    <!--
+        Dialog-Adapter fuer die fuenf Park-Container weiter oben. Wird VOR
+        den Editor-Modules geladen, weil asset-manager.js & toolbar.js & co
+        beim Init bereits auf window.VisualEditorDialogs zugreifen.
+    -->
+    <script>
+        (function () {
+            'use strict';
+            function createParkAdapter(parkId, title, opts) {
+                opts = opts || {};
+                let active = null;
+                return {
+                    show(args) {
+                        if (active) return;
+                        const parkEl = document.getElementById(parkId);
+                        if (!parkEl) return;
+                        parkEl.hidden = false;
+                        const onCloseOnce = args && args.onCloseOnce;
+                        active = new window.Dialog({
+                            title:           title,
+                            body:            parkEl,
+                            size:            opts.size || 'md',
+                            preserveBody:    true,
+                            closeOnBackdrop: opts.closeOnBackdrop !== false,
+                            closeOnEscape:   true,
+                            onClose: () => {
+                                parkEl.hidden = true;
+                                active = null;
+                                if (typeof onCloseOnce === 'function') {
+                                    try { onCloseOnce(); } catch (e) { /* ignore */ }
+                                }
+                            },
+                        });
+                        parkEl.querySelectorAll('[data-dialog-dismiss]').forEach((btn) => {
+                            if (btn.dataset.dlgBound === '1') return;
+                            btn.dataset.dlgBound = '1';
+                            btn.addEventListener('click', () => active?.close());
+                        });
+                        active.open();
+                    },
+                    hide() { active?.close(); },
+                };
+            }
+
+            window.VisualEditorDialogs = {
+                fieldSelect:   createParkAdapter('fieldSelectModal',   'Feld hinzufügen',   { size: 'md' }),
+                assetManager:  createParkAdapter('assetManagerModal',  'Bild auswählen',    { size: 'lg' }),
+                preview:       createParkAdapter('previewModal',       'PDF-Vorschau',      { size: 'xl' }),
+                versions:      createParkAdapter('versionsModal',      'Versionsverlauf',   { size: 'md' }),
+                shortcutHelp:  createParkAdapter('shortcutHelpModal',  'Tastenkürzel',      { size: 'sm' }),
+            };
+        })();
+    </script>
 
     <!-- Editor modules -->
     <script src="<?= BASE_PATH ?>assets/js/template-editor/utils.js"></script>

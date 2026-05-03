@@ -51,11 +51,11 @@
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
                     getEditor()?.addFieldPlaceholder(item.dataset.field, item.dataset.label);
-                    bootstrap.Modal.getInstance(document.getElementById('fieldSelectModal'))?.hide();
+                    window.VisualEditorDialogs?.fieldSelect?.hide();
                 });
             });
 
-            new bootstrap.Modal(document.getElementById('fieldSelectModal')).show();
+            window.VisualEditorDialogs?.fieldSelect?.show();
         });
 
         // Bild hinzufügen — öffnet Asset Manager
@@ -143,7 +143,7 @@
             const list = document.getElementById('versions-list');
             if (!list) return;
             list.innerHTML = '<div class="text-center p-3"><i class="fa-solid fa-spinner fa-spin"></i></div>';
-            new bootstrap.Modal(document.getElementById('versionsModal')).show();
+            window.VisualEditorDialogs?.versions?.show();
 
             try {
                 const res = await fetch(CONFIG.basePath + 'api/documents/layout-versions?template_id=' + CONFIG.templateId);
@@ -197,7 +197,7 @@
                         const result = await res.json();
                         window.EditorCsrf.handleResponse(result);
                         if (result.success) {
-                            bootstrap.Modal.getInstance(document.getElementById('versionsModal'))?.hide();
+                            window.VisualEditorDialogs?.versions?.hide();
                             getEditor()?.loadLayout();
                             if (window.showToast) window.showToast('Version wiederhergestellt', 'success');
                         }
@@ -336,11 +336,10 @@
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 iframe.src = url;
-                new bootstrap.Modal(document.getElementById('previewModal')).show();
-                // URL aufräumen wenn Modal geschlossen wird
-                document.getElementById('previewModal')?.addEventListener('hidden.bs.modal', () => {
-                    URL.revokeObjectURL(url);
-                }, { once: true });
+                // ObjectURL nach Close des Preview-Dialogs freigeben
+                window.VisualEditorDialogs?.preview?.show({
+                    onCloseOnce: () => URL.revokeObjectURL(url),
+                });
             } catch (err) {
                 console.error('Preview error:', err);
                 if (window.showToast) {
