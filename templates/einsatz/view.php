@@ -119,7 +119,7 @@ function fmt_elapsed(int|string $seconds): string
                                 <span class="ignis-chip <?= $badge ?>"><?= htmlspecialchars($statusText) ?></span>
                             </span>
                             <?php if ($incident['finalized']): ?>
-                                <button type="button" class="ignis-btn ignis-btn--primary" data-bs-toggle="modal" data-bs-target="#qmStatusModal">
+                                <button type="button" class="ignis-btn ignis-btn--primary" onclick="openQmStatusModal()">
                                     <i class="fa-solid fa-clipboard-check"></i> QM-Status ändern
                                 </button>
                             <?php endif; ?>
@@ -135,74 +135,62 @@ function fmt_elapsed(int|string $seconds): string
         </div>
     </div>
 
-    <!-- Finalize Confirm Modal -->
-    <div class="modal fade" id="finalizeConfirmModal" tabindex="-1" aria-labelledby="finalizeConfirmModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="finalizeConfirmModalLabel">Einsatz abschließen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>Möchten Sie diesen Einsatz wirklich abschließen?</strong></p>
-                    <p class="text-xs text-gray-400">Das Protokoll wird zur QM-Sichtung markiert und alle Daten werden gesperrt. Diese Aktion kann nicht rückgängig gemacht werden.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions" class="inline">
-                        <input type="hidden" name="action" value="finalize">
-                        <input type="hidden" name="incident_id" value="<?= $id ?>">
-                        <input type="hidden" name="return_tab" value="abschluss">
-                        <button type="submit" class="ignis-btn ignis-btn--success">
-                            <i class="fa-solid fa-check-circle mr-1"></i>Jetzt abschließen
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
-        <!-- QM Status Change Modal -->
-        <div class="modal fade" id="qmStatusModal" tabindex="-1" aria-labelledby="qmStatusModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="qmStatusModalLabel">QM-Status ändern</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                    </div>
-                    <form method="post" action="<?= BASE_PATH ?>einsatz/actions">
-                        <div class="modal-body">
-                            <input type="hidden" name="action" value="set_status">
-                            <input type="hidden" name="incident_id" value="<?= $id ?>">
-                            <input type="hidden" name="return_tab" value="<?= $activeTab ?>">
-                            <div class="mb-3">
-                                <label class="ignis-field__label">Status</label>
-                                <select name="status" class="form-select">
-                                    <option value="0" <?= (int)$incident['status'] === 0 ? 'selected' : '' ?>>Ungesehen</option>
-                                    <option value="1" <?= (int)$incident['status'] === 1 ? 'selected' : '' ?>>In Prüfung</option>
-                                    <option value="2" <?= (int)$incident['status'] === 2 ? 'selected' : '' ?>>Freigegeben</option>
-                                    <option value="3" <?= (int)$incident['status'] === 3 ? 'selected' : '' ?>>Ungenügend</option>
-                                    <option value="4" <?= (int)$incident['status'] === 4 ? 'selected' : '' ?>>Ausgeblendet</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                            <button type="submit" class="ignis-btn ignis-btn--primary">Speichern</button>
-                        </div>
-                    </form>
-                </div>
+        <!-- QM-Status Form-Body als <template>; Dialog wird in JS programmatisch instanziiert -->
+        <template id="qmStatusFormTemplate">
+            <div class="mb-3">
+                <label class="ignis-field__label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="0" <?= (int)$incident['status'] === 0 ? 'selected' : '' ?>>Ungesehen</option>
+                    <option value="1" <?= (int)$incident['status'] === 1 ? 'selected' : '' ?>>In Prüfung</option>
+                    <option value="2" <?= (int)$incident['status'] === 2 ? 'selected' : '' ?>>Freigegeben</option>
+                    <option value="3" <?= (int)$incident['status'] === 3 ? 'selected' : '' ?>>Ungenügend</option>
+                    <option value="4" <?= (int)$incident['status'] === 4 ? 'selected' : '' ?>>Ausgeblendet</option>
+                </select>
             </div>
-        </div>
+        </template>
     <?php endif; ?>
 
     <script>
-        // Move tab-generated modals to body so they escape the overflow-y:auto container
-        document.querySelectorAll('.einsatz-main .modal').forEach(function(m) {
-            document.body.appendChild(m);
-        });
+        // finalizeEinsatz: showConfirm() statt eigenes Bestaetigungs-Modal
+        // (Inhalt war nur eine Warnung + Submit-Button). Bei Bestaetigung
+        // wird ein Form on-the-fly gebaut + submitted (kein Reload-Trick noetig).
+        function finalizeEinsatz() {
+            showConfirm('Möchten Sie diesen Einsatz wirklich abschließen?\n\nDas Protokoll wird zur QM-Sichtung markiert und alle Daten werden gesperrt. Diese Aktion kann nicht rückgängig gemacht werden.', {
+                danger:      false,
+                confirmText: 'Jetzt abschließen',
+                title:       'Einsatz abschließen',
+            }).then(function (ok) {
+                if (!ok) return;
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '<?= BASE_PATH ?>einsatz/actions';
+                form.innerHTML = '<input type="hidden" name="action" value="finalize">'
+                    + '<input type="hidden" name="incident_id" value="<?= $id ?>">'
+                    + '<input type="hidden" name="return_tab" value="abschluss">';
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
 
+        <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
+        function openQmStatusModal() {
+            Dialog.form({
+                title:        'QM-Status ändern',
+                template:     'qmStatusFormTemplate',
+                formAction:   '<?= BASE_PATH ?>einsatz/actions',
+                hiddenFields: {
+                    action:      'set_status',
+                    incident_id: '<?= $id ?>',
+                    return_tab:  '<?= $activeTab ?>',
+                },
+                submitLabel:  'Speichern',
+            });
+        }
+        <?php endif; ?>
+
+        // eNOTFCustomDropdown ist nur fuer eNOTF-Custom-Selects relevant; bleibt
+        // wie gehabt fuer Tab-internes Markup, das nicht durch den Dialog laeuft.
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
                 eNOTFCustomDropdown.init();
