@@ -13,7 +13,7 @@ $dienstgrad = trim($mitarbeiter->dienstgradLabel());
 $rdQuali    = trim($mitarbeiter->rdQualiLabel());
 $fwQuali    = trim($mitarbeiter->fwQualiLabel());
 ?>
-<div class="user-hover-ignis-card">
+<div class="user-hover-card">
     <div class="user-hover-card__header">
         <div class="user-hover-card__avatar">
             <?= strtoupper(substr($mitarbeiter->fullname ?? 'M', 0, 1)) ?>

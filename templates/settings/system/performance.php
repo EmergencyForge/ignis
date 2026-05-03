@@ -141,22 +141,22 @@ use App\Helpers\Flash;
 
         <!-- Übersicht-Karten -->
         <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="perf-ignis-card">
+            <div class="perf-card">
                 <h6><i class="fa-solid fa-database mr-1"></i> Datenbank-Größe</h6>
                 <div class="perf-stat" id="dbSize">--</div>
                 <div class="perf-label" id="dbSizeDetail">Lade...</div>
             </div>
-            <div class="perf-ignis-card">
+            <div class="perf-card">
                 <h6><i class="fa-solid fa-table mr-1"></i> Tabellen / Zeilen</h6>
                 <div class="perf-stat" id="dbTables">--</div>
                 <div class="perf-label" id="dbRows">--</div>
             </div>
-            <div class="perf-ignis-card">
+            <div class="perf-card">
                 <h6><i class="fa-solid fa-users mr-1"></i> Aktive Benutzer</h6>
                 <div class="perf-stat" id="activeUsers">--</div>
                 <div class="perf-label" id="activeUsersDetail">Lade...</div>
             </div>
-            <div class="perf-ignis-card">
+            <div class="perf-card">
                 <h6><i class="fa-solid fa-server mr-1"></i> Server-Uptime</h6>
                 <div class="perf-stat" id="uptime">--</div>
                 <div class="perf-label" id="uptimeDetail">Lade...</div>
@@ -164,7 +164,7 @@ use App\Helpers\Flash;
         </div>
 
         <div class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div class="perf-ignis-card">
+            <div class="perf-card">
                 <h6><i class="fa-solid fa-chart-pie mr-1"></i> Content-Statistiken</h6>
                 <div id="contentStats">
                     <div class="loading-placeholder mb-2"></div>
@@ -172,7 +172,7 @@ use App\Helpers\Flash;
                     <div class="loading-placeholder"></div>
                 </div>
             </div>
-            <div class="perf-ignis-card">
+            <div class="perf-card">
                 <h6><i class="fa-solid fa-microchip mr-1"></i> Server-Umgebung</h6>
                 <div id="serverInfo">
                     <div class="loading-placeholder mb-2"></div>
@@ -180,7 +180,7 @@ use App\Helpers\Flash;
                     <div class="loading-placeholder"></div>
                 </div>
             </div>
-            <div class="perf-ignis-card">
+            <div class="perf-card">
                 <h6><i class="fa-brands fa-php mr-1"></i> PHP-Konfiguration</h6>
                 <div id="phpInfo">
                     <div class="loading-placeholder mb-2"></div>
@@ -191,7 +191,7 @@ use App\Helpers\Flash;
         </div>
 
         <!-- Tabellen-Details -->
-        <div class="perf-ignis-card mb-4">
+        <div class="perf-card mb-4">
             <h6><i class="fa-solid fa-list mr-1"></i> Top 10 Tabellen nach Größe</h6>
             <div class="table-responsive">
                 <table class="table table-sm perf-table mb-0">
@@ -212,14 +212,14 @@ use App\Helpers\Flash;
 
         <!-- Verbindungen & System-Status -->
         <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div class="perf-ignis-card">
+            <div class="perf-card">
                 <h6><i class="fa-solid fa-plug mr-1"></i> Verbindungen</h6>
                 <div id="connectionInfo">
                     <div class="loading-placeholder mb-2"></div>
                     <div class="loading-placeholder"></div>
                 </div>
             </div>
-            <div class="perf-ignis-card">
+            <div class="perf-card">
                 <h6><i class="fa-solid fa-code-branch mr-1"></i> System-Status</h6>
                 <div id="systemStatus">
                     <div class="loading-placeholder mb-2"></div>
