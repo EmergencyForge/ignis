@@ -143,90 +143,92 @@ async function toggleArchiveFromViewer(docid, archive) {
 <?php endif; ?>
 </script>
 
-<!-- MODAL -->
-<div class="modal fade" id="modalFDQuali" tabindex="-1" aria-labelledby="modalFDQualiLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalFDQualiLabel">Fachdienste</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="fdqualiForm" method="post">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <?php
-                        $fdqualis = json_decode($row['fachdienste'], true) ?? [];
-                        if (Permissions::check(['admin', 'personnel.edit'])) {
-                            $stmtfdc = $pdo->query("SELECT sgnr, sgname FROM intra_mitarbeiter_fdquali ORDER BY sgnr ASC");
-                            $fachdienste = $stmtfdc->fetchAll(PDO::FETCH_ASSOC);
-                        ?>
-                            <input type="hidden" name="new" value="4" />
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Ja/Nein</th>
-                                        <th colspan="2">Bezeichnung</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($fachdienste as $fd): ?>
-                                        <tr>
-                                            <td>
-                                                <input type="checkbox" name="fachdienste[]" value="<?= htmlspecialchars($fd['sgnr']) ?>"
-                                                    <?php if (in_array($fd['sgnr'], $fdqualis)) echo 'checked'; ?>>
-                                            </td>
-                                            <td><?= htmlspecialchars($fd['sgnr']) ?></td>
-                                            <td><?= htmlspecialchars($fd['sgname']) ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        <?php } ?>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                    <?php if (Permissions::check(['admin', 'personnel.edit'])) { ?>
-                        <button type="button" class="ignis-btn ignis-btn--success" id="fdq-save" onclick="document.getElementById('fdqualiForm').submit()">Speichern</button>
-                    <?php } ?>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- MODAL ENDE -->
+<?php if (Permissions::check(['admin', 'personnel.edit'])) {
+    $fdqualis = json_decode($row['fachdienste'], true) ?? [];
+    $stmtfdc = $pdo->query("SELECT sgnr, sgname FROM intra_mitarbeiter_fdquali ORDER BY sgnr ASC");
+    $fachdienste = $stmtfdc->fetchAll(PDO::FETCH_ASSOC);
+?>
+<template id="fdqualiFormTemplate">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Ja/Nein</th>
+                <th colspan="2">Bezeichnung</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($fachdienste as $fd): ?>
+                <tr>
+                    <td>
+                        <input type="checkbox" name="fachdienste[]" value="<?= htmlspecialchars($fd['sgnr']) ?>"
+                            <?php if (in_array($fd['sgnr'], $fdqualis)) echo 'checked'; ?>>
+                    </td>
+                    <td><?= htmlspecialchars($fd['sgnr']) ?></td>
+                    <td><?= htmlspecialchars($fd['sgname']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</template>
+<?php } ?>
 
-<!-- MODAL -->
-<div class="modal fade" id="modalNewComment" tabindex="-1" aria-labelledby="modalNewCommentLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalNewCommentLabel">Neue Notiz erstellen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="newNoteForm" method="post">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <input type="hidden" name="new" value="5" />
-                        <select class="form-select mb-2" name="noteType" id="noteType">
-                            <option value="0">Allgemein</option>
-                            <option value="1">Positiv</option>
-                            <option value="2">Negativ</option>
-                        </select>
-                        <textarea class="ignis-input" name="content" id="content" rows="3" placeholder="Notiztext" style="resize:none"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                    <?php if (Permissions::check(['admin', 'personnel.view'])) { ?>
-                        <button type="button" class="ignis-btn ignis-btn--success" id="fdq-save" onclick="document.getElementById('newNoteForm').submit()">Speichern</button>
-                    <?php } ?>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<!-- MODAL ENDE -->
+<?php if (Permissions::check(['admin', 'personnel.view'])): ?>
+<template id="newCommentFormTemplate">
+    <select class="form-select mb-2" name="noteType">
+        <option value="0">Allgemein</option>
+        <option value="1">Positiv</option>
+        <option value="2">Negativ</option>
+    </select>
+    <textarea class="ignis-input" name="content" rows="3" placeholder="Notiztext" style="resize:none"></textarea>
+</template>
+<?php endif; ?>
+
+<script>
+    // Profile-Action-Modals: drei kleine Server-Form-Submits (FDQuali,
+    // Notiz, Mitarbeiter loeschen) auf Dialog.form/Dialog.confirm migriert.
+    // Die zwei komplexen Modals (documentViewerModal mit dynamischem
+    // Content-Fetch und modalDokuCreate mit CKEditor + Template-Form)
+    // bleiben Bootstrap, weil deren Lifecycle eng an die Modal-API
+    // gekoppelt ist.
+
+    function openFDQualiModal() {
+        Dialog.form({
+            title:        'Fachdienste',
+            template:     'fdqualiFormTemplate',
+            size:         'md',
+            formAction:   '',
+            hiddenFields: { new: '4' },
+            submitLabel:  'Speichern',
+            submitVariant:'success',
+        });
+    }
+
+    function openNewCommentModal() {
+        Dialog.form({
+            title:        'Neue Notiz erstellen',
+            template:     'newCommentFormTemplate',
+            size:         'md',
+            formAction:   '',
+            hiddenFields: { new: '5' },
+            submitLabel:  'Speichern',
+            submitVariant:'success',
+        });
+    }
+
+    <?php if (Permissions::check(['admin', 'personnel.delete'])): ?>
+    function confirmPersoDelete() {
+        showConfirm('Möchtest du diesen Mitarbeiter wirklich unwiderruflich löschen?', {
+            danger:      true,
+            confirmText: 'Löschen',
+            title:       'Mitarbeiter löschen',
+        }).then(function (ok) {
+            if (ok) {
+                window.location.href = '<?= BASE_PATH ?>mitarbeiter/delete?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>';
+            }
+        });
+    }
+    <?php endif; ?>
+</script>
 
 <?php
 if (Permissions::check(['admin', 'personnel.documents.manage'])) {
@@ -626,22 +628,5 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
 <?php } ?>
 <!-- MODAL ENDE -->
 
-<!-- MODAL -->
-<div class="modal fade" id="modalPersoDelete" tabindex="-1" aria-labelledby="modalPersoDeleteLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalPersoDeleteLabel">Mitarbeiter löschen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Möchtest du diesen Mitarbeiter wirklich unwiderruflich löschen?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <a href="<?= BASE_PATH ?>mitarbeiter/delete?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>" class="ignis-btn ignis-btn--danger">Löschen</a>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- MODAL ENDE -->
+<!-- modalPersoDelete entfaellt: confirmPersoDelete() oben nutzt
+     showConfirm() direkt (kein eigenes Modal mehr noetig). -->

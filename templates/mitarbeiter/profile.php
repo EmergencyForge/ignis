@@ -105,14 +105,14 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                             <form id="profil" method="post">
                                 <div class="flex flex-wrap -mx-3">
                                     <div class="flex-1 px-3">
-                                        <div class="ignis-btn ignis-btn--soft-primary ignis-btn--sm ignis-btn--icon" data-bs-toggle="modal" data-bs-target="#modalNewComment" title="Notiz anlegen"><i class="fa-solid fa-sticky-note"></i></div>
+                                        <div class="ignis-btn ignis-btn--soft-primary ignis-btn--sm ignis-btn--icon" onclick="openNewCommentModal()" title="Notiz anlegen"><i class="fa-solid fa-sticky-note"></i></div>
                                         <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
                                             <div class="ignis-btn ignis-btn--soft-primary ignis-btn--sm ignis-btn--icon" data-bs-toggle="modal" data-bs-target="#modalDokuCreate" title="Dokument erstellen"><i class="fa-solid fa-print"></i></div>
                                         <?php endif; ?>
                                         <?php if (Permissions::check(['admin', 'personnel.edit'])): ?>
-                                            <div class="ignis-btn ignis-btn--soft-primary ignis-btn--sm ignis-btn--icon" data-bs-toggle="modal" data-bs-target="#modalFDQuali" title="Fachdienste bearbeiten"><i class="fa-solid fa-graduation-cap"></i></div>
+                                            <div class="ignis-btn ignis-btn--soft-primary ignis-btn--sm ignis-btn--icon" onclick="openFDQualiModal()" title="Fachdienste bearbeiten"><i class="fa-solid fa-graduation-cap"></i></div>
                                             <?php if (Permissions::check(['admin', 'personnel.delete'])): ?>
-                                                <div class="ignis-btn ignis-btn--outline-danger ignis-btn--sm ignis-btn--icon" id="personal-delete" data-bs-toggle="modal" data-bs-target="#modalPersoDelete"><i class="fa-solid fa-trash"></i></div>
+                                                <div class="ignis-btn ignis-btn--outline-danger ignis-btn--sm ignis-btn--icon" id="personal-delete" onclick="confirmPersoDelete()"><i class="fa-solid fa-trash"></i></div>
                                             <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
