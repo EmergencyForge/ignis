@@ -125,30 +125,11 @@ use App\Helpers\Flash;
         </div>
     </div>
 
-    <!-- Bulk Delete Modal -->
-    <div class="modal fade" id="bulkDeleteModal" tabindex="-1" aria-labelledby="bulkDeleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="bulkDeleteModalLabel">Einsatzprotokolle löschen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="bulkDeleteContent">
-                    <div class="flex justify-center">
-                        <div class="spinner-border" role="status">
-                            <span class="sr-only">Laden...</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer" id="bulkDeleteFooter" style="display: none;">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete()">
-                        <i class="fa-solid fa-trash"></i> Jetzt löschen
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- bulkDeleteModal-Markup entfaellt: showBulkDeleteModal() erstellt
+         eine Dialog-Instanz mit dynamisch ueberschriebenem Body (Field-Select
+         -> Preview -> Result-State). Der "Jetzt loeschen"-Action-Button wird
+         IN den Body gerendert, weil er nur im Preview-State sichtbar ist. -->
+    <div id="bulkDeleteContentHelper" style="display: none;"></div>
 
     <script>
         $(document).ready(function() {
@@ -160,14 +141,39 @@ use App\Helpers\Flash;
             });
         });
 
+        // Dialog-Instanz halten wir in einem Closure, damit alle drei States
+        // (Field-Select, Preview, Result) den gleichen Body ueberschreiben.
+        let bulkDeleteDialog = null;
+        function getBulkDeleteBody() {
+            return bulkDeleteDialog ? bulkDeleteDialog.element.querySelector('.ignis-dialog__body > div') : null;
+        }
+        function setBulkDeleteContent(html) {
+            const body = getBulkDeleteBody();
+            if (body) body.innerHTML = html;
+        }
+
         window.showBulkDeleteModal = function() {
-            const modal = new bootstrap.Modal(document.getElementById('bulkDeleteModal'));
-            document.getElementById('bulkDeleteContent').innerHTML = `
+            // Initial-Body als Container, in den die States nachgeschoben werden.
+            const initialContent = document.createElement('div');
+            initialContent.innerHTML = `
                 <div class="flex justify-center">
                     <div class="spinner-border" role="status"><span class="sr-only">Laden...</span></div>
                 </div>`;
-            document.getElementById('bulkDeleteFooter').style.display = 'none';
-            modal.show();
+
+            // Wenn Dialog schon offen: nur Body zuruecksetzen, nicht neu instanziieren.
+            if (bulkDeleteDialog && bulkDeleteDialog.element) {
+                const bodyEl = getBulkDeleteBody();
+                if (bodyEl) bodyEl.innerHTML = initialContent.innerHTML;
+            } else {
+                bulkDeleteDialog = new Dialog({
+                    title:   'Einsatzprotokolle löschen',
+                    size:    'lg',
+                    body:    initialContent,
+                    actions: [{ label: 'Abbrechen', variant: 'ghost', close: true }],
+                    onClose: function () { bulkDeleteDialog = null; },
+                });
+                bulkDeleteDialog.open();
+            }
 
             fetch('<?= BASE_PATH ?>api/fire/bulk-delete-empty')
                 .then(response => response.json())
@@ -182,7 +188,7 @@ use App\Helpers\Flash;
                                     <label for="field_${key}">${label}</label>
                                 </div>`;
                         }
-                        document.getElementById('bulkDeleteContent').innerHTML = `
+                        setBulkDeleteContent(`
                             <div class="ignis-alert ignis-alert--info">
                                 <i class="fa-solid fa-circle-info"></i>
                                 <strong>Felder auswählen</strong>
@@ -216,13 +222,13 @@ use App\Helpers\Flash;
                                 <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
                                     <i class="fa-solid fa-search"></i> Vorschau anzeigen
                                 </button>
-                            </form>`;
+                            </form>`);
                     } else {
-                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div>`;
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div>`);
                     }
                 })
                 .catch(error => {
-                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div>`;
+                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div>`);
                 });
         };
 
@@ -237,7 +243,7 @@ use App\Helpers\Flash;
                 return;
             }
 
-            document.getElementById('bulkDeleteContent').innerHTML = `<div class="flex justify-center"><div class="spinner-border" role="status"><span class="sr-only">Lade Vorschau...</span></div></div>`;
+            setBulkDeleteContent(`<div class="flex justify-center"><div class="spinner-border" role="status"><span class="sr-only">Lade Vorschau...</span></div></div>`);
 
             const formData = new FormData();
             selectedFields.forEach(field => formData.append('fields[]', field));
@@ -250,9 +256,9 @@ use App\Helpers\Flash;
                 .then(data => {
                     if (data.success) {
                         if (data.count === 0) {
-                            document.getElementById('bulkDeleteContent').innerHTML = `
+                            setBulkDeleteContent(`
                                 <div class="ignis-alert ignis-alert--info"><i class="fa-solid fa-circle-info"></i> <strong>Keine passenden Protokolle gefunden</strong><p class="mb-0 mt-2">Es wurden keine Protokolle gefunden, die alle ausgewählten Kriterien erfüllen.</p></div>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
+                                <button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
                         } else {
                             let protocolsList = data.protocols.map(p => {
                                 const date = new Date(p.created_at);
@@ -261,27 +267,35 @@ use App\Helpers\Flash;
                                 return `<tr><td>${p.incident_number || '<em>-</em>'}</td><td>${p.location || '<em>-</em>'}</td><td>${p.keyword || '<em>-</em>'}</td><td>${p.leader_name || '<em>-</em>'}</td><td>${dateStr}</td><td>${statusBadge}</td></tr>`;
                             }).join('');
 
-                            document.getElementById('bulkDeleteContent').innerHTML = `
+                            // "Jetzt loeschen"-Button wandert in den Body, weil
+                            // ignis-Dialog kein dynamisches Action-Hinzufuegen
+                            // unterstuetzt — er ist nur im Preview-State sichtbar.
+                            setBulkDeleteContent(`
                                 <div class="ignis-alert ignis-alert--warning"><i class="fa-solid fa-exclamation-triangle"></i> <strong>Achtung!</strong><p class="mb-0 mt-2">Es wurden <strong>${data.count} Protokoll(e)</strong> gefunden, die archiviert werden.</p><p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p></div>
                                 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                                     <table class="table table-sm table-striped"><thead class="sticky-top bg-[rgba(0,0,0,0.3)]"><tr><th>Einsatznummer</th><th>Ort</th><th>Stichwort</th><th>Leiter</th><th>Angelegt am</th><th>Status</th></tr></thead><tbody>${protocolsList}</tbody></table>
-                                </div>`;
-                            document.getElementById('bulkDeleteFooter').style.display = 'flex';
+                                </div>
+                                <div class="text-right mt-3">
+                                    <button type="button" class="ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete(this)">
+                                        <i class="fa-solid fa-trash"></i> Jetzt löschen
+                                    </button>
+                                </div>`);
                             window.bulkDeleteSelectedFields = selectedFields;
                             window.bulkDeleteTimePeriod = timePeriod;
                             window.bulkDeleteStatusFilter = statusFilter;
                         }
                     } else {
-                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
                     }
                 })
                 .catch(error => {
-                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`;
+                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
                 });
         };
 
-        window.executeBulkDelete = function() {
-            const deleteButton = event.target.closest('button');
+        // executeBulkDelete bekommt den Click-Button als Param uebergeben
+        // statt event.target zu nutzen (das funktioniert nur in inline-onclick).
+        window.executeBulkDelete = function(deleteButton) {
             const originalText = deleteButton.innerHTML;
 
             if (!window.bulkDeleteSelectedFields || window.bulkDeleteSelectedFields.length === 0) {
@@ -301,17 +315,16 @@ use App\Helpers\Flash;
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--success"><i class="fa-solid fa-check-circle"></i> <strong>Erfolgreich!</strong><p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich archiviert.</p></div>`;
-                        document.getElementById('bulkDeleteFooter').style.display = 'none';
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--success"><i class="fa-solid fa-check-circle"></i> <strong>Erfolgreich!</strong><p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich archiviert.</p></div>`);
                         setTimeout(() => { location.reload(); }, 2000);
                     } else {
-                        document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}</div>`;
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}</div>`);
                         deleteButton.innerHTML = originalText;
                         deleteButton.disabled = false;
                     }
                 })
                 .catch(error => {
-                    document.getElementById('bulkDeleteContent').innerHTML = `<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${error.message}</div>`;
+                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${error.message}</div>`);
                     deleteButton.innerHTML = originalText;
                     deleteButton.disabled = false;
                 });
