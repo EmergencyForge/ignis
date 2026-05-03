@@ -92,22 +92,8 @@
         </div>
     </div>
 
-    <!-- View ASU Protocol Modal -->
-    <div class="modal fade" id="viewASUModal" tabindex="-1" aria-labelledby="viewASUModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content bg-[rgba(0,0,0,0.3)]">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title" id="viewASUModalLabel">ASU-Protokoll Ansicht</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
-                </div>
-                <div class="modal-body" id="asuProtocolView">
-                </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Schließen</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- viewASUModal-Markup entfaellt: viewASUProtocol() in asu.js
+         instanziiert direkt einen ignis-Dialog mit dem JS-gebauten Body. -->
     <script src="<?= BASE_PATH ?>assets/js/asu.js"></script>
 
     <?php if ($existingProtocol): ?>
