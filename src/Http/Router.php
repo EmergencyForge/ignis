@@ -138,6 +138,25 @@ final class Router
         $fullPath = $prefix . '/' . ltrim($path, '/');
         $fullPath = '/' . ltrim($fullPath, '/');
 
+        // Trailing-Slash-Normalisierung: Routen werden ohne abschliessenden /
+        // gespeichert, Request::fromGlobals() normalisiert eingehende Pfade
+        // gleich. Damit matchen /manv und /manv/ automatisch dieselbe Route —
+        // ohne dass jeder Endpoint zweimal registriert werden muss.
+        if ($fullPath !== '/' && str_ends_with($fullPath, '/')) {
+            $fullPath = rtrim($fullPath, '/') ?: '/';
+        }
+
+        // Doppelte Route-Definitionen (z.B. historisch /foo UND /foo/ fuer denselben
+        // Handler) ueberspringen, damit FastRoute keinen Konflikt-Error wirft.
+        // Erste Definition gewinnt; zweite wird stillschweigend ignoriert.
+        foreach ($this->routes as $existing) {
+            if ($existing['path'] === $fullPath
+                && array_values($existing['methods']) === array_values($methods)
+            ) {
+                return;
+            }
+        }
+
         $stack = [];
         foreach ($this->groupMiddlewareStack as $groupStack) {
             foreach ($groupStack as $mw) {
@@ -161,7 +180,17 @@ final class Router
     public function dispatch(Request $request): Response
     {
         $dispatcher = $this->buildDispatcher();
-        $info       = $dispatcher->dispatch($request->method, $request->path);
+
+        // Trailing-Slash-Normalisierung auch im Dispatch — defensiv, falls ein
+        // Request nicht ueber fromGlobals() gebaut wurde (z.B. Tests, interne
+        // Re-Dispatches). Routen sind ohne / gespeichert, also matchen wir
+        // gegen den normalisierten Pfad.
+        $path = $request->path;
+        if ($path !== '/' && str_ends_with($path, '/')) {
+            $path = rtrim($path, '/') ?: '/';
+        }
+
+        $info = $dispatcher->dispatch($request->method, $path);
 
         switch ($info[0]) {
             case Dispatcher::NOT_FOUND:
