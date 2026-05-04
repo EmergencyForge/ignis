@@ -108,6 +108,7 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
                                         name="<?= htmlspecialchars($feld->feldname) ?>"
                                         placeholder="<?= htmlspecialchars($feld->platzhalter ?? '') ?>"
                                         value="<?= htmlspecialchars($auto_fill_value) ?>"
+                                        <?= $feld->feldtyp === 'date' ? 'data-ignis-datepicker' : '' ?>
                                         <?= $feld->pflichtfeld ? 'required' : '' ?>
                                         <?= $feld->readonly ? 'readonly' : '' ?>>
                                 <?php endif; ?>
