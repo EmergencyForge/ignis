@@ -1497,9 +1497,9 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             </div>
         </div>
 
-        <!-- Wissensdatenbank -->
+        <!-- Lexikon (URL bleibt /wissensdb/) -->
         <a href="<?= BASE_PATH ?>wissensdb/index" class="sidebar-link" data-page="wissensdb">
-            <i class="fa-solid fa-book-medical"></i><span>Wissensdatenbank</span>
+            <i class="fa-solid fa-book-medical"></i><span>Lexikon</span>
         </a>
 
         <!-- Fahrzeuge -->

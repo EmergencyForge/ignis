@@ -262,7 +262,7 @@ use App\Helpers\Flash;
             mitarbeiter: { label: 'Mitarbeiter', icon: 'fa-users' },
             enotf_protokolle: { label: 'eNOTF-Protokolle', icon: 'fa-house-medical-flag' },
             dokumente: { label: 'Dokumente', icon: 'fa-file-lines' },
-            kb_eintraege: { label: 'Wissensdatenbank', icon: 'fa-book' },
+            kb_eintraege: { label: 'Lexikon', icon: 'fa-book' },
             brandeinsaetze: { label: 'Brandeinsätze', icon: 'fa-fire' }
         };
 

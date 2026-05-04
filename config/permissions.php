@@ -29,9 +29,9 @@ return [
         'manv.manage'       => 'MANV-Lagen verwalten',
         'fire.incident.qm'  => 'FW Einsatzprotokolle bearbeiten',
     ],
-    'Wissensdatenbank' => [
-        'kb.view'    => 'Wissensdatenbank ansehen',
-        'kb.edit'    => 'Wissensdatenbank bearbeiten',
+    'Lexikon' => [
+        'kb.view'    => 'Lexikon ansehen',
+        'kb.edit'    => 'Lexikon bearbeiten',
         'kb.archive' => 'Einträge archivieren',
     ],
     'Benutzer' => [
