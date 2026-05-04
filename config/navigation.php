@@ -172,11 +172,11 @@ return [
         ],
 
         // ─────────────────────────────────────────────────────────────
-        // Wissensdatenbank — simple link with quick-action
+        // Lexikon (Modul-URL bleibt /wissensdb/, nur das Label heisst neu)
         // ─────────────────────────────────────────────────────────────
         [
             'id'           => 'wissensdb',
-            'label'        => 'Wissensdatenbank',
+            'label'        => 'Lexikon',
             'icon'         => 'fa-solid fa-book-medical',
             'href'         => BASE_PATH . 'wissensdb/index',
             'data_page'    => 'wissensdb',

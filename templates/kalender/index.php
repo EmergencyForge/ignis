@@ -45,10 +45,10 @@ $SITE_TITLE = 'Kalender';
                     Block hat den Raum zu schlecht ausgenutzt.
                 -->
                 <div class="calendar-toolbar mb-3">
-                    <div class="calendar-toolbar__filters">
-                        <span class="calendar-toolbar__label">Anzeigen:</span>
+                    <div class="calendar-toolbar__filters" role="group" aria-label="Kategorien filtern">
+                        <span class="calendar-toolbar__label">Kategorien:</span>
                         <?php foreach ($categories as $key => $label): ?>
-                            <label class="ignis-chip ignis-chip--toggle is-active" data-category-chip="<?= htmlspecialchars($key) ?>">
+                            <label class="calendar-filter-chip is-active" data-category-chip="<?= htmlspecialchars($key) ?>">
                                 <input type="checkbox" class="filter-category" data-category="<?= htmlspecialchars($key) ?>" checked hidden>
                                 <?= htmlspecialchars($label) ?>
                             </label>
