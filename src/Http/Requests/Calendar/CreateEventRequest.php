@@ -46,6 +46,7 @@ class CreateEventRequest extends FormRequest
             v::key('category',           v::optional(v::in($allowedCategories, true)), false),
             v::key('visibility',          v::in($allowedVisibility, true)),
             v::key('visibility_role_ids', v::optional(v::arrayType()), false),
+            v::key('track_attendance',    v::optional(v::in(['0', '1', 0, 1, true, false], true)), false),
             v::key('attendees',           v::optional(v::arrayType()), false),
             v::key('recurrence_rule',    v::optional(v::stringType()->regex($rruleRegex)), false),
             v::key('recurrence_until',   v::optional(v::stringType()->regex('/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2})?)?$/')), false),
@@ -83,6 +84,14 @@ class CreateEventRequest extends FormRequest
 
         $allDay     = !empty($input['all_day']) && $input['all_day'] !== '0';
         $visibility = (string) $input['visibility'];
+
+        // track_attendance: nur fuer visibility=role relevant. Bei
+        // attendees/private ist die Liste sowieso immer "an", bei 'all'
+        // gibt's keine Liste. Wir zwingen das Flag also auf false ausser
+        // bei role + explizitem User-Opt-In.
+        $trackAttendance = $visibility === CalendarEvent::VISIBILITY_ROLE
+            && !empty($input['track_attendance'])
+            && $input['track_attendance'] !== '0';
 
         // Multi-Role: visibility_role_ids[] ist ein Array von Role-IDs.
         // Wird nur uebernommen wenn visibility='role' — sonst ignoriert.
@@ -128,6 +137,7 @@ class CreateEventRequest extends FormRequest
                 ? (string) $input['category'] : 'general',
             'visibility'          => $visibility,
             'visibility_role_ids' => $roleIds,
+            'track_attendance'    => $trackAttendance,
             'attendees'           => $attendees,
             'recurrence_rule'     => $rrule,
             'recurrence_until'    => $until,

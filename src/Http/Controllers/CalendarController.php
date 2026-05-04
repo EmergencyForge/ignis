@@ -256,6 +256,7 @@ class CalendarController extends Controller
                 'category'            => (string) $event->category,
                 'visibility'          => (string) $event->visibility,
                 'visibility_role_ids' => $event->visibilityRoles->pluck('id')->map(fn ($v) => (int) $v)->all(),
+                'track_attendance'    => (bool) $event->track_attendance,
                 'attendees'           => $event->attendees->pluck('mitarbeiter_id')->map(fn ($v) => (int) $v)->all(),
                 'recurrence_rule'     => $event->recurrence_rule,
                 'recurrence_until'    => $until,
@@ -284,42 +285,78 @@ class CalendarController extends Controller
             ? $event->attendees->firstWhere('mitarbeiter_id', $myMitarbeiterId)
             : null;
 
-        // Enriched-Attendees-Liste fuers Listing: enthaelt response + is_organizer
-        // bei expliziten Attendees, NULL bei role-based (dort haben wir keine
-        // pro-Person-Antwort, nur Mitgliedschaft).
-        $attendeesData = [];
-        if (in_array($event->visibility, [
+        // Liste anzeigen: bei attendees/private immer, bei role nur wenn
+        // track_attendance gesetzt ist (sonst Spam von 50+ implizit
+        // eingeladenen Mitarbeitern).
+        $showAttendeeList = in_array($event->visibility, [
             CalendarEvent::VISIBILITY_ATTENDEES,
             CalendarEvent::VISIBILITY_PRIVATE,
-        ], true)) {
-            foreach ($event->attendees as $row) {
-                if ($row->mitarbeiter === null) continue;
-                $attendeesData[] = [
-                    'mitarbeiter'  => $row->mitarbeiter,
-                    'response'     => $row->response,
-                    'is_organizer' => (bool) $row->is_organizer,
-                ];
+        ], true) || (
+            $event->visibility === CalendarEvent::VISIBILITY_ROLE
+            && (bool) $event->track_attendance
+        );
+
+        // RSVP-Buttons: bei attendees/private fuer eingeladene Mitarbeiter,
+        // bei role nur wenn track_attendance gesetzt ist UND der User in
+        // einer der Rollen ist (oder schon eine attendee-Row hat).
+        $canRespond = false;
+        if ($myMitarbeiterId !== null) {
+            if (in_array($event->visibility, [
+                CalendarEvent::VISIBILITY_ATTENDEES,
+                CalendarEvent::VISIBILITY_PRIVATE,
+            ], true)) {
+                $canRespond = $myAttendeeRow !== null;
+            } elseif ($event->visibility === CalendarEvent::VISIBILITY_ROLE
+                && (bool) $event->track_attendance
+            ) {
+                $userRoleId = (int) ($_SESSION['role_id'] ?? 0);
+                $canRespond = $userRoleId > 0 && $event->visibilityRoles
+                    ->contains(fn ($r) => (int) $r->id === $userRoleId);
             }
-        } else {
-            // Role-based: jeder Mitarbeiter mit der Rolle ist implizit dabei,
-            // aber ohne pro-Person-Antwort.
-            foreach (AttendeeResolver::resolve($event) as $m) {
-                $attendeesData[] = [
-                    'mitarbeiter'  => $m,
-                    'response'     => null,
-                    'is_organizer' => false,
-                ];
+        }
+
+        $attendeesData = [];
+        if ($showAttendeeList) {
+            if (in_array($event->visibility, [
+                CalendarEvent::VISIBILITY_ATTENDEES,
+                CalendarEvent::VISIBILITY_PRIVATE,
+            ], true)) {
+                foreach ($event->attendees as $row) {
+                    if ($row->mitarbeiter === null) continue;
+                    $attendeesData[] = [
+                        'mitarbeiter'  => $row->mitarbeiter,
+                        'response'     => $row->response,
+                        'is_organizer' => (bool) $row->is_organizer,
+                    ];
+                }
+            } else {
+                // Role-based mit Tracking: Mitglieder + ihre Antworten
+                // (sofern bereits abgegeben). Antwort = NULL wenn noch nichts.
+                $explicitMap = [];
+                foreach ($event->attendees as $row) {
+                    $explicitMap[(int) $row->mitarbeiter_id] = $row;
+                }
+                foreach (AttendeeResolver::resolve($event) as $m) {
+                    $row = $explicitMap[(int) $m->id] ?? null;
+                    $attendeesData[] = [
+                        'mitarbeiter'  => $m,
+                        'response'     => $row?->response,
+                        'is_organizer' => $row ? (bool) $row->is_organizer : false,
+                    ];
+                }
             }
         }
 
         $this->renderView('kalender/view', [
-            'event'           => $event,
-            'attendeesData'   => $attendeesData,
+            'event'            => $event,
+            'attendeesData'    => $attendeesData,
             'attendeeCount'   => AttendeeResolver::count($event),
-            'canEdit'         => Gate::allows('calendar.update', $event),
-            'canDelete'       => Gate::allows('calendar.delete', $event),
-            'myResponse'      => $myAttendeeRow?->response,
-            'categoriesLabel' => CalendarEvent::CATEGORIES[$event->category] ?? $event->category,
+            'showAttendeeList' => $showAttendeeList,
+            'canRespond'       => $canRespond,
+            'canEdit'          => Gate::allows('calendar.update', $event),
+            'canDelete'        => Gate::allows('calendar.delete', $event),
+            'myResponse'       => $myAttendeeRow?->response,
+            'categoriesLabel'  => CalendarEvent::CATEGORIES[$event->category] ?? $event->category,
         ]);
     }
 
@@ -443,13 +480,36 @@ class CalendarController extends Controller
             $this->redirect('kalender');
         }
 
+        // Event laden — wir muessen wissen ob der User ueberhaupt antworten darf
+        // und ob bei role-based Events das Tracking aktiv ist.
+        $event = CalendarEvent::with('visibilityRoles')->find($id);
+        if ($event === null) {
+            Flash::error('Termin nicht gefunden.');
+            $this->redirect('kalender');
+        }
+
         $attendee = CalendarAttendee::where('event_id', $id)
             ->where('mitarbeiter_id', $mitarbeiterId)
             ->first();
 
         if ($attendee === null) {
-            Flash::error('Du bist nicht eingeladen.');
-            $this->redirect('kalender');
+            // Bei role-based Events mit aktivem Tracking lazy eine Row anlegen,
+            // sodass der User RSVP'en kann ohne explizit eingeladen zu sein.
+            $isRoleTracked = $event->visibility === CalendarEvent::VISIBILITY_ROLE
+                && (bool) $event->track_attendance;
+            $userRoleId = (int) ($_SESSION['role_id'] ?? 0);
+            $hasRole    = $userRoleId > 0 && $event->visibilityRoles
+                ->contains(fn ($r) => (int) $r->id === $userRoleId);
+
+            if (!$isRoleTracked || !$hasRole) {
+                Flash::error('Du bist nicht eingeladen.');
+                $this->redirect('kalender');
+            }
+
+            $attendee = new CalendarAttendee();
+            $attendee->event_id       = $id;
+            $attendee->mitarbeiter_id = $mitarbeiterId;
+            $attendee->is_organizer   = false;
         }
 
         $attendee->response     = $response;
@@ -478,6 +538,7 @@ class CalendarController extends Controller
         $event->color            = $data['color'];
         $event->category         = $data['category'];
         $event->visibility       = $data['visibility'];
+        $event->track_attendance = (bool) ($data['track_attendance'] ?? false);
         $event->recurrence_rule  = $data['recurrence_rule'];
         $event->recurrence_until = $data['recurrence_until'];
         // visibility_role_ids[] wird per Pivot synchronisiert nach $event->save() —

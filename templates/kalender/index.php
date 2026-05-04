@@ -175,6 +175,11 @@ $SITE_TITLE = 'Kalender';
                      data-placeholder="Rolle suchen…"
                      data-empty-text="Keine Rolle gefunden"></div>
                 <small class="text-[var(--text-dimmed,#818189)]">Mehrere Rollen wählbar — alle Mitglieder sehen den Termin</small>
+
+                <div class="ignis-checkbox mt-2">
+                    <input type="checkbox" id="evt-track-attendance" name="track_attendance" value="1" data-track-attendance>
+                    <label for="evt-track-attendance">Teilnehmer-Antworten verfolgen (Rollenmitglieder können zusagen/absagen)</label>
+                </div>
             </div>
 
             <div data-visibility-attendees-row>

@@ -240,6 +240,13 @@ import { Dialog } from '../ui/dialog.js';
             const v = visSelect?.value;
             if (roleRow)      roleRow.style.display      = v === 'role'      ? '' : 'none';
             if (attendeesRow) attendeesRow.style.display = v === 'attendees' ? '' : 'none';
+            // track_attendance ist nur fuer role-Visibility relevant. Bei
+            // anderen Visibility-Modi schaltet das Backend das Flag eh aus,
+            // aber wir clearen den Frontend-State auch sichtbar.
+            const trackBox = scope.querySelector('[data-track-attendance]');
+            if (trackBox && v !== 'role') {
+                trackBox.checked = false;
+            }
         }
         function applyRecurrence() {
             const on = recurToggle?.checked;
@@ -363,6 +370,10 @@ import { Dialog } from '../ui/dialog.js';
         // All-Day-Toggle
         const allday = scope.querySelector('[data-allday-toggle]');
         if (allday) allday.checked = !!ev.all_day;
+
+        // Track-Attendance-Toggle (nur fuer visibility=role relevant)
+        const trackBox = scope.querySelector('[data-track-attendance]');
+        if (trackBox) trackBox.checked = !!ev.track_attendance;
 
         // Picker-Slots komplett neu aufbauen — der MutationObserver in
         // datepicker.js / datetimepicker.js initialisiert das frische Element

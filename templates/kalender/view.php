@@ -10,6 +10,8 @@
  * @var \App\Models\CalendarEvent  $event
  * @var array<int,array{mitarbeiter:\App\Models\Mitarbeiter,response:?string,is_organizer:bool}> $attendeesData
  * @var int     $attendeeCount
+ * @var bool    $showAttendeeList
+ * @var bool    $canRespond
  * @var bool    $canEdit
  * @var bool    $canDelete
  * @var ?string $myResponse
@@ -119,8 +121,9 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
                 </div>
             </div>
 
-            <!-- Attendees-Liste mit Response-Status -->
-            <?php if (!empty($attendeesData)): ?>
+            <!-- Attendees-Liste mit Response-Status — nur sichtbar wenn
+                 attendees/private ODER role mit aktivem Tracking. -->
+            <?php if (!empty($attendeesData) && $showAttendeeList): ?>
                 <?php
                 $statusMeta = [
                     'accepted'  => ['icon' => 'fa-circle-check',    'class' => 'attendee-status--accepted',  'label' => 'Zugesagt'],
@@ -164,11 +167,11 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
                 </div>
             <?php endif; ?>
 
-            <!-- RSVP-Buttons — sichtbar wenn User Attendee ist. Form-Submit
+            <!-- RSVP-Buttons — sichtbar wenn User antworten darf. Form-Submit
                  funktioniert auch ohne JS (server-redirect zurueck zu /kalender);
                  calendar.js faengt den Submit fuer's Detail-Modal ab und
                  macht's per fetch, sodass das Modal offen bleibt. -->
-            <?php if ($myResponse !== null): ?>
+            <?php if (!empty($canRespond)): ?>
                 <div class="ignis-card mb-4">
                     <div class="ignis-card__body">
                         <div class="ignis-field__label mb-2">Deine Antwort</div>

@@ -112,11 +112,39 @@
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
-/* RSVP-Status: linker Rand zeigt eigene Antwort. Subtil, damit's die
-   Kategorie-Farbe nicht erschlaegt — nur als 3px-Inset-Stripe links. */
-.fc-event[data-my-response="accepted"]  { box-shadow: inset 3px 0 0 #16a34a; }
-.fc-event[data-my-response="tentative"] { box-shadow: inset 3px 0 0 #eab308; }
-.fc-event[data-my-response="declined"]  { box-shadow: inset 3px 0 0 #dc2626; opacity: 0.6; }
+/* RSVP-Status: das Event-Aussehen selbst kommuniziert die eigene Antwort.
+   FullCalendar setzt background-color und border-color als Inline-Styles
+   pro Event (auf die Brand/Kategorie-Farbe). Wir lassen die border-color
+   stehen und veraendern nur background, border-style und opacity, damit
+   die Event-Farbe als Identitaet erhalten bleibt.
+
+   - accepted + pending: voller Solid-Look (default, kein Override)
+   - tentative: gestrichelter Border, transparenter Hintergrund, halbe Opacity
+   - declined: dünner solider Border, transparent, sehr blass + line-through */
+.fc-event[data-my-response="tentative"] {
+    background: transparent !important;
+    border-style: dashed !important;
+    opacity: 0.75;
+}
+.fc-event[data-my-response="tentative"] .fc-event-title,
+.fc-event[data-my-response="tentative"] .fc-event-time {
+    /* Text wird im Standard-Light-Style hell — auf transparentem Bg
+       bleibt das auf dem dunklen Theme gut lesbar */
+    color: var(--text-normal, #bbbac1);
+}
+
+.fc-event[data-my-response="declined"] {
+    background: transparent !important;
+    opacity: 0.4;
+    text-decoration: line-through;
+}
+.fc-event[data-my-response="declined"] .fc-event-title,
+.fc-event[data-my-response="declined"] .fc-event-time {
+    color: var(--text-dimmed, #818189);
+    text-decoration: line-through;
+}
+
+/* accepted + pending bleiben Default — Solid-Brand-Color, kein Override. */
 
 /* List-View */
 .fc-list-event:hover td {

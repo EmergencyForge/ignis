@@ -77,6 +77,7 @@ class CalendarEvent extends EloquentModel
         'created_by'       => 'integer',
         'parent_event_id'  => 'integer',
         'all_day'          => 'boolean',
+        'track_attendance' => 'boolean',
         'starts_at'        => 'datetime',
         'ends_at'          => 'datetime',
         'recurrence_until' => 'datetime',
