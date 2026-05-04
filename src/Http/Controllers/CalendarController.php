@@ -151,9 +151,15 @@ class CalendarController extends Controller
     {
         $this->requireAuth();
         $userId = (int) $_SESSION['userid'];
-        $token  = IcalExporter::ensureToken($userId);
+        try {
+            $token = IcalExporter::ensureToken($userId);
+        } catch (\Throwable $e) {
+            return Response::json([
+                'success' => false,
+                'message' => 'iCal-Subscribe ist noch nicht eingerichtet. Bitte composer db:migrate ausführen, dann erneut versuchen.',
+            ], 503);
+        }
         $base   = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-        // Absolute URL zusammenbauen — externe Kalender brauchen das.
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host   = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
         $url    = $scheme . '://' . $host . rtrim($base, '/') . '/api/kalender/ical/' . $token;
@@ -278,9 +284,37 @@ class CalendarController extends Controller
             ? $event->attendees->firstWhere('mitarbeiter_id', $myMitarbeiterId)
             : null;
 
+        // Enriched-Attendees-Liste fuers Listing: enthaelt response + is_organizer
+        // bei expliziten Attendees, NULL bei role-based (dort haben wir keine
+        // pro-Person-Antwort, nur Mitgliedschaft).
+        $attendeesData = [];
+        if (in_array($event->visibility, [
+            CalendarEvent::VISIBILITY_ATTENDEES,
+            CalendarEvent::VISIBILITY_PRIVATE,
+        ], true)) {
+            foreach ($event->attendees as $row) {
+                if ($row->mitarbeiter === null) continue;
+                $attendeesData[] = [
+                    'mitarbeiter'  => $row->mitarbeiter,
+                    'response'     => $row->response,
+                    'is_organizer' => (bool) $row->is_organizer,
+                ];
+            }
+        } else {
+            // Role-based: jeder Mitarbeiter mit der Rolle ist implizit dabei,
+            // aber ohne pro-Person-Antwort.
+            foreach (AttendeeResolver::resolve($event) as $m) {
+                $attendeesData[] = [
+                    'mitarbeiter'  => $m,
+                    'response'     => null,
+                    'is_organizer' => false,
+                ];
+            }
+        }
+
         $this->renderView('kalender/view', [
             'event'           => $event,
-            'attendees'       => AttendeeResolver::resolve($event),
+            'attendeesData'   => $attendeesData,
             'attendeeCount'   => AttendeeResolver::count($event),
             'canEdit'         => Gate::allows('calendar.update', $event),
             'canDelete'       => Gate::allows('calendar.delete', $event),
