@@ -408,28 +408,31 @@ import { Dialog } from '../ui/dialog.js';
     }
 
     /**
-     * Setzt die Werte einer MultiSelect-Komponente nach Init.
-     * Da der MutationObserver in multi-select.js die Komponente erst beim
-     * naechsten Tick initialisiert, queue'n wir per requestAnimationFrame
-     * — ist beim Form-Open der Sicherheitsweg.
+     * Setzt die Werte einer MultiSelect-Komponente. Wenn die Instanz noch
+     * nicht existiert (MutationObserver hat noch nicht gefeuert), erzwingen
+     * wir eine sofortige Initialisierung via dem globalen Konstruktor —
+     * das vermeidet die Race-Condition beim Edit-Prefill, wo der User
+     * sonst leere Felder sehen wuerde und beim Save die Werte ueberschrieben
+     * waeren.
      */
     function applyMultiSelectValues(scope, selector, values) {
         const root = scope.querySelector(selector);
         if (!root || !Array.isArray(values) || values.length === 0) return;
 
-        const trySet = () => {
-            const inst = window.ignisMultiSelectGet?.(root);
-            if (inst) {
-                inst.setValues(values);
-                return true;
-            }
-            return false;
-        };
-        if (trySet()) return;
-        // Retry naechsten Frame, falls noch nicht initialisiert
+        let inst = window.ignisMultiSelectGet?.(root);
+        if (!inst && typeof window.MultiSelect === 'function') {
+            // Forcierte Init — der MutationObserver feuert erst spaeter,
+            // aber wir brauchen die Instanz JETZT.
+            inst = new window.MultiSelect(root);
+        }
+        if (inst) {
+            inst.setValues(values);
+            return;
+        }
+        // Letzter Fallback: Retry im naechsten Frame
         requestAnimationFrame(() => {
-            if (trySet()) return;
-            requestAnimationFrame(trySet);
+            const i = window.ignisMultiSelectGet?.(root);
+            if (i) i.setValues(values);
         });
     }
 
