@@ -1231,12 +1231,6 @@ body:has(.ignis-dialog-backdrop.is-open) {
   outline-offset: 1px;
 }
 
-/* ──────────────────────────────────────────────────────────────────
- * Unified DatetimePicker — ein Trigger-Input + portaliertes Tab-Panel
- * (Datum / Uhrzeit). Loest die alte Variante mit zwei separaten
- * date+time-Inputs nebeneinander ab.
- * ────────────────────────────────────────────────────────────────── */
-
 .ignis-datetimepicker {
   display: block;
   width: 100%;
@@ -1260,12 +1254,11 @@ body:has(.ignis-dialog-backdrop.is-open) {
   color: var(--text-dimmed, #818189);
   flex-shrink: 0;
 }
+
 .ignis-datetimepicker__trigger-label.is-placeholder {
   color: var(--text-dimmed, #818189);
 }
 
-/* Panel — wird beim open() nach <body> portaliert; nutzt fixed
-   Position relativ zum Trigger via JS. */
 .ignis-datetimepicker__panel {
   position: absolute;
   z-index: 9999;
@@ -1274,7 +1267,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   border: 1px solid var(--darkgray, #2a2a2a);
   border-radius: var(--section-border-radius, 8px);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-  font-family: 'Geist', sans-serif;
+  font-family: "Geist", sans-serif;
   font-size: 0.82rem;
   opacity: 0;
   transform: translateY(-4px);
@@ -1287,12 +1280,12 @@ body:has(.ignis-dialog-backdrop.is-open) {
   pointer-events: auto;
 }
 
-/* Tabs */
 .ignis-datetimepicker__tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
   border-bottom: 1px solid var(--darkgray, #2a2a2a);
 }
+
 .ignis-datetimepicker__tab {
   background: transparent;
   border: 0;
@@ -1303,30 +1296,32 @@ body:has(.ignis-dialog-backdrop.is-open) {
   border-bottom: 2px solid transparent;
   transition: color 0.12s, border-color 0.12s;
 }
-.ignis-datetimepicker__tab:hover { color: #fff; }
+.ignis-datetimepicker__tab:hover {
+  color: #fff;
+}
 .ignis-datetimepicker__tab.is-active {
   color: var(--main-color, #ff4d00);
   border-bottom-color: var(--main-color, #ff4d00);
   font-weight: 600;
 }
 
-/* Body */
 .ignis-datetimepicker__body {
   padding: 0.6rem 0.75rem;
 }
 
-/* Date-Tab — Kalenderkopf, Wochentage, Tag-Grid */
 .ignis-datetimepicker__cal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.5rem;
 }
+
 .ignis-datetimepicker__cal-title {
   font-weight: 600;
   color: #fff;
   font-size: 0.88rem;
 }
+
 .ignis-datetimepicker__cal-nav {
   background: transparent;
   border: 0;
@@ -1343,6 +1338,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   background: var(--sidebar-hover-bg, #141414);
   color: #fff;
 }
+
 .ignis-datetimepicker__cal-week {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -1354,13 +1350,20 @@ body:has(.ignis-dialog-backdrop.is-open) {
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
-.ignis-datetimepicker__cal-week > span { padding: 0.25rem 0; }
+.ignis-datetimepicker__cal-week > span {
+  padding: 0.25rem 0;
+}
+
 .ignis-datetimepicker__cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 0.15rem;
 }
-.ignis-datetimepicker__cal-empty { padding: 0.4rem 0; }
+
+.ignis-datetimepicker__cal-empty {
+  padding: 0.4rem 0;
+}
+
 .ignis-datetimepicker__cal-day {
   background: transparent;
   border: 0;
@@ -1385,13 +1388,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-weight: 700;
 }
 
-/* Time-Tab — zwei Spalten Stunde/Minute, scrollbar */
 .ignis-datetimepicker__time-wrap {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   height: 200px;
 }
+
 .ignis-datetimepicker__time-col {
   display: flex;
   flex-direction: column;
@@ -1399,6 +1402,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   border-radius: var(--button-border-radius, 6px);
   overflow: hidden;
 }
+
 .ignis-datetimepicker__time-col-label {
   background: var(--body-bg-darker, #050505);
   color: var(--text-dimmed, #818189);
@@ -1410,17 +1414,21 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-weight: 600;
   border-bottom: 1px solid var(--darkgray, #2a2a2a);
 }
+
 .ignis-datetimepicker__time-list {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--darkgray, #2a2a2a) transparent;
 }
-.ignis-datetimepicker__time-list::-webkit-scrollbar { width: 4px; }
+.ignis-datetimepicker__time-list::-webkit-scrollbar {
+  width: 4px;
+}
 .ignis-datetimepicker__time-list::-webkit-scrollbar-thumb {
   background: var(--darkgray, #2a2a2a);
   border-radius: 2px;
 }
+
 .ignis-datetimepicker__time-item {
   display: block;
   width: 100%;
@@ -1443,6 +1451,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   color: #fff;
   font-weight: 700;
 }
+
 .ignis-datetimepicker__time-summary {
   text-align: center;
   margin-top: 0.6rem;
@@ -1452,7 +1461,6 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-variant-numeric: tabular-nums;
 }
 
-/* Footer */
 .ignis-datetimepicker__footer {
   display: flex;
   justify-content: flex-end;
