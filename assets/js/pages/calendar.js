@@ -417,19 +417,21 @@ import { Dialog } from '../ui/dialog.js';
      */
     function applyMultiSelectValues(scope, selector, values) {
         const root = scope.querySelector(selector);
-        if (!root || !Array.isArray(values) || values.length === 0) return;
+        if (!root || !Array.isArray(values)) return;
 
+        // Auch bei leeren Werten initialisieren — sonst bleibt der
+        // MultiSelect ein roher <div> ohne Event-Handler, falls der
+        // MutationObserver-Tick nicht rechtzeitig durchlief, und der
+        // User kann zwar visuell nichts auswaehlen aber das Form
+        // submittet trotzdem leere Hidden-Inputs.
         let inst = window.ignisMultiSelectGet?.(root);
         if (!inst && typeof window.MultiSelect === 'function') {
-            // Forcierte Init — der MutationObserver feuert erst spaeter,
-            // aber wir brauchen die Instanz JETZT.
             inst = new window.MultiSelect(root);
         }
         if (inst) {
             inst.setValues(values);
             return;
         }
-        // Letzter Fallback: Retry im naechsten Frame
         requestAnimationFrame(() => {
             const i = window.ignisMultiSelectGet?.(root);
             if (i) i.setValues(values);
