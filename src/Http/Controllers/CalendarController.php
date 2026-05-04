@@ -55,11 +55,28 @@ class CalendarController extends Controller
             ->map(fn ($r) => (array) $r)
             ->all();
 
+        // Heute-abwesend-Strip — Liste der Mitarbeiter, deren Absence-Event
+        // den heutigen Tag ueberlappt. Wird im Template nur gerendert wenn
+        // mindestens einer drin ist.
+        $today = (new DateTimeImmutable('today'))->format('Y-m-d');
+        $absentToday = Mitarbeiter::query()
+            ->whereIn('id', function ($sub) use ($today) {
+                $sub->select('a.mitarbeiter_id')
+                    ->from('intra_calendar_attendees as a')
+                    ->join('intra_calendar_events as e', 'e.id', '=', 'a.event_id')
+                    ->where('e.category', 'absence')
+                    ->where('e.starts_at', '<=', $today . ' 23:59:59')
+                    ->where('e.ends_at',   '>=', $today . ' 00:00:00');
+            })
+            ->orderBy('fullname')
+            ->get(['id', 'fullname', 'dienstnr']);
+
         $this->renderView('kalender/index', [
             'mitarbeiter' => $mitarbeiter,
             'roles'       => $roles,
             'categories'  => CalendarEvent::CATEGORIES,
             'colors'      => CalendarEvent::COLORS,
+            'absentToday' => $absentToday,
         ]);
     }
 

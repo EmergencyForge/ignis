@@ -28,4 +28,5 @@ return [
     \App\Console\Commands\FederationSyncCommand::class,
     \App\Console\Commands\StorageCleanupCommand::class,
     \App\Console\Commands\UpdatesCheckCommand::class,
+    \App\Console\Commands\CalendarBackfillAbsencesCommand::class,
 ];

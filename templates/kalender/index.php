@@ -6,6 +6,7 @@
  * @var array<int,array<string,mixed>>                              $roles
  * @var array<string,string>                                        $categories
  * @var array<int,string>                                           $colors
+ * @var \Illuminate\Support\Collection<int,\App\Models\Mitarbeiter> $absentToday
  * @var \PDO                                                        $pdo
  */
 
@@ -37,6 +38,17 @@ $SITE_TITLE = 'Kalender';
                 </div>
 
                 <?php Flash::render(); ?>
+
+                <?php if (isset($absentToday) && $absentToday->isNotEmpty()): ?>
+                    <div class="calendar-absence-strip mb-3">
+                        <i class="fa-solid fa-plane-departure" aria-hidden="true"></i>
+                        <span class="calendar-absence-strip__label">Heute abwesend (<?= $absentToday->count() ?>):</span>
+                        <span class="calendar-absence-strip__list">
+                            <?php $names = $absentToday->map(fn ($m) => trim((string) ($m->fullname ?? '')))->filter()->all(); ?>
+                            <?= htmlspecialchars(implode(', ', $names)) ?>
+                        </span>
+                    </div>
+                <?php endif; ?>
 
                 <!--
                     Toolbar: Filter-Chips (links) + Neuer-Termin-Button (rechts).

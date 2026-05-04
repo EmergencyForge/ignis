@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Auth\Gate;
+use App\Calendar\AbsenceSyncService;
 use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
@@ -337,6 +338,21 @@ class AntragController extends Controller
         $antrag->cirs_text    = $data['cirs_text'];
         $antrag->cirs_time    = new \DateTime();
         $antrag->save();
+
+        // Calendar-Bridge: Urlaubsanträge bei Genehmigung in den Kalender
+        // spiegeln, sonst entfernen. AbsenceSyncService kuemmert sich darum,
+        // dass keine Doppel-Wahrheit entsteht (firstOrNew via source/source_ref_id).
+        $antrag->loadMissing('typ', 'daten');
+        $isUrlaub = strcasecmp((string) ($antrag->typ?->name ?? ''), 'Urlaubsantrag') === 0;
+        if ($isUrlaub) {
+            if ((int) $data['cirs_status'] === Antrag::STATUS_ACCEPTED) {
+                $vonDatum = (string) ($antrag->getFieldValue('von_datum') ?? '');
+                $bisDatum = (string) ($antrag->getFieldValue('bis_datum') ?? '');
+                AbsenceSyncService::syncFromAntrag($antrag, $vonDatum, $bisDatum);
+            } else {
+                AbsenceSyncService::removeForAntrag($antrag->id);
+            }
+        }
 
         // Notification an den Antragsteller
         $notificationManager = new NotificationManager($this->pdo);
