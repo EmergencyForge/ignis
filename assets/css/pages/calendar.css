@@ -114,28 +114,39 @@
 
 /* RSVP-Status: das Event-Aussehen selbst kommuniziert die eigene Antwort.
    FullCalendar setzt background-color und border-color als Inline-Styles
-   pro Event (auf die Brand/Kategorie-Farbe). Wir lassen die border-color
-   stehen und veraendern nur background, border-style und opacity, damit
-   die Event-Farbe als Identitaet erhalten bleibt.
+   pro Event (Brand-/Kategorie-Farbe). Wir UEBERLAGERN nur — die Original-
+   Farbe bleibt sichtbar, sodass die Event-Identitaet erhalten bleibt.
 
-   - accepted + pending: voller Solid-Look (default, kein Override)
-   - tentative: gestrichelter Border, transparenter Hintergrund, halbe Opacity
-   - declined: dünner solider Border, transparent, sehr blass + line-through */
+   - accepted: voller Solid-Look (default, kein Override)
+   - pending: Schraffur-Pattern dezent (User hat noch nicht geantwortet)
+   - tentative: Schraffur-Pattern kraeftiger (= "ich überlegs noch")
+   - declined: stark transparent + line-through (= "ich bin raus") */
+
+.fc-event[data-my-response="pending"],
 .fc-event[data-my-response="tentative"] {
-    background: transparent !important;
-    border-style: dashed !important;
-    opacity: 0.75;
+    background-image: repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.32) 0,
+        rgba(255, 255, 255, 0.32) 5px,
+        transparent 5px,
+        transparent 11px
+    ) !important;
 }
-.fc-event[data-my-response="tentative"] .fc-event-title,
-.fc-event[data-my-response="tentative"] .fc-event-time {
-    /* Text wird im Standard-Light-Style hell — auf transparentem Bg
-       bleibt das auf dem dunklen Theme gut lesbar */
-    color: var(--text-normal, #bbbac1);
+
+.fc-event[data-my-response="pending"] {
+    /* Pending = noch nicht geantwortet → leicht entsaettigt, damit's ein Hauch
+       weniger praesent wirkt als ein voll bestaetigtes Event */
+    opacity: 0.85;
+}
+
+.fc-event[data-my-response="tentative"] {
+    /* Vielleicht = sichtbar unentschlossen */
+    opacity: 0.9;
 }
 
 .fc-event[data-my-response="declined"] {
     background: transparent !important;
-    opacity: 0.4;
+    opacity: 0.45;
     text-decoration: line-through;
 }
 .fc-event[data-my-response="declined"] .fc-event-title,
@@ -144,7 +155,7 @@
     text-decoration: line-through;
 }
 
-/* accepted + pending bleiben Default — Solid-Brand-Color, kein Override. */
+/* accepted bleibt Default — Solid-Brand-Color, kein Override. */
 
 /* List-View */
 .fc-list-event:hover td {
