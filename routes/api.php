@@ -166,6 +166,12 @@ $router->get('/api/kalender/events',
     [new AuthMiddleware()]
 );
 
+// Detail eines einzelnen Events fuer Edit-Prefill
+$router->get('/api/kalender/event',
+    [\App\Http\Controllers\CalendarController::class, 'eventJson'],
+    [new AuthMiddleware()]
+);
+
 /*
  * BEISPIEL — Admin-API-Endpoint (Session + Permission + CSRF)
  *

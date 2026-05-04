@@ -123,11 +123,13 @@ import { Dialog } from '../ui/dialog.js';
 
     // ── Edit-Modal ──────────────────────────────────────────────────────
     function openEditModal(eventId) {
-        // Lade Event-Daten via Detail-Endpoint, dann oeffne Form mit prefill
-        fetch(CFG.viewUrl + '?id=' + encodeURIComponent(eventId), { credentials: 'same-origin' })
-            .then((r) => r.text())
-            .then((html) => {
-                const data = parseEventDataFromDetailHtml(html);
+        fetch(CFG.eventApiUrl + '?id=' + encodeURIComponent(eventId), { credentials: 'same-origin' })
+            .then((r) => r.json())
+            .then((res) => {
+                if (!res.success || !res.event) {
+                    if (window.showToast) window.showToast('Termin konnte nicht geladen werden', 'error');
+                    return;
+                }
                 Dialog.form({
                     title: 'Termin bearbeiten',
                     template: 'calendarEventFormTemplate',
@@ -135,11 +137,14 @@ import { Dialog } from '../ui/dialog.js';
                     submitLabel: 'Speichern',
                     size: 'lg',
                     onOpen: (dlg) => {
+                        prefillForm(dlg.element, res.event);
                         bindFormDynamics(dlg.element);
-                        prefillForm(dlg.element, data);
                     },
                     onSubmit: (formData, dlg) => submitForm(formData, dlg),
                 });
+            })
+            .catch(() => {
+                if (window.showToast) window.showToast('Termin konnte nicht geladen werden', 'error');
             });
     }
 
@@ -206,7 +211,7 @@ import { Dialog } from '../ui/dialog.js';
             });
     }
 
-    // ── Form-Dynamics (Visibility-Toggle, Recurrence-UI) ────────────────
+    // ── Form-Dynamics (Visibility-Toggle, Recurrence-UI, AllDay-Switch) ─
     function bindFormDynamics(scope) {
         const visSelect    = scope.querySelector('[name="visibility"]');
         const roleRow      = scope.querySelector('[data-visibility-role-row]');
@@ -219,6 +224,7 @@ import { Dialog } from '../ui/dialog.js';
         const bydayInputs  = scope.querySelectorAll('[data-rrule-byday]');
         const bydayRow     = scope.querySelector('[data-rrule-byday-row]');
         const untilIn      = scope.querySelector('[name="recurrence_until"]');
+        const alldayToggle = scope.querySelector('[data-allday-toggle]');
 
         function applyVisibility() {
             const v = visSelect?.value;
@@ -248,37 +254,176 @@ import { Dialog } from '../ui/dialog.js';
             rruleOutput.value = parts.join(';');
         }
 
+        function applyPickerType() {
+            syncPickerType(scope, !!alldayToggle?.checked);
+        }
+
         visSelect?.addEventListener('change', applyVisibility);
         recurToggle?.addEventListener('change', applyRecurrence);
         freqSelect?.addEventListener('change', applyRecurrence);
         intervalIn?.addEventListener('input', buildRrule);
         bydayInputs.forEach((i) => i.addEventListener('change', buildRrule));
         untilIn?.addEventListener('change', buildRrule);
+        alldayToggle?.addEventListener('change', applyPickerType);
 
         applyVisibility();
         applyRecurrence();
+        applyPickerType();
     }
 
-    // ── Edit-Prefill aus Detail-HTML (kein dedizierter JSON-Detail-Endpoint) ──
-    function parseEventDataFromDetailHtml(html) {
-        // Minimal-Extractor; spaeter durch dedizierten /api/kalender/{id} ersetzen
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const root = doc.querySelector('[data-calendar-event-detail]');
-        if (!root) return {};
-        return {
-            title:       root.querySelector('h2')?.textContent?.trim() || '',
-            // weitere Felder werden aus der Edit-Form vom Server beim naechsten Save
-            // ueberschrieben — fuer den ersten Wurf reicht der Titel als Referenz.
-        };
+    /**
+     * Tauscht die Picker-Slots zwischen Datetime und Date je nach all_day.
+     * Aktueller Wert wird gerettet, Slot neu aufgebaut, MutationObserver
+     * der Picker-Module kuemmert sich um Auto-Init.
+     */
+    function syncPickerType(scope, allDay) {
+        ['starts_at', 'ends_at'].forEach((fieldName) => {
+            const slot = scope.querySelector(`[data-picker-slot="${fieldName}"]`);
+            if (!slot) return;
+
+            const currentValue = readPickerValue(slot);
+
+            // Wenn der bereits gerenderte Slot schon den richtigen Typ hat,
+            // nichts tun (verhindert Picker-Re-Init beim ersten applyPickerType).
+            const hasDatetime = !!slot.querySelector('[data-ignis-datetimepicker]');
+            const hasDate     = !!slot.querySelector('input[data-ignis-datepicker]');
+            if (allDay && hasDate && !hasDatetime) return;
+            if (!allDay && hasDatetime && !hasDate) return;
+
+            slot.innerHTML = '';
+
+            if (allDay) {
+                const inp = document.createElement('input');
+                inp.type = 'date';
+                inp.className = 'ignis-input';
+                inp.name = fieldName;
+                inp.required = true;
+                inp.setAttribute('data-ignis-datepicker', '');
+                if (currentValue) inp.value = currentValue.slice(0, 10);
+                slot.appendChild(inp);
+            } else {
+                const div = document.createElement('div');
+                div.setAttribute('data-ignis-datetimepicker', '');
+                div.dataset.name = fieldName;
+                div.dataset.required = 'true';
+                if (currentValue) {
+                    // Wenn current nur ein Datum war (10 Zeichen), Default-Zeit ergaenzen.
+                    div.dataset.value = currentValue.length >= 16 ? currentValue : (currentValue + 'T09:00');
+                }
+                slot.appendChild(div);
+            }
+        });
     }
-    function prefillForm(scope, data) {
-        if (!data) return;
-        if (data.title) {
-            const titleInput = scope.querySelector('[name="title"]');
-            if (titleInput) titleInput.value = data.title;
+
+    function readPickerValue(slot) {
+        // Datetime-Picker schreibt seinen Wert in einen versteckten <input>
+        const dtpHidden = slot.querySelector('[data-ignis-datetimepicker] input[type="hidden"]');
+        if (dtpHidden && dtpHidden.value) return dtpHidden.value;
+        // Datepicker = direktes <input type="date">
+        const dpInput = slot.querySelector('input[type="date"]');
+        if (dpInput && dpInput.value) return dpInput.value;
+        // Fallback: data-value vom Mount-Element
+        const mount = slot.querySelector('[data-ignis-datetimepicker], [data-ignis-datepicker]');
+        return mount?.dataset.value || '';
+    }
+
+    /**
+     * Befuellt das Edit-Form mit den Daten aus /api/kalender/event.
+     * Wird VOR bindFormDynamics aufgerufen, damit applyPickerType() den
+     * korrekten Wert aus den Inputs ablesen kann.
+     */
+    function prefillForm(scope, ev) {
+        if (!ev) return;
+
+        const set = (selector, value) => {
+            const el = scope.querySelector(selector);
+            if (el) el.value = value ?? '';
+        };
+
+        set('[name="title"]',        ev.title);
+        set('[name="description"]',  ev.description);
+        set('[name="location"]',     ev.location);
+        set('[name="category"]',     ev.category);
+        set('[name="color"]',        ev.color);
+        set('[name="visibility"]',   ev.visibility);
+        if (ev.visibility_role_id != null) {
+            set('[name="visibility_role_id"]', String(ev.visibility_role_id));
         }
-        // Mehr Prefill-Felder werden in einem zukuenftigen JSON-Endpoint nachgereicht.
+
+        // All-Day-Toggle
+        const allday = scope.querySelector('[data-allday-toggle]');
+        if (allday) allday.checked = !!ev.all_day;
+
+        // Picker-Slots komplett neu aufbauen — der MutationObserver in
+        // datepicker.js / datetimepicker.js initialisiert das frische Element
+        // mit dem neuen data-value, was bei einer reinen dataset-Mutation
+        // an einem schon initialisierten Picker NICHT passieren wuerde.
+        const allDay = !!ev.all_day;
+        ['starts_at', 'ends_at'].forEach((fieldName) => {
+            const slot = scope.querySelector(`[data-picker-slot="${fieldName}"]`);
+            if (!slot) return;
+            const value = ev[fieldName] || '';
+            slot.innerHTML = '';
+            if (allDay) {
+                const inp = document.createElement('input');
+                inp.type = 'date';
+                inp.className = 'ignis-input';
+                inp.name = fieldName;
+                inp.required = true;
+                inp.setAttribute('data-ignis-datepicker', '');
+                inp.value = value.slice(0, 10);
+                slot.appendChild(inp);
+            } else {
+                const div = document.createElement('div');
+                div.setAttribute('data-ignis-datetimepicker', '');
+                div.dataset.name = fieldName;
+                div.dataset.required = 'true';
+                div.dataset.value = value;
+                slot.appendChild(div);
+            }
+        });
+
+        // Attendees-Mehrfachauswahl
+        const attSel = scope.querySelector('[name="attendees[]"]');
+        if (attSel && Array.isArray(ev.attendees)) {
+            const wanted = new Set(ev.attendees.map((v) => String(v)));
+            Array.from(attSel.options).forEach((opt) => {
+                opt.selected = wanted.has(opt.value);
+            });
+        }
+
+        // Recurrence-UI
+        if (ev.recurrence_rule) {
+            const recurToggle = scope.querySelector('[data-recurrence-toggle]');
+            if (recurToggle) recurToggle.checked = true;
+            const parts = parseRruleParts(ev.recurrence_rule);
+            if (parts.freq) set('[data-rrule="freq"]', parts.freq);
+            if (parts.interval) set('[data-rrule="interval"]', String(parts.interval));
+            if (parts.byday) {
+                scope.querySelectorAll('[data-rrule-byday]').forEach((cb) => {
+                    cb.checked = parts.byday.includes(cb.dataset.rruleByday);
+                });
+            }
+            // RRULE-Hidden-Output sofort befuellen, falls user direkt speichert
+            const hidden = scope.querySelector('[data-rrule-output]');
+            if (hidden) hidden.value = ev.recurrence_rule;
+        }
+        if (ev.recurrence_until) {
+            set('[name="recurrence_until"]', ev.recurrence_until);
+        }
+    }
+
+    function parseRruleParts(rule) {
+        const out = { freq: null, interval: 1, byday: null };
+        rule.split(';').forEach((seg) => {
+            const [k, v] = seg.split('=');
+            if (!k || !v) return;
+            const key = k.toUpperCase();
+            if (key === 'FREQ')     out.freq = v.toUpperCase();
+            if (key === 'INTERVAL') out.interval = parseInt(v, 10) || 1;
+            if (key === 'BYDAY')    out.byday = v.split(',').map((d) => d.toUpperCase());
+        });
+        return out;
     }
 
     // ── Quick-Action-Hook (Sidebar-+-Button) ────────────────────────────

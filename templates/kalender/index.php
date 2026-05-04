@@ -74,20 +74,24 @@ $SITE_TITLE = 'Kalender';
                 <input type="text" id="evt-title" name="title" class="ignis-input" required maxlength="160">
             </div>
 
+            <div class="ignis-checkbox">
+                <input type="checkbox" id="evt-allday" name="all_day" value="1" data-allday-toggle>
+                <label for="evt-allday">Ganztägig</label>
+            </div>
+
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="ignis-field__label">Start <span class="text-[#d46b6b]">*</span></label>
-                    <div data-ignis-datetimepicker data-name="starts_at" data-required="true"></div>
+                    <div data-picker-slot="starts_at">
+                        <div data-ignis-datetimepicker data-name="starts_at" data-required="true"></div>
+                    </div>
                 </div>
                 <div>
                     <label class="ignis-field__label">Ende <span class="text-[#d46b6b]">*</span></label>
-                    <div data-ignis-datetimepicker data-name="ends_at" data-required="true"></div>
+                    <div data-picker-slot="ends_at">
+                        <div data-ignis-datetimepicker data-name="ends_at" data-required="true"></div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="ignis-checkbox">
-                <input type="checkbox" id="evt-allday" name="all_day" value="1">
-                <label for="evt-allday">Ganztägig</label>
             </div>
 
             <div>
@@ -108,8 +112,17 @@ $SITE_TITLE = 'Kalender';
                 <div>
                     <label for="evt-color" class="ignis-field__label">Farbe</label>
                     <select id="evt-color" name="color" class="form-select">
-                        <?php foreach ($colors as $color): ?>
-                            <option value="<?= htmlspecialchars($color) ?>"><?= htmlspecialchars(ucfirst($color)) ?></option>
+                        <?php
+                        $colorLabelsDe = [
+                            'orange' => 'Orange',
+                            'blue'   => 'Blau',
+                            'green'  => 'Grün',
+                            'red'    => 'Rot',
+                            'purple' => 'Lila',
+                            'gray'   => 'Grau',
+                        ];
+                        foreach ($colors as $color): ?>
+                            <option value="<?= htmlspecialchars($color) ?>"><?= htmlspecialchars($colorLabelsDe[$color] ?? ucfirst($color)) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -193,6 +206,7 @@ $SITE_TITLE = 'Kalender';
         window.CalendarPageConfig = {
             basePath:     <?= json_encode(BASE_PATH) ?>,
             eventsApiUrl: <?= json_encode(BASE_PATH . 'api/kalender/events') ?>,
+            eventApiUrl:  <?= json_encode(BASE_PATH . 'api/kalender/event') ?>,
             createUrl:    <?= json_encode(BASE_PATH . 'kalender/create') ?>,
             updateUrl:    <?= json_encode(BASE_PATH . 'kalender/update') ?>,
             deleteUrl:    <?= json_encode(BASE_PATH . 'kalender/delete') ?>,

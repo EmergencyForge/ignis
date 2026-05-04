@@ -109,6 +109,55 @@ class CalendarController extends Controller
     }
 
     /**
+     * GET /api/kalender/event?id=X — JSON-Detail fuer Edit-Prefill.
+     *
+     * Gibt das volle Event-Datenmodell zurueck, sodass das Frontend das
+     * Edit-Form korrekt befuellen kann. Sichtbarkeit wie bei show().
+     */
+    public function eventJson(): Response
+    {
+        $this->requireAuth();
+        $this->ensure('calendar.view', redirectTo: 'index');
+
+        $id = (int) ($_GET['id'] ?? 0);
+        $event = $id > 0 ? CalendarEvent::with('attendees')->find($id) : null;
+
+        if ($event === null || Gate::denies('calendar.view', $event)) {
+            return Response::json(['success' => false, 'message' => 'Nicht gefunden'], 404);
+        }
+
+        $startsAt = $event->starts_at instanceof \DateTimeInterface
+            ? $event->starts_at->format('Y-m-d\TH:i')
+            : substr((string) $event->starts_at, 0, 16);
+        $endsAt = $event->ends_at instanceof \DateTimeInterface
+            ? $event->ends_at->format('Y-m-d\TH:i')
+            : substr((string) $event->ends_at, 0, 16);
+        $until = $event->recurrence_until instanceof \DateTimeInterface
+            ? $event->recurrence_until->format('Y-m-d')
+            : ($event->recurrence_until ? substr((string) $event->recurrence_until, 0, 10) : null);
+
+        return Response::json([
+            'success' => true,
+            'event'   => [
+                'id'                 => (int) $event->id,
+                'title'              => (string) $event->title,
+                'description'        => (string) ($event->description ?? ''),
+                'location'           => (string) ($event->location ?? ''),
+                'starts_at'          => $startsAt,
+                'ends_at'            => $endsAt,
+                'all_day'            => (bool) $event->all_day,
+                'color'              => (string) $event->color,
+                'category'           => (string) $event->category,
+                'visibility'         => (string) $event->visibility,
+                'visibility_role_id' => $event->visibility_role_id ? (int) $event->visibility_role_id : null,
+                'attendees'          => $event->attendees->pluck('mitarbeiter_id')->map(fn ($v) => (int) $v)->all(),
+                'recurrence_rule'    => $event->recurrence_rule,
+                'recurrence_until'   => $until,
+            ],
+        ]);
+    }
+
+    /**
      * GET /kalender/view?id=X — Detail-HTML-Fragment fuer das Detail-Modal.
      */
     public function show(): void
@@ -386,8 +435,8 @@ class CalendarController extends Controller
         return [
             'id'              => $isRecurring ? "{$seriesId}-" . substr((string) $event->starts_at, 0, 10) : (string) $event->id,
             'title'           => $event->title,
-            'start'           => $this->formatForFullCalendar($event->starts_at, (bool) $event->all_day),
-            'end'             => $this->formatForFullCalendar($event->ends_at,   (bool) $event->all_day),
+            'start'           => $this->formatForFullCalendar($event->starts_at, (bool) $event->all_day, false),
+            'end'             => $this->formatForFullCalendar($event->ends_at,   (bool) $event->all_day, true),
             'allDay'          => (bool) $event->all_day,
             'backgroundColor' => $hex,
             'borderColor'     => $hex,
@@ -403,17 +452,29 @@ class CalendarController extends Controller
         ];
     }
 
-    private function formatForFullCalendar(mixed $value, bool $allDay): string
+    private function formatForFullCalendar(mixed $value, bool $allDay, bool $isEnd = false): string
     {
         if ($value instanceof \DateTimeInterface) {
-            return $allDay ? $value->format('Y-m-d') : $value->format('Y-m-d\TH:i:s');
+            $dt = $value;
+        } else {
+            try {
+                $dt = new \DateTimeImmutable((string) $value);
+            } catch (\Throwable) {
+                return (string) $value;
+            }
         }
-        $str = (string) $value;
+
         if ($allDay) {
-            return substr($str, 0, 10);
+            // FullCalendar All-Day-Events haben einen EXKLUSIVEN end-Wert.
+            // Wir speichern inklusiv (User denkt: "geht bis Freitag"), also
+            // ist der serialisierte end fuer FC = letzter Tag + 1.
+            if ($isEnd) {
+                $dt = $dt->modify('+1 day');
+            }
+            return $dt->format('Y-m-d');
         }
-        // MySQL-DATETIME → ISO mit T
-        return strlen($str) >= 19 ? substr($str, 0, 10) . 'T' . substr($str, 11, 8) : $str;
+
+        return $dt->format('Y-m-d\TH:i:s');
     }
 
     private function parseRange(?string $value, string $fallbackOffset): DateTimeImmutable
