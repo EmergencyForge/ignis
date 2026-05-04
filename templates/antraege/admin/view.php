@@ -125,6 +125,14 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
+                                <?php if (strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') === 0): ?>
+                                    <small class="mt-1 block text-xs text-gray-400">
+                                        <i class="fa-solid fa-calendar-days mr-1"></i>
+                                        Bei <strong>Angenommen</strong> wird automatisch ein Eintrag im
+                                        Kalender als Abwesenheit erstellt; bei jedem anderen Status
+                                        wird er wieder entfernt.
+                                    </small>
+                                <?php endif; ?>
                             </div>
 
                             <div class="mb-4">

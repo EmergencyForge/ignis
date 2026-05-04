@@ -339,12 +339,12 @@ class AntragController extends Controller
         $antrag->cirs_time    = new \DateTime();
         $antrag->save();
 
-        // Calendar-Bridge: Urlaubsanträge bei Genehmigung in den Kalender
-        // spiegeln, sonst entfernen. AbsenceSyncService kuemmert sich darum,
-        // dass keine Doppel-Wahrheit entsteht (firstOrNew via source/source_ref_id).
+        // Calendar-Bridge: Abwesenheits-Antraege bei Genehmigung in den
+        // Kalender spiegeln, sonst entfernen. Welche Typen "Abwesenheit"
+        // sind, kapselt AbsenceSyncService::isAbsenceAntrag (matcht
+        // 'Urlaubsantrag', 'Urlaub', 'Freistellungsantrag', case-insensitive).
         $antrag->loadMissing('typ', 'daten');
-        $isUrlaub = strcasecmp((string) ($antrag->typ?->name ?? ''), 'Urlaubsantrag') === 0;
-        if ($isUrlaub) {
+        if (AbsenceSyncService::isAbsenceAntrag($antrag)) {
             if ((int) $data['cirs_status'] === Antrag::STATUS_ACCEPTED) {
                 $vonDatum = (string) ($antrag->getFieldValue('von_datum') ?? '');
                 $bisDatum = (string) ($antrag->getFieldValue('bis_datum') ?? '');

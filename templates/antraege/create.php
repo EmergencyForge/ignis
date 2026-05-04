@@ -46,6 +46,13 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
 
             <?php Flash::render(); ?>
 
+            <?php if (strcasecmp((string) $typ->name, 'Urlaubsantrag') === 0): ?>
+                <div class="ignis-alert ignis-alert--info mb-4">
+                    <i class="fa-solid fa-circle-info mr-2"></i><?php
+                    ?>Nach <strong>Genehmigung</strong> erscheint der Antrag automatisch als Abwesenheit im <a href="<?= BASE_PATH ?>kalender">Kalender</a> und ist für alle Kollegen sichtbar. Status-Änderungen (z.B. Ablehnung) werden sofort übernommen.
+                </div>
+            <?php endif; ?>
+
             <div class="intra__tile p-6">
                 <form method="post" action="">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
