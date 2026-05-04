@@ -1664,6 +1664,24 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-size: 0.78rem;
 }
 
+.ignis-chip.ignis-multi-select__tag {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-normal, #bbbac1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.ignis-chip.ignis-multi-select__tag:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+}
+.ignis-chip.ignis-multi-select__tag .ignis-chip__remove {
+  color: var(--text-dimmed, #818189);
+  opacity: 0.7;
+}
+.ignis-chip.ignis-multi-select__tag .ignis-chip__remove:hover {
+  opacity: 1;
+  color: #fff;
+}
+
 .ignis-btn {
   display: inline-flex;
   align-items: center;

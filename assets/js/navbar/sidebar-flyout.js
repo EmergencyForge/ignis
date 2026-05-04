@@ -264,7 +264,7 @@
     openBootstrapModal(entry.selector);
   };
 
-  Object.keys(QUICK_ACTION_MODAL_MAP).forEach((target) => {
+  Object.keys(QUICK_ACTION_MAP).forEach((target) => {
     window.addEventListener('quick-action:' + target, () => dispatchQuickAction(target));
   });
 
