@@ -8,6 +8,7 @@ use DateTimeInterface;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model as EloquentModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -25,7 +26,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string         $color
  * @property string         $category
  * @property string         $visibility           'private'|'attendees'|'role'|'all'
- * @property int|null       $visibility_role_id
  * @property string         $source               'manual'|'antrag'
  * @property int|null       $source_ref_id
  * @property int            $created_by
@@ -72,17 +72,16 @@ class CalendarEvent extends EloquentModel
     ];
 
     protected $casts = [
-        'id'                 => 'integer',
-        'visibility_role_id' => 'integer',
-        'source_ref_id'      => 'integer',
-        'created_by'         => 'integer',
-        'parent_event_id'    => 'integer',
-        'all_day'            => 'boolean',
-        'starts_at'          => 'datetime',
-        'ends_at'            => 'datetime',
-        'recurrence_until'   => 'datetime',
-        'created_at'         => 'datetime',
-        'updated_at'         => 'datetime',
+        'id'               => 'integer',
+        'source_ref_id'    => 'integer',
+        'created_by'       => 'integer',
+        'parent_event_id'  => 'integer',
+        'all_day'          => 'boolean',
+        'starts_at'        => 'datetime',
+        'ends_at'          => 'datetime',
+        'recurrence_until' => 'datetime',
+        'created_at'       => 'datetime',
+        'updated_at'       => 'datetime',
     ];
 
     public function attendees(): HasMany
@@ -95,9 +94,18 @@ class CalendarEvent extends EloquentModel
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function visibilityRole(): BelongsTo
+    /**
+     * Mehrere Rollen die ein Event sehen duerfen (visibility='role').
+     * Pivot-Tabelle: intra_calendar_event_roles.
+     */
+    public function visibilityRoles(): BelongsToMany
     {
-        return $this->belongsTo(Role::class, 'visibility_role_id');
+        return $this->belongsToMany(
+            Role::class,
+            'intra_calendar_event_roles',
+            'event_id',
+            'role_id'
+        );
     }
 
     public function parent(): BelongsTo
@@ -141,11 +149,8 @@ class CalendarEvent extends EloquentModel
     /**
      * Scope: nur Events, die der gegebene User sehen darf. Spiegelt die
      * Logik in CalendarPolicy::view(). Role-Membership-Check braucht
-     * den User selbst — laesst sich nur via subquery loesen.
-     *
-     * Achtung: bei visibility='attendees' filtern wir auf Mitarbeiter-ID
-     * via discordtag-join. Wenn der User keinen Mitarbeiter hat, fallen
-     * attendees-events einfach raus.
+     * eine Subquery auf die Pivot-Tabelle, weil ein Event mehrere Rollen
+     * tragen kann.
      */
     public function scopeVisibleTo(Builder $query, int $userId, ?int $roleId, ?int $mitarbeiterId): Builder
     {
@@ -156,7 +161,11 @@ class CalendarEvent extends EloquentModel
             if ($roleId !== null) {
                 $q->orWhere(function (Builder $sq) use ($roleId) {
                     $sq->where('visibility', self::VISIBILITY_ROLE)
-                        ->where('visibility_role_id', $roleId);
+                        ->whereIn('id', function ($sub) use ($roleId) {
+                            $sub->select('event_id')
+                                ->from('intra_calendar_event_roles')
+                                ->where('role_id', $roleId);
+                        });
                 });
             }
 

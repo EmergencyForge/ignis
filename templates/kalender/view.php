@@ -90,7 +90,9 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
                                 $vLabel = match ($event->visibility) {
                                     'private'   => 'Privat (nur Ersteller)',
                                     'attendees' => 'Eingeladene Mitarbeiter',
-                                    'role'      => 'Rolle: ' . ($event->visibilityRole?->name ?? '—'),
+                                    'role'      => 'Rollen: ' . ($event->visibilityRoles->isEmpty()
+                                        ? '—'
+                                        : $event->visibilityRoles->pluck('name')->join(', ')),
                                     'all'       => 'Alle (öffentlich)',
                                     default     => $event->visibility,
                                 };

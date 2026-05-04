@@ -346,9 +346,9 @@ import { Dialog } from '../ui/dialog.js';
         set('[name="category"]',     ev.category);
         set('[name="color"]',        ev.color);
         set('[name="visibility"]',   ev.visibility);
-        if (ev.visibility_role_id != null) {
-            set('[name="visibility_role_id"]', String(ev.visibility_role_id));
-        }
+
+        // Multi-Select fuer Rollen — setValues setzt die Tags + Hidden-Inputs.
+        applyMultiSelectValues(scope, '[data-name="visibility_role_ids[]"]', ev.visibility_role_ids || []);
 
         // All-Day-Toggle
         const allday = scope.querySelector('[data-allday-toggle]');
@@ -383,14 +383,8 @@ import { Dialog } from '../ui/dialog.js';
             }
         });
 
-        // Attendees-Mehrfachauswahl
-        const attSel = scope.querySelector('[name="attendees[]"]');
-        if (attSel && Array.isArray(ev.attendees)) {
-            const wanted = new Set(ev.attendees.map((v) => String(v)));
-            Array.from(attSel.options).forEach((opt) => {
-                opt.selected = wanted.has(opt.value);
-            });
-        }
+        // Attendees-Multi-Select
+        applyMultiSelectValues(scope, '[data-name="attendees[]"]', ev.attendees || []);
 
         // Recurrence-UI
         if (ev.recurrence_rule) {
@@ -411,6 +405,32 @@ import { Dialog } from '../ui/dialog.js';
         if (ev.recurrence_until) {
             set('[name="recurrence_until"]', ev.recurrence_until);
         }
+    }
+
+    /**
+     * Setzt die Werte einer MultiSelect-Komponente nach Init.
+     * Da der MutationObserver in multi-select.js die Komponente erst beim
+     * naechsten Tick initialisiert, queue'n wir per requestAnimationFrame
+     * — ist beim Form-Open der Sicherheitsweg.
+     */
+    function applyMultiSelectValues(scope, selector, values) {
+        const root = scope.querySelector(selector);
+        if (!root || !Array.isArray(values) || values.length === 0) return;
+
+        const trySet = () => {
+            const inst = window.ignisMultiSelectGet?.(root);
+            if (inst) {
+                inst.setValues(values);
+                return true;
+            }
+            return false;
+        };
+        if (trySet()) return;
+        // Retry naechsten Frame, falls noch nicht initialisiert
+        requestAnimationFrame(() => {
+            if (trySet()) return;
+            requestAnimationFrame(trySet);
+        });
     }
 
     function parseRruleParts(rule) {

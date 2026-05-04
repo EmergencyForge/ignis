@@ -120,7 +120,7 @@ class CalendarController extends Controller
         $this->ensure('calendar.view', redirectTo: 'index');
 
         $id = (int) ($_GET['id'] ?? 0);
-        $event = $id > 0 ? CalendarEvent::with('attendees')->find($id) : null;
+        $event = $id > 0 ? CalendarEvent::with(['attendees', 'visibilityRoles'])->find($id) : null;
 
         if ($event === null || Gate::denies('calendar.view', $event)) {
             return Response::json(['success' => false, 'message' => 'Nicht gefunden'], 404);
@@ -139,20 +139,20 @@ class CalendarController extends Controller
         return Response::json([
             'success' => true,
             'event'   => [
-                'id'                 => (int) $event->id,
-                'title'              => (string) $event->title,
-                'description'        => (string) ($event->description ?? ''),
-                'location'           => (string) ($event->location ?? ''),
-                'starts_at'          => $startsAt,
-                'ends_at'            => $endsAt,
-                'all_day'            => (bool) $event->all_day,
-                'color'              => (string) $event->color,
-                'category'           => (string) $event->category,
-                'visibility'         => (string) $event->visibility,
-                'visibility_role_id' => $event->visibility_role_id ? (int) $event->visibility_role_id : null,
-                'attendees'          => $event->attendees->pluck('mitarbeiter_id')->map(fn ($v) => (int) $v)->all(),
-                'recurrence_rule'    => $event->recurrence_rule,
-                'recurrence_until'   => $until,
+                'id'                  => (int) $event->id,
+                'title'               => (string) $event->title,
+                'description'         => (string) ($event->description ?? ''),
+                'location'            => (string) ($event->location ?? ''),
+                'starts_at'           => $startsAt,
+                'ends_at'             => $endsAt,
+                'all_day'             => (bool) $event->all_day,
+                'color'               => (string) $event->color,
+                'category'            => (string) $event->category,
+                'visibility'          => (string) $event->visibility,
+                'visibility_role_ids' => $event->visibilityRoles->pluck('id')->map(fn ($v) => (int) $v)->all(),
+                'attendees'           => $event->attendees->pluck('mitarbeiter_id')->map(fn ($v) => (int) $v)->all(),
+                'recurrence_rule'     => $event->recurrence_rule,
+                'recurrence_until'    => $until,
             ],
         ]);
     }
@@ -166,7 +166,7 @@ class CalendarController extends Controller
         $this->ensure('calendar.view', redirectTo: 'index');
 
         $id = (int) ($_GET['id'] ?? 0);
-        $event = $id > 0 ? CalendarEvent::with(['attendees.mitarbeiter', 'creator', 'visibilityRole'])->find($id) : null;
+        $event = $id > 0 ? CalendarEvent::with(['attendees.mitarbeiter', 'creator', 'visibilityRoles'])->find($id) : null;
 
         if ($event === null || Gate::denies('calendar.view', $event)) {
             Flash::error('Termin nicht gefunden oder keine Berechtigung.');
@@ -209,6 +209,7 @@ class CalendarController extends Controller
         $event->source     = CalendarEvent::SOURCE_MANUAL;
         $event->save();
 
+        $this->syncVisibilityRoles($event, $data['visibility_role_ids'] ?? []);
         $this->syncAttendees($event, $data['attendees'] ?? [], (int) $_SESSION['userid']);
         $this->notifyAttendees($event, isUpdate: false);
         $this->auditLog('Termin erstellt', "ID: {$event->id}, Titel: {$event->title}");
@@ -243,6 +244,7 @@ class CalendarController extends Controller
         $this->buildFromValidated($event, $data);
         $event->save();
 
+        $this->syncVisibilityRoles($event, $data['visibility_role_ids'] ?? []);
         $this->syncAttendees($event, $data['attendees'] ?? [], (int) $event->created_by);
         $this->notifyAttendees($event, isUpdate: true);
         $this->auditLog('Termin bearbeitet', "ID: {$event->id}, Titel: {$event->title}");
@@ -329,19 +331,33 @@ class CalendarController extends Controller
      */
     private function buildFromValidated(CalendarEvent $event, array $data): CalendarEvent
     {
-        $event->title              = $data['title'];
-        $event->description        = $data['description'];
-        $event->location           = $data['location'];
-        $event->starts_at          = $data['starts_at'];
-        $event->ends_at            = $data['ends_at'];
-        $event->all_day            = (bool) $data['all_day'];
-        $event->color              = $data['color'];
-        $event->category           = $data['category'];
-        $event->visibility         = $data['visibility'];
-        $event->visibility_role_id = $data['visibility_role_id'];
-        $event->recurrence_rule    = $data['recurrence_rule'];
-        $event->recurrence_until   = $data['recurrence_until'];
+        $event->title            = $data['title'];
+        $event->description      = $data['description'];
+        $event->location         = $data['location'];
+        $event->starts_at        = $data['starts_at'];
+        $event->ends_at          = $data['ends_at'];
+        $event->all_day          = (bool) $data['all_day'];
+        $event->color            = $data['color'];
+        $event->category         = $data['category'];
+        $event->visibility       = $data['visibility'];
+        $event->recurrence_rule  = $data['recurrence_rule'];
+        $event->recurrence_until = $data['recurrence_until'];
+        // visibility_role_ids[] wird per Pivot synchronisiert nach $event->save() —
+        // siehe syncVisibilityRoles().
         return $event;
+    }
+
+    /**
+     * Synct die Pivot-Tabelle intra_calendar_event_roles. Bei
+     * visibility != 'role' werden alle Pivot-Rows entfernt.
+     */
+    private function syncVisibilityRoles(CalendarEvent $event, array $roleIds): void
+    {
+        if ($event->visibility !== CalendarEvent::VISIBILITY_ROLE) {
+            $event->visibilityRoles()->detach();
+            return;
+        }
+        $event->visibilityRoles()->sync(array_map('intval', $roleIds));
     }
 
     /**

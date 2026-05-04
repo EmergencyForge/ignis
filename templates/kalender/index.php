@@ -138,24 +138,37 @@ $SITE_TITLE = 'Kalender';
                 </select>
             </div>
 
+            <?php
+            // JSON-Optionsliste fuer den Multi-Select. Mitarbeiter mit
+            // Dienstnummer-Suffix damit zwei Maxe Mustermanns auseinander-
+            // gehalten werden koennen.
+            $rolesOptions = array_map(static fn ($r) => [
+                'value' => (int) $r['id'],
+                'label' => (string) $r['name'],
+            ], $roles);
+            $mitarbeiterOptions = $mitarbeiter->map(static fn ($m) => [
+                'value' => (int) $m->id,
+                'label' => trim(($m->fullname ?? '') . ' (' . ($m->dienstnr ?? '—') . ')'),
+            ])->all();
+            ?>
+
             <div data-visibility-role-row style="display:none;">
-                <label for="evt-role" class="ignis-field__label">Rolle</label>
-                <select id="evt-role" name="visibility_role_id" class="form-select">
-                    <option value="">Bitte wählen</option>
-                    <?php foreach ($roles as $role): ?>
-                        <option value="<?= (int) $role['id'] ?>"><?= htmlspecialchars($role['name']) ?></option>
-                    <?php endforeach; ?>
-                </select>
+                <label class="ignis-field__label">Rollen</label>
+                <div data-ignis-multi-select
+                     data-name="visibility_role_ids[]"
+                     data-options='<?= htmlspecialchars(json_encode($rolesOptions, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>'
+                     data-placeholder="Rolle suchen…"
+                     data-empty-text="Keine Rolle gefunden"></div>
+                <small class="text-[var(--text-dimmed,#818189)]">Mehrere Rollen wählbar — alle Mitglieder sehen den Termin</small>
             </div>
 
             <div data-visibility-attendees-row>
-                <label for="evt-attendees" class="ignis-field__label">Eingeladene Mitarbeiter</label>
-                <select id="evt-attendees" name="attendees[]" class="form-select" multiple size="5">
-                    <?php foreach ($mitarbeiter as $m): ?>
-                        <option value="<?= (int) $m->id ?>"><?= htmlspecialchars(trim(($m->fullname ?? '') . ' (' . ($m->dienstnr ?? '—') . ')')) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <small class="text-[var(--text-dimmed,#818189)]">Strg/Cmd-Klick für Mehrfachauswahl</small>
+                <label class="ignis-field__label">Eingeladene Mitarbeiter</label>
+                <div data-ignis-multi-select
+                     data-name="attendees[]"
+                     data-options='<?= htmlspecialchars(json_encode($mitarbeiterOptions, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>'
+                     data-placeholder="Mitarbeiter suchen…"
+                     data-empty-text="Keine Mitarbeiter gefunden"></div>
             </div>
 
             <hr class="my-2">
@@ -217,6 +230,8 @@ $SITE_TITLE = 'Kalender';
     <!-- FullCalendar (lokales Bundle, kein CDN) -->
     <script src="<?= BASE_PATH ?>assets/_ext/fullcalendar/index.global.min.js"></script>
     <script src="<?= BASE_PATH ?>assets/_ext/fullcalendar/locales/de.global.min.js"></script>
+    <!-- Searchable Multi-Select fuer Rollen + Mitarbeiter (Tag-Picker) -->
+    <script type="module" src="<?= BASE_PATH ?>assets/js/ui/multi-select.js"></script>
     <!-- Page-Logic -->
     <script type="module" src="<?= BASE_PATH ?>assets/js/pages/calendar.js"></script>
 

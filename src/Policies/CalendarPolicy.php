@@ -54,7 +54,10 @@ class CalendarPolicy
 
             case CalendarEvent::VISIBILITY_ROLE:
                 $userRoleId = (int) ($_SESSION['role_id'] ?? 0);
-                return $userRoleId > 0 && $userRoleId === (int) $event->visibility_role_id;
+                if ($userRoleId <= 0) return false;
+                return $event->visibilityRoles()
+                    ->where('intra_users_roles.id', $userRoleId)
+                    ->exists();
 
             case CalendarEvent::VISIBILITY_ATTENDEES:
                 $mitarbeiterId = self::resolveMitarbeiterId();
