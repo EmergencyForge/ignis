@@ -255,7 +255,66 @@
     margin-right: 0.25rem;
 }
 
-/* Aktiv-Highlight fuer RSVP-Buttons im View-Template */
+/* Aktiv-Highlight fuer RSVP-Buttons im View-Template — currentColor
+   sorgt dafuer dass der Ring zur Variant-Farbe passt (gruen bei
+   ignis-btn--soft-success, etc.) statt orange Brand-Default. */
 .ignis-btn.is-active {
-    box-shadow: 0 0 0 2px var(--main-color, #ff4d00);
+    box-shadow: inset 0 0 0 1px currentColor;
+    font-weight: 700;
 }
+
+/* Teilnehmer-Liste mit Response-Status. Ablöse fuer den generischen
+   ignis-list — wir wollen Name links, Status-Chip rechts. */
+.attendee-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.attendee-list__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.attendee-list__row:last-child { border-bottom: 0; }
+
+.attendee-list__name {
+    color: var(--text-normal, #bbbac1);
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.attendee-list__organizer {
+    color: var(--main-color, #ff4d00);
+    font-size: 0.7rem;
+    opacity: 0.85;
+}
+
+.attendee-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.attendee-status i { font-size: 0.78rem; }
+
+.attendee-status--accepted  { color: #16a34a; }
+.attendee-status--accepted i { color: #16a34a; }
+.attendee-status--tentative { color: #eab308; }
+.attendee-status--tentative i { color: #eab308; }
+.attendee-status--declined  { color: #dc2626; opacity: 0.75; }
+.attendee-status--declined i { color: #dc2626; }
+.attendee-status--pending   { color: var(--text-dimmed, #818189); }
+.attendee-status--pending i { color: var(--text-dimmed, #818189); }

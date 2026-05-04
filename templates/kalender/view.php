@@ -7,13 +7,13 @@
  * Modal-Frontend kann das HTML auch via fetch() einlesen und nur den
  * relevanten Teil ins Dialog-Body kippen (siehe assets/js/pages/calendar.js).
  *
- * @var \App\Models\CalendarEvent                                $event
- * @var \Illuminate\Support\Collection<int,\App\Models\Mitarbeiter> $attendees
- * @var int                                                      $attendeeCount
- * @var bool                                                     $canEdit
- * @var bool                                                     $canDelete
- * @var ?string                                                  $myResponse
- * @var string                                                   $categoriesLabel
+ * @var \App\Models\CalendarEvent  $event
+ * @var array<int,array{mitarbeiter:\App\Models\Mitarbeiter,response:?string,is_organizer:bool}> $attendeesData
+ * @var int     $attendeeCount
+ * @var bool    $canEdit
+ * @var bool    $canDelete
+ * @var ?string $myResponse
+ * @var string  $categoriesLabel
  */
 
 use App\Helpers\Flash;
@@ -119,16 +119,45 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
                 </div>
             </div>
 
-            <!-- Attendees-Liste -->
-            <?php if ($attendeeCount > 0): ?>
+            <!-- Attendees-Liste mit Response-Status -->
+            <?php if (!empty($attendeesData)): ?>
+                <?php
+                $statusMeta = [
+                    'accepted'  => ['icon' => 'fa-circle-check',    'class' => 'attendee-status--accepted',  'label' => 'Zugesagt'],
+                    'tentative' => ['icon' => 'fa-circle-question', 'class' => 'attendee-status--tentative', 'label' => 'Vielleicht'],
+                    'declined'  => ['icon' => 'fa-circle-xmark',    'class' => 'attendee-status--declined',  'label' => 'Abgesagt'],
+                    'pending'   => ['icon' => 'fa-circle-dot',      'class' => 'attendee-status--pending',   'label' => 'Ausstehend'],
+                ];
+                ?>
                 <div class="ignis-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Teilnehmer (<?= (int) $attendeeCount ?>)</h5>
                     </div>
                     <div class="ignis-card__body">
-                        <ul class="ignis-list">
-                            <?php foreach ($attendees as $att): ?>
-                                <li><?= htmlspecialchars(trim(($att->fullname ?? '') . ($att->dienstnr ? ' · ' . $att->dienstnr : ''))) ?></li>
+                        <ul class="attendee-list">
+                            <?php foreach ($attendeesData as $att):
+                                $m       = $att['mitarbeiter'];
+                                $resp    = $att['response'];
+                                $meta    = $resp !== null ? ($statusMeta[$resp] ?? null) : null;
+                                $name    = trim((string) ($m->fullname ?? ''));
+                                $dnr     = $m->dienstnr ? ' · ' . $m->dienstnr : '';
+                            ?>
+                                <li class="attendee-list__row">
+                                    <span class="attendee-list__name">
+                                        <?= htmlspecialchars($name . $dnr) ?>
+                                        <?php if (!empty($att['is_organizer'])): ?>
+                                            <span class="attendee-list__organizer" title="Organisator">
+                                                <i class="fa-solid fa-star"></i>
+                                            </span>
+                                        <?php endif; ?>
+                                    </span>
+                                    <?php if ($meta !== null): ?>
+                                        <span class="attendee-status <?= $meta['class'] ?>" title="<?= htmlspecialchars($meta['label']) ?>">
+                                            <i class="fa-solid <?= $meta['icon'] ?>"></i>
+                                            <span class="attendee-status__label"><?= htmlspecialchars($meta['label']) ?></span>
+                                        </span>
+                                    <?php endif; ?>
+                                </li>
                             <?php endforeach; ?>
                         </ul>
                     </div>

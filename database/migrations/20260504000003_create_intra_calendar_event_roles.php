@@ -27,15 +27,47 @@ class CreateIntraCalendarEventRoles extends AbstractMigration
                 ->create();
         }
 
-        // Single-Role-Spalte ist jetzt redundant. FK zuerst droppen, dann Spalte.
+        // Alte single-role-Spalte abraeumen, falls noch da. Schritt fuer
+        // Schritt mit Lookup im information_schema, weil Phinx' dropForeignKey
+        // je nach Version Probleme bei auto-generierten Constraint-Namen
+        // macht. Lieber manuell per SQL — schlaegt nicht fehl wenn der FK
+        // nicht (mehr) existiert.
         $events = $this->table('intra_calendar_events');
         if ($events->hasColumn('visibility_role_id')) {
-            try {
-                $events->dropForeignKey('visibility_role_id')->update();
-            } catch (\Throwable) {
-                // FK-Name unbekannt → manuell per Rohem SQL droppen
-                $this->execute("ALTER TABLE `intra_calendar_events` DROP FOREIGN KEY IF EXISTS `intra_calendar_events_ibfk_2`");
+            $constraintName = $this->fetchRow(
+                "SELECT CONSTRAINT_NAME
+                 FROM information_schema.KEY_COLUMN_USAGE
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME = 'intra_calendar_events'
+                   AND COLUMN_NAME = 'visibility_role_id'
+                   AND REFERENCED_TABLE_NAME IS NOT NULL
+                 LIMIT 1"
+            );
+            if (!empty($constraintName['CONSTRAINT_NAME'])) {
+                $name = $constraintName['CONSTRAINT_NAME'];
+                $this->execute("ALTER TABLE `intra_calendar_events` DROP FOREIGN KEY `{$name}`");
             }
+            // Index der ggf. zur FK existierte (Phinx erstellt automatisch
+            // einen Index gleichen Namens) abraeumen, falls vorhanden.
+            $indexRow = $this->fetchRow(
+                "SELECT INDEX_NAME
+                 FROM information_schema.STATISTICS
+                 WHERE TABLE_SCHEMA = DATABASE()
+                   AND TABLE_NAME = 'intra_calendar_events'
+                   AND COLUMN_NAME = 'visibility_role_id'
+                 LIMIT 1"
+            );
+            if (!empty($indexRow['INDEX_NAME'])) {
+                $idx = $indexRow['INDEX_NAME'];
+                try {
+                    $this->execute("ALTER TABLE `intra_calendar_events` DROP INDEX `{$idx}`");
+                } catch (\Throwable) {
+                    // Index-Drop kann fehlschlagen wenn der Index gleichzeitig
+                    // ein Primary-Key wäre — passiert hier nicht, aber sicher
+                    // ist sicher.
+                }
+            }
+            // Spalte selbst entfernen
             $events->removeColumn('visibility_role_id')->update();
         }
     }
