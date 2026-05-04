@@ -152,6 +152,20 @@ $router->post('/api/notifications/mark-all-read',
     [new AuthMiddleware()]
 );
 
+// ----------------------------------------------------------------------------
+//  Kalender — FullCalendar-EventSource
+//
+//  Liefert ein Array von FullCalendar-EventInput-Objekten fuer den Range
+//  [from, to]. Recurring-Events werden serverseitig durch RecurrenceExpander
+//  in Einzelvorkommen aufgeloest, sodass das Frontend keine Recurrence-
+//  Logik braucht.
+// ----------------------------------------------------------------------------
+
+$router->get('/api/kalender/events',
+    [\App\Http\Controllers\CalendarController::class, 'eventsJson'],
+    [new AuthMiddleware()]
+);
+
 /*
  * BEISPIEL — Admin-API-Endpoint (Session + Permission + CSRF)
  *

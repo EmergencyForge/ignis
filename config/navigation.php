@@ -188,6 +188,23 @@ return [
         ],
 
         // ─────────────────────────────────────────────────────────────
+        // Kalender — Termine, role-getaggte Dienste, Recurring-Events
+        // ─────────────────────────────────────────────────────────────
+        [
+            'id'           => 'kalender',
+            'label'        => 'Kalender',
+            'icon'         => 'fa-solid fa-calendar-days',
+            'href'         => BASE_PATH . 'kalender',
+            'data_page'    => 'kalender',
+            'permissions'  => ['admin', 'calendar.view'],
+            'quick_action' => [
+                'type'   => 'modal',
+                'target' => 'calendar-event-create',
+                'label'  => 'Neuen Termin erstellen',
+            ],
+        ],
+
+        // ─────────────────────────────────────────────────────────────
         // Fahrzeuge
         // ─────────────────────────────────────────────────────────────
         [
