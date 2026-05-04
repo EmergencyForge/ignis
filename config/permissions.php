@@ -52,6 +52,11 @@ return [
         'fahrtenbuch.view'   => 'Fahrtenbuch ansehen',
         'fahrtenbuch.manage' => 'Fahrtenbuch verwalten (erstellen, bearbeiten, löschen)',
     ],
+    'Kalender' => [
+        'calendar.view'   => 'Kalender ansehen',
+        'calendar.create' => 'Termine und Dienste erstellen',
+        'calendar.manage' => 'Alle Termine bearbeiten/löschen (auch fremde)',
+    ],
     'Sonstiges' => [
         'admin'             => '<strong> Admin (Alle Rechte)</strong>',
         'dashboard.manage'  => 'Dashboard verwalten',

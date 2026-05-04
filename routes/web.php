@@ -32,6 +32,7 @@ declare(strict_types=1);
  */
 
 use App\Http\Controllers\AntragController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\EinsatzController;
 use App\Http\Controllers\EnotfController;
 use App\Http\Controllers\FahrtenbuchController;
@@ -243,6 +244,26 @@ $fahrtPostDispatch = function (\App\Http\Request $request) {
 };
 
 $router->post('/fahrtenbuch/actions',     $fahrtPostDispatch);
+
+// ----------------------------------------------------------------------------
+//  Kalender-Modul
+//
+//  Termine, role-getaggte Dienste, Recurring-Series. Alle Routes brauchen
+//  AuthMiddleware + PolicyMiddleware('calendar.view') — Create-Endpoint
+//  zusaetzlich 'calendar.create'. Update/Delete-Permissions werden im
+//  Controller via Gate::authorize() pro Event geprueft (Ersteller darf
+//  immer, sonst calendar.manage).
+// ----------------------------------------------------------------------------
+
+$calendarViewAuth   = [new AuthMiddleware(), new PolicyMiddleware('calendar.view')];
+$calendarCreateAuth = [new AuthMiddleware(), new PolicyMiddleware('calendar.create')];
+
+$router->get('/kalender',          [CalendarController::class, 'index'],         $calendarViewAuth);
+$router->get('/kalender/view',     [CalendarController::class, 'show'],          $calendarViewAuth);
+$router->post('/kalender/create',  [CalendarController::class, 'store'],         $calendarCreateAuth);
+$router->post('/kalender/update',  [CalendarController::class, 'update'],        $calendarViewAuth);
+$router->post('/kalender/delete',  [CalendarController::class, 'destroy'],       $calendarViewAuth);
+$router->post('/kalender/respond', [CalendarController::class, 'respondInvite'], $calendarViewAuth);
 
 // ----------------------------------------------------------------------------
 //  Mitarbeiter-Modul
