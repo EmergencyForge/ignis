@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 
 use App\Auth\Gate;
 use App\Calendar\AttendeeResolver;
+use App\Calendar\ConflictDetector;
+use App\Calendar\IcalExporter;
 use App\Calendar\RecurrenceExpander;
 use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
@@ -110,19 +112,100 @@ class CalendarController extends Controller
             })
             ->get();
 
+        // Bulk-Lookup der Eigen-Responses (statt N+1 pro Event):
+        // Ein Query fuer alle Attendee-Rows zwischen User-Mitarbeiter und
+        // den im Range befindlichen Events. Result als event_id => response Map.
+        $myResponses = [];
+        if ($mitarbeiterId !== null && $events->isNotEmpty()) {
+            $myResponses = CalendarAttendee::query()
+                ->where('mitarbeiter_id', $mitarbeiterId)
+                ->whereIn('event_id', $events->pluck('id')->all())
+                ->pluck('response', 'event_id')
+                ->all();
+        }
+
         $output = [];
         foreach ($events as $event) {
+            $response = $myResponses[$event->id] ?? null;
             if (!empty($event->recurrence_rule)) {
                 $expanded = RecurrenceExpander::expand($event, $from, $to);
                 foreach ($expanded as $occ) {
-                    $output[] = $this->toFullCalendarEvent($occ, true, $event->id);
+                    $output[] = $this->toFullCalendarEvent($occ, true, $event->id, $response);
                 }
             } else {
-                $output[] = $this->toFullCalendarEvent($event, false, null);
+                $output[] = $this->toFullCalendarEvent($event, false, null, $response);
             }
         }
 
         return Response::json($output);
+    }
+
+    /**
+     * GET /api/kalender/subscribe-info
+     *
+     * Liefert die persoenliche iCal-Subscribe-URL des eingeloggten Users.
+     * Wird vom "Kalender abonnieren"-Dialog aufgerufen — generiert den
+     * Token bei Bedarf.
+     */
+    public function subscribeInfo(): Response
+    {
+        $this->requireAuth();
+        $userId = (int) $_SESSION['userid'];
+        $token  = IcalExporter::ensureToken($userId);
+        $base   = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+        // Absolute URL zusammenbauen — externe Kalender brauchen das.
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host   = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
+        $url    = $scheme . '://' . $host . rtrim($base, '/') . '/api/kalender/ical/' . $token;
+        return Response::json(['success' => true, 'url' => $url, 'token' => $token]);
+    }
+
+    /**
+     * POST /api/kalender/subscribe-regenerate
+     * Erzeugt einen neuen Token (alte URL wird ungueltig).
+     */
+    public function subscribeRegenerate(): Response
+    {
+        $this->requireAuth();
+        $userId = (int) $_SESSION['userid'];
+        $token  = IcalExporter::regenerateToken($userId);
+        $base   = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host   = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
+        $url    = $scheme . '://' . $host . rtrim($base, '/') . '/api/kalender/ical/' . $token;
+        return Response::json(['success' => true, 'url' => $url, 'token' => $token]);
+    }
+
+    /**
+     * GET /api/kalender/ical/{token}
+     *
+     * Liefert das iCal-Feed eines Users. KEIN Cookie-Auth — der Token in
+     * der URL ist die Authentifizierung. Externe Kalender koennen das so
+     * abonnieren.
+     */
+    public function icalFeed(string $token): Response
+    {
+        $token = trim($token);
+        if (!preg_match('/^[a-f0-9]{20,64}$/', $token)) {
+            return Response::json(['success' => false, 'message' => 'Invalid token'], 404);
+        }
+        $userId = Capsule::table('intra_users')
+            ->where('ical_token', $token)
+            ->value('id');
+        if ($userId === null) {
+            return Response::json(['success' => false, 'message' => 'Invalid token'], 404);
+        }
+
+        $body = IcalExporter::export((int) $userId);
+        return new Response(
+            status: 200,
+            body: $body,
+            headers: [
+                'Content-Type'        => 'text/calendar; charset=utf-8',
+                'Content-Disposition' => 'inline; filename="ignis-kalender.ics"',
+                'Cache-Control'       => 'private, max-age=300',
+            ],
+        );
     }
 
     /**
@@ -231,6 +314,8 @@ class CalendarController extends Controller
         $this->notifyAttendees($event, isUpdate: false);
         $this->auditLog('Termin erstellt', "ID: {$event->id}, Titel: {$event->title}");
 
+        $this->flashConflictHint($event, $data['attendees'] ?? []);
+
         Flash::success('Termin erstellt.');
         $this->redirect('kalender');
     }
@@ -265,6 +350,8 @@ class CalendarController extends Controller
         $this->syncAttendees($event, $data['attendees'] ?? [], (int) $event->created_by);
         $this->notifyAttendees($event, isUpdate: true);
         $this->auditLog('Termin bearbeitet', "ID: {$event->id}, Titel: {$event->title}");
+
+        $this->flashConflictHint($event, $data['attendees'] ?? []);
 
         Flash::success('Termin aktualisiert.');
         $this->redirect('kalender');
@@ -453,7 +540,7 @@ class CalendarController extends Controller
     /**
      * Konvertiert ein Event in das FullCalendar-EventInput-Format.
      */
-    private function toFullCalendarEvent(CalendarEvent $event, bool $isRecurring, ?int $seriesId): array
+    private function toFullCalendarEvent(CalendarEvent $event, bool $isRecurring, ?int $seriesId, ?string $myResponse = null): array
     {
         $colors = [
             'orange' => '#ff4d00',
@@ -481,6 +568,7 @@ class CalendarController extends Controller
                 'isRecurringInstance' => $isRecurring,
                 'attendeeCount'       => AttendeeResolver::count($event),
                 'source'              => $event->source,
+                'myResponse'          => $myResponse,
             ],
         ];
     }
@@ -550,6 +638,31 @@ class CalendarController extends Controller
         }
         $row = Mitarbeiter::query()->where('discordtag', $discordId)->first(['id']);
         return $row ? (int) $row->id : null;
+    }
+
+    /**
+     * Nicht-blockierender Konflikt-Hint nach store/update — wenn Attendees
+     * im Zeitraum bereits andere Termine haben, gibt's eine Flash::warning
+     * mit Kurz-Zusammenfassung. Der Save selbst ist bereits durch.
+     */
+    private function flashConflictHint(CalendarEvent $event, array $attendeeIds): void
+    {
+        if ($attendeeIds === []) return;
+        try {
+            $from = new \DateTimeImmutable((string) $event->starts_at);
+            $to   = new \DateTimeImmutable((string) $event->ends_at);
+        } catch (\Throwable) {
+            return;
+        }
+        $msg = ConflictDetector::describeConflictsForAttendees(
+            $attendeeIds,
+            $from,
+            $to,
+            (int) $event->id
+        );
+        if ($msg !== '') {
+            Flash::set('warning', $msg);
+        }
     }
 
     private function auditLog(string $action, string $details): void

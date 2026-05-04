@@ -67,6 +67,9 @@ $SITE_TITLE = 'Kalender';
                         <?php endforeach; ?>
                     </div>
                     <div class="calendar-toolbar__actions">
+                        <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="btn-subscribe" title="Diesen Kalender abonnieren">
+                            <i class="fa-solid fa-rss"></i> Abonnieren
+                        </button>
                         <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="btn-new-event">
                             <i class="fa-solid fa-plus"></i> Neuer Termin
                         </button>
@@ -229,13 +232,15 @@ $SITE_TITLE = 'Kalender';
 
     <script>
         window.CalendarPageConfig = {
-            basePath:     <?= json_encode(BASE_PATH) ?>,
-            eventsApiUrl: <?= json_encode(BASE_PATH . 'api/kalender/events') ?>,
-            eventApiUrl:  <?= json_encode(BASE_PATH . 'api/kalender/event') ?>,
-            createUrl:    <?= json_encode(BASE_PATH . 'kalender/create') ?>,
-            updateUrl:    <?= json_encode(BASE_PATH . 'kalender/update') ?>,
-            deleteUrl:    <?= json_encode(BASE_PATH . 'kalender/delete') ?>,
-            viewUrl:      <?= json_encode(BASE_PATH . 'kalender/view') ?>,
+            basePath:           <?= json_encode(BASE_PATH) ?>,
+            eventsApiUrl:       <?= json_encode(BASE_PATH . 'api/kalender/events') ?>,
+            eventApiUrl:        <?= json_encode(BASE_PATH . 'api/kalender/event') ?>,
+            subscribeInfoUrl:   <?= json_encode(BASE_PATH . 'api/kalender/subscribe-info') ?>,
+            subscribeRotateUrl: <?= json_encode(BASE_PATH . 'api/kalender/subscribe-regenerate') ?>,
+            createUrl:          <?= json_encode(BASE_PATH . 'kalender/create') ?>,
+            updateUrl:          <?= json_encode(BASE_PATH . 'kalender/update') ?>,
+            deleteUrl:          <?= json_encode(BASE_PATH . 'kalender/delete') ?>,
+            viewUrl:            <?= json_encode(BASE_PATH . 'kalender/view') ?>,
         };
     </script>
 
