@@ -27,6 +27,14 @@ const INSTANCES = new WeakMap();
 
 class MultiSelect {
     constructor(root) {
+        // Bereits initialisierte Roots geben einfach die existierende
+        // Instanz zurueck — verhindert Doppel-Init, wenn jemand den
+        // Konstruktor direkt aufruft (z.B. fuer forcierten Edit-Prefill).
+        if (INSTANCES.has(root)) {
+            return INSTANCES.get(root);
+        }
+        INSTANCES.set(root, this);
+
         this.root = root;
         this.name = root.dataset.name || 'values';
         this.placeholder = root.dataset.placeholder || 'Suchen…';
@@ -199,7 +207,14 @@ class MultiSelect {
             if (idx === this.activeIndex) li.classList.add('is-active');
             li.textContent = opt.label;
             li.addEventListener('mousedown', (e) => {
+                // preventDefault: verhindert dass der Field-Focus verloren geht
+                // stopPropagation: das LI wird beim _toggleValue-Rebuild aus
+                //   dem Panel entfernt; ohne stopPropagation laeuft der Bubble
+                //   noch zum document-Outside-Click-Listener, dessen
+                //   root.contains(target)-Pruefung dann false liefert (Element
+                //   schon detached) — Panel wuerde faelschlich geschlossen.
                 e.preventDefault();
+                e.stopPropagation();
                 this._toggleValue(opt.value);
             });
             this.panel.appendChild(li);
