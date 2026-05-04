@@ -44,9 +44,9 @@ class CreateEventRequest extends FormRequest
             v::key('all_day',            v::optional(v::in(['0', '1', 0, 1, true, false], true)), false),
             v::key('color',              v::optional(v::in($allowedColors, true)), false),
             v::key('category',           v::optional(v::in($allowedCategories, true)), false),
-            v::key('visibility',         v::in($allowedVisibility, true)),
-            v::key('visibility_role_id', v::optional(v::stringVal()->intVal()), false),
-            v::key('attendees',          v::optional(v::arrayType()), false),
+            v::key('visibility',          v::in($allowedVisibility, true)),
+            v::key('visibility_role_ids', v::optional(v::arrayType()), false),
+            v::key('attendees',           v::optional(v::arrayType()), false),
             v::key('recurrence_rule',    v::optional(v::stringType()->regex($rruleRegex)), false),
             v::key('recurrence_until',   v::optional(v::stringType()->regex('/^\d{4}-\d{2}-\d{2}([T ]\d{2}:\d{2}(:\d{2})?)?$/')), false),
             // Routing-Felder, nicht validierte Daten
@@ -83,9 +83,20 @@ class CreateEventRequest extends FormRequest
 
         $allDay     = !empty($input['all_day']) && $input['all_day'] !== '0';
         $visibility = (string) $input['visibility'];
-        $roleId     = ($visibility === CalendarEvent::VISIBILITY_ROLE && !empty($input['visibility_role_id']))
-            ? (int) $input['visibility_role_id']
-            : null;
+
+        // Multi-Role: visibility_role_ids[] ist ein Array von Role-IDs.
+        // Wird nur uebernommen wenn visibility='role' — sonst ignoriert.
+        $roleIds = [];
+        if ($visibility === CalendarEvent::VISIBILITY_ROLE
+            && !empty($input['visibility_role_ids'])
+            && is_array($input['visibility_role_ids'])
+        ) {
+            foreach ($input['visibility_role_ids'] as $rid) {
+                $rid = (int) $rid;
+                if ($rid > 0) $roleIds[] = $rid;
+            }
+            $roleIds = array_values(array_unique($roleIds));
+        }
 
         // Wenn Recurrence-Rule gesetzt, muss UNTIL/COUNT entweder im Pattern
         // selbst oder als separates Feld stehen. Wir akzeptieren beide.
@@ -115,11 +126,11 @@ class CreateEventRequest extends FormRequest
                 ? (string) $input['color'] : 'orange',
             'category'           => !empty($input['category']) && array_key_exists($input['category'], CalendarEvent::CATEGORIES)
                 ? (string) $input['category'] : 'general',
-            'visibility'         => $visibility,
-            'visibility_role_id' => $roleId,
-            'attendees'          => $attendees,
-            'recurrence_rule'    => $rrule,
-            'recurrence_until'   => $until,
+            'visibility'          => $visibility,
+            'visibility_role_ids' => $roleIds,
+            'attendees'           => $attendees,
+            'recurrence_rule'     => $rrule,
+            'recurrence_until'    => $until,
         ];
     }
 

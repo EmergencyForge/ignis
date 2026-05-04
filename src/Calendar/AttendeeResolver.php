@@ -33,7 +33,7 @@ final class AttendeeResolver
             CalendarEvent::VISIBILITY_ATTENDEES, CalendarEvent::VISIBILITY_PRIVATE
                 => self::resolveExplicit($event),
             CalendarEvent::VISIBILITY_ROLE
-                => self::resolveByRole((int) $event->visibility_role_id),
+                => self::resolveByRoles($event),
             CalendarEvent::VISIBILITY_ALL
                 => new Collection(),
             default
@@ -79,7 +79,7 @@ final class AttendeeResolver
             CalendarEvent::VISIBILITY_ATTENDEES, CalendarEvent::VISIBILITY_PRIVATE
                 => CalendarAttendee::where('event_id', $event->id)->count(),
             CalendarEvent::VISIBILITY_ROLE
-                => self::countByRole((int) $event->visibility_role_id),
+                => self::countByRoles($event),
             CalendarEvent::VISIBILITY_ALL
                 => 0, // "alle" ist konzeptionell unbeschraenkt — Frontend zeigt das nicht
             default
@@ -100,13 +100,14 @@ final class AttendeeResolver
             ->get();
     }
 
-    private static function resolveByRole(int $roleId): Collection
+    private static function resolveByRoles(CalendarEvent $event): Collection
     {
-        if ($roleId <= 0) {
+        $roleIds = $event->visibilityRoles()->pluck('intra_users_roles.id')->all();
+        if ($roleIds === []) {
             return new Collection();
         }
         $discordIds = Capsule::table('intra_users')
-            ->where('role', $roleId)
+            ->whereIn('role', $roleIds)
             ->pluck('discord_id')
             ->filter()
             ->unique()
@@ -122,14 +123,15 @@ final class AttendeeResolver
             ->get();
     }
 
-    private static function countByRole(int $roleId): int
+    private static function countByRoles(CalendarEvent $event): int
     {
-        if ($roleId <= 0) {
+        $roleIds = $event->visibilityRoles()->pluck('intra_users_roles.id')->all();
+        if ($roleIds === []) {
             return 0;
         }
         return (int) Capsule::table('intra_users as u')
             ->join('intra_mitarbeiter as m', 'm.discordtag', '=', 'u.discord_id')
-            ->where('u.role', $roleId)
+            ->whereIn('u.role', $roleIds)
             ->count();
     }
 }

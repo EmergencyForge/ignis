@@ -1,3 +1,4 @@
+@charset "UTF-8";
 .ignis-dialog-backdrop {
   position: fixed;
   inset: 0;
@@ -1553,6 +1554,114 @@ body:has(.ignis-dialog-backdrop.is-open) {
   filter: none;
   background: rgba(255, 255, 255, 0.05);
   color: #fff;
+}
+
+.ignis-multi-select {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.ignis-multi-select__hidden {
+  display: none;
+}
+
+.ignis-multi-select__wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  width: 100%;
+  min-height: 2.25rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--input-bg, #161616);
+  border: 1px solid var(--darkgray, #2a2a2a);
+  border-radius: var(--radius-md, 6px);
+  cursor: text;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.ignis-multi-select__wrap:focus-within {
+  border-color: var(--main-color);
+  box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+}
+.ignis-multi-select__wrap.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ignis-multi-select__chips {
+  display: contents;
+}
+
+.ignis-multi-select__field {
+  flex: 1 1 8rem;
+  min-width: 8rem;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-family: inherit;
+  font-size: var(--fs-sm, 0.88rem);
+  padding: 0.15rem 0.2rem;
+  outline: none;
+}
+.ignis-multi-select__field::placeholder {
+  color: var(--text-dimmed, #818189);
+}
+
+.ignis-multi-select__panel {
+  position: absolute;
+  z-index: 2100;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  background: var(--body-bg-lighter, #161616);
+  border: 1px solid var(--darkgray, #2a2a2a);
+  border-radius: var(--radius-md, 6px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  scrollbar-width: thin;
+  scrollbar-color: var(--darkgray, #2a2a2a) transparent;
+}
+.ignis-multi-select__panel::-webkit-scrollbar {
+  width: 4px;
+}
+.ignis-multi-select__panel::-webkit-scrollbar-thumb {
+  background: var(--darkgray, #2a2a2a);
+  border-radius: 2px;
+}
+
+.ignis-multi-select__option {
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm, 4px);
+  color: var(--text-normal, #bbbac1);
+  font-size: var(--fs-sm, 0.88rem);
+  cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+.ignis-multi-select__option:hover, .ignis-multi-select__option.is-active {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+.ignis-multi-select__option.is-selected {
+  color: var(--main-color);
+  font-weight: 500;
+}
+.ignis-multi-select__option.is-selected::before {
+  content: "✓";
+  display: inline-block;
+  width: 1.2em;
+  margin-right: 0.2rem;
+}
+
+.ignis-multi-select__empty {
+  padding: 0.6rem;
+  text-align: center;
+  color: var(--text-dimmed, #818189);
+  font-size: 0.78rem;
 }
 
 .ignis-btn {
