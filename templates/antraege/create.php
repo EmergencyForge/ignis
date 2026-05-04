@@ -1,4 +1,5 @@
 <?php
+
 /**
  * View: Antrag stellen (Form)
  *
@@ -48,8 +49,8 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
 
             <?php if (strcasecmp((string) $typ->name, 'Urlaubsantrag') === 0): ?>
                 <div class="ignis-alert ignis-alert--info mb-4">
-                    <i class="fa-solid fa-circle-info mr-2"></i><?php
-                    ?>Nach <strong>Genehmigung</strong> erscheint der Antrag automatisch als Abwesenheit im <a href="<?= BASE_PATH ?>kalender">Kalender</a> und ist für alle Kollegen sichtbar. Status-Änderungen (z.B. Ablehnung) werden sofort übernommen.
+                    <i class="fa-solid fa-circle-info ignis-alert__icon"></i>
+                    <div class="ignis-alert__body">Nach <strong>Genehmigung</strong> erscheint der Antrag automatisch als Abwesenheit im <a href="<?= BASE_PATH ?>kalender">Kalender</a> und ist für alle Kollegen sichtbar. Status-Änderungen (z.B. Ablehnung) werden sofort übernommen.</div>
                 </div>
             <?php endif; ?>
 
