@@ -32,40 +32,36 @@ $SITE_TITLE = 'Kalender';
                     <span class="ignis-breadcrumb__item is-active">Kalender</span>
                 </nav>
 
-                <div class="page-header mb-4">
+                <div class="page-header mb-3">
                     <h1>Kalender</h1>
-                    <div class="header-actions">
-                        <button type="button" class="ignis-btn ignis-btn--soft-primary" id="btn-new-event">
+                </div>
+
+                <?php Flash::render(); ?>
+
+                <!--
+                    Toolbar: Filter-Chips (links) + Neuer-Termin-Button (rechts).
+                    Liegt direkt ueber dem FullCalendar-Mount, sodass der Kalender
+                    die volle Breite kriegt — der frueher rechts angedockte Sidebar-
+                    Block hat den Raum zu schlecht ausgenutzt.
+                -->
+                <div class="calendar-toolbar mb-3">
+                    <div class="calendar-toolbar__filters">
+                        <span class="calendar-toolbar__label">Anzeigen:</span>
+                        <?php foreach ($categories as $key => $label): ?>
+                            <label class="ignis-chip ignis-chip--toggle is-active" data-category-chip="<?= htmlspecialchars($key) ?>">
+                                <input type="checkbox" class="filter-category" data-category="<?= htmlspecialchars($key) ?>" checked hidden>
+                                <?= htmlspecialchars($label) ?>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                    <div class="calendar-toolbar__actions">
+                        <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="btn-new-event">
                             <i class="fa-solid fa-plus"></i> Neuer Termin
                         </button>
                     </div>
                 </div>
 
-                <?php Flash::render(); ?>
-
-                <div class="grid grid-cols-12 gap-4">
-                    <!-- FullCalendar Mount -->
-                    <div class="col-span-12 lg:col-span-9">
-                        <div id="calendar-grid" class="ignis-card p-3"></div>
-                    </div>
-
-                    <!-- Sidebar: Filter + (Phase 2) Wer-ist-da -->
-                    <aside class="col-span-12 lg:col-span-3 space-y-4">
-                        <div class="ignis-card p-3">
-                            <h6 class="mb-3">Anzeige</h6>
-                            <div class="ignis-checkbox mb-2">
-                                <input type="checkbox" id="filter-mine" checked>
-                                <label for="filter-mine">Meine Termine</label>
-                            </div>
-                            <?php foreach ($categories as $key => $label): ?>
-                                <div class="ignis-checkbox mb-2">
-                                    <input type="checkbox" class="filter-category" data-category="<?= htmlspecialchars($key) ?>" id="filter-cat-<?= htmlspecialchars($key) ?>" checked>
-                                    <label for="filter-cat-<?= htmlspecialchars($key) ?>"><?= htmlspecialchars($label) ?></label>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </aside>
-                </div>
+                <div id="calendar-grid" class="ignis-card p-3"></div>
             </div>
         </div>
     </div>
