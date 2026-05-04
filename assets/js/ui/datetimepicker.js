@@ -226,13 +226,13 @@ export class DatetimePicker {
 
         const cancelBtn = document.createElement('button');
         cancelBtn.type = 'button';
-        cancelBtn.className = 'ignis-btn ignis-btn--ghost ignis-btn--sm';
+        cancelBtn.className = 'ignis-datetimepicker__footer-btn ignis-datetimepicker__footer-btn--ghost';
         cancelBtn.textContent = 'Abbrechen';
         cancelBtn.addEventListener('click', () => this.close(false));
 
         const nowBtn = document.createElement('button');
         nowBtn.type = 'button';
-        nowBtn.className = 'ignis-btn ignis-btn--ghost ignis-btn--sm';
+        nowBtn.className = 'ignis-datetimepicker__footer-btn ignis-datetimepicker__footer-btn--ghost';
         nowBtn.textContent = this._tab === 'date' ? 'Heute' : 'Jetzt';
         nowBtn.addEventListener('click', () => {
             const now = new Date();
