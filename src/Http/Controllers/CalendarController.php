@@ -299,6 +299,10 @@ class CalendarController extends Controller
         // RSVP-Buttons: bei attendees/private fuer eingeladene Mitarbeiter,
         // bei role nur wenn track_attendance gesetzt ist UND der User in
         // einer der Rollen ist (oder schon eine attendee-Row hat).
+        // Wichtig: Wir pruefen Role-Membership ueber den AttendeeResolver
+        // (der intra_users.role direkt joint), nicht ueber $_SESSION['role_id'] —
+        // letzteres ist bei full_admin auf 99 gemapped und matcht nicht
+        // mit echten Role-IDs aus der visibility_role_ids-Pivot-Tabelle.
         $canRespond = false;
         if ($myMitarbeiterId !== null) {
             if (in_array($event->visibility, [
@@ -309,9 +313,8 @@ class CalendarController extends Controller
             } elseif ($event->visibility === CalendarEvent::VISIBILITY_ROLE
                 && (bool) $event->track_attendance
             ) {
-                $userRoleId = (int) ($_SESSION['role_id'] ?? 0);
-                $canRespond = $userRoleId > 0 && $event->visibilityRoles
-                    ->contains(fn ($r) => (int) $r->id === $userRoleId);
+                $canRespond = AttendeeResolver::resolve($event)
+                    ->contains(fn ($m) => (int) $m->id === $myMitarbeiterId);
             }
         }
 
@@ -495,13 +498,15 @@ class CalendarController extends Controller
         if ($attendee === null) {
             // Bei role-based Events mit aktivem Tracking lazy eine Row anlegen,
             // sodass der User RSVP'en kann ohne explizit eingeladen zu sein.
+            // Membership via AttendeeResolver (joint intra_users.role) — nicht
+            // ueber $_SESSION['role_id'], weil full_admin dort auf 99 gemapped
+            // ist und nicht mit echten Role-IDs matcht.
             $isRoleTracked = $event->visibility === CalendarEvent::VISIBILITY_ROLE
                 && (bool) $event->track_attendance;
-            $userRoleId = (int) ($_SESSION['role_id'] ?? 0);
-            $hasRole    = $userRoleId > 0 && $event->visibilityRoles
-                ->contains(fn ($r) => (int) $r->id === $userRoleId);
+            $hasRole = $isRoleTracked && AttendeeResolver::resolve($event)
+                ->contains(fn ($m) => (int) $m->id === $mitarbeiterId);
 
-            if (!$isRoleTracked || !$hasRole) {
+            if (!$hasRole) {
                 Flash::error('Du bist nicht eingeladen.');
                 $this->redirect('kalender');
             }
