@@ -65,11 +65,15 @@ import { Dialog } from '../ui/dialog.js';
             openDetailModal(realId);
         },
         eventDidMount: (info) => {
-            // RSVP-Status als data-Attribut auf das Event-Element schreiben,
-            // damit CSS einen passenden Border-Color setzen kann (gruen=accepted,
-            // rot=declined, gelb=tentative, kein Highlight bei pending/null).
+            // RSVP-Status als data-Attribut + Event-Farbe als CSS-Custom-
+            // Property aufs Event-Element schreiben. Die Custom-Property
+            // erlaubt den Status-Styles (z.B. 'declined': line-through Text
+            // in der Original-Brand-Farbe) Zugriff auf die Event-Farbe,
+            // obwohl wir den Inline-background-Style ueberschreiben.
             const resp = info.event.extendedProps?.myResponse;
             if (resp) info.el.setAttribute('data-my-response', resp);
+            const color = info.event.backgroundColor || info.event.borderColor;
+            if (color) info.el.style.setProperty('--event-color', color);
         },
         dateClick: (info) => {
             openCreateModal({ prefilledStart: info.dateStr });

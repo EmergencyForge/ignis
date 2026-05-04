@@ -146,12 +146,18 @@
 
 .fc-event[data-my-response="declined"] {
     background: transparent !important;
-    opacity: 0.45;
+    opacity: 0.7;
     text-decoration: line-through;
+    /* Border bleibt in Event-Farbe (FC setzt Inline) — gibt dem Outline
+       die Identitaet. */
 }
 .fc-event[data-my-response="declined"] .fc-event-title,
-.fc-event[data-my-response="declined"] .fc-event-time {
-    color: var(--text-dimmed, #818189);
+.fc-event[data-my-response="declined"] .fc-event-time,
+.fc-event[data-my-response="declined"] .fc-event-main {
+    /* Text in Original-Event-Farbe (=ehemalige Brand-/Kategorie-bg-Farbe),
+       durchgestrichen — visuell sofort klar "ich bin nicht dabei", aber
+       die Farb-Identitaet bleibt erhalten. */
+    color: var(--event-color, var(--text-dimmed, #818189)) !important;
     text-decoration: line-through;
 }
 
