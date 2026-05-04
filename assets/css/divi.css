@@ -179,23 +179,29 @@ body {
 }
 
 #edivi__container .edivi__overview-container .edivi__box textarea.form-control {
-  border: 1px solid #a2a2a2 !important;
+  border: 0 !important;
 }
 
 #edivi__container .edivi__box input.form-control,
 #edivi__container .edivi__box select.form-select,
 #edivi__container .edivi__box textarea.form-control {
-  background: transparent;
+  background: #333333;
   border-radius: 0;
   color: #fff;
   border: 0;
   font-size: 1.2rem;
 }
 
+#edivi__container .edivi__box input.form-control:hover,
+#edivi__container .edivi__box select.form-select:hover,
+#edivi__container .edivi__box textarea.form-control:hover,
 #edivi__container .edivi__box input.form-control:focus,
 #edivi__container .edivi__box select.form-select:focus,
 #edivi__container .edivi__box textarea.form-control:focus {
-  box-shadow: 0 0 0 1px #5783cf !important;
+  background: #333333;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 #edivi__container .edivi__box input.form-control[readonly],
@@ -214,17 +220,23 @@ body {
 #edivi__container .edivi__medikamente input.form-control,
 #edivi__container .edivi__medikamente select.form-select,
 #edivi__container .edivi__medikamente textarea.form-control {
-  background: transparent;
+  background: #333333;
   border-radius: 0;
   color: #fff;
   border: 0;
   font-size: 1.2rem;
 }
 
+#edivi__container .edivi__medikamente input.form-control:hover,
+#edivi__container .edivi__medikamente select.form-select:hover,
+#edivi__container .edivi__medikamente textarea.form-control:hover,
 #edivi__container .edivi__medikamente input.form-control:focus,
 #edivi__container .edivi__medikamente select.form-select:focus,
 #edivi__container .edivi__medikamente textarea.form-control:focus {
-  box-shadow: 0 0 0 1px #5783cf !important;
+  background: #333333;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 #edivi__container .edivi__medikamente input.form-control[readonly],
@@ -249,14 +261,23 @@ body {
   border-radius: 0;
   color: #fff;
   border: 0;
+  background: #333333;
 }
 
+#medis-select:hover,
+#medis-time:hover,
+#medis-unit:hover,
+#medis-admission:hover,
+#medis-concentration:hover,
 #medis-select:focus,
 #medis-time:focus,
 #medis-unit:focus,
 #medis-admission:focus,
 #medis-concentration:focus {
-  box-shadow: 0 0 0 1px #5783cf !important;
+  background: #333333;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 #medis-select[readonly],
@@ -2527,31 +2548,30 @@ body#edivi__login .ignis-input,
 body#edivi__login .ignis-textarea,
 body[data-page] .ignis-input,
 body[data-page] .ignis-textarea {
-  background: var(--enotf-surface, #333333);
-  border-color: var(--enotf-border, #555);
+  background: #333333;
+  border: 0;
   border-radius: 0;
 }
-#edivi__container .ignis-input:hover:not(:disabled):not([readonly]),
+#edivi__container .ignis-input:hover:not(:disabled):not([readonly]), #edivi__container .ignis-input:focus, #edivi__container .ignis-input:focus-visible,
 #edivi__container .ignis-textarea:hover:not(:disabled):not([readonly]),
-body#edivi__login .ignis-input:hover:not(:disabled):not([readonly]),
-body#edivi__login .ignis-textarea:hover:not(:disabled):not([readonly]),
-body[data-page] .ignis-input:hover:not(:disabled):not([readonly]),
-body[data-page] .ignis-textarea:hover:not(:disabled):not([readonly]) {
-  border-color: var(--enotf-text, #a2a2a2);
-}
-#edivi__container .ignis-input:focus, #edivi__container .ignis-input:focus-visible,
 #edivi__container .ignis-textarea:focus,
 #edivi__container .ignis-textarea:focus-visible,
+body#edivi__login .ignis-input:hover:not(:disabled):not([readonly]),
 body#edivi__login .ignis-input:focus,
 body#edivi__login .ignis-input:focus-visible,
+body#edivi__login .ignis-textarea:hover:not(:disabled):not([readonly]),
 body#edivi__login .ignis-textarea:focus,
 body#edivi__login .ignis-textarea:focus-visible,
+body[data-page] .ignis-input:hover:not(:disabled):not([readonly]),
 body[data-page] .ignis-input:focus,
 body[data-page] .ignis-input:focus-visible,
+body[data-page] .ignis-textarea:hover:not(:disabled):not([readonly]),
 body[data-page] .ignis-textarea:focus,
 body[data-page] .ignis-textarea:focus-visible {
-  border-color: var(--enotf-focus-ring, #5783cf);
-  box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf);
+  background: #333333;
+  border: 0;
+  box-shadow: none;
+  outline: none;
 }
 #edivi__container .ignis-input[readonly],
 #edivi__container .ignis-textarea[readonly],
@@ -2559,8 +2579,8 @@ body#edivi__login .ignis-input[readonly],
 body#edivi__login .ignis-textarea[readonly],
 body[data-page] .ignis-input[readonly],
 body[data-page] .ignis-textarea[readonly] {
-  background: transparent;
-  border-color: transparent;
+  background: #333333;
+  border: 0;
 }
 #edivi__container .ignis-input::placeholder,
 #edivi__container .ignis-textarea::placeholder,
