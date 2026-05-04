@@ -159,11 +159,11 @@ class CalendarController extends Controller
                 'message' => 'iCal-Subscribe ist noch nicht eingerichtet. Bitte composer db:migrate ausführen, dann erneut versuchen.',
             ], 503);
         }
-        $base   = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host   = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
-        $url    = $scheme . '://' . $host . rtrim($base, '/') . '/api/kalender/ical/' . $token;
-        return Response::json(['success' => true, 'url' => $url, 'token' => $token]);
+        return Response::json([
+            'success' => true,
+            'url'     => $this->buildIcalUrl($token),
+            'token'   => $token,
+        ]);
     }
 
     /**
@@ -175,11 +175,25 @@ class CalendarController extends Controller
         $this->requireAuth();
         $userId = (int) $_SESSION['userid'];
         $token  = IcalExporter::regenerateToken($userId);
+        return Response::json([
+            'success' => true,
+            'url'     => $this->buildIcalUrl($token),
+            'token'   => $token,
+        ]);
+    }
+
+    /**
+     * Baut die absolute Subscribe-URL fuer externe Kalender-Apps.
+     * Canonical-Path ist /api/v1/... (siehe public/index.php's
+     * Versions-Rewrite — /api/v1/kalender/ical/X wird intern auf
+     * /api/kalender/ical/X gemappt, wo die Route registriert ist).
+     */
+    private function buildIcalUrl(string $token): string
+    {
         $base   = defined('BASE_PATH') ? (string) BASE_PATH : '/';
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host   = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
-        $url    = $scheme . '://' . $host . rtrim($base, '/') . '/api/kalender/ical/' . $token;
-        return Response::json(['success' => true, 'url' => $url, 'token' => $token]);
+        return $scheme . '://' . $host . rtrim($base, '/') . '/api/v1/kalender/ical/' . $token;
     }
 
     /**
