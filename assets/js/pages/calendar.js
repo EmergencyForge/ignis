@@ -25,7 +25,6 @@ import { Dialog } from '../ui/dialog.js';
 
     // ── State ───────────────────────────────────────────────────────────
     const filterState = {
-        mine: true,
         categories: new Set(),
     };
     document.querySelectorAll('.filter-category').forEach((cb) => {
@@ -71,17 +70,25 @@ import { Dialog } from '../ui/dialog.js';
     });
     calendar.render();
 
-    // Filter ueberwacht Sidebar-Checkboxen
-    document.getElementById('filter-mine')?.addEventListener('change', (e) => {
-        filterState.mine = e.target.checked;
-        calendar.refetchEvents();
-    });
-    document.querySelectorAll('.filter-category').forEach((cb) => {
-        cb.addEventListener('change', (e) => {
-            const cat = e.target.dataset.category;
-            if (e.target.checked) filterState.categories.add(cat);
-            else filterState.categories.delete(cat);
-            calendar.refetchEvents();
+    // Filter-Chip-Toggles in der Toolbar
+    document.querySelectorAll('[data-category-chip]').forEach((chip) => {
+        chip.addEventListener('click', (e) => {
+            // Click auf das Label toggelt die hidden-Checkbox; Browser-Default
+            // funktioniert wegen des assoziierten <input>. Wir lesen den
+            // neuen Zustand asynchron im naechsten Tick.
+            setTimeout(() => {
+                const cb = chip.querySelector('.filter-category');
+                if (!cb) return;
+                const cat = cb.dataset.category;
+                if (cb.checked) {
+                    filterState.categories.add(cat);
+                    chip.classList.add('is-active');
+                } else {
+                    filterState.categories.delete(cat);
+                    chip.classList.remove('is-active');
+                }
+                calendar.refetchEvents();
+            }, 0);
         });
     });
 

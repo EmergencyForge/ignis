@@ -132,10 +132,52 @@
     border-color: var(--main-color, #ff4d00);
 }
 
-/* Toggle-Chip (Wochentag-Auswahl im Recurrence-Form) */
+/* Calendar-Toolbar — Filter-Chips + Action-Button auf einer Linie */
+.calendar-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.calendar-toolbar__filters {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.calendar-toolbar__label {
+    font-size: 0.72rem;
+    color: var(--text-dimmed, #818189);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-right: 0.25rem;
+}
+
+.calendar-toolbar__actions {
+    flex-shrink: 0;
+}
+
+/* Toggle-Chip (Filter-Leiste + Wochentag-Auswahl im Recurrence-Form) */
 .ignis-chip--toggle {
     cursor: pointer;
     user-select: none;
+    transition: background 0.12s, border-color 0.12s, color 0.12s, opacity 0.12s;
+    opacity: 0.55;
+}
+
+.ignis-chip--toggle.is-active {
+    opacity: 1;
+    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+    border-color: var(--main-color, #ff4d00);
+    color: var(--main-color, #ff4d00);
+}
+
+.ignis-chip--toggle:hover {
+    opacity: 1;
 }
 
 .ignis-chip--toggle input[type="checkbox"] {
