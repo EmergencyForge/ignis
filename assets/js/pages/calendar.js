@@ -64,6 +64,13 @@ import { Dialog } from '../ui/dialog.js';
             const realId = info.event.extendedProps?.eventId ?? info.event.id;
             openDetailModal(realId);
         },
+        eventDidMount: (info) => {
+            // RSVP-Status als data-Attribut auf das Event-Element schreiben,
+            // damit CSS einen passenden Border-Color setzen kann (gruen=accepted,
+            // rot=declined, gelb=tentative, kein Highlight bei pending/null).
+            const resp = info.event.extendedProps?.myResponse;
+            if (resp) info.el.setAttribute('data-my-response', resp);
+        },
         dateClick: (info) => {
             openCreateModal({ prefilledStart: info.dateStr });
         },
@@ -175,6 +182,9 @@ import { Dialog } from '../ui/dialog.js';
                                 openEditModal(parseInt(btn.dataset.editEvent, 10));
                             });
                         });
+                        // RSVP-Form: Submit per AJAX abfangen, damit das Modal
+                        // offen bleibt + sich der Active-State live updated.
+                        bindRsvpForm(d.element.querySelector('[data-rsvp-form]'), eventId);
                     },
                 });
                 dlg.open();
@@ -438,6 +448,35 @@ import { Dialog } from '../ui/dialog.js';
         });
     }
 
+    /**
+     * Faengt den RSVP-Form-Submit ab und schickt ihn per fetch — Modal
+     * bleibt offen, Active-State der Buttons wird live umgeswitcht und
+     * der Calendar-Feed neu geladen, sodass die Border-Stripes aktualisiert
+     * werden.
+     */
+    function bindRsvpForm(form, eventId) {
+        if (!form) return;
+        form.addEventListener('click', (e) => {
+            const btn = e.target.closest('button[name="response"]');
+            if (!btn) return;
+            e.preventDefault();
+            const response = btn.value;
+            const fd = new FormData();
+            fd.append('response', response);
+            fetch(form.action, { method: 'POST', body: fd, credentials: 'same-origin' })
+                .then(() => {
+                    // Active-State umschalten
+                    form.querySelectorAll('button[name="response"]').forEach((b) => {
+                        b.classList.toggle('is-active', b.value === response);
+                    });
+                    calendar.refetchEvents();
+                })
+                .catch(() => {
+                    if (window.showToast) window.showToast('RSVP-Update fehlgeschlagen', 'error');
+                });
+        });
+    }
+
     function parseRruleParts(rule) {
         const out = { freq: null, interval: 1, byday: null };
         rule.split(';').forEach((seg) => {
@@ -454,6 +493,89 @@ import { Dialog } from '../ui/dialog.js';
     // ── Quick-Action-Hook (Sidebar-+-Button) ────────────────────────────
     window.addEventListener('quick-action:calendar-event-create', () => openCreateModal());
     document.getElementById('btn-new-event')?.addEventListener('click', () => openCreateModal());
+
+    // ── Subscribe-Dialog (iCal-Feed-URL) ────────────────────────────────
+    document.getElementById('btn-subscribe')?.addEventListener('click', () => openSubscribeDialog());
+
+    function openSubscribeDialog() {
+        fetch(CFG.subscribeInfoUrl, { credentials: 'same-origin' })
+            .then((r) => r.json())
+            .then((res) => {
+                if (!res.success || !res.url) {
+                    if (window.showToast) window.showToast('Subscribe-URL konnte nicht geladen werden', 'error');
+                    return;
+                }
+                showSubscribeDialog(res.url);
+            });
+    }
+
+    function showSubscribeDialog(initialUrl) {
+        let currentUrl = initialUrl;
+        const body = `
+            <p class="text-sm text-[var(--text-dimmed,#818189)] mb-3">
+                Mit dieser URL kannst du deinen ıgnıs-Kalender in Apple Calendar,
+                Google Calendar oder Outlook abonnieren. Der Sync läuft dann
+                automatisch — neue Termine erscheinen ohne Reload.
+            </p>
+            <div class="flex gap-2 mb-3">
+                <input type="text" class="ignis-input" data-subscribe-url readonly value="${escapeHtmlAttr(currentUrl)}">
+                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" data-subscribe-copy>
+                    <i class="fa-solid fa-copy"></i> Kopieren
+                </button>
+            </div>
+            <details class="text-xs text-[var(--text-dimmed,#818189)]">
+                <summary class="cursor-pointer">Anleitung anzeigen</summary>
+                <ul class="mt-2 ml-4 list-disc space-y-1">
+                    <li><b>Google Calendar</b>: Andere Kalender → + → Per URL → URL einfügen</li>
+                    <li><b>Apple Calendar</b>: Datei → Neues Kalenderabonnement → URL einfügen</li>
+                    <li><b>Outlook</b>: Kalender hinzufügen → Aus dem Internet abonnieren → URL einfügen</li>
+                </ul>
+            </details>
+        `;
+
+        const dlg = new Dialog({
+            title: 'Kalender abonnieren',
+            body: body,
+            size: 'md',
+            actions: [
+                {
+                    label: 'Token regenerieren',
+                    variant: 'ghost',
+                    onClick: (d) => {
+                        if (!confirm('Aktuelle Subscribe-URL wird ungültig. Fortfahren?')) return;
+                        fetch(CFG.subscribeRotateUrl, { method: 'POST', credentials: 'same-origin' })
+                            .then((r) => r.json())
+                            .then((res) => {
+                                if (res.success && res.url) {
+                                    currentUrl = res.url;
+                                    const inp = d.element.querySelector('[data-subscribe-url]');
+                                    if (inp) inp.value = res.url;
+                                    if (window.showToast) window.showToast('Token regeneriert', 'success');
+                                }
+                            });
+                    },
+                },
+                { label: 'Schließen', variant: 'ghost', onClick: (d) => d.close(null) },
+            ],
+            onOpen: (d) => {
+                d.element.querySelector('[data-subscribe-copy]')?.addEventListener('click', () => {
+                    const inp = d.element.querySelector('[data-subscribe-url]');
+                    if (!inp) return;
+                    inp.select();
+                    navigator.clipboard?.writeText(inp.value).then(() => {
+                        if (window.showToast) window.showToast('URL kopiert', 'success');
+                    }).catch(() => {
+                        document.execCommand('copy');
+                    });
+                });
+            },
+        });
+        dlg.open();
+    }
+
+    function escapeHtmlAttr(s) {
+        return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+    }
 
     // Auto-Open wenn ?action=create
     if (new URLSearchParams(location.search).get('action') === 'create') {

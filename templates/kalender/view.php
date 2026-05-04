@@ -135,19 +135,29 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
                 </div>
             <?php endif; ?>
 
-            <!-- Phase-3-Hook: RSVP-Buttons (nur wenn User Attendee ist) -->
+            <!-- RSVP-Buttons — sichtbar wenn User Attendee ist. Form-Submit
+                 funktioniert auch ohne JS (server-redirect zurueck zu /kalender);
+                 calendar.js faengt den Submit fuer's Detail-Modal ab und
+                 macht's per fetch, sodass das Modal offen bleibt. -->
             <?php if ($myResponse !== null): ?>
                 <div class="ignis-card mb-4">
                     <div class="ignis-card__body">
                         <div class="ignis-field__label mb-2">Deine Antwort</div>
-                        <form method="post" action="<?= BASE_PATH ?>kalender/respond?id=<?= (int) $event->id ?>" class="flex gap-2">
-                            <button name="response" value="accepted" class="ignis-btn ignis-btn--soft-success ignis-btn--sm <?= $myResponse === 'accepted' ? 'is-active' : '' ?>">
+                        <form method="post"
+                              action="<?= BASE_PATH ?>kalender/respond?id=<?= (int) $event->id ?>"
+                              class="flex gap-2"
+                              data-rsvp-form
+                              data-event-id="<?= (int) $event->id ?>">
+                            <button name="response" value="accepted"
+                                    class="ignis-btn ignis-btn--soft-success ignis-btn--sm <?= $myResponse === 'accepted' ? 'is-active' : '' ?>">
                                 <i class="fa-solid fa-check"></i> Zusagen
                             </button>
-                            <button name="response" value="tentative" class="ignis-btn ignis-btn--soft-warning ignis-btn--sm <?= $myResponse === 'tentative' ? 'is-active' : '' ?>">
+                            <button name="response" value="tentative"
+                                    class="ignis-btn ignis-btn--soft-warning ignis-btn--sm <?= $myResponse === 'tentative' ? 'is-active' : '' ?>">
                                 <i class="fa-solid fa-question"></i> Vielleicht
                             </button>
-                            <button name="response" value="declined" class="ignis-btn ignis-btn--soft-danger ignis-btn--sm <?= $myResponse === 'declined' ? 'is-active' : '' ?>">
+                            <button name="response" value="declined"
+                                    class="ignis-btn ignis-btn--soft-danger ignis-btn--sm <?= $myResponse === 'declined' ? 'is-active' : '' ?>">
                                 <i class="fa-solid fa-xmark"></i> Absagen
                             </button>
                         </form>

@@ -172,6 +172,22 @@ $router->get('/api/kalender/event',
     [new AuthMiddleware()]
 );
 
+// iCal-Subscribe — generiert Token bei Bedarf, gibt absolute URL zurueck.
+$router->get('/api/kalender/subscribe-info',
+    [\App\Http\Controllers\CalendarController::class, 'subscribeInfo'],
+    [new AuthMiddleware()]
+);
+$router->post('/api/kalender/subscribe-regenerate',
+    [\App\Http\Controllers\CalendarController::class, 'subscribeRegenerate'],
+    [new AuthMiddleware()]
+);
+
+// iCal-Feed — Token in der URL ist die Auth (Cookie-Auth funktioniert
+// fuer externe Kalender-Apps nicht). Bewusst KEINE AuthMiddleware.
+$router->get('/api/kalender/ical/{token:[a-f0-9]{20,64}}',
+    [\App\Http\Controllers\CalendarController::class, 'icalFeed'],
+);
+
 /*
  * BEISPIEL — Admin-API-Endpoint (Session + Permission + CSRF)
  *
