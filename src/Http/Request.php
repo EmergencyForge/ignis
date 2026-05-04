@@ -57,6 +57,14 @@ final class Request
             }
         }
 
+        // Trailing-Slash-Normalisierung: /manv/ und /manv sollen dieselbe Route
+        // matchen. Root "/" bleibt unverändert. Wirkt vor dem FastRoute-Lookup,
+        // also funktioniert das automatisch fuer alle Routen — keine Sonderfaelle
+        // pro Route mehr noetig.
+        if ($path !== '/' && str_ends_with($path, '/')) {
+            $path = rtrim($path, '/') ?: '/';
+        }
+
         return new self(
             method:  $method,
             path:    $path,
