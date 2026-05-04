@@ -152,7 +152,10 @@ class MultiSelect {
         this.chipBox.innerHTML = '';
         this.selected.forEach((opt) => {
             const chip = document.createElement('span');
-            chip.className = 'ignis-chip ignis-chip--removable ignis-chip--primary';
+            // Neutraler grauer Tag-Look — bewusst kein --primary, weil sonst
+            // pro ausgewaehltem Mitarbeiter eine kraeftige Brand-Farbe-Pille
+            // entsteht und der Form-Look optisch ueberladen wirkt.
+            chip.className = 'ignis-chip ignis-chip--removable ignis-multi-select__tag';
             chip.dataset.value = String(opt.value);
 
             const text = document.createElement('span');
@@ -267,11 +270,22 @@ class MultiSelect {
             if (opt) this.selected.push(opt);
         }
         this.field.value = '';
+
+        // Panel garantiert offen halten — beim Auswaehlen einer Option soll
+        // der User direkt weitertippen koennen. Falls _toggleValue irgendwie
+        // mit isOpen=false aufgerufen wurde, hier explizit oeffnen.
+        this.isOpen = true;
+        this.panel.hidden = false;
+
         this._filterAndRender();
         this._renderChips();
         this._writeHidden();
         this._emitChange();
-        this.field.focus();
+
+        // Focus zurueck aufs Feld setzen — manche Browser stehlen den Focus
+        // beim DOM-Rebuild der Chips. setTimeout(0) damit's nach allen
+        // Layout-Mutationen passiert.
+        setTimeout(() => this.field.focus(), 0);
     }
 
     _removeValue(value) {
