@@ -326,6 +326,7 @@ return [
     \App\Console\Commands\FederationSyncCommand::class    => \DI\autowire(),
     \App\Console\Commands\StorageCleanupCommand::class    => \DI\autowire(),
     \App\Console\Commands\UpdatesCheckCommand::class      => \DI\autowire(),
+    \App\Console\Commands\CalendarBackfillAbsencesCommand::class => \DI\autowire(),
 
     // Service-Klassen für Commands
     \App\Jobs\FailedJobsReader::class     => \DI\autowire(),

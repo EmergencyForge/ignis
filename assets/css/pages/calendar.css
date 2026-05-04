@@ -132,6 +132,35 @@
     border-color: var(--main-color, #ff4d00);
 }
 
+/* "Heute abwesend"-Strip — kompakter Info-Banner oberhalb der Toolbar.
+   Nur sichtbar wenn mindestens ein Mitarbeiter heute fehlt. */
+.calendar-absence-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 3px solid var(--text-dimmed, #818189);
+    border-radius: var(--radius-sm, 4px);
+    font-size: 0.8rem;
+    color: var(--text-normal, #bbbac1);
+}
+
+.calendar-absence-strip > i {
+    color: var(--text-dimmed, #818189);
+    font-size: 0.85rem;
+}
+
+.calendar-absence-strip__label {
+    font-weight: 600;
+    color: var(--text-dimmed, #818189);
+}
+
+.calendar-absence-strip__list {
+    color: #fff;
+}
+
 /* Calendar-Toolbar — Filter-Chips + Action-Button auf einer Linie */
 .calendar-toolbar {
     display: flex;
