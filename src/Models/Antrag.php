@@ -86,4 +86,26 @@ class Antrag extends Model
     {
         return $this->cirs_status === self::STATUS_IN_PROGRESS;
     }
+
+    /**
+     * Eloquent-Model-Boot: registriert einen deleting-Hook, der die
+     * Calendar-Bridge automatisch aufraeumt. Damit verschwindet ein
+     * gespiegeltes Absence-Event im Kalender, sobald der Antrag selbst
+     * geloescht wird — egal ob via Controller, Console oder Test-Code.
+     */
+    protected static function booted(): void
+    {
+        static::deleting(static function (Antrag $antrag): void {
+            try {
+                \App\Calendar\AbsenceSyncService::removeForAntrag((int) $antrag->id);
+            } catch (\Throwable $e) {
+                // Calendar-Bridge ist nicht business-kritisch — Antrag-Delete
+                // soll auch dann durchgehen, wenn die Bridge wackelt.
+                \App\Logging\Logger::warning(
+                    'AbsenceSync: removeForAntrag fehlgeschlagen',
+                    ['antrag_id' => $antrag->id, 'error' => $e->getMessage()]
+                );
+            }
+        });
+    }
 }

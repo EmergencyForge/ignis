@@ -30,19 +30,25 @@ final class CalendarBackfillAbsencesCommand extends Command
 {
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $urlaubTyp = AntragTyp::query()
-            ->whereRaw('LOWER(name) = ?', ['urlaubsantrag'])
-            ->first(['id']);
+        // Nimm alle Antragstypen die als Abwesenheit gelten (siehe
+        // AbsenceSyncService::URLAUB_TYP_NAMES). Match case-insensitive
+        // direkt in der DB, weil Sammelliste klein ist.
+        $absenceTypes = AntragTyp::query()
+            ->get(['id', 'name'])
+            ->filter(fn ($t) => self::isAbsenceTypeName((string) $t->name))
+            ->all();
 
-        if ($urlaubTyp === null) {
-            $output->writeln('<comment>Antragstyp "Urlaubsantrag" nicht gefunden — Backfill uebersprungen.</comment>');
+        if (empty($absenceTypes)) {
+            $output->writeln('<comment>Kein Antragstyp matcht "Urlaubsantrag/Urlaub/Freistellung" — Backfill uebersprungen.</comment>');
             return Command::SUCCESS;
         }
 
+        $typeIds = array_map(static fn ($t) => (int) $t->id, $absenceTypes);
+
         $approved = Antrag::query()
-            ->where('antragstyp_id', (int) $urlaubTyp->id)
+            ->whereIn('antragstyp_id', $typeIds)
             ->where('cirs_status', Antrag::STATUS_ACCEPTED)
-            ->with('daten')
+            ->with('daten', 'typ')
             ->get();
 
         if ($approved->isEmpty()) {
@@ -75,5 +81,11 @@ final class CalendarBackfillAbsencesCommand extends Command
         $output->writeln('');
         $output->writeln("Fertig: <info>{$created}</info> gespiegelt, <comment>{$skipped}</comment> uebersprungen.");
         return Command::SUCCESS;
+    }
+
+    private static function isAbsenceTypeName(string $name): bool
+    {
+        $n = strtolower(trim($name));
+        return in_array($n, ['urlaubsantrag', 'urlaub', 'freistellungsantrag', 'freistellung'], true);
     }
 }

@@ -28,6 +28,29 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 final class AbsenceSyncService
 {
     /**
+     * Antragstyp-Namen, die als "Urlaub/Abwesenheit" erkannt werden sollen.
+     * Match ist case-insensitive. Bei Bedarf erweitern oder durch eine
+     * DB-Spalte auf intra_antrag_typen ersetzen.
+     */
+    private const URLAUB_TYP_NAMES = [
+        'urlaubsantrag',
+        'urlaub',
+        'freistellungsantrag',
+        'freistellung',
+    ];
+
+    /**
+     * Prueft, ob der gegebene Antrag ein Urlaubs-/Abwesenheits-Antrag ist
+     * (anhand des Typ-Namens). Zentrale Stelle, damit AntragController
+     * und Console-Backfill dieselbe Regel benutzen.
+     */
+    public static function isAbsenceAntrag(\App\Models\Antrag $antrag): bool
+    {
+        $name = strtolower(trim((string) ($antrag->typ?->name ?? '')));
+        return in_array($name, self::URLAUB_TYP_NAMES, true);
+    }
+
+    /**
      * Legt ein Absence-Event aus einem genehmigten Urlaubsantrag an oder
      * aktualisiert ein bestehendes (Bridge ueber source + source_ref_id).
      *
