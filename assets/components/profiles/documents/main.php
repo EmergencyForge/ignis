@@ -170,7 +170,7 @@ async function confirmDeleteDoc(docid, pid) {
     try {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '<?= BASE_PATH ?>mitarbeiter/dokument-delete.php';
+        form.action = '<?= BASE_PATH ?>personnel/document-delete.php';
         form.innerHTML = '<input type="hidden" name="csrf_token" value="<?= htmlspecialchars(\App\Security\CsrfProtection::getToken()) ?>">'
             + '<input type="hidden" name="docid" value="' + docid + '">'
             + '<input type="hidden" name="pid" value="' + pid + '">';

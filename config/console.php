@@ -30,4 +30,5 @@ return [
     \App\Console\Commands\UpdatesCheckCommand::class,
     \App\Console\Commands\CalendarBackfillAbsencesCommand::class,
     \App\Console\Commands\ChangelogRefreshCommand::class,
+    \App\Console\Commands\BlogRefreshCommand::class,
 ];

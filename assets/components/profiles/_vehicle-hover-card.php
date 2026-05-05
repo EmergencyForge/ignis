@@ -58,7 +58,7 @@ $vehType    = (string) ($vehicle->veh_type ?? '');
         </dd>
     </dl>
 
-    <a href="<?= htmlspecialchars($base . 'settings/fahrzeuge/defekte/index?vehicle=' . (int) $vehicle->id) ?>"
+    <a href="<?= htmlspecialchars($base . 'settings/vehicles/defects/index?vehicle=' . (int) $vehicle->id) ?>"
        class="ignis-btn ignis-btn--soft-primary ignis-btn--sm user-hover-card__open">
         <i class="fa-solid fa-arrow-right"></i> Defekte ansehen
     </a>

@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int         $id
  * @property int         $docid             Public-ID, im URL benutzt
- * @property int         $type              Document type ID (siehe MitarbeiterController::createDocument())
+ * @property int         $type              Document type ID (siehe PersonnelController::createDocument())
  * @property int         $anrede
  * @property string|null $erhalter
  * @property string|null $inhalt

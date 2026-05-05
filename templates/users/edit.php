@@ -32,7 +32,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
-                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list">Benutzer</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>users/list">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($target->username) ?></span>
                     </nav>
                     <div class="flex flex-wrap items-center gap-2 mb-3">

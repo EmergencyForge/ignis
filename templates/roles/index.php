@@ -31,7 +31,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
-                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>benutzer/list">Benutzer</a></span>
+                        <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>users/list">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active">Rollen</span>
                     </nav>
                     <div class="page-header mb-4">
@@ -141,7 +141,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
             </div>
         </template>
 
-        <form id="delete-role-form" action="<?= BASE_PATH ?>benutzer/rollen/delete" method="POST" style="display:none;">
+        <form id="delete-role-form" action="<?= BASE_PATH ?>users/rollen/delete" method="POST" style="display:none;">
             <input type="hidden" name="id" id="role-delete-id">
         </form>
     <?php endif; ?>
@@ -168,7 +168,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                 title:        'Neue Rolle erstellen',
                 template:     'roleFormTemplate',
                 size:         'md',
-                formAction:   '<?= BASE_PATH ?>benutzer/rollen/create',
+                formAction:   '<?= BASE_PATH ?>users/rollen/create',
                 submitLabel:  'Erstellen',
                 submitVariant:'success',
             });
@@ -185,7 +185,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                 title:        'Rolle bearbeiten',
                 template:     'roleFormTemplate',
                 size:         'md',
-                formAction:   '<?= BASE_PATH ?>benutzer/rollen/update',
+                formAction:   '<?= BASE_PATH ?>users/rollen/update',
                 hiddenFields: { id: data.id },
                 submitLabel:  'Speichern',
                 submitVariant:'soft-primary',

@@ -74,7 +74,7 @@ function openDocumentViewer(docid) {
             titleEl.textContent = doc.type_label;
             badgeEl.textContent = doc.category_name || 'Dokument';
             badgeEl.className = 'ignis-chip ' + (doc.category_color || 'ignis-chip--secondary');
-            detailLink.href = '<?= BASE_PATH ?>mitarbeiter/dokument-view.php?docid=' + doc.docid;
+            detailLink.href = '<?= BASE_PATH ?>personnel/document-view.php?docid=' + doc.docid;
 
             // Meta-Chips (kompakte Zeile)
             const chip = (icon, text) => '<span class="inline-flex items-center gap-1"><i class="fa-solid ' + icon + '" style="opacity:0.5;font-size:0.7rem;"></i>' + esc(text) + '</span>';
@@ -104,7 +104,7 @@ function openDocumentViewer(docid) {
                 btns += '<a href="' + esc(doc.pdf_url) + '" download class="ignis-btn ignis-btn--sm ignis-btn--outline-primary" title="PDF herunterladen"><i class="fa-solid fa-download"></i></a>';
                 btns += '<a href="' + esc(doc.pdf_url) + '" target="_blank" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="PDF in neuem Tab"><i class="fa-solid fa-up-right-from-square"></i></a>';
             }
-            btns += '<a href="<?= BASE_PATH ?>mitarbeiter/dokument-view?docid=' + doc.docid + '" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="Detailseite"><i class="fa-solid fa-file-lines"></i></a>';
+            btns += '<a href="<?= BASE_PATH ?>personnel/document-view?docid=' + doc.docid + '" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" title="Detailseite"><i class="fa-solid fa-file-lines"></i></a>';
 
             <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
             const archIcon = doc.is_archived ? 'fa-box-open' : 'fa-box-archive';
@@ -223,7 +223,7 @@ async function toggleArchiveFromViewer(docid, archive) {
             title:       'Mitarbeiter löschen',
         }).then(function (ok) {
             if (ok) {
-                window.location.href = '<?= BASE_PATH ?>mitarbeiter/delete?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>';
+                window.location.href = '<?= BASE_PATH ?>personnel/delete?id=<?= htmlspecialchars($_GET['id'] ?? '') ?>';
             }
         });
     }
@@ -246,7 +246,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                     <div class="modal-body">
                         <?php if (!$editdg) { ?>
                             <div class="ignis-alert ignis-alert--danger" role="alert">
-                                <h4 class="font-bold">Achtung!</h4> Es sind keine Profildaten hinterlegt. Dokumente können fehlerhaft sein.<br>Bitte erstelle erst ein <a href="<?= BASE_PATH ?>mitarbeiter/list">eigenes Mitarbeiterprofil</a> (mit deiner Discord-ID).
+                                <h4 class="font-bold">Achtung!</h4> Es sind keine Profildaten hinterlegt. Dokumente können fehlerhaft sein.<br>Bitte erstelle erst ein <a href="<?= BASE_PATH ?>personnel/list">eigenes Mitarbeiterprofil</a> (mit deiner Discord-ID).
                             </div>
                         <?php } ?>
 

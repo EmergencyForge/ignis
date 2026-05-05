@@ -26,7 +26,7 @@ return [
         'edivi.view'        => 'eNOTF Protokolle ansehen',
         'edivi.edit'        => 'eNOTF Protokolle bearbeiten',
         'enotf.view'        => 'eNOTF System nutzen',
-        'manv.manage'       => 'MANV-Lagen verwalten',
+        'mci.manage'        => 'MCI-Lagen verwalten',
         'fire.incident.qm'  => 'FW Einsatzprotokolle bearbeiten',
     ],
     'Lexikon' => [
@@ -49,8 +49,8 @@ return [
         'audit.view'                 => 'Logs einsehen',
     ],
     'Fahrtenbuch' => [
-        'fahrtenbuch.view'   => 'Fahrtenbuch ansehen',
-        'fahrtenbuch.manage' => 'Fahrtenbuch verwalten (erstellen, bearbeiten, löschen)',
+        'logbook.view'   => 'Fahrtenbuch ansehen',
+        'logbook.manage' => 'Fahrtenbuch verwalten (erstellen, bearbeiten, löschen)',
     ],
     'Kalender' => [
         'calendar.view'   => 'Kalender ansehen',

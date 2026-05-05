@@ -35,13 +35,13 @@ class PersonalController extends Controller
             ->map(fn ($r) => (array) $r)
             ->all();
 
-        $this->renderView('settings/personal/dienstgrade', ['ranks' => $ranks]);
+        $this->renderView('settings/personnel/ranks', ['ranks' => $ranks]);
     }
 
     public function dienstgradStore(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/dienstgrade/index.php');
+        $this->ensureAdmin('settings/personnel/ranks/index.php');
 
         $name     = trim($_POST['name'] ?? '');
         $name_m   = trim($_POST['name_m'] ?? '');
@@ -52,7 +52,7 @@ class PersonalController extends Controller
 
         if ($name === '' || $name_m === '' || $name_w === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/dienstgrade/index');
+            $this->redirect('settings/personnel/ranks/index');
         }
 
         try {
@@ -71,13 +71,13 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/dienstgrade/index');
+        $this->redirect('settings/personnel/ranks/index');
     }
 
     public function dienstgradUpdate(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/dienstgrade/index.php');
+        $this->ensureAdmin('settings/personnel/ranks/index.php');
 
         $id       = (int) ($_POST['id'] ?? 0);
         $name     = trim($_POST['name'] ?? '');
@@ -89,7 +89,7 @@ class PersonalController extends Controller
 
         if ($id <= 0 || $name === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/dienstgrade/index');
+            $this->redirect('settings/personnel/ranks/index');
         }
 
         try {
@@ -108,24 +108,24 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/dienstgrade/index');
+        $this->redirect('settings/personnel/ranks/index');
     }
 
     public function dienstgradDelete(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/dienstgrade/index.php');
+        $this->ensureAdmin('settings/personnel/ranks/index.php');
 
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('rank', 'invalid-id');
-            $this->redirect('settings/personal/dienstgrade/index');
+            $this->redirect('settings/personnel/ranks/index');
         }
 
         $exists = Capsule::table('intra_mitarbeiter_dienstgrade')->where('id', $id)->exists();
         if (!$exists) {
             Flash::set('rank', 'not-found');
-            $this->redirect('settings/personal/dienstgrade/index');
+            $this->redirect('settings/personnel/ranks/index');
         }
 
         try {
@@ -137,7 +137,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/dienstgrade/index');
+        $this->redirect('settings/personnel/ranks/index');
     }
 
     // ── FW-Qualifikationen ──────────────────────────────────────
@@ -153,13 +153,13 @@ class PersonalController extends Controller
             ->map(fn ($r) => (array) $r)
             ->all();
 
-        $this->renderView('settings/personal/qualifw', ['qualis' => $qualis]);
+        $this->renderView('settings/personnel/fdskills', ['qualis' => $qualis]);
     }
 
     public function fwQualiStore(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/qualifw/index.php');
+        $this->ensureAdmin('settings/personnel/fdskills/index.php');
 
         $shortname = trim($_POST['shortname'] ?? '');
         $name      = trim($_POST['name'] ?? '');
@@ -170,7 +170,7 @@ class PersonalController extends Controller
 
         if ($shortname === '' || $name === '' || $name_m === '' || $name_w === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualifw/index');
+            $this->redirect('settings/personnel/fdskills/index');
         }
 
         try {
@@ -189,13 +189,13 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifw/index');
+        $this->redirect('settings/personnel/fdskills/index');
     }
 
     public function fwQualiUpdate(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/qualifw/index.php');
+        $this->ensureAdmin('settings/personnel/fdskills/index.php');
 
         $id        = (int) ($_POST['id'] ?? 0);
         $shortname = trim($_POST['shortname'] ?? '');
@@ -207,7 +207,7 @@ class PersonalController extends Controller
 
         if ($id <= 0 || $name === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualifw/index');
+            $this->redirect('settings/personnel/fdskills/index');
         }
 
         try {
@@ -226,18 +226,18 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifw/index');
+        $this->redirect('settings/personnel/fdskills/index');
     }
 
     public function fwQualiDelete(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/qualifw/index.php');
+        $this->ensureAdmin('settings/personnel/fdskills/index.php');
 
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('quali', 'invalid-id');
-            $this->redirect('settings/personal/qualifw/index');
+            $this->redirect('settings/personnel/fdskills/index');
         }
 
         try {
@@ -249,7 +249,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifw/index');
+        $this->redirect('settings/personnel/fdskills/index');
     }
 
     // ── RD-Qualifikationen ──────────────────────────────────────
@@ -265,13 +265,13 @@ class PersonalController extends Controller
             ->map(fn ($r) => (array) $r)
             ->all();
 
-        $this->renderView('settings/personal/qualird', ['qualis' => $qualis]);
+        $this->renderView('settings/personnel/ambskills', ['qualis' => $qualis]);
     }
 
     public function rdQualiStore(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/qualird/index.php');
+        $this->ensureAdmin('settings/personnel/ambskills/index.php');
 
         $name       = trim($_POST['name'] ?? '');
         $name_m     = trim($_POST['name_m'] ?? '');
@@ -283,7 +283,7 @@ class PersonalController extends Controller
 
         if ($name === '' || $name_m === '' || $name_w === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualird/index');
+            $this->redirect('settings/personnel/ambskills/index');
         }
 
         try {
@@ -303,13 +303,13 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualird/index');
+        $this->redirect('settings/personnel/ambskills/index');
     }
 
     public function rdQualiUpdate(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/qualird/index.php');
+        $this->ensureAdmin('settings/personnel/ambskills/index.php');
 
         $id         = (int) ($_POST['id'] ?? 0);
         $name       = trim($_POST['name'] ?? '');
@@ -322,7 +322,7 @@ class PersonalController extends Controller
 
         if ($id <= 0 || $name === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualird/index');
+            $this->redirect('settings/personnel/ambskills/index');
         }
 
         try {
@@ -342,18 +342,18 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualird/index');
+        $this->redirect('settings/personnel/ambskills/index');
     }
 
     public function rdQualiDelete(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/qualird/index.php');
+        $this->ensureAdmin('settings/personnel/ambskills/index.php');
 
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('quali', 'invalid-id');
-            $this->redirect('settings/personal/qualird/index');
+            $this->redirect('settings/personnel/ambskills/index');
         }
 
         try {
@@ -365,7 +365,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualird/index');
+        $this->redirect('settings/personnel/ambskills/index');
     }
 
     // ── Fachdienste (FD) ────────────────────────────────────────
@@ -381,13 +381,13 @@ class PersonalController extends Controller
             ->map(fn ($r) => (array) $r)
             ->all();
 
-        $this->renderView('settings/personal/qualifd', ['qualis' => $qualis]);
+        $this->renderView('settings/personnel/specialties', ['qualis' => $qualis]);
     }
 
     public function fdQualiStore(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/qualifd/index.php');
+        $this->ensureAdmin('settings/personnel/specialties/index.php');
 
         $sgnr     = (int) ($_POST['sgnr'] ?? 0);
         $sgname   = trim($_POST['sgname'] ?? '');
@@ -395,7 +395,7 @@ class PersonalController extends Controller
 
         if ($sgnr <= 0 || $sgname === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualifd/index');
+            $this->redirect('settings/personnel/specialties/index');
         }
 
         try {
@@ -411,13 +411,13 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifd/index');
+        $this->redirect('settings/personnel/specialties/index');
     }
 
     public function fdQualiUpdate(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/qualifd/index.php');
+        $this->ensureAdmin('settings/personnel/specialties/index.php');
 
         $id       = (int) ($_POST['id'] ?? 0);
         $sgnr     = (int) ($_POST['sgnr'] ?? 0);
@@ -426,7 +426,7 @@ class PersonalController extends Controller
 
         if ($id <= 0 || $sgname === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/personal/qualifd/index');
+            $this->redirect('settings/personnel/specialties/index');
         }
 
         try {
@@ -442,18 +442,18 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifd/index');
+        $this->redirect('settings/personnel/specialties/index');
     }
 
     public function fdQualiDelete(): void
     {
         $this->requireAuth();
-        $this->ensureAdmin('settings/personal/qualifd/index.php');
+        $this->ensureAdmin('settings/personnel/specialties/index.php');
 
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('quali', 'invalid-id');
-            $this->redirect('settings/personal/qualifd/index');
+            $this->redirect('settings/personnel/specialties/index');
         }
 
         try {
@@ -465,7 +465,7 @@ class PersonalController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/personal/qualifd/index');
+        $this->redirect('settings/personnel/specialties/index');
     }
 
     // ── Helpers ─────────────────────────────────────────────────
@@ -476,7 +476,7 @@ class PersonalController extends Controller
      */
     private function ensureView(): void
     {
-        if (!Gate::allows('mitarbeiter.viewList')) {
+        if (!Gate::allows('personnel.viewList')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index');
         }

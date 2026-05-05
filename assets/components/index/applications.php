@@ -70,7 +70,7 @@
                     <td>" . (!empty($row['cirs_manager']) ? htmlspecialchars($row['cirs_manager']) : '---') . "</td>
                     <td><span style='display:none'>{$row['time_added']}</span>{$adddat}</td>
                     <td>
-                        <a class='ignis-btn ignis-btn--soft-primary ignis-btn--sm' href='" . BASE_PATH . "antrag/view?antrag={$row['uniqueid']}'>
+                        <a class='ignis-btn ignis-btn--soft-primary ignis-btn--sm' href='" . BASE_PATH . "forms/view?antrag={$row['uniqueid']}'>
                             <i class='fa-regular fa-eye'></i> Ansehen
                         </a>
                     </td>

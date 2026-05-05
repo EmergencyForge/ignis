@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * `source` markiert woher der Eintrag kommt: admin (Backoffice), enotf
  * (eingetragen während eines eNOTF-Protokolls) oder firetab (aus dem
- * FireTab-Modul). Die Multi-Context-Auth im FahrtenbuchController prüft,
+ * FireTab-Modul). Die Multi-Context-Auth im LogbookController prüft,
  * ob der aktuelle Aktor ein Recht zum Bearbeiten dieses spezifischen
  * Source-Eintrags hat.
  *
@@ -86,7 +86,7 @@ class Fahrt extends EloquentModel
     public function vehicle(): BelongsTo
     {
         // Verwende ein generisches Eloquent-Model wäre überdimensioniert —
-        // FahrtenbuchController joint stattdessen via Capsule für die Liste.
+        // LogbookController joint stattdessen via Capsule für die Liste.
         return $this->belongsTo(self::class, 'vehicle_id', 'id');
     }
 }

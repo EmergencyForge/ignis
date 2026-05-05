@@ -60,7 +60,7 @@ class NotificationController extends Controller
 
         $unreadCount = $manager->getUnreadCount($userId);
 
-        $this->renderView('benachrichtigungen/index', [
+        $this->renderView('notifications/index', [
             'notifications' => $notifications,
             'unreadCount'   => $unreadCount,
             'filter'        => $filter,

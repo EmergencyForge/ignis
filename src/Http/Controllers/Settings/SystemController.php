@@ -17,11 +17,29 @@ use App\Http\Controllers\Controller;
  */
 class SystemController extends Controller
 {
+    /**
+     * System-Landing-Page — Karten-Grid, das die Sub-Sections verlinkt
+     * (Updater, Config, Performance, Telemetry, Logs, Cron). Keine
+     * Updater-Logik mehr (fuer den Updater siehe `updater()`).
+     */
     public function index(): void
     {
         $this->requireAuth();
         $this->ensureAdmin();
         $this->renderView('settings/system/index', []);
+    }
+
+    /**
+     * System-Updater — Versions-Check, Download/Install, Manifest-Apply,
+     * Composer-Bridge, Branch-Updates fuer Dev-Mode. Verschoben aus index()
+     * (war historisch dort), damit `/settings/system/index` jetzt die
+     * Landing-Page bleiben kann und der Updater eine eigene URL hat.
+     */
+    public function updater(): void
+    {
+        $this->requireAuth();
+        $this->ensureAdmin();
+        $this->renderView('settings/system/updater', []);
     }
 
     public function config(): void

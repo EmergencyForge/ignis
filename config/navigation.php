@@ -63,11 +63,11 @@ return [
                     'items'       => [
                         [
                             'label' => 'Übersicht',
-                            'href'  => BASE_PATH . 'benutzer/list',
+                            'href'  => BASE_PATH . 'users/list',
                         ],
                         [
                             'label'       => 'Registrierungscodes',
-                            'href'        => BASE_PATH . 'benutzer/registration-codes',
+                            'href'        => BASE_PATH . 'users/registration-codes',
                             'permissions' => ['admin', 'users.create'],
                             'quick_action' => [
                                 'type'   => 'modal',
@@ -77,7 +77,7 @@ return [
                         ],
                         [
                             'label'        => 'Rollenverwaltung',
-                            'href'         => BASE_PATH . 'benutzer/rollen/index',
+                            'href'         => BASE_PATH . 'users/roles/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'role-create',
@@ -86,7 +86,7 @@ return [
                         ],
                         [
                             'label'       => 'Audit-Log',
-                            'href'        => BASE_PATH . 'benutzer/auditlog',
+                            'href'        => BASE_PATH . 'users/audit-log',
                             'permissions' => ['admin', 'audit.view'],
                         ],
                     ],
@@ -97,7 +97,7 @@ return [
                     'items'       => [
                         [
                             'label'        => 'Übersicht',
-                            'href'         => BASE_PATH . 'mitarbeiter/list',
+                            'href'         => BASE_PATH . 'personnel/list',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'mitarbeiter-create',
@@ -106,7 +106,7 @@ return [
                         ],
                         [
                             'label'       => 'Anträge bearbeiten',
-                            'href'        => BASE_PATH . 'antrag/admin/list',
+                            'href'        => BASE_PATH . 'forms/admin/list',
                             'permissions' => ['admin', 'application.view'],
                         ],
                     ],
@@ -140,14 +140,14 @@ return [
                 ],
                 [
                     'label'       => 'MANV-Board',
-                    'permissions' => ['admin', 'manv.manage'],
+                    'permissions' => ['admin', 'mci.manage'],
                     'items'       => [
                         [
                             'label'        => 'MANV-Board',
-                            'href'         => BASE_PATH . 'manv/',
+                            'href'         => BASE_PATH . 'mci/',
                             'quick_action' => [
                                 'type'   => 'link',
-                                'target' => BASE_PATH . 'manv/create',
+                                'target' => BASE_PATH . 'mci/create',
                                 'label'  => 'Neue MANV-Lage anlegen',
                             ],
                         ],
@@ -158,12 +158,12 @@ return [
                     'items' => [
                         [
                             'label'    => 'fireTab öffnen',
-                            'href'     => BASE_PATH . 'einsatz/',
+                            'href'     => BASE_PATH . 'firetab/',
                             'external' => true,
                         ],
                         [
                             'label'       => 'Qualitätsmanagement',
-                            'href'        => BASE_PATH . 'einsatz/admin/list',
+                            'href'        => BASE_PATH . 'firetab/admin/list',
                             'permissions' => ['admin', 'fire.incident.qm'],
                         ],
                     ],
@@ -172,17 +172,17 @@ return [
         ],
 
         // ─────────────────────────────────────────────────────────────
-        // Lexikon (Modul-URL bleibt /wissensdb/, nur das Label heisst neu)
+        // Lexikon (Legacy-Modul-Folder unter /lexicon/, eigener DirectoryIndex)
         // ─────────────────────────────────────────────────────────────
         [
-            'id'           => 'wissensdb',
+            'id'           => 'lexicon',
             'label'        => 'Lexikon',
             'icon'         => 'fa-solid fa-book-medical',
-            'href'         => BASE_PATH . 'wissensdb/index',
-            'data_page'    => 'wissensdb',
+            'href'         => BASE_PATH . 'lexicon/index',
+            'data_page'    => 'lexicon',
             'quick_action' => [
                 'type'   => 'link',
-                'target' => BASE_PATH . 'wissensdb/create',
+                'target' => BASE_PATH . 'lexicon/create',
                 'label'  => 'Neuen Artikel schreiben',
             ],
         ],
@@ -194,7 +194,7 @@ return [
             'id'           => 'kalender',
             'label'        => 'Kalender',
             'icon'         => 'fa-solid fa-calendar-days',
-            'href'         => BASE_PATH . 'kalender',
+            'href'         => BASE_PATH . 'calendar',
             'data_page'    => 'kalender',
             'permissions'  => ['admin', 'calendar.view'],
             'quick_action' => [
@@ -218,7 +218,7 @@ return [
                     'items' => [
                         [
                             'label'        => 'Übersicht',
-                            'href'         => BASE_PATH . 'settings/fahrzeuge/fahrzeuge/index',
+                            'href'         => BASE_PATH . 'settings/vehicles/vehicles/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'fahrzeug-create',
@@ -227,7 +227,7 @@ return [
                         ],
                         [
                             'label'        => 'Defekt-Meldungen',
-                            'href'         => BASE_PATH . 'settings/fahrzeuge/defekte/index',
+                            'href'         => BASE_PATH . 'settings/vehicles/defects/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'defekt-create',
@@ -236,12 +236,12 @@ return [
                         ],
                         [
                             'label'       => 'Fahrtenbuch',
-                            'href'        => BASE_PATH . 'fahrtenbuch/index',
-                            'permissions' => ['admin', 'fahrtenbuch.view', 'fahrtenbuch.manage'],
+                            'href'        => BASE_PATH . 'logbook/index',
+                            'permissions' => ['admin', 'logbook.view', 'logbook.manage'],
                         ],
                         [
                             'label'       => 'Beladelisten',
-                            'href'        => BASE_PATH . 'settings/fahrzeuge/beladelisten/index',
+                            'href'        => BASE_PATH . 'settings/vehicles/vehload/index',
                             'permissions' => ['admin', 'vehicles.manage'],
                         ],
                     ],
@@ -265,7 +265,7 @@ return [
                     'items'       => [
                         [
                             'label'        => 'Dienstgrade',
-                            'href'         => BASE_PATH . 'settings/personal/dienstgrade/index',
+                            'href'         => BASE_PATH . 'settings/personnel/ranks/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'dienstgrad-create',
@@ -274,7 +274,7 @@ return [
                         ],
                         [
                             'label'        => 'FW Qualifikationen',
-                            'href'         => BASE_PATH . 'settings/personal/qualifw/index',
+                            'href'         => BASE_PATH . 'settings/personnel/fdskills/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'qualifw-create',
@@ -283,7 +283,7 @@ return [
                         ],
                         [
                             'label'        => 'RD Qualifikationen',
-                            'href'         => BASE_PATH . 'settings/personal/qualird/index',
+                            'href'         => BASE_PATH . 'settings/personnel/ambskills/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'qualird-create',
@@ -292,7 +292,7 @@ return [
                         ],
                         [
                             'label'        => 'Fachdienste',
-                            'href'         => BASE_PATH . 'settings/personal/qualifd/index',
+                            'href'         => BASE_PATH . 'settings/personnel/specialties/index',
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'qualifd-create',
@@ -306,11 +306,11 @@ return [
                         ],
                         [
                             'label'        => 'Antragstypen',
-                            'href'         => BASE_PATH . 'settings/antrag/list',
+                            'href'         => BASE_PATH . 'settings/forms/list',
                             'permissions'  => ['admin'],
                             'quick_action' => [
                                 'type'   => 'link',
-                                'target' => BASE_PATH . 'settings/antrag/create',
+                                'target' => BASE_PATH . 'settings/forms/create',
                                 'label'  => 'Neuen Antragstyp anlegen',
                             ],
                         ],
@@ -332,7 +332,7 @@ return [
                         ],
                         [
                             'label'        => 'Medikamente',
-                            'href'         => BASE_PATH . 'settings/medikamente/index',
+                            'href'         => BASE_PATH . 'settings/medications/index',
                             'permissions'  => ['admin', 'edivi.view'],
                             'quick_action' => [
                                 'type'   => 'modal',
@@ -367,7 +367,7 @@ return [
                         ],
                         [
                             'label'       => 'Updater',
-                            'href'        => BASE_PATH . 'settings/system/index',
+                            'href'        => BASE_PATH . 'settings/system/updater',
                             'permissions' => ['admin'],
                         ],
                         [

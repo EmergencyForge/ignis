@@ -97,7 +97,7 @@ use App\Helpers\Flash;
                                         <?php if (Gate::allows('user.update', $user)): ?>
                                             <td>
                                                 <div class="col-actions">
-                                                    <a href="<?= BASE_PATH ?>benutzer/edit?id=<?= (int) $user->id ?>"
+                                                    <a href="<?= BASE_PATH ?>users/edit?id=<?= (int) $user->id ?>"
                                                        class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon"
                                                        data-ignis-tooltip="Bearbeiten">
                                                         <i class="fa-solid fa-pen-to-square"></i>

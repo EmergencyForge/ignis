@@ -30,7 +30,7 @@ class MedikamenteController extends Controller
             ->map(fn ($r) => (array) $r)
             ->all();
 
-        $this->renderView('settings/medikamente/index', ['medikamente' => $medikamente]);
+        $this->renderView('settings/medications/index', ['medikamente' => $medikamente]);
     }
 
     public function store(): void
@@ -46,7 +46,7 @@ class MedikamenteController extends Controller
 
         if ($wirkstoff === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/medikamente/index');
+            $this->redirect('settings/medications/index');
         }
 
         try {
@@ -68,7 +68,7 @@ class MedikamenteController extends Controller
             }
         }
 
-        $this->redirect('settings/medikamente/index');
+        $this->redirect('settings/medications/index');
     }
 
     public function update(): void
@@ -85,7 +85,7 @@ class MedikamenteController extends Controller
 
         if ($id <= 0 || $wirkstoff === '') {
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/medikamente/index');
+            $this->redirect('settings/medications/index');
         }
 
         try {
@@ -107,7 +107,7 @@ class MedikamenteController extends Controller
             }
         }
 
-        $this->redirect('settings/medikamente/index');
+        $this->redirect('settings/medications/index');
     }
 
     public function destroy(): void
@@ -118,13 +118,13 @@ class MedikamenteController extends Controller
         $id = (int) ($_POST['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'invalid-id');
-            $this->redirect('settings/medikamente/index');
+            $this->redirect('settings/medications/index');
         }
 
         $exists = Capsule::table('intra_edivi_medikamente')->where('id', $id)->exists();
         if (!$exists) {
             Flash::set('medikament', 'not-found');
-            $this->redirect('settings/medikamente/index');
+            $this->redirect('settings/medications/index');
         }
 
         try {
@@ -136,14 +136,14 @@ class MedikamenteController extends Controller
             Flash::set('error', 'exception');
         }
 
-        $this->redirect('settings/medikamente/index');
+        $this->redirect('settings/medications/index');
     }
 
     private function ensureAdmin(): void
     {
         if (!Gate::allows('system.admin')) {
             Flash::set('error', 'no-permissions');
-            $this->redirect('settings/medikamente/index');
+            $this->redirect('settings/medications/index');
         }
     }
 

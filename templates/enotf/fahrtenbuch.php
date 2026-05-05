@@ -56,14 +56,14 @@ $currentDate = date('d.m.Y');
                         <!-- Create Form -->
                         <div id="createFormWrap" style="display:none;" class="vehicle-info-card p-4 mb-4">
                             <h5 class="text-light mb-3">Neuer Eintrag</h5>
-                            <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions">
+                            <form method="POST" action="<?= BASE_PATH ?>logbook/actions">
                                 <input type="hidden" name="action" value="create">
                                 <input type="hidden" name="return_to" value="enotf">
                                 <input type="hidden" name="source" value="enotf">
 
                                 <?php
                                 $context = 'enotf';
-                                include __DIR__ . '/../../assets/components/fahrtenbuch/_form-fields.php';
+                                include __DIR__ . '/../../assets/components/logbook/_form-fields.php';
                                 ?>
 
                                 <div class="mt-3 flex gap-2">
@@ -76,7 +76,7 @@ $currentDate = date('d.m.Y');
                         <!-- Edit Form (hidden by default) -->
                         <div id="editFormWrap" style="display:none;" class="vehicle-info-card p-4 mb-4">
                             <h5 class="text-light mb-3">Eintrag bearbeiten</h5>
-                            <form method="POST" action="<?= BASE_PATH ?>fahrtenbuch/actions" id="editForm">
+                            <form method="POST" action="<?= BASE_PATH ?>logbook/actions" id="editForm">
                                 <input type="hidden" name="action" value="update">
                                 <input type="hidden" name="id" id="edit_id" value="">
                                 <input type="hidden" name="return_to" value="enotf">
@@ -86,7 +86,7 @@ $currentDate = date('d.m.Y');
                                 $context = 'enotf';
                                 // Reset entry for edit form (will be filled by JS)
                                 $entry = null;
-                                include __DIR__ . '/../../assets/components/fahrtenbuch/_form-fields.php';
+                                include __DIR__ . '/../../assets/components/logbook/_form-fields.php';
                                 ?>
 
                                 <div class="mt-3 flex gap-2">
@@ -102,8 +102,8 @@ $currentDate = date('d.m.Y');
                         $context = 'enotf';
                         $canEdit = true;
                         $canDelete = false;
-                        $actionsUrl = BASE_PATH . 'fahrtenbuch/actions';
-                        include __DIR__ . '/../../assets/components/fahrtenbuch/_list-table.php';
+                        $actionsUrl = BASE_PATH . 'logbook/actions';
+                        include __DIR__ . '/../../assets/components/logbook/_list-table.php';
                         ?>
                     </div>
                 </div>

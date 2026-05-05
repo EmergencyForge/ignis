@@ -74,7 +74,7 @@ class CalendarController extends Controller
             ->orderBy('fullname')
             ->get(['id', 'fullname', 'dienstnr']);
 
-        $this->renderView('kalender/index', [
+        $this->renderView('calendar/index', [
             'mitarbeiter' => $mitarbeiter,
             'roles'       => $roles,
             'categories'  => CalendarEvent::CATEGORIES,
@@ -365,7 +365,7 @@ class CalendarController extends Controller
             }
         }
 
-        $this->renderView('kalender/view', [
+        $this->renderView('calendar/view', [
             'event'            => $event,
             'attendeesData'    => $attendeesData,
             'attendeeCount'   => AttendeeResolver::count($event),

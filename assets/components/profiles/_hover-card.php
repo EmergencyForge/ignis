@@ -1,7 +1,7 @@
 <?php
 /**
  * Hover-Card-Vorschau für einen Mitarbeiter.
- * Wird vom MitarbeiterController::card() gerendert und vom JS-Modul
+ * Wird vom PersonnelController::card() gerendert und vom JS-Modul
  * user-hover-card.js per fetch in eine ignis-popover-Instanz geschoben.
  *
  * Erwartet im Scope:
