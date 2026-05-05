@@ -259,6 +259,7 @@ $calendarViewAuth   = [new AuthMiddleware(), new PolicyMiddleware('calendar.view
 $calendarCreateAuth = [new AuthMiddleware(), new PolicyMiddleware('calendar.create')];
 
 $router->get('/kalender',          [CalendarController::class, 'index'],         $calendarViewAuth);
+$router->get('/kalender/',         [CalendarController::class, 'index'],         $calendarViewAuth);
 $router->get('/kalender/view',     [CalendarController::class, 'show'],          $calendarViewAuth);
 $router->post('/kalender/create',  [CalendarController::class, 'store'],         $calendarCreateAuth);
 $router->post('/kalender/update',  [CalendarController::class, 'update'],        $calendarViewAuth);

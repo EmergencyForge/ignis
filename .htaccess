@@ -65,13 +65,6 @@ RewriteRule ^\.github/ - [F,L]
 
 Options +MultiViews
 
-# DirectorySlash Off verhindert, dass Apache automatisch von /foo nach /foo/
-# redirected, wenn /foo zufaellig ein leeres Legacy-Verzeichnis ist (z.B. nach
-# einem unvollstaendigen Deploy). Ohne diese Direktive entstehen Redirect-Loops
-# auf Controller-served Routes wie /kalender und /manv, sobald deren alte
-# Modul-Ordner auf dem Webspace stehen geblieben sind.
-DirectorySlash Off
-
 #3 ---- Rewrites
 
 RewriteEngine On
@@ -80,22 +73,18 @@ RewriteEngine On
 # Router Fallback
 #
 # Greift, wenn der Request weder auf eine echte Datei noch auf
-# ein bewusst legacy-gehaltenes Verzeichnis zeigt, und leitet
-# ihn an den Single-Entry-Point `public/index.php` weiter, wo
-# `App\Http\Router` das Matching übernimmt. eNOTF-Clean-URLs
-# (`/enotf/p/{enr}/...`) sind direkt im Router registriert.
+# ein echtes Verzeichnis zeigt, und leitet ihn an den Single-
+# Entry-Point `public/index.php` weiter, wo `App\Http\Router`
+# das Matching übernimmt. eNOTF-Clean-URLs (`/enotf/p/{enr}/...`)
+# sind direkt im Router registriert.
 #
-# Whitelist statt `!-d`: nur explizit aufgelistete Verzeichnisse
-# behalten ihren eigenen DirectoryIndex (Assets, Vendor-Dirs,
-# wissensdb/, dokumente/). Alles andere geht durch den Router,
-# auch wenn ein gleichnamiger Ordner stehen geblieben ist —
-# das verhindert Redirect-Loops nach unvollstaendigen Deploys.
-#
-# MultiViews (+MultiViews oben) resolvt zusätzlich `/foo` zu
-# `/foo.php` BEVOR die Rewrites laufen, sodass Extension-lose
+# Bestehende Modul-Files (benutzer/list.php, einsatz/index.php, ...)
+# bleiben unberührt, weil `!-f` dann false ist und die Regel nicht
+# greift. MultiViews (+MultiViews oben) resolvt zusätzlich `/foo`
+# zu `/foo.php` BEVOR die Rewrites laufen, sodass Extension-lose
 # Legacy-URLs weiterhin direkt funktionieren.
 # ============================================================
 
-RewriteCond %{REQUEST_URI} !^/(assets|public|vendor|node_modules|storage|uploads|cron|wissensdb|dokumente|auth)(/|$)
 RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ public/index.php [L,QSA]
