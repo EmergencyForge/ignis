@@ -11,6 +11,7 @@ use App\Calendar\IcalExporter;
 use App\Calendar\RecurrenceExpander;
 use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
+use App\Http\Request;
 use App\Http\Requests\Calendar\CreateEventRequest;
 use App\Http\Requests\Calendar\UpdateEventRequest;
 use App\Http\Response;
@@ -203,7 +204,7 @@ class CalendarController extends Controller
      * der URL ist die Authentifizierung. Externe Kalender koennen das so
      * abonnieren.
      */
-    public function icalFeed(string $token): Response
+    public function icalFeed(Request $request, string $token): Response
     {
         $token = trim($token);
         if (!preg_match('/^[a-f0-9]{20,64}$/', $token)) {

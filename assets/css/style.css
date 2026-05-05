@@ -158,6 +158,9 @@ body:has(.intra-sidebar) h1, body:has(.intra-sidebar) h2, body:has(.intra-sideba
 body:has(.intra-sidebar) th, body:has(.intra-sidebar) dt, body:has(.intra-sidebar) label, body:has(.intra-sidebar) .form-label, body:has(.intra-sidebar) .card-title {
   font-weight: 500;
 }
+body:has(.intra-sidebar) th {
+  text-align: left;
+}
 body:has(.intra-sidebar) strong, body:has(.intra-sidebar) b, body:has(.intra-sidebar) .fw-bold {
   font-weight: 500;
 }

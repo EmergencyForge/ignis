@@ -194,7 +194,7 @@ final class Router
 
         switch ($info[0]) {
             case Dispatcher::NOT_FOUND:
-                return Response::text('Not Found', 404);
+                return $this->render404();
 
             case Dispatcher::METHOD_NOT_ALLOWED:
                 /** @var array<int,string> $allowed */
@@ -225,6 +225,31 @@ final class Router
         }
 
         return Response::text('Internal Router Error', 500);
+    }
+
+    /**
+     * Rendert das 404-Template (templates/errors/404.php) und liefert es als
+     * HTML-Response. Faellt auf einen Plain-Text-Body zurueck, falls das
+     * Template fehlt — damit gibt's auch in einer kaputten Installation
+     * immer einen 404-Status, nicht stillschweigend einen 500er.
+     */
+    private function render404(): Response
+    {
+        $template = dirname(__DIR__, 2) . '/templates/errors/404.php';
+        if (!is_file($template)) {
+            return Response::text('Not Found', 404);
+        }
+
+        ob_start();
+        try {
+            require $template;
+            $body = (string) ob_get_clean();
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            return Response::text('Not Found', 404);
+        }
+
+        return Response::html($body, 404);
     }
 
     private function buildDispatcher(): Dispatcher

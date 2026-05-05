@@ -164,6 +164,14 @@ body:has(.intra-sidebar) {
     font-weight: 500;
   }
 
+  // Browser-Default fuer <th> ist text-align:center — fuer Daten-Tabellen
+  // mit links-buendigen Werten unten daneben sieht das schief aus. Wir
+  // setzen left als sinnvolleren Default; wer Header explizit zentrieren
+  // will, nutzt .text-center oder eigene Klassen.
+  th {
+    text-align: left;
+  }
+
   strong, b, .fw-bold {
     font-weight: 500;
   }

@@ -598,6 +598,57 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 }
 
+// Bootstrap-Style .input-group: Input + trailing Action-Buttons inline.
+// Bootstrap's eigene Regel ist nicht im Hauptbundle (nur fuer eNOTF), daher
+// hier eigenstaendig fuer ignis-input + ignis-btn implementiert. Erkennt
+// die Reihenfolge: erstes Element bekommt linke Radien, letztes die rechten,
+// Mitte ist eckig. Negative margin-left ueberlappt die Borders, sodass es
+// optisch wie eine zusammenhaengende Pille wirkt.
+.input-group {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  width: 100%;
+
+  > .ignis-input,
+  > .ignis-textarea,
+  > select.ignis-input {
+    flex: 1 1 auto;
+    min-width: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    &:not(:first-child) {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      margin-left: -1px;
+    }
+  }
+
+  > .ignis-btn {
+    border-radius: 0;
+    margin-left: -1px;
+    z-index: 1;
+
+    &:hover,
+    &:focus,
+    &:focus-visible {
+      z-index: 2;
+    }
+
+    &:first-child {
+      margin-left: 0;
+      border-top-left-radius: var(--radius-md, 6px);
+      border-bottom-left-radius: var(--radius-md, 6px);
+    }
+
+    &:last-child {
+      border-top-right-radius: var(--radius-md, 6px);
+      border-bottom-right-radius: var(--radius-md, 6px);
+    }
+  }
+}
+
 // Field-Wrapper: Label + Hint/Error (kompakt, responsive)
 .ignis-field {
   display: flex;

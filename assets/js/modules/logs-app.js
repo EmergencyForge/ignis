@@ -353,7 +353,7 @@
         const params = new URLSearchParams();
         params.set('q', document.getElementById('searchQuery').value || '');
         const file = document.getElementById('searchFile').value;
-        const activeScope = document.querySelector('#inboxScopeFilter .btn.active');
+        const activeScope = document.querySelector('#inboxScopeFilter [data-scope].active');
         if (activeScope && activeScope.dataset.scope !== 'all') {
             params.set('level', activeScope.dataset.scope);
         }
@@ -387,9 +387,9 @@
     });
 
     // ── Scope-Filter (Alle/Critical/Error/Warning) ──
-    document.querySelectorAll('#inboxScopeFilter .btn').forEach(btn => {
+    document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(btn => {
         btn.addEventListener('click', async function () {
-            document.querySelectorAll('#inboxScopeFilter .btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             const scope = this.dataset.scope;
             if (scope === 'all') {
@@ -397,7 +397,7 @@
                 return;
             }
             try {
-                const res = await fetch(apiUrl + '?recent=1&grouped=1&limit=200&min_level=' + scope);
+                const res = await fetch(apiUrl + '?recent=1&grouped=1&limit=200&level=' + scope);
                 const data = await res.json();
                 if (data.success && data.groups) renderGroups(data.groups);
             } catch (e) { console.error(e); }
@@ -408,8 +408,8 @@
     document.getElementById('resetBtn').addEventListener('click', function () {
         document.getElementById('searchQuery').value = '';
         document.getElementById('searchFile').value = '';
-        document.querySelectorAll('#inboxScopeFilter .btn').forEach(b => b.classList.remove('active'));
-        document.querySelector('#inboxScopeFilter .btn[data-scope="all"]').classList.add('active');
+        document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(b => b.classList.remove('active'));
+        document.querySelector('#inboxScopeFilter [data-scope="all"]').classList.add('active');
         renderGroups(initialGroups);
     });
 
