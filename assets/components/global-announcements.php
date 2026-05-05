@@ -23,8 +23,14 @@ $needsHeartbeat = false;
 $needsCacheRefresh = false;
 
 try {
-    if (!isset($pdo)) {
+    if (!isset($pdo) || !$pdo instanceof PDO) {
         require_once __DIR__ . '/../config/database.php';
+    }
+    // Falls require_once oben no-op war (database.php in dieser Request schon
+    // einmal geladen) und $pdo im aktuellen Scope undefiniert ist, aus dem
+    // Container ziehen. Sonst wuerde TelemetryManager(null) failen.
+    if (!isset($pdo) || !$pdo instanceof PDO) {
+        $pdo = app(PDO::class);
     }
 
     // Admin-Status prüfen - direkt aus Session lesen (full_admin oder admin Permission)

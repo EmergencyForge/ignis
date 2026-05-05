@@ -9,10 +9,15 @@ $unreadCount = 0;
 $recentNotifications = [];
 $useNewNavbar = false;
 try {
-    if (!isset($pdo)) {
+    if (!isset($pdo) || !$pdo instanceof PDO) {
         require_once __DIR__ . '/../config/database.php';
     }
-    if (isset($pdo)) {
+    // Wenn require_once no-op war (database.php pro Request nur einmal aktiv),
+    // $pdo aus dem Container holen — config.php hat ihn dort registriert.
+    if ((!isset($pdo) || !$pdo instanceof PDO) && function_exists('app')) {
+        $pdo = app(PDO::class);
+    }
+    if (isset($pdo) && $pdo instanceof PDO) {
         $notificationManager = new NotificationManager($pdo);
         $unreadCount = $notificationManager->getUnreadCount($_SESSION['userid']);
         $recentNotifications = $notificationManager->getAll($_SESSION['userid'], 5);

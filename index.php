@@ -2,6 +2,16 @@
 // Session wird durch config.php gestartet (SessionManager)
 require_once __DIR__ . '/assets/config/config.php';
 require_once __DIR__ . '/assets/config/database.php';
+
+// Wenn diese Datei aus dem Router-Closure heraus required wird (rootIndex
+// in routes/web.php), war database.php bereits durch das Bootstrap geladen
+// und require_once ist ein No-Op. $pdo ist dann im aktuellen Scope nicht
+// definiert — wir holen ihn aus dem Container, in dem config.php ihn
+// registriert hat.
+if (!isset($pdo) || !$pdo instanceof PDO) {
+    $pdo = app(PDO::class);
+}
+
 if (!\App\Session\SessionManager::isLoggedIn() || !isset($_SESSION['permissions'])) {
     \App\Session\SessionManager::setRedirectFromRequest();
     header("Location: " . BASE_PATH . "login.php");
