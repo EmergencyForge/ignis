@@ -35,6 +35,7 @@ use App\Helpers\Flash;
             </div>
             <?php include __DIR__ . '/assets/components/index/stats.php' ?>
             <?php include __DIR__ . '/assets/components/index/setup-checklist.php' ?>
+            <?php include __DIR__ . '/assets/components/index/changelog.php' ?>
 
             <!-- Content sections: generous spacing between groups -->
             <div class="intra__tile" data-section="documents" style="margin-top:var(--space-xl)">

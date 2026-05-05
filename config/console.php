@@ -29,4 +29,5 @@ return [
     \App\Console\Commands\StorageCleanupCommand::class,
     \App\Console\Commands\UpdatesCheckCommand::class,
     \App\Console\Commands\CalendarBackfillAbsencesCommand::class,
+    \App\Console\Commands\ChangelogRefreshCommand::class,
 ];

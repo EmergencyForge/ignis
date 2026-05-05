@@ -224,10 +224,11 @@ class LogsController extends Controller
 
             // 4) Recent Errors (mit optionalem Grouping)
             if (isset($_GET['recent'])) {
-                $limit    = max(1, min(500, (int) ($_GET['limit'] ?? 100)));
-                $grouped  = !empty($_GET['grouped']);
-                $minLevel = $_GET['min_level'] ?? null;
-                $entries  = $reader->getRecentErrors($limit, false, $minLevel);
+                $limit      = max(1, min(500, (int) ($_GET['limit'] ?? 100)));
+                $grouped    = !empty($_GET['grouped']);
+                $minLevel   = $_GET['min_level'] ?? null;
+                $exactLevel = $_GET['level'] ?? null;
+                $entries    = $reader->getRecentErrors($limit, false, $minLevel, $exactLevel);
 
                 if ($grouped) {
                     echo json_encode([

@@ -66,7 +66,7 @@ a {
   transition: color 0.1s ease;
 }
 
-a:not([class*=btn]):not([class*=ignis-btn]):not(.sidebar-link):not(.nav-link):not(.no-underline):not(.gsr-item):not(.rail-item):not(.flyout-item):not(.rail-logo):not(.setup-step):not(.edivi__einsatz-link):not(.edivi__iconlink):not(.text-reset):hover {
+a:not([class*=btn]):not([class*=ignis-btn]):not(.sidebar-link):not(.nav-link):not(.no-underline):not(.gsr-item):not(.rail-item):not(.flyout-item):not(.rail-logo):not(.setup-step):not(.edivi__einsatz-link):not(.edivi__iconlink):not(.text-reset):not(.changelog__link):hover {
   color: var(--link-hover);
   text-decoration: underline;
 }
@@ -563,7 +563,8 @@ div.btn.disabled {
   padding: 3px;
 }
 
-.btn-toolbar-group .btn {
+.btn-toolbar-group .btn,
+.btn-toolbar-group .ignis-btn {
   border-radius: var(--radius-sm);
   border: none !important;
   font-size: 0.8rem;
@@ -572,15 +573,17 @@ div.btn.disabled {
   color: #818189;
 }
 
-.btn-toolbar-group .btn:hover {
+.btn-toolbar-group .btn:hover,
+.btn-toolbar-group .ignis-btn:hover {
   transform: none;
   box-shadow: none;
   color: #bbbac1;
   background: rgba(255, 255, 255, 0.04);
 }
 
-.btn-toolbar-group .btn.active {
-  background: #4a6fa5 !important;
+.btn-toolbar-group .btn.active,
+.btn-toolbar-group .ignis-btn.active {
+  background: var(--main-color, #4a6fa5) !important;
   color: #fff !important;
 }
 

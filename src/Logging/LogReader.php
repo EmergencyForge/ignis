@@ -146,7 +146,7 @@ class LogReader
      *
      * @return list<array<string,mixed>>
      */
-    public function getRecentErrors(int $limit = 50, bool $includeApp = false, ?string $minLevel = null): array
+    public function getRecentErrors(int $limit = 50, bool $includeApp = false, ?string $minLevel = null, ?string $exactLevel = null): array
     {
         $results = [];
         $files = $this->listFiles();
@@ -158,6 +158,7 @@ class LogReader
             'ALERT' => 6, 'EMERGENCY' => 7,
         ];
         $minRank = $minLevel ? ($levelOrder[strtoupper($minLevel)] ?? 4) : null;
+        $wantedLevel = $exactLevel !== null && $exactLevel !== '' ? strtoupper($exactLevel) : null;
 
         foreach ($files as $file) {
             if ($file['type'] === 'other') continue;
@@ -165,6 +166,7 @@ class LogReader
 
             $entries = $this->parseFileEntries($file['path']);
             foreach ($entries as $entry) {
+                if ($wantedLevel !== null && ($entry['level'] ?? '') !== $wantedLevel) continue;
                 if ($minRank !== null) {
                     $rank = $levelOrder[$entry['level']] ?? 0;
                     if ($rank < $minRank) continue;

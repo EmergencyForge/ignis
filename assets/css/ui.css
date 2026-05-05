@@ -503,6 +503,45 @@ body:has(.ignis-dialog-backdrop.is-open) {
   color: var(--main-color);
 }
 
+.input-group {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+.input-group > .ignis-input,
+.input-group > .ignis-textarea,
+.input-group > select.ignis-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.input-group > .ignis-input:not(:first-child),
+.input-group > .ignis-textarea:not(:first-child),
+.input-group > select.ignis-input:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: -1px;
+}
+.input-group > .ignis-btn {
+  border-radius: 0;
+  margin-left: -1px;
+  z-index: 1;
+}
+.input-group > .ignis-btn:hover, .input-group > .ignis-btn:focus, .input-group > .ignis-btn:focus-visible {
+  z-index: 2;
+}
+.input-group > .ignis-btn:first-child {
+  margin-left: 0;
+  border-top-left-radius: var(--radius-md, 6px);
+  border-bottom-left-radius: var(--radius-md, 6px);
+}
+.input-group > .ignis-btn:last-child {
+  border-top-right-radius: var(--radius-md, 6px);
+  border-bottom-right-radius: var(--radius-md, 6px);
+}
+
 .ignis-field {
   display: flex;
   flex-direction: column;

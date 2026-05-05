@@ -26,6 +26,7 @@ final class ConsoleHandler implements JobHandlerInterface
         'migrate',
         'telemetry:send',
         'announcements:refresh',
+        'changelog:refresh',
         'cron:tick',
         'federation:sync',
         'storage:cleanup',
