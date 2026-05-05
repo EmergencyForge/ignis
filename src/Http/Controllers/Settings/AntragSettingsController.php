@@ -15,7 +15,7 @@ use PDOException;
  * AntragSettingsController — Verwaltung der Antragstypen und ihrer Felder.
  *
  * Heißt bewusst "AntragSettings", um Konflikte mit dem bereits migrierten
- * App\Http\Controllers\AntragController (Antragstellung) zu vermeiden.
+ * App\Http\Controllers\FormsController (Antragstellung) zu vermeiden.
  */
 class AntragSettingsController extends Controller
 {
@@ -31,7 +31,7 @@ class AntragSettingsController extends Controller
                 ->where('id', $id)
                 ->update(['aktiv' => Capsule::raw('NOT aktiv')]);
             Flash::set('success', 'Status erfolgreich geändert');
-            $this->redirect('settings/antrag/list');
+            $this->redirect('settings/forms/list');
         }
 
         // Antragstyp löschen
@@ -47,7 +47,7 @@ class AntragSettingsController extends Controller
                 Capsule::table('intra_antrag_typen')->where('id', $id)->delete();
                 Flash::set('success', 'Antragstyp erfolgreich gelöscht');
             }
-            $this->redirect('settings/antrag/list');
+            $this->redirect('settings/forms/list');
         }
 
         // Sortierung aktualisieren
@@ -59,7 +59,7 @@ class AntragSettingsController extends Controller
                     ->update(['sortierung' => (int) $sort]);
             }
             Flash::set('success', 'Sortierung aktualisiert');
-            $this->redirect('settings/antrag/list');
+            $this->redirect('settings/forms/list');
         }
 
         // Antragstypen mit Aggregaten laden
@@ -76,7 +76,7 @@ class AntragSettingsController extends Controller
         ");
         $typen = array_map(fn ($r) => (array) $r, $typen);
 
-        $this->renderView('settings/antrag/list', ['typen' => $typen]);
+        $this->renderView('settings/forms/list', ['typen' => $typen]);
     }
 
     public function createForm(): void
@@ -91,7 +91,7 @@ class AntragSettingsController extends Controller
 
         $defaultSort = ((int) Capsule::table('intra_antrag_typen')->max('sortierung') ?? 0) + 1;
 
-        $this->renderView('settings/antrag/create', [
+        $this->renderView('settings/forms/create', [
             'defaultSort' => $defaultSort,
             'errors'      => [],
             'old'         => [],
@@ -109,7 +109,7 @@ class AntragSettingsController extends Controller
         if ($name === '') {
             Flash::set('error', 'Bitte geben Sie einen Namen für den Antragstyp an.');
             $defaultSort = ((int) Capsule::table('intra_antrag_typen')->max('sortierung') ?? 0) + 1;
-            $this->renderView('settings/antrag/create', [
+            $this->renderView('settings/forms/create', [
                 'defaultSort' => $defaultSort,
                 'old'         => $_POST,
             ]);
@@ -129,10 +129,10 @@ class AntragSettingsController extends Controller
             $this->audit('Neuer Antragstyp erstellt', $name . ' [ID: ' . $newId . ']');
 
             Flash::set('success', 'Antragstyp erfolgreich erstellt. Sie können jetzt Felder hinzufügen.');
-            $this->redirect('settings/antrag/edit?id=' . $newId);
+            $this->redirect('settings/forms/edit?id=' . $newId);
         } catch (PDOException $e) {
             Flash::set('error', 'Fehler beim Erstellen: ' . $e->getMessage());
-            $this->redirect('settings/antrag/create');
+            $this->redirect('settings/forms/create');
         }
     }
 
@@ -144,13 +144,13 @@ class AntragSettingsController extends Controller
         $id = (int) ($_GET['id'] ?? 0);
         if ($id <= 0) {
             Flash::set('error', 'Ungültige Antragstyp-ID');
-            $this->redirect('settings/antrag/list');
+            $this->redirect('settings/forms/list');
         }
 
         $typ = Capsule::table('intra_antrag_typen')->where('id', $id)->first();
         if (!$typ) {
             Flash::set('error', 'Antragstyp nicht gefunden');
-            $this->redirect('settings/antrag/list');
+            $this->redirect('settings/forms/list');
         }
 
         // POST: Antragstyp aktualisieren
@@ -173,7 +173,7 @@ class AntragSettingsController extends Controller
                 ->where('antragstyp_id', $id)
                 ->delete();
             Flash::set('success', 'Feld gelöscht');
-            $this->redirect('settings/antrag/edit?id=' . $id);
+            $this->redirect('settings/forms/edit?id=' . $id);
         }
 
         // POST: Felder-Sortierung
@@ -186,7 +186,7 @@ class AntragSettingsController extends Controller
                     ->update(['sortierung' => (int) $sort]);
             }
             Flash::set('success', 'Sortierung aktualisiert');
-            $this->redirect('settings/antrag/edit?id=' . $id);
+            $this->redirect('settings/forms/edit?id=' . $id);
         }
 
         $felder = Capsule::table('intra_antrag_felder')
@@ -196,7 +196,7 @@ class AntragSettingsController extends Controller
             ->map(fn ($r) => (array) $r)
             ->all();
 
-        $this->renderView('settings/antrag/edit', [
+        $this->renderView('settings/forms/edit', [
             'id'     => $id,
             'typ'    => (array) $typ,
             'felder' => $felder,
@@ -213,7 +213,7 @@ class AntragSettingsController extends Controller
 
         if ($name === '') {
             Flash::set('error', 'Bitte geben Sie einen Namen an.');
-            $this->redirect('settings/antrag/edit?id=' . $id);
+            $this->redirect('settings/forms/edit?id=' . $id);
         }
 
         Capsule::table('intra_antrag_typen')->where('id', $id)->update([
@@ -227,7 +227,7 @@ class AntragSettingsController extends Controller
         $this->audit('Antragstyp aktualisiert', $name . ' [ID: ' . $id . ']');
 
         Flash::set('success', 'Antragstyp erfolgreich aktualisiert');
-        $this->redirect('settings/antrag/edit?id=' . $id);
+        $this->redirect('settings/forms/edit?id=' . $id);
     }
 
     private function handleAddFeld(int $id): void
@@ -245,7 +245,7 @@ class AntragSettingsController extends Controller
 
         if ($feldname === '' || $label === '') {
             Flash::set('error', 'Feldname und Label sind erforderlich');
-            $this->redirect('settings/antrag/edit?id=' . $id);
+            $this->redirect('settings/forms/edit?id=' . $id);
         }
 
         $maxSort = (int) Capsule::table('intra_antrag_felder')
@@ -269,7 +269,7 @@ class AntragSettingsController extends Controller
         ]);
 
         Flash::set('success', 'Feld erfolgreich hinzugefügt');
-        $this->redirect('settings/antrag/edit?id=' . $id);
+        $this->redirect('settings/forms/edit?id=' . $id);
     }
 
     private function ensureAdmin(string $redirect): void

@@ -43,7 +43,7 @@ class UserController extends Controller
         $this->requireAuth();
         Gate::authorize('user.viewList');
 
-        $user = User::query()->with(['userRole', 'mitarbeiter.dienstgradModel', 'mitarbeiter.rdQualiModel', 'mitarbeiter.fwQualiModel'])->find((int) $id);
+        $user = User::query()->with(['userRole', 'personnel.dienstgradModel', 'personnel.rdQualiModel', 'personnel.fwQualiModel'])->find((int) $id);
         if ($user === null) {
             return \App\Http\Response::html('Benutzer nicht gefunden.', 404);
         }

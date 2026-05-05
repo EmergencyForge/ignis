@@ -21,7 +21,7 @@ class NotificationRoutesTest extends FeatureTestCase
     #[Test]
     public function benachrichtigungen_index_redirects_unauthenticated(): void
     {
-        $response = $this->get('/benachrichtigungen/index.php');
+        $response = $this->get('/notifications/index');
 
         $this->assertRedirect($response);
         // AuthMiddleware redirected auf /login.php (relativ zu BASE_PATH)
@@ -48,7 +48,7 @@ class NotificationRoutesTest extends FeatureTestCase
         $user = \Tests\FixtureFactory::user();
 
         $response = $this->actingAs($user->id)
-            ->get('/benachrichtigungen/index.php');
+            ->get('/notifications/index');
 
         $this->assertOk($response);
         $this->assertBodyContains('Benachrichtigungen', $response);

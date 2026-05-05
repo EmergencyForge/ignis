@@ -472,7 +472,7 @@ final class VehicleDefectsController
                     'system',
                     'Neuer Defekt: ' . $title,
                     $msg,
-                    (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'settings/fahrzeuge/defekte/index'
+                    (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'settings/vehicles/defects/index'
                 );
             }
         } catch (\Throwable $e) {

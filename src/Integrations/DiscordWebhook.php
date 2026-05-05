@@ -140,7 +140,7 @@ class DiscordWebhook
         $startedAt = $incidentData['started_at'] ?? \date('Y-m-d H:i:s');
         $leaderName = $incidentData['leader_name'] ?? 'Unbekannt';
         $basePath = \defined('BASE_PATH') ? \rtrim(BASE_PATH, '/') : '';
-        $protokollUrl = 'https://' . (\defined('SYSTEM_URL') ? SYSTEM_URL : '') . $basePath . '/einsatz/view.php?id=' . $id;
+        $protokollUrl = 'https://' . (\defined('SYSTEM_URL') ? SYSTEM_URL : '') . $basePath . '/firetab/view?id=' . $id;
 
         $payload = [
             'embeds' => [

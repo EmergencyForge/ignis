@@ -293,7 +293,7 @@ $currentDate = date('d.m.Y');
                                             <?php
                                             $tiles = $tilesByCategory[(int) $category['id']] ?? [];
                                             $mode  = 'user';
-                                            include __DIR__ . '/../../assets/components/beladung/_category-card.php';
+                                            include __DIR__ . '/../../assets/components/vehload/_category-card.php';
                                             ?>
                                         <?php endforeach; ?>
                                     </div>

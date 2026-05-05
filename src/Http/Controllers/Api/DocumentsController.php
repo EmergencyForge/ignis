@@ -186,7 +186,7 @@ final class DocumentsController
                     . '<strong>Wichtig:</strong> Die Template-Datei <code>' . htmlspecialchars($templateFile) . '</code> wurde nicht automatisch aktualisiert.<br><br>'
                     . '<strong>Optionen:</strong><br>'
                     . '<ul style="margin: 8px 0; padding-left: 20px;">'
-                    . '<li>Löschen Sie die Datei <code>dokumente/templates/' . htmlspecialchars($templateFile) . '</code> und speichern Sie erneut, um sie automatisch zu generieren</li>'
+                    . '<li>Löschen Sie die Datei <code>documents/templates/' . htmlspecialchars($templateFile) . '</code> und speichern Sie erneut, um sie automatisch zu generieren</li>'
                     . '<li>Oder passen Sie die bestehende Datei manuell an die neuen Felder an</li>'
                     . '</ul>',
                     'Template aktualisiert - Aktion erforderlich!'
@@ -294,7 +294,7 @@ final class DocumentsController
                 throw new \Exception('Template nicht gefunden');
             }
 
-            $templatePath = dirname(__DIR__, 4) . '/dokumente/templates/';
+            $templatePath = dirname(__DIR__, 4) . '/documents/templates/';
             if (!is_dir($templatePath)) {
                 mkdir($templatePath, 0755, true);
             }
@@ -906,7 +906,7 @@ final class DocumentsController
             return new Response(404, 'Template nicht gefunden');
         }
 
-        $templatePath = dirname(__DIR__, 4) . '/dokumente/templates/' . $template['template_file'];
+        $templatePath = dirname(__DIR__, 4) . '/documents/templates/' . $template['template_file'];
         if (!file_exists($templatePath)) {
             return new Response(
                 status: 404,
@@ -1145,7 +1145,7 @@ final class DocumentsController
      */
     private function createTemplateFile(array $data): bool
     {
-        $templatePath = dirname(__DIR__, 4) . '/dokumente/templates/';
+        $templatePath = dirname(__DIR__, 4) . '/documents/templates/';
         if (!file_exists($templatePath)) {
             mkdir($templatePath, 0755, true);
         }

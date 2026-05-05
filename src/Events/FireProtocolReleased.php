@@ -7,7 +7,7 @@ namespace App\Events;
 /**
  * Wird gefeuert, wenn ein Fire-Incident-Protokoll final freigegeben
  * wurde (QM-Sichtung abgeschlossen). Trigger kommt aus dem
- * EinsatzController::actionQmRelease().
+ * FiretabController::actionQmRelease().
  *
  * Listener:
  *   - DispatchDiscordWebhookOnFireReleased → sendet Discord-Benachrichtigung

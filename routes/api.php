@@ -93,16 +93,16 @@ $router->post('/api/emd-sync.php',
 //  Hover-Card-Fragments (Browser-Session, intern für Tooltips/Popovers)
 // ----------------------------------------------------------------------------
 
-$router->get('/api/mitarbeiter/{id:\d+}/card',
-    [\App\Http\Controllers\MitarbeiterController::class, 'card'],
+$router->get('/api/personnel/{id:\d+}/card',
+    [\App\Http\Controllers\PersonnelController::class, 'card'],
     [new AuthMiddleware()]
 );
 
 // Dienstnummer-Lookup-Variante: erlaubt Hover-Card auf Dienstnr-Strings,
 // ohne dass das Template die Mitarbeiter-ID kennt. Regex erlaubt Zahlen,
 // Buchstaben, Bindestrich, Unterstrich (typische DNr-Schemata).
-$router->get('/api/mitarbeiter/by-dienstnr/{nr:[A-Za-z0-9_\-]+}/card',
-    [\App\Http\Controllers\MitarbeiterController::class, 'cardByDienstnr'],
+$router->get('/api/personnel/by-dienstnr/{nr:[A-Za-z0-9_\-]+}/card',
+    [\App\Http\Controllers\PersonnelController::class, 'cardByDienstnr'],
     [new AuthMiddleware()]
 );
 
@@ -161,30 +161,30 @@ $router->post('/api/notifications/mark-all-read',
 //  Logik braucht.
 // ----------------------------------------------------------------------------
 
-$router->get('/api/kalender/events',
+$router->get('/api/calendar/events',
     [\App\Http\Controllers\CalendarController::class, 'eventsJson'],
     [new AuthMiddleware()]
 );
 
 // Detail eines einzelnen Events fuer Edit-Prefill
-$router->get('/api/kalender/event',
+$router->get('/api/calendar/event',
     [\App\Http\Controllers\CalendarController::class, 'eventJson'],
     [new AuthMiddleware()]
 );
 
 // iCal-Subscribe — generiert Token bei Bedarf, gibt absolute URL zurueck.
-$router->get('/api/kalender/subscribe-info',
+$router->get('/api/calendar/subscribe-info',
     [\App\Http\Controllers\CalendarController::class, 'subscribeInfo'],
     [new AuthMiddleware()]
 );
-$router->post('/api/kalender/subscribe-regenerate',
+$router->post('/api/calendar/subscribe-regenerate',
     [\App\Http\Controllers\CalendarController::class, 'subscribeRegenerate'],
     [new AuthMiddleware()]
 );
 
 // iCal-Feed — Token in der URL ist die Auth (Cookie-Auth funktioniert
 // fuer externe Kalender-Apps nicht). Bewusst KEINE AuthMiddleware.
-$router->get('/api/kalender/ical/{token:[a-f0-9]{20,64}}',
+$router->get('/api/calendar/ical/{token:[a-f0-9]{20,64}}',
     [\App\Http\Controllers\CalendarController::class, 'icalFeed'],
 );
 

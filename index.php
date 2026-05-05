@@ -45,7 +45,10 @@ use App\Helpers\Flash;
             </div>
             <?php include __DIR__ . '/assets/components/index/stats.php' ?>
             <?php include __DIR__ . '/assets/components/index/setup-checklist.php' ?>
-            <?php include __DIR__ . '/assets/components/index/changelog.php' ?>
+            <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" style="margin-top:var(--space-xl);">
+                <?php include __DIR__ . '/assets/components/index/changelog.php' ?>
+                <?php include __DIR__ . '/assets/components/index/blog.php' ?>
+            </div>
 
             <!-- Content sections: generous spacing between groups -->
             <div class="intra__tile" data-section="documents" style="margin-top:var(--space-xl)">
@@ -55,7 +58,7 @@ use App\Helpers\Flash;
             <div class="intra__tile" data-section="applications" style="margin-top:var(--space-lg)">
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="mb-0">Eigene Anträge</h4>
-                    <a href="<?= BASE_PATH ?>antrag/select.php" class="ignis-btn ignis-btn--sm ignis-btn--soft-success"><i class="fa-solid fa-plus"></i> Antrag einreichen</a>
+                    <a href="<?= BASE_PATH ?>forms/select" class="ignis-btn ignis-btn--sm ignis-btn--soft-success"><i class="fa-solid fa-plus"></i> Antrag einreichen</a>
                 </div>
                 <?php include __DIR__ . '/assets/components/index/applications.php' ?>
             </div>

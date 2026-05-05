@@ -58,10 +58,17 @@ abstract class Controller
      * HTTP-Redirect relativ zum BASE_PATH und harter exit.
      * `never`-Return signalisiert dem Type-Checker, dass nach diesem Aufruf
      * nichts mehr läuft.
+     *
+     * Auto-Translation: Legacy-deutsche Pfade (`'kalender'`, `'manv/board'`,
+     * etc.) werden via `UrlMap::translateRelative()` transparent auf die
+     * kanonischen englischen Pfade uebersetzt. Vorteil: bestehende Calls
+     * wie `$this->redirect('kalender')` liefern direkt `/calendar` ohne
+     * extra 301-Hop, kein Edit pro Call-Site noetig.
      */
     protected function redirect(string $relativePath): never
     {
-        header('Location: ' . BASE_PATH . $relativePath);
+        $translated = \App\Http\UrlMap::translateRelative($relativePath);
+        header('Location: ' . BASE_PATH . ($translated ?? $relativePath));
         exit;
     }
 

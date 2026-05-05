@@ -36,7 +36,7 @@ class DocumentController extends Controller
     public function visualEditor(): void
     {
         $this->requireAuth();
-        if (!Gate::allows('mitarbeiter.manageDocs')) {
+        if (!Gate::allows('personnel.manageDocs')) {
             Flash::set('error', 'no-permissions');
             $this->redirect('index');
         }

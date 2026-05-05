@@ -31,7 +31,7 @@
 // die Resolve-Priorität, falls ein Element mehrere data-*-card-Attribute
 // trägt (was nicht vorkommen sollte).
 const SOURCES = [
-    { attr: 'data-mitarbeiter-card', kind: 'mitarbeiter', path: (id) => '/api/v1/mitarbeiter/' + encodeURIComponent(id) + '/card' },
+    { attr: 'data-mitarbeiter-card', kind: 'mitarbeiter', path: (id) => '/api/v1/personnel/' + encodeURIComponent(id) + '/card' },
     { attr: 'data-user-card',        kind: 'user',        path: (id) => '/api/v1/users/'       + encodeURIComponent(id) + '/card' },
     { attr: 'data-poi-card',         kind: 'poi',         path: (id) => '/api/v1/pois/'        + encodeURIComponent(id) + '/card' },
     { attr: 'data-vehicle-card',     kind: 'vehicle',     path: (id) => '/api/v1/vehicles/'    + encodeURIComponent(id) + '/card' },

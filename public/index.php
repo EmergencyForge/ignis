@@ -65,6 +65,19 @@ if (preg_match('#\.php$#', $rawPath) && !str_ends_with($rawPath, 'index.php')) {
     $rawPath = $cleanPath;
 }
 
+// Legacy-deutsche Pfade -> kanonische englische Pfade.
+// 301 (GET/HEAD) bzw. 308 (POST/PUT/DELETE/PATCH — preserves Method+Body, RFC 7538).
+// Greift VOR dem /api/v1-Block, sodass `/api/v1/kalender/...` auch erfasst wird.
+$canonical = \App\Http\UrlMap::translatePath($rawPath);
+if ($canonical !== null && $canonical !== $rawPath) {
+    $query = parse_url($rawUri, PHP_URL_QUERY);
+    $cleanUri = $canonical . ($query !== null ? '?' . $query : '');
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    $status = ($method === 'GET' || $method === 'HEAD') ? 301 : 308;
+    Response::redirect($cleanUri, $status)->send();
+    exit;
+}
+
 // API-Versionierung. Canonical ab jetzt: `/api/v1/...`. Eingehende
 // Anfragen auf `/api/v1/X` werden für die Route-Dispatch intern auf
 // `/api/X` zurückgeschrieben (alle Routen bleiben am alten Pfad

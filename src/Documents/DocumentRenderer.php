@@ -15,7 +15,7 @@ class DocumentRenderer
     private Environment $twig;
     private string $templatePath;
 
-    public function __construct(PDO $pdo, string $templatePath = __DIR__ . '/../../dokumente/templates')
+    public function __construct(PDO $pdo, string $templatePath = __DIR__ . '/../../documents/templates')
     {
         $this->pdo = $pdo;
         $this->templatePath = $templatePath;

@@ -56,7 +56,7 @@ final class RoutesSmokeTest extends FeatureTestCase
     {
         // Mehrere Auth-protected Routen kurz anpicken — wenn eine 200
         // statt 302 liefert, ist die AuthMiddleware nicht mehr eingehängt.
-        $response = $this->get('/benutzer/list');
+        $response = $this->get('/users/list');
         $this->assertSame(302, $response->status, 'Erwartet Redirect auf Login, bekommen ' . $response->status);
     }
 

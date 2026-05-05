@@ -9,7 +9,7 @@ use App\Http\Request;
 use App\Http\Response;
 use App\KnowledgeBase\KBHelper;
 use App\Logging\Logger;
-use App\Policies\MitarbeiterPolicy;
+use App\Policies\PersonnelPolicy;
 use App\Policies\FireIncidentPolicy;
 use App\Policies\VehiclePolicy;
 use App\Policies\DocumentPolicy;
@@ -186,7 +186,7 @@ final class SystemController
             }
 
             // Templates
-            $templatePath = realpath(dirname(__DIR__, 4) . '/dokumente/templates/');
+            $templatePath = realpath(dirname(__DIR__, 4) . '/documents/templates/');
             $data['templates'] = [
                 'count' => $templatePath ? count(glob($templatePath . '/*.html.twig') ?: []) : 0,
             ];
@@ -338,7 +338,7 @@ final class SystemController
                 $results[] = ['module' => 'Wissensdatenbank', 'icon' => 'fa-book-medical', 'items' => $kbResults];
             }
 
-            if (MitarbeiterPolicy::viewList()) {
+            if (PersonnelPolicy::viewList()) {
                 $items = $this->searchMitarbeiter($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'Mitarbeiter', 'icon' => 'fa-users', 'items' => $items];
@@ -359,7 +359,7 @@ final class SystemController
                 }
             }
 
-            if (MitarbeiterPolicy::viewList()) {
+            if (PersonnelPolicy::viewList()) {
                 $items = $this->searchDocuments($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'Dokumente', 'icon' => 'fa-file-lines', 'items' => $items];
@@ -438,7 +438,7 @@ final class SystemController
             $items[] = [
                 'title'    => $row['title'],
                 'subtitle' => $snippet ?? ($row['subtitle'] ?: ''),
-                'url'      => 'wissensdb/entry.php?id=' . $row['id'],
+                'url'      => 'lexicon/entry.php?id=' . $row['id'],
             ];
         }
         return $items;
@@ -633,7 +633,7 @@ final class SystemController
             $items[] = [
                 'title'    => $row['identifier'],
                 'subtitle' => $subtitle,
-                'url'      => 'settings/fahrzeuge/fahrzeuge/index.php',
+                'url'      => 'settings/vehicles/vehicles/index.php',
             ];
         }
         return $items;
@@ -677,7 +677,7 @@ final class SystemController
             $items[] = [
                 'title'    => $row['title'],
                 'subtitle' => $subtitle,
-                'url'      => 'settings/fahrzeuge/defekte/index.php',
+                'url'      => 'settings/vehicles/defects/index.php',
             ];
         }
         return $items;

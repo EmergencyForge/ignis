@@ -24,7 +24,7 @@ use App\Http\Controllers\Api\FireController;
 use App\Http\Controllers\Api\HospitalAvailabilityController;
 use App\Http\Controllers\Api\KlinikCodeController;
 use App\Http\Controllers\Api\KnowledgebaseController;
-use App\Http\Controllers\Api\ManvController;
+use App\Http\Controllers\Api\MciController;
 use App\Http\Controllers\Api\PersonnelController;
 use App\Http\Controllers\Api\PersonnelProfileController;
 use App\Http\Controllers\Api\PoiDepartmentsController;
@@ -211,8 +211,8 @@ $router->get(   '/api/knowledgebase/search',     [KnowledgebaseController::class
 // ============================================================================
 //  MANV (Massenanfall) — refactored
 // ============================================================================
-$router->match(['GET', 'POST'], '/api/manv/api',     [ManvController::class, 'handle'], $auth);
-$router->match(['GET', 'POST'], '/api/manv-api.php', [ManvController::class, 'handle'], $auth);
+$router->match(['GET', 'POST'], '/api/mci/api',     [MciController::class, 'handle'], $auth);
+$router->match(['GET', 'POST'], '/api/mci-api.php', [MciController::class, 'handle'], $auth);
 
 // ============================================================================
 //  Personnel (Mitarbeiter-Admin-UI) — vollständig refactored

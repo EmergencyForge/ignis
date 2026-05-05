@@ -20,7 +20,7 @@ class TwigToCanvasConverter
 
     private string $templatePath;
 
-    public function __construct(string $templatePath = __DIR__ . '/../../dokumente/templates')
+    public function __construct(string $templatePath = __DIR__ . '/../../documents/templates')
     {
         $this->templatePath = rtrim($templatePath, '/\\');
     }

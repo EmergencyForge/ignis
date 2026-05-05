@@ -91,7 +91,7 @@ $stepNum = 1;
 
         <?php $stepNum++;
         $done = $doneDienstgrade; ?>
-        <a href="<?= BASE_PATH ?>settings/personal/dienstgrade/index" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>settings/personnel/ranks/index" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Dienstgrade anlegen</strong>
@@ -101,7 +101,7 @@ $stepNum = 1;
 
         <?php $stepNum++;
         $done = $doneQuali; ?>
-        <a href="<?= BASE_PATH ?>settings/personal/qualird/index" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>settings/personnel/ambskills/index" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Qualifikationen konfigurieren</strong>
@@ -111,7 +111,7 @@ $stepNum = 1;
 
         <?php $stepNum++;
         $done = $doneRollen; ?>
-        <a href="<?= BASE_PATH ?>benutzer/rollen/index" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>users/rollen/index" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Rollen & Berechtigungen einrichten</strong>
@@ -121,7 +121,7 @@ $stepNum = 1;
 
         <?php $stepNum++;
         $done = $doneMitarbeiter; ?>
-        <a href="<?= BASE_PATH ?>mitarbeiter/list" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>personnel/list" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Ersten Mitarbeiter erstellen</strong>
@@ -144,7 +144,7 @@ $stepNum = 1;
             </a>
 
             <?php $done = $doneFahrzeuge; ?>
-            <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index" class="setup-step <?= $done ? 'done' : '' ?>">
+            <a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index" class="setup-step <?= $done ? 'done' : '' ?>">
                 <span class="setup-step-icon" style="background:rgba(255,255,255,0.06);color:var(--text-dimmed);"><?= $done ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-truck" style="font-size:0.65rem"></i>' ?></span>
                 <span class="setup-step-text">
                     <strong>Fahrzeug anlegen</strong>

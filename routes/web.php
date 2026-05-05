@@ -31,13 +31,13 @@ declare(strict_types=1);
  * @var \App\Http\Router $router
  */
 
-use App\Http\Controllers\AntragController;
+use App\Http\Controllers\FormsController;
 use App\Http\Controllers\CalendarController;
-use App\Http\Controllers\EinsatzController;
+use App\Http\Controllers\FiretabController;
 use App\Http\Controllers\EnotfController;
-use App\Http\Controllers\FahrtenbuchController;
-use App\Http\Controllers\ManvController;
-use App\Http\Controllers\MitarbeiterController;
+use App\Http\Controllers\LogbookController;
+use App\Http\Controllers\MciController;
+use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
@@ -90,7 +90,7 @@ $router->match(['GET', 'POST'], '/login', $loginPage);
 
 $userAuth = [new AuthMiddleware()];
 
-$router->get('/benutzer/list',     [UserController::class, 'index'], $userAuth);
+$router->get('/users/list',     [UserController::class, 'index'], $userAuth);
 
 // edit.php: GET → edit(), POST (mit ?new=1) → update() — Dispatcher-Closure
 $benutzerEditDispatch = function (\App\Http\Request $request) {
@@ -102,32 +102,32 @@ $benutzerEditDispatch = function (\App\Http\Request $request) {
     }
     return \App\Http\Response::empty();
 };
-$router->match(['GET', 'POST'], '/benutzer/edit',     $benutzerEditDispatch, $userAuth);
+$router->match(['GET', 'POST'], '/users/edit',     $benutzerEditDispatch, $userAuth);
 
-$router->match(['GET', 'POST'], '/benutzer/delete',     [UserController::class, 'destroy'], $userAuth);
+$router->match(['GET', 'POST'], '/users/delete',     [UserController::class, 'destroy'], $userAuth);
 
-$router->get('/benutzer/auditlog',     [UserController::class, 'auditlog'], $userAuth);
+$router->get('/users/audit-log',     [UserController::class, 'auditlog'], $userAuth);
 
-$router->match(['GET', 'POST'], '/benutzer/registration-codes',     [UserController::class, 'registrationCodes'], $userAuth);
+$router->match(['GET', 'POST'], '/users/registration-codes',     [UserController::class, 'registrationCodes'], $userAuth);
 
-$router->match(['GET', 'POST'], '/benutzer/toggle-active',     [UserController::class, 'setActive'], $userAuth);
+$router->match(['GET', 'POST'], '/users/toggle-active',     [UserController::class, 'setActive'], $userAuth);
 
 // Rollen-Verwaltung
-$router->get('/benutzer/rollen',           [RoleController::class, 'index'], $userAuth);
-$router->get('/benutzer/rollen/',          [RoleController::class, 'index'], $userAuth);
-$router->get('/benutzer/rollen/index',     [RoleController::class, 'index'], $userAuth);
+$router->get('/users/roles',           [RoleController::class, 'index'], $userAuth);
+$router->get('/users/roles/',          [RoleController::class, 'index'], $userAuth);
+$router->get('/users/roles/index',     [RoleController::class, 'index'], $userAuth);
 
-$router->post('/benutzer/rollen/create',     [RoleController::class, 'store'], $userAuth);
+$router->post('/users/roles/create',     [RoleController::class, 'store'], $userAuth);
 
-$router->post('/benutzer/rollen/update',     [RoleController::class, 'update'], $userAuth);
+$router->post('/users/roles/update',     [RoleController::class, 'update'], $userAuth);
 
-$router->post('/benutzer/rollen/delete',     [RoleController::class, 'destroy'], $userAuth);
+$router->post('/users/roles/delete',     [RoleController::class, 'destroy'], $userAuth);
 
 // ----------------------------------------------------------------------------
 //  Antrag-Modul
 //
 //  Das komplette Antragssystem (Urlaub, Beförderung, etc.) läuft über den
-//  AntragController mit Eloquent-Models. Alle Permission-Checks sind über
+//  FormsController mit Eloquent-Models. Alle Permission-Checks sind über
 //  Policies abgedeckt — die einzelne Antrags-Ansicht prüft Ownership
 //  im Controller, weil dort der Antrag erst geladen wird.
 //
@@ -137,23 +137,23 @@ $router->post('/benutzer/rollen/delete',     [RoleController::class, 'destroy'],
 // ----------------------------------------------------------------------------
 
 $antragAuth       = [new AuthMiddleware()];
-$antragCreateAuth = [new AuthMiddleware(), new PolicyMiddleware('antrag.create')];
-$antragDecideAuth = [new AuthMiddleware(), new PolicyMiddleware('antrag.decide')];
-$antragListAuth   = [new AuthMiddleware(), new PolicyMiddleware('antrag.viewAny')];
+$antragCreateAuth = [new AuthMiddleware(), new PolicyMiddleware('forms.create')];
+$antragDecideAuth = [new AuthMiddleware(), new PolicyMiddleware('forms.decide')];
+$antragListAuth   = [new AuthMiddleware(), new PolicyMiddleware('forms.viewAny')];
 
-$router->get('/antrag/select',      [AntragController::class, 'selectType'], $antragAuth);
+$router->get('/forms/select',      [FormsController::class, 'selectType'], $antragAuth);
 
-$router->get('/antrag/create',      [AntragController::class, 'create'], $antragCreateAuth);
-$router->post('/antrag/create',     [AntragController::class, 'store'],  $antragCreateAuth);
+$router->get('/forms/create',      [FormsController::class, 'create'], $antragCreateAuth);
+$router->post('/forms/create',     [FormsController::class, 'store'],  $antragCreateAuth);
 
-// view() prüft intern Gate::denies('antrag.view', $antrag) mit dem geladenen
+// view() prüft intern Gate::denies('forms.view', $antrag) mit dem geladenen
 // Model — deshalb nur AuthMiddleware hier, keine PolicyMiddleware.
-$router->get('/antrag/view',        [AntragController::class, 'view'], $antragAuth);
+$router->get('/forms/view',        [FormsController::class, 'view'], $antragAuth);
 
-$router->get('/antrag/admin/list',      [AntragController::class, 'adminList'], $antragListAuth);
+$router->get('/forms/admin/list',      [FormsController::class, 'adminList'], $antragListAuth);
 
-$router->get('/antrag/admin/view',      [AntragController::class, 'adminView'], $antragDecideAuth);
-$router->post('/antrag/admin/view',     [AntragController::class, 'decide'],    $antragDecideAuth);
+$router->get('/forms/admin/view',      [FormsController::class, 'adminView'], $antragDecideAuth);
+$router->post('/forms/admin/view',     [FormsController::class, 'decide'],    $antragDecideAuth);
 
 // ----------------------------------------------------------------------------
 //  Benachrichtigungen-Modul
@@ -170,10 +170,10 @@ $notifMarkAuth   = [new AuthMiddleware(), new PolicyMiddleware('notification.mar
 $notifDeleteAuth = [new AuthMiddleware(), new PolicyMiddleware('notification.delete')];
 
 // GET → Liste
-$router->get('/benachrichtigungen',           [NotificationController::class, 'index'], $notifIndexAuth);
-$router->get('/benachrichtigungen/',          [NotificationController::class, 'index'], $notifIndexAuth);
-$router->get('/benachrichtigungen/index',     [NotificationController::class, 'index'], $notifIndexAuth);
-$router->get('/benachrichtigungen/index.php', [NotificationController::class, 'index'], $notifIndexAuth);
+$router->get('/notifications',           [NotificationController::class, 'index'], $notifIndexAuth);
+$router->get('/notifications/',          [NotificationController::class, 'index'], $notifIndexAuth);
+$router->get('/notifications/index',     [NotificationController::class, 'index'], $notifIndexAuth);
+$router->get('/notifications/index.php', [NotificationController::class, 'index'], $notifIndexAuth);
 
 // POST-Dispatcher anhand $_POST['action']. Gate::authorize() wirft bei
 // fehlender Berechtigung eine AuthorizationException, die im globalen
@@ -202,10 +202,10 @@ $notifPostDispatch = function (\App\Http\Request $request) {
     return \App\Http\Response::empty();
 };
 
-$router->post('/benachrichtigungen',           $notifPostDispatch, [new AuthMiddleware()]);
-$router->post('/benachrichtigungen/',          $notifPostDispatch, [new AuthMiddleware()]);
-$router->post('/benachrichtigungen/index',     $notifPostDispatch, [new AuthMiddleware()]);
-$router->post('/benachrichtigungen/index.php', $notifPostDispatch, [new AuthMiddleware()]);
+$router->post('/notifications',           $notifPostDispatch, [new AuthMiddleware()]);
+$router->post('/notifications/',          $notifPostDispatch, [new AuthMiddleware()]);
+$router->post('/notifications/index',     $notifPostDispatch, [new AuthMiddleware()]);
+$router->post('/notifications/index.php', $notifPostDispatch, [new AuthMiddleware()]);
 
 // ----------------------------------------------------------------------------
 //  Fahrtenbuch-Modul
@@ -216,18 +216,18 @@ $router->post('/benachrichtigungen/index.php', $notifPostDispatch, [new AuthMidd
 //  Auth-Szenarien selbst via `requireAnyContext()` / `Gate::denies`.
 // ----------------------------------------------------------------------------
 
-$fahrtListAuth   = [new AuthMiddleware(), new PolicyMiddleware('fahrt.viewList')];
+$fahrtListAuth   = [new AuthMiddleware(), new PolicyMiddleware('logbook.viewList')];
 
-$router->get('/fahrtenbuch',           [FahrtenbuchController::class, 'index'], $fahrtListAuth);
-$router->get('/fahrtenbuch/',          [FahrtenbuchController::class, 'index'], $fahrtListAuth);
-$router->get('/fahrtenbuch/index',     [FahrtenbuchController::class, 'index'], $fahrtListAuth);
-$router->get('/fahrtenbuch/index.php', [FahrtenbuchController::class, 'index'], $fahrtListAuth);
+$router->get('/logbook',           [LogbookController::class, 'index'], $fahrtListAuth);
+$router->get('/logbook/',          [LogbookController::class, 'index'], $fahrtListAuth);
+$router->get('/logbook/index',     [LogbookController::class, 'index'], $fahrtListAuth);
+$router->get('/logbook/index.php', [LogbookController::class, 'index'], $fahrtListAuth);
 
 // POST /fahrtenbuch/actions.php — Multi-Context-Dispatcher.
 // Keine Router-Middleware, weil die drei Auth-Kontexte (userid/fahrername/
 // einsatz_vehicle_id) im Controller via `requireAnyContext()` geprüft werden.
 $fahrtPostDispatch = function (\App\Http\Request $request) {
-    $controller = app(FahrtenbuchController::class);
+    $controller = app(LogbookController::class);
     $action     = (string) ($request->post['action'] ?? '');
 
     match ($action) {
@@ -243,7 +243,7 @@ $fahrtPostDispatch = function (\App\Http\Request $request) {
     return \App\Http\Response::empty();
 };
 
-$router->post('/fahrtenbuch/actions',     $fahrtPostDispatch);
+$router->post('/logbook/actions',     $fahrtPostDispatch);
 
 // ----------------------------------------------------------------------------
 //  Kalender-Modul
@@ -258,13 +258,48 @@ $router->post('/fahrtenbuch/actions',     $fahrtPostDispatch);
 $calendarViewAuth   = [new AuthMiddleware(), new PolicyMiddleware('calendar.view')];
 $calendarCreateAuth = [new AuthMiddleware(), new PolicyMiddleware('calendar.create')];
 
-$router->get('/kalender',          [CalendarController::class, 'index'],         $calendarViewAuth);
-$router->get('/kalender/',         [CalendarController::class, 'index'],         $calendarViewAuth);
-$router->get('/kalender/view',     [CalendarController::class, 'show'],          $calendarViewAuth);
-$router->post('/kalender/create',  [CalendarController::class, 'store'],         $calendarCreateAuth);
-$router->post('/kalender/update',  [CalendarController::class, 'update'],        $calendarViewAuth);
-$router->post('/kalender/delete',  [CalendarController::class, 'destroy'],       $calendarViewAuth);
-$router->post('/kalender/respond', [CalendarController::class, 'respondInvite'], $calendarViewAuth);
+$router->get('/calendar',          [CalendarController::class, 'index'],         $calendarViewAuth);
+$router->get('/calendar/',         [CalendarController::class, 'index'],         $calendarViewAuth);
+$router->get('/calendar/view',     [CalendarController::class, 'show'],          $calendarViewAuth);
+$router->post('/calendar/create',  [CalendarController::class, 'store'],         $calendarCreateAuth);
+$router->post('/calendar/update',  [CalendarController::class, 'update'],        $calendarViewAuth);
+$router->post('/calendar/delete',  [CalendarController::class, 'destroy'],       $calendarViewAuth);
+$router->post('/calendar/respond', [CalendarController::class, 'respondInvite'], $calendarViewAuth);
+
+// ----------------------------------------------------------------------------
+//  Lexikon-Modul (ehemals /wissensdb/-Folder am Webroot)
+//
+//  Die Templates liegen unter `templates/lexicon/` — der Router thunkt
+//  jede Route auf das passende Legacy-Template, das die alte Auth/Render-
+//  Logik selbst enthaelt. Spaeter wird das in einen sauberen
+//  LexiconController + slim Templates aufgeteilt; vorerst ist diese
+//  Bridge-Variante minimal-invasiv.
+//
+//  Auth: AuthMiddleware mit `KB_PUBLIC_ACCESS`-Flag-Inversion. Wenn das
+//  Flag true ist, ist das Lexikon public lesbar; sonst Login-Pflicht.
+//  Edit/Manage-Routen erfordern zusaetzlich Permissions, die intern
+//  in den Templates geprueft werden.
+// ----------------------------------------------------------------------------
+
+$lexiconAuth = [new AuthMiddleware('KB_PUBLIC_ACCESS', invert: true)];
+
+$lexiconPage = function (string $template) {
+    return function () use ($template) {
+        require __DIR__ . '/../templates/lexicon/' . $template;
+        return \App\Http\Response::empty();
+    };
+};
+
+$router->match(['GET', 'POST'], '/lexicon',                $lexiconPage('index.php'),           $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/',               $lexiconPage('index.php'),           $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/index',          $lexiconPage('index.php'),           $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/view',           $lexiconPage('view.php'),            $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/create',         $lexiconPage('create.php'),          $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/edit',           $lexiconPage('edit.php'),            $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/archive',        $lexiconPage('archive.php'),         $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/pin',            $lexiconPage('pin.php'),             $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/manage-taxonomy',$lexiconPage('manage-taxonomy.php'), $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/toggle-editor',  $lexiconPage('toggle-editor.php'),   $lexiconAuth);
 
 // ----------------------------------------------------------------------------
 //  Mitarbeiter-Modul
@@ -278,59 +313,59 @@ $router->post('/kalender/respond', [CalendarController::class, 'respondInvite'],
 //  (nicht durch dieses Modul) und sind nicht Teil dieser Registrierung.
 // ----------------------------------------------------------------------------
 
-$mitarbeiterListAuth    = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.viewList')];
-$mitarbeiterViewAuth    = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.view')];
-$mitarbeiterCreateAuth  = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.create')];
-$mitarbeiterDeleteAuth  = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.delete')];
-$mitarbeiterDocsAuth    = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.manageDocs')];
-$mitarbeiterCommentAuth = [new AuthMiddleware(), new PolicyMiddleware('mitarbeiter.deleteComments')];
+$mitarbeiterListAuth    = [new AuthMiddleware(), new PolicyMiddleware('personnel.viewList')];
+$mitarbeiterViewAuth    = [new AuthMiddleware(), new PolicyMiddleware('personnel.view')];
+$mitarbeiterCreateAuth  = [new AuthMiddleware(), new PolicyMiddleware('personnel.create')];
+$mitarbeiterDeleteAuth  = [new AuthMiddleware(), new PolicyMiddleware('personnel.delete')];
+$mitarbeiterDocsAuth    = [new AuthMiddleware(), new PolicyMiddleware('personnel.manageDocs')];
+$mitarbeiterCommentAuth = [new AuthMiddleware(), new PolicyMiddleware('personnel.deleteComments')];
 
-$router->get('/mitarbeiter/list',     [MitarbeiterController::class, 'index'], $mitarbeiterListAuth);
+$router->get('/personnel/list',     [PersonnelController::class, 'index'], $mitarbeiterListAuth);
 
-$router->get('/mitarbeiter/profile',     [MitarbeiterController::class, 'show'], $mitarbeiterViewAuth);
+$router->get('/personnel/profile',     [PersonnelController::class, 'show'], $mitarbeiterViewAuth);
 
 // Profile POST-Dispatcher anhand $_POST['new']
 // 1=Update / 4=Fachdienste / 5=Notiz → mitarbeiter.update
 // 6=Dokument erstellen → mitarbeiter.manageDocs
 $mitarbeiterProfileDispatch = function (\App\Http\Request $request) {
-    $controller = app(MitarbeiterController::class);
+    $controller = app(PersonnelController::class);
     $action     = (string) ($request->post['new'] ?? '');
 
     switch ($action) {
         case '1':
-            \App\Auth\Gate::authorize('mitarbeiter.update');
+            \App\Auth\Gate::authorize('personnel.update');
             $controller->update();
             break;
         case '4':
-            \App\Auth\Gate::authorize('mitarbeiter.update');
+            \App\Auth\Gate::authorize('personnel.update');
             $controller->updateFachdienste();
             break;
         case '5':
-            \App\Auth\Gate::authorize('mitarbeiter.update');
+            \App\Auth\Gate::authorize('personnel.update');
             $controller->addNote();
             break;
         case '6':
-            \App\Auth\Gate::authorize('mitarbeiter.manageDocs');
+            \App\Auth\Gate::authorize('personnel.manageDocs');
             $controller->createDocument();
             break;
         default:
-            \App\Auth\Gate::authorize('mitarbeiter.view');
+            \App\Auth\Gate::authorize('personnel.view');
             $controller->show();
     }
     return \App\Http\Response::empty();
 };
 
-$router->post('/mitarbeiter/profile',     $mitarbeiterProfileDispatch, [new AuthMiddleware()]);
+$router->post('/personnel/profile',     $mitarbeiterProfileDispatch, [new AuthMiddleware()]);
 
 // store() ist ein AJAX-JSON-Endpoint (gibt JSON zurück, nicht Redirect)
-$router->post('/mitarbeiter/create',     [MitarbeiterController::class, 'store'], $mitarbeiterCreateAuth);
+$router->post('/personnel/create',     [PersonnelController::class, 'store'], $mitarbeiterCreateAuth);
 
 // destroy() läuft per GET (Legacy — könnte später auf DELETE umgestellt werden,
 // aber im aktuellen UI wird das via Link getriggert)
-$router->get('/mitarbeiter/delete',     [MitarbeiterController::class, 'destroy'], $mitarbeiterDeleteAuth);
+$router->get('/personnel/delete',     [PersonnelController::class, 'destroy'], $mitarbeiterDeleteAuth);
 
 // Dokument-View (GET — zeigt Dokumenten-Details), dokument-delete (POST mit CSRF)
-$router->get('/mitarbeiter/dokument-view',     [MitarbeiterController::class, 'showDocument'], [new AuthMiddleware()]);
+$router->get('/personnel/document-view',     [PersonnelController::class, 'showDocument'], [new AuthMiddleware()]);
 // Legacy-Alias: alte Notification-Rows + Personal-Log-Eintraege verlinken
 // auf "assets/functions/docredir.php?docid=…", die Datei existiert nicht
 // mehr. Public/index.php strippt das .php-Suffix per 301 ab, weshalb die
@@ -343,18 +378,18 @@ $router->match(['GET', 'HEAD'], '/assets/functions/docredir', function (\App\Htt
     return \App\Http\Response::redirect($url, 308);
 });
 
-$router->post('/mitarbeiter/dokument-delete',     [MitarbeiterController::class, 'deleteDocument'], $mitarbeiterDocsAuth);
+$router->post('/personnel/document-delete',     [PersonnelController::class, 'deleteDocument'], $mitarbeiterDocsAuth);
 
 // Comment-Delete — wird per Link in der Detail-Liste getriggert, daher GET.
-$router->get('/mitarbeiter/comment-delete',     [MitarbeiterController::class, 'deleteComment'], $mitarbeiterCommentAuth);
+$router->get('/personnel/comment-delete',     [PersonnelController::class, 'deleteComment'], $mitarbeiterCommentAuth);
 
 // ----------------------------------------------------------------------------
 //  MANV-Modul
 //
-//  MANV-Lagen (Massenanfall von Verletzten). Der ManvController ruft intern
-//  `ensure('manv.<ability>', redirectTo: 'index.php')` auf — das liefert
+//  MANV-Lagen (Massenanfall von Verletzten). Der MciController ruft intern
+//  `ensure('mci.<ability>', redirectTo: 'index.php')` auf — das liefert
 //  benutzerfreundliche Redirects statt 403. Deshalb hier nur AuthMiddleware,
-//  keine PolicyMiddleware (analog zu AntragController::view).
+//  keine PolicyMiddleware (analog zu FormsController::view).
 //
 //  Die `.php`-Varianten bleiben registriert, weil sowohl Navbar als auch
 //  alle Templates noch auf die Legacy-URLs mit .php-Suffix verlinken.
@@ -362,24 +397,24 @@ $router->get('/mitarbeiter/comment-delete',     [MitarbeiterController::class, '
 
 $manvAuth = [new AuthMiddleware()];
 
-$router->get('/manv/',          [ManvController::class, 'index'], $manvAuth);
-$router->get('/manv/index',     [ManvController::class, 'index'], $manvAuth);
+$router->get('/mci/',          [MciController::class, 'index'], $manvAuth);
+$router->get('/mci/index',     [MciController::class, 'index'], $manvAuth);
 
-$router->get('/manv/board',     [ManvController::class, 'board'], $manvAuth);
+$router->get('/mci/board',     [MciController::class, 'board'], $manvAuth);
 
-$router->get('/manv/create',      [ManvController::class, 'create'], $manvAuth);
-$router->post('/manv/create',     [ManvController::class, 'store'],  $manvAuth);
+$router->get('/mci/create',      [MciController::class, 'create'], $manvAuth);
+$router->post('/mci/create',     [MciController::class, 'store'],  $manvAuth);
 
-$router->get('/manv/edit',      [ManvController::class, 'edit'],   $manvAuth);
-$router->post('/manv/edit',     [ManvController::class, 'update'], $manvAuth);
+$router->get('/mci/edit',      [MciController::class, 'edit'],   $manvAuth);
+$router->post('/mci/edit',     [MciController::class, 'update'], $manvAuth);
 
-$router->get('/manv/log',     [ManvController::class, 'log'], $manvAuth);
+$router->get('/mci/log',     [MciController::class, 'log'], $manvAuth);
 
-$router->get('/manv/patient-create',      [ManvController::class, 'patientCreate'], $manvAuth);
-$router->post('/manv/patient-create',     [ManvController::class, 'patientStore'],  $manvAuth);
+$router->get('/mci/patient-create',      [MciController::class, 'patientCreate'], $manvAuth);
+$router->post('/mci/patient-create',     [MciController::class, 'patientStore'],  $manvAuth);
 
-$router->get('/manv/patient-view',      [ManvController::class, 'patientView'],   $manvAuth);
-$router->post('/manv/patient-view',     [ManvController::class, 'patientUpdate'], $manvAuth);
+$router->get('/mci/patient-view',      [MciController::class, 'patientView'],   $manvAuth);
+$router->post('/mci/patient-view',     [MciController::class, 'patientUpdate'], $manvAuth);
 
 // Ressourcen: kombinierter Endpoint.
 //   GET  ?delete_id=Y   → ressourceDelete() (Legacy-GET-Delete, via showConfirm)
@@ -387,7 +422,7 @@ $router->post('/manv/patient-view',     [ManvController::class, 'patientUpdate']
 //   POST action=create  → ressourceStore()
 //   POST action=edit    → ressourceUpdate()
 $manvRessourcenGet = function (\App\Http\Request $request) {
-    $controller = app(ManvController::class);
+    $controller = app(MciController::class);
     if (isset($request->query['delete_id'])) {
         $controller->ressourceDelete();
     } else {
@@ -396,7 +431,7 @@ $manvRessourcenGet = function (\App\Http\Request $request) {
     return \App\Http\Response::empty();
 };
 $manvRessourcenPost = function (\App\Http\Request $request) {
-    $controller = app(ManvController::class);
+    $controller = app(MciController::class);
     $action     = (string) ($request->post['action'] ?? '');
     if ($action === 'create') {
         $controller->ressourceStore();
@@ -407,8 +442,8 @@ $manvRessourcenPost = function (\App\Http\Request $request) {
     }
     return \App\Http\Response::empty();
 };
-$router->get('/manv/ressourcen',      $manvRessourcenGet,  $manvAuth);
-$router->post('/manv/ressourcen',     $manvRessourcenPost, $manvAuth);
+$router->get('/mci/resources',      $manvRessourcenGet,  $manvAuth);
+$router->post('/mci/resources',     $manvRessourcenPost, $manvAuth);
 
 // ----------------------------------------------------------------------------
 //  Einsatz-Modul (FireTab)
@@ -435,28 +470,28 @@ $router->post('/manv/ressourcen',     $manvRessourcenPost, $manvAuth);
 $einsatzAuth    = [new AuthMiddleware('FIRE_INCIDENT_REQUIRE_USER_AUTH'), FiveMCspMiddleware::class];
 $einsatzAdminAuth = [new AuthMiddleware()];
 
-$router->get('/einsatz/',          [EinsatzController::class, 'index'], $einsatzAuth);
-$router->get('/einsatz/index',     [EinsatzController::class, 'index'], $einsatzAuth);
+$router->get('/firetab/',          [FiretabController::class, 'index'], $einsatzAuth);
+$router->get('/firetab/index',     [FiretabController::class, 'index'], $einsatzAuth);
 
-$router->get('/einsatz/list',     [EinsatzController::class, 'list'], $einsatzAuth);
+$router->get('/firetab/list',     [FiretabController::class, 'list'], $einsatzAuth);
 
-$router->get('/einsatz/view',     [EinsatzController::class, 'view'], $einsatzAuth);
+$router->get('/firetab/view',     [FiretabController::class, 'view'], $einsatzAuth);
 
-$router->get('/einsatz/create',      [EinsatzController::class, 'createForm'], $einsatzAuth);
-$router->post('/einsatz/create',     [EinsatzController::class, 'store'],     $einsatzAuth);
+$router->get('/firetab/create',      [FiretabController::class, 'createForm'], $einsatzAuth);
+$router->post('/firetab/create',     [FiretabController::class, 'store'],     $einsatzAuth);
 
-$router->get('/einsatz/login-fahrzeug',      [EinsatzController::class, 'loginForm'], $einsatzAuth);
-$router->post('/einsatz/login-fahrzeug',     [EinsatzController::class, 'login'],     $einsatzAuth);
+$router->get('/firetab/login-vehicle',      [FiretabController::class, 'loginForm'], $einsatzAuth);
+$router->post('/firetab/login-vehicle',     [FiretabController::class, 'login'],     $einsatzAuth);
 
-$router->post('/einsatz/actions',     [EinsatzController::class, 'dispatchAction'], $einsatzAuth);
+$router->post('/firetab/actions',     [FiretabController::class, 'dispatchAction'], $einsatzAuth);
 
-$router->get('/einsatz/asu',     [EinsatzController::class, 'asuForm'], $einsatzAuth);
+$router->get('/firetab/asu',     [FiretabController::class, 'asuForm'], $einsatzAuth);
 
-$router->get('/einsatz/fahrtenbuch',     [EinsatzController::class, 'fireTabFahrtenbuch'], $einsatzAuth);
+$router->get('/firetab/logbook',     [FiretabController::class, 'fireTabFahrtenbuch'], $einsatzAuth);
 
-$router->get('/einsatz/statusmeldungen',     [EinsatzController::class, 'statusmeldungen'], $einsatzAuth);
+$router->get('/firetab/status-reports',     [FiretabController::class, 'statusmeldungen'], $einsatzAuth);
 
-$router->get('/einsatz/admin/list',     [EinsatzController::class, 'adminList'], $einsatzAdminAuth);
+$router->get('/firetab/admin/list',     [FiretabController::class, 'adminList'], $einsatzAdminAuth);
 
 // Legacy-API-URL-Kompatibilität: alte JS-POSTs auf die neuen Endpoints
 // weiterreichen. 308 bewahrt Methode + Body.
@@ -468,8 +503,8 @@ $einsatzApiRedirect = function (string $target): \Closure {
         return \App\Http\Response::redirect($url, 308);
     };
 };
-$router->match(['GET', 'POST'], '/einsatz/lagekarte-api.php', $einsatzApiRedirect('/api/fire/lagekarte'));
-$router->match(['GET', 'POST'], '/einsatz/status-api.php',    $einsatzApiRedirect('/api/fire/status'));
+$router->match(['GET', 'POST'], '/firetab/lagekarte-api.php', $einsatzApiRedirect('/api/fire/lagekarte'));
+$router->match(['GET', 'POST'], '/firetab/status-api.php',    $einsatzApiRedirect('/api/fire/status'));
 
 // ----------------------------------------------------------------------------
 //  Settings-Modul
@@ -486,10 +521,10 @@ $router->match(['GET', 'POST'], '/einsatz/status-api.php',    $einsatzApiRedirec
 $settingsAuth = [new AuthMiddleware()];
 
 // Antrag-Settings
-$router->get('/settings/antrag/list',       [\App\Http\Controllers\Settings\AntragSettingsController::class, 'listAction'],  $settingsAuth);
-$router->get('/settings/antrag/create',     [\App\Http\Controllers\Settings\AntragSettingsController::class, 'createForm'], $settingsAuth);
-$router->get('/settings/antrag/edit',       [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
-$router->post('/settings/antrag/edit',      [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
+$router->get('/settings/forms/list',       [\App\Http\Controllers\Settings\AntragSettingsController::class, 'listAction'],  $settingsAuth);
+$router->get('/settings/forms/create',     [\App\Http\Controllers\Settings\AntragSettingsController::class, 'createForm'], $settingsAuth);
+$router->get('/settings/forms/edit',       [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
+$router->post('/settings/forms/edit',      [\App\Http\Controllers\Settings\AntragSettingsController::class, 'edit'],       $settingsAuth);
 
 // Dashboard-Settings
 $router->get('/settings/dashboard/index',      [\App\Http\Controllers\Settings\DashboardController::class, 'index'], $settingsAuth);
@@ -516,49 +551,49 @@ $router->post('/settings/enotf/kategorien/update',     [\App\Http\Controllers\Se
 $router->post('/settings/enotf/kategorien/delete',     [\App\Http\Controllers\Settings\EnotfController::class, 'categoryDestroy'], $settingsAuth);
 
 // Fahrzeuge-Settings (Fahrzeuge + Beladelisten + Defekte)
-$router->get('/settings/fahrzeuge/fahrzeuge/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'index'],   $settingsAuth);
-$router->post('/settings/fahrzeuge/fahrzeuge/create',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'store'],   $settingsAuth);
-$router->post('/settings/fahrzeuge/fahrzeuge/update',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'update'],  $settingsAuth);
-$router->post('/settings/fahrzeuge/fahrzeuge/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'], $settingsAuth);
-$router->get('/settings/fahrzeuge/beladelisten/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladelistenIndex'], $settingsAuth);
-$router->post('/settings/fahrzeuge/beladelisten/beladung_handler',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladungHandler'], $settingsAuth);
-$router->get('/settings/fahrzeuge/defekte/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);
+$router->get('/settings/vehicles/vehicles/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'index'],   $settingsAuth);
+$router->post('/settings/vehicles/vehicles/create',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'store'],   $settingsAuth);
+$router->post('/settings/vehicles/vehicles/update',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'update'],  $settingsAuth);
+$router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'], $settingsAuth);
+$router->get('/settings/vehicles/vehload/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladelistenIndex'], $settingsAuth);
+$router->post('/settings/vehicles/vehload/beladung_handler',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladungHandler'], $settingsAuth);
+$router->get('/settings/vehicles/defects/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);
 // Legacy-Alias: alte Notification-Rows verlinken auf die ".../index.php"-Variante.
 // Public/index.php's Auto-Clean-Logik laesst Pfade die auf "index.php" enden
 // als Ausnahme durch (sonst gaebe es Redirect-Loops bei der Frontcontroller-
 // Datei selbst), deshalb braucht's hier einen expliziten Alias.
-$router->get('/settings/fahrzeuge/defekte/index.php', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);
+$router->get('/settings/vehicles/defects/index.php', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);
 
 // Federation-Settings
 $router->get('/settings/federation/index',      [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);
 $router->post('/settings/federation/index',     [\App\Http\Controllers\Settings\FederationController::class, 'index'], $settingsAuth);
 
 // Medikamente-Settings
-$router->get('/settings/medikamente/index',     [\App\Http\Controllers\Settings\MedikamenteController::class, 'index'],   $settingsAuth);
-$router->post('/settings/medikamente/create',     [\App\Http\Controllers\Settings\MedikamenteController::class, 'store'],   $settingsAuth);
-$router->post('/settings/medikamente/update',     [\App\Http\Controllers\Settings\MedikamenteController::class, 'update'],  $settingsAuth);
-$router->post('/settings/medikamente/delete',     [\App\Http\Controllers\Settings\MedikamenteController::class, 'destroy'], $settingsAuth);
+$router->get('/settings/medications/index',     [\App\Http\Controllers\Settings\MedikamenteController::class, 'index'],   $settingsAuth);
+$router->post('/settings/medications/create',     [\App\Http\Controllers\Settings\MedikamenteController::class, 'store'],   $settingsAuth);
+$router->post('/settings/medications/update',     [\App\Http\Controllers\Settings\MedikamenteController::class, 'update'],  $settingsAuth);
+$router->post('/settings/medications/delete',     [\App\Http\Controllers\Settings\MedikamenteController::class, 'destroy'], $settingsAuth);
 
 // Personal-Settings (Dienstgrade + 3x Qualifikationen)
-$router->get('/settings/personal/dienstgrade/index',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradeIndex'], $settingsAuth);
-$router->post('/settings/personal/dienstgrade/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradStore'],  $settingsAuth);
-$router->post('/settings/personal/dienstgrade/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradUpdate'], $settingsAuth);
-$router->post('/settings/personal/dienstgrade/delete',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradDelete'], $settingsAuth);
+$router->get('/settings/personnel/ranks/index',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradeIndex'], $settingsAuth);
+$router->post('/settings/personnel/ranks/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradStore'],  $settingsAuth);
+$router->post('/settings/personnel/ranks/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradUpdate'], $settingsAuth);
+$router->post('/settings/personnel/ranks/delete',     [\App\Http\Controllers\Settings\PersonalController::class, 'dienstgradDelete'], $settingsAuth);
 
-$router->get('/settings/personal/qualifw/index',     [\App\Http\Controllers\Settings\PersonalController::class, 'fwQualiIndex'], $settingsAuth);
-$router->post('/settings/personal/qualifw/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'fwQualiStore'],  $settingsAuth);
-$router->post('/settings/personal/qualifw/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'fwQualiUpdate'], $settingsAuth);
-$router->post('/settings/personal/qualifw/delete',     [\App\Http\Controllers\Settings\PersonalController::class, 'fwQualiDelete'], $settingsAuth);
+$router->get('/settings/personnel/fdskills/index',     [\App\Http\Controllers\Settings\PersonalController::class, 'fwQualiIndex'], $settingsAuth);
+$router->post('/settings/personnel/fdskills/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'fwQualiStore'],  $settingsAuth);
+$router->post('/settings/personnel/fdskills/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'fwQualiUpdate'], $settingsAuth);
+$router->post('/settings/personnel/fdskills/delete',     [\App\Http\Controllers\Settings\PersonalController::class, 'fwQualiDelete'], $settingsAuth);
 
-$router->get('/settings/personal/qualird/index',     [\App\Http\Controllers\Settings\PersonalController::class, 'rdQualiIndex'], $settingsAuth);
-$router->post('/settings/personal/qualird/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'rdQualiStore'],  $settingsAuth);
-$router->post('/settings/personal/qualird/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'rdQualiUpdate'], $settingsAuth);
-$router->post('/settings/personal/qualird/delete',     [\App\Http\Controllers\Settings\PersonalController::class, 'rdQualiDelete'], $settingsAuth);
+$router->get('/settings/personnel/ambskills/index',     [\App\Http\Controllers\Settings\PersonalController::class, 'rdQualiIndex'], $settingsAuth);
+$router->post('/settings/personnel/ambskills/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'rdQualiStore'],  $settingsAuth);
+$router->post('/settings/personnel/ambskills/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'rdQualiUpdate'], $settingsAuth);
+$router->post('/settings/personnel/ambskills/delete',     [\App\Http\Controllers\Settings\PersonalController::class, 'rdQualiDelete'], $settingsAuth);
 
-$router->get('/settings/personal/qualifd/index',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiIndex'], $settingsAuth);
-$router->post('/settings/personal/qualifd/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiStore'],  $settingsAuth);
-$router->post('/settings/personal/qualifd/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiUpdate'], $settingsAuth);
-$router->post('/settings/personal/qualifd/delete',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiDelete'], $settingsAuth);
+$router->get('/settings/personnel/specialties/index',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiIndex'], $settingsAuth);
+$router->post('/settings/personnel/specialties/create',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiStore'],  $settingsAuth);
+$router->post('/settings/personnel/specialties/update',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiUpdate'], $settingsAuth);
+$router->post('/settings/personnel/specialties/delete',     [\App\Http\Controllers\Settings\PersonalController::class, 'fdQualiDelete'], $settingsAuth);
 
 // POI-Settings
 $router->get('/settings/pois/index',     [\App\Http\Controllers\Settings\PoiController::class, 'index'],   $settingsAuth);
@@ -574,7 +609,8 @@ $router->post('/settings/pois/departments-reset-availability',     [\App\Http\Co
 
 // System-Settings
 $router->get('/settings/system/index',        [\App\Http\Controllers\Settings\SystemController::class, 'index'],       $settingsAuth);
-$router->post('/settings/system/index',       [\App\Http\Controllers\Settings\SystemController::class, 'index'],       $settingsAuth);
+$router->get('/settings/system/updater',      [\App\Http\Controllers\Settings\SystemController::class, 'updater'],     $settingsAuth);
+$router->post('/settings/system/updater',     [\App\Http\Controllers\Settings\SystemController::class, 'updater'],     $settingsAuth);
 $router->get('/settings/system/config',       [\App\Http\Controllers\Settings\SystemController::class, 'config'],      $settingsAuth);
 $router->post('/settings/system/config',      [\App\Http\Controllers\Settings\SystemController::class, 'config'],      $settingsAuth);
 $router->get('/settings/system/performance', [\App\Http\Controllers\Settings\SystemController::class, 'performance'], $settingsAuth);
@@ -599,7 +635,7 @@ $settingsApiRedirect = function (string $target): \Closure {
         return \App\Http\Response::redirect($url, 308);
     };
 };
-$router->match(['GET', 'POST'], '/settings/fahrzeuge/defekte/handler.php',       $settingsApiRedirect('/api/vehicles/defects-handler'));
+$router->match(['GET', 'POST'], '/settings/vehicles/defects/handler.php',       $settingsApiRedirect('/api/vehicles/defects-handler'));
 $router->match(['GET', 'POST'], '/settings/pois/departments-update-sort.php',   $settingsApiRedirect('/api/pois/departments-sort'));
 $router->match(['GET', 'POST'], '/settings/system/regenerate-api-key.php',      $settingsApiRedirect('/api/system/regenerate-api-key'));
 

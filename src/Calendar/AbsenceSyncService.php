@@ -17,7 +17,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  * Wahrheit, nur eine Bridge-Row, die der Cascade-Logik (DELETE/UPDATE)
  * folgt.
  *
- * Pattern: aufrufen aus AntragController::decide() nach $antrag->save():
+ * Pattern: aufrufen aus FormsController::decide() nach $antrag->save():
  *
  *   if ($isUrlaub && $newStatus === Antrag::STATUS_ACCEPTED) {
  *       AbsenceSyncService::syncFromAntrag($antrag, $vonDatum, $bisDatum);
@@ -41,7 +41,7 @@ final class AbsenceSyncService
 
     /**
      * Prueft, ob der gegebene Antrag ein Urlaubs-/Abwesenheits-Antrag ist
-     * (anhand des Typ-Namens). Zentrale Stelle, damit AntragController
+     * (anhand des Typ-Namens). Zentrale Stelle, damit FormsController
      * und Console-Backfill dieselbe Regel benutzen.
      */
     public static function isAbsenceAntrag(\App\Models\Antrag $antrag): bool

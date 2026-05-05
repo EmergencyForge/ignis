@@ -40,7 +40,7 @@ $timeAgo = static function (string $iso): string {
     return date('d.m.Y', $ts);
 };
 ?>
-<div class="intra__tile intra__changelog" data-section="changelog" style="margin-top:var(--space-xl);">
+<div class="intra__tile intra__changelog" data-section="changelog">
     <div class="flex items-center justify-between mb-3">
         <h4 class="mb-0">
             <i class="fa-solid fa-rss" style="color:var(--main-color); margin-right:0.4rem;"></i>
@@ -54,7 +54,7 @@ $timeAgo = static function (string $iso): string {
             <i class="fa-regular fa-newspaper"></i>
             <div>
                 <strong>Noch keine Changelogs geladen.</strong>
-                <span>Der Cache ist leer — der naechste Cron-Lauf (alle 30 Min.) befuellt ihn. Manuell: <code>php cli/intra.php changelog:refresh</code>.</span>
+                <span>Der Cache ist leer — der nächste Cron-Lauf (alle 30 Min.) befüllt ihn. Manuell: <code>php cli/intra.php changelog:refresh</code>.</span>
             </div>
         </div>
     <?php else: ?>
