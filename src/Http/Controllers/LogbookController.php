@@ -9,7 +9,7 @@ use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Http\Requests\Fahrtenbuch\CreateFahrtRequest;
 use App\Http\Requests\Fahrtenbuch\UpdateFahrtRequest;
-use App\Models\Fahrt;
+use App\Models\LogbookEntry;
 use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -61,8 +61,8 @@ class LogbookController extends Controller
         try {
             // Stats — direkt via Capsule, weil wir Aggregate brauchen
             $stats = [
-                'total'    => (int) Fahrt::query()->count(),
-                'total_km' => (float) (Fahrt::query()->sum('kilometer') ?? 0),
+                'total'    => (int) LogbookEntry::query()->count(),
+                'total_km' => (float) (LogbookEntry::query()->sum('kilometer') ?? 0),
             ];
 
             // Filtered query — joint manuell auf intra_fahrzeuge für vehicle_name
@@ -77,7 +77,7 @@ class LogbookController extends Controller
             if ($filterVehicle > 0) {
                 $query->where('fb.vehicle_id', $filterVehicle);
             }
-            if ($filterFahrttyp !== '' && isset(Fahrt::FAHRTTYPEN[$filterFahrttyp])) {
+            if ($filterFahrttyp !== '' && isset(LogbookEntry::FAHRTTYPEN[$filterFahrttyp])) {
                 $query->where('fb.fahrttyp', $filterFahrttyp);
             }
             if ($filterDateFrom !== '') {
@@ -107,8 +107,8 @@ class LogbookController extends Controller
             'filterFahrttyp' => $filterFahrttyp,
             'filterDateFrom' => $filterDateFrom,
             'filterDateTo'   => $filterDateTo,
-            'fahrttypen'    => Fahrt::FAHRTTYPEN,
-            'fahrttypBadges' => Fahrt::FAHRTTYP_BADGES,
+            'fahrttypen'    => LogbookEntry::FAHRTTYPEN,
+            'fahrttypBadges' => LogbookEntry::FAHRTTYP_BADGES,
         ]);
     }
 
@@ -149,7 +149,7 @@ class LogbookController extends Controller
 
         $userId = (int) ($_SESSION['userid'] ?? 0);
 
-        $fahrt = new Fahrt();
+        $fahrt = new LogbookEntry();
         $fahrt->vehicle_id         = $vehicleId;
         $fahrt->vehicle_identifier = $vehicleIdentifier;
         $fahrt->datum              = $data['datum'];
@@ -192,8 +192,8 @@ class LogbookController extends Controller
             $this->redirectByReturnTo();
         }
 
-        /** @var Fahrt|null $entry */
-        $entry = Fahrt::find($data['id']);
+        /** @var LogbookEntry|null $entry */
+        $entry = LogbookEntry::find($data['id']);
         if ($entry === null) {
             Flash::error('Eintrag nicht gefunden.');
             $this->redirectByReturnTo();
@@ -262,7 +262,7 @@ class LogbookController extends Controller
             $this->redirectByReturnTo();
         }
 
-        Fahrt::query()->where('id', $id)->delete();
+        LogbookEntry::query()->where('id', $id)->delete();
 
         (new AuditLogger($this->pdo))->log(
             (int) $_SESSION['userid'],

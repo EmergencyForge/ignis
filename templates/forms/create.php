@@ -3,8 +3,8 @@
 /**
  * View: Antrag stellen (Form)
  *
- * @var \App\Models\AntragTyp                                                  $typ
- * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AntragField> $felder
+ * @var \App\Models\FormType                                                  $typ
+ * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\FormField> $felder
  * @var \stdClass                                                              $mitarbeiter
  * @var \PDO                                                                   $pdo
  */
@@ -14,7 +14,7 @@ use App\Helpers\Flash;
 $SITE_TITLE = htmlspecialchars($typ->name) . ' stellen';
 
 /**
- * Mappt einen AntragField-Auto-Fill-Key auf den entsprechenden Mitarbeiter-Wert.
+ * Mappt einen FormField-Auto-Fill-Key auf den entsprechenden Mitarbeiter-Wert.
  */
 $autoFill = function (string $key, \stdClass $mitarbeiter): string {
     return match ($key) {

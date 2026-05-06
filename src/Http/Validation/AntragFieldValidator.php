@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Validation;
 
 use App\Exceptions\ValidationException;
-use App\Models\AntragField;
+use App\Models\FormField;
 use Respect\Validation\Exceptions\ValidationException as RespectValidationException;
 use Respect\Validation\Validator as v;
 
@@ -14,7 +14,7 @@ use Respect\Validation\Validator as v;
  *
  * Ein Antragstyp definiert seine Felder via `intra_antrag_felder`, Shape
  * und Typen sind also erst zur Laufzeit bekannt. Deshalb bauen wir die
- * Regel-Map aus den geladenen AntragField-Models und prüfen das POST-
+ * Regel-Map aus den geladenen FormField-Models und prüfen das POST-
  * Array dagegen.
  *
  * Verhalten:
@@ -36,7 +36,7 @@ final class AntragFieldValidator
     private const MAX_TEL_LENGTH      = 50;
 
     /**
-     * @param  iterable<AntragField> $felder
+     * @param  iterable<FormField> $felder
      * @param  array<string,mixed>   $input  Typischerweise `$_POST`
      * @return array<string,string>  Map Feldname → gereinigter String
      * @throws ValidationException
@@ -83,7 +83,7 @@ final class AntragFieldValidator
         return $validated;
     }
 
-    private static function validatorFor(AntragField $feld): v
+    private static function validatorFor(FormField $feld): v
     {
         return match ($feld->feldtyp) {
             'email'    => v::stringType()->email()->length(1, self::MAX_EMAIL_LENGTH),
@@ -98,7 +98,7 @@ final class AntragFieldValidator
         };
     }
 
-    private static function selectRule(AntragField $feld): v
+    private static function selectRule(FormField $feld): v
     {
         $options = $feld->selectOptions();
         if ($options === []) {

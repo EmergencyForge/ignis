@@ -144,7 +144,7 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                         <?php endif; ?>
 
                         <?php if (strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') === 0): ?>
-                            <?php if ((int) $antrag->cirs_status === \App\Models\Antrag::STATUS_ACCEPTED): ?>
+                            <?php if ((int) $antrag->cirs_status === \App\Models\Form::STATUS_ACCEPTED): ?>
                                 <div class="ignis-alert ignis-alert--success mt-4">
                                     <i class="fa-solid fa-calendar-check ignis-alert__icon"></i>
                                     <div class="ignis-alert__body">Diese Abwesenheit ist im <a href="<?= BASE_PATH ?>calendar">Kalender</a> als grauer Ganztags-Eintrag für alle Kollegen sichtbar.</div>

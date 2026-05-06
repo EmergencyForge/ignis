@@ -53,7 +53,7 @@ class UpdateProfileRequest extends FormRequest
             'id'         => 'Mitarbeiter-ID muss eine positive Zahl sein.',
             'fullname'   => 'Name ist Pflichtfeld (1–255 Zeichen).',
             'gebdatum'   => 'Geburtsdatum muss im Format YYYY-MM-DD vorliegen.',
-            'dienstgrad' => 'Dienstgrad muss eine positive Zahl oder 0 sein.',
+            'dienstgrad' => 'Rank muss eine positive Zahl oder 0 sein.',
             'discordtag' => 'Discord-Tag darf maximal 255 Zeichen haben.',
             'telefonnr'  => 'Telefonnummer darf maximal 100 Zeichen haben.',
             'dienstnr'   => 'Dienstnummer darf nur Buchstaben, Ziffern und Bindestriche enthalten und muss mindestens eine Ziffer haben.',

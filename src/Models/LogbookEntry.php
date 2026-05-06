@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \DateTime   $created_at
  * @property \DateTime   $updated_at
  */
-class Fahrt extends EloquentModel
+class LogbookEntry extends EloquentModel
 {
     protected $table = 'intra_fahrtenbuch';
 

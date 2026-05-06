@@ -647,7 +647,7 @@ HTML;
             }
         }
 
-        // Legacy: Dienstgrad-Text und Qualifikation auflösen (wie DocumentRenderer)
+        // Legacy: Rank-Text und Qualifikation auflösen (wie DocumentRenderer)
         $dienstgradText = '';
         if (isset($customData['erhalter_rang']) && $customData['erhalter_rang']) {
             $options = $this->getFieldOptions('db_dg', null);
@@ -760,7 +760,7 @@ HTML;
             }
         }
 
-        // Legacy-Dienstgrad/Quali aufloesen
+        // Legacy-Rank/Quali aufloesen
         $dienstgradText = '';
         if (!empty($sampleData['erhalter_rang'])) {
             $options = $this->getFieldOptions('db_dg', null);
@@ -830,7 +830,7 @@ HTML;
             'inhalt' => 'Beispieltext für die Vorschau',
             'issuer' => [
                 'fullname' => 'Aussteller Name',
-                'dienstgrad_text' => 'Dienstgrad',
+                'dienstgrad_text' => 'Rank',
                 'zusatz' => '',
             ],
             'SYSTEM_NAME' => defined('SYSTEM_NAME') ? SYSTEM_NAME : 'System',

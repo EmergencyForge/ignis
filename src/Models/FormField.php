@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int         $id
  * @property int         $antragstyp_id
- * @property string      $feldname     Technischer Name (POST-Key, AntragData-Match)
+ * @property string      $feldname     Technischer Name (POST-Key, FormData-Match)
  * @property string      $label        Anzeigetext im Formular
  * @property string      $feldtyp      enum: text|textarea|number|date|select|checkbox|email|time|tel
  * @property string|null $optionen     Newline-getrennt für select-Typ
@@ -27,9 +27,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $hinweistext
  * @property bool        $readonly
  * @property string|null $auto_fill    fullname|dienstnr|dienstgrad|discordtag|fullname_dienstnr
- * @property-read AntragTyp $typ
+ * @property-read FormType $typ
  */
-class AntragField extends Model
+class FormField extends Model
 {
     protected $table = 'intra_antrag_felder';
 
@@ -43,7 +43,7 @@ class AntragField extends Model
 
     public function typ(): BelongsTo
     {
-        return $this->belongsTo(AntragTyp::class, 'antragstyp_id', 'id');
+        return $this->belongsTo(FormType::class, 'antragstyp_id', 'id');
     }
 
     /**

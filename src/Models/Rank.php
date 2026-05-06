@@ -7,13 +7,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Eloquent-Model für `intra_mitarbeiter_dienstgrade` — Dienstgrad-Definitionen.
+ * Eloquent-Model für `intra_mitarbeiter_dienstgrade` — Rank-Definitionen.
  *
  * Dienstgrade haben drei Namens-Varianten (neutral, männlich, weiblich) und
  * werden je nach Mitarbeiter-Geschlecht angezeigt. Der Helper `displayName($g)`
  * spart das wiederholte if/elseif in Templates.
  *
- * Der `archive`-Flag markiert einen "Archiv-Dienstgrad", der für entlassene
+ * Der `archive`-Flag markiert einen "Archiv-Rank", der für entlassene
  * Mitarbeiter benutzt wird (statt sie zu löschen).
  *
  * @property int    $id
@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property bool   $archive
  * @property \DateTime $created_at
  */
-class Dienstgrad extends Model
+class Rank extends Model
 {
     protected $table = 'intra_mitarbeiter_dienstgrade';
 
@@ -38,7 +38,7 @@ class Dienstgrad extends Model
 
     public function mitarbeiter(): HasMany
     {
-        return $this->hasMany(Mitarbeiter::class, 'dienstgrad', 'id');
+        return $this->hasMany(Personnel::class, 'dienstgrad', 'id');
     }
 
     /**

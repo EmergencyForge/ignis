@@ -54,8 +54,8 @@ $SITE_TITLE = 'Antragsübersicht';
                                 <?php foreach ($antraege as $antrag):
                                     $status = $statusDisplay[$antrag->cirs_status] ?? ['class' => 'secondary', 'text' => 'Unbekannt', 'icon' => ''];
                                     $bgColor = match ($antrag->cirs_status) {
-                                        \App\Models\Antrag::STATUS_REJECTED => 'rgba(255,0,0,.05)',
-                                        \App\Models\Antrag::STATUS_ACCEPTED => 'rgba(0,255,0,.05)',
+                                        \App\Models\Form::STATUS_REJECTED => 'rgba(255,0,0,.05)',
+                                        \App\Models\Form::STATUS_ACCEPTED => 'rgba(0,255,0,.05)',
                                         default => '',
                                     };
                                     $rowStyle  = $bgColor !== '' ? "style=\"--bs-table-striped-bg: {$bgColor}; --bs-table-bg: {$bgColor};\"" : '';

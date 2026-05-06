@@ -269,7 +269,7 @@ return [
                             'quick_action' => [
                                 'type'   => 'modal',
                                 'target' => 'dienstgrad-create',
-                                'label'  => 'Neuen Dienstgrad anlegen',
+                                'label'  => 'Neuen Rank anlegen',
                             ],
                         ],
                         [

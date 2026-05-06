@@ -3,9 +3,9 @@
  * View: Mitarbeiter-Übersicht
  *
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mitarbeiter> $mitarbeiter
- * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dienstgrad>  $dienstgrade  (aktive, sortiert)
- * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\RdQuali>     $rdQualis
- * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\FwQuali>     $fwQualis
+ * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Rank>  $dienstgrade  (aktive, sortiert)
+ * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AmbSkill>     $rdQualis
+ * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\FdSkill>     $fwQualis
  * @var bool                                                                    $showArchive
  * @var \PDO                                                                    $pdo
  */

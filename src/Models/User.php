@@ -64,7 +64,7 @@ class User extends Model
      */
     public function mitarbeiter(): BelongsTo
     {
-        return $this->belongsTo(Mitarbeiter::class, 'aktenid', 'id');
+        return $this->belongsTo(Personnel::class, 'aktenid', 'id');
     }
 
     /**

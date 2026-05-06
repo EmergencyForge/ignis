@@ -122,7 +122,7 @@ class CalendarPolicy
         }
 
         try {
-            $row = \App\Models\Mitarbeiter::query()
+            $row = \App\Models\Personnel::query()
                 ->where('discordtag', $discordId)
                 ->first(['id']);
             return $row ? (int) $row->id : null;

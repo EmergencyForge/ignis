@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Fahrtenbuch;
 
 use App\Http\Requests\FormRequest;
-use App\Models\Fahrt;
+use App\Models\LogbookEntry;
 use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
@@ -22,7 +22,7 @@ class UpdateFahrtRequest extends FormRequest
     {
         $dateRegex = '/^(\d{4}-\d{2}-\d{2}|\d{2}\.\d{2}\.\d{4})$/';
         $timeRegex = '/^\d{2}:\d{2}(:\d{2})?$/';
-        $allowedFahrttypen = array_keys(Fahrt::FAHRTTYPEN);
+        $allowedFahrttypen = array_keys(LogbookEntry::FAHRTTYPEN);
 
         return v::keySet(
             v::key('id',                 v::stringVal()->intVal()->positive()),

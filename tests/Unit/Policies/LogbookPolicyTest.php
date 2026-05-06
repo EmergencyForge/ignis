@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Policies;
 
-use App\Models\Fahrt;
+use App\Models\LogbookEntry;
 use App\Policies\LogbookPolicy;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -42,9 +42,9 @@ class LogbookPolicyTest extends TestCase
         $_SESSION['einsatz_operator_name'] = $operator;
     }
 
-    private function makeFahrt(array $attrs): Fahrt
+    private function makeFahrt(array $attrs): LogbookEntry
     {
-        $f = new Fahrt();
+        $f = new LogbookEntry();
         foreach ($attrs as $k => $v) {
             $f->$k = $v;
         }
@@ -111,7 +111,7 @@ class LogbookPolicyTest extends TestCase
         $this->loginAdmin(['logbook.manage']);
         $entry = $this->makeFahrt([
             'created_by'  => 999,
-            'source'      => Fahrt::SOURCE_ENOTF,
+            'source'      => LogbookEntry::SOURCE_ENOTF,
             'fahrer_name' => 'Other',
         ]);
         $this->assertTrue(LogbookPolicy::update($entry));
@@ -123,7 +123,7 @@ class LogbookPolicyTest extends TestCase
         $this->loginAdmin(['user']); // Kein admin/manage
         $entry = $this->makeFahrt([
             'created_by' => 42,       // matched session userid
-            'source'     => Fahrt::SOURCE_ENOTF,
+            'source'     => LogbookEntry::SOURCE_ENOTF,
             'fahrer_name' => 'Other',
         ]);
         $this->assertTrue(LogbookPolicy::update($entry));
@@ -135,7 +135,7 @@ class LogbookPolicyTest extends TestCase
         $this->loginEnotf('Müller');
         $entry = $this->makeFahrt([
             'created_by'  => 999,
-            'source'      => Fahrt::SOURCE_ENOTF,
+            'source'      => LogbookEntry::SOURCE_ENOTF,
             'fahrer_name' => 'Müller',
         ]);
         $this->assertTrue(LogbookPolicy::update($entry));
@@ -147,7 +147,7 @@ class LogbookPolicyTest extends TestCase
         $this->loginEnotf('Müller');
         $entry = $this->makeFahrt([
             'created_by'  => 999,
-            'source'      => Fahrt::SOURCE_ENOTF,
+            'source'      => LogbookEntry::SOURCE_ENOTF,
             'fahrer_name' => 'Schmidt',
         ]);
         $this->assertFalse(LogbookPolicy::update($entry));
@@ -159,7 +159,7 @@ class LogbookPolicyTest extends TestCase
         $this->loginEnotf('Müller');
         $entry = $this->makeFahrt([
             'created_by'  => 999,
-            'source'      => Fahrt::SOURCE_FIRETAB,
+            'source'      => LogbookEntry::SOURCE_FIRETAB,
             'fahrer_name' => 'Müller', // Name passt, aber Source nicht
         ]);
         $this->assertFalse(LogbookPolicy::update($entry));
@@ -171,7 +171,7 @@ class LogbookPolicyTest extends TestCase
         $this->loginFiretab(7, 'Schmidt');
         $entry = $this->makeFahrt([
             'created_by'  => 999,
-            'source'      => Fahrt::SOURCE_FIRETAB,
+            'source'      => LogbookEntry::SOURCE_FIRETAB,
             'fahrer_name' => 'Schmidt',
         ]);
         $this->assertTrue(LogbookPolicy::update($entry));
@@ -205,7 +205,7 @@ class LogbookPolicyTest extends TestCase
         $this->loginEnotf('Müller');
         $entry = $this->makeFahrt([
             'created_by'  => 999,
-            'source'      => Fahrt::SOURCE_ENOTF,
+            'source'      => LogbookEntry::SOURCE_ENOTF,
             'fahrer_name' => 'Müller',
         ]);
         $this->assertFalse(LogbookPolicy::delete($entry));

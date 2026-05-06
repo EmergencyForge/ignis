@@ -65,7 +65,7 @@ class PersonalController extends Controller
                 'archive'  => $archive,
             ]);
             Flash::set('rank', 'created');
-            $this->audit('Dienstgrad erstellt', 'Name: ' . $name, 'Dienstgrade');
+            $this->audit('Rank erstellt', 'Name: ' . $name, 'Dienstgrade');
         } catch (PDOException $e) {
             error_log('PDO Error (create dienstgrad): ' . $e->getMessage());
             Flash::set('error', 'exception');
@@ -102,7 +102,7 @@ class PersonalController extends Controller
                 'archive'  => $archive,
             ]);
             Flash::set('success', 'updated');
-            $this->audit('Dienstgrad aktualisiert [ID: ' . $id . ']', null, 'Dienstgrade');
+            $this->audit('Rank aktualisiert [ID: ' . $id . ']', null, 'Dienstgrade');
         } catch (PDOException $e) {
             error_log('PDO Error: ' . $e->getMessage());
             Flash::set('error', 'exception');
@@ -131,7 +131,7 @@ class PersonalController extends Controller
         try {
             Capsule::table('intra_mitarbeiter_dienstgrade')->where('id', $id)->delete();
             Flash::set('rank', 'deleted');
-            $this->audit('Dienstgrad gelöscht [ID: ' . $id . ']', null, 'Dienstgrade');
+            $this->audit('Rank gelöscht [ID: ' . $id . ']', null, 'Dienstgrade');
         } catch (PDOException $e) {
             error_log('PDO Delete Error: ' . $e->getMessage());
             Flash::set('error', 'exception');

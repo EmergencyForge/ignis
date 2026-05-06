@@ -55,7 +55,7 @@ class UserController extends Controller
         // (Discord-OAuth-First-Login). Wir fallen daher auf Discord-ID zurück.
         $linkedMitarbeiter = $user->mitarbeiter;
         if ($linkedMitarbeiter === null && !empty($user->discord_id)) {
-            $linkedMitarbeiter = \App\Models\Mitarbeiter::query()
+            $linkedMitarbeiter = \App\Models\Personnel::query()
                 ->where('discordtag', $user->discord_id)
                 ->first();
         }

@@ -11,10 +11,10 @@ use App\Helpers\Flash;
 use App\Helpers\UserHelper;
 use App\Http\Requests\Antraege\DecideAntragRequest;
 use App\Http\Validation\AntragFieldValidator;
-use App\Models\Antrag;
-use App\Models\AntragData;
-use App\Models\AntragField;
-use App\Models\AntragTyp;
+use App\Models\Form;
+use App\Models\FormData;
+use App\Models\FormField;
+use App\Models\FormType;
 use App\Notifications\NotificationManager;
 use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -26,10 +26,10 @@ class FormsController extends Controller
 {
     /** @var array<int,array{class:string,text:string,icon:string}> */
     private const STATUS_DISPLAY = [
-        Antrag::STATUS_IN_PROGRESS => ['class' => 'info',    'text' => 'In Bearbeitung', 'icon' => 'fa-regular fa-clock'],
-        Antrag::STATUS_REJECTED    => ['class' => 'danger',  'text' => 'Abgelehnt',      'icon' => 'fa-solid fa-circle-xmark'],
-        Antrag::STATUS_DEFERRED    => ['class' => 'warning', 'text' => 'Aufgeschoben',   'icon' => 'fa-solid fa-circle-pause'],
-        Antrag::STATUS_ACCEPTED    => ['class' => 'success', 'text' => 'Angenommen',     'icon' => 'fa-solid fa-circle-check'],
+        Form::STATUS_IN_PROGRESS => ['class' => 'info',    'text' => 'In Bearbeitung', 'icon' => 'fa-regular fa-clock'],
+        Form::STATUS_REJECTED    => ['class' => 'danger',  'text' => 'Abgelehnt',      'icon' => 'fa-solid fa-circle-xmark'],
+        Form::STATUS_DEFERRED    => ['class' => 'warning', 'text' => 'Aufgeschoben',   'icon' => 'fa-solid fa-circle-pause'],
+        Form::STATUS_ACCEPTED    => ['class' => 'success', 'text' => 'Angenommen',     'icon' => 'fa-solid fa-circle-check'],
     ];
 
     // -----------------------------------------------------------------------
@@ -44,7 +44,7 @@ class FormsController extends Controller
      */
     public function selectType(): void
     {
-        $typen = AntragTyp::query()
+        $typen = FormType::query()
             ->active()
             ->withCount('felder')
             ->get();
@@ -73,14 +73,14 @@ class FormsController extends Controller
             $this->redirect('index');
         }
 
-        /** @var AntragTyp|null $typ */
-        $typ = AntragTyp::query()->where('id', $typId)->where('aktiv', 1)->first();
+        /** @var FormType|null $typ */
+        $typ = FormType::query()->where('id', $typId)->where('aktiv', 1)->first();
         if ($typ === null) {
             Flash::set('error', 'Antragstyp nicht gefunden oder nicht aktiv.');
             $this->redirect('index');
         }
 
-        $felder = AntragField::query()
+        $felder = FormField::query()
             ->where('antragstyp_id', $typId)
             ->orderBy('sortierung')
             ->get();
@@ -111,14 +111,14 @@ class FormsController extends Controller
             $this->redirect('index');
         }
 
-        /** @var AntragTyp|null $typ */
-        $typ = AntragTyp::query()->where('id', $typId)->where('aktiv', 1)->first();
+        /** @var FormType|null $typ */
+        $typ = FormType::query()->where('id', $typId)->where('aktiv', 1)->first();
         if ($typ === null) {
             Flash::set('error', 'Antragstyp nicht gefunden oder nicht aktiv.');
             $this->redirect('index');
         }
 
-        $felder = AntragField::query()
+        $felder = FormField::query()
             ->where('antragstyp_id', $typId)
             ->orderBy('sortierung')
             ->get();
@@ -137,17 +137,17 @@ class FormsController extends Controller
         // Eindeutige Public-ID generieren (6 Stellen)
         do {
             $uniqueId = (string) random_int(100000, 999999);
-        } while (Antrag::query()->where('uniqueid', $uniqueId)->exists());
+        } while (Form::query()->where('uniqueid', $uniqueId)->exists());
 
         try {
             Capsule::connection()->transaction(function () use ($typ, $felder, $mitarbeiter, $uniqueId, $validated): void {
-                $antrag = new Antrag();
+                $antrag = new Form();
                 $antrag->uniqueid      = $uniqueId;
                 $antrag->antragstyp_id = $typ->id;
                 $antrag->name_dn       = $mitarbeiter->fullname . ' (' . $mitarbeiter->dienstnr . ')';
                 $antrag->dienstgrad    = $mitarbeiter->dienstgrad_name ?? null;
                 $antrag->discordid     = $_SESSION['discordtag'] ?? null;
-                $antrag->cirs_status   = Antrag::STATUS_IN_PROGRESS;
+                $antrag->cirs_status   = Form::STATUS_IN_PROGRESS;
                 $antrag->save();
 
                 foreach ($felder as $feld) {
@@ -155,7 +155,7 @@ class FormsController extends Controller
                         ? $this->resolveAutoFillValue($feld, $mitarbeiter)
                         : ($validated[$feld->feldname] ?? '');
 
-                    $data = new AntragData();
+                    $data = new FormData();
                     $data->antrag_id = $antrag->id;
                     $data->feldname  = $feld->feldname;
                     $data->wert      = $wert;
@@ -172,13 +172,13 @@ class FormsController extends Controller
     }
 
     /**
-     * Übersetzt einen `auto_fill`-Key aus AntragField in den Wert aus dem
+     * Übersetzt einen `auto_fill`-Key aus FormField in den Wert aus dem
      * aktuellen Mitarbeiter-Profil. Spiegel der gleichnamigen Template-
      * Logik in `templates/antraege/create.php` — hier server-seitig als
      * Source of Truth für readonly-Felder, damit client-seitiges Editieren
      * (DevTools) keine falschen Werte einschleusen kann.
      */
-    private function resolveAutoFillValue(AntragField $feld, \stdClass $mitarbeiter): string
+    private function resolveAutoFillValue(FormField $feld, \stdClass $mitarbeiter): string
     {
         $key = (string) ($feld->auto_fill ?? '');
         if ($key === '') {
@@ -210,8 +210,8 @@ class FormsController extends Controller
             $this->redirect('index');
         }
 
-        /** @var Antrag|null $antrag */
-        $antrag = Antrag::query()
+        /** @var Form|null $antrag */
+        $antrag = Form::query()
             ->with(['typ', 'daten'])
             ->where('uniqueid', $caseId)
             ->first();
@@ -242,7 +242,7 @@ class FormsController extends Controller
      */
     public function adminList(): void
     {
-        $antraege = Antrag::query()
+        $antraege = Form::query()
             ->with('typ')
             ->orderBy('time_added', 'desc')
             ->get();
@@ -266,8 +266,8 @@ class FormsController extends Controller
             $this->redirect('antrag/admin/list');
         }
 
-        /** @var Antrag|null $antrag */
-        $antrag = Antrag::query()
+        /** @var Form|null $antrag */
+        $antrag = Form::query()
             ->with(['typ', 'daten'])
             ->where('uniqueid', $caseId)
             ->first();
@@ -303,8 +303,8 @@ class FormsController extends Controller
             $this->redirect('antrag/admin/list');
         }
 
-        /** @var Antrag|null $antrag */
-        $antrag = Antrag::query()->where('uniqueid', $caseId)->first();
+        /** @var Form|null $antrag */
+        $antrag = Form::query()->where('uniqueid', $caseId)->first();
         if ($antrag === null) {
             Flash::set('error', 'Antrag nicht gefunden.');
             $this->redirect('antrag/admin/list');
@@ -345,7 +345,7 @@ class FormsController extends Controller
         // 'Urlaubsantrag', 'Urlaub', 'Freistellungsantrag', case-insensitive).
         $antrag->loadMissing('typ', 'daten');
         if (AbsenceSyncService::isAbsenceAntrag($antrag)) {
-            if ((int) $data['cirs_status'] === Antrag::STATUS_ACCEPTED) {
+            if ((int) $data['cirs_status'] === Form::STATUS_ACCEPTED) {
                 $vonDatum = (string) ($antrag->getFieldValue('von_datum') ?? '');
                 $bisDatum = (string) ($antrag->getFieldValue('bis_datum') ?? '');
                 AbsenceSyncService::syncFromAntrag($antrag, $vonDatum, $bisDatum);
@@ -356,7 +356,7 @@ class FormsController extends Controller
 
         // Notification an den Antragsteller
         $notificationManager = new NotificationManager($this->pdo);
-        $statusName          = Antrag::STATUS_LABELS[$data['cirs_status']] ?? 'Unbekannt';
+        $statusName          = Form::STATUS_LABELS[$data['cirs_status']] ?? 'Unbekannt';
         if ($antrag->discordid !== null && $antrag->discordid !== '') {
             $userId = $notificationManager->getUserIdByDiscordTag($antrag->discordid);
             if ($userId) {
@@ -380,10 +380,10 @@ class FormsController extends Controller
 
     /**
      * Lädt das Mitarbeiter-Profil zum aktuellen Discord-Tag aus der Session.
-     * Returns null wenn keine Discord-Session, kein Profil oder archivierter Dienstgrad.
+     * Returns null wenn keine Discord-Session, kein Profil oder archivierter Rank.
      *
      * Bewusst via Capsule (kein Mitarbeiter-Model in dieser Phase) — der
-     * geschlechts-bedingte Dienstgrad-Name ist sehr Mitarbeiter-spezifisch
+     * geschlechts-bedingte Rank-Name ist sehr Mitarbeiter-spezifisch
      * und gehört eigentlich in das Mitarbeiter-Modul, wenn das migriert wird.
      */
     private function loadCurrentMitarbeiter(): ?\stdClass
@@ -415,7 +415,7 @@ class FormsController extends Controller
      *
      * @return array<int,\stdClass>
      */
-    private function loadFieldsWithValues(Antrag $antrag): array
+    private function loadFieldsWithValues(Form $antrag): array
     {
         return Capsule::table('intra_antrag_felder as af')
             ->leftJoin('intra_antraege_daten as ad', function ($join) use ($antrag) {

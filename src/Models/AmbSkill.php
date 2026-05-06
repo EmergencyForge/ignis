@@ -17,7 +17,7 @@ namespace App\Models;
  * @property bool   $trainable
  * @property \DateTime $created_at
  */
-class RdQuali extends Model
+class AmbSkill extends Model
 {
     protected $table = 'intra_mitarbeiter_rdquali';
 

@@ -1,41 +1,3 @@
-<?php
-require_once __DIR__ . '/../../assets/config/config.php';
-require_once __DIR__ . '/../../vendor/autoload.php';
-require __DIR__ . '/../../assets/config/database.php';
-
-if (!isset($_SESSION['userid']) || !isset($_SESSION['permissions'])) {
-    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
-    header("Location: " . BASE_PATH . "login.php");
-    exit();
-}
-
-use App\Auth\Permissions;
-use App\Helpers\Flash;
-
-if (!Permissions::check(['admin', 'kb.edit'])) {
-    Flash::set('error', 'no-permissions');
-    header("Location: " . BASE_PATH . "wissensdb/index.php");
-    exit();
-}
-
-// Lade Kategorien mit Eintrags-Anzahl
-$catStmt = $pdo->query("
-    SELECT kc.*, kc_parent.name as parent_name,
-           (SELECT COUNT(*) FROM intra_kb_entries WHERE category_id = kc.id) as entry_count
-    FROM intra_kb_categories kc
-    LEFT JOIN intra_kb_categories kc_parent ON kc.parent_id = kc_parent.id
-    ORDER BY kc.sort_order ASC, kc.name ASC
-");
-$categories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Lade Tags mit Nutzungs-Anzahl
-$tagStmt = $pdo->query("
-    SELECT t.*, (SELECT COUNT(*) FROM intra_kb_entry_tags WHERE tag_id = t.id) as usage_count
-    FROM intra_kb_tags t
-    ORDER BY t.name ASC
-");
-$tags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
-?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -51,7 +13,7 @@ $tags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
             <nav class="admin-breadcrumb">
                 <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
                 <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
-                <a href="<?= BASE_PATH ?>wissensdb/index.php">Wissensdatenbank</a>
+                <a href="<?= BASE_PATH ?>lexicon/index">Wissensdatenbank</a>
                 <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
                 <span class="current">Kategorien & Tags</span>
             </nav>

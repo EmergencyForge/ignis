@@ -302,7 +302,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                     <option value="date">Datum</option>
                     <option value="number">Zahl</option>
                     <option value="select">Auswahlfeld (manuell)</option>
-                    <option value="db_dg">Dienstgrad-Auswahl (aus DB)</option>
+                    <option value="db_dg">Rank-Auswahl (aus DB)</option>
                     <option value="db_rdq">RD-Qualifikation (aus DB)</option>
                 </select>
             </div>

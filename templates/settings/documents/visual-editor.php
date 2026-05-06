@@ -233,8 +233,8 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 <li><a class="dropdown-item tft-var-insert" href="#" data-var="ausstellungsdatum">Ausstellungsdatum</a></li>
                 <li><a class="dropdown-item tft-var-insert" href="#" data-var="document_id">Dokumenten-ID</a></li>
                 <li><a class="dropdown-item tft-var-insert" href="#" data-var="issuer.fullname">Aussteller-Name</a></li>
-                <li><a class="dropdown-item tft-var-insert" href="#" data-var="issuer.dienstgrad_text">Aussteller-Dienstgrad</a></li>
-                <li><a class="dropdown-item tft-var-insert" href="#" data-var="dienstgrad_text">Dienstgrad (aufgel&ouml;st)</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="issuer.dienstgrad_text">Aussteller-Rank</a></li>
+                <li><a class="dropdown-item tft-var-insert" href="#" data-var="dienstgrad_text">Rank (aufgel&ouml;st)</a></li>
                 <li class="dropdown-header" style="font-size:0.68rem;">System</li>
                 <li><a class="dropdown-item tft-var-insert" href="#" data-var="SYSTEM_NAME">Organisationsname</a></li>
                 <li><a class="dropdown-item tft-var-insert" href="#" data-var="SERVER_CITY">Stadt</a></li>
@@ -436,7 +436,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
                 'suspendstring': 'bis auf unbestimmt',
                 'inhalt': 'Beispieltext für die Vorschau',
                 'issuer.fullname': 'Aussteller Name',
-                'issuer.dienstgrad_text': 'Dienstgrad',
+                'issuer.dienstgrad_text': 'Rank',
                 'issuer.zusatz': '',
                 'SYSTEM_NAME': <?= json_encode(SYSTEM_NAME) ?>,
                 'SERVER_CITY': <?= json_encode(SERVER_CITY) ?>,

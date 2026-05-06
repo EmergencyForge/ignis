@@ -152,7 +152,7 @@ final class PersonnelController
      * POST /api/personnel/update-profile
      *
      * JSON-Body mit Mitarbeiter-Stammdaten. Legt Audit-Einträge bei
-     * Dienstgrad-, Quali- und Basisdaten-Änderungen an.
+     * Rank-, Quali- und Basisdaten-Änderungen an.
      */
     public function updateProfile(Request $request): Response
     {
@@ -201,7 +201,7 @@ final class PersonnelController
             $logManager = new PersonalLogManager($this->pdo);
             $changes    = [];
 
-            // Dienstgrad-Change mit Audit
+            // Rank-Change mit Audit
             if ((int) $current['dienstgrad'] !== $dienstgrad) {
                 $this->pdo->prepare("UPDATE intra_mitarbeiter SET dienstgrad = :dg WHERE id = :id")
                     ->execute(['dg' => $dienstgrad, 'id' => $id]);
