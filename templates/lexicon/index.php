@@ -1,3 +1,8 @@
+<?php
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+use App\KnowledgeBase\KBHelper;
+?>
 <!DOCTYPE html>
 <html lang="de" data-bs-theme="light">
 

@@ -262,6 +262,20 @@ class ErrorHandler
         $errorMessage = $message ?? ($exception ? $exception->getMessage() : 'Unbekannter Fehler');
         $isDev = self::isDevelopment();
 
+        // Halb-gerenderte Page-Chrome (Sidebar/Navbar/Head) verwerfen, bevor
+        // die Error-Page kommt. Ohne diesen Cleanup wird die Error-UI in
+        // den teilweise emittierten Body der Original-Seite geschachtelt —
+        // sieht aus wie "Error-Modal in Dashboard-Layout". `headers_sent()`
+        // fragen wir nicht (Output-Buffering ist standardmaessig aktiv im
+        // Bootstrap), `ob_get_level() > 0` reicht.
+        while (ob_get_level() > 0) {
+            @ob_end_clean();
+        }
+        if (!headers_sent()) {
+            header_remove('Content-Type');
+            header('Content-Type: text/html; charset=utf-8');
+        }
+
         // Try to use a nice error template, fall back to inline
         $templatePath = dirname(__DIR__, 2) . '/assets/components/error-page.php';
         if (file_exists($templatePath)) {

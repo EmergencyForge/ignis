@@ -1,3 +1,7 @@
+<?php
+use App\Auth\Permissions;
+use App\Helpers\Flash;
+?>
 <!DOCTYPE html>
 <html lang="de" data-bs-theme="light">
 
