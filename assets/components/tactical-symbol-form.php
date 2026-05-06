@@ -3,10 +3,16 @@
 /**
  * Reusable tactical symbol form fields
  * Include this file in forms that need tactical symbol configuration
- * 
+ *
  * Variables to define before including:
- * - $prefix: string - Form field ID/name prefix (e.g., 'fahrzeug-', 'custom')
- * - $showPreview: bool - Whether to show preview button (default: true)
+ * - $prefix:         string - Form field ID/name prefix (e.g. 'fahrzeug-')
+ * - $showPreview:    bool   - Show preview button (default: true)
+ * - $useGlobalBind:  bool   - Skip the inline-<script>-blocks at the end
+ *                              (default: false). Set to true if you embed the
+ *                              partial in a <template> or dynamically cloned
+ *                              container — the inline scripts wouldn't run
+ *                              there. Bind via window.bindTacticalSymbolForm
+ *                              from assets/js/modules/tactical-symbol-form.js.
  */
 
 if (!isset($prefix)) {
@@ -16,17 +22,21 @@ if (!isset($prefix)) {
 if (!isset($showPreview)) {
     $showPreview = true;
 }
+
+if (!isset($useGlobalBind)) {
+    $useGlobalBind = false;
+}
 ?>
 
 <div class="tactical-symbol-fields">
     <hr>
-    <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="flex items-center justify-between mb-3">
         <h6 class="mb-0">Taktisches Zeichen</h6>
-        <div class="d-flex gap-2">
-            <select class="form-select form-select-sm" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
+        <div class="flex gap-2">
+            <select class="form-select form-select-sm" data-custom-dropdown="true" id="<?= $prefix ?>tz-template-select" style="width:auto;min-width:160px;font-size:var(--fs-sm);">
                 <option value="">Vorlage laden...</option>
             </select>
-            <button type="button" class="btn btn-ghost btn-sm" id="<?= $prefix ?>tz-save-template-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
+            <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="<?= $prefix ?>tz-save-template-btn" title="Aktuelle TZ-Konfiguration als Vorlage speichern">
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
         </div>
@@ -34,20 +44,20 @@ if (!isset($showPreview)) {
 
     <?php if ($showPreview): ?>
         <div class="mb-3">
-            <label class="form-label">Vorschau</label>
-            <div class="text-center p-3 bg-light rounded">
+            <label class="ignis-field__label">Vorschau</label>
+            <div class="text-center p-3 bg-[rgba(255,255,255,0.04)] rounded">
                 <div id="<?= $prefix ?>tz-preview" style="display: inline-block;">
                     <span style="font-size: 48px; color: #999;">Kein Symbol</span>
                 </div>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-secondary mt-2 w-100" id="<?= $prefix ?>preview-btn">
-                <i class="fa-solid fa-eye me-1"></i>Vorschau aktualisieren
+            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary mt-2 w-full" id="<?= $prefix ?>preview-btn">
+                <i class="fa-solid fa-eye mr-1"></i>Vorschau aktualisieren
             </button>
         </div>
     <?php endif; ?>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>grundzeichen" class="form-label">Grundzeichen</label>
+        <label for="<?= $prefix ?>grundzeichen" class="ignis-field__label">Grundzeichen</label>
         <select class="form-select" name="grundzeichen" id="<?= $prefix ?>grundzeichen">
             <option value="">-- Kein Zeichen --</option>
             <option value="abrollbehaelter">Abrollbehälter</option>
@@ -82,7 +92,7 @@ if (!isset($showPreview)) {
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>organisation" class="form-label">Organisation</label>
+        <label for="<?= $prefix ?>organisation" class="ignis-field__label">Organisation</label>
         <select class="form-select" name="organisation" id="<?= $prefix ?>organisation">
             <option value="">-- Keine --</option>
             <option value="bundeswehr">Bundeswehr</option>
@@ -97,7 +107,7 @@ if (!isset($showPreview)) {
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>fachaufgabe" class="form-label">Fachaufgabe</label>
+        <label for="<?= $prefix ?>fachaufgabe" class="ignis-field__label">Fachaufgabe</label>
         <select class="form-select" name="fachaufgabe" id="<?= $prefix ?>fachaufgabe">
             <option value="">-- Keine --</option>
             <option value="abwehr-wassergefahren">Abwehr von Wassergefahren</option>
@@ -140,7 +150,7 @@ if (!isset($showPreview)) {
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>einheit" class="form-label">Einheit</label>
+        <label for="<?= $prefix ?>einheit" class="ignis-field__label">Einheit</label>
         <select class="form-select" name="einheit" id="<?= $prefix ?>einheit">
             <option value="">-- Keine --</option>
             <option value="trupp">Trupp</option>
@@ -154,7 +164,7 @@ if (!isset($showPreview)) {
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>symbol" class="form-label">Symbol</label>
+        <label for="<?= $prefix ?>symbol" class="ignis-field__label">Symbol</label>
         <select class="form-select" name="symbol" id="<?= $prefix ?>symbol">
             <option value="">-- Kein Symbol --</option>
             <option value="abc">ABC</option>
@@ -176,28 +186,28 @@ if (!isset($showPreview)) {
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>typ" class="form-label">Typ</label>
-        <input type="text" class="form-control" name="typ" id="<?= $prefix ?>typ"
+        <label for="<?= $prefix ?>typ" class="ignis-field__label">Typ</label>
+        <input type="text" class="ignis-input" name="typ" id="<?= $prefix ?>typ"
             placeholder="z.B. HLF20, RTW, DLK23/12">
-        <small class="text-muted">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
+        <small class="text-[var(--text-dimmed,#818189)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>text" class="form-label">Text</label>
-        <input type="text" class="form-control" name="text" id="<?= $prefix ?>text"
+        <label for="<?= $prefix ?>text" class="ignis-field__label">Text</label>
+        <input type="text" class="ignis-input" name="text" id="<?= $prefix ?>text"
             placeholder="z.B. LF20, RTW 1/82-1">
-        <small class="text-muted">Wird auf dem taktischen Zeichen angezeigt</small>
+        <small class="text-[var(--text-dimmed,#818189)]">Wird auf dem taktischen Zeichen angezeigt</small>
     </div>
 
     <div class="mb-3">
-        <label for="<?= $prefix ?>tz_name" class="form-label">Name</label>
-        <input type="text" class="form-control" name="tz_name" id="<?= $prefix ?>tz_name"
+        <label for="<?= $prefix ?>tz_name" class="ignis-field__label">Name</label>
+        <input type="text" class="ignis-input" name="tz_name" id="<?= $prefix ?>tz_name"
             placeholder="z.B. Einsatzabschnitt Nord">
-        <small class="text-muted">Name des taktischen Zeichens</small>
+        <small class="text-[var(--text-dimmed,#818189)]">Name des taktischen Zeichens</small>
     </div>
 </div>
 
-<?php if ($showPreview): ?>
+<?php if ($showPreview && !$useGlobalBind): ?>
     <script type="module">
         import {
             erzeugeTaktischesZeichen
@@ -249,11 +259,12 @@ if (!isset($showPreview)) {
     </script>
 <?php endif; ?>
 
+<?php if (!$useGlobalBind): ?>
 <script>
 (function() {
     const prefix = '<?= $prefix ?>';
     const tzFields = ['grundzeichen', 'organisation', 'fachaufgabe', 'einheit', 'symbol', 'typ', 'text'];
-    const TZ_API = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '<?= BASE_PATH ?>') + 'api/vehicles/tz-templates.php';
+    const TZ_API = (typeof BASE_PATH !== 'undefined' ? BASE_PATH : '<?= BASE_PATH ?>') + 'api/vehicles/tz-templates';
     const select = document.getElementById(prefix + 'tz-template-select');
     const saveBtn = document.getElementById(prefix + 'tz-save-template-btn');
 
@@ -341,3 +352,4 @@ if (!isset($showPreview)) {
     setTimeout(loadTemplates, 200);
 })();
 </script>
+<?php endif; ?>

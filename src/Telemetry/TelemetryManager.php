@@ -434,7 +434,7 @@ class TelemetryManager
                 'header' => [
                     'Content-Type: application/json',
                     'Accept: application/json',
-                    'User-Agent: intraRP-Telemetry/1.0',
+                    'User-Agent: ignis-Telemetry/1.0',
                     'X-Installation-ID: ' . $data['installation_id'],
                 ],
                 'content' => json_encode($data),

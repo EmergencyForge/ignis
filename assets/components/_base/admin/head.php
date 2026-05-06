@@ -6,25 +6,44 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?php echo $SITE_TITLE; ?> &rsaquo; <?php echo SYSTEM_NAME ?></title>
-<!-- Preload critical font -->
-<link rel="preload" href="<?= BASE_PATH ?>assets/fonts/rubik/font/rubik-v31-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
-<!-- Stylesheets -->
-<link rel="stylesheet" href="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>vendor/fortawesome/font-awesome/css/all.min.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/rubik/css/all.min.css" />
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/style.min.css" />
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/admin.min.css" />
+<!-- Preload critical fonts: Geist Sans (UI/Headings) + Geist Mono (Code/Numbers) -->
+<link rel="preload" href="<?= BASE_PATH ?>assets/fonts/geist/fonts/geist-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="<?= BASE_PATH ?>assets/fonts/geist-mono/fonts/geist-mono-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
+<!-- Vendor + App-SCSS zuerst, Tailwind-Utilities zuletzt damit sie bei
+     gleicher Spezifität im Cascade-Tie gewinnen. -->
+<link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/bootstrap-compat.min.css') ?>">
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
+<link rel="stylesheet" href="<?= asset('assets/css/style.min.css') ?>" />
+<link rel="stylesheet" href="<?= asset('assets/css/admin.min.css') ?>" />
+<link rel="stylesheet" href="<?= asset('assets/css/ui.min.css') ?>" />
+<link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
 <script>
 // Akzentfarbe sofort aus localStorage anwenden (kein Flackern)
 (function(){var a=localStorage.getItem('intra_theme_accent');if(!a)return;var p={red:{m:'#d10000',d:'#660000'},blue:{m:'#2563eb',d:'#1e40af'},green:{m:'#16a34a',d:'#15803d'},purple:{m:'#7c3aed',d:'#6d28d9'},orange:{m:'#ea580c',d:'#c2410c'},teal:{m:'#0d9488',d:'#0f766e'},pink:{m:'#db2777',d:'#be185d'},amber:{m:'#d97706',d:'#b45309'}};var mc,dc;if(p[a]){mc=p[a].m;dc=p[a].d;}else if(/^#[0-9a-fA-F]{6}$/.test(a)){mc=a;var r=parseInt(a.slice(1,3),16),g=parseInt(a.slice(3,5),16),b=parseInt(a.slice(5,7),16);dc='#'+[r,g,b].map(function(c){return Math.max(0,Math.round(c*0.65)).toString(16).padStart(2,'0');}).join('');}else return;var rgb=parseInt(mc.slice(1,3),16)+', '+parseInt(mc.slice(3,5),16)+', '+parseInt(mc.slice(5,7),16);var s=document.documentElement.style;s.setProperty('--main-color',mc);s.setProperty('--main-color-dimmed',dc);s.setProperty('--main-color-rgb',rgb);s.setProperty('--fw-red',mc);})();
 </script>
-<!-- Core scripts (required by inline scripts, cannot be deferred) -->
-<script src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
-<script src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Core-Bundle: jQuery + Bootstrap + DataTables (synchron, weil Inline-Scripts auf window.$ angewiesen sind) -->
+<script src="<?= asset('public/assets/dist/vendor.js') ?>"></script>
 <!-- App scripts: defer to unblock rendering -->
-<script defer src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
-<script defer src="<?= BASE_PATH ?>assets/js/toasts.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/dropdown.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/form.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/tabs.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/accordion.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/datepicker.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/datetimepicker.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/chip.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/combobox.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/colorpicker.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/tooltip.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/alert.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/file.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/modules/datatables-config.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/modules/beladung-search.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/modules/user-hover-card.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />

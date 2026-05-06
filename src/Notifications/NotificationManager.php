@@ -338,7 +338,7 @@ class NotificationManager
 
             $title = "Feuerwehr-Protokoll abgeschlossen";
             $message = "Einsatzprotokoll {$incidentNumber} ({$location}) wurde zur QM-Sichtung freigegeben.";
-            $link = $incidentId ? BASE_PATH . "einsatz/view.php?id={$incidentId}" : null;
+            $link = $incidentId ? BASE_PATH . "firetab/view?id={$incidentId}" : null;
 
             return $this->create($userId, 'fire_protocol', $title, $message, $link);
         } catch (\PDOException $e) {
@@ -394,7 +394,7 @@ class NotificationManager
 
             $title = "Ihr Protokoll #{$incidentNumber} wurde bearbeitet";
             $message = "Status: {$statusLabel}. Bearbeiter: {$qmUsername}";
-            $link = $incidentId ? BASE_PATH . "einsatz/view.php?id={$incidentId}" : null;
+            $link = $incidentId ? BASE_PATH . "firetab/view?id={$incidentId}" : null;
 
             return $this->create($userId, 'fire_protocol', $title, $message, $link);
         } catch (\PDOException $e) {

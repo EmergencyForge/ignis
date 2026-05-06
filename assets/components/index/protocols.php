@@ -49,19 +49,19 @@
                 $date = $datetime->format('d.m.Y | H:i');
                 switch ($row['protokoll_status']) {
                     case 0:
-                        $status = "<span class='badge text-bg-secondary'>Ungesehen</span>";
+                        $status = "<span class='ignis-chip ignis-chip--secondary'>Ungesehen</span>";
                         break;
                     case 1:
-                        $status = "<span title='Prüfer: " . htmlspecialchars($row['bearbeiter']) . "' class='badge text-bg-warning'>in Prüfung</span>";
+                        $status = "<span title='Prüfer: " . htmlspecialchars($row['bearbeiter']) . "' class='ignis-chip ignis-chip--warning'>in Prüfung</span>";
                         break;
                     case 2:
-                        $status = "<span title='Prüfer: " . htmlspecialchars($row['bearbeiter']) . "' class='badge text-bg-success'>Geprüft</span>";
+                        $status = "<span title='Prüfer: " . htmlspecialchars($row['bearbeiter']) . "' class='ignis-chip ignis-chip--success'>Geprüft</span>";
                         break;
                     case 4:
-                        $status = "<span title='Prüfer: " . htmlspecialchars($row['bearbeiter']) . "' class='badge text-bg-dark'>Ausgeblendet</span>";
+                        $status = "<span title='Prüfer: " . htmlspecialchars($row['bearbeiter']) . "' class='ignis-chip ignis-chip--dark'>Ausgeblendet</span>";
                         break;
                     default:
-                        $status = "<span title='Prüfer: " . htmlspecialchars($row['bearbeiter']) . "' class='badge text-bg-danger'>Ungenügend</span>";
+                        $status = "<span title='Prüfer: " . htmlspecialchars($row['bearbeiter']) . "' class='ignis-chip ignis-chip--danger'>Ungenügend</span>";
                         break;
                 }
 
@@ -71,7 +71,7 @@
                         break;
                     case 1:
                         if ($row['hidden_user'] != 1) {
-                            $freigabe_status = "<span title='Freigegeben von: " . htmlspecialchars($row['freigeber_name']) . "' class='badge text-bg-success'>F</span>";
+                            $freigabe_status = "<span title='Freigegeben von: " . htmlspecialchars($row['freigeber_name']) . "' class='ignis-chip ignis-chip--success'>F</span>";
                         } else {
                             $freigabe_status = "";
                         }
@@ -83,7 +83,7 @@
                 echo "<td>" . htmlspecialchars($row['enr']) . " " . $freigabe_status . "</td>";
                 echo "<td>" . (!empty($row['bearbeiter']) ? htmlspecialchars($row['bearbeiter']) : '---') . "</td>";
                 echo "<td><span style='display:none'>" . $row['sendezeit'] . "</span>" . $date . "</td>";
-                echo "<td><a href='" . \App\Helpers\EnotfUrl::protokoll($row['enr']) . "' class='btn btn-sm btn-soft-primary'><i class='fa-regular fa-eye'></i> Ansehen</a></td>";
+                echo "<td><a href='" . \App\Helpers\EnotfUrl::protokoll($row['enr']) . "' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary'><i class='fa-regular fa-eye'></i> Ansehen</a></td>";
                 echo "</tr>";
             }
         }

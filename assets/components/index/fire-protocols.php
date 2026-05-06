@@ -45,16 +45,16 @@
 
                 // Status Badge
                 if (!$row['finalized']) {
-                    $status = "<span class='badge text-bg-secondary'>In Bearbeitung</span>";
+                    $status = "<span class='ignis-chip ignis-chip--secondary'>In Bearbeitung</span>";
                 } else {
                     $statusMap = [
-                        0 => "<span class='badge'>Ungesehen</span>",
-                        1 => "<span class='badge text-bg-warning'>In Prüfung</span>",
-                        2 => "<span class='badge text-bg-success'>Freigegeben</span>",
-                        3 => "<span class='badge text-bg-danger'>Ungenügend</span>",
-                        4 => "<span class='badge text-bg-dark'>Ausgeblendet</span>",
+                        0 => "<span class='ignis-chip'>Ungesehen</span>",
+                        1 => "<span class='ignis-chip ignis-chip--warning'>In Prüfung</span>",
+                        2 => "<span class='ignis-chip ignis-chip--success'>Freigegeben</span>",
+                        3 => "<span class='ignis-chip ignis-chip--danger'>Ungenügend</span>",
+                        4 => "<span class='ignis-chip ignis-chip--dark'>Ausgeblendet</span>",
                     ];
-                    $status = $statusMap[(int)$row['status']] ?? "<span class='badge text-bg-secondary'>Unbekannt</span>";
+                    $status = $statusMap[(int)$row['status']] ?? "<span class='ignis-chip ignis-chip--secondary'>Unbekannt</span>";
                 }
 
                 echo "<tr>";
@@ -63,7 +63,7 @@
                 echo "<td>" . htmlspecialchars($row['location']) . "</td>";
                 echo "<td>" . htmlspecialchars($row['leader_name'] ?? 'Unbekannt') . "</td>";
                 echo "<td><span style='display:none'>" . $row['started_at'] . "</span>" . $date . "</td>";
-                echo "<td><a href='" . BASE_PATH . "einsatz/view.php?id={$row['id']}' class='btn btn-sm btn-soft-primary'><i class='fa-regular fa-eye'></i> Ansehen</a></td>";
+                echo "<td><a href='" . BASE_PATH . "firetab/view?id={$row['id']}' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary'><i class='fa-regular fa-eye'></i> Ansehen</a></td>";
                 echo "</tr>";
             }
         }

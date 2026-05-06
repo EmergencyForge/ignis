@@ -1,23 +1,36 @@
 {
-  "name": "emergencyforge/intrarp",
-  "description": "Das Intranet für deine Fraktionen (Feuerwehr, Rettungsdienst). Allround-Fraktionsverwaltung und das Open-Source & kostenlos! ",
+  "name": "emergencyforge/ignis",
+  "description": "ıgnıs — Struktur für jeden Einsatz. Allround-Verwaltung für Roleplay-Feuerwehr und -Rettungsdienst (FiveM). Open-Source und kostenlos.",
   "license": "proprietary",
   "require": {
     "vlucas/phpdotenv": "^5.6",
     "enyo/dropzone": "^5.9",
-    "components/jquery": "^3.7",
-    "datatables.net/datatables.net-bs5": "^2.2",
-    "twbs/bootstrap": "^5.3",
     "league/oauth2-client": "^2.8",
     "twig/twig": "^3.14",
     "dompdf/dompdf": "^3.1",
-    "fortawesome/font-awesome": "^7.1",
     "erusev/parsedown": "^1.7",
-    "monolog/monolog": "^3.10"
+    "monolog/monolog": "^3.10",
+    "robmorgan/phinx": "^0.16",
+    "php-di/php-di": "^7.0",
+    "illuminate/database": "^11.0",
+    "illuminate/events": "^11.0",
+    "respect/validation": "^2.3",
+    "nikic/fast-route": "1.3",
+    "illuminate/queue": "11.0",
+    "symfony/console": "7.0.3",
+    "dragonmantank/cron-expression": "^3.6"
   },
   "autoload": {
     "psr-4": {
       "App\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
     }
   },
   "config": {
@@ -26,8 +39,16 @@
     "apcu-autoloader": true
   },
   "scripts": {
-    "db:migrate": "@php setup/database-init.php",
-    "db:validate": "@php setup/validate-migrations.php",
+    "db:migrate": "@php tools/db-migrate.php",
+    "db:status": "@php vendor/bin/phinx status -e production -c phinx.php",
+    "intra": "@php cli/intra.php",
+    "queue:work": "@php cli/intra.php queue:work",
+    "queue:failed:list": "@php cli/intra.php queue:failed:list",
+    "telemetry:send": "@php cli/intra.php telemetry:send",
+    "test": "@php vendor/bin/phpunit",
+    "test:unit": "@php vendor/bin/phpunit --testsuite Unit",
+    "test:integration": "@php vendor/bin/phpunit --testsuite Integration",
+    "test:feature": "@php vendor/bin/phpunit --testsuite Feature",
     "post-install-cmd": [
       "@db:migrate"
     ],

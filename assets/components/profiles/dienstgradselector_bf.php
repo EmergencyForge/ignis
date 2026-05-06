@@ -14,5 +14,5 @@ $dgsel = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         } ?>
     </select>
-    <label for="dienstgrad">Dienstgrad</label>
+    <label for="dienstgrad">Rank</label>
 </div>

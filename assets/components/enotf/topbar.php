@@ -24,7 +24,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
 
 <div class="container-fluid" id="edivi__topbar">
     <div class="row">
-        <div class="col d-flex align-items-center">
+        <div class="col flex align-items-center">
             <?php if (isset($topbar_left_html)): ?>
                 <?= $topbar_left_html ?>
             <?php else: ?>
@@ -91,15 +91,15 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                 <?php endif; ?>
             <?php endif; ?>
         </div>
-        <div class="col text-end d-flex justify-content-end align-items-center">
-            <a href="<?= EnotfUrl::page('login') ?>?prefill=1" class="d-flex flex-column align-items-center text-decoration-none text-reset align-self-stretch justify-content-between" id="topbar-crew-display" style="font-size: 0.85rem; line-height: 1.2; padding: 5px 15px;">
-                <div class="d-flex align-items-start">
+        <div class="col text-end flex justify-content-end align-items-center">
+            <a href="<?= EnotfUrl::page('login') ?>?prefill=1" class="d-flex flex-column align-items-center no-underline text-reset self-stretch justify-content-between" id="topbar-crew-display" style="font-size: 0.85rem; line-height: 1.2; padding: 5px 15px;">
+                <div class="flex align-items-start">
                     <div class="d-flex flex-column align-items-end justify-content-start">
                         <span data-crew-name="fahrername"><?= htmlspecialchars($_SESSION['fahrername'] ?? '') ?></span>
                     </div>
-                    <div class="d-flex flex-column align-items-start ms-3">
-                        <span data-crew-name="beifahrername" class="<?= empty($_SESSION['beifahrername']) ? 'd-none' : '' ?>"><?= htmlspecialchars($_SESSION['beifahrername'] ?? '') ?></span>
-                        <span data-crew-name="praktikantname" class="<?= empty($_SESSION['praktikantname']) ? 'd-none' : '' ?>"><?= htmlspecialchars($_SESSION['praktikantname'] ?? '') ?></span>
+                    <div class="d-flex flex-column align-items-start ml-3">
+                        <span data-crew-name="beifahrername" class="<?= empty($_SESSION['beifahrername']) ? 'hidden' : '' ?>"><?= htmlspecialchars($_SESSION['beifahrername'] ?? '') ?></span>
+                        <span data-crew-name="praktikantname" class="<?= empty($_SESSION['praktikantname']) ? 'hidden' : '' ?>"><?= htmlspecialchars($_SESSION['praktikantname'] ?? '') ?></span>
                     </div>
                 </div>
                 <small style="font-size: 0.65rem;">Anmelden</small>
@@ -112,9 +112,9 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                     elseif ($daten['pat_synced'] == 1) $patSyncColor = '#28a745';
                 }
                 ?>
-                <div class="d-flex flex-column align-items-start me-3" style="font-size: 0.95rem; gap: 4px; padding-left: 15px; border-left: 2px solid #424242;">
+                <div class="d-flex flex-column align-items-start mr-3" style="font-size: 0.95rem; gap: 4px; padding-left: 15px; border-left: 2px solid #424242;">
                     <?php if (in_array('pat_sync', $topbar_sync)): ?>
-                        <div class="d-flex align-items-center" style="gap: 8px;">
+                        <div class="flex align-items-center" style="gap: 8px;">
                             <?php if (in_array('leitstelle', $topbar_sync)): ?>
                                 <span id="leitstelle-conn-icon" title="Verbindung zur Leitstelle">
                                     <i class="fa-solid fa-tower-broadcast" style="color: #ffffff;"></i>
@@ -126,7 +126,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                                 </span>
                             <?php endif; ?>
                         </div>
-                        <div class="d-flex align-items-center">
+                        <div class="flex align-items-center">
                             <span id="pat-sync-icon" title="Patientendaten-Sync">
                                 <i class="fa-solid fa-up-down" style="color: <?= $patSyncColor ?>;"></i>
                             </span>
@@ -145,7 +145,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
-            <div class="d-flex flex-column align-items-end me-3" style="padding-left: 15px; border-left: 2px solid #424242;">
+            <div class="d-flex flex-column align-items-end mr-3" style="padding-left: 15px; border-left: 2px solid #424242;">
                 <span id="current-time"><?= $currentTime ?></span>
                 <span id="current-date"><?= $currentDate ?></span>
             </div>
@@ -153,7 +153,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
                 <img src="https://web-assets.emergencyforge.de/images/defaultLogo.webp" alt="EmergencyForge Logo" height="64px" width="auto">
             </a>
             <?php if ($topbar_show_abmelden): ?>
-                <button class="edivi__nidabutton-primary align-self-stretch d-flex align-items-center" type="button" data-bs-toggle="modal" data-bs-target="#logoutModal" style="padding: 0 15px; margin-left: 15px; border-left: 2px solid #424242;">abmelden</button>
+                <button class="edivi__nidabutton-primary self-stretch flex align-items-center" type="button" data-bs-toggle="modal" data-bs-target="#logoutModal" style="padding: 0 15px; margin-left: 15px; border-left: 2px solid #424242;">abmelden</button>
             <?php endif; ?>
         </div>
     </div>
@@ -181,7 +181,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
         const enr = '<?= $enr ?>';
 
         function updateSyncIcons() {
-            fetch('<?= BASE_PATH ?>api/enotf/sync-status.php?enr=' + encodeURIComponent(enr))
+            fetch('<?= BASE_PATH ?>api/enotf/sync-status?enr=' + encodeURIComponent(enr))
                 .then(r => r.json())
                 .then(data => {
                     // Cloud-Icon: pat_synced Status
@@ -225,7 +225,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
     <?php if ($daten['freigegeben'] == 1 && $daten['hidden_user'] != 1) : ?>
         <div class="container-full edivi__notice edivi__notice-freigeber">
             <div class="row">
-                <div class="col-1 text-end"><i class="fa-solid fa-info"></i></div>
+                <div class="w-1/12 text-end px-3"><i class="fa-solid fa-info"></i></div>
                 <div class="col">
                     Das Protokoll wurde durch <strong><?= $daten['freigeber_name'] ?></strong> am <strong><?= $daten['last_edit'] ?></strong> Uhr freigegeben. Es kann nicht mehr bearbeitet werden.
                 </div>
@@ -235,7 +235,7 @@ $topbar_show_notices   = $topbar_show_notices ?? true;
     <?php if ($daten['hidden_user'] == 1) : ?>
         <div class="container-full edivi__notice edivi__notice-freigeber">
             <div class="row">
-                <div class="col-1 text-end"><i class="fa-solid fa-info"></i></div>
+                <div class="w-1/12 text-end px-3"><i class="fa-solid fa-info"></i></div>
                 <div class="col">
                     Das Protokoll wurde durch <strong><?= $daten['freigeber_name'] ?></strong> am <strong><?= $daten['last_edit'] ?></strong> Uhr gelöscht. Es kann nicht mehr bearbeitet werden.
                 </div>

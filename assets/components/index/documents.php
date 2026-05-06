@@ -77,28 +77,28 @@
                         $bg = $doks['category_color'];
                     } elseif ($doks['type'] == 99) {
                         $bg = match ($doks['template_category']) {
-                            'urkunde' => 'text-bg-secondary',
-                            'zertifikat' => 'text-bg-dark',
-                            'schreiben' => 'text-bg-warning',
-                            default => 'text-bg-info'
+                            'urkunde' => 'ignis-chip--secondary',
+                            'zertifikat' => 'ignis-chip--dark',
+                            'schreiben' => 'ignis-chip--warning',
+                            default => 'ignis-chip--info'
                         };
                     } elseif ($doks['type'] <= 3) {
-                        $bg = "text-bg-secondary";
+                        $bg = "ignis-chip--secondary";
                     } elseif ($doks['type'] == 5 || $doks['type'] == 6 || $doks['type'] == 7) {
-                        $bg = "text-bg-dark";
+                        $bg = "ignis-chip--dark";
                     } elseif ($doks['type'] >= 10 && $doks['type'] <= 13) {
-                        $bg = "text-bg-danger";
+                        $bg = "ignis-chip--danger";
                     } else {
-                        $bg = "text-bg-secondary";
+                        $bg = "ignis-chip--secondary";
                     }
 
                     echo "<tr>";
-                    echo "<td><span class='badge $bg'>" . htmlspecialchars($docart) . "</span></td>";
+                    echo "<td><span class='ignis-chip $bg'>" . htmlspecialchars($docart) . "</span></td>";
                     echo "<td>" . htmlspecialchars($doks['docid']) .  "</td>";
                     echo "<td>" . htmlspecialchars($doks['ersteller_name']) . "</td>";
                     echo "<td>" . htmlspecialchars($austdatum) . "</td>";
                     echo "<td>";
-                    echo "<a href='$pdfPath' class='btn btn-sm btn-soft-primary' target='_blank'><i class='fa-regular fa-eye'></i> Ansehen</a>";
+                    echo "<a href='$pdfPath' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary' target='_blank'><i class='fa-regular fa-eye'></i> Ansehen</a>";
                     echo "</td>";
                     echo "</tr>";
                 }

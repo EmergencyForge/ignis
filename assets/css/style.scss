@@ -1,12 +1,12 @@
 :root {
   --secondary-color: #011e4a;
   --secondary-color-dimmed: #0a2e5a;
-  --main-color: #d10000;
-  --main-color-dimmed: #660000;
-  --main-color-rgb: 209, 0, 0;
+  --main-color: #ff4d00;
+  --main-color-dimmed: #cc3d00;
+  --main-color-rgb: 255, 77, 0;
   --fw-red: #d10000;
   --gray: #f0f2f4;
-  --darkgray: #3d3a44;
+  --darkgray: #2a2a2a;
   --tag-color: #a4a6a7;
   --alt-white: #f9fafb;
 
@@ -38,14 +38,14 @@
   --box-shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.15);
   --box-shadow-strong: 0 6px 20px rgba(0, 0, 0, 0.2);
 
-  --body-bg: #2b2930;
-  --body-bg-darker: #232128;
-  --body-bg-lighter: #35323c;
+  --body-bg: #0a0a0a;
+  --body-bg-darker: #050505;
+  --body-bg-lighter: #161616;
 
   --sidebar-width: 260px;
-  --sidebar-bg: #232128;
-  --sidebar-hover-bg: #2d2c31;
-  --sidebar-avatar-bg: #2e2b35;
+  --sidebar-bg: #050505;
+  --sidebar-hover-bg: #141414;
+  --sidebar-avatar-bg: #161616;
   --sidebar-icon-color: #c8c6cf;
   --sidebar-link-color: #fff;
   --sidebar-role-text: #c8c6cf;
@@ -54,7 +54,7 @@
   --text-normal: #bbbac1;
   --text-dimmed: #818189;
 
-  --input-bg: #25242c;
+  --input-bg: #121212;
   --input-placeholder: #818189;
   --input-text: #fff;
 }
@@ -73,10 +73,62 @@
   hyphens: auto;
 }
 
+// Bootstrap-Default-Reset für <hr> — border-color erbt jetzt von color,
+// sodass `style="color:transparent"` Spacer-Linien unsichtbar macht. Ohne
+// diese Regel kommt der Browser-Default (sichtbare 1px-Inset-Linie).
+hr {
+  margin: 1rem 0;
+  color: inherit;
+  border: 0;
+  border-top: 1px solid;
+  opacity: 0.25;
+}
+
 body {
-  --bs-body-font-family: "Rubik", system-ui, -apple-system, "Segoe UI", Roboto,
+  --bs-body-font-family: "Geist", system-ui, -apple-system, "Segoe UI", Roboto,
     "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  font-family: var(--bs-body-font-family);
+  background-color: var(--body-bg);
+  color: var(--text-normal);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Heading-Defaults. Bootstrap hat das früher normalisiert (margin-top: 0,
+// einheitliche Schriftgrößen). Ohne diese Regeln bekommen wir Browser-
+// Defaults — vor allem `h6 { font-size: 0.67em }` und großes
+// `margin-block` an jeder Überschrift.
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-family: "Geist", var(--bs-body-font-family);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-title);
+}
+
+h1, .h1 { font-size: 2rem; }
+h2, .h2 { font-size: 1.6rem; }
+h3, .h3 { font-size: 1.35rem; }
+h4, .h4 { font-size: 1.1rem; }
+h5, .h5 { font-size: 0.95rem; }
+h6, .h6 { font-size: 0.85rem; }
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+// Verhindert horizontales Scrollen der gesamten Page durch zu breite Tabellen.
+// Wide Inhalte (z. B. Tables in .intra__tile) bekommen einen eigenen Scroll-
+// Container statt den `<body>` aufzublähen, sonst „rutscht" die fixed Topbar
+// optisch über die Viewport-Breite hinaus.
+html, body {
+  overflow-x: clip;
 }
 
 body:not(#antrag) {
@@ -110,6 +162,14 @@ body:has(.intra-sidebar) {
 
   th, dt, label, .form-label, .card-title {
     font-weight: 500;
+  }
+
+  // Browser-Default fuer <th> ist text-align:center — fuer Daten-Tabellen
+  // mit links-buendigen Werten unten daneben sieht das schief aus. Wir
+  // setzen left als sinnvolleren Default; wer Header explizit zentrieren
+  // will, nutzt .text-center oder eigene Klassen.
+  th {
+    text-align: left;
   }
 
   strong, b, .fw-bold {
@@ -230,7 +290,7 @@ body#dashboard {
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;
-  background-color: var(--body-bg-darker, #232128);
+  background-color: var(--body-bg-darker, #050505);
   position: relative;
 }
 
@@ -238,7 +298,7 @@ body#alogin {
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;
-  background-color: var(--body-bg-darker, #232128);
+  background-color: var(--body-bg-darker, #050505);
   position: relative;
 }
 
@@ -344,7 +404,7 @@ body#alogin {
 }
 
 body#alogin .card {
-  background: var(--body-bg-darker, #232128) !important;
+  background: var(--body-bg-darker, #050505) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }

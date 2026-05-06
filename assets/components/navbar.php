@@ -1,19 +1,30 @@
 <?php
 
 use App\Auth\Permissions;
+use App\Config\ConfigManager;
 use App\Helpers\EnotfUrl;
 use App\Notifications\NotificationManager;
 
 $unreadCount = 0;
 $recentNotifications = [];
+$useNewNavbar = false;
 try {
-    if (!isset($pdo)) {
+    if (!isset($pdo) || !$pdo instanceof PDO) {
         require_once __DIR__ . '/../config/database.php';
     }
-    if (isset($pdo)) {
+    // Wenn require_once no-op war (database.php pro Request nur einmal aktiv),
+    // $pdo aus dem Container holen — config.php hat ihn dort registriert.
+    if ((!isset($pdo) || !$pdo instanceof PDO) && function_exists('app')) {
+        $pdo = app(PDO::class);
+    }
+    if (isset($pdo) && $pdo instanceof PDO) {
         $notificationManager = new NotificationManager($pdo);
         $unreadCount = $notificationManager->getUnreadCount($_SESSION['userid']);
         $recentNotifications = $notificationManager->getAll($_SESSION['userid'], 5);
+
+        $configManager = new ConfigManager($pdo);
+        $flagValue = $configManager->get('UI_NEW_NAVBAR_ENABLED');
+        $useNewNavbar = in_array(strtolower((string) $flagValue), ['1', 'true', 'yes', 'on'], true);
     }
 } catch (Exception $e) {
     error_log("Notification count error: " . $e->getMessage());
@@ -77,7 +88,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         padding: 0.45rem 0.75rem;
         flex-shrink: 0;
         margin: 0.4rem 0.6rem 0.6rem;
-        background: #2c2c34;
+        background: #0f0f0f;
         border-radius: 10px;
     }
 
@@ -516,7 +527,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         color: #fff;
         text-decoration: none;
         /* Accent bar on active link */
-        box-shadow: inset 3px 0 0 var(--main-color);
+        /* box-shadow: inset 3px 0 0 var(--main-color); */
     }
 
     .sidebar-link i:first-child {
@@ -719,53 +730,604 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     }
 
     /* ========================================
-       MOBILE TOPBAR
+       TOPBAR (Desktop + Mobile)
        ======================================== */
-    .sidebar-mobile-topbar {
+    .intra-topbar {
         position: fixed;
         top: 0;
-        left: 0;
+        left: var(--sidebar-width);
         right: 0;
         height: 56px;
         background: var(--sidebar-bg);
         z-index: 1030;
-        display: none;
+        display: flex;
         align-items: center;
         padding: 0 1rem;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        gap: 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .sidebar-mobile-topbar img {
-        height: 32px;
-        width: auto;
+    /* Offset body so page content begins below the topbar (mit etwas Luft) */
+    body:has(.intra-topbar) {
+        padding-top: 72px;
+    }
+
+    /* Mobile hamburger + brand (hidden on desktop, since sidebar carries the logo) */
+    .intra-topbar .topbar-mobile-hamburger,
+    .intra-topbar .topbar-mobile-brand {
+        display: none;
     }
 
     .sidebar-toggle-btn {
         background: none;
         border: none;
         color: #fff;
-        font-size: 1.3rem;
-        padding: 0.5rem;
-        margin-right: 0.75rem;
+        font-size: 1.25rem;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
         border-radius: 8px;
         transition: background 0.15s;
+        flex-shrink: 0;
     }
 
     .sidebar-toggle-btn:hover {
         background: var(--sidebar-hover-bg);
     }
 
-    .sidebar-mobile-right {
+    .topbar-mobile-brand img {
+        height: 30px;
+        width: auto;
+    }
+
+    /* Search trigger — desktop shows a full search-style pill, mobile shows an icon */
+    .topbar-search-trigger {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex: 1;
+        max-width: 420px;
+        height: 36px;
+        padding: 0 0.75rem;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: var(--sidebar-icon-color);
+        cursor: pointer;
+        font-size: 0.82rem;
+        transition: background 0.15s, border-color 0.15s;
+    }
+
+    .topbar-search-trigger:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+
+    .topbar-search-trigger i {
+        font-size: 0.85rem;
+    }
+
+    .topbar-search-trigger-label {
+        flex: 1;
+        text-align: left;
+    }
+
+    .topbar-search-trigger-kbd {
+        font-size: 0.65rem;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 4px;
+        padding: 0.1rem 0.35rem;
+        color: var(--sidebar-icon-color);
+    }
+
+    /* Right-side actions cluster */
+    .topbar-actions {
         margin-left: auto;
         display: flex;
         align-items: center;
+        gap: 0.25rem;
+    }
+
+    .topbar-icon-btn {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-size: 1.2rem;
+    }
+
+    .topbar-icon-btn:hover,
+    .topbar-icon-btn.open {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .topbar-icon-btn .topbar-badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        border-radius: 10px;
+        background: var(--main-color);
+        color: #fff;
+        font-size: 0.6rem;
+        font-weight: 700;
+        line-height: 16px;
+        text-align: center;
+        border: 2px solid var(--sidebar-bg);
+    }
+
+    /* Notification-Badge ueber dem Bell-Icon (.notification-poll-badge,
+       .topbar-ignis-chip). Quadratisch mit abgerundeten Ecken (kein Pill),
+       Pulsring + Glow im aktiven Zustand. */
+    .topbar-icon-btn .topbar-ignis-chip {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        box-sizing: border-box;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 4px;
+        border-radius: 5px;
+        background: var(--main-color);
+        color: #fff;
+        font-size: 0.64rem;
+        font-weight: 700;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--sidebar-bg);
+        box-shadow: 0 0 0 0 rgba(var(--main-color-rgb, 255, 77, 0), 0.55);
+        transition: box-shadow 0.2s ease;
+        pointer-events: none;
+    }
+
+    /* Bell-Icon-Highlight bei ungelesenen Notifications: Bell bleibt weiss,
+       nur der Badge pulst sanft (Glow-Ring), damit das Symbol auffaellt
+       ohne wie ein Fehler-Icon zu wirken. */
+    .topbar-icon-btn--has-unread .topbar-ignis-chip {
+        animation: topbar-notif-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes topbar-notif-pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(var(--main-color-rgb, 255, 77, 0), 0.55);
+        }
+        50% {
+            box-shadow: 0 0 0 6px rgba(var(--main-color-rgb, 255, 77, 0), 0);
+        }
+    }
+
+    /* Wiggle bei Eintreffen einer neuen Notification (transient via JS). */
+    .topbar-icon-btn--shake > i {
+        animation: topbar-notif-shake 0.55s cubic-bezier(.36,.07,.19,.97) both;
+        transform-origin: 50% 4px;
+    }
+    @keyframes topbar-notif-shake {
+        10%, 90%   { transform: translate(-1px, 0) rotate(-6deg); }
+        20%, 80%   { transform: translate(1px, 0)  rotate(6deg);  }
+        30%, 50%, 70% { transform: translate(-1px, 0) rotate(-10deg); }
+        40%, 60%   { transform: translate(1px, 0)  rotate(10deg);  }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .topbar-icon-btn--has-unread .topbar-ignis-chip,
+        .topbar-icon-btn--shake > i { animation: none; }
+    }
+
+    /* User avatar trigger */
+    .topbar-user-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        height: 40px;
+        padding: 0 0.55rem 0 0.4rem;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .topbar-user-btn:hover,
+    .topbar-user-btn.open {
+        background: var(--sidebar-hover-bg);
+    }
+
+    .topbar-user-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: var(--sidebar-avatar-bg);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.72rem;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+
+    .topbar-user-name {
+        font-size: 0.82rem;
+        font-weight: 500;
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .topbar-user-chevron {
+        font-size: 0.6rem;
+        color: var(--sidebar-icon-color);
+        transition: transform 0.2s var(--spring-gentle);
+    }
+
+    .topbar-user-btn.open .topbar-user-chevron {
+        transform: rotate(180deg);
+    }
+
+    /* Flyouts / Dropdowns (shared) */
+    .topbar-flyout {
+        position: absolute;
+        top: calc(100% + 6px);
+        right: 0;
+        min-width: 260px;
+        background: var(--sidebar-bg);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+        z-index: 1050;
+        opacity: 0;
+        transform: translateY(-6px);
+        pointer-events: none;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .topbar-flyout.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    /* Notifications flyout */
+    .notifications-flyout {
+        width: 380px;
+        max-width: calc(100vw - 2rem);
+        display: flex;
+        flex-direction: column;
+        max-height: min(520px, calc(100vh - 80px));
+    }
+
+    .notifications-flyout-header {
+        display: flex;
+        align-items: center;
+        padding: 0.6rem 0.75rem 0.6rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        flex-shrink: 0;
+    }
+
+    .notifications-flyout-title {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: #fff;
+        flex: 1;
+    }
+
+    .notifications-flyout-mark-all {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        color: var(--sidebar-icon-color);
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-size: 0.82rem;
+    }
+
+    .notifications-flyout-mark-all:hover:not(:disabled) {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+    }
+
+    .notifications-flyout-mark-all:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+    .notifications-flyout-body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 0.25rem;
+        scrollbar-width: thin;
+        scrollbar-color: var(--darkgray) transparent;
+    }
+
+    .notifications-flyout-body::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .notifications-flyout-body::-webkit-scrollbar-thumb {
+        background: var(--darkgray);
+        border-radius: 2px;
+    }
+
+    .notification-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.6rem;
+        padding: 0.55rem 0.6rem;
+        border-radius: 8px;
+        color: var(--text-normal);
+        text-decoration: none !important;
+        position: relative;
+        transition: background 0.12s;
+        border-left: 2px solid transparent;
+    }
+
+    .notification-item,
+    .notification-item *,
+    .notification-item:hover,
+    .notification-item:hover * {
+        text-decoration: none !important;
+    }
+
+    .notification-item:hover {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+    }
+
+    .notification-item.unread {
+        background: rgba(var(--main-color-rgb), 0.06);
+        border-left-color: var(--main-color);
+    }
+
+    .notification-item.unread:hover {
+        background: rgba(var(--main-color-rgb), 0.1);
+    }
+
+    .notification-item-icon {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--sidebar-icon-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+    }
+
+    .notification-item.unread .notification-item-icon {
+        background: rgba(var(--main-color-rgb), 0.15);
+        color: var(--main-color);
+    }
+
+    .notification-item-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .notification-item-title {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: #fff;
+        line-height: 1.25;
+        margin-bottom: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .notification-item-meta {
+        font-size: 0.68rem;
+        color: var(--sidebar-icon-color);
+    }
+
+    .notification-item-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--main-color);
+        flex-shrink: 0;
+        margin-top: 6px;
+    }
+
+    /* Mark-as-read-Button am rechten Rand eines unread-Items.
+       Liegt im <a>-Wrapper als <span role="button">, weil Buttons in
+       Links HTML-spec-illegal sind. Klick stoppt die Link-Navigation. */
+    .notification-item-mark-read {
+        flex-shrink: 0;
+        margin-top: 2px;
+        width: 26px;
+        height: 26px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: rgba(var(--main-color-rgb, 255, 77, 0), 0.18);
+        color: var(--main-color);
+        font-size: 0.72rem;
+        cursor: pointer;
+        border: 1px solid rgba(var(--main-color-rgb, 255, 77, 0), 0.35);
+        transition: background 0.12s, color 0.12s, border-color 0.12s, transform 0.12s;
+        opacity: 0.85;
+    }
+    .notification-item-mark-read:hover,
+    .notification-item-mark-read:focus-visible {
+        background: var(--main-color);
+        color: #fff;
+        border-color: var(--main-color);
+        opacity: 1;
+        outline: none;
+        transform: scale(1.05);
+    }
+    .notification-item-mark-read:active {
+        transform: scale(0.95);
+    }
+    .notification-item-mark-read[disabled],
+    .notification-item-mark-read.is-loading {
+        opacity: 0.5;
+        cursor: wait;
+    }
+
+    .notifications-flyout-empty {
+        padding: 2rem 1rem;
+        color: var(--sidebar-icon-color);
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         gap: 0.5rem;
     }
 
-    .sidebar-mobile-right .sidebar-notification-badge {
-        font-size: 0.6rem;
-        padding: 0.1rem 0.35rem;
+    .notifications-flyout-empty i {
+        font-size: 1.75rem !important;
+        opacity: 0.4;
+        margin: 0 !important;
+        text-align: center !important;
+        width: auto !important;
+    }
+
+    .notifications-flyout-empty span {
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
+    .notifications-flyout-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        padding: 0.4rem;
+        flex-shrink: 0;
+    }
+
+    .notifications-flyout-footer a {
+        display: block;
+        text-align: center;
+        padding: 0.45rem;
+        font-size: 0.78rem;
+        color: var(--sidebar-icon-color);
+        text-decoration: none;
+        border-radius: 6px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+    .notifications-flyout-footer a:hover {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    /* User dropdown */
+    .user-dropdown {
+        width: 240px;
+        padding: 0.4rem;
+    }
+
+    .user-dropdown-header {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.55rem 0.65rem 0.65rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        margin-bottom: 0.35rem;
+    }
+
+    .user-dropdown-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--sidebar-avatar-bg);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.82rem;
+        flex-shrink: 0;
+    }
+
+    .user-dropdown-identity {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .user-dropdown-name {
+        display: block;
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-dropdown-role {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--sidebar-role-text);
+        font-size: 0.72rem;
+    }
+
+    .user-dropdown-role-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    .user-dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.5rem 0.65rem;
+        color: var(--sidebar-link-color);
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        transition: background 0.12s;
+    }
+
+    .user-dropdown-item:hover {
+        background: var(--sidebar-hover-bg);
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .user-dropdown-item i {
+        width: 16px;
+        color: var(--sidebar-icon-color);
+        text-align: center;
+        font-size: 0.85rem;
+    }
+
+    .user-dropdown-item:hover i {
+        color: #fff;
     }
 
     /* Overlay — smooth backdrop with blur */
@@ -797,16 +1359,42 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             transform: translateX(0);
         }
 
-        .sidebar-mobile-topbar {
+        .intra-topbar {
+            left: 0;
+        }
+
+        .intra-topbar .topbar-mobile-hamburger,
+        .intra-topbar .topbar-mobile-brand {
             display: flex;
+        }
+
+        .topbar-search-trigger {
+            flex: 0 0 auto;
+            max-width: none;
+            width: 40px;
+            padding: 0;
+            justify-content: center;
+            background: transparent;
+            border: none;
+        }
+
+        .topbar-search-trigger:hover {
+            background: var(--sidebar-hover-bg);
+            border-color: transparent;
+        }
+
+        .topbar-search-trigger-label,
+        .topbar-search-trigger-kbd {
+            display: none;
+        }
+
+        .topbar-user-name,
+        .topbar-user-chevron {
+            display: none;
         }
     }
 
     @media (min-width: 992px) {
-        .sidebar-mobile-topbar {
-            display: none !important;
-        }
-
         .sidebar-overlay {
             display: none !important;
         }
@@ -834,36 +1422,26 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     }
 </style>
 
+<?php if ($useNewNavbar): ?>
+    <script>document.body.classList.add('new-navbar');</script>
+    <?php include __DIR__ . '/navbar-sidebar.php'; ?>
+    <script defer src="<?= BASE_PATH ?>assets/js/navbar/sidebar-flyout.js"></script>
+<?php else: ?>
 <!-- ===================== -->
 <!-- SIDEBAR (Desktop)     -->
 <!-- ===================== -->
 <aside class="intra-sidebar" id="intraSidebar">
     <!-- Logo -->
     <div class="sidebar-logo">
-        <a href="<?= BASE_PATH ?>index.php">
+        <a href="<?= BASE_PATH ?>index">
             <img src="<?= SYSTEM_LOGO ?>" alt="<?= SYSTEM_NAME ?>">
         </a>
-    </div>
-
-    <!-- User Info -->
-    <div class="sidebar-user">
-        <div class="sidebar-avatar"><?= htmlspecialchars($sidebarInitials) ?></div>
-        <div class="sidebar-user-info">
-            <span class="sidebar-username"><?= htmlspecialchars($sidebarUsername) ?></span>
-            <span class="sidebar-role">
-                <span class="sidebar-role-dot" style="background:<?= $roleHex ?>"></span>
-                <?= htmlspecialchars($_SESSION['role_name'] ?? 'Benutzer') ?>
-            </span>
-        </div>
-        <button class="sidebar-search-btn" id="globalSearchOpen" title="Suchen (Ctrl+K)">
-            <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
     </div>
 
     <!-- Navigation -->
     <nav class="sidebar-nav">
         <!-- Dashboard -->
-        <a href="<?= BASE_PATH ?>index.php" class="sidebar-link" data-page="dashboard">
+        <a href="<?= BASE_PATH ?>index" class="sidebar-link" data-page="dashboard">
             <i class="fa-solid fa-home"></i><span>Dashboard</span>
         </a>
 
@@ -877,21 +1455,21 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <div class="sidebar-submenu-inner">
                     <?php if (Permissions::check(['admin', 'users.view'])): ?>
                         <span class="sidebar-section-title">Benutzer</span>
-                        <a href="<?= BASE_PATH ?>benutzer/list.php" class="sidebar-sublink">Übersicht</a>
+                        <a href="<?= BASE_PATH ?>users/list" class="sidebar-sublink">Übersicht</a>
                         <?php if (Permissions::check(['admin', 'users.create'])): ?>
-                            <a href="<?= BASE_PATH ?>benutzer/registration-codes.php" class="sidebar-sublink">Registrierungscodes</a>
+                            <a href="<?= BASE_PATH ?>users/registration-codes" class="sidebar-sublink">Registrierungscodes</a>
                         <?php endif; ?>
-                        <a href="<?= BASE_PATH ?>benutzer/rollen/index.php" class="sidebar-sublink">Rollenverwaltung</a>
+                        <a href="<?= BASE_PATH ?>users/rollen/index" class="sidebar-sublink">Rollenverwaltung</a>
                         <?php if (Permissions::check(['admin', 'audit.view'])): ?>
-                            <a href="<?= BASE_PATH ?>benutzer/auditlog.php" class="sidebar-sublink">Audit-Log</a>
+                            <a href="<?= BASE_PATH ?>users/auditlog" class="sidebar-sublink">Audit-Log</a>
                         <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
                         <span class="sidebar-section-title">Mitarbeiter</span>
-                        <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="sidebar-sublink">Übersicht</a>
+                        <a href="<?= BASE_PATH ?>personnel/list" class="sidebar-sublink">Übersicht</a>
                         <?php if (Permissions::check(['admin', 'application.view'])): ?>
-                            <a href="<?= BASE_PATH ?>antrag/admin/list.php" class="sidebar-sublink">Anträge bearbeiten</a>
+                            <a href="<?= BASE_PATH ?>forms/admin/list" class="sidebar-sublink">Anträge bearbeiten</a>
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
@@ -911,22 +1489,22 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                     <a href="<?= EnotfUrl::admin('list') ?>" class="sidebar-sublink">Prüfliste</a>
                 <?php endif; ?>
 
-                <?php if (Permissions::check(['admin', 'manv.manage'])): ?>
+                <?php if (Permissions::check(['admin', 'mci.manage'])): ?>
                     <span class="sidebar-section-title" data-section="manv">MANV-Board</span>
-                    <a href="<?= BASE_PATH ?>manv/index.php" class="sidebar-sublink">MANV-Board</a>
+                    <a href="<?= BASE_PATH ?>mci/" class="sidebar-sublink">MANV-Board</a>
                 <?php endif; ?>
 
                 <span class="sidebar-section-title" data-section="firetab">FW Einsatzprotokolle</span>
-                <a href="<?= BASE_PATH ?>einsatz/create.php" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
+                <a href="<?= BASE_PATH ?>firetab/" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
                 <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
-                    <a href="<?= BASE_PATH ?>einsatz/admin/list.php" class="sidebar-sublink">Qualitätsmanagement</a>
+                    <a href="<?= BASE_PATH ?>firetab/admin/list" class="sidebar-sublink">Qualitätsmanagement</a>
                 <?php endif; ?>
             </div>
         </div>
 
-        <!-- Wissensdatenbank -->
-        <a href="<?= BASE_PATH ?>wissensdb/index.php" class="sidebar-link" data-page="wissensdb">
-            <i class="fa-solid fa-book-medical"></i><span>Wissensdatenbank</span>
+        <!-- Lexikon (Legacy-Modul-Folder, serviert direkt via DirectoryIndex unter /lexicon/) -->
+        <a href="<?= BASE_PATH ?>lexicon/index" class="sidebar-link" data-page="lexicon">
+            <i class="fa-solid fa-book-medical"></i><span>Lexikon</span>
         </a>
 
         <!-- Fahrzeuge -->
@@ -937,13 +1515,13 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             </a>
             <div class="sidebar-submenu" data-submenu="fahrzeuge">
                 <div class="sidebar-submenu-inner">
-                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php" class="sidebar-sublink">Übersicht</a>
-                    <a href="<?= BASE_PATH ?>settings/fahrzeuge/defekte/index.php" class="sidebar-sublink">Defekt-Meldungen</a>
-                    <?php if (Permissions::check(['admin', 'fahrtenbuch.view', 'fahrtenbuch.manage'])): ?>
-                        <a href="<?= BASE_PATH ?>fahrtenbuch/index.php" class="sidebar-sublink">Fahrtenbuch</a>
+                    <a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index" class="sidebar-sublink">Übersicht</a>
+                    <a href="<?= BASE_PATH ?>settings/vehicles/defects/index" class="sidebar-sublink">Defekt-Meldungen</a>
+                    <?php if (Permissions::check(['admin', 'logbook.view', 'logbook.manage'])): ?>
+                        <a href="<?= BASE_PATH ?>logbook/index" class="sidebar-sublink">Fahrtenbuch</a>
                     <?php endif; ?>
                     <?php if (Permissions::check(['admin', 'vehicles.manage'])): ?>
-                        <a href="<?= BASE_PATH ?>settings/fahrzeuge/beladelisten/index.php" class="sidebar-sublink">Beladelisten</a>
+                        <a href="<?= BASE_PATH ?>settings/vehicles/vehload/index" class="sidebar-sublink">Beladelisten</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -959,107 +1537,180 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <div class="sidebar-submenu-inner">
                     <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
                         <span class="sidebar-section-title">Personal</span>
-                        <a href="<?= BASE_PATH ?>settings/personal/dienstgrade/index.php" class="sidebar-sublink">Dienstgrade</a>
-                        <a href="<?= BASE_PATH ?>settings/personal/qualifw/index.php" class="sidebar-sublink">FW Qualifikationen</a>
-                        <a href="<?= BASE_PATH ?>settings/personal/qualird/index.php" class="sidebar-sublink">RD Qualifikationen</a>
-                        <a href="<?= BASE_PATH ?>settings/personal/qualifd/index.php" class="sidebar-sublink">Fachdienste</a>
+                        <a href="<?= BASE_PATH ?>settings/personnel/ranks/index" class="sidebar-sublink">Dienstgrade</a>
+                        <a href="<?= BASE_PATH ?>settings/personnel/fdskills/index" class="sidebar-sublink">FW Qualifikationen</a>
+                        <a href="<?= BASE_PATH ?>settings/personnel/ambskills/index" class="sidebar-sublink">RD Qualifikationen</a>
+                        <a href="<?= BASE_PATH ?>settings/personnel/specialties/index" class="sidebar-sublink">Fachdienste</a>
                         <?php if (Permissions::check(['admin'])): ?>
-                            <a href="<?= BASE_PATH ?>settings/documents/templates.php" class="sidebar-sublink">Dokumente</a>
-                            <a href="<?= BASE_PATH ?>settings/antrag/list.php" class="sidebar-sublink">Antragstypen</a>
+                            <a href="<?= BASE_PATH ?>settings/documents/templates" class="sidebar-sublink">Dokumente</a>
+                            <a href="<?= BASE_PATH ?>settings/forms/list" class="sidebar-sublink">Antragstypen</a>
                         <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if (Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>
                         <span class="sidebar-section-title" data-section="enotf-settings">eNOTF</span>
                         <?php if (Permissions::check(['admin', 'pois.view'])): ?>
-                            <a href="<?= BASE_PATH ?>settings/pois/index.php" class="sidebar-sublink">POIs</a>
+                            <a href="<?= BASE_PATH ?>settings/pois/index" class="sidebar-sublink">POIs</a>
                         <?php endif; ?>
                         <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
-                            <a href="<?= BASE_PATH ?>settings/medikamente/index.php" class="sidebar-sublink">Medikamente</a>
-                            <a href="<?= BASE_PATH ?>settings/enotf/index.php" class="sidebar-sublink">Schnellzugriff</a>
+                            <a href="<?= BASE_PATH ?>settings/medications/index" class="sidebar-sublink">Medikamente</a>
+                            <a href="<?= BASE_PATH ?>settings/enotf/index" class="sidebar-sublink">Schnellzugriff</a>
                         <?php endif; ?>
                     <?php endif; ?>
 
                     <span class="sidebar-section-title" data-section="system">System</span>
                     <?php if (Permissions::check(['admin', 'dashboard.manage'])): ?>
-                        <a href="<?= BASE_PATH ?>settings/dashboard/index.php" class="sidebar-sublink">Dashboard</a>
+                        <a href="<?= BASE_PATH ?>settings/dashboard/index" class="sidebar-sublink">Dashboard</a>
                     <?php endif; ?>
                     <?php if (Permissions::check(['admin'])): ?>
-                        <a href="<?= BASE_PATH ?>settings/system/config.php" class="sidebar-sublink">Konfiguration</a>
-                        <a href="<?= BASE_PATH ?>settings/system/index.php" class="sidebar-sublink">Updater</a>
-                        <a href="<?= BASE_PATH ?>settings/system/telemetry.php" class="sidebar-sublink">Telemetrie</a>
-                        <a href="<?= BASE_PATH ?>settings/system/performance.php" class="sidebar-sublink">Performance</a>
-                        <a href="<?= BASE_PATH ?>settings/federation/index.php" class="sidebar-sublink">Instanzvernetzung</a>
+                        <a href="<?= BASE_PATH ?>settings/system/config" class="sidebar-sublink">Konfiguration</a>
+                        <a href="<?= BASE_PATH ?>settings/system/index" class="sidebar-sublink">Updater</a>
+                        <a href="<?= BASE_PATH ?>settings/system/telemetry" class="sidebar-sublink">Telemetrie</a>
+                        <a href="<?= BASE_PATH ?>settings/system/performance" class="sidebar-sublink">Performance</a>
+                        <a href="<?= BASE_PATH ?>settings/system/logs" class="sidebar-sublink">Logs &amp; Errors</a>
+                        <a href="<?= BASE_PATH ?>settings/federation/index" class="sidebar-sublink">Instanzvernetzung</a>
                     <?php endif; ?>
                 </div>
             </div>
         <?php endif; ?>
     </nav>
 
-    <!-- Bottom: Theme + Notifications + Logout -->
-    <div class="sidebar-bottom">
-        <!-- Akzentfarbe (vorerst ausgeblendet)
-        <div class="sidebar-link" style="justify-content:space-between;cursor:default;">
-            <div style="display:flex;align-items:center;gap:0.5rem;">
-                <i class="fa-solid fa-palette" style="width:22px;text-align:center;font-size:0.95rem;"></i>
-                <span>Akzentfarbe</span>
-            </div>
-            <div style="position:relative;">
-                <button class="sidebar-theme-btn" id="themePickerToggle" title="Akzentfarbe wählen">
-                    <span class="tp-current-dot" style="width:14px;height:14px;border-radius:50%;background:var(--main-color);display:block;"></span>
-                </button>
-                <div class="theme-picker-popover" id="themePickerPopover">
-                    <div class="tp-title">Akzentfarbe</div>
-                    <div class="tp-presets">
-                        <div class="tp-swatch" data-accent="red" style="background:#d10000;" title="Rot"></div>
-                        <div class="tp-swatch" data-accent="blue" style="background:#2563eb;" title="Blau"></div>
-                        <div class="tp-swatch" data-accent="green" style="background:#16a34a;" title="Grün"></div>
-                        <div class="tp-swatch" data-accent="purple" style="background:#7c3aed;" title="Lila"></div>
-                        <div class="tp-swatch" data-accent="orange" style="background:#ea580c;" title="Orange"></div>
-                        <div class="tp-swatch" data-accent="teal" style="background:#0d9488;" title="Teal"></div>
-                        <div class="tp-swatch" data-accent="pink" style="background:#db2777;" title="Pink"></div>
-                        <div class="tp-swatch" data-accent="amber" style="background:#d97706;" title="Bernstein"></div>
-                    </div>
-                    <div class="tp-custom-row">
-                        <span class="tp-custom-label">Eigene Farbe</span>
-                        <input type="color" class="tp-custom-input" id="themeCustomColor" value="#d10000" title="Eigene Akzentfarbe wählen">
-                    </div>
-                </div>
-            </div>
-        </div>
-        -->
-        <a href="<?= BASE_PATH ?>benachrichtigungen/index.php" class="sidebar-link">
-            <i class="fa-solid fa-bell"></i><span>Benachrichtigungen</span>
-            <span class="sidebar-notification-badge notification-poll-badge" style="<?= $unreadCount > 0 ? '' : 'display:none;' ?>"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
-        </a>
-        <a href="<?= BASE_PATH ?>logout.php" class="sidebar-link">
-            <i class="fa-solid fa-right-from-bracket"></i><span>Abmelden</span>
-        </a>
-    </div>
 </aside>
+<?php endif; ?>
 
 <?php include __DIR__ . '/global-announcements.php'; ?>
 
+<?php
+// Icon-Map für Notifications im Flyout (identisch zu templates/benachrichtigungen/index.php)
+$topbarNotifIcons = [
+    'antrag'        => 'fa-file',
+    'protokoll'     => 'fa-truck-medical',
+    'dokument'      => 'fa-folder-open',
+    'fire_protocol' => 'fa-fire',
+    'system'        => 'fa-gears',
+];
+$topbarTimeAgo = static function (string $createdAt): string {
+    try {
+        $dt   = new DateTime($createdAt);
+        $now  = new DateTime('now');
+        $diff = $now->diff($dt);
+        if ($diff->invert === 0) return 'Gerade eben';
+        if ($diff->days > 0)     return 'Vor ' . $diff->days . ' Tag' . ($diff->days > 1 ? 'en' : '');
+        if ($diff->h > 0)        return 'Vor ' . $diff->h . ' Std.';
+        if ($diff->i > 0)        return 'Vor ' . $diff->i . ' Min.';
+        return 'Gerade eben';
+    } catch (\Exception $e) {
+        return '';
+    }
+};
+?>
 <!-- ===================== -->
-<!-- MOBILE TOPBAR         -->
+<!-- TOPBAR (Desktop + Mobile) -->
 <!-- ===================== -->
-<div class="sidebar-mobile-topbar">
-    <button class="sidebar-toggle-btn" id="sidebarToggle" aria-label="Menü öffnen">
+<header class="intra-topbar">
+    <button class="sidebar-toggle-btn topbar-mobile-hamburger" id="sidebarToggle" aria-label="Menü öffnen">
         <i class="fa-solid fa-bars"></i>
     </button>
-    <a href="<?= BASE_PATH ?>index.php">
+    <a href="<?= BASE_PATH ?>index" class="topbar-mobile-brand">
         <img src="<?= SYSTEM_LOGO ?>" alt="<?= SYSTEM_NAME ?>">
     </a>
-    <div class="sidebar-mobile-right">
-        <button class="sidebar-toggle-btn global-search-mobile-btn" style="margin-right:0;font-size:1rem;" aria-label="Suchen">
-            <i class="fa-solid fa-magnifying-glass"></i>
-        </button>
-        <a href="<?= BASE_PATH ?>benachrichtigungen/index.php" class="sidebar-link notification-poll-mobile" style="padding:0.4rem;margin:0;<?= $unreadCount > 0 ? '' : 'display:none;' ?>">
-            <i class="fa-solid fa-bell" style="margin-right:0;width:auto;"></i>
-            <span class="sidebar-notification-badge notification-poll-badge"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
-        </a>
+
+    <button type="button" class="topbar-search-trigger" id="globalSearchOpen" aria-label="Suchen">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span class="topbar-search-trigger-label">Suchen...</span>
+        <span class="topbar-search-trigger-kbd">Ctrl+K</span>
+    </button>
+
+    <div class="topbar-actions">
+        <!-- Notifications -->
+        <div style="position:relative;">
+            <button type="button" class="topbar-icon-btn" id="topbarNotifBtn" aria-label="Benachrichtigungen" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-bell"></i>
+                <span class="topbar-ignis-chip notification-poll-badge" style="<?= $unreadCount > 0 ? '' : 'display:none;' ?>"><?= $unreadCount > 9 ? '9+' : $unreadCount ?></span>
+            </button>
+            <div class="topbar-flyout notifications-flyout" id="topbarNotifFlyout" role="menu">
+                <div class="notifications-flyout-header">
+                    <span class="notifications-flyout-title">Benachrichtigungen</span>
+                    <button type="button" class="notifications-flyout-mark-all" id="topbarNotifMarkAll" title="Alle als gelesen markieren" <?= $unreadCount > 0 ? '' : 'disabled' ?>>
+                        <i class="fa-solid fa-check-double"></i>
+                    </button>
+                </div>
+                <div class="notifications-flyout-body" id="topbarNotifBody">
+                    <?php if (empty($recentNotifications)): ?>
+                        <div class="notifications-flyout-empty">
+                            <i class="fa-solid fa-bell-slash"></i>
+                            <span>Keine Benachrichtigungen</span>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($recentNotifications as $n):
+                            $type      = $n['type'] ?? 'system';
+                            $icon      = $topbarNotifIcons[$type] ?? 'fa-bell';
+                            $isUnread  = empty($n['is_read']);
+                            $link      = !empty($n['link']) ? BASE_PATH . ltrim($n['link'], '/') : BASE_PATH . 'notifications/index';
+                            $timeAgo   = $topbarTimeAgo((string) ($n['created_at'] ?? ''));
+                        ?>
+                            <a href="<?= htmlspecialchars($link) ?>" class="notification-item<?= $isUnread ? ' unread' : '' ?>" data-id="<?= (int) ($n['id'] ?? 0) ?>">
+                                <span class="notification-item-icon"><i class="fa-solid <?= $icon ?>"></i></span>
+                                <div class="notification-item-body">
+                                    <span class="notification-item-title"><?= htmlspecialchars($n['title'] ?? '') ?></span>
+                                    <span class="notification-item-meta"><?= htmlspecialchars($timeAgo) ?></span>
+                                </div>
+                                <?php if ($isUnread): ?>
+                                    <span class="notification-item-mark-read" role="button" tabindex="0" data-mark-read aria-label="Als gelesen markieren" title="Als gelesen markieren">
+                                        <i class="fa-solid fa-check"></i>
+                                    </span>
+                                <?php endif; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <div class="notifications-flyout-footer">
+                    <a href="<?= BASE_PATH ?>notifications/index">Alle anzeigen</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- User -->
+        <div style="position:relative;">
+            <button type="button" class="topbar-user-btn" id="topbarUserBtn" aria-label="Benutzermenü" aria-haspopup="true" aria-expanded="false">
+                <span class="topbar-user-avatar"><?= htmlspecialchars($sidebarInitials) ?></span>
+                <span class="topbar-user-name"><?= htmlspecialchars($sidebarUsername) ?></span>
+                <i class="fa-solid fa-chevron-down topbar-user-chevron"></i>
+            </button>
+            <div class="topbar-flyout user-dropdown" id="topbarUserDropdown" role="menu">
+                <?php
+                // Robust gegen veraltete Sessions: wenn role_name nicht gesetzt
+                // ist (z.B. weil die Session vor dem setRoleDetails-Patch
+                // geboren wurde), aus den permissions ableiten — full_admin
+                // schlaegt alles und wird sonst zu "Benutzer".
+                $displayRoleName = $_SESSION['role_name'] ?? null;
+                if (!$displayRoleName) {
+                    $perms = $_SESSION['permissions'] ?? [];
+                    if (is_array($perms) && in_array('full_admin', $perms, true)) {
+                        $displayRoleName = 'Admin+';
+                    } else {
+                        $displayRoleName = 'Benutzer';
+                    }
+                }
+                ?>
+                <div class="user-dropdown-header">
+                    <div class="user-dropdown-avatar"><?= htmlspecialchars($sidebarInitials) ?></div>
+                    <div class="user-dropdown-identity">
+                        <span class="user-dropdown-name"><?= htmlspecialchars($sidebarUsername) ?></span>
+                        <span class="user-dropdown-role">
+                            <span class="user-dropdown-role-dot" style="background:<?= $roleHex ?>"></span>
+                            <?= htmlspecialchars($displayRoleName) ?>
+                        </span>
+                    </div>
+                </div>
+                <a href="<?= BASE_PATH ?>logout" class="user-dropdown-item">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Abmelden</span>
+                </a>
+            </div>
+        </div>
     </div>
-</div>
+</header>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- ===================== -->
@@ -1211,23 +1862,24 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             }
         });
 
-        // Mobile sidebar toggle
+        // Mobile sidebar toggle (Legacy-Sidebar — Neue Sidebar wird von
+        // sidebar-flyout.js verwaltet; hier Early-Return verhindert Konflikt.)
         $("#sidebarToggle").on("click", function() {
+            if ($("body").hasClass("new-navbar")) {
+                return;
+            }
             $("#intraSidebar").toggleClass("open");
             $("#sidebarOverlay").toggleClass("active");
         });
 
-        // Close sidebar on overlay click
+        // Close sidebar on overlay click (Legacy)
         $("#sidebarOverlay").on("click", function() {
             $("#intraSidebar").removeClass("open");
             $(this).removeClass("active");
         });
 
-        // Tooltips
-        var tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-        tooltipTriggerList.forEach(function(el) {
-            new bootstrap.Tooltip(el);
-        });
+        // Tooltips werden über ignis-tooltip (data-ignis-tooltip) gerendert,
+        // Bootstrap-Tooltip-Init ist nicht mehr nötig.
 
         // ========================================
         // GLOBAL SEARCH MODAL
@@ -1275,7 +1927,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             $searchResults.html('<div class="gsr-loading"><i class="fa-solid fa-spinner fa-spin"></i> Suche...</div>');
 
             searchTimer = setTimeout(function() {
-                searchXhr = $.getJSON("<?= BASE_PATH ?>api/system/global-search.php", {
+                searchXhr = $.getJSON("<?= BASE_PATH ?>api/system/global-search", {
                         q: q
                     })
                     .done(function(data) {
@@ -1472,7 +2124,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             localStorage.setItem(THEME_KEY, accent);
 
             $.ajax({
-                url: "<?= BASE_PATH ?>api/system/theme.php",
+                url: "<?= BASE_PATH ?>api/system/theme",
                 method: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({
@@ -1487,7 +2139,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             applyAccent(savedAccent);
         } else {
             // Kein localStorage → Theme aus DB laden (z.B. neues Gerät)
-            $.getJSON("<?= BASE_PATH ?>api/system/theme.php", function(data) {
+            $.getJSON("<?= BASE_PATH ?>api/system/theme", function(data) {
                 if (data.config && data.config.accent) {
                     localStorage.setItem(THEME_KEY, data.config.accent);
                     applyAccent(data.config.accent);
@@ -1527,6 +2179,167 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             if (!$(e.target).closest("#themePickerPopover, #themePickerToggle").length) {
                 $themePopover.removeClass("show");
             }
+        });
+
+        // ========================================
+        // TOPBAR: Notifications-Flyout & User-Dropdown
+        // ========================================
+        var $notifBtn = $("#topbarNotifBtn");
+        var $notifFlyout = $("#topbarNotifFlyout");
+        var $userBtn = $("#topbarUserBtn");
+        var $userDropdown = $("#topbarUserDropdown");
+        var $markAll = $("#topbarNotifMarkAll");
+
+        function closeAllFlyouts() {
+            $notifFlyout.removeClass("show");
+            $notifBtn.removeClass("open").attr("aria-expanded", "false");
+            $userDropdown.removeClass("show");
+            $userBtn.removeClass("open").attr("aria-expanded", "false");
+        }
+
+        $notifBtn.on("click", function(e) {
+            e.stopPropagation();
+            var willOpen = !$notifFlyout.hasClass("show");
+            closeAllFlyouts();
+            if (willOpen) {
+                $notifFlyout.addClass("show");
+                $notifBtn.addClass("open").attr("aria-expanded", "true");
+            }
+        });
+
+        $userBtn.on("click", function(e) {
+            e.stopPropagation();
+            var willOpen = !$userDropdown.hasClass("show");
+            closeAllFlyouts();
+            if (willOpen) {
+                $userDropdown.addClass("show");
+                $userBtn.addClass("open").attr("aria-expanded", "true");
+            }
+        });
+
+        // Klicks innerhalb der Flyouts sollen das Flyout nicht schließen
+        $notifFlyout.on("click", function(e) {
+            e.stopPropagation();
+        });
+        $userDropdown.on("click", function(e) {
+            e.stopPropagation();
+        });
+
+        $(document).on("click", function() {
+            closeAllFlyouts();
+        });
+
+        $(document).on("keydown", function(e) {
+            if (e.key === "Escape") {
+                closeAllFlyouts();
+            }
+        });
+
+        // Alle als gelesen
+        $markAll.on("click", function(e) {
+            e.stopPropagation();
+            if ($markAll.prop("disabled")) return;
+            $markAll.prop("disabled", true);
+            $.ajax({
+                url: "<?= BASE_PATH ?>api/notifications/mark-all-read",
+                method: "POST",
+                dataType: "json"
+            }).done(function(data) {
+                if (data && data.success) {
+                    $notifFlyout.find(".notification-item.unread")
+                        .removeClass("unread")
+                        .find(".notification-item-dot, .notification-item-mark-read").remove();
+                    if (typeof window.intraNotifSetCount === 'function') {
+                        window.intraNotifSetCount(0);
+                    } else {
+                        $(".notification-poll-badge").each(function() {
+                            $(this).text("0").hide();
+                        });
+                    }
+                } else {
+                    $markAll.prop("disabled", false);
+                }
+            }).fail(function() {
+                $markAll.prop("disabled", false);
+            });
+        });
+
+        // ────────────────────────────────────────────────────────────
+        // Per-Item Mark-As-Read im Topbar-Flyout
+        //
+        //  • Klick auf den ✓-Button: markiert NUR diese Notification
+        //    als gelesen, Link wird NICHT gefolgt.
+        //  • Klick auf den Rest des Items: feuert mark-read im
+        //    Hintergrund (keepalive) und laesst die Navigation laufen,
+        //    sodass die Verlinkung normal aufgerufen wird.
+        // ────────────────────────────────────────────────────────────
+        function basePathFor(url) {
+            return <?= json_encode(BASE_PATH) ?> + url.replace(/^\//, '');
+        }
+
+        function markNotifRead(id, opts) {
+            var keepalive = !!(opts && opts.keepalive);
+            return fetch(basePathFor('api/notifications/mark-read'), {
+                method:    'POST',
+                headers:   { 'Content-Type': 'application/json' },
+                body:      JSON.stringify({ id: id }),
+                keepalive: keepalive,
+                credentials: 'same-origin'
+            });
+        }
+
+        function applyItemRead($item) {
+            $item.removeClass('unread')
+                 .find('.notification-item-mark-read, .notification-item-dot').remove();
+            // Unread-Counter ums neue Item dekrementieren — solange wir
+            // hier eine Item-Aktion verarbeiten, weiss niemand sonst, dass
+            // der Server-Count sinkt; sonst wuerde der naechste Poll-Tick
+            // das Bell-Highlight stale lassen.
+            var $remaining = $notifFlyout.find('.notification-item.unread');
+            if (typeof window.intraNotifSetCount === 'function') {
+                window.intraNotifSetCount($remaining.length);
+            }
+        }
+
+        // Klick auf den Mark-Read-Button — Item bleibt im Flyout, wird
+        // nur visuell entkennzeichnet.
+        $notifFlyout.on('click keydown', '[data-mark-read]', function(e) {
+            if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            e.stopPropagation();
+
+            var $btn   = $(this);
+            if ($btn.hasClass('is-loading')) return;
+            var $item  = $btn.closest('.notification-item');
+            var id     = parseInt($item.attr('data-id'), 10);
+            if (!id) return;
+
+            $btn.addClass('is-loading').attr('aria-disabled', 'true');
+            markNotifRead(id, { keepalive: false })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data && data.success) {
+                        applyItemRead($item);
+                    } else {
+                        $btn.removeClass('is-loading').removeAttr('aria-disabled');
+                    }
+                })
+                .catch(function() {
+                    $btn.removeClass('is-loading').removeAttr('aria-disabled');
+                });
+        });
+
+        // Klick aufs Item selbst (nicht auf den Mark-Read-Button) — feuert
+        // mark-read im Hintergrund und navigiert weiter wie gewohnt.
+        $notifFlyout.on('click', '.notification-item.unread', function(e) {
+            // Wenn der Klick aus dem Mark-Read-Button kam, hat dessen
+            // Handler oben preventDefault()/stopPropagation() schon getan;
+            // dieser Handler laeuft dann gar nicht erst.
+            var id = parseInt($(this).attr('data-id'), 10);
+            if (!id) return;
+            // Fire-and-forget; Browser navigiert sofort weiter, der
+            // keepalive-Flag haelt den Request am Leben.
+            markNotifRead(id, { keepalive: true });
         });
     });
 </script>
@@ -1600,30 +2413,73 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         var lastKnownCount = <?= $unreadCount ?>;
         var toastedIds = {};
 
+        // Original-Browsertitel einmalig sichern; Updates passieren als Prefix.
+        var originalDocTitle = document.title;
+
+        function updateBrowserTitle(count) {
+            // Wenn die Seite ihr Titel zwischenzeitlich geaendert hat (z.B.
+            // Tab-Wechsel auf Detailseite), arbeiten wir vom aktuellen Titel
+            // ohne unseren Prefix aus.
+            var stripped = document.title.replace(/^\(\d+\)\s+/, '');
+            originalDocTitle = stripped;
+            document.title = count > 0 ? '(' + (count > 99 ? '99+' : count) + ') ' + stripped : stripped;
+        }
+
         function updateBadges(count) {
             var badges = document.querySelectorAll('.notification-poll-badge');
-            var mobileLink = document.querySelector('.notification-poll-mobile');
+            var markAllBtn = document.getElementById('topbarNotifMarkAll');
+            var notifBtn = document.getElementById('topbarNotifBtn');
             var text = count > 9 ? '9+' : String(count);
             badges.forEach(function(b) {
                 b.textContent = text;
                 b.style.display = count > 0 ? '' : 'none';
             });
-            if (mobileLink) {
-                mobileLink.style.display = count > 0 ? '' : 'none';
+            if (markAllBtn) {
+                markAllBtn.disabled = count <= 0;
             }
+            if (notifBtn) {
+                notifBtn.classList.toggle('topbar-icon-btn--has-unread', count > 0);
+            }
+            updateBrowserTitle(count);
+        }
+
+        // Initialer Sync: Bell-Highlight + Browser-Titel-Prefix anhand des
+        // serverseitig gerenderten Counts. Vermeidet "blinden" ersten Frame
+        // ohne Highlight, wenn die Seite mit unread > 0 lädt.
+        updateBadges(lastKnownCount);
+
+        // Externer Hook fuer den Mark-All-Handler oben, der ausserhalb
+        // dieses IIFE-Scopes lebt.
+        window.intraNotifSetCount = function (count) {
+            lastKnownCount = count | 0;
+            updateBadges(lastKnownCount);
+        };
+
+        function shakeBell() {
+            var notifBtn = document.getElementById('topbarNotifBtn');
+            if (!notifBtn) return;
+            notifBtn.classList.remove('topbar-icon-btn--shake');
+            // forced reflow → Animation kann erneut starten
+            void notifBtn.offsetWidth;
+            notifBtn.classList.add('topbar-icon-btn--shake');
+            setTimeout(function () {
+                notifBtn.classList.remove('topbar-icon-btn--shake');
+            }, 600);
         }
 
         function poll() {
             if (document.visibilityState === 'hidden') return;
-            fetch(basePath + 'api/notifications/poll.php?since=' + encodeURIComponent(lastPoll))
+            fetch(basePath + 'api/notifications/poll?since=' + encodeURIComponent(lastPoll))
                 .then(function(r) {
                     return r.json();
                 })
                 .then(function(data) {
                     if (!data.success) return;
+                    var increased = data.unreadCount > lastKnownCount;
                     updateBadges(data.unreadCount);
+                    if (increased) shakeBell();
                     // Only toast truly new notifications (count increased + not yet toasted)
-                    if (data.unreadCount > lastKnownCount && data.new && data.new.length > 0) {
+                    if (increased && data.new && data.new.length > 0) {
                         for (var i = 0; i < data.new.length; i++) {
                             var n = data.new[i];
                             if (!toastedIds[n.id]) {

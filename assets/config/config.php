@@ -3,6 +3,14 @@
 // Autoloader muss zuerst geladen werden
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+// .env laden, BEVOR der Container gebaut wird — Eloquent-Capsule liest die
+// DB-Credentials direkt aus $_ENV beim Eager-Boot. createImmutable überschreibt
+// keine bereits gesetzten Werte (z.B. wenn ein vorheriger Bootstrap-Schritt
+// schon dotenv geladen hat oder Variablen vom Webserver gesetzt sind).
+if (empty($_ENV['DB_HOST'])) {
+    \Dotenv\Dotenv::createImmutable(__DIR__ . '/../../', null, false)->load();
+}
+
 use App\Auth\Permissions;
 use App\Config\ConfigManager;
 use App\Logging\ErrorHandler;
@@ -11,7 +19,27 @@ use App\Session\SessionManager;
 // ============================================================================
 // Globales Error-Handling & Logging registrieren
 // ============================================================================
+// MUSS vor dem Container-Build passieren, damit Vendor-Deprecations (z.B. von
+// PHP-DI selbst) vom isVendorFile()-Filter im ErrorHandler abgefangen werden
+// und nicht im Browser landen.
 ErrorHandler::register();
+
+// ============================================================================
+// Service-Container (PHP-DI) bootstrappen
+// ============================================================================
+// Wird einmalig pro Request gebaut und in $GLOBALS abgelegt, damit die
+// app()-Helper-Funktion aus src/helpers.php darauf zugreifen kann.
+// Bestehender Code bleibt unangetastet — der Container ist additiv.
+if (!isset($GLOBALS['app_container'])) {
+    $containerBuilder = new \DI\ContainerBuilder();
+    $containerBuilder->useAutowiring(true);
+    $containerBuilder->addDefinitions(__DIR__ . '/../../config/container.php');
+    $GLOBALS['app_container'] = $containerBuilder->build();
+
+    // Eloquent eager booten — ohne setAsGlobal() würden Models keine Verbindung
+    // finden. Idempotent: Capsule ist im Container ein Singleton.
+    $GLOBALS['app_container']->get(\Illuminate\Database\Capsule\Manager::class);
+}
 
 // ============================================================================
 // Session mit Sicherheitsoptimierungen starten
@@ -23,19 +51,26 @@ SessionManager::start();
 // ============================================================================
 // Permissions werden alle 5 Minuten neu aus der DB geladen.
 // Das stellt sicher, dass Änderungen an Rollen zeitnah wirksam werden.
-if (isset($_SESSION['userid'])) {
-    $permissionsAge = time() - ($_SESSION['permissions_loaded'] ?? 0);
+if (SessionManager::isLoggedIn()) {
     $permissionsTTL = 300; // 5 Minuten
-    
-    if (!isset($_SESSION['permissions']) || $permissionsAge > $permissionsTTL) {
+
+    if (!SessionManager::has('permissions') || SessionManager::permissionsAge() > $permissionsTTL) {
         require_once __DIR__ . '/database.php';
-        $_SESSION['permissions'] = Permissions::retrieveFromDatabase($pdo, $_SESSION['userid']);
-        $_SESSION['permissions_loaded'] = time();
+        SessionManager::setPermissions(
+            Permissions::retrieveFromDatabase($pdo, (int) SessionManager::userId())
+        );
     }
 }
 
 // Load configuration from database
 require_once __DIR__ . '/database.php';
+
+// Existierende $pdo-Instanz in den Container schieben, damit Legacy-Code
+// (der direkt $pdo nutzt) und neuer DI-Code (app(PDO::class)) dieselbe
+// Verbindung verwenden. Idempotent: kann mehrfach pro Request laufen.
+if (isset($pdo) && $pdo instanceof PDO) {
+    $GLOBALS['app_container']->set(PDO::class, $pdo);
+}
 
 // Auto-run pending database migrations (lightweight file-count check)
 try {
@@ -55,10 +90,10 @@ try {
 
     // BASIS DATEN - Fallback defaults
     if (!defined('API_KEY')) define('API_KEY', 'CHANGE_ME');
-    if (!defined('SYSTEM_NAME')) define('SYSTEM_NAME', 'intraRP');
-    if (!defined('SYSTEM_COLOR')) define('SYSTEM_COLOR', '#d10000');
+    if (!defined('SYSTEM_NAME')) define('SYSTEM_NAME', 'ıgnıs');
+    if (!defined('SYSTEM_COLOR')) define('SYSTEM_COLOR', '#FF4D00');
     if (!defined('SYSTEM_URL')) define('SYSTEM_URL', 'CHANGE_ME');
-    if (!defined('SYSTEM_LOGO')) define('SYSTEM_LOGO', '/assets/img/defaultLogo.webp');
+    if (!defined('SYSTEM_LOGO')) define('SYSTEM_LOGO', '/assets/img/ignis-wordmark.svg');
     if (!defined('META_IMAGE_URL')) define('META_IMAGE_URL', '');
 
     // SERVER DATEN

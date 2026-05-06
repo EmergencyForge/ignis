@@ -1,6 +1,6 @@
 <?php
 /**
- * Error page matching the intraRP design system.
+ * Error page matching the ignis design system.
  *
  * Available variables from ErrorHandler:
  * - $exception: ?Throwable - the exception (null for fatal errors)
@@ -16,8 +16,15 @@ $trace = $exception ? $exception->getTrace() : [];
 $phpVersion = PHP_VERSION;
 
 // Read version info
-$versionFile = dirname(__DIR__, 2) . '/system/updates/version.json';
-$versionInfo = file_exists($versionFile) ? json_decode(file_get_contents($versionFile), true) : null;
+$versionFile = dirname(__DIR__, 2) . '/storage/version.json';
+if (!is_file($versionFile)) {
+    // Legacy-Fallback falls Migration noch nicht durchgelaufen ist
+    $legacy = dirname(__DIR__, 2) . '/system/updates/version.json';
+    if (is_file($legacy)) {
+        $versionFile = $legacy;
+    }
+}
+$versionInfo = is_file($versionFile) ? json_decode(file_get_contents($versionFile), true) : null;
 $appVersion = $versionInfo['version'] ?? 'unknown';
 
 // Request info
@@ -87,9 +94,8 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars(_err_classBasename($exceptionClass)) ?> - Fehler</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>vendor/fortawesome/font-awesome/css/all.min.css">
-    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/rubik/css/all.min.css">
+    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/geist/css/all.min.css">
+    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/geist-mono/css/all.min.css">
     <style>
         :root {
             --body-bg: #2b2930;
@@ -101,11 +107,11 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
             --text-dimmed: #818189;
             --darkgray: #3d3a44;
             --input-bg: #25242c;
-            --font-mono: 'Inconsolata', 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+            --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
         body {
-            font-family: 'Rubik', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            font-family: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
             background: var(--body-bg);
             color: var(--text-normal);
             min-height: 100vh;
@@ -342,8 +348,8 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
         .err-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.25); text-decoration: none; }
         .err-btn-main { background: var(--main-color); color: #fff; }
         .err-btn-main:hover { color: #fff; }
-        .err-btn-secondary { background: var(--darkgray); color: #fff; }
-        .err-btn-secondary:hover { background: #4a4752; color: #fff; }
+        .err-btn--secondary { background: var(--darkgray); color: #fff; }
+        .err-btn--secondary:hover { background: #4a4752; color: #fff; }
         .err-btn-ghost {
             background: transparent;
             border: none;
@@ -414,27 +420,37 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <div class="err-header">
         <div class="container">
             <?php if ($isDev): ?>
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                    <span class="err-badge err-badge-danger">500</span>
-                    <span class="err-badge err-badge-primary"><?= htmlspecialchars($requestMethod) ?></span>
-                    <span class="err-badge err-badge-warning">UNHANDLED</span>
-                    <span class="err-badge err-badge-dark">intraRP <?= htmlspecialchars($appVersion) ?></span>
-                    <span class="err-badge err-badge-secondary">PHP <?= htmlspecialchars($phpVersion) ?></span>
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="err-ignis-chip err-badge-danger">500</span>
+                    <span class="err-ignis-chip err-badge-primary"><?= htmlspecialchars($requestMethod) ?></span>
+                    <span class="err-ignis-chip err-badge-warning">UNHANDLED</span>
+                    <span class="err-ignis-chip err-badge-dark">ıgnıs <?= htmlspecialchars($appVersion) ?></span>
+                    <span class="err-ignis-chip err-badge-secondary">PHP <?= htmlspecialchars($phpVersion) ?></span>
                     <?php if ($exceptionCode): ?>
-                        <span class="err-badge err-badge-danger">CODE <?= htmlspecialchars((string)$exceptionCode) ?></span>
+                        <span class="err-ignis-chip err-badge-danger">CODE <?= htmlspecialchars((string)$exceptionCode) ?></span>
                     <?php endif; ?>
                 </div>
                 <div class="err-exception-name"><?= htmlspecialchars(_err_classBasename($exceptionClass)) ?></div>
                 <div class="err-exception-fqcn"><?= htmlspecialchars($exceptionClass) ?></div>
                 <div class="err-message"><?= htmlspecialchars($errorMessage) ?></div>
                 <div class="err-url-bar">
-                    <span class="err-badge err-badge-danger" style="font-size:0.7em"><?= htmlspecialchars($requestMethod) ?></span>
+                    <span class="err-ignis-chip err-badge-danger" style="font-size:0.7em"><?= htmlspecialchars($requestMethod) ?></span>
                     <?= htmlspecialchars($requestUrl) ?>
                 </div>
+                <div class="flex gap-2 mt-3">
+                    <button type="button" class="err-btn-ghost" id="copyMarkdownBtn" onclick="copyErrorAsMarkdown()">
+                        <i class="fa-brands fa-markdown"></i> Als Markdown kopieren
+                    </button>
+                    <?php if (!empty($errorId)): ?>
+                        <button type="button" class="err-btn-ghost" id="copyDevIdBtn" onclick="copyDevErrorId()">
+                            <i class="fa-regular fa-copy"></i> <?= htmlspecialchars($errorId) ?>
+                        </button>
+                    <?php endif; ?>
+                </div>
             <?php else: ?>
-                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                    <span class="err-badge err-badge-danger">500</span>
-                    <span class="err-badge err-badge-dark">intraRP <?= htmlspecialchars($appVersion) ?></span>
+                <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="err-ignis-chip err-badge-danger">500</span>
+                    <span class="err-ignis-chip err-badge-dark">ıgnıs <?= htmlspecialchars($appVersion) ?></span>
                 </div>
                 <div class="err-exception-name">Serverfehler</div>
                 <div class="err-message">Es ist ein interner Fehler aufgetreten.</div>
@@ -451,7 +467,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: var(--main-color);"></i>
                 </div>
                 <h5 class="text-white mb-2">Ein unerwarteter Fehler ist aufgetreten</h5>
-                <p class="text-muted mb-4" style="font-size:0.88rem;">
+                <p class="text-[var(--text-dimmed,#818189)] mb-4" style="font-size:0.88rem;">
                     Der Fehler wurde automatisch protokolliert. Bitte teilen Sie den untenstehenden
                     Fehlercode dem Administrator mit, damit der Fehler identifiziert werden kann.
                 </p>
@@ -477,11 +493,11 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     </div>
                 </div>
 
-                <div class="d-flex gap-2 justify-content-center">
+                <div class="flex gap-2 justify-center">
                     <a href="javascript:history.back()" class="err-btn err-btn-main">
                         <i class="fa-solid fa-arrow-left"></i> Zurück
                     </a>
-                    <a href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>" class="err-btn err-btn-secondary">
+                    <a href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>" class="err-btn err-btn--secondary">
                         <i class="fa-solid fa-house"></i> Startseite
                     </a>
                 </div>
@@ -491,9 +507,9 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <?php else: ?>
         <!-- ========== DEVELOPMENT ========== -->
         <div class="err-tabs">
-            <button class="err-tab active" data-tab="trace"><i class="fa-solid fa-layer-group me-1"></i> Stack Trace</button>
-            <button class="err-tab" data-tab="request"><i class="fa-solid fa-arrow-right-arrow-left me-1"></i> Request</button>
-            <button class="err-tab" data-tab="app"><i class="fa-solid fa-gear me-1"></i> App</button>
+            <button class="err-tab active" data-tab="trace"><i class="fa-solid fa-layer-group mr-1"></i> Stack Trace</button>
+            <button class="err-tab" data-tab="request"><i class="fa-solid fa-arrow-right-arrow-left mr-1"></i> Request</button>
+            <button class="err-tab" data-tab="app"><i class="fa-solid fa-gear mr-1"></i> App</button>
         </div>
 
         <!-- Stack Trace -->
@@ -584,10 +600,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
 
         <!-- Request -->
         <div class="err-tab-content" id="tab-request">
-            <div class="row g-3">
-                <div class="col-lg-6">
+            <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                <div>
                     <div class="err-tile mb-3">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-arrow-down-short-wide me-1"></i> Headers</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-arrow-down-short-wide mr-1"></i> Headers</h6>
                         <table class="err-info-table">
                             <?php foreach ($requestHeaders as $name => $value): ?>
                                 <tr><td class="k"><?= htmlspecialchars($name) ?></td><td class="v"><?= htmlspecialchars($value) ?></td></tr>
@@ -599,7 +615,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     </div>
 
                     <div class="err-tile">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-file-lines me-1"></i> Body</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-file-lines mr-1"></i> Body</h6>
                         <?php $body = file_get_contents('php://input');
                         if ($body): ?>
                             <pre style="font-family:var(--font-mono);font-size:0.78rem;white-space:pre-wrap;margin:0;color:var(--text-normal)"><?= htmlspecialchars($body) ?></pre>
@@ -609,10 +625,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     </div>
                 </div>
 
-                <div class="col-lg-6">
+                <div>
                     <?php if (!empty($_GET)): ?>
                         <div class="err-tile mb-3">
-                            <h6 class="text-white mb-3"><i class="fa-solid fa-question me-1"></i> Query Parameters</h6>
+                            <h6 class="text-white mb-3"><i class="fa-solid fa-question mr-1"></i> Query Parameters</h6>
                             <table class="err-info-table">
                                 <?php foreach ($_GET as $key => $value): ?>
                                     <tr><td class="k"><?= htmlspecialchars($key) ?></td><td class="v"><?= htmlspecialchars(is_array($value) ? json_encode($value) : $value) ?></td></tr>
@@ -623,7 +639,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
 
                     <?php if (!empty($_POST)): ?>
                         <div class="err-tile mb-3">
-                            <h6 class="text-white mb-3"><i class="fa-solid fa-paper-plane me-1"></i> POST Data</h6>
+                            <h6 class="text-white mb-3"><i class="fa-solid fa-paper-plane mr-1"></i> POST Data</h6>
                             <table class="err-info-table">
                                 <?php foreach ($_POST as $key => $value): ?>
                                     <tr><td class="k"><?= htmlspecialchars($key) ?></td><td class="v"><?= htmlspecialchars(is_array($value) ? json_encode($value) : $value) ?></td></tr>
@@ -634,7 +650,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
 
                     <?php if (!empty($_COOKIE)): ?>
                         <div class="err-tile mb-3">
-                            <h6 class="text-white mb-3"><i class="fa-solid fa-cookie-bite me-1"></i> Cookies</h6>
+                            <h6 class="text-white mb-3"><i class="fa-solid fa-cookie-bite mr-1"></i> Cookies</h6>
                             <table class="err-info-table">
                                 <?php foreach ($_COOKIE as $key => $value): ?>
                                     <tr><td class="k"><?= htmlspecialchars($key) ?></td><td class="v"><?= htmlspecialchars(is_string($value) ? $value : json_encode($value)) ?></td></tr>
@@ -644,7 +660,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     <?php endif; ?>
 
                     <div class="err-tile">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-key me-1"></i> Session</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-key mr-1"></i> Session</h6>
                         <table class="err-info-table">
                             <?php if (isset($_SESSION) && !empty($_SESSION)): ?>
                                 <?php foreach ($_SESSION as $key => $value): ?>
@@ -661,10 +677,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
 
         <!-- App -->
         <div class="err-tab-content" id="tab-app">
-            <div class="row g-3">
-                <div class="col-lg-6">
+            <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                <div>
                     <div class="err-tile mb-3">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-route me-1"></i> Routing</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-route mr-1"></i> Routing</h6>
                         <table class="err-info-table">
                             <tr><td class="k">Script</td><td class="v"><?= htmlspecialchars($_SERVER['SCRIPT_NAME'] ?? '-') ?></td></tr>
                             <tr><td class="k">Request URI</td><td class="v"><?= htmlspecialchars($_SERVER['REQUEST_URI'] ?? '-') ?></td></tr>
@@ -673,20 +689,20 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
                     </div>
 
                     <div class="err-tile">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-server me-1"></i> Environment</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-server mr-1"></i> Environment</h6>
                         <table class="err-info-table">
                             <tr><td class="k">APP_ENV</td><td class="v"><?= htmlspecialchars($_ENV['APP_ENV'] ?? 'not set') ?></td></tr>
                             <tr><td class="k">PHP</td><td class="v"><?= htmlspecialchars($phpVersion) ?></td></tr>
-                            <tr><td class="k">intraRP</td><td class="v"><?= htmlspecialchars($appVersion) ?></td></tr>
+                            <tr><td class="k">ıgnıs</td><td class="v"><?= htmlspecialchars($appVersion) ?></td></tr>
                             <tr><td class="k">Server</td><td class="v"><?= htmlspecialchars($_SERVER['SERVER_SOFTWARE'] ?? '-') ?></td></tr>
                             <tr><td class="k">Doc Root</td><td class="v"><?= htmlspecialchars($_SERVER['DOCUMENT_ROOT'] ?? '-') ?></td></tr>
                         </table>
                     </div>
                 </div>
 
-                <div class="col-lg-6">
+                <div>
                     <div class="err-tile">
-                        <h6 class="text-white mb-3"><i class="fa-solid fa-puzzle-piece me-1"></i> PHP Extensions</h6>
+                        <h6 class="text-white mb-3"><i class="fa-solid fa-puzzle-piece mr-1"></i> PHP Extensions</h6>
                         <div style="font-family:var(--font-mono);font-size:0.78rem;color:var(--text-dimmed);column-count:2;column-gap:1.5rem">
                             <?php foreach (get_loaded_extensions() as $ext): ?>
                                 <div style="padding:0.1rem 0"><?= htmlspecialchars($ext) ?></div>
@@ -714,6 +730,134 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <?php endif; ?>
 
     <?php if ($isDev): ?>
+    <?php
+    // ========================================================================
+    //  Markdown-Report bauen — wird vom "Als Markdown kopieren"-Button genutzt.
+    //  Format ist bewusst Issue-/Discord-/Slack-freundlich: Code-Fences für
+    //  Trace + Source, Backticks für File-Pfade, Headings als ##/###.
+    // ========================================================================
+    $_md = [];
+    $_md[] = '## ' . _err_classBasename($exceptionClass);
+    $_md[] = '';
+    $_md[] = '> ' . trim(str_replace("\n", "\n> ", $errorMessage));
+    $_md[] = '';
+
+    $_metaRows = [];
+    $_metaRows[] = '| Feld | Wert |';
+    $_metaRows[] = '|---|---|';
+    $_metaRows[] = '| Exception | `' . $exceptionClass . '` |';
+    if ($exceptionCode !== null && $exceptionCode !== '' && $exceptionCode !== 0) {
+        $_metaRows[] = '| Code | `' . $exceptionCode . '` |';
+    }
+    if (!empty($errorId)) {
+        $_metaRows[] = '| Error-ID | `' . $errorId . '` |';
+    }
+    $_metaRows[] = '| Zeitpunkt | ' . date('Y-m-d H:i:s') . ' |';
+    $_metaRows[] = '| Method | `' . $requestMethod . '` |';
+    $_metaRows[] = '| URL | `' . $requestUrl . '` |';
+    $_metaRows[] = '| PHP | ' . $phpVersion . ' |';
+    $_metaRows[] = '| ıgnıs | ' . $appVersion . ' |';
+    if (!empty($_ENV['APP_ENV'])) {
+        $_metaRows[] = '| APP_ENV | `' . $_ENV['APP_ENV'] . '` |';
+    }
+    $_md[] = implode("\n", $_metaRows);
+    $_md[] = '';
+
+    // Stack-Trace (kompakte Form)
+    if (!empty($frames)) {
+        $_md[] = '### Stack Trace';
+        $_md[] = '';
+        $_md[] = '```';
+        foreach ($frames as $i => $f) {
+            $_fn = '';
+            if (!empty($f['class'])) {
+                $_fn = $f['class'] . '::' . ($f['function'] ?? '') . '()';
+            } elseif (!empty($f['function'])) {
+                $_fn = $f['function'] . '()';
+            } else {
+                $_fn = '{main}';
+            }
+            $_loc = ($f['file'] ?? '[internal]') . (!empty($f['line']) ? ':' . $f['line'] : '');
+            $_md[] = '#' . $i . ' ' . $_loc . ' — ' . $_fn;
+        }
+        $_md[] = '```';
+        $_md[] = '';
+    }
+
+    // Application-Frames hervorgehoben (oft das was wirklich relevant ist)
+    if (!empty($appFrames)) {
+        $_md[] = '### Application Frames';
+        $_md[] = '';
+        foreach ($appFrames as $i => $f) {
+            $_fn = '';
+            if (!empty($f['class'])) {
+                $_fn = $f['class'] . '::' . ($f['function'] ?? '') . '()';
+            } elseif (!empty($f['function'])) {
+                $_fn = $f['function'] . '()';
+            }
+            $_loc = _err_shortenPath($f['file'] ?? '[internal]') . (!empty($f['line']) ? ':' . $f['line'] : '');
+            $_md[] = ($i + 1) . '. `' . $_loc . '` — ' . $_fn;
+        }
+        $_md[] = '';
+    }
+
+    // Request-Daten (nur wenn nicht leer, knapp gehalten)
+    if (!empty($_GET) || !empty($_POST)) {
+        $_md[] = '### Request Data';
+        $_md[] = '';
+        if (!empty($_GET)) {
+            $_md[] = '**Query:**';
+            $_md[] = '```json';
+            $_md[] = json_encode($_GET, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $_md[] = '```';
+        }
+        if (!empty($_POST)) {
+            $_md[] = '**POST:**';
+            $_md[] = '```json';
+            $_md[] = json_encode($_POST, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $_md[] = '```';
+        }
+        $_md[] = '';
+    }
+
+    $_markdownReport = implode("\n", $_md);
+    ?>
+    <script type="application/json" id="errorMarkdownData"><?= json_encode($_markdownReport, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?></script>
+    <script>
+        function copyErrorAsMarkdown() {
+            const dataEl = document.getElementById('errorMarkdownData');
+            const md = dataEl ? JSON.parse(dataEl.textContent) : '';
+            navigator.clipboard.writeText(md).then(() => {
+                const btn = document.getElementById('copyMarkdownBtn');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Markdown kopiert';
+                setTimeout(() => btn.innerHTML = orig, 1800);
+            }).catch(err => {
+                console.error('Clipboard write failed:', err);
+                // Fallback: Textarea + execCommand
+                const ta = document.createElement('textarea');
+                ta.value = md;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta);
+                const btn = document.getElementById('copyMarkdownBtn');
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Markdown kopiert';
+                setTimeout(() => btn.innerHTML = '<i class="fa-brands fa-markdown"></i> Als Markdown kopieren', 1800);
+            });
+        }
+        function copyDevErrorId() {
+            const btn = document.getElementById('copyDevIdBtn');
+            const id = btn.textContent.trim();
+            navigator.clipboard.writeText(id).then(() => {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Kopiert';
+                setTimeout(() => btn.innerHTML = orig, 1500);
+            });
+        }
+    </script>
     <script>
         document.querySelectorAll('.err-tab').forEach(btn => {
             btn.addEventListener('click', () => {

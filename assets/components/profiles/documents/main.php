@@ -4,10 +4,10 @@ use App\Auth\Permissions;
 ?>
 
 <?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
-<div class="d-flex justify-content-end mb-2">
-    <label class="form-check form-check-inline mb-0" style="font-size:0.78rem;">
-        <input class="form-check-input" type="checkbox" id="chk-show-archived" onchange="document.querySelectorAll('.doc-archived').forEach(r => r.style.display = this.checked ? '' : 'none');">
-        <span class="form-check-label text-muted">Archivierte anzeigen</span>
+<div class="flex justify-end mb-2">
+    <label class="ignis-checkbox mb-0" style="font-size:0.78rem;">
+        <input type="checkbox" id="chk-show-archived" onchange="document.querySelectorAll('.doc-archived').forEach(r => r.style.display = this.checked ? '' : 'none');">
+        <span class="text-[var(--text-dimmed,#818189)]">Archivierte anzeigen</span>
     </label>
 </div>
 <?php endif; ?>
@@ -81,19 +81,19 @@ use App\Auth\Permissions;
                 $bg = $doks['category_color'];
             } elseif ($doks['type'] == 99) {
                 $bg = match ($doks['template_category']) {
-                    'urkunde' => 'text-bg-secondary',
-                    'zertifikat' => 'text-bg-dark',
-                    'schreiben' => 'text-bg-warning',
-                    default => 'text-bg-info'
+                    'urkunde' => 'ignis-chip--secondary',
+                    'zertifikat' => 'ignis-chip--dark',
+                    'schreiben' => 'ignis-chip--warning',
+                    default => 'ignis-chip--info'
                 };
             } elseif ($doks['type'] <= 3) {
-                $bg = "text-bg-secondary";
+                $bg = "ignis-chip--secondary";
             } elseif ($doks['type'] == 5 || $doks['type'] == 6 || $doks['type'] == 7) {
-                $bg = "text-bg-dark";
+                $bg = "ignis-chip--dark";
             } elseif ($doks['type'] >= 10 && $doks['type'] <= 13) {
-                $bg = "text-bg-danger";
+                $bg = "ignis-chip--danger";
             } else {
-                $bg = "text-bg-secondary";
+                $bg = "ignis-chip--secondary";
             }
 
             $isArchived = !empty($doks['is_archived']);
@@ -101,15 +101,15 @@ use App\Auth\Permissions;
             $rowStyle = $isArchived ? 'display:none;opacity:0.5;' : '';
 
             echo "<tr class='{$rowClass}' style='{$rowStyle}'>";
-            echo "<td><span class='badge $bg'>" . htmlspecialchars($docart) . "</span>";
-            if ($isArchived) echo " <span class='badge text-bg-secondary' style='font-size:0.6rem;'>Archiviert</span>";
+            echo "<td><span class='ignis-chip $bg'>" . htmlspecialchars($docart) . "</span>";
+            if ($isArchived) echo " <span class='ignis-chip ignis-chip--secondary' style='font-size:0.6rem;'>Archiviert</span>";
             echo "</td>";
             echo "<td>" . htmlspecialchars($doks['docid']) .  "</td>";
             echo "<td>" . htmlspecialchars($doks['ersteller_name']) . "</td>";
             echo "<td>" . htmlspecialchars($austdatum) . "</td>";
             echo "<td>";
-            echo "<button class='btn btn-sm btn-soft-primary' onclick='openDocumentViewer(\"" . htmlspecialchars($doks['docid']) . "\")'><i class='fa-solid fa-eye'></i> Ansehen</button> ";
-            // echo "<a href='$pdfPath' download class='btn btn-sm btn-success'><i class='las la-download'></i></a>";
+            echo "<button class='ignis-btn ignis-btn--sm ignis-btn--soft-primary' onclick='openDocumentViewer(\"" . htmlspecialchars($doks['docid']) . "\")'><i class='fa-solid fa-eye'></i> Ansehen</button> ";
+            // echo "<a href='$pdfPath' download class='ignis-btn ignis-btn--sm ignis-btn--success'><i class='las la-download'></i></a>";
 
             if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 $escDocid = htmlspecialchars($doks['docid']);
@@ -118,8 +118,8 @@ use App\Auth\Permissions;
                 $archiveTitle = $isArchived ? 'Wiederherstellen' : 'Archivieren';
                 $archiveAction = $isArchived ? 'false' : 'true';
 
-                echo " <button class='btn btn-sm btn-outline-secondary btn-icon' title='{$archiveTitle}' onclick='confirmArchiveDoc(\"{$escDocid}\", {$archiveAction})'><i class='fa-solid {$archiveIcon}'></i></button>";
-                echo " <button class='btn btn-sm btn-outline-danger btn-icon' title='Endgültig löschen' onclick='confirmDeleteDoc(\"{$escDocid}\", \"{$escPid}\")'><i class='fa-solid fa-trash'></i></button>";
+                echo " <button class='ignis-btn ignis-btn--sm ignis-btn--outline-secondary ignis-btn--icon' title='{$archiveTitle}' onclick='confirmArchiveDoc(\"{$escDocid}\", {$archiveAction})'><i class='fa-solid {$archiveIcon}'></i></button>";
+                echo " <button class='ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon' title='Endgültig löschen' onclick='confirmDeleteDoc(\"{$escDocid}\", \"{$escPid}\")'><i class='fa-solid fa-trash'></i></button>";
             }
 
             echo "</td>";
@@ -140,7 +140,7 @@ async function confirmArchiveDoc(docid, archive) {
     if (!confirmed) return;
 
     try {
-        const res = await fetch('<?= BASE_PATH ?>api/documents/archive.php', {
+        const res = await fetch('<?= BASE_PATH ?>api/documents/archive', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -170,7 +170,7 @@ async function confirmDeleteDoc(docid, pid) {
     try {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '<?= BASE_PATH ?>mitarbeiter/dokument-delete.php';
+        form.action = '<?= BASE_PATH ?>personnel/document-delete.php';
         form.innerHTML = '<input type="hidden" name="csrf_token" value="<?= htmlspecialchars(\App\Security\CsrfProtection::getToken()) ?>">'
             + '<input type="hidden" name="docid" value="' + docid + '">'
             + '<input type="hidden" name="pid" value="' + pid + '">';

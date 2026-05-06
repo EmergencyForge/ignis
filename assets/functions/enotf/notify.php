@@ -259,7 +259,7 @@
             console.log('Saving psych field with values:', selectedValues, 'as JSON:', jsonValue);
 
             $.ajax({
-                url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
+                url: '<?= BASE_PATH ?>api/enotf/save-fields',
                 type: 'POST',
                 data: {
                     enr: enr,
@@ -305,7 +305,7 @@
             console.log('Saving field: ebesonderheiten[] value:', jsonValue);
 
             $.ajax({
-                url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
+                url: '<?= BASE_PATH ?>api/enotf/save-fields',
                 type: 'POST',
                 data: {
                     enr: enr,
@@ -351,7 +351,7 @@
             console.log('Saving field: rettungstechnik[] value:', jsonValue);
 
             $.ajax({
-                url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
+                url: '<?= BASE_PATH ?>api/enotf/save-fields',
                 type: 'POST',
                 data: {
                     enr: enr,
@@ -449,6 +449,17 @@
                 currentValue = $this.val();
             }
 
+            // Date-Inputs (force-german-date.js): nicht speichern solange der Wert
+            // noch nicht im finalen Format DD.MM.YYYY ist. force-german-date formatiert
+            // den Wert auf 'blur' und dispatcht dann ein neues 'change'-Event, das
+            // diesen Handler erneut feuert — DANN passt das Format und es wird gespeichert.
+            // Ohne diesen Skip würde das erste change-Event den Roh-Input (z.B. "01012000")
+            // an den Server schicken, der ihn mit 400 ablehnt, und gleichzeitig den
+            // activeRequests-Lock setzen, der das zweite (formatierte) Save blockiert.
+            if ($this.attr('data-date-input') === 'true' && currentValue && !/^\d{2}\.\d{2}\.\d{4}$/.test(currentValue)) {
+                return;
+            }
+
             if ($this.is(':radio')) {
                 const savedValue = window.__dynamicDaten[fieldName];
                 console.log('Radio check:', fieldName, 'currentValue:', currentValue, 'savedValue:', savedValue, 'types:', typeof currentValue, typeof savedValue);
@@ -468,7 +479,7 @@
                 console.log('Saving field:', fieldName, 'value:', currentValue);
 
                 $.ajax({
-                    url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
+                    url: '<?= BASE_PATH ?>api/enotf/save-fields',
                     type: 'POST',
                     data: {
                         enr: enr,
@@ -528,7 +539,7 @@
             $(this).prop('disabled', true);
 
             $.ajax({
-                url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
+                url: '<?= BASE_PATH ?>api/enotf/save-fields',
                 type: 'POST',
                 data: {
                     enr: enr,
@@ -668,7 +679,7 @@
 
                     fieldsToSave.forEach(field => {
                         const promise = $.ajax({
-                            url: '<?= BASE_PATH ?>api/enotf/save-fields.php',
+                            url: '<?= BASE_PATH ?>api/enotf/save-fields',
                             type: 'POST',
                             data: {
                                 enr: enr,

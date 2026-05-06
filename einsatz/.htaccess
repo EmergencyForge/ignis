@@ -1,7 +1,0 @@
-<IfModule mod_headers.c>
-    # Prüfe User-Agent
-    SetEnvIf User-Agent "CitizenFX" FIVEM
-    Header always unset Content-Security-Policy env=FIVEM
-    Header always unset X-Frame-Options env=FIVEM
-    Header set Content-Security-Policy "frame-ancestors 'self' https://*" env=!FIVEM
-</IfModule>

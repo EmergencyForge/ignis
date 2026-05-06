@@ -15,10 +15,11 @@
         }
 
         init() {
-            const modalEl = document.getElementById('assetManagerModal');
-            if (!modalEl) return;
-
-            this.modal = new bootstrap.Modal(modalEl);
+            // Dialog-Adapter wurde vom Template-Inline-Script angelegt; faellt
+            // bei Bedarf zurueck auf den globalen Builder, falls Reihenfolge mal
+            // anders waere.
+            this.modal = (window.VisualEditorDialogs && window.VisualEditorDialogs.assetManager) || null;
+            if (!this.modal) return;
 
             // Upload Handler
             document.getElementById('asset-upload-input')?.addEventListener('change', (e) => {
@@ -41,7 +42,7 @@
             gallery.innerHTML = '<div class="col-12 text-center py-3"><i class="fa-solid fa-spinner fa-spin"></i> Laden...</div>';
 
             try {
-                const response = await fetch(CONFIG.basePath + 'api/documents/asset-list.php?template_id=' + CONFIG.templateId);
+                const response = await fetch(CONFIG.basePath + 'api/documents/asset-list?template_id=' + CONFIG.templateId);
                 const result = await response.json();
 
                 if (!result.success) {
@@ -122,7 +123,7 @@
             window.EditorCsrf.addToFormData(formData);
 
             try {
-                const response = await fetch(CONFIG.basePath + 'api/documents/asset-upload.php', {
+                const response = await fetch(CONFIG.basePath + 'api/documents/asset-upload', {
                     method: 'POST',
                     body: formData,
                 });
@@ -157,7 +158,7 @@
 
         async deleteAsset(assetId) {
             try {
-                const response = await fetch(CONFIG.basePath + 'api/documents/asset-delete.php', {
+                const response = await fetch(CONFIG.basePath + 'api/documents/asset-delete', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(window.EditorCsrf.addToBody({ id: assetId })),

@@ -19,7 +19,7 @@ $typeIcons = [
 ];
 
 if (empty($comments)): ?>
-    <div class="text-center text-muted py-3" style="font-size: var(--font-size-sm);">
+    <div class="text-center text-[var(--text-dimmed,#818189)] py-3" style="font-size: var(--font-size-sm);">
         <i class="fa-solid fa-comments" style="font-size: 1.5rem; opacity: 0.3;"></i>
         <p class="mb-0 mt-2">Keine Kommentare vorhanden</p>
     </div>
@@ -41,7 +41,7 @@ if (empty($comments)): ?>
             </div>
             <?php if ($canDelete): ?>
                 <button type="button" class="comment-item__delete" title="Löschen"
-                    onclick="showConfirm('Kommentar wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Kommentar löschen'}).then(function(ok) { if(ok) window.location.href='<?= BASE_PATH ?>mitarbeiter/comment-delete.php?id=<?= $comment['logid'] ?>&pid=<?= $comment['profilid'] ?>'; });">
+                    onclick="showConfirm('Kommentar wirklich löschen?', {danger: true, confirmText: 'Löschen', title: 'Kommentar löschen'}).then(function(ok) { if(ok) window.location.href='<?= BASE_PATH ?>personnel/comment-delete?id=<?= $comment['logid'] ?>&pid=<?= $comment['profilid'] ?>'; });">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             <?php endif; ?>
@@ -56,15 +56,19 @@ if ($totalPages > 1):
     if (isset($_GET['logpage'])) $baseParams['logpage'] = $_GET['logpage'];
 ?>
     <nav aria-label="Kommentar-Seiten" class="mt-3">
-        <ul class="pagination pagination-sm justify-content-center mb-0">
-            <?php for ($i = 1; $i <= $totalPages; $i++):
-                $baseParams['page'] = $i;
-                $url = '?' . http_build_query($baseParams);
-            ?>
-                <li class="page-item <?= $i === $page ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $url ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
+        <ul class="pagination pagination-sm justify-center mb-0">
+            <?php foreach (\App\Helpers\Pagination::pages((int) $page, (int) $totalPages) as $entry):
+                if ($entry === null): ?>
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                <?php else:
+                    $baseParams['page'] = $entry;
+                    $url = '?' . http_build_query($baseParams);
+                ?>
+                    <li class="page-item <?= $entry === (int) $page ? 'active' : '' ?>">
+                        <a class="page-link" href="<?= $url ?>"><?= $entry ?></a>
+                    </li>
+                <?php endif; ?>
+            <?php endforeach; ?>
         </ul>
     </nav>
 <?php endif; ?>

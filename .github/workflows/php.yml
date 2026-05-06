@@ -125,7 +125,238 @@ jobs:
           retention-days: 1
 
   # ─────────────────────────────────────────────
-  # 4. PHPStan – Statische Analyse
+  # 4. PHPUnit – Unit Tests (kein DB-Bedarf)
+  # ─────────────────────────────────────────────
+  phpunit-unit:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ !cancelled() }}
+    strategy:
+      matrix:
+        php-version: ['8.3', '8.4']
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, pdo, pdo_mysql, json, curl, gd, intl
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v5
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-version }}-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run Unit tests
+        id: unit
+        run: |
+          set +e
+          vendor/bin/phpunit --testsuite Unit --log-junit phpunit-unit-${{ matrix.php-version }}.xml 2>&1 | tee phpunit-unit-${{ matrix.php-version }}.log
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          exit ${PIPESTATUS[0]}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpunit-unit-${{ matrix.php-version }}
+          path: |
+            phpunit-unit-${{ matrix.php-version }}.xml
+            phpunit-unit-${{ matrix.php-version }}.log
+          retention-days: 3
+
+  # ─────────────────────────────────────────────
+  # 5. PHPUnit – Integration Tests (mit MySQL-Service)
+  # ─────────────────────────────────────────────
+  phpunit-integration:
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ !cancelled() }}
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: irp_testdb
+          MYSQL_USER: irp_test
+          MYSQL_PASSWORD: irp_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      # tests/bootstrap.php liest TEST_DB_* aus .env.test und mappt auf DB_*.
+      # In CI setzen wir sie direkt als env, damit kein .env.test committet werden muss.
+      TEST_DB_HOST: 127.0.0.1
+      TEST_DB_PORT: 3306
+      TEST_DB_USER: root
+      TEST_DB_PASS: root
+      TEST_DB_NAME: irp_testdb
+      TEST_DB_SKIP_CREATE: '1'
+      DB_HOST: 127.0.0.1
+      DB_PORT: '3306'
+      DB_USER: root
+      DB_PASS: root
+      DB_NAME: irp_testdb
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo, pdo_mysql, json, curl, gd, intl
+          # PCOV liefert Coverage deutlich schneller als Xdebug und ohne
+          # Einfluss auf die normale Test-Performance (Overhead ~10-15%).
+          coverage: pcov
+
+      - name: Cache Composer packages
+        uses: actions/cache@v5
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-8.4-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.4-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Wait for MySQL
+        run: |
+          for i in $(seq 1 30); do
+            if mysqladmin ping -h 127.0.0.1 -uroot -proot --silent; then
+              echo "MySQL ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "MySQL did not become ready"; exit 1
+
+      - name: Run Phinx migrations against test DB
+        run: vendor/bin/phinx migrate -e production -c phinx.php
+
+      - name: Run Integration tests
+        id: integration
+        run: |
+          set +e
+          vendor/bin/phpunit --testsuite Integration --log-junit phpunit-integration.xml 2>&1 | tee phpunit-integration.log
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          exit ${PIPESTATUS[0]}
+
+      - name: Run Feature tests (HTTP End-to-End)
+        if: always()
+        id: feature
+        run: |
+          set +e
+          vendor/bin/phpunit --testsuite Feature --log-junit phpunit-feature.xml 2>&1 | tee phpunit-feature.log
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          exit ${PIPESTATUS[0]}
+
+      # Zusätzlicher Coverage-Pass über ALLE Suites in einem Lauf, damit ein
+      # konsistenter Gesamt-Report entsteht. PCOV-Overhead ist klein genug,
+      # dass die doppelte Ausführung sich rentiert (gibt uns granulare JUnit-
+      # Reports oben PLUS einen zusammengefassten Coverage-Report hier).
+      - name: Coverage pass (all suites)
+        if: always()
+        id: coverage
+        run: |
+          set +e
+          mkdir -p coverage
+          vendor/bin/phpunit \
+            --coverage-cobertura coverage/cobertura.xml \
+            --coverage-text=coverage/summary.txt \
+            --coverage-clover coverage/clover.xml \
+            2>&1 | tee coverage/run.log
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpunit-integration
+          path: |
+            phpunit-integration.xml
+            phpunit-integration.log
+            phpunit-feature.xml
+            phpunit-feature.log
+            coverage/cobertura.xml
+            coverage/clover.xml
+            coverage/summary.txt
+          retention-days: 7
+
+  # ─────────────────────────────────────────────
+  # 6. Frontend Build – Vite + SCSS Diff-Check
+  # ─────────────────────────────────────────────
+  frontend:
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build assets (SCSS + Vite)
+        run: npm run build
+
+      # Failt wenn `npm run build` Änderungen produziert die nicht committed sind —
+      # die häufigste Ursache für "works on my machine, broken in prod" bei CSS/JS.
+      - name: Check for uncommitted asset changes
+        id: diff
+        run: |
+          set +e
+          CHANGED=$(git status --porcelain -- 'public/assets/dist' 'assets/css/*.css' 'assets/css/*.min.css')
+          if [ -n "$CHANGED" ]; then
+            echo "::error::Built assets differ from committed files. Run 'npm run build' locally and commit the changes."
+            echo "## Changed files" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            echo "$CHANGED" >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            git diff --stat -- 'public/assets/dist' 'assets/css/*.css' 'assets/css/*.min.css' | tee frontend-build-diff.txt
+            exit 1
+          fi
+          echo "Assets match committed files."
+
+      - name: Save build diff on failure
+        if: failure()
+        run: |
+          git diff -- 'public/assets/dist' 'assets/css/*.css' 'assets/css/*.min.css' > frontend-build-diff.patch || true
+
+      - name: Upload build diff
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build-diff
+          path: |
+            frontend-build-diff.txt
+            frontend-build-diff.patch
+          retention-days: 3
+
+  # ─────────────────────────────────────────────
+  # 7. PHPStan – Statische Analyse
   # ─────────────────────────────────────────────
   phpstan:
     runs-on: ubuntu-latest
@@ -177,7 +408,7 @@ jobs:
   # ─────────────────────────────────────────────
   pr-report:
     runs-on: ubuntu-latest
-    needs: [build, security-audit, phpstan]
+    needs: [build, security-audit, phpstan, phpunit-unit, phpunit-integration, frontend]
     if: always() && github.event_name == 'pull_request'
 
     steps:
@@ -226,9 +457,37 @@ jobs:
             const buildResult = '${{ needs.build.result }}';
             const auditResult = '${{ needs.security-audit.result }}';
             const phpstanResult = '${{ needs.phpstan.result }}';
+            const unitResult = '${{ needs.phpunit-unit.result }}';
+            const integrationResult = '${{ needs.phpunit-integration.result }}';
+            const frontendResult = '${{ needs.frontend.result }}';
 
             const statusIcon = (r) => r === 'success' ? '✅' : r === 'skipped' ? '⏭️' : '❌';
             const statusText = (r) => r === 'success' ? 'Bestanden' : r === 'skipped' ? 'Übersprungen' : 'Fehlgeschlagen';
+
+            // ── Parse JUnit XML for test counts ──
+            // Liest <testsuite>-Attribute (tests/failures/errors/time) aus allen heruntergeladenen
+            // phpunit-*.xml-Artefakten. Kein XML-Parser — simple Regex, weil das Format stabil ist.
+            function parseJunit(pattern) {
+              let total = 0, failed = 0, errored = 0, time = 0;
+              const files = fs.readdirSync('.').filter(f => f.match(pattern));
+              for (const f of files) {
+                try {
+                  const xml = fs.readFileSync(f, 'utf8');
+                  const m = xml.match(/<testsuites[^>]*tests="(\d+)"[^>]*assertions="[^"]*"[^>]*errors="(\d+)"[^>]*failures="(\d+)"[^>]*time="([^"]*)"/);
+                  if (m) {
+                    total += parseInt(m[1]); errored += parseInt(m[2]);
+                    failed += parseInt(m[3]); time += parseFloat(m[4]);
+                  } else {
+                    const m2 = xml.match(/<testsuite[^>]*name="[^"]*"[^>]*tests="(\d+)"[^>]*failures="(\d+)"[^>]*errors="(\d+)"[^>]*time="([^"]*)"/);
+                    if (m2) {
+                      total += parseInt(m2[1]); failed += parseInt(m2[2]);
+                      errored += parseInt(m2[3]); time += parseFloat(m2[4]);
+                    }
+                  }
+                } catch {}
+              }
+              return { total, failed, errored, time };
+            }
 
             // ── PR diff stats ──
             let diffStats = '';
@@ -295,8 +554,29 @@ jobs:
                 : '> Ergebnis konnte nicht geladen werden.';
             }
 
+            // ── Frontend Build Section ──
+            let frontendSection = '';
+            if (frontendResult === 'success') {
+              frontendSection = '> Assets in Sync mit Source (SCSS + Vite gebaut, kein Diff).';
+            } else if (frontendResult === 'skipped') {
+              frontendSection = '> Übersprungen.';
+            } else {
+              try {
+                const diffTxt = fs.readFileSync('frontend-build-diff.txt', 'utf8').trim();
+                frontendSection = '> Assets weichen vom Repo-Stand ab — lokal `npm run build` und committen.\n\n```\n' + diffTxt.substring(0, 1500) + '\n```';
+              } catch {
+                frontendSection = '> Assets weichen vom Repo-Stand ab — lokal `npm run build` und committen.';
+              }
+            }
+
+            body += '<details>\n';
+            body += `<summary><strong>Frontend Build</strong> ${statusIcon(frontendResult)}</summary>\n\n`;
+            body += frontendSection + '\n\n';
+            body += '</details>\n\n';
+
             // ── Build comment ──
-            const allPassed = buildResult === 'success' && auditResult === 'success' && phpstanResult === 'success';
+            const allPassed = buildResult === 'success' && auditResult === 'success' && phpstanResult === 'success'
+              && unitResult === 'success' && integrationResult === 'success' && frontendResult === 'success';
             const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
 
             let body = '<!-- ci-report -->\n';
@@ -306,14 +586,139 @@ jobs:
 
             if (diffStats) body += diffStats + '\n\n';
 
+            // ── PHPUnit summary ──
+            const unitStats = parseJunit(/^phpunit-unit-.*\.xml$/);
+            const integrationStats = parseJunit(/^phpunit-integration\.xml$/);
+            const featureStats = parseJunit(/^phpunit-feature\.xml$/);
+
+            // ── Coverage (Cobertura XML) ──
+            // Format: <coverage line-rate="0.4321" branch-rate="0.5678" ...> auf dem Root-
+            // Element. Wir lesen die beiden Rates direkt per Regex.
+            let coverage = null;
+            try {
+              const cov = fs.readFileSync('coverage/cobertura.xml', 'utf8');
+              const mLine = cov.match(/line-rate="([0-9.]+)"/);
+              const mBranch = cov.match(/branch-rate="([0-9.]+)"/);
+              const mLinesCovered = cov.match(/lines-covered="(\d+)"/);
+              const mLinesValid = cov.match(/lines-valid="(\d+)"/);
+              if (mLine) {
+                coverage = {
+                  linePct: (parseFloat(mLine[1]) * 100).toFixed(1),
+                  branchPct: mBranch ? (parseFloat(mBranch[1]) * 100).toFixed(1) : null,
+                  linesCovered: mLinesCovered ? parseInt(mLinesCovered[1]) : null,
+                  linesValid: mLinesValid ? parseInt(mLinesValid[1]) : null,
+                };
+              }
+            } catch {}
+
+            const fmtStats = (s, result) => {
+              if (result === 'skipped') return 'Übersprungen';
+              if (s.total === 0 && result !== 'success') return 'Fehlgeschlagen';
+              if (s.total === 0) return 'Keine Tests';
+              const failCount = s.failed + s.errored;
+              const dur = s.time > 0 ? ` · ${s.time.toFixed(1)}s` : '';
+              return failCount === 0
+                ? `${s.total} Tests${dur}`
+                : `${failCount} fehlgeschlagen · ${s.total} gesamt${dur}`;
+            };
+
             body += '### Übersicht\n\n';
-            body += '| Check | Status |\n';
-            body += '|-------|--------|\n';
-            body += `| Build (PHP 8.1 – 8.4) | ${statusIcon(buildResult)} ${statusText(buildResult)} |\n`;
-            body += `| Security Audit | ${statusIcon(auditResult)} ${statusText(auditResult)} |\n`;
-            body += `| PHPStan (Level 6) | ${statusIcon(phpstanResult)} ${statusText(phpstanResult)} |\n`;
+            body += '| Check | Status | Details |\n';
+            body += '|-------|--------|---------|\n';
+            body += `| Build (PHP 8.1 – 8.4) | ${statusIcon(buildResult)} ${statusText(buildResult)} | |\n`;
+            body += `| Unit Tests (8.3/8.4) | ${statusIcon(unitResult)} ${statusText(unitResult)} | ${fmtStats(unitStats, unitResult)} |\n`;
+            body += `| Integration Tests | ${statusIcon(integrationResult)} ${statusText(integrationResult)} | ${fmtStats(integrationStats, integrationResult)} |\n`;
+            body += `| Feature Tests (HTTP) | ${statusIcon(integrationResult)} ${statusText(integrationResult)} | ${fmtStats(featureStats, integrationResult)} |\n`;
+            // Coverage nur anzeigen wenn wir einen Report haben (integrationResult kann auch
+            // bei grünem Testlauf null liefern wenn PCOV nicht aktiv war).
+            if (coverage) {
+              // Badge-Emoji nach Schwelle: 50%+ grün, 30%+ gelb, drunter rot.
+              const linePct = parseFloat(coverage.linePct);
+              const covIcon = linePct >= 50 ? '✅' : linePct >= 30 ? '🟡' : '🔴';
+              const extra = coverage.linesCovered !== null
+                ? `${coverage.linePct}% (${coverage.linesCovered}/${coverage.linesValid} Zeilen)`
+                : `${coverage.linePct}%`;
+              body += `| Coverage | ${covIcon} | ${extra} |\n`;
+            }
+            body += `| Frontend Build | ${statusIcon(frontendResult)} ${statusText(frontendResult)} | ${frontendResult === 'failure' ? 'Assets nicht aktuell — `npm run build` fehlt' : ''} |\n`;
+            body += `| Security Audit | ${statusIcon(auditResult)} ${statusText(auditResult)} | |\n`;
+            body += `| PHPStan | ${statusIcon(phpstanResult)} ${statusText(phpstanResult)} | |\n`;
 
             body += '\n---\n\n';
+
+            // ── PHPUnit details (Fehler aus JUnit XML extrahieren) ──
+            function extractFailures(pattern, limit = 10) {
+              const files = fs.readdirSync('.').filter(f => f.match(pattern));
+              const failures = [];
+              for (const f of files) {
+                try {
+                  const xml = fs.readFileSync(f, 'utf8');
+                  const re = /<testcase[^>]*classname="([^"]*)"[^>]*name="([^"]*)"[^>]*>\s*<(failure|error)[^>]*>([\s\S]*?)<\/\3>/g;
+                  let m;
+                  while ((m = re.exec(xml)) !== null && failures.length < limit) {
+                    const message = m[4]
+                      .replace(/<!\[CDATA\[|\]\]>/g, '')
+                      .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+                      .replace(/&quot;/g, '"').replace(/&amp;/g, '&')
+                      .split('\n').slice(0, 3).join('\n')
+                      .substring(0, 300);
+                    failures.push({ cls: m[1], name: m[2], kind: m[3], message });
+                  }
+                } catch {}
+              }
+              return failures;
+            }
+
+            const renderTestSection = (label, result, stats, pattern) => {
+              let section = '';
+              if (result === 'skipped') {
+                section = '> Übersprungen (vorausgehender Job fehlgeschlagen).';
+              } else if (result === 'success') {
+                section = `> ✅ ${stats.total} Tests bestanden${stats.time > 0 ? ` in ${stats.time.toFixed(1)}s` : ''}.`;
+              } else {
+                const failures = extractFailures(pattern);
+                if (failures.length === 0) {
+                  section = '> ❌ Fehlgeschlagen — keine Details aus JUnit XML verfügbar.';
+                } else {
+                  section = `> **${stats.failed + stats.errored} fehlgeschlagen** von ${stats.total} Tests\n\n`;
+                  for (const f of failures) {
+                    const shortCls = f.cls.split('\\').pop();
+                    section += `**\`${shortCls}::${f.name}\`** (${f.kind})\n\n`;
+                    section += '```\n' + f.message.trim() + '\n```\n\n';
+                  }
+                  if (stats.failed + stats.errored > failures.length) {
+                    section += `*… und ${stats.failed + stats.errored - failures.length} weitere Fehler*\n`;
+                  }
+                }
+              }
+              body += '<details>\n';
+              body += `<summary><strong>${label}</strong> ${statusIcon(result)}</summary>\n\n`;
+              body += section + '\n\n';
+              body += '</details>\n\n';
+            };
+
+            renderTestSection('Unit Tests', unitResult, unitStats, /^phpunit-unit-.*\.xml$/);
+            renderTestSection('Integration Tests', integrationResult, integrationStats, /^phpunit-integration\.xml$/);
+            renderTestSection('Feature Tests (HTTP)', integrationResult, featureStats, /^phpunit-feature\.xml$/);
+
+            // ── Coverage Details ──
+            if (coverage) {
+              let covSection = '';
+              try {
+                const summary = fs.readFileSync('coverage/summary.txt', 'utf8').trim();
+                // Summary enthält am Anfang Metriken + Klassen-Details. Wir nehmen die
+                // ersten ~40 Zeilen (Gesamt-Stats + Top-Files), länger wird unlesbar.
+                const lines = summary.split('\n').slice(0, 40).join('\n');
+                covSection = '```\n' + lines + '\n```';
+              } catch {
+                covSection = `> Line-Coverage: **${coverage.linePct}%**` +
+                  (coverage.branchPct !== null ? ` · Branch: **${coverage.branchPct}%**` : '');
+              }
+              body += '<details>\n';
+              body += `<summary><strong>Test-Coverage</strong> · ${coverage.linePct}% Lines</summary>\n\n`;
+              body += covSection + '\n\n';
+              body += '</details>\n\n';
+            }
 
             // PHPStan details
             body += '<details>\n';
@@ -358,5 +763,8 @@ jobs:
       - name: Fail if checks failed
         if: always()
         run: |
-          if [ "${{ needs.phpstan.result }}" = "failure" ]; then exit 1; fi
           if [ "${{ needs.build.result }}" = "failure" ]; then exit 1; fi
+          if [ "${{ needs.phpstan.result }}" = "failure" ]; then exit 1; fi
+          if [ "${{ needs.phpunit-unit.result }}" = "failure" ]; then exit 1; fi
+          if [ "${{ needs.phpunit-integration.result }}" = "failure" ]; then exit 1; fi
+          if [ "${{ needs.frontend.result }}" = "failure" ]; then exit 1; fi

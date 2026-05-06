@@ -11,9 +11,9 @@
             <div class="modal-body">
                 <p>Wähle ein Fahrzeug aus, mit dem du dieses Protokoll teilen möchtest:</p>
                 <div class="mb-3 position-relative">
-                    <label for="targetVehicleSearch" class="form-label">Zielfahrzeug</label>
+                    <label for="targetVehicleSearch" class="ignis-field__label">Zielfahrzeug</label>
                     <input type="text"
-                        class="form-control"
+                        class="ignis-input"
                         id="targetVehicleSearch"
                         placeholder="Rufname, Kennzeichen oder ID eingeben..."
                         autocomplete="off">
@@ -22,15 +22,15 @@
                         <!-- Dropdown items werden hier dynamisch eingefügt -->
                     </div>
                 </div>
-                <div class="alert alert-info">
+                <div class="ignis-alert ignis-alert--info">
                     <i class="fa-solid fa-info-circle"></i>
                     Das ausgewählte Fahrzeug erhält eine Anfrage und kann entscheiden, ob es die Daten in ein bestehendes Protokoll übernehmen oder ein neues Protokoll erstellen möchte.
                 </div>
-                <div id="shareErrorMessage" class="alert alert-danger d-none"></div>
+                <div id="shareErrorMessage" class="ignis-alert ignis-alert--danger hidden"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                <button type="button" class="btn btn-soft-primary" id="confirmShareBtn" disabled>Teilen</button>
+                <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="ignis-btn ignis-btn--soft-primary" id="confirmShareBtn" disabled>Teilen</button>
             </div>
         </div>
     </div>
@@ -47,7 +47,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-info">
+                <div class="ignis-alert ignis-alert--info">
                     <strong id="shareSourceVehicle"></strong> möchte folgendes Protokoll mit dir teilen:
                 </div>
                 <div class="card mb-3">
@@ -78,29 +78,23 @@
                     </div>
                 </div>
                 <p><strong>Was möchtest du tun?</strong></p>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" name="shareAction" id="shareActionMerge" value="merge">
-                    <label class="form-check-label" for="shareActionMerge">
+                <label class="ignis-radio" for="shareActionMerge"><input type="radio" name="shareAction" id="shareActionMerge" value="merge"><span>
                         <strong>In bestehendes Protokoll übernehmen</strong><br>
-                        <small class="text-muted">Wähle ein vorhandenes Protokoll aus. Die Daten werden übernommen, ohne deine Fahrzeugzuweisungen zu überschreiben.</small>
-                    </label>
-                </div>
-                <div id="existingProtocolsContainer" class="ms-4 mb-3 d-none">
+                        <small class="text-[var(--text-dimmed,#818189)]">Wähle ein vorhandenes Protokoll aus. Die Daten werden übernommen, ohne deine Fahrzeugzuweisungen zu überschreiben.</small>
+                    </span></label>
+                <div id="existingProtocolsContainer" class="ml-4 mb-3 hidden">
                     <select class="form-select" id="existingProtocolSelect" data-custom-dropdown="true" data-search-threshold="8">
                         <option value="">Protokoll auswählen...</option>
                     </select>
                 </div>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" name="shareAction" id="shareActionNew" value="new">
-                    <label class="form-check-label" for="shareActionNew">
+                <label class="ignis-radio" for="shareActionNew"><input type="radio" name="shareAction" id="shareActionNew" value="new"><span>
                         <strong>Neues Protokoll erstellen</strong><br>
-                        <small class="text-muted">Erstellt ein neues Protokoll mit den geteilten Daten und deinen Fahrzeugdaten.</small>
-                    </label>
-                </div>
+                        <small class="text-[var(--text-dimmed,#818189)]">Erstellt ein neues Protokoll mit den geteilten Daten und deinen Fahrzeugdaten.</small>
+                    </span></label>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-ghost-danger" id="rejectShareBtn">Ablehnen</button>
-                <button type="button" class="btn btn-soft-primary" id="acceptShareBtn" disabled>Annehmen</button>
+                <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="rejectShareBtn">Ablehnen</button>
+                <button type="button" class="ignis-btn ignis-btn--soft-primary" id="acceptShareBtn" disabled>Annehmen</button>
             </div>
         </div>
     </div>
@@ -129,7 +123,7 @@
 
     // Lade verfügbare Fahrzeuge (außer dem eigenen)
     function loadAvailableVehicles() {
-        fetch('<?= BASE_PATH ?>api/enotf/share/get-available-vehicles.php')
+        fetch('<?= BASE_PATH ?>api/enotf/share/get-available-vehicles')
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.vehicles) {
@@ -162,8 +156,8 @@
             item.href = '#';
 
             const typeLabel = vehicle.rd_type == 1 ? 'NA' : 'RD';
-            const kennzeichenText = vehicle.kennzeichen ? ` <small class="text-muted">[${vehicle.kennzeichen}]</small>` : '';
-            item.innerHTML = `${vehicle.name || vehicle.identifier} <span class="badge bg-secondary">${typeLabel}</span>${kennzeichenText}`;
+            const kennzeichenText = vehicle.kennzeichen ? ` <small class="text-[var(--text-dimmed,#818189)]">[${vehicle.kennzeichen}]</small>` : '';
+            item.innerHTML = `${vehicle.name || vehicle.identifier} <span class="ignis-chip">${typeLabel}</span>${kennzeichenText}`;
 
             item.dataset.identifier = vehicle.identifier;
             item.dataset.name = vehicle.name || vehicle.identifier;
@@ -253,10 +247,10 @@
         }
 
         this.disabled = true;
-        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wird gesendet...';
+        this.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Wird gesendet...';
 
         // Sende Share-Request
-        fetch('<?= BASE_PATH ?>api/enotf/share/send-request.php', {
+        fetch('<?= BASE_PATH ?>api/enotf/share/send-request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -292,13 +286,13 @@
     function showShareError(message) {
         const errorDiv = document.getElementById('shareErrorMessage');
         errorDiv.textContent = message;
-        errorDiv.classList.remove('d-none');
+        errorDiv.classList.remove('hidden');
     }
 
     // Radio button handlers für Share-Anfrage
     document.getElementById('shareActionMerge')?.addEventListener('change', function() {
         if (this.checked) {
-            document.getElementById('existingProtocolsContainer').classList.remove('d-none');
+            document.getElementById('existingProtocolsContainer').classList.remove('hidden');
             loadExistingProtocols();
         }
         updateAcceptButton();
@@ -306,7 +300,7 @@
 
     document.getElementById('shareActionNew')?.addEventListener('change', function() {
         if (this.checked) {
-            document.getElementById('existingProtocolsContainer').classList.add('d-none');
+            document.getElementById('existingProtocolsContainer').classList.add('hidden');
         }
         updateAcceptButton();
     });
@@ -331,7 +325,7 @@
     }
 
     function loadExistingProtocols() {
-        fetch('<?= BASE_PATH ?>api/enotf/share/get-own-protocols.php')
+        fetch('<?= BASE_PATH ?>api/enotf/share/get-own-protocols')
             .then(response => response.json())
             .then(data => {
                 console.log('Geladene Protokolle:', data);
@@ -362,9 +356,9 @@
         const targetEnr = action === 'merge' ? document.getElementById('existingProtocolSelect').value : null;
 
         this.disabled = true;
-        this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Wird verarbeitet...';
+        this.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Wird verarbeitet...';
 
-        fetch('<?= BASE_PATH ?>api/enotf/share/accept-request.php', {
+        fetch('<?= BASE_PATH ?>api/enotf/share/accept-request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -387,7 +381,7 @@
                     // Wenn neues Protokoll erstellt wurde, ggf. dorthin weiterleiten
                     if (action === 'new' && data.new_enr) {
                         setTimeout(() => {
-                            window.location.href = '<?= BASE_PATH ?>enotf/protokoll/index.php?enr=' + encodeURIComponent(data.new_enr);
+                            window.location.href = '<?= BASE_PATH ?>enotf/protokoll/index?enr=' + encodeURIComponent(data.new_enr);
                         }, 1500);
                     } else if (action === 'merge') {
                         // Bei Merge zur Overview oder Reload
@@ -419,7 +413,7 @@
     document.getElementById('rejectShareBtn')?.addEventListener('click', function() {
         this.disabled = true;
 
-        fetch('<?= BASE_PATH ?>api/enotf/share/reject-request.php', {
+        fetch('<?= BASE_PATH ?>api/enotf/share/reject-request', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -493,7 +487,7 @@
 
     // Polling für Share-Requests (wird in der Hauptseite aufgerufen)
     function checkForShareRequests() {
-        fetch('<?= BASE_PATH ?>api/enotf/share/check-requests.php')
+        fetch('<?= BASE_PATH ?>api/enotf/share/check-requests')
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.has_requests && data.request) {

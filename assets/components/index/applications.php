@@ -39,24 +39,24 @@
             foreach ($appresult as $row) {
                 $adddat = date("d.m.Y | H:i", strtotime($row['time_added']));
                 $cirs_state = "Unbekannt";
-                $badge_color = "text-bg-dark";
+                $badge_color = "ignis-chip--dark";
 
                 switch ($row['cirs_status']) {
                     case 0:
                         $cirs_state = "In Bearbeitung";
-                        $badge_color = "text-bg-info";
+                        $badge_color = "ignis-chip--info";
                         break;
                     case 1:
                         $cirs_state = "Abgelehnt";
-                        $badge_color = "text-bg-danger";
+                        $badge_color = "ignis-chip--danger";
                         break;
                     case 2:
                         $cirs_state = "Aufgeschoben";
-                        $badge_color = "text-bg-warning";
+                        $badge_color = "ignis-chip--warning";
                         break;
                     case 3:
                         $cirs_state = "Angenommen";
-                        $badge_color = "text-bg-success";
+                        $badge_color = "ignis-chip--success";
                         break;
                 }
 
@@ -65,12 +65,12 @@
                         <i class='" . htmlspecialchars($row['typ_icon']) . " me-1'></i>
                         <span class='small'>" . htmlspecialchars($row['typ_name']) . "</span>
                     </td>
-                    <td><span class='badge {$badge_color}'>" . $cirs_state . "</span></td>
+                    <td><span class='ignis-chip {$badge_color}'>" . $cirs_state . "</span></td>
                     <td><strong>{$row['uniqueid']}</strong></td>
                     <td>" . (!empty($row['cirs_manager']) ? htmlspecialchars($row['cirs_manager']) : '---') . "</td>
                     <td><span style='display:none'>{$row['time_added']}</span>{$adddat}</td>
                     <td>
-                        <a class='btn btn-soft-primary btn-sm' href='" . BASE_PATH . "antrag/view.php?antrag={$row['uniqueid']}'>
+                        <a class='ignis-btn ignis-btn--soft-primary ignis-btn--sm' href='" . BASE_PATH . "forms/view?antrag={$row['uniqueid']}'>
                             <i class='fa-regular fa-eye'></i> Ansehen
                         </a>
                     </td>

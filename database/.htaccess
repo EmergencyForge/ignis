@@ -1,0 +1,13 @@
+# database/ — Phinx-Migrations + Legacy-SQL-Wrapper.
+# Alle PHP-Files hier werden ausschließlich von Phinx aus dem PSR-4-Autoloader
+# instanziiert, niemals via direktem HTTP-Request.
+#
+# Defense-in-Depth: blockt sowohl migrations/ als auch legacy/ als auch seeds/.
+
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>

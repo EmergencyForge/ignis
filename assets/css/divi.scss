@@ -2,8 +2,8 @@
   // Core tokens (eNOTF context — --darkgray is intentionally lighter than admin)
   --secondary-color: #011e4a;
   --secondary-color-dimmed: #0a2e5a;
-  --main-color: #d10000;
-  --main-color-dimmed: #660000;
+  --main-color: #ff4d00;
+  --main-color-dimmed: #cc3d00;
   --gray: #f0f2f4;
   --darkgray: #4a4a4a;
   --tag-color: #a4a6a7;
@@ -94,7 +94,7 @@ input[type="time"] {
 }
 
 .nt-input {
-  font-family: "Courier New", Courier, monospace;
+  font-family: 'Geist Mono', ui-monospace, "Courier New", Courier, monospace;
 }
 
 .form-control {
@@ -188,23 +188,29 @@ body {
 }
 
 #edivi__container .edivi__overview-container .edivi__box textarea.form-control {
-  border: 1px solid #a2a2a2 !important;
+  border: 0 !important;
 }
 
 #edivi__container .edivi__box input.form-control,
 #edivi__container .edivi__box select.form-select,
 #edivi__container .edivi__box textarea.form-control {
-  background: transparent;
+  background: #333333;
   border-radius: 0;
   color: #fff;
   border: 0;
   font-size: 1.2rem;
 }
 
+#edivi__container .edivi__box input.form-control:hover,
+#edivi__container .edivi__box select.form-select:hover,
+#edivi__container .edivi__box textarea.form-control:hover,
 #edivi__container .edivi__box input.form-control:focus,
 #edivi__container .edivi__box select.form-select:focus,
 #edivi__container .edivi__box textarea.form-control:focus {
-  box-shadow: 0 0 0 1px #5783cf !important;
+  background: #333333;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 #edivi__container .edivi__box input.form-control[readonly],
@@ -223,17 +229,23 @@ body {
 #edivi__container .edivi__medikamente input.form-control,
 #edivi__container .edivi__medikamente select.form-select,
 #edivi__container .edivi__medikamente textarea.form-control {
-  background: transparent;
+  background: #333333;
   border-radius: 0;
   color: #fff;
   border: 0;
   font-size: 1.2rem;
 }
 
+#edivi__container .edivi__medikamente input.form-control:hover,
+#edivi__container .edivi__medikamente select.form-select:hover,
+#edivi__container .edivi__medikamente textarea.form-control:hover,
 #edivi__container .edivi__medikamente input.form-control:focus,
 #edivi__container .edivi__medikamente select.form-select:focus,
 #edivi__container .edivi__medikamente textarea.form-control:focus {
-  box-shadow: 0 0 0 1px #5783cf !important;
+  background: #333333;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 #edivi__container .edivi__medikamente input.form-control[readonly],
@@ -258,14 +270,23 @@ body {
   border-radius: 0;
   color: #fff;
   border: 0;
+  background: #333333;
 }
 
+#medis-select:hover,
+#medis-time:hover,
+#medis-unit:hover,
+#medis-admission:hover,
+#medis-concentration:hover,
 #medis-select:focus,
 #medis-time:focus,
 #medis-unit:focus,
 #medis-admission:focus,
 #medis-concentration:focus {
-  box-shadow: 0 0 0 1px #5783cf !important;
+  background: #333333;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 #medis-select[readonly],
@@ -1428,7 +1449,8 @@ button#save-anamnese-btn {
 }
 
 .edivi__login-buttons .col,
-.edivi__login-buttons .col-3 {
+.edivi__login-buttons .col-3,
+.edivi__login-buttons > .flex > div {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1567,8 +1589,12 @@ button#save-anamnese-btn {
   background-color: #333333;
 }
 
-.edivi__einsatz-link {
+.edivi__einsatz-link,
+.edivi__einsatz-link:hover,
+.edivi__einsatz-link:focus,
+.edivi__einsatz-link:active {
   text-decoration: none;
+  color: inherit;
 }
 
 .edivi__einsatz-type,
@@ -2596,4 +2622,166 @@ body[data-page="verlauf"] .value-indicator {
 
 #freigabeButton::after {
   display: none;
+}
+
+// Tailwinds `.collapse { visibility: collapse }`-Utility lädt nach uns und
+// würde Bootstraps Collapse-State (`.collapse.show` zeigt Inhalt) ausser
+// Kraft setzen. Im eNOTF-Scope explizit zurück auf Bootstrap-Verhalten.
+// (Tailwind-Blocklist konnten wir nicht nutzen — siehe tailwind.config.js.)
+#edivi__container .collapse,
+body[data-page] .collapse,
+body#edivi__login .collapse {
+  visibility: visible;
+}
+#edivi__container .collapse:not(.show),
+body[data-page] .collapse:not(.show),
+body#edivi__login .collapse:not(.show) {
+  display: none;
+}
+
+// =====================================================
+// eNOTF-Overrides für ıgnıs Form-Komponenten
+// Standard-ıgnıs nutzt sehr dunklen Input-BG (#161616) + sm-Border-Radius —
+// passt nicht in den medium-grauen eNOTF-Look (#333 / #4a4a4a) und kollidiert
+// optisch mit den .form-control / .edivi__nidabutton-Tönen daneben.
+// Hier die Komponenten gezielt im eNOTF-Scope eingefärbt.
+// =====================================================
+#edivi__container,
+body#edivi__login,
+body[data-page] {
+  // Custom-Properties direkt überschreiben — alle ıgnıs-Komponenten lesen
+  // sie über `var(--input-bg, …)` etc., damit reicht der Variablen-Patch
+  // für den Großteil.
+  --input-bg: #333333;
+  --input-text: #fff;
+  --input-placeholder: var(--enotf-text, #a2a2a2);
+  --darkgray: var(--enotf-border, #555);
+
+  .ignis-input,
+  .ignis-textarea {
+    background: #333333;
+    border: 0;
+    border-radius: 0;
+
+    &:hover:not(:disabled):not([readonly]),
+    &:focus,
+    &:focus-visible {
+      background: #333333;
+      border: 0;
+      box-shadow: none;
+      outline: none;
+    }
+
+    &[readonly] {
+      background: #333333;
+      border: 0;
+    }
+
+    &::placeholder {
+      color: var(--enotf-text, #a2a2a2);
+    }
+  }
+
+  // Trigger-Buttons (Dropdown / Combobox / Datepicker).
+  // !important hier bewusst, weil das ui.scss-Standard-Styling per
+  // verschachtelter `.ignis-dropdown .ignis-dropdown__trigger`-Specificity
+  // bei Variablen-Casts manchmal näher liegt als gewünscht.
+  // eNOTF-Look: keine Border (passt zu form-control, das ebenfalls border:0
+  // im edivi__box-/edivi__login-Kontext bekommt), nur Focus-Ring via
+  // box-shadow.
+  .ignis-dropdown__trigger,
+  .ignis-combobox__trigger,
+  .ignis-combobox__input,
+  .ignis-datepicker__trigger {
+    background: var(--enotf-surface, #333333) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: #fff !important;
+
+    &:hover:not(:disabled) {
+      background: var(--enotf-surface-light, #4a4a4a) !important;
+    }
+
+    &:focus,
+    &:focus-visible {
+      box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf) !important;
+      outline: none;
+    }
+  }
+
+  .ignis-dropdown.is-open .ignis-dropdown__trigger,
+  .ignis-combobox.is-open .ignis-combobox__trigger,
+  .ignis-combobox.is-open .ignis-combobox__input {
+    box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf) !important;
+  }
+
+  .ignis-dropdown__label {
+    color: #fff;
+
+    &.is-placeholder {
+      color: var(--enotf-text, #a2a2a2);
+    }
+  }
+
+  .ignis-dropdown__chevron,
+  .ignis-combobox__chevron {
+    color: var(--enotf-text-light, #999);
+  }
+
+  // Panel (das aufklappende Menü) — JS nutzt `__panel`, nicht `__menu`.
+  .ignis-dropdown__panel,
+  .ignis-combobox__panel {
+    background: var(--enotf-surface-light, #4a4a4a);
+    border: 1px solid var(--enotf-border, #555);
+    border-radius: 0;
+    color: #fff;
+  }
+
+  .ignis-dropdown__search,
+  .ignis-combobox__search {
+    background: var(--enotf-surface, #333);
+    border: 1px solid var(--enotf-border, #555);
+    border-radius: 0;
+    color: #fff;
+
+    &::placeholder {
+      color: var(--enotf-text-light, #999);
+    }
+
+    &:focus {
+      border-color: var(--enotf-focus-ring, #5783cf);
+      box-shadow: 0 0 0 1px var(--enotf-focus-ring, #5783cf);
+    }
+  }
+
+  .ignis-dropdown__option,
+  .ignis-combobox__option {
+    color: #fff;
+
+    &:hover,
+    &.is-active,
+    &[aria-selected="true"] {
+      background: var(--enotf-border, #555);
+    }
+
+    &.is-selected {
+      background: var(--main-color);
+      color: #fff;
+
+      &:hover {
+        background: var(--main-color-dimmed);
+      }
+    }
+  }
+
+  // Beladelisten-Cards: das Admin-Default `position: sticky; top: 0` für
+  // die Card-Header ist im eNOTF problematisch — der eNOTF-Topbar liegt
+  // bei top: 0, und der sticky-Header der ersten Kategorie wandert
+  // hinter den Topbar und ist damit nicht sichtbar/klickbar.
+  // Im eNOTF rendert der Header daher im normalen Fluss.
+  .beladung-category-card__header,
+  .beladung-search {
+    position: static;
+    top: auto;
+  }
 }

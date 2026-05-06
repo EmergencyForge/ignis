@@ -51,11 +51,11 @@
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
                     getEditor()?.addFieldPlaceholder(item.dataset.field, item.dataset.label);
-                    bootstrap.Modal.getInstance(document.getElementById('fieldSelectModal'))?.hide();
+                    window.VisualEditorDialogs?.fieldSelect?.hide();
                 });
             });
 
-            new bootstrap.Modal(document.getElementById('fieldSelectModal')).show();
+            window.VisualEditorDialogs?.fieldSelect?.show();
         });
 
         // Bild hinzufügen — öffnet Asset Manager
@@ -143,10 +143,10 @@
             const list = document.getElementById('versions-list');
             if (!list) return;
             list.innerHTML = '<div class="text-center p-3"><i class="fa-solid fa-spinner fa-spin"></i></div>';
-            new bootstrap.Modal(document.getElementById('versionsModal')).show();
+            window.VisualEditorDialogs?.versions?.show();
 
             try {
-                const res = await fetch(CONFIG.basePath + 'api/documents/layout-versions.php?template_id=' + CONFIG.templateId);
+                const res = await fetch(CONFIG.basePath + 'api/documents/layout-versions?template_id=' + CONFIG.templateId);
                 const data = await res.json();
                 if (!data.success || !data.versions?.length) {
                     list.innerHTML = '<div class="text-muted text-center p-3">Keine Versionen vorhanden</div>';
@@ -189,7 +189,7 @@
                         if (!ok) return;
                         btn.disabled = true;
                         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                        const res = await fetch(CONFIG.basePath + 'api/documents/layout-versions.php', {
+                        const res = await fetch(CONFIG.basePath + 'api/documents/layout-versions', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(window.EditorCsrf.addToBody({ template_id: CONFIG.templateId, layout_id: parseInt(btn.dataset.restore) })),
@@ -197,7 +197,7 @@
                         const result = await res.json();
                         window.EditorCsrf.handleResponse(result);
                         if (result.success) {
-                            bootstrap.Modal.getInstance(document.getElementById('versionsModal'))?.hide();
+                            window.VisualEditorDialogs?.versions?.hide();
                             getEditor()?.loadLayout();
                             if (window.showToast) window.showToast('Version wiederhergestellt', 'success');
                         }
@@ -284,7 +284,7 @@
         // Entwurfs-Modus Toggle
         document.getElementById('chk-draft')?.addEventListener('change', async (e) => {
             try {
-                const response = await fetch(CONFIG.basePath + 'api/documents/layout-save.php', {
+                const response = await fetch(CONFIG.basePath + 'api/documents/layout-save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(window.EditorCsrf.addToBody({
@@ -318,7 +318,7 @@
 
             try {
                 const json = editor.getCanvas().toJSON(['custom']);
-                const response = await fetch(CONFIG.basePath + 'api/documents/layout-preview.php', {
+                const response = await fetch(CONFIG.basePath + 'api/documents/layout-preview', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(window.EditorCsrf.addToBody({
@@ -328,14 +328,18 @@
                     })),
                 });
 
+                // CSRF-Token aus dem Header lesen, BEVOR der Blob konsumiert wird —
+                // der Server hat den gesendeten Token rotiert, der nächste Save
+                // bräuchte sonst den alten Token und würde mit 403 abgelehnt.
+                window.EditorCsrf.handleResponseHeader(response);
+
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 iframe.src = url;
-                new bootstrap.Modal(document.getElementById('previewModal')).show();
-                // URL aufräumen wenn Modal geschlossen wird
-                document.getElementById('previewModal')?.addEventListener('hidden.bs.modal', () => {
-                    URL.revokeObjectURL(url);
-                }, { once: true });
+                // ObjectURL nach Close des Preview-Dialogs freigeben
+                window.VisualEditorDialogs?.preview?.show({
+                    onCloseOnce: () => URL.revokeObjectURL(url),
+                });
             } catch (err) {
                 console.error('Preview error:', err);
                 if (window.showToast) {
