@@ -93,6 +93,20 @@ abstract class Controller
         $pdo = $this->pdo;
 
         extract($data, EXTR_SKIP);
-        require $templatePath;
+
+        // Output-Buffer um die ganze Template-Render-Phase. Wenn das Template
+        // mitten im Render einen Throwable wirft, wird der bereits-gerenderte
+        // Chrome (Head, Sidebar, Navbar) verworfen statt half-rendered an den
+        // Browser zu kleben — der ErrorHandler kann dann seine eigene Page
+        // sauber emittieren, ohne sie unter Dashboard-Layout zu schachteln.
+        ob_start();
+        try {
+            require $templatePath;
+            $output = ob_get_clean();
+            echo $output;
+        } catch (\Throwable $e) {
+            ob_end_clean();
+            throw $e;
+        }
     }
 }

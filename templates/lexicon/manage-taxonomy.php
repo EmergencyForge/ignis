@@ -1,3 +1,6 @@
+<?php
+use App\Helpers\Flash;
+?>
 <!DOCTYPE html>
 <html lang="de">
 <head>
