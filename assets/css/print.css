@@ -41,8 +41,7 @@ p.print__text-small {
 }
 
 input[type=radio] {
-  -moz-appearance: none;
-       appearance: none;
+  appearance: none;
   -webkit-appearance: none;
   width: 6pt;
   height: 6pt;
@@ -88,9 +87,7 @@ input[type=radio]:checked {
   padding-left: 0.35rem;
   cursor: default;
   pointer-events: none;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   caret-color: transparent;
 }
 .print__field-wrapper .print__field:focus {
@@ -105,9 +102,7 @@ input[type=radio]:checked {
   padding-left: 0.35rem;
   cursor: default;
   pointer-events: none;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   caret-color: transparent;
   margin-top: 5pt;
 }
@@ -119,9 +114,7 @@ input[type=radio]:checked {
   border: 0;
   cursor: default;
   pointer-events: none;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   caret-color: transparent;
 }
 .print__field-wrapper .print__textbox:focus {
@@ -240,8 +233,7 @@ body {
   }
   input[type=radio] {
     -webkit-appearance: none;
-    -moz-appearance: none;
-         appearance: none;
+    appearance: none;
     width: 6pt;
     height: 6pt;
     border: 1px solid #000 !important;

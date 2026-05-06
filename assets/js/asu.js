@@ -78,49 +78,45 @@ function updateTruppDisplay(truppNum) {
   const percentage = timer.elapsedSeconds / MAX_TIME_SECONDS;
   const percentValue = Math.round(percentage * 100);
 
+  // Safety-Tier aus Einsatzzeit ableiten. Normal-Zustand nutzt die Brand-
+  // Farbe aus der CSS-Variable, damit Accent-Color-Switch (rot/blau/grün/...)
+  // im laufenden Betrieb mitwechselt. Warning/Danger sind fix, weil
+  // Safety-Semantik farbcodiert (Gelb/Rot = Rückzugsschwelle).
+  let tierStroke;
+  if (timer.elapsedSeconds >= 3000) {
+    tierStroke = "#ef4444"; // danger
+  } else if (timer.elapsedSeconds >= 2400) {
+    tierStroke = "#ffc107"; // warning
+  } else {
+    const cssMain = getComputedStyle(document.documentElement)
+      .getPropertyValue("--main-color").trim();
+    tierStroke = cssMain || "#ff4d00";
+  }
+
   // Update SVG circle progress
   if (progressCircle) {
     const offset = CIRCLE_CIRCUMFERENCE * (1 - percentage);
     progressCircle.style.strokeDashoffset = offset;
-
-    // Change color based on time
-    if (timer.elapsedSeconds >= 3000) {
-      progressCircle.style.stroke = "#dc3545"; // danger
-    } else if (timer.elapsedSeconds >= 2400) {
-      progressCircle.style.stroke = "#ffc107"; // warning
-    } else {
-      progressCircle.style.stroke = "#d10000"; // main color
-    }
+    progressCircle.style.stroke = tierStroke;
   }
 
   // Update clock hand (rotates 360 degrees over 60 minutes)
   if (handElement) {
     const degrees = (timer.elapsedSeconds / MAX_TIME_SECONDS) * 360;
     handElement.style.transform = `rotate(${degrees}deg)`;
-
-    // Change hand color based on time
-    if (timer.elapsedSeconds >= 3000) {
-      handElement.style.stroke = "#dc3545"; // danger
-    } else if (timer.elapsedSeconds >= 2400) {
-      handElement.style.stroke = "#ffc107"; // warning
-    } else {
-      handElement.style.stroke = "#d10000"; // main color
-    }
+    handElement.style.stroke = tierStroke;
   }
 
-  // Update progress bar
+  // Update progress bar — asu-warning/asu-danger triggern Safety-Farben,
+  // fehlen beide bedeutet: Brand-Farbe über CSS-Default.
   if (progressBar) {
     progressBar.style.width = percentValue + "%";
     progressBar.setAttribute("aria-valuenow", percentValue);
-
-    // Change color based on time
-    progressBar.classList.remove("bg-danger", "bg-warning");
+    progressBar.classList.remove("asu-warning", "asu-danger");
     if (timer.elapsedSeconds >= 3000) {
-      progressBar.classList.add("bg-danger");
+      progressBar.classList.add("asu-danger");
     } else if (timer.elapsedSeconds >= 2400) {
-      progressBar.classList.add("bg-warning");
-    } else {
-      progressBar.classList.add("bg-danger");
+      progressBar.classList.add("asu-warning");
     }
   }
 
@@ -351,7 +347,7 @@ function sendData() {
     params.asu_id = asuId;
   }
 
-  fetch(basePath + "einsatz/actions.php", {
+  fetch(basePath + "firetab/actions", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -382,11 +378,10 @@ function sendData() {
     });
 }
 
-// View ASU Protocol
+// View ASU Protocol — baut das Markup als String und uebergibt es als
+// Dialog-Body. Modal-Instanz und viewContainer-Element-Lookup entfallen,
+// weil das alte Bootstrap-Modal-Markup geloescht ist.
 function viewASUProtocol(data) {
-  const modal = new bootstrap.Modal(document.getElementById("viewASUModal"));
-  const viewContainer = document.getElementById("asuProtocolView");
-
   let html = `
     <div class="row mb-3">
       <div class="col-md-3">
@@ -485,8 +480,14 @@ function viewASUProtocol(data) {
     `;
   }
 
-  viewContainer.innerHTML = html;
-  modal.show();
+  // Dialog ersetzt das alte Bootstrap-Modal — Body wird mit dem
+  // JS-gebauten HTML befuellt, ohne Helper-Container im DOM noetig.
+  new Dialog({
+    title: 'ASU-Protokoll Ansicht',
+    size:  'xl',
+    body:  html,
+    actions: [{ label: 'Schließen', variant: 'ghost', close: true }],
+  }).open();
 }
 
 // Delete ASU Protocol
@@ -504,7 +505,7 @@ function deleteASUProtocol(asuId) {
     const urlParams = new URLSearchParams(window.location.search);
     const incidentId = urlParams.get("id");
 
-    fetch(basePath + "einsatz/actions.php", {
+    fetch(basePath + "firetab/actions", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",

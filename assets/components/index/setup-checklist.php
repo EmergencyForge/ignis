@@ -1,16 +1,32 @@
 <?php
+
 /**
  * Admin Setup Checklist
  * Shows for admins when essential configuration is incomplete.
  * Dismissable via localStorage — won't appear again after dismissed.
  */
+
 use App\Auth\Permissions;
+
 if (!Permissions::check(['admin'])) return;
 
-// Safe count helper — returns 0 if table doesn't exist
-function _setupCount(PDO $pdo, string $table): int {
-    try { return (int)$pdo->query("SELECT COUNT(*) FROM $table")->fetchColumn(); }
-    catch (Exception $e) { return 0; }
+// Safe count helper — returns 0 if table doesn't exist or not whitelisted
+function _setupCount(PDO $pdo, string $table): int
+{
+    static $whitelist = [
+        'intra_mitarbeiter_dienstgrade',
+        'intra_mitarbeiter_rdquali',
+        'intra_users_roles',
+        'intra_mitarbeiter',
+        'intra_edivi_pois',
+        'intra_fahrzeuge',
+    ];
+    if (!in_array($table, $whitelist, true)) return 0;
+    try {
+        return (int)$pdo->query("SELECT COUNT(*) FROM $table")->fetchColumn();
+    } catch (Exception) {
+        return 0;
+    }
 }
 
 // Check what's configured
@@ -18,7 +34,8 @@ $checkConfigDone = false;
 try {
     $cfgVal = $pdo->query("SELECT config_value FROM intra_system_config WHERE config_key = 'SYSTEM_URL' LIMIT 1")->fetchColumn();
     $checkConfigDone = ($cfgVal && $cfgVal !== 'CHANGE_ME');
-} catch (Exception $e) {}
+} catch (Exception $e) {
+}
 
 $checkDienstgrade = _setupCount($pdo, 'intra_mitarbeiter_dienstgrade');
 $checkQuali       = _setupCount($pdo, 'intra_mitarbeiter_rdquali');
@@ -50,12 +67,12 @@ if ($completedRequired >= $requiredSteps) return;
 $stepNum = 1;
 ?>
 <div class="intra__setup-checklist" id="setupChecklist">
-    <div class="d-flex align-items-center justify-content-between mb-2">
-        <h6 class="mb-0" style="color:var(--text-title);font-weight:600;">
+    <div class="flex items-center justify-between mb-2">
+        <h2 class="mb-0 mt-0" style="color:var(--text-title);font-weight:600;">
             <i class="fa-solid fa-rocket" style="color:var(--main-color);margin-right:0.4rem"></i>
             System einrichten
-        </h6>
-        <button class="btn-ghost btn-sm" onclick="document.getElementById('setupChecklist').style.display='none';try{localStorage.setItem('intra_setup_dismissed','1')}catch(e){}" aria-label="Schließen" style="font-size:0.8rem;padding:0.2rem 0.5rem;">
+        </h2>
+        <button class="ignis-btn ignis-btn--ghost ignis-btn--sm" onclick="document.getElementById('setupChecklist').style.display='none';try{localStorage.setItem('intra_setup_dismissed','1')}catch(e){}" aria-label="Schließen" style="font-size:0.8rem;padding:0.2rem 0.5rem;">
             Ausblenden
         </button>
     </div>
@@ -64,7 +81,7 @@ $stepNum = 1;
     </p>
     <div class="setup-steps">
         <?php $done = $doneConfig; ?>
-        <a href="<?= BASE_PATH ?>settings/system/config.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <a href="<?= BASE_PATH ?>settings/system/config" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Systemdaten anpassen</strong>
@@ -72,8 +89,9 @@ $stepNum = 1;
             </span>
         </a>
 
-        <?php $stepNum++; $done = $doneDienstgrade; ?>
-        <a href="<?= BASE_PATH ?>settings/personal/dienstgrade/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <?php $stepNum++;
+        $done = $doneDienstgrade; ?>
+        <a href="<?= BASE_PATH ?>settings/personnel/ranks/index" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Dienstgrade anlegen</strong>
@@ -81,8 +99,9 @@ $stepNum = 1;
             </span>
         </a>
 
-        <?php $stepNum++; $done = $doneQuali; ?>
-        <a href="<?= BASE_PATH ?>settings/personal/qualird/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <?php $stepNum++;
+        $done = $doneQuali; ?>
+        <a href="<?= BASE_PATH ?>settings/personnel/ambskills/index" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Qualifikationen konfigurieren</strong>
@@ -90,8 +109,9 @@ $stepNum = 1;
             </span>
         </a>
 
-        <?php $stepNum++; $done = $doneRollen; ?>
-        <a href="<?= BASE_PATH ?>benutzer/rollen/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <?php $stepNum++;
+        $done = $doneRollen; ?>
+        <a href="<?= BASE_PATH ?>users/rollen/index" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Rollen & Berechtigungen einrichten</strong>
@@ -99,8 +119,9 @@ $stepNum = 1;
             </span>
         </a>
 
-        <?php $stepNum++; $done = $doneMitarbeiter; ?>
-        <a href="<?= BASE_PATH ?>mitarbeiter/list.php" class="setup-step <?= $done ? 'done' : '' ?>">
+        <?php $stepNum++;
+        $done = $doneMitarbeiter; ?>
+        <a href="<?= BASE_PATH ?>personnel/list" class="setup-step <?= $done ? 'done' : '' ?>">
             <span class="setup-step-icon"><?= $done ? '<i class="fa-solid fa-check"></i>' : $stepNum ?></span>
             <span class="setup-step-text">
                 <strong>Ersten Mitarbeiter erstellen</strong>
@@ -114,7 +135,7 @@ $stepNum = 1;
         <div style="font-size:var(--fs-xs);color:var(--text-dimmed);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.4rem;">Optional</div>
         <div class="setup-steps">
             <?php $done = $donePois; ?>
-            <a href="<?= BASE_PATH ?>settings/pois/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
+            <a href="<?= BASE_PATH ?>settings/pois/index" class="setup-step <?= $done ? 'done' : '' ?>">
                 <span class="setup-step-icon" style="background:rgba(255,255,255,0.06);color:var(--text-dimmed);"><?= $done ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-map-marker-alt" style="font-size:0.65rem"></i>' ?></span>
                 <span class="setup-step-text">
                     <strong>POIs einrichten</strong>
@@ -123,7 +144,7 @@ $stepNum = 1;
             </a>
 
             <?php $done = $doneFahrzeuge; ?>
-            <a href="<?= BASE_PATH ?>settings/fahrzeuge/fahrzeuge/index.php" class="setup-step <?= $done ? 'done' : '' ?>">
+            <a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index" class="setup-step <?= $done ? 'done' : '' ?>">
                 <span class="setup-step-icon" style="background:rgba(255,255,255,0.06);color:var(--text-dimmed);"><?= $done ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-truck" style="font-size:0.65rem"></i>' ?></span>
                 <span class="setup-step-text">
                     <strong>Fahrzeug anlegen</strong>
@@ -138,9 +159,9 @@ $stepNum = 1;
     </div>
 </div>
 <script>
-// Hide if previously dismissed
-if (localStorage.getItem('intra_setup_dismissed') === '1') {
-    var cl = document.getElementById('setupChecklist');
-    if (cl) cl.style.display = 'none';
-}
+    // Hide if previously dismissed
+    if (localStorage.getItem('intra_setup_dismissed') === '1') {
+        var cl = document.getElementById('setupChecklist');
+        if (cl) cl.style.display = 'none';
+    }
 </script>

@@ -119,10 +119,10 @@ class Flash
                 'not-found' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Das Protokoll wurde nicht gefunden.'],
             ],
             'rank' => [
-                'deleted' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Der Dienstgrad wurde erfolgreich gelöscht.'],
-                'created' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Der Dienstgrad wurde erfolgreich erstellt.'],
-                'not-found' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Der Dienstgrad wurde nicht gefunden.'],
-                'invalid-id' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Dienstgrad-ID.'],
+                'deleted' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Der Rank wurde erfolgreich gelöscht.'],
+                'created' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Der Rank wurde erfolgreich erstellt.'],
+                'not-found' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Der Rank wurde nicht gefunden.'],
+                'invalid-id' => ['type' => 'danger', 'title' => 'Fehler!', 'text' => 'Ungültige Rank-ID.'],
             ],
             'qualification' => [
                 'deleted' => ['type' => 'success', 'title' => 'Erfolg!', 'text' => 'Die Qualifikation wurde erfolgreich gelöscht.'],

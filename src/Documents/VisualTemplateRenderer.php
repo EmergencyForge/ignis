@@ -327,6 +327,7 @@ HTML;
         $top = $this->pxToMm($obj['top'] ?? 0);
         $width = $this->pxToMm(($obj['width'] ?? 100) * ($obj['scaleX'] ?? 1));
         $height = $this->pxToMm(($obj['height'] ?? 100) * ($obj['scaleY'] ?? 1));
+        $angle = $obj['angle'] ?? 0;
 
         $css = [
             'position' => 'absolute',
@@ -347,6 +348,11 @@ HTML;
 
         if (isset($obj['opacity']) && $obj['opacity'] < 1) {
             $css['opacity'] = $obj['opacity'];
+        }
+
+        if ($angle != 0) {
+            $css['transform'] = "rotate({$angle}deg)";
+            $css['transform-origin'] = 'top left';
         }
 
         $style = $this->cssArrayToString($css);
@@ -370,6 +376,7 @@ HTML;
         $lineWidth = $this->pxToMm(abs($x2 - $x1) * ($obj['scaleX'] ?? 1));
         $strokeWidth = (int) ($obj['strokeWidth'] ?? 1);
         $stroke = $this->sanitizeCssColor($obj['stroke'] ?? '#000000');
+        $angle = $obj['angle'] ?? 0;
 
         $css = [
             'position' => 'absolute',
@@ -382,6 +389,11 @@ HTML;
 
         if (isset($obj['opacity']) && $obj['opacity'] < 1) {
             $css['opacity'] = $obj['opacity'];
+        }
+
+        if ($angle != 0) {
+            $css['transform'] = "rotate({$angle}deg)";
+            $css['transform-origin'] = 'top left';
         }
 
         $style = $this->cssArrayToString($css);
@@ -635,7 +647,7 @@ HTML;
             }
         }
 
-        // Legacy: Dienstgrad-Text und Qualifikation auflösen (wie DocumentRenderer)
+        // Legacy: Rank-Text und Qualifikation auflösen (wie DocumentRenderer)
         $dienstgradText = '';
         if (isset($customData['erhalter_rang']) && $customData['erhalter_rang']) {
             $options = $this->getFieldOptions('db_dg', null);
@@ -748,7 +760,7 @@ HTML;
             }
         }
 
-        // Legacy-Dienstgrad/Quali aufloesen
+        // Legacy-Rank/Quali aufloesen
         $dienstgradText = '';
         if (!empty($sampleData['erhalter_rang'])) {
             $options = $this->getFieldOptions('db_dg', null);
@@ -818,7 +830,7 @@ HTML;
             'inhalt' => 'Beispieltext für die Vorschau',
             'issuer' => [
                 'fullname' => 'Aussteller Name',
-                'dienstgrad_text' => 'Dienstgrad',
+                'dienstgrad_text' => 'Rank',
                 'zusatz' => '',
             ],
             'SYSTEM_NAME' => defined('SYSTEM_NAME') ? SYSTEM_NAME : 'System',

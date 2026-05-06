@@ -1,0 +1,11 @@
+/**
+ * Tailwind-Entry — wird von Vite zu public/assets/dist/tailwind.css
+ * gebündelt.
+ *
+ * SCSS-Wrapper (.scss statt .css) erlaubt es uns, später Tailwind und
+ * bestehende SCSS-Variablen im selben Build-Step zu teilen.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

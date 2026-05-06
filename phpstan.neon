@@ -336,40 +336,16 @@ parameters:
             path: benachrichtigungen/index.php
             reportUnmatched: false
 
-        # Setup-Skripte - komplexe Migration-Logik
-        -
-            identifier: isset.variable
-            path: setup/database-init.php
-            reportUnmatched: false
-
+        # Legacy-Migration-Skripte (assets/database/) — werden via Phinx-Wrapper
+        # eingebunden, sind aber syntaktisch teils nicht streng typisierbar.
         -
             identifier: nullCoalesce.offset
-            paths:
-                - setup/database-init.php
-                - settings/system/index.php
+            path: settings/system/index.php
             reportUnmatched: false
 
         -
             identifier: isset.offset
-            paths:
-                - setup/database-init.php
-                - mitarbeiter/profile.php
-            reportUnmatched: false
-
-        -
-            identifier: booleanAnd.alwaysFalse
-            path: setup/database-init.php
-            reportUnmatched: false
-
-        # Defensive coding - Migration tables array check
-        -
-            identifier: booleanAnd.rightAlwaysTrue
-            path: setup/database-init.php
-            reportUnmatched: false
-
-        -
-            identifier: empty.offset
-            path: setup/database-init.php
+            path: mitarbeiter/profile.php
             reportUnmatched: false
 
         -

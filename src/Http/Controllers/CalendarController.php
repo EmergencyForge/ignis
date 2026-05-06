@@ -1,0 +1,791 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers;
+
+use App\Auth\Gate;
+use App\Calendar\AttendeeResolver;
+use App\Calendar\ConflictDetector;
+use App\Calendar\IcalExporter;
+use App\Calendar\RecurrenceExpander;
+use App\Exceptions\ValidationException;
+use App\Helpers\Flash;
+use App\Http\Request;
+use App\Http\Requests\Calendar\CreateEventRequest;
+use App\Http\Requests\Calendar\UpdateEventRequest;
+use App\Http\Response;
+use App\Models\CalendarAttendee;
+use App\Models\CalendarEvent;
+use App\Models\Personnel;
+use App\Notifications\NotificationManager;
+use App\Utils\AuditLogger;
+use DateTimeImmutable;
+use Illuminate\Database\Capsule\Manager as Capsule;
+
+/**
+ * CalendarController — Termine, role-getaggte Dienste, Recurring-Series.
+ *
+ * URL-Mapping:
+ *   GET  /kalender                 → index()         (Page mit FullCalendar-Mount)
+ *   GET  /kalender/view?id=X       → show()          (Detail-Modal-HTML-Fragment)
+ *   POST /kalender/create          → store()
+ *   POST /kalender/update?id=X     → update()
+ *   POST /kalender/delete?id=X     → destroy()
+ *   POST /kalender/respond?id=X    → respondInvite()
+ *   GET  /api/kalender/events      → eventsJson()    (FullCalendar-Feed)
+ */
+class CalendarController extends Controller
+{
+    /**
+     * GET /kalender — Page mit FullCalendar + Sidebar (Filter, Verfügbarkeits-Widget).
+     */
+    public function index(): void
+    {
+        $this->requireAuth();
+        $this->ensure('calendar.view', redirectTo: 'index');
+
+        // Mitarbeiter-Liste fuer Attendee-Picker
+        $mitarbeiter = Personnel::query()
+            ->orderBy('fullname')
+            ->get(['id', 'fullname', 'dienstnr']);
+
+        // Rollen fuer Visibility=role-Auswahl
+        $roles = Capsule::table('intra_users_roles')
+            ->orderBy('priority')
+            ->orderBy('name')
+            ->get(['id', 'name', 'color'])
+            ->map(fn ($r) => (array) $r)
+            ->all();
+
+        // Heute-abwesend-Strip — Liste der Mitarbeiter, deren Absence-Event
+        // den heutigen Tag ueberlappt. Wird im Template nur gerendert wenn
+        // mindestens einer drin ist.
+        $today = (new DateTimeImmutable('today'))->format('Y-m-d');
+        $absentToday = Personnel::query()
+            ->whereIn('id', function ($sub) use ($today) {
+                $sub->select('a.mitarbeiter_id')
+                    ->from('intra_calendar_attendees as a')
+                    ->join('intra_calendar_events as e', 'e.id', '=', 'a.event_id')
+                    ->where('e.category', 'absence')
+                    ->where('e.starts_at', '<=', $today . ' 23:59:59')
+                    ->where('e.ends_at',   '>=', $today . ' 00:00:00');
+            })
+            ->orderBy('fullname')
+            ->get(['id', 'fullname', 'dienstnr']);
+
+        $this->renderView('calendar/index', [
+            'mitarbeiter' => $mitarbeiter,
+            'roles'       => $roles,
+            'categories'  => CalendarEvent::CATEGORIES,
+            'colors'      => CalendarEvent::COLORS,
+            'absentToday' => $absentToday,
+        ]);
+    }
+
+    /**
+     * GET /api/kalender/events?from=...&to=...
+     *
+     * FullCalendar-EventSource — liefert ein Array von EventInput-Objekten
+     * im Format, das FullCalendar 6 erwartet. Recurring-Events werden via
+     * RecurrenceExpander in Einzelvorkommen aufgeloest.
+     */
+    public function eventsJson(): Response
+    {
+        $this->requireAuth();
+        $this->ensure('calendar.view', redirectTo: 'index');
+
+        $from = $this->parseRange($_GET['from'] ?? null, '-1 month');
+        $to   = $this->parseRange($_GET['to']   ?? null, '+2 months');
+
+        $userId        = (int) ($_SESSION['userid'] ?? 0);
+        $roleId        = (int) ($_SESSION['role_id'] ?? 0) ?: null;
+        $mitarbeiterId = $this->resolveMitarbeiterId();
+
+        $events = CalendarEvent::query()
+            ->visibleTo($userId, $roleId, $mitarbeiterId)
+            ->inRange($from, $to)
+            // Exception-Rows fuer Recurring-Series werden NICHT als eigenstaendige
+            // Events geliefert — der Expander zieht sie sich.
+            ->where(function ($q) {
+                $q->whereNull('parent_event_id')
+                    ->orWhereNotNull('recurrence_rule');
+            })
+            ->get();
+
+        // Bulk-Lookup der Eigen-Responses (statt N+1 pro Event):
+        // Ein Query fuer alle Attendee-Rows zwischen User-Mitarbeiter und
+        // den im Range befindlichen Events. Result als event_id => response Map.
+        $myResponses = [];
+        if ($mitarbeiterId !== null && $events->isNotEmpty()) {
+            $myResponses = CalendarAttendee::query()
+                ->where('mitarbeiter_id', $mitarbeiterId)
+                ->whereIn('event_id', $events->pluck('id')->all())
+                ->pluck('response', 'event_id')
+                ->all();
+        }
+
+        $output = [];
+        foreach ($events as $event) {
+            $response = $myResponses[$event->id] ?? null;
+            if (!empty($event->recurrence_rule)) {
+                $expanded = RecurrenceExpander::expand($event, $from, $to);
+                foreach ($expanded as $occ) {
+                    $output[] = $this->toFullCalendarEvent($occ, true, $event->id, $response);
+                }
+            } else {
+                $output[] = $this->toFullCalendarEvent($event, false, null, $response);
+            }
+        }
+
+        return Response::json($output);
+    }
+
+    /**
+     * GET /api/kalender/subscribe-info
+     *
+     * Liefert die persoenliche iCal-Subscribe-URL des eingeloggten Users.
+     * Wird vom "Kalender abonnieren"-Dialog aufgerufen — generiert den
+     * Token bei Bedarf.
+     */
+    public function subscribeInfo(): Response
+    {
+        $this->requireAuth();
+        $userId = (int) $_SESSION['userid'];
+        try {
+            $token = IcalExporter::ensureToken($userId);
+        } catch (\Throwable $e) {
+            return Response::json([
+                'success' => false,
+                'message' => 'iCal-Subscribe ist noch nicht eingerichtet. Bitte composer db:migrate ausführen, dann erneut versuchen.',
+            ], 503);
+        }
+        return Response::json([
+            'success' => true,
+            'url'     => $this->buildIcalUrl($token),
+            'token'   => $token,
+        ]);
+    }
+
+    /**
+     * POST /api/kalender/subscribe-regenerate
+     * Erzeugt einen neuen Token (alte URL wird ungueltig).
+     */
+    public function subscribeRegenerate(): Response
+    {
+        $this->requireAuth();
+        $userId = (int) $_SESSION['userid'];
+        $token  = IcalExporter::regenerateToken($userId);
+        return Response::json([
+            'success' => true,
+            'url'     => $this->buildIcalUrl($token),
+            'token'   => $token,
+        ]);
+    }
+
+    /**
+     * Baut die absolute Subscribe-URL fuer externe Kalender-Apps.
+     * Canonical-Path ist /api/v1/... (siehe public/index.php's
+     * Versions-Rewrite — /api/v1/kalender/ical/X wird intern auf
+     * /api/kalender/ical/X gemappt, wo die Route registriert ist).
+     */
+    private function buildIcalUrl(string $token): string
+    {
+        $base   = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host   = (string) ($_SERVER['HTTP_HOST'] ?? 'localhost');
+        return $scheme . '://' . $host . rtrim($base, '/') . '/api/v1/kalender/ical/' . $token;
+    }
+
+    /**
+     * GET /api/kalender/ical/{token}
+     *
+     * Liefert das iCal-Feed eines Users. KEIN Cookie-Auth — der Token in
+     * der URL ist die Authentifizierung. Externe Kalender koennen das so
+     * abonnieren.
+     */
+    public function icalFeed(Request $request, string $token): Response
+    {
+        $token = trim($token);
+        if (!preg_match('/^[a-f0-9]{20,64}$/', $token)) {
+            return Response::json(['success' => false, 'message' => 'Invalid token'], 404);
+        }
+        $userId = Capsule::table('intra_users')
+            ->where('ical_token', $token)
+            ->value('id');
+        if ($userId === null) {
+            return Response::json(['success' => false, 'message' => 'Invalid token'], 404);
+        }
+
+        $body = IcalExporter::export((int) $userId);
+        return new Response(
+            status: 200,
+            body: $body,
+            headers: [
+                'Content-Type'        => 'text/calendar; charset=utf-8',
+                'Content-Disposition' => 'inline; filename="ignis-kalender.ics"',
+                'Cache-Control'       => 'private, max-age=300',
+            ],
+        );
+    }
+
+    /**
+     * GET /api/kalender/event?id=X — JSON-Detail fuer Edit-Prefill.
+     *
+     * Gibt das volle Event-Datenmodell zurueck, sodass das Frontend das
+     * Edit-Form korrekt befuellen kann. Sichtbarkeit wie bei show().
+     */
+    public function eventJson(): Response
+    {
+        $this->requireAuth();
+        $this->ensure('calendar.view', redirectTo: 'index');
+
+        $id = (int) ($_GET['id'] ?? 0);
+        $event = $id > 0 ? CalendarEvent::with(['attendees', 'visibilityRoles'])->find($id) : null;
+
+        if ($event === null || Gate::denies('calendar.view', $event)) {
+            return Response::json(['success' => false, 'message' => 'Nicht gefunden'], 404);
+        }
+
+        $startsAt = $event->starts_at instanceof \DateTimeInterface
+            ? $event->starts_at->format('Y-m-d\TH:i')
+            : substr((string) $event->starts_at, 0, 16);
+        $endsAt = $event->ends_at instanceof \DateTimeInterface
+            ? $event->ends_at->format('Y-m-d\TH:i')
+            : substr((string) $event->ends_at, 0, 16);
+        $until = $event->recurrence_until instanceof \DateTimeInterface
+            ? $event->recurrence_until->format('Y-m-d')
+            : ($event->recurrence_until ? substr((string) $event->recurrence_until, 0, 10) : null);
+
+        return Response::json([
+            'success' => true,
+            'event'   => [
+                'id'                  => (int) $event->id,
+                'title'               => (string) $event->title,
+                'description'         => (string) ($event->description ?? ''),
+                'location'            => (string) ($event->location ?? ''),
+                'starts_at'           => $startsAt,
+                'ends_at'             => $endsAt,
+                'all_day'             => (bool) $event->all_day,
+                'color'               => (string) $event->color,
+                'category'            => (string) $event->category,
+                'visibility'          => (string) $event->visibility,
+                'visibility_role_ids' => $event->visibilityRoles->pluck('id')->map(fn ($v) => (int) $v)->all(),
+                'track_attendance'    => (bool) $event->track_attendance,
+                'attendees'           => $event->attendees->pluck('mitarbeiter_id')->map(fn ($v) => (int) $v)->all(),
+                'recurrence_rule'     => $event->recurrence_rule,
+                'recurrence_until'    => $until,
+            ],
+        ]);
+    }
+
+    /**
+     * GET /kalender/view?id=X — Detail-HTML-Fragment fuer das Detail-Modal.
+     */
+    public function show(): void
+    {
+        $this->requireAuth();
+        $this->ensure('calendar.view', redirectTo: 'index');
+
+        $id = (int) ($_GET['id'] ?? 0);
+        $event = $id > 0 ? CalendarEvent::with(['attendees.mitarbeiter', 'creator', 'visibilityRoles'])->find($id) : null;
+
+        if ($event === null || Gate::denies('calendar.view', $event)) {
+            Flash::error('Termin nicht gefunden oder keine Berechtigung.');
+            $this->redirect('kalender');
+        }
+
+        $myMitarbeiterId = $this->resolveMitarbeiterId();
+        $myAttendeeRow   = $myMitarbeiterId
+            ? $event->attendees->firstWhere('mitarbeiter_id', $myMitarbeiterId)
+            : null;
+
+        // Liste anzeigen: bei attendees/private immer, bei role nur wenn
+        // track_attendance gesetzt ist (sonst Spam von 50+ implizit
+        // eingeladenen Mitarbeitern).
+        $showAttendeeList = in_array($event->visibility, [
+            CalendarEvent::VISIBILITY_ATTENDEES,
+            CalendarEvent::VISIBILITY_PRIVATE,
+        ], true) || (
+            $event->visibility === CalendarEvent::VISIBILITY_ROLE
+            && (bool) $event->track_attendance
+        );
+
+        // RSVP-Buttons: bei attendees/private fuer eingeladene Mitarbeiter,
+        // bei role nur wenn track_attendance gesetzt ist UND der User in
+        // einer der Rollen ist (oder schon eine attendee-Row hat).
+        // Wichtig: Wir pruefen Role-Membership ueber den AttendeeResolver
+        // (der intra_users.role direkt joint), nicht ueber $_SESSION['role_id'] —
+        // letzteres ist bei full_admin auf 99 gemapped und matcht nicht
+        // mit echten Role-IDs aus der visibility_role_ids-Pivot-Tabelle.
+        $canRespond = false;
+        if ($myMitarbeiterId !== null) {
+            if (in_array($event->visibility, [
+                CalendarEvent::VISIBILITY_ATTENDEES,
+                CalendarEvent::VISIBILITY_PRIVATE,
+            ], true)) {
+                $canRespond = $myAttendeeRow !== null;
+            } elseif ($event->visibility === CalendarEvent::VISIBILITY_ROLE
+                && (bool) $event->track_attendance
+            ) {
+                $canRespond = AttendeeResolver::resolve($event)
+                    ->contains(fn ($m) => (int) $m->id === $myMitarbeiterId);
+            }
+        }
+
+        $attendeesData = [];
+        if ($showAttendeeList) {
+            if (in_array($event->visibility, [
+                CalendarEvent::VISIBILITY_ATTENDEES,
+                CalendarEvent::VISIBILITY_PRIVATE,
+            ], true)) {
+                foreach ($event->attendees as $row) {
+                    if ($row->mitarbeiter === null) continue;
+                    $attendeesData[] = [
+                        'mitarbeiter'  => $row->mitarbeiter,
+                        'response'     => $row->response,
+                        'is_organizer' => (bool) $row->is_organizer,
+                    ];
+                }
+            } else {
+                // Role-based mit Tracking: Mitglieder + ihre Antworten
+                // (sofern bereits abgegeben). Antwort = NULL wenn noch nichts.
+                $explicitMap = [];
+                foreach ($event->attendees as $row) {
+                    $explicitMap[(int) $row->mitarbeiter_id] = $row;
+                }
+                foreach (AttendeeResolver::resolve($event) as $m) {
+                    $row = $explicitMap[(int) $m->id] ?? null;
+                    $attendeesData[] = [
+                        'mitarbeiter'  => $m,
+                        'response'     => $row?->response,
+                        'is_organizer' => $row ? (bool) $row->is_organizer : false,
+                    ];
+                }
+            }
+        }
+
+        $this->renderView('calendar/view', [
+            'event'            => $event,
+            'attendeesData'    => $attendeesData,
+            'attendeeCount'   => AttendeeResolver::count($event),
+            'showAttendeeList' => $showAttendeeList,
+            'canRespond'       => $canRespond,
+            'canEdit'          => Gate::allows('calendar.update', $event),
+            'canDelete'        => Gate::allows('calendar.delete', $event),
+            'myResponse'       => $myAttendeeRow?->response,
+            'categoriesLabel'  => CalendarEvent::CATEGORIES[$event->category] ?? $event->category,
+        ]);
+    }
+
+    /**
+     * POST /kalender/create — neuen Termin anlegen.
+     */
+    public function store(): void
+    {
+        $this->requireAuth();
+        $this->ensure('calendar.create', redirectTo: 'kalender');
+
+        try {
+            $data = CreateEventRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('kalender');
+        }
+
+        $event = $this->buildFromValidated(new CalendarEvent(), $data);
+        $event->created_by = (int) $_SESSION['userid'];
+        $event->source     = CalendarEvent::SOURCE_MANUAL;
+        $event->save();
+
+        $this->syncVisibilityRoles($event, $data['visibility_role_ids'] ?? []);
+        $this->syncAttendees($event, $data['attendees'] ?? [], (int) $_SESSION['userid']);
+        $this->notifyAttendees($event, isUpdate: false);
+        $this->auditLog('Termin erstellt', "ID: {$event->id}, Titel: {$event->title}");
+
+        $this->flashConflictHint($event, $data['attendees'] ?? []);
+
+        Flash::success('Termin erstellt.');
+        $this->redirect('kalender');
+    }
+
+    /**
+     * POST /kalender/update?id=X — bestehenden Termin aendern.
+     */
+    public function update(): void
+    {
+        $this->requireAuth();
+
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        $event = $id > 0 ? CalendarEvent::find($id) : null;
+        if ($event === null) {
+            Flash::error('Termin nicht gefunden.');
+            $this->redirect('kalender');
+        }
+
+        Gate::authorize('calendar.update', $event);
+
+        try {
+            $data = UpdateEventRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('kalender');
+        }
+
+        $this->buildFromValidated($event, $data);
+        $event->save();
+
+        $this->syncVisibilityRoles($event, $data['visibility_role_ids'] ?? []);
+        $this->syncAttendees($event, $data['attendees'] ?? [], (int) $event->created_by);
+        $this->notifyAttendees($event, isUpdate: true);
+        $this->auditLog('Termin bearbeitet', "ID: {$event->id}, Titel: {$event->title}");
+
+        $this->flashConflictHint($event, $data['attendees'] ?? []);
+
+        Flash::success('Termin aktualisiert.');
+        $this->redirect('kalender');
+    }
+
+    /**
+     * POST /kalender/delete?id=X — Termin loeschen.
+     */
+    public function destroy(): void
+    {
+        $this->requireAuth();
+
+        $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        $event = $id > 0 ? CalendarEvent::find($id) : null;
+        if ($event === null) {
+            Flash::error('Termin nicht gefunden.');
+            $this->redirect('kalender');
+        }
+
+        Gate::authorize('calendar.delete', $event);
+
+        $eventId    = $event->id;
+        $eventTitle = $event->title;
+        $event->delete();
+
+        $this->auditLog('Termin gelöscht', "ID: {$eventId}, Titel: {$eventTitle}");
+
+        Flash::success('Termin gelöscht.');
+        $this->redirect('kalender');
+    }
+
+    /**
+     * POST /kalender/respond?id=X — Attendee setzt Response (accepted/declined/tentative).
+     */
+    public function respondInvite(): void
+    {
+        $this->requireAuth();
+
+        $id       = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
+        $response = (string) ($_POST['response'] ?? '');
+        $allowed  = [
+            CalendarAttendee::RESPONSE_ACCEPTED,
+            CalendarAttendee::RESPONSE_DECLINED,
+            CalendarAttendee::RESPONSE_TENTATIVE,
+        ];
+
+        if (!in_array($response, $allowed, true)) {
+            Flash::error('Ungültige Antwort.');
+            $this->redirect('kalender');
+        }
+
+        $mitarbeiterId = $this->resolveMitarbeiterId();
+        if ($mitarbeiterId === null) {
+            Flash::error('Kein Mitarbeiter-Profil verknüpft.');
+            $this->redirect('kalender');
+        }
+
+        // Event laden — wir muessen wissen ob der User ueberhaupt antworten darf
+        // und ob bei role-based Events das Tracking aktiv ist.
+        $event = CalendarEvent::with('visibilityRoles')->find($id);
+        if ($event === null) {
+            Flash::error('Termin nicht gefunden.');
+            $this->redirect('kalender');
+        }
+
+        $attendee = CalendarAttendee::where('event_id', $id)
+            ->where('mitarbeiter_id', $mitarbeiterId)
+            ->first();
+
+        if ($attendee === null) {
+            // Bei role-based Events mit aktivem Tracking lazy eine Row anlegen,
+            // sodass der User RSVP'en kann ohne explizit eingeladen zu sein.
+            // Membership via AttendeeResolver (joint intra_users.role) — nicht
+            // ueber $_SESSION['role_id'], weil full_admin dort auf 99 gemapped
+            // ist und nicht mit echten Role-IDs matcht.
+            $isRoleTracked = $event->visibility === CalendarEvent::VISIBILITY_ROLE
+                && (bool) $event->track_attendance;
+            $hasRole = $isRoleTracked && AttendeeResolver::resolve($event)
+                ->contains(fn ($m) => (int) $m->id === $mitarbeiterId);
+
+            if (!$hasRole) {
+                Flash::error('Du bist nicht eingeladen.');
+                $this->redirect('kalender');
+            }
+
+            $attendee = new CalendarAttendee();
+            $attendee->event_id       = $id;
+            $attendee->mitarbeiter_id = $mitarbeiterId;
+            $attendee->is_organizer   = false;
+        }
+
+        $attendee->response     = $response;
+        $attendee->responded_at = (new DateTimeImmutable())->format('Y-m-d H:i:s');
+        $attendee->save();
+
+        Flash::success('Antwort gespeichert.');
+        $this->redirect('kalender');
+    }
+
+    // -----------------------------------------------------------------------
+    //  Helpers
+    // -----------------------------------------------------------------------
+
+    /**
+     * Uebernimmt validierte Felder in das Event-Model (nicht gespeichert).
+     */
+    private function buildFromValidated(CalendarEvent $event, array $data): CalendarEvent
+    {
+        $event->title            = $data['title'];
+        $event->description      = $data['description'];
+        $event->location         = $data['location'];
+        $event->starts_at        = $data['starts_at'];
+        $event->ends_at          = $data['ends_at'];
+        $event->all_day          = (bool) $data['all_day'];
+        $event->color            = $data['color'];
+        $event->category         = $data['category'];
+        $event->visibility       = $data['visibility'];
+        $event->track_attendance = (bool) ($data['track_attendance'] ?? false);
+        $event->recurrence_rule  = $data['recurrence_rule'];
+        $event->recurrence_until = $data['recurrence_until'];
+        // visibility_role_ids[] wird per Pivot synchronisiert nach $event->save() —
+        // siehe syncVisibilityRoles().
+        return $event;
+    }
+
+    /**
+     * Synct die Pivot-Tabelle intra_calendar_event_roles. Bei
+     * visibility != 'role' werden alle Pivot-Rows entfernt.
+     */
+    private function syncVisibilityRoles(CalendarEvent $event, array $roleIds): void
+    {
+        if ($event->visibility !== CalendarEvent::VISIBILITY_ROLE) {
+            $event->visibilityRoles()->detach();
+            return;
+        }
+        $event->visibilityRoles()->sync(array_map('intval', $roleIds));
+    }
+
+    /**
+     * Synct Attendee-Rows fuer ein Event. Bei visibility != 'attendees' loescht
+     * es alle persistierten Attendees. Bei 'attendees' fuegt es Differenzen
+     * hinzu/entfernt sie. Der Ersteller ist immer als Organizer-Attendee drin
+     * (egal welche Visibility).
+     */
+    private function syncAttendees(CalendarEvent $event, array $mitarbeiterIds, int $creatorUserId): void
+    {
+        if ($event->visibility !== CalendarEvent::VISIBILITY_ATTENDEES
+            && $event->visibility !== CalendarEvent::VISIBILITY_PRIVATE
+        ) {
+            CalendarAttendee::where('event_id', $event->id)->delete();
+            return;
+        }
+
+        $current = CalendarAttendee::where('event_id', $event->id)->pluck('mitarbeiter_id')->all();
+        $current = array_map('intval', $current);
+
+        $desired = array_values(array_unique(array_map('intval', $mitarbeiterIds)));
+
+        // Creator zwangsweise als Organizer dazu, falls er ein Mitarbeiter-Profil hat
+        $creatorMitarbeiterId = $this->mitarbeiterIdForUser($creatorUserId);
+        if ($creatorMitarbeiterId !== null && !in_array($creatorMitarbeiterId, $desired, true)) {
+            $desired[] = $creatorMitarbeiterId;
+        }
+
+        $toAdd    = array_diff($desired, $current);
+        $toRemove = array_diff($current, $desired);
+
+        foreach ($toAdd as $mid) {
+            CalendarAttendee::create([
+                'event_id'       => $event->id,
+                'mitarbeiter_id' => $mid,
+                'response'       => $mid === $creatorMitarbeiterId
+                    ? CalendarAttendee::RESPONSE_ACCEPTED
+                    : CalendarAttendee::RESPONSE_PENDING,
+                'is_organizer'   => $mid === $creatorMitarbeiterId,
+            ]);
+        }
+
+        if (!empty($toRemove)) {
+            CalendarAttendee::where('event_id', $event->id)
+                ->whereIn('mitarbeiter_id', $toRemove)
+                ->delete();
+        }
+    }
+
+    /**
+     * Schickt eine Notification an alle aktuellen Attendees des Events.
+     * Bei Recurring-Series: nur EINE Notification pro User (nicht pro Vorkommen).
+     */
+    private function notifyAttendees(CalendarEvent $event, bool $isUpdate): void
+    {
+        $userIds = AttendeeResolver::resolveUserIds($event);
+        if ($userIds === []) {
+            return;
+        }
+
+        $notifier = new NotificationManager($this->pdo);
+        $verb     = $isUpdate ? 'aktualisiert' : 'angelegt';
+        $when     = (string) $event->starts_at;
+        $msg      = "Termin am {$when}" . ($event->location ? " · {$event->location}" : '');
+        $link     = (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'kalender/view?id=' . $event->id;
+
+        $creatorUserId = (int) $event->created_by;
+        foreach ($userIds as $uid) {
+            if ($uid === $creatorUserId) {
+                continue; // Creator bekommt keine Self-Notification
+            }
+            $notifier->create($uid, 'system', "Termin {$verb}: {$event->title}", $msg, $link);
+        }
+    }
+
+    /**
+     * Konvertiert ein Event in das FullCalendar-EventInput-Format.
+     */
+    private function toFullCalendarEvent(CalendarEvent $event, bool $isRecurring, ?int $seriesId, ?string $myResponse = null): array
+    {
+        $colors = [
+            'orange' => '#ff4d00',
+            'blue'   => '#3b82f6',
+            'green'  => '#16a34a',
+            'red'    => '#dc2626',
+            'purple' => '#a855f7',
+            'gray'   => '#6b7280',
+        ];
+        $hex = $colors[$event->color] ?? '#ff4d00';
+
+        return [
+            'id'              => $isRecurring ? "{$seriesId}-" . substr((string) $event->starts_at, 0, 10) : (string) $event->id,
+            'title'           => $event->title,
+            'start'           => $this->formatForFullCalendar($event->starts_at, (bool) $event->all_day, false),
+            'end'             => $this->formatForFullCalendar($event->ends_at,   (bool) $event->all_day, true),
+            'allDay'          => (bool) $event->all_day,
+            'backgroundColor' => $hex,
+            'borderColor'     => $hex,
+            'extendedProps'   => [
+                'eventId'             => (int) ($seriesId ?? $event->id),
+                'category'            => $event->category,
+                'location'            => $event->location,
+                'visibility'          => $event->visibility,
+                'isRecurringInstance' => $isRecurring,
+                'attendeeCount'       => AttendeeResolver::count($event),
+                'source'              => $event->source,
+                'myResponse'          => $myResponse,
+            ],
+        ];
+    }
+
+    private function formatForFullCalendar(mixed $value, bool $allDay, bool $isEnd = false): string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            $dt = $value;
+        } else {
+            try {
+                $dt = new \DateTimeImmutable((string) $value);
+            } catch (\Throwable) {
+                return (string) $value;
+            }
+        }
+
+        if ($allDay) {
+            // FullCalendar All-Day-Events haben einen EXKLUSIVEN end-Wert.
+            // Wir speichern inklusiv (User denkt: "geht bis Freitag"), also
+            // ist der serialisierte end fuer FC = letzter Tag + 1.
+            if ($isEnd) {
+                $dt = $dt->modify('+1 day');
+            }
+            return $dt->format('Y-m-d');
+        }
+
+        return $dt->format('Y-m-d\TH:i:s');
+    }
+
+    private function parseRange(?string $value, string $fallbackOffset): DateTimeImmutable
+    {
+        if ($value === null || $value === '') {
+            return (new DateTimeImmutable())->modify($fallbackOffset);
+        }
+        try {
+            return new DateTimeImmutable($value);
+        } catch (\Throwable) {
+            return (new DateTimeImmutable())->modify($fallbackOffset);
+        }
+    }
+
+    private function resolveMitarbeiterId(): ?int
+    {
+        if (isset($_SESSION['mitarbeiter_id']) && (int) $_SESSION['mitarbeiter_id'] > 0) {
+            return (int) $_SESSION['mitarbeiter_id'];
+        }
+        $discordId = $_SESSION['discordtag'] ?? null;
+        if (!$discordId) {
+            return null;
+        }
+        try {
+            $row = Personnel::query()->where('discordtag', $discordId)->first(['id']);
+            return $row ? (int) $row->id : null;
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    private function mitarbeiterIdForUser(int $userId): ?int
+    {
+        if ($userId <= 0) {
+            return null;
+        }
+        $discordId = Capsule::table('intra_users')->where('id', $userId)->value('discord_id');
+        if (!$discordId) {
+            return null;
+        }
+        $row = Personnel::query()->where('discordtag', $discordId)->first(['id']);
+        return $row ? (int) $row->id : null;
+    }
+
+    /**
+     * Nicht-blockierender Konflikt-Hint nach store/update — wenn Attendees
+     * im Zeitraum bereits andere Termine haben, gibt's eine Flash::warning
+     * mit Kurz-Zusammenfassung. Der Save selbst ist bereits durch.
+     */
+    private function flashConflictHint(CalendarEvent $event, array $attendeeIds): void
+    {
+        if ($attendeeIds === []) return;
+        try {
+            $from = new \DateTimeImmutable((string) $event->starts_at);
+            $to   = new \DateTimeImmutable((string) $event->ends_at);
+        } catch (\Throwable) {
+            return;
+        }
+        $msg = ConflictDetector::describeConflictsForAttendees(
+            $attendeeIds,
+            $from,
+            $to,
+            (int) $event->id
+        );
+        if ($msg !== '') {
+            Flash::set('warning', $msg);
+        }
+    }
+
+    private function auditLog(string $action, string $details): void
+    {
+        $userId = (int) ($_SESSION['userid'] ?? 0);
+        if ($userId <= 0) {
+            return;
+        }
+        (new AuditLogger($this->pdo))->log($userId, $action, $details, 'Kalender', 1);
+    }
+}

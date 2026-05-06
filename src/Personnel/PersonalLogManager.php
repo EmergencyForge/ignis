@@ -16,7 +16,7 @@ class PersonalLogManager
     public const TYPE_NOTE = 0;           // General note
     public const TYPE_POSITIVE = 1;       // Positive comment
     public const TYPE_NEGATIVE = 2;       // Negative comment
-    public const TYPE_RANK_CHANGE = 4;    // Rank/Dienstgrad change
+    public const TYPE_RANK_CHANGE = 4;    // Rank/Rank change
     public const TYPE_MODIFICATION = 5;   // Profile modification
     public const TYPE_CREATED = 6;        // Profile created
     public const TYPE_DOCUMENT = 7;       // Document created
@@ -77,7 +77,7 @@ class PersonalLogManager
         string $panelUser
     ): int {
         $content = sprintf(
-            'Dienstgrad wurde von <strong>%s</strong> auf <strong>%s</strong> geändert.',
+            'Rank wurde von <strong>%s</strong> auf <strong>%s</strong> geändert.',
             htmlspecialchars($oldRankName),
             htmlspecialchars($newRankName)
         );
@@ -184,7 +184,7 @@ class PersonalLogManager
         $basePath = $basePath ?? (defined('BASE_PATH') ? BASE_PATH : '');
         
         $content = sprintf(
-            'Ein neues Dokument (<a href="%sassets/functions/docredir.php?docid=%d" target="_blank">#%d</a>) wurde erstellt.',
+            'Ein neues Dokument (<a href="%smitarbeiter/dokument-view?docid=%d" target="_blank">#%d</a>) wurde erstellt.',
             $basePath,
             $documentId,
             $documentId

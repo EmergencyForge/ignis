@@ -3,11 +3,21 @@
 namespace App\Federation;
 
 use App\Api\ApiResponse;
+use App\Exceptions\FederationAuthException;
 use PDO;
 
 /**
  * Middleware for federation API endpoints.
  * Validates incoming requests from linked instances via X-Federation-Key header.
+ *
+ * Zwei API-Familien:
+ *   - `try*()`-Methoden werfen `FederationAuthException` bei Fehler
+ *     (testbar, vorbereitet für Router-Pipeline-Integration).
+ *   - Die klassischen Methoden (`authenticate`, `requireEnabled`,
+ *     `requireProvidePermission`) sind dünne Adapter, die die Exception
+ *     fangen und über `ApiResponse::error()` an den Client ausgeben.
+ *     So funktioniert der bestehende Controller-Code weiter, während
+ *     Tests die `try*()`-Pfade direkt prüfen können.
  */
 class FederationMiddleware
 {
@@ -31,30 +41,35 @@ class FederationMiddleware
         return defined($key) ? constant($key) : $default;
     }
 
+    // ──────────────────────────────────────────────────────────────────
+    // Throwing-API (testbar)
+    // ──────────────────────────────────────────────────────────────────
+
     /**
-     * Validate federation is enabled. Sends 404 if not.
+     * Wirft eine FederationAuthException, wenn Federation deaktiviert ist.
      */
-    public static function requireEnabled(): void
+    public static function tryRequireEnabled(): void
     {
         if (!self::isEnabled()) {
-            ApiResponse::error('Instanzvernetzung ist nicht aktiviert', 404);
+            throw new FederationAuthException('Instanzvernetzung ist nicht aktiviert', 404);
         }
     }
 
     /**
-     * Authenticate incoming federation request via X-Federation-Key header.
-     * Returns the linked instance record on success.
+     * Authentifiziert einen eingehenden Federation-Request via X-Federation-Key.
      *
-     * @return array The matching intra_federation_links record
+     * @return array Der zur authentifizierten Instanz passende Eintrag aus
+     *               `intra_federation_links`.
+     * @throws FederationAuthException
      */
-    public static function authenticate(PDO $pdo): array
+    public static function tryAuthenticate(PDO $pdo): array
     {
-        self::requireEnabled();
+        self::tryRequireEnabled();
 
         $key = $_SERVER['HTTP_X_FEDERATION_KEY'] ?? '';
 
         if (empty($key)) {
-            ApiResponse::error('Federation-Key fehlt', 401);
+            throw new FederationAuthException('Federation-Key fehlt', 401);
         }
 
         try {
@@ -66,14 +81,65 @@ class FederationMiddleware
             $stmt->execute([$key]);
             $link = $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
-            ApiResponse::error('Datenbankfehler', 500);
+            throw new FederationAuthException('Datenbankfehler', 500, $e);
         }
 
         if (!$link) {
-            ApiResponse::error('Ungültiger Federation-Key', 403);
+            throw new FederationAuthException('Ungültiger Federation-Key', 403);
         }
 
         return $link;
+    }
+
+    /**
+     * Prüft, ob das authentifizierte Link die geforderte Capability anbietet.
+     *
+     * @param array  $link     Der von tryAuthenticate() gelieferte Eintrag
+     * @param string $dataType Eine von: 'personnel', 'enotf', 'fire'
+     * @throws FederationAuthException
+     */
+    public static function tryRequireProvidePermission(array $link, string $dataType): void
+    {
+        $column = 'provide_' . $dataType;
+
+        if (!isset($link[$column]) || !$link[$column]) {
+            throw new FederationAuthException(
+                "Zugriff auf '{$dataType}' ist für diese Instanz nicht freigegeben",
+                403,
+            );
+        }
+    }
+
+    // ──────────────────────────────────────────────────────────────────
+    // Legacy-Adapter (rufen ApiResponse::error → exit)
+    // ──────────────────────────────────────────────────────────────────
+
+    /**
+     * Validate federation is enabled. Sends 404 if not (exits).
+     */
+    public static function requireEnabled(): void
+    {
+        try {
+            self::tryRequireEnabled();
+        } catch (FederationAuthException $e) {
+            ApiResponse::error($e->getMessage(), $e->statusCode());
+        }
+    }
+
+    /**
+     * Authenticate incoming federation request via X-Federation-Key header.
+     * Returns the linked instance record on success; sends an error JSON
+     * and exits otherwise.
+     *
+     * @return array The matching intra_federation_links record
+     */
+    public static function authenticate(PDO $pdo): array
+    {
+        try {
+            return self::tryAuthenticate($pdo);
+        } catch (FederationAuthException $e) {
+            ApiResponse::error($e->getMessage(), $e->statusCode());
+        }
     }
 
     /**
@@ -84,10 +150,10 @@ class FederationMiddleware
      */
     public static function requireProvidePermission(array $link, string $dataType): void
     {
-        $column = 'provide_' . $dataType;
-
-        if (!isset($link[$column]) || !$link[$column]) {
-            ApiResponse::error("Zugriff auf '{$dataType}' ist für diese Instanz nicht freigegeben", 403);
+        try {
+            self::tryRequireProvidePermission($link, $dataType);
+        } catch (FederationAuthException $e) {
+            ApiResponse::error($e->getMessage(), $e->statusCode());
         }
     }
 }

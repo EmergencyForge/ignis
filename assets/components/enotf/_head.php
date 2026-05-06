@@ -6,24 +6,51 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?php echo $SITE_TITLE; ?> &rsaquo; <?php echo SYSTEM_NAME ?></title>
-<!-- Preload critical font -->
-<link rel="preload" href="<?= BASE_PATH ?>assets/fonts/mavenpro/font/maven-pro-v39-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
 <!-- Stylesheets: Bootstrap first, then overrides -->
-<link rel="stylesheet" href="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>vendor/datatables.net/datatables.net-bs5/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>vendor/fortawesome/font-awesome/css/all.min.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/mavenpro/css/all.min.css" />
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/divi.min.css" />
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-custom-dropdown.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-modals.css">
-<link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/enotf-toast.css">
-<!-- Core scripts (required by inline scripts, cannot be deferred) -->
-<script src="<?= BASE_PATH ?>vendor/components/jquery/jquery.min.js"></script>
-<script src="<?= BASE_PATH ?>vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Reihenfolge:
+     1. vendor.css           — FontAwesome (gemeinsam mit Admin)
+     2. vendor-enotf.css     — Bootstrap 5 (nur eNOTF)
+     3. bootstrap-compat.min — kleinere ıgnıs-Anpassungen oben drauf
+     4. divi.min, ui.min     — eNOTF-spezifisches Styling
+     5. enotf-modals/-toast  — eNOTF-Komponenten
+     6. tailwind.css         — Utility-Klassen, gewinnt bei gleicher Spezifität -->
+<link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
+<link rel="stylesheet" href="<?= asset('public/assets/dist/vendor-enotf.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/bootstrap-compat.min.css') ?>">
+<!-- Geist Sans + Geist Mono fuer das eNOTF-UI (Clock, Stempel,
+     numerische Display-Stellen profitieren von Geist Mono). -->
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
+<link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
+<link rel="stylesheet" href="<?= asset('assets/css/divi.min.css') ?>" />
+<!-- admin.min.css für gemeinsame Komponenten (Beladelisten, Hover-Cards,
+     DataTables-Styling etc.). Reihenfolge: nach divi (eNOTF-spezifische
+     Overrides via #edivi__container haben höhere Specificity), vor ui. -->
+<link rel="stylesheet" href="<?= asset('assets/css/admin.min.css') ?>" />
+<link rel="stylesheet" href="<?= asset('assets/css/ui.min.css') ?>" />
+<link rel="stylesheet" href="<?= asset('assets/css/enotf-modals.css') ?>">
+<link rel="stylesheet" href="<?= asset('assets/css/enotf-toast.css') ?>">
+<link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
+<!-- Core-Bundle: jQuery + DataTables (synchron, wegen window.$-Nutzung in Inline-Scripts).
+     vendor-enotf.js liefert das vollständige Bootstrap 5 (nur eNOTF). -->
+<script src="<?= asset('public/assets/dist/vendor.js') ?>"></script>
+<script src="<?= asset('public/assets/dist/vendor-enotf.js') ?>"></script>
 <!-- App scripts: defer to unblock rendering -->
-<script defer src="<?= BASE_PATH ?>assets/js/toasts.js"></script>
-<script defer src="<?= BASE_PATH ?>assets/js/dialogs.js"></script>
-<script defer src="<?= BASE_PATH ?>assets/js/enotf-custom-dropdown.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/dialog.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/dropdown.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/form.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/tabs.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/accordion.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/datepicker.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/chip.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/combobox.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/colorpicker.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/tooltip.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/alert.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/file.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/modules/datatables-config.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/modules/beladung-search.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-german-date.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/enotf-session-sync.js?v=<?= filemtime(__DIR__ . '/../../js/enotf-session-sync.js') ?>"></script>
@@ -45,13 +72,13 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <script>
 (function() {
     if (navigator.userAgent.includes('CitizenFX')) {
-        fetch('<?= BASE_PATH ?>api/character/get-session-id.php')
+        fetch('<?= BASE_PATH ?>api/character/get-session-id')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.session_id) {
                     // An parent senden (NUI-Seite), falls im iframe — sonst an eigenes window
                     var target = (window.parent !== window) ? window.parent : window;
-                    target.postMessage({ type: 'intraRP_session', session_id: data.session_id }, '*');
+                    target.postMessage({ type: 'ignis_session', session_id: data.session_id }, '*');
                 }
             })
             .catch(function() {});

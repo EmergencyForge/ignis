@@ -45,7 +45,7 @@
 
     fetch(
       basePath +
-        "api/enotf/session-status.php?token=" +
+        "api/enotf/session-status?token=" +
         encodeURIComponent(sessionToken)
     )
       .then(function (r) {
@@ -119,7 +119,7 @@
     var formData = new FormData();
     formData.append("token", sessionToken);
 
-    fetch(basePath + "api/enotf/session-update.php", {
+    fetch(basePath + "api/enotf/session-update", {
       method: "POST",
       body: formData,
     }).catch(function () {

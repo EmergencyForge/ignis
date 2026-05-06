@@ -1,0 +1,745 @@
+// =====================================================
+// Globaler Reboot-Light: box-sizing für alle Elemente. Bootstrap setzt
+// das via reboot.scss, ohne den Shim leakt das padding-Verhalten in
+// `.form-control { width: 100%; padding-left: 35px }` und überdehnt die
+// Inputs (sichtbar auf der Login-Seite mit dem Registrierungscode-Feld).
+// =====================================================
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+// =====================================================
+// Bootstrap-Compat-Shim
+// Minimaler Ersatz für die Teile von Bootstrap 5, die wir nach der
+// Tailwind-/ignis-Migration noch brauchen. Inhalt:
+//   * Container (Bootstrap-Breakpoints, behalten weil mehrere Templates
+//     darauf bauen)
+//   * Modal-Stack (.modal, .modal-dialog, .modal-content, …, .fade, .show)
+//   * .btn-close (X-Knopf in Modal-Headern)
+// row/col-* wurden auf Tailwind migriert (flex flex-wrap -mx-3 + w-N/12),
+// sind hier raus. Modale ziehen später noch auf ignis-dialog um.
+// =====================================================
+
+// ── Container ──────────────────────────────────────────────────────
+.container,
+.container-fluid,
+.container-sm,
+.container-md,
+.container-lg,
+.container-xl {
+    width: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+}
+
+@media (min-width: 576px) { .container, .container-sm { max-width: 540px; } }
+@media (min-width: 768px) { .container, .container-sm, .container-md { max-width: 720px; } }
+@media (min-width: 992px) { .container, .container-sm, .container-md, .container-lg { max-width: 960px; } }
+@media (min-width: 1200px) { .container, .container-sm, .container-md, .container-lg, .container-xl { max-width: 1140px; } }
+@media (min-width: 1400px) { .container, .container-sm, .container-md, .container-lg, .container-xl { max-width: 1320px; } }
+
+// ── Grid (Row + Cols) ──────────────────────────────────────────────
+// Ersetzt das Bootstrap-5-Grid für die noch nicht migrierten Templates
+// (Wissensdatenbank, mehrere Settings-Pages etc.). Tailwind-Layouts
+// (`flex flex-wrap -mx-3` + `flex-1 px-3`) bleiben unberührt.
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -0.75rem;
+    margin-left: -0.75rem;
+}
+
+.row > * {
+    box-sizing: border-box;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 100%;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+}
+
+.col       { flex: 1 0 0%; }
+.col-auto  { flex: 0 0 auto; width: auto; }
+
+@for $i from 1 through 12 {
+    .col-#{$i} { flex: 0 0 auto; width: percentage(calc($i / 12)); }
+}
+
+@media (min-width: 576px) {
+    .col-sm       { flex: 1 0 0%; }
+    .col-sm-auto  { flex: 0 0 auto; width: auto; }
+    @for $i from 1 through 12 {
+        .col-sm-#{$i} { flex: 0 0 auto; width: percentage(calc($i / 12)); }
+    }
+}
+@media (min-width: 768px) {
+    .col-md       { flex: 1 0 0%; }
+    .col-md-auto  { flex: 0 0 auto; width: auto; }
+    @for $i from 1 through 12 {
+        .col-md-#{$i} { flex: 0 0 auto; width: percentage(calc($i / 12)); }
+    }
+}
+@media (min-width: 992px) {
+    .col-lg       { flex: 1 0 0%; }
+    .col-lg-auto  { flex: 0 0 auto; width: auto; }
+    @for $i from 1 through 12 {
+        .col-lg-#{$i} { flex: 0 0 auto; width: percentage(calc($i / 12)); }
+    }
+}
+
+// Gutter-Klassen (g-N / gx-N / gy-N) — überschreibt margin/padding
+// der `.row`-Standardwerte in Vielfachen von 0.25rem.
+$gutters: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem);
+@each $name, $size in $gutters {
+    .g-#{$name},
+    .gx-#{$name} {
+        --bs-gutter-x: #{$size};
+        margin-right:  calc(-#{$size} * 0.5);
+        margin-left:   calc(-#{$size} * 0.5);
+    }
+    .g-#{$name} > *,
+    .gx-#{$name} > * {
+        padding-right: calc(#{$size} * 0.5);
+        padding-left:  calc(#{$size} * 0.5);
+    }
+    .g-#{$name},
+    .gy-#{$name} {
+        --bs-gutter-y: #{$size};
+        row-gap: $size;
+    }
+}
+
+// row-cols-N: alle Direkt-Kinder (.col) bekommen 100/N% Breite. Bootstrap
+// nutzt das gerne für Cards/Tile-Grids ohne explizite col-N-Klassen.
+@for $i from 1 through 6 {
+    .row-cols-#{$i} > * { flex: 0 0 auto; width: percentage(calc(1 / $i)); }
+}
+@media (min-width: 576px) {
+    @for $i from 1 through 6 {
+        .row-cols-sm-#{$i} > * { flex: 0 0 auto; width: percentage(calc(1 / $i)); }
+    }
+}
+@media (min-width: 768px) {
+    @for $i from 1 through 6 {
+        .row-cols-md-#{$i} > * { flex: 0 0 auto; width: percentage(calc(1 / $i)); }
+    }
+}
+@media (min-width: 992px) {
+    @for $i from 1 through 6 {
+        .row-cols-lg-#{$i} > * { flex: 0 0 auto; width: percentage(calc(1 / $i)); }
+    }
+}
+@media (min-width: 1200px) {
+    @for $i from 1 through 6 {
+        .row-cols-xl-#{$i} > * { flex: 0 0 auto; width: percentage(calc(1 / $i)); }
+    }
+}
+
+// ── Display + Flexbox-Utilities ────────────────────────────────────
+.d-none         { display: none !important; }
+.d-inline       { display: inline !important; }
+.d-inline-block { display: inline-block !important; }
+.d-block        { display: block !important; }
+.d-flex         { display: flex !important; }
+.d-inline-flex  { display: inline-flex !important; }
+.d-grid         { display: grid !important; }
+
+.flex-row     { flex-direction: row !important; }
+.flex-column  { flex-direction: column !important; }
+.flex-wrap    { flex-wrap: wrap !important; }
+.flex-nowrap  { flex-wrap: nowrap !important; }
+.flex-grow-1  { flex-grow: 1 !important; }
+.flex-shrink-0{ flex-shrink: 0 !important; }
+.flex-fill    { flex: 1 1 auto !important; }
+
+.justify-content-start   { justify-content: flex-start !important; }
+.justify-content-end     { justify-content: flex-end !important; }
+.justify-content-center  { justify-content: center !important; }
+.justify-content-between { justify-content: space-between !important; }
+.justify-content-around  { justify-content: space-around !important; }
+
+.align-items-start   { align-items: flex-start !important; }
+.align-items-end     { align-items: flex-end !important; }
+.align-items-center  { align-items: center !important; }
+.align-items-stretch { align-items: stretch !important; }
+.align-items-baseline{ align-items: baseline !important; }
+
+// ── Spacing (m-/p- für Mehrheit der Templates) ─────────────────────
+$spaces: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem, auto: auto);
+@each $k, $v in $spaces {
+    .m-#{$k}  { margin: $v !important; }
+    .mt-#{$k} { margin-top: $v !important; }
+    .mb-#{$k} { margin-bottom: $v !important; }
+    .ms-#{$k} { margin-left: $v !important; }
+    .me-#{$k} { margin-right: $v !important; }
+    .ml-#{$k} { margin-left: $v !important; }
+    .mr-#{$k} { margin-right: $v !important; }
+    .mx-#{$k} { margin-left: $v !important; margin-right: $v !important; }
+    .my-#{$k} { margin-top: $v !important; margin-bottom: $v !important; }
+
+    @if $k != auto {
+        .p-#{$k}  { padding: $v !important; }
+        .pt-#{$k} { padding-top: $v !important; }
+        .pb-#{$k} { padding-bottom: $v !important; }
+        .ps-#{$k} { padding-left: $v !important; }
+        .pe-#{$k} { padding-right: $v !important; }
+        .pl-#{$k} { padding-left: $v !important; }
+        .pr-#{$k} { padding-right: $v !important; }
+        .px-#{$k} { padding-left: $v !important; padding-right: $v !important; }
+        .py-#{$k} { padding-top: $v !important; padding-bottom: $v !important; }
+    }
+}
+
+// ── Typography-Utilities ───────────────────────────────────────────
+.text-start  { text-align: left !important; }
+.text-end    { text-align: right !important; }
+.text-center { text-align: center !important; }
+.text-muted  { color: var(--text-dimmed, #818189) !important; }
+.text-light  { color: #fff !important; }
+.text-dark   { color: #000 !important; }
+
+.fw-bold    { font-weight: 700 !important; }
+.fw-semibold{ font-weight: 600 !important; }
+.fw-normal  { font-weight: 400 !important; }
+
+// ── Form-Klassen ───────────────────────────────────────────────────
+// Schlanker Ersatz für Bootstrap-5-Forms. Nutzt eNOTF/Admin-Tokens
+// (Dark-Theme), damit Inputs überall einheitlich aussehen.
+.form-label {
+    margin-bottom: 0.25rem;
+    font-size: 0.82rem;
+    color: var(--text-dimmed, #818189);
+    font-weight: 500;
+    display: block;
+}
+
+.form-text {
+    margin-top: 0.25rem;
+    font-size: 0.78rem;
+    color: var(--text-dimmed, #818189);
+}
+
+.form-control,
+.form-select {
+    display: block;
+    width: 100%;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--input-text, #fff);
+    background-color: var(--input-bg, #161616);
+    border: 1px solid var(--darkgray, #2a2a2a);
+    border-radius: var(--radius-md, 6px);
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+    appearance: none;
+    -webkit-appearance: none;
+
+    &::placeholder {
+        color: var(--input-placeholder, #818189);
+    }
+
+    &:focus,
+    &:focus-visible {
+        outline: none;
+        border-color: var(--main-color, #ff4d00);
+        box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.18);
+    }
+
+    &:disabled,
+    &[readonly] {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+}
+
+.form-select {
+    padding-right: 2.25rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23818189' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 12px;
+}
+
+.form-control-sm,
+.form-select-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.78rem;
+}
+
+.form-check {
+    display: block;
+    min-height: 1.4rem;
+    padding-left: 1.5rem;
+    margin-bottom: 0.25rem;
+
+    .form-check-input {
+        margin-left: -1.5rem;
+        margin-top: 0.2rem;
+        float: left;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+        color: var(--text-normal, #bbbac1);
+    }
+}
+
+// ── Buttons (Base) ─────────────────────────────────────────────────
+// Color-Variants (`.btn-primary`, `.btn-success`, …) liegen in admin.scss.
+// Hier nur die gemeinsame Basis, damit Buttons im Admin auch dann geformt
+// rendern, wenn nur `.btn` ohne Variant gesetzt ist.
+.btn {
+    display: inline-block;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--text-normal, #bbbac1);
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md, 6px);
+    transition: color 0.12s ease, background-color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+
+    &:hover { color: #fff; }
+    &:focus, &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+    }
+    &:disabled, &.disabled {
+        pointer-events: none;
+        opacity: 0.55;
+    }
+}
+
+.btn-sm { padding: 0.25rem 0.6rem; font-size: 0.75rem; }
+.btn-lg { padding: 0.55rem 1.1rem; font-size: 0.95rem; }
+
+// Ghost-Button: wirkt wie ein Link, aber mit Button-Hitbox. Im Admin
+// nutzen wir das u.a. unter dem Discord-Login als Sekundär-Aktion.
+.btn-ghost {
+    background-color: transparent;
+    color: var(--text-normal, #bbbac1);
+    border-color: rgba(255, 255, 255, 0.1);
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+// ── Card ───────────────────────────────────────────────────────────
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: var(--body-bg-lighter, #161616);
+    background-clip: border-box;
+    border: 1px solid var(--darkgray, #2a2a2a);
+    border-radius: var(--radius-md, 6px);
+}
+
+.card-header {
+    padding: 0.75rem 1rem;
+    background-color: rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+}
+
+.card-body {
+    flex: 1 1 auto;
+    padding: 1rem;
+    color: var(--text-normal, #bbbac1);
+}
+
+.card-title {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-title, #fff);
+}
+
+.card-subtitle {
+    margin-top: -0.25rem;
+    margin-bottom: 0;
+    color: var(--text-dimmed, #818189);
+}
+
+.card-text {
+    margin-bottom: 0.5rem;
+}
+
+.card-footer {
+    padding: 0.5rem 1rem;
+    background-color: rgba(255, 255, 255, 0.02);
+    border-top: 1px solid var(--darkgray, #2a2a2a);
+}
+
+// ── Badges ─────────────────────────────────────────────────────────
+.badge {
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+// ── Alerts ─────────────────────────────────────────────────────────
+.alert {
+    position: relative;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md, 6px);
+}
+
+.alert-info     { color: #c8e7f0; background-color: rgba(13, 202, 240, 0.12);  border-color: rgba(13, 202, 240, 0.25); }
+.alert-success  { color: #c2efd4; background-color: rgba(40, 167, 69, 0.12);   border-color: rgba(40, 167, 69, 0.25); }
+.alert-warning  { color: #ffe5a3; background-color: rgba(255, 193, 7, 0.12);   border-color: rgba(255, 193, 7, 0.25); }
+.alert-danger   { color: #f5c2c7; background-color: rgba(220, 53, 69, 0.12);   border-color: rgba(220, 53, 69, 0.25); }
+.alert-secondary{ color: #d1d3d4; background-color: rgba(108, 117, 125, 0.12); border-color: rgba(108, 117, 125, 0.25); }
+
+// ── Background-Utilities ────────────────────────────────────────────
+.bg-primary   { background-color: #4a6fa5 !important; color: #fff !important; }
+.bg-success   { background-color: #3a7d44 !important; color: #fff !important; }
+.bg-danger    { background-color: #b03a3a !important; color: #fff !important; }
+.bg-warning   { background-color: #c49a2a !important; color: #fff !important; }
+.bg-info      { background-color: #2c8aab !important; color: #fff !important; }
+.bg-secondary { background-color: #6c757d !important; color: #fff !important; }
+.bg-dark      { background-color: #1a1a1a !important; color: #fff !important; }
+.bg-light     { background-color: #f0f0f0 !important; color: #000 !important; }
+
+.text-bg-primary   { background-color: #4a6fa5 !important; color: #fff !important; }
+.text-bg-success   { background-color: #3a7d44 !important; color: #fff !important; }
+.text-bg-danger    { background-color: #b03a3a !important; color: #fff !important; }
+.text-bg-warning   { background-color: #c49a2a !important; color: #fff !important; }
+.text-bg-info      { background-color: #2c8aab !important; color: #fff !important; }
+.text-bg-secondary { background-color: #6c757d !important; color: #fff !important; }
+.text-bg-dark      { background-color: #1a1a1a !important; color: #fff !important; }
+.text-bg-light     { background-color: #f0f0f0 !important; color: #000 !important; }
+
+// ── Sizing-Utilities ───────────────────────────────────────────────
+.w-25  { width: 25% !important; }
+.w-50  { width: 50% !important; }
+.w-75  { width: 75% !important; }
+.w-100 { width: 100% !important; }
+.w-auto{ width: auto !important; }
+
+.h-25  { height: 25% !important; }
+.h-50  { height: 50% !important; }
+.h-75  { height: 75% !important; }
+.h-100 { height: 100% !important; }
+.h-auto{ height: auto !important; }
+
+// ── Position-Utilities ─────────────────────────────────────────────
+.position-relative { position: relative !important; }
+.position-absolute { position: absolute !important; }
+.position-fixed    { position: fixed !important; }
+.position-sticky   { position: sticky !important; }
+
+// ── Small text ─────────────────────────────────────────────────────
+.small { font-size: 0.85em; }
+
+// ── Pagination ─────────────────────────────────────────────────────
+// Wird u.a. im MA-Profil für Kommentare und Systemprotokoll genutzt.
+// Markup: <ul class="pagination"><li class="page-item">…<a class="page-link">N</a></li></ul>
+.pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px;
+    padding-left: 0;
+    list-style: none;
+    margin: 0;
+
+    .page-item {
+        list-style: none;
+    }
+
+    .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 2rem;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.82rem;
+        line-height: 1;
+        color: var(--text-normal, #bbbac1);
+        background-color: transparent;
+        border: 1px solid var(--darkgray, #2a2a2a);
+        border-radius: var(--radius-sm, 4px);
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        &:focus, &:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+        }
+    }
+
+    .page-item.active .page-link {
+        background-color: var(--main-color, #ff4d00);
+        border-color: var(--main-color, #ff4d00);
+        color: #fff;
+    }
+
+    .page-item.disabled .page-link {
+        opacity: 0.45;
+        pointer-events: none;
+    }
+}
+
+.pagination-sm {
+    .page-link {
+        min-width: 1.6rem;
+        padding: 0.2rem 0.45rem;
+        font-size: 0.75rem;
+    }
+}
+
+// ── row-cols-N (untenstehender Form-Check-Block bleibt unverändert) ──
+
+.form-check-input {
+    width: 1rem;
+    height: 1rem;
+    background-color: var(--input-bg, #161616);
+    border: 1px solid var(--darkgray, #2a2a2a);
+    border-radius: 3px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    vertical-align: middle;
+
+    &[type="checkbox"]:checked {
+        background-color: var(--main-color, #ff4d00);
+        border-color:    var(--main-color, #ff4d00);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 0.8em;
+    }
+
+    &[type="radio"] {
+        border-radius: 50%;
+
+        &:checked {
+            background-color: var(--main-color, #ff4d00);
+            border-color: var(--main-color, #ff4d00);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    }
+
+    &:focus,
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+    }
+}
+
+// ── Modal ──────────────────────────────────────────────────────────
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+
+    &.show { opacity: 1; }
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1055;
+    display: none;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: 0;
+
+    &.show {
+        display: block;
+    }
+
+    &.fade .modal-dialog {
+        transform: translateY(-20px);
+        opacity: 0;
+        transition: transform 0.2s ease, opacity 0.15s ease;
+    }
+    &.show .modal-dialog {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 1.75rem auto;
+    pointer-events: none;
+    max-width: 500px;
+}
+
+.modal-dialog-centered {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 3.5rem);
+}
+
+.modal-sm  { max-width: 320px; }
+.modal-lg  { max-width: 800px; }
+.modal-xl  { max-width: 1140px; }
+.modal-fullscreen {
+    max-width: none;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+}
+
+.modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background: var(--body-bg-lighter, #161616);
+    color: var(--text-normal, #bbbac1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-xl, 10px);
+    outline: 0;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+}
+
+.modal-title {
+    margin: 0;
+    line-height: 1.4;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-title, #e8e6f3);
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1rem;
+}
+
+.modal-footer {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--darkgray, #2a2a2a);
+}
+
+// ── Btn-Close (X-Knopf in Modal-Headern) ───────────────────────────
+.btn-close {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    width: 1.4rem;
+    height: 1.4rem;
+    color: var(--text-dimmed, #818189);
+    cursor: pointer;
+    padding: 0;
+    border-radius: var(--radius-sm, 4px);
+    position: relative;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &::before, &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 12px;
+        height: 1.5px;
+        background: currentColor;
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+    &::after {
+        transform: translate(-50%, -50%) rotate(-45deg);
+    }
+
+    &:hover, &:focus-visible {
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
+        outline: none;
+    }
+}
+
+.btn-close-white { color: #fff; }
+
+// ── Fade-Helper (für allgemeine Bootstrap-Nutzungen) ───────────────
+.fade {
+    transition: opacity 0.15s linear;
+
+    &:not(.show) {
+        opacity: 0;
+    }
+}
+
+// ── body-Modal-Open-Zustand ────────────────────────────────────────
+body.modal-open {
+    overflow: hidden;
+}
+
+// Generische Bootstrap-`.collapse`-Hilfsklasse für Admin-Pages, die kein
+// volles Bootstrap laden (eNOTF lädt es separat via vendor-enotf). Tailwind
+// blockt `.collapse` als Utility (siehe tailwind.config.js), darum hier shim'en.
+// Wird im Admin v.a. vom Document-Editor benutzt.
+.collapse:not(.show) {
+    display: none;
+}
+
+// Bootstrap-Text-Helpers für Templates, die ohne volles Bootstrap rendern.
+.text-reset {
+    color: inherit !important;
+    text-decoration: inherit !important;
+}
+
+// ── Tooltip-Klasse (Reste, falls noch verwendet) ───────────────────
+// `.tooltip.bs-tooltip-*` etc. werden nicht geshim't — wir nutzen
+// `data-ignis-tooltip` (siehe ui.scss).

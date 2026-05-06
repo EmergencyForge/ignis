@@ -22,7 +22,7 @@ $typeIcons = [
 ];
 
 if (empty($logs)): ?>
-    <div class="text-center text-muted py-3" style="font-size: var(--font-size-sm);">
+    <div class="text-center text-[var(--text-dimmed,#818189)] py-3" style="font-size: var(--font-size-sm);">
         <i class="fa-solid fa-clipboard-list" style="font-size: 1.5rem; opacity: 0.3;"></i>
         <p class="mb-0 mt-2">Keine Protokolleinträge vorhanden</p>
     </div>
@@ -55,15 +55,19 @@ if ($totalPages > 1):
     if (isset($_GET['page'])) $baseParams['page'] = $_GET['page'];
 ?>
     <nav aria-label="Systemprotokoll-Seiten" class="mt-3">
-        <ul class="pagination pagination-sm justify-content-center mb-0">
-            <?php for ($i = 1; $i <= $totalPages; $i++):
-                $baseParams['logpage'] = $i;
-                $url = '?' . http_build_query($baseParams);
-            ?>
-                <li class="page-item <?= $i === $logPage ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $url ?>"><?= $i ?></a>
-                </li>
-            <?php endfor; ?>
+        <ul class="pagination pagination-sm justify-center mb-0">
+            <?php foreach (\App\Helpers\Pagination::pages((int) $logPage, (int) $totalPages) as $entry):
+                if ($entry === null): ?>
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                <?php else:
+                    $baseParams['logpage'] = $entry;
+                    $url = '?' . http_build_query($baseParams);
+                ?>
+                    <li class="page-item <?= $entry === (int) $logPage ? 'active' : '' ?>">
+                        <a class="page-link" href="<?= $url ?>"><?= $entry ?></a>
+                    </li>
+                <?php endif; ?>
+            <?php endforeach; ?>
         </ul>
     </nav>
 <?php endif; ?>

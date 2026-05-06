@@ -1,0 +1,315 @@
+name: Main-Broken Incident
+
+# Läuft nachdem "PHP CI" auf main durchgelaufen ist. Bei Fehlschlag wird ein
+# Incident-Issue angelegt (bzw. ein bestehendes fortgeschrieben). Bei Erfolg
+# werden offene Incidents geschlossen. PR-Runs werden ignoriert — dafür gibt's
+# den pr-report-Kommentar im PHP-CI-Workflow.
+
+on:
+  workflow_run:
+    workflows: ["PHP CI"]
+    types: [completed]
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+jobs:
+  incident:
+    runs-on: ubuntu-latest
+    # Nur für main-Branch-Runs, nicht für PRs oder andere Branches.
+    if: >
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.event == 'push'
+
+    steps:
+      - name: Generate bot token
+        id: bot
+        continue-on-error: true
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_PRIVATE_KEY }}
+
+      - name: Ensure labels exist
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
+          script: |
+            // Labels idempotent anlegen — wenn bereits vorhanden, 422 wird ignoriert.
+            const labels = [
+              { name: 'incident/main-broken',      color: 'b60205', description: 'Main-Branch ist rot' },
+              { name: 'severity/sev-1',            color: 'b60205', description: 'Kritisch — blockiert alle weiteren Checks' },
+              { name: 'severity/sev-2',            color: 'd93f0b', description: 'Hoch — Security oder Produktions-Risiko' },
+              { name: 'severity/sev-3',            color: 'fbca04', description: 'Mittel — Statische Analyse / Integration-Tests' },
+              { name: 'severity/sev-4',            color: 'bfdadc', description: 'Niedrig — Unit-Tests / experimentelle Jobs' },
+              { name: 'broken-job/build',          color: 'c5def5', description: 'Build-Job (Lint/Install) fehlgeschlagen' },
+              { name: 'broken-job/phpstan',        color: 'c5def5', description: 'PHPStan-Job fehlgeschlagen' },
+              { name: 'broken-job/security',       color: 'c5def5', description: 'Security-Audit-Job fehlgeschlagen' },
+              { name: 'broken-job/tests-unit',     color: 'c5def5', description: 'Unit-Tests fehlgeschlagen' },
+              { name: 'broken-job/tests-integration', color: 'c5def5', description: 'Integration-Tests fehlgeschlagen' },
+              { name: 'broken-job/frontend',       color: 'c5def5', description: 'Frontend-Build (Vite/SCSS) fehlgeschlagen' },
+              { name: 'status/needs-triage',       color: 'e99695', description: 'Noch nicht analysiert' },
+              { name: 'status/investigating',      color: 'fbca04', description: 'Wird bearbeitet' },
+              { name: 'status/resolved',           color: '0e8a16', description: 'Main ist wieder grün' },
+              { name: 'area/backend',              color: 'bfdadc' },
+              { name: 'area/ci',                   color: 'bfdadc' },
+              { name: 'area/deps',                 color: 'bfdadc' },
+              { name: 'area/frontend',             color: 'bfdadc' },
+            ];
+            for (const lbl of labels) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ...lbl,
+                });
+                core.info(`Created label: ${lbl.name}`);
+              } catch (e) {
+                if (e.status === 422) {
+                  core.info(`Label exists: ${lbl.name}`);
+                } else {
+                  core.warning(`Failed to create ${lbl.name}: ${e.message}`);
+                }
+              }
+            }
+
+      - name: Handle workflow result
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
+          script: |
+            const run = context.payload.workflow_run;
+            const conclusion = run.conclusion;
+            const runId = run.id;
+            const sha = run.head_sha;
+            const shortSha = sha.substring(0, 7);
+            const runUrl = run.html_url;
+
+            // ── Success: offene Incidents schließen ──
+            if (conclusion === 'success') {
+              const { data: issues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'incident/main-broken',
+                per_page: 50,
+              });
+              for (const issue of issues) {
+                // status/resolved nicht erneut verarbeiten (safety net falls close-API hakt)
+                if (issue.labels.some(l => (l.name || l) === 'status/resolved')) continue;
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `✅ Main ist wieder grün in [${shortSha}](${run.head_repository.html_url}/commit/${sha}).\n\n*Run: [${runId}](${runUrl})*`,
+                });
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  state: 'closed',
+                  state_reason: 'completed',
+                  labels: [
+                    ...issue.labels.map(l => l.name || l).filter(n => !n.startsWith('status/')),
+                    'status/resolved',
+                  ],
+                });
+                core.info(`Closed #${issue.number}`);
+              }
+              return;
+            }
+
+            // ── Nicht-Failure ignorieren (cancelled/skipped/neutral) ──
+            if (conclusion !== 'failure') {
+              core.info(`Conclusion '${conclusion}' — ignoring`);
+              return;
+            }
+
+            // ── Failure: Jobs analysieren ──
+            const { data: jobsResp } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId,
+              per_page: 100,
+            });
+            const failedJobs = jobsResp.jobs.filter(j => j.conclusion === 'failure');
+            if (failedJobs.length === 0) {
+              core.info('Workflow failed but no failed jobs — likely cancellation, skipping');
+              return;
+            }
+
+            // Job-Name → Label-Suffix mapping
+            // Wir matchen über Prefix, damit Matrix-Jobs wie "phpunit-unit (8.4)" mit rein rutschen.
+            const jobLabelMap = [
+              { prefix: 'build', label: 'broken-job/build', sev: 1 },
+              { prefix: 'phpunit-integration', label: 'broken-job/tests-integration', sev: 3 },
+              { prefix: 'phpunit-unit', label: 'broken-job/tests-unit', sev: 4 },
+              { prefix: 'phpstan', label: 'broken-job/phpstan', sev: 3 },
+              { prefix: 'security-audit', label: 'broken-job/security', sev: 2 },
+              { prefix: 'frontend', label: 'broken-job/frontend', sev: 3 },
+            ];
+            function classifyJob(name) {
+              const lower = name.toLowerCase();
+              for (const m of jobLabelMap) {
+                if (lower.startsWith(m.prefix)) return m;
+              }
+              return { prefix: 'unknown', label: null, sev: 3 };
+            }
+
+            const classified = failedJobs.map(j => ({
+              job: j,
+              class: classifyJob(j.name),
+            }));
+
+            // Severity = Minimum (höchste Stufe) aller betroffenen Klassifikationen
+            const severity = Math.min(...classified.map(c => c.class.sev));
+            const severityLabel = `severity/sev-${severity}`;
+
+            // Eindeutige Job-Labels (Prefix-basiert, damit Matrix-Varianten nicht doppeln)
+            const jobLabels = [...new Set(
+              classified.map(c => c.class.label).filter(Boolean)
+            )];
+
+            // Signature für Deduplication: sortierte Liste der gebrochenen Job-Prefixes
+            const signature = [...new Set(classified.map(c => c.class.prefix))].sort().join(',');
+
+            // ── Commit-Info holen ──
+            const { data: commit } = await github.rest.repos.getCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: sha,
+            });
+            const author = commit.author?.login || commit.commit.author?.name || 'unknown';
+            const authorMention = commit.author?.login ? `@${commit.author.login}` : author;
+            const commitMsg = (commit.commit.message || '').split('\n')[0].substring(0, 120);
+            const commitUrl = commit.html_url;
+            const changedFiles = (commit.files || []).slice(0, 5).map(f => `- \`${f.filename}\` (+${f.additions} -${f.deletions})`).join('\n');
+            const diffStats = `**${commit.files?.length || 0}** Dateien · \`+${commit.stats?.additions || 0}\` \`-${commit.stats?.deletions || 0}\``;
+
+            // ── Area-Labels aus geänderten Files ableiten ──
+            const areas = new Set();
+            for (const f of (commit.files || [])) {
+              const p = f.filename;
+              if (p.startsWith('src/') || p.startsWith('tests/')) areas.add('area/backend');
+              if (p.startsWith('.github/') || p.startsWith('phinx.php') || p === 'composer.json' || p === 'composer.lock') areas.add('area/ci');
+              if (p === 'composer.json' || p === 'composer.lock' || p === 'package.json' || p === 'package-lock.json') areas.add('area/deps');
+              if (p.startsWith('assets/') || p.startsWith('templates/') || p.startsWith('public/')) areas.add('area/frontend');
+            }
+            const areaLabels = [...areas];
+
+            // ── Failed-Jobs-Tabelle ──
+            const jobsTable = classified.map(c => {
+              const duration = c.job.completed_at && c.job.started_at
+                ? Math.round((new Date(c.job.completed_at) - new Date(c.job.started_at)) / 1000) + 's'
+                : '—';
+              return `| [\`${c.job.name}\`](${c.job.html_url}) | ❌ failed | ${duration} |`;
+            }).join('\n');
+
+            // ── Issue-Titel + Signature-Marker ──
+            const title = `[main-broken] ${signature} — ${shortSha} (${author})`;
+            const signatureMarker = `<!-- main-broken:${signature} -->`;
+
+            // ── Deduplication: bestehendes offenes Incident für gleiche Signature suchen ──
+            const { data: openIssues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'incident/main-broken',
+              per_page: 50,
+            });
+            const existing = openIssues.find(i => (i.body || '').includes(signatureMarker));
+
+            // ── Body zusammenbauen ──
+            let body = signatureMarker + '\n';
+            body += `## 🚨 Main-Branch ist rot\n\n`;
+            body += `**Commit:** [\`${shortSha}\`](${commitUrl}) — ${commitMsg}\n`;
+            body += `**Autor:** ${authorMention}\n`;
+            body += `**Diff:** ${diffStats}\n`;
+            body += `**Workflow-Run:** [${runId}](${runUrl})\n\n`;
+
+            body += `### Fehlgeschlagene Jobs\n\n`;
+            body += '| Job | Status | Dauer |\n';
+            body += '|-----|--------|------:|\n';
+            body += jobsTable + '\n\n';
+
+            if (changedFiles) {
+              body += `### Geänderte Dateien (Top 5)\n\n${changedFiles}\n\n`;
+            }
+
+            body += `### Reproduktion\n\n`;
+            body += '```bash\n';
+            body += `git fetch && git checkout ${shortSha}\n`;
+            body += `composer install\n`;
+            for (const c of classified) {
+              if (c.class.prefix === 'phpstan') body += `vendor/bin/phpstan analyse\n`;
+              if (c.class.prefix === 'phpunit-unit') body += `vendor/bin/phpunit --testsuite Unit\n`;
+              if (c.class.prefix === 'phpunit-integration') body += `vendor/bin/phpunit --testsuite Integration\n`;
+              if (c.class.prefix === 'security-audit') body += `composer audit\n`;
+              if (c.class.prefix === 'build') body += `find . -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l\n`;
+              if (c.class.prefix === 'frontend') body += `npm ci && npm run build\n`;
+            }
+            body += '```\n\n';
+
+            body += `### Triage Checklist\n\n`;
+            body += `- [ ] Acknowledged (Autor/Reviewer informiert)\n`;
+            body += `- [ ] Root-Cause identifiziert\n`;
+            body += `- [ ] Entscheidung: Revert oder Forward-Fix\n`;
+            body += `- [ ] Fix merged, Main wieder grün\n\n`;
+
+            body += `---\n*Severity: \`${severityLabel}\` · Auto-closed bei nächstem grünem Main-Run*`;
+
+            const allLabels = [
+              'incident/main-broken',
+              severityLabel,
+              ...jobLabels,
+              ...areaLabels,
+              'status/needs-triage',
+            ];
+
+            if (existing) {
+              // ── Bestehendes Incident: neuen Break-Commit als Comment anhängen ──
+              const commentBody =
+                `### 🔁 Neuer fehlgeschlagener Main-Push\n\n` +
+                `**Commit:** [\`${shortSha}\`](${commitUrl}) — ${commitMsg}\n` +
+                `**Autor:** ${authorMention}\n` +
+                `**Workflow-Run:** [${runId}](${runUrl})\n\n` +
+                `Gleiche Job-Signature (\`${signature}\`) — Incident bleibt offen.`;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: commentBody,
+              });
+              // Ggf. Severity hochstufen, wenn neuer Break härter ist
+              const existingSev = existing.labels
+                .map(l => l.name || l)
+                .find(n => n.startsWith('severity/'));
+              if (existingSev && existingSev !== severityLabel) {
+                const existingNum = parseInt(existingSev.split('-').pop());
+                if (!isNaN(existingNum) && severity < existingNum) {
+                  await github.rest.issues.setLabels({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: existing.number,
+                    labels: [
+                      ...existing.labels.map(l => l.name || l).filter(n => !n.startsWith('severity/')),
+                      severityLabel,
+                    ],
+                  });
+                }
+              }
+              core.info(`Updated existing incident #${existing.number}`);
+            } else {
+              // ── Neues Incident anlegen ──
+              const { data: created } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: allLabels,
+              });
+              core.info(`Created incident #${created.number}`);
+              core.setOutput('issue_number', created.number);
+            }

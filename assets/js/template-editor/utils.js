@@ -89,5 +89,18 @@
                 this.updateToken(result.csrf_token);
             }
         },
+
+        /**
+         * Aktualisiert den Token aus dem `X-CSRF-Token`-Header einer
+         * Response. Wird für Endpoints benötigt, die einen Binary-Body
+         * (PDF, Image) zurückgeben — dort kann der Token nicht im
+         * JSON-Body durchgereicht werden, also nutzt der Server stattdessen
+         * den Header. MUSS aufgerufen werden, BEVOR `response.blob()` /
+         * `response.arrayBuffer()` den Body konsumiert.
+         */
+        handleResponseHeader(response) {
+            const newToken = response.headers.get('X-CSRF-Token');
+            if (newToken) this.updateToken(newToken);
+        },
     };
 })();

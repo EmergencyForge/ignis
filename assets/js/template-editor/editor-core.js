@@ -334,8 +334,7 @@
 
                 if (e.key === '?' && !inInput) {
                     e.preventDefault();
-                    const helpModal = document.getElementById('shortcutHelpModal');
-                    if (helpModal) bootstrap.Modal.getOrCreateInstance(helpModal).show();
+                    window.VisualEditorDialogs?.shortcutHelp?.show();
                 } else if (e.key === 'Delete' || e.key === 'Backspace') {
                     e.preventDefault();
                     this.deleteSelected();
@@ -1675,7 +1674,7 @@
                 // v6: use toObject() for custom properties
                 const json = this.canvas.toObject(['custom']);
 
-                const response = await fetch(CONFIG.basePath + 'api/documents/layout-save.php', {
+                const response = await fetch(CONFIG.basePath + 'api/documents/layout-save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(window.EditorCsrf.addToBody({
@@ -1717,7 +1716,7 @@
             if (overlay) overlay.style.display = 'flex';
 
             try {
-                const response = await fetch(CONFIG.basePath + 'api/documents/layout-get.php?template_id=' + CONFIG.templateId);
+                const response = await fetch(CONFIG.basePath + 'api/documents/layout-get?template_id=' + CONFIG.templateId);
                 const result = await response.json();
 
                 if (result.success && result.layout && result.layout.canvas_json) {

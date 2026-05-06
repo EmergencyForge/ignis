@@ -20,7 +20,7 @@ class TwigToCanvasConverter
 
     private string $templatePath;
 
-    public function __construct(string $templatePath = __DIR__ . '/../../dokumente/templates')
+    public function __construct(string $templatePath = __DIR__ . '/../../documents/templates')
     {
         $this->templatePath = rtrim($templatePath, '/\\');
     }
@@ -224,7 +224,7 @@ class TwigToCanvasConverter
         $y += 5;
         $o[] = $this->text('{{ issuer.dienstgrad_text }}', $this->mm($padLeft), $this->mm($y), $this->mm(80), [
             'fontSize' => 10,
-            'custom' => ['elementType' => 'field_placeholder', 'fieldName' => 'issuer.dienstgrad_text', 'fieldLabel' => 'Aussteller-Dienstgrad'],
+            'custom' => ['elementType' => 'field_placeholder', 'fieldName' => 'issuer.dienstgrad_text', 'fieldLabel' => 'Aussteller-Rank'],
         ]);
 
         // .electronic-note: margin-top 2mm, 8pt italic #666
@@ -425,7 +425,7 @@ class TwigToCanvasConverter
         $y += 5;
         $o[] = $this->text('{{ issuer.dienstgrad_text }}', $this->mm($padLR), $this->mm($y), $this->mm(80), [
             'fontSize' => 10,
-            'custom' => ['elementType' => 'field_placeholder', 'fieldName' => 'issuer.dienstgrad_text', 'fieldLabel' => 'Aussteller-Dienstgrad'],
+            'custom' => ['elementType' => 'field_placeholder', 'fieldName' => 'issuer.dienstgrad_text', 'fieldLabel' => 'Aussteller-Rank'],
         ]);
 
         // .electronic-note: margin-top 2mm, 8pt italic #666

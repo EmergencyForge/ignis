@@ -15,9 +15,9 @@ use App\Helpers\EnotfUrl;
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="qmActionsContent">
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 </div>
@@ -34,9 +34,9 @@ use App\Helpers\EnotfUrl;
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" id="qmLogContent">
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 </div>
@@ -53,9 +53,9 @@ use App\Helpers\EnotfUrl;
 
                 // Reset content
                 document.getElementById('qmActionsContent').innerHTML = `
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 `;
@@ -63,14 +63,14 @@ use App\Helpers\EnotfUrl;
                 modal.show();
 
                 // Load content via AJAX
-                fetch(`<?= BASE_PATH ?>enotf/admin/qm-actions-modal.php?id=${id}`)
+                fetch(`<?= BASE_PATH ?>enotf/admin/qm-actions-modal?id=${id}`)
                     .then(response => response.text())
                     .then(data => {
                         document.getElementById('qmActionsContent').innerHTML = data;
                     })
                     .catch(error => {
                         document.getElementById('qmActionsContent').innerHTML = `
-                            <div class="alert alert-danger">
+                            <div class="ignis-alert ignis-alert--danger">
                                 Fehler beim Laden der QM-Aktionen: ${error.message}
                             </div>
                         `;
@@ -86,9 +86,9 @@ use App\Helpers\EnotfUrl;
 
                 // Reset content
                 document.getElementById('qmLogContent').innerHTML = `
-                    <div class="d-flex justify-content-center">
+                    <div class="flex justify-center">
                         <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Laden...</span>
+                            <span class="sr-only">Laden...</span>
                         </div>
                     </div>
                 `;
@@ -96,14 +96,14 @@ use App\Helpers\EnotfUrl;
                 modal.show();
 
                 // Load content via AJAX
-                fetch(`<?= BASE_PATH ?>enotf/admin/qm-log-modal.php?id=${id}`)
+                fetch(`<?= BASE_PATH ?>enotf/admin/qm-log-modal?id=${id}`)
                     .then(response => response.text())
                     .then(data => {
                         document.getElementById('qmLogContent').innerHTML = data;
                     })
                     .catch(error => {
                         document.getElementById('qmLogContent').innerHTML = `
-                            <div class="alert alert-danger">
+                            <div class="ignis-alert ignis-alert--danger">
                                 Fehler beim Laden des QM-Logs: ${error.message}
                             </div>
                         `;

@@ -1,0 +1,16 @@
+{
+  "version": "unreleased",
+  "description": "Nach der Router-Migration existieren keine physischen Modul-Verzeichnisse mehr — alle URLs laufen über public/index.php und den App\\Http\\Router. Der SystemUpdater liest diese Liste nach dem Copy-Schritt und entfernt die Ordner aus dem Ziel-Root. Fehlende Pfade werden übersprungen, geschützte Pfade (storage, system, vendor, .git, .env, composer*, public/index.php, .htaccess) werden vom Updater ohnehin blockiert.",
+  "delete_paths": [
+    "api",
+    "antrag",
+    "benachrichtigungen",
+    "benutzer",
+    "einsatz",
+    "enotf",
+    "fahrtenbuch",
+    "mitarbeiter",
+    "manv",
+    "settings"
+  ]
+}

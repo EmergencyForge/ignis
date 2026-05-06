@@ -43,6 +43,16 @@ class ErrorHandler
             return false;
         }
 
+        // Vendor-Deprecations (z.B. PHP-DI 7.0 vs PHP 8.4 implicit-nullable
+        // Parameter) komplett verschlucken: nicht loggen, nicht anzeigen.
+        // Sie sind Noise für die App-Entwicklung — wir können sie erst beheben,
+        // wenn die Vendor-Pakete neue Releases bringen.
+        // Eigener src/ Code wird WEITERHIN normal geloggt + angezeigt.
+        $isDeprecation = ($severity === E_DEPRECATED || $severity === E_USER_DEPRECATED);
+        if ($isDeprecation && self::isVendorFile($file)) {
+            return true; // true = "wir haben's behandelt, PHP soll nichts mehr tun"
+        }
+
         $levelName = self::severityToLevel($severity);
         $context = [
             'file' => $file,
@@ -60,6 +70,16 @@ class ErrorHandler
         // Don't execute PHP's internal error handler for notices/warnings
         // but do for E_ERROR-level to preserve behavior
         return in_array($severity, [E_USER_ERROR, E_RECOVERABLE_ERROR], true);
+    }
+
+    /**
+     * Prüft ob ein File-Pfad zu einem Composer-Vendor-Package gehört.
+     */
+    private static function isVendorFile(string $file): bool
+    {
+        // Normalisierte Suche, damit Windows-Backslashes auch matchen
+        $normalized = str_replace('\\', '/', $file);
+        return str_contains($normalized, '/vendor/');
     }
 
     /**
@@ -242,6 +262,20 @@ class ErrorHandler
         $errorMessage = $message ?? ($exception ? $exception->getMessage() : 'Unbekannter Fehler');
         $isDev = self::isDevelopment();
 
+        // Halb-gerenderte Page-Chrome (Sidebar/Navbar/Head) verwerfen, bevor
+        // die Error-Page kommt. Ohne diesen Cleanup wird die Error-UI in
+        // den teilweise emittierten Body der Original-Seite geschachtelt —
+        // sieht aus wie "Error-Modal in Dashboard-Layout". `headers_sent()`
+        // fragen wir nicht (Output-Buffering ist standardmaessig aktiv im
+        // Bootstrap), `ob_get_level() > 0` reicht.
+        while (ob_get_level() > 0) {
+            @ob_end_clean();
+        }
+        if (!headers_sent()) {
+            header_remove('Content-Type');
+            header('Content-Type: text/html; charset=utf-8');
+        }
+
         // Try to use a nice error template, fall back to inline
         $templatePath = dirname(__DIR__, 2) . '/assets/components/error-page.php';
         if (file_exists($templatePath)) {
@@ -251,7 +285,7 @@ class ErrorHandler
 
         // Inline fallback
         echo '<!DOCTYPE html><html lang="de"><head><meta charset="utf-8">';
-        echo '<title>Fehler - intraRP</title>';
+        echo '<title>Fehler - ıgnıs</title>';
         echo '<style>body{font-family:system-ui,sans-serif;background:#1a1a2e;color:#e0e0e0;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}';
         echo '.error-box{background:#16213e;padding:2rem 3rem;border-radius:12px;max-width:600px;text-align:center;border:1px solid #0f3460}';
         echo 'h1{color:#e94560;margin-bottom:0.5rem}pre{text-align:left;background:#0f3460;padding:1rem;border-radius:8px;overflow-x:auto;font-size:0.85rem}</style></head>';
