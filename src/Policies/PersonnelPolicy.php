@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Auth\Permissions;
-use App\Models\Mitarbeiter;
+use App\Models\Personnel;
 
 /**
  * PersonnelPolicy — Single Source of Truth für Mitarbeiter-Permissions.
@@ -25,7 +25,7 @@ class PersonnelPolicy
         return Permissions::check(['admin', 'personnel.view']);
     }
 
-    public static function view(?Mitarbeiter $target = null): bool
+    public static function view(?Personnel $target = null): bool
     {
         return Permissions::check(['admin', 'personnel.view']);
     }
@@ -35,12 +35,12 @@ class PersonnelPolicy
         return Permissions::check(['admin', 'personnel.edit']);
     }
 
-    public static function update(?Mitarbeiter $target = null): bool
+    public static function update(?Personnel $target = null): bool
     {
         return Permissions::check(['admin', 'personnel.edit']);
     }
 
-    public static function delete(?Mitarbeiter $target = null): bool
+    public static function delete(?Personnel $target = null): bool
     {
         return Permissions::check(['admin', 'personnel.delete']);
     }

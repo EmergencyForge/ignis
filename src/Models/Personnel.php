@@ -33,11 +33,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $fachdienste     Legacy: longtext, evtl. JSON
  * @property string|null $pfp             Profile-Picture-URL
  * @property \DateTime   $createdate
- * @property-read Dienstgrad|null $dienstgradModel
- * @property-read FwQuali|null    $fwQualiModel
- * @property-read RdQuali|null    $rdQualiModel
+ * @property-read Rank|null $dienstgradModel
+ * @property-read FdSkill|null    $fwQualiModel
+ * @property-read AmbSkill|null    $rdQualiModel
  */
-class Mitarbeiter extends Model
+class Personnel extends Model
 {
     protected $table = 'intra_mitarbeiter';
 
@@ -58,27 +58,27 @@ class Mitarbeiter extends Model
     ];
 
     /**
-     * BelongsTo-Relation auf Dienstgrad. Methoden-Name endet auf `Model`,
+     * BelongsTo-Relation auf Rank. Methoden-Name endet auf `Model`,
      * weil das Property `dienstgrad` schon die FK-ID hält und sonst Eloquent
      * sich verschluckt.
      */
     public function dienstgradModel(): BelongsTo
     {
-        return $this->belongsTo(Dienstgrad::class, 'dienstgrad', 'id');
+        return $this->belongsTo(Rank::class, 'dienstgrad', 'id');
     }
 
     public function fwQualiModel(): BelongsTo
     {
-        return $this->belongsTo(FwQuali::class, 'qualifw2', 'id');
+        return $this->belongsTo(FdSkill::class, 'qualifw2', 'id');
     }
 
     public function rdQualiModel(): BelongsTo
     {
-        return $this->belongsTo(RdQuali::class, 'qualird', 'id');
+        return $this->belongsTo(AmbSkill::class, 'qualird', 'id');
     }
 
     /**
-     * Liefert den geschlechts-spezifischen Dienstgrad-Anzeigenamen.
+     * Liefert den geschlechts-spezifischen Rank-Anzeigenamen.
      * Verwendet die Relation, also vorher mit `with('dienstgradModel')` laden.
      */
     public function dienstgradLabel(): string
@@ -97,8 +97,8 @@ class Mitarbeiter extends Model
     }
 
     /**
-     * Scope: nur Mitarbeiter, die NICHT im Archiv-Dienstgrad sind.
-     * Akzeptiert die Archive-Dienstgrad-IDs als Argument, weil das Model
+     * Scope: nur Mitarbeiter, die NICHT im Archiv-Rank sind.
+     * Akzeptiert die Archive-Rank-IDs als Argument, weil das Model
      * sie nicht implizit kennt.
      *
      * @param array<int> $archiveDienstgradIds

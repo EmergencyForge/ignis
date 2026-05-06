@@ -17,7 +17,7 @@ use App\Http\Requests\Calendar\UpdateEventRequest;
 use App\Http\Response;
 use App\Models\CalendarAttendee;
 use App\Models\CalendarEvent;
-use App\Models\Mitarbeiter;
+use App\Models\Personnel;
 use App\Notifications\NotificationManager;
 use App\Utils\AuditLogger;
 use DateTimeImmutable;
@@ -46,7 +46,7 @@ class CalendarController extends Controller
         $this->ensure('calendar.view', redirectTo: 'index');
 
         // Mitarbeiter-Liste fuer Attendee-Picker
-        $mitarbeiter = Mitarbeiter::query()
+        $mitarbeiter = Personnel::query()
             ->orderBy('fullname')
             ->get(['id', 'fullname', 'dienstnr']);
 
@@ -62,7 +62,7 @@ class CalendarController extends Controller
         // den heutigen Tag ueberlappt. Wird im Template nur gerendert wenn
         // mindestens einer drin ist.
         $today = (new DateTimeImmutable('today'))->format('Y-m-d');
-        $absentToday = Mitarbeiter::query()
+        $absentToday = Personnel::query()
             ->whereIn('id', function ($sub) use ($today) {
                 $sub->select('a.mitarbeiter_id')
                     ->from('intra_calendar_attendees as a')
@@ -735,7 +735,7 @@ class CalendarController extends Controller
             return null;
         }
         try {
-            $row = Mitarbeiter::query()->where('discordtag', $discordId)->first(['id']);
+            $row = Personnel::query()->where('discordtag', $discordId)->first(['id']);
             return $row ? (int) $row->id : null;
         } catch (\Throwable) {
             return null;
@@ -751,7 +751,7 @@ class CalendarController extends Controller
         if (!$discordId) {
             return null;
         }
-        $row = Mitarbeiter::query()->where('discordtag', $discordId)->first(['id']);
+        $row = Personnel::query()->where('discordtag', $discordId)->first(['id']);
         return $row ? (int) $row->id : null;
     }
 

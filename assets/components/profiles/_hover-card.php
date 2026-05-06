@@ -5,7 +5,7 @@
  * user-hover-card.js per fetch in eine ignis-popover-Instanz geschoben.
  *
  * Erwartet im Scope:
- *   @var \App\Models\Mitarbeiter $mitarbeiter
+ *   @var \App\Models\Personnel $mitarbeiter
  *   @var string                  $profileUrl
  */
 
@@ -28,7 +28,7 @@ $fwQuali    = trim($mitarbeiter->fwQualiLabel());
 
     <dl class="user-hover-card__meta">
         <?php if ($dienstgrad !== ''): ?>
-            <dt>Dienstgrad</dt>
+            <dt>Rank</dt>
             <dd><?= htmlspecialchars($dienstgrad) ?></dd>
         <?php endif; ?>
         <?php if ($rdQuali !== ''): ?>

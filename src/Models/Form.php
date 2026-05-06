@@ -27,10 +27,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $cirs_text    Bemerkung des Bearbeiters
  * @property \DateTime   $time_added
  * @property \DateTime|null $cirs_time
- * @property-read AntragTyp                                                $typ
- * @property-read \Illuminate\Database\Eloquent\Collection<int, AntragData> $daten
+ * @property-read FormType                                                $typ
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, FormData> $daten
  */
-class Antrag extends Model
+class Form extends Model
 {
     protected $table = 'intra_antraege';
 
@@ -56,7 +56,7 @@ class Antrag extends Model
 
     public function typ(): BelongsTo
     {
-        return $this->belongsTo(AntragTyp::class, 'antragstyp_id', 'id');
+        return $this->belongsTo(FormType::class, 'antragstyp_id', 'id');
     }
 
     /**
@@ -64,7 +64,7 @@ class Antrag extends Model
      */
     public function daten(): HasMany
     {
-        return $this->hasMany(AntragData::class, 'antrag_id', 'id');
+        return $this->hasMany(FormData::class, 'antrag_id', 'id');
     }
 
     /**
@@ -95,7 +95,7 @@ class Antrag extends Model
      */
     protected static function booted(): void
     {
-        static::deleting(static function (Antrag $antrag): void {
+        static::deleting(static function (Form $antrag): void {
             try {
                 \App\Calendar\AbsenceSyncService::removeForAntrag((int) $antrag->id);
             } catch (\Throwable $e) {

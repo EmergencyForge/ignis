@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * Eloquent-Model für `intra_antrag_typen` — Antragstyp-Definitionen.
  *
  * Jeder Antragstyp definiert ein Formular über die zugehörigen
- * AntragField-Records. Beim Stellen eines Antrags wird ein Antrag-Record
- * angelegt + ein AntragData-Record pro Feld.
+ * FormField-Records. Beim Stellen eines Antrags wird ein Antrag-Record
+ * angelegt + ein FormData-Record pro Feld.
  *
  * @property int         $id
  * @property string      $name
@@ -22,10 +22,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $tabelle_name        Legacy: Name der ursprünglichen Zieltabelle
  * @property \DateTime   $erstellt_am
  * @property int|null    $erstellt_von
- * @property-read \Illuminate\Database\Eloquent\Collection<int, AntragField> $felder
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, FormField> $felder
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Antrag>      $antraege
  */
-class AntragTyp extends Model
+class FormType extends Model
 {
     protected $table = 'intra_antrag_typen';
 
@@ -43,16 +43,16 @@ class AntragTyp extends Model
      */
     public function felder(): HasMany
     {
-        return $this->hasMany(AntragField::class, 'antragstyp_id', 'id')
+        return $this->hasMany(FormField::class, 'antragstyp_id', 'id')
             ->orderBy('sortierung');
     }
 
     /**
-     * Alle Anträge dieses Typs (am häufigsten via Antrag::with('typ') geladen).
+     * Alle Anträge dieses Typs (am häufigsten via Form::with('typ') geladen).
      */
     public function antraege(): HasMany
     {
-        return $this->hasMany(Antrag::class, 'antragstyp_id', 'id');
+        return $this->hasMany(Form::class, 'antragstyp_id', 'id');
     }
 
     /**

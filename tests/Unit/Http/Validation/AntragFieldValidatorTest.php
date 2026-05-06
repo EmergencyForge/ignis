@@ -6,18 +6,18 @@ namespace Tests\Unit\Http\Validation;
 
 use App\Exceptions\ValidationException;
 use App\Http\Validation\AntragFieldValidator;
-use App\Models\AntragField;
+use App\Models\FormField;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AntragFieldValidatorTest extends TestCase
 {
     /**
-     * Baut einen AntragField-Eloquent-Stub ohne DB-Persistenz.
+     * Baut einen FormField-Eloquent-Stub ohne DB-Persistenz.
      */
-    private function field(array $attrs): AntragField
+    private function field(array $attrs): FormField
     {
-        $f = new AntragField();
+        $f = new FormField();
         foreach ($attrs as $k => $v) {
             $f->setAttribute($k, $v);
         }

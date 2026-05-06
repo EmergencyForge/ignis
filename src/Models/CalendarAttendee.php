@@ -50,6 +50,6 @@ class CalendarAttendee extends EloquentModel
 
     public function mitarbeiter(): BelongsTo
     {
-        return $this->belongsTo(Mitarbeiter::class, 'mitarbeiter_id');
+        return $this->belongsTo(Personnel::class, 'mitarbeiter_id');
     }
 }

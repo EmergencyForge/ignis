@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Auth\Permissions;
-use App\Models\Fahrt;
+use App\Models\LogbookEntry;
 
 /**
  * LogbookPolicy — wer darf was mit Fahrtenbuch-Einträgen.
@@ -47,7 +47,7 @@ class LogbookPolicy
      *   3. eNOTF-Session UND Eintrag-Source ist 'enotf' UND Fahrer-Name passt
      *   4. FireTab-Session UND Eintrag-Source ist 'firetab' UND Operator-Name passt
      */
-    public static function update(?Fahrt $entry = null): bool
+    public static function update(?LogbookEntry $entry = null): bool
     {
         if ($entry === null) {
             return self::create(); // Form zum Bearbeiten anzeigen ist erlaubt für alle Erstellungs-Berechtigten
@@ -65,14 +65,14 @@ class LogbookPolicy
         }
 
         // (3) eNOTF-Session passt
-        if (isset($_SESSION['fahrername']) && $entry->source === Fahrt::SOURCE_ENOTF
+        if (isset($_SESSION['fahrername']) && $entry->source === LogbookEntry::SOURCE_ENOTF
             && $entry->fahrer_name === ($_SESSION['fahrername'] ?? '')
         ) {
             return true;
         }
 
         // (4) FireTab-Session passt
-        if (isset($_SESSION['einsatz_vehicle_id']) && $entry->source === Fahrt::SOURCE_FIRETAB
+        if (isset($_SESSION['einsatz_vehicle_id']) && $entry->source === LogbookEntry::SOURCE_FIRETAB
             && $entry->fahrer_name === ($_SESSION['einsatz_operator_name'] ?? '')
         ) {
             return true;
@@ -85,7 +85,7 @@ class LogbookPolicy
      * Nur Admins mit fahrtenbuch.manage dürfen löschen.
      * eNOTF/FireTab-Kontexte dürfen NICHT löschen (auch eigene nicht).
      */
-    public static function delete(?Fahrt $entry = null): bool
+    public static function delete(?LogbookEntry $entry = null): bool
     {
         return isset($_SESSION['userid']) && Permissions::check(['admin', 'logbook.manage']);
     }

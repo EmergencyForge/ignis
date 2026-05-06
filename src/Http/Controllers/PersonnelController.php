@@ -10,11 +10,11 @@ use App\Helpers\UserHelper;
 use App\Http\Requests\Mitarbeiter\CreateDocumentRequest;
 use App\Http\Requests\Mitarbeiter\CreateMitarbeiterRequest;
 use App\Http\Requests\Mitarbeiter\UpdateMitarbeiterRequest;
-use App\Models\Dienstgrad;
-use App\Models\FwQuali;
-use App\Models\Mitarbeiter;
-use App\Models\MitarbeiterDokument;
-use App\Models\RdQuali;
+use App\Models\Rank;
+use App\Models\FdSkill;
+use App\Models\Personnel;
+use App\Models\PersonnelDocument;
+use App\Models\AmbSkill;
 use App\Notifications\NotificationManager;
 use App\Personnel\PersonalLogManager;
 use App\Utils\AuditLogger;
@@ -29,22 +29,22 @@ class PersonnelController extends Controller
      * GET /mitarbeiter/list.php — Übersicht aktiver oder archivierter Mitarbeiter.
      *
      * Filter-Logik:
-     *   - Es gibt einen "Archiv-Dienstgrad" (intra_mitarbeiter_dienstgrade.archive=1)
-     *   - Mitarbeiter mit diesem Dienstgrad gelten als entlassen
+     *   - Es gibt einen "Archiv-Rank" (intra_mitarbeiter_dienstgrade.archive=1)
+     *   - Mitarbeiter mit diesem Rank gelten als entlassen
      *   - ?archiv → zeige nur Archivierte
-     *   - ohne ?archiv → zeige alle aktiven (nicht im Archiv-Dienstgrad)
+     *   - ohne ?archiv → zeige alle aktiven (nicht im Archiv-Rank)
      */
     public function index(): void
     {
 
         $showArchive = isset($_GET['archiv']);
 
-        $archiveDienstgradIds = Dienstgrad::query()
+        $archiveDienstgradIds = Rank::query()
             ->where('archive', 1)
             ->pluck('id')
             ->all();
 
-        $query = Mitarbeiter::query()->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel']);
+        $query = Personnel::query()->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel']);
         if ($showArchive) {
             $query->archived($archiveDienstgradIds);
         } else {
@@ -52,9 +52,9 @@ class PersonnelController extends Controller
         }
         $mitarbeiter = $query->orderBy('einstdatum')->get();
 
-        $dienstgrade = Dienstgrad::active()->get();
-        $rdQualis    = RdQuali::query()->orderBy('priority')->get();
-        $fwQualis    = FwQuali::query()->orderBy('priority')->get();
+        $dienstgrade = Rank::active()->get();
+        $rdQualis    = AmbSkill::query()->orderBy('priority')->get();
+        $fwQualis    = FdSkill::query()->orderBy('priority')->get();
 
         $this->renderView('personnel/list', [
             'mitarbeiter' => $mitarbeiter,
@@ -92,8 +92,8 @@ class PersonnelController extends Controller
             return \App\Http\Response::html('Ungültige ID.', 400);
         }
 
-        /** @var Mitarbeiter|null $mitarbeiter */
-        $mitarbeiter = Mitarbeiter::query()
+        /** @var Personnel|null $mitarbeiter */
+        $mitarbeiter = Personnel::query()
             ->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel'])
             ->find($idInt);
 
@@ -123,8 +123,8 @@ class PersonnelController extends Controller
             return \App\Http\Response::html('Ungültige Dienstnummer.', 400);
         }
 
-        /** @var Mitarbeiter|null $mitarbeiter */
-        $mitarbeiter = Mitarbeiter::query()
+        /** @var Personnel|null $mitarbeiter */
+        $mitarbeiter = Personnel::query()
             ->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel'])
             ->where('dienstnr', $dienstnr)
             ->first();
@@ -136,7 +136,7 @@ class PersonnelController extends Controller
         return $this->renderMitarbeiterCard($mitarbeiter);
     }
 
-    private function renderMitarbeiterCard(Mitarbeiter $mitarbeiter): \App\Http\Response
+    private function renderMitarbeiterCard(Personnel $mitarbeiter): \App\Http\Response
     {
         $profileUrl = (defined('BASE_PATH') ? BASE_PATH : '/') . 'mitarbeiter/profile?id=' . (int) $mitarbeiter->id;
 
@@ -154,8 +154,8 @@ class PersonnelController extends Controller
             $this->redirect('index');
         }
 
-        /** @var Mitarbeiter|null $mitarbeiter */
-        $mitarbeiter = Mitarbeiter::query()
+        /** @var Personnel|null $mitarbeiter */
+        $mitarbeiter = Personnel::query()
             ->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel'])
             ->find($id);
 
@@ -223,7 +223,7 @@ class PersonnelController extends Controller
 
         // Legacy-Scope-Variablen für die Partials in assets/components/profiles/:
         //   $openedID    — die ID des angezeigten Profils (auch für hidden inputs in modals)
-        //   $editdg      — Dienstgrad-ID des aktuell EINGELOGGTEN Users (sein eigenes Profil)
+        //   $editdg      — Rank-ID des aktuell EINGELOGGTEN Users (sein eigenes Profil)
         //   $edituseric  — fullname des aktuell eingeloggten Users (für Audit-Anzeigen)
         // Wenn der eingeloggte User selbst kein Mitarbeiter-Profil hat, bleiben
         // editdg = null und edituseric = 'Unbekannt Unbekannt' — die Partials
@@ -234,8 +234,8 @@ class PersonnelController extends Controller
 
         $sessionDiscordTag = $_SESSION['discordtag'] ?? null;
         if (!empty($sessionDiscordTag)) {
-            /** @var Mitarbeiter|null $ownProfile */
-            $ownProfile = Mitarbeiter::query()
+            /** @var Personnel|null $ownProfile */
+            $ownProfile = Personnel::query()
                 ->where('discordtag', $sessionDiscordTag)
                 ->first();
             if ($ownProfile !== null) {
@@ -282,8 +282,8 @@ class PersonnelController extends Controller
             $this->redirect('mitarbeiter/profile?id=' . (int) ($_POST['id'] ?? 0));
         }
 
-        /** @var Mitarbeiter|null $mitarbeiter */
-        $mitarbeiter = Mitarbeiter::find($data['id']);
+        /** @var Personnel|null $mitarbeiter */
+        $mitarbeiter = Personnel::find($data['id']);
         if ($mitarbeiter === null) {
             Flash::error('Mitarbeiter nicht gefunden.');
             $this->redirect('mitarbeiter/list');
@@ -295,24 +295,24 @@ class PersonnelController extends Controller
 
         // Rang-Wechsel logging
         if ($mitarbeiter->dienstgrad !== $data['dienstgrad']) {
-            $oldName = Dienstgrad::find($mitarbeiter->dienstgrad)->name ?? '?';
-            $newName = Dienstgrad::find($data['dienstgrad'])->name ?? '?';
+            $oldName = Rank::find($mitarbeiter->dienstgrad)->name ?? '?';
+            $newName = Rank::find($data['dienstgrad'])->name ?? '?';
             $logManager->logRankChange($mitarbeiter->id, $oldName, $newName, $edituser);
             $mitarbeiter->dienstgrad = $data['dienstgrad'];
         }
 
         // RD-Quali-Wechsel logging
         if ($mitarbeiter->qualird !== $data['qualird']) {
-            $oldName = RdQuali::find($mitarbeiter->qualird)->name ?? '?';
-            $newName = RdQuali::find($data['qualird'])->name ?? '?';
+            $oldName = AmbSkill::find($mitarbeiter->qualird)->name ?? '?';
+            $newName = AmbSkill::find($data['qualird'])->name ?? '?';
             $logManager->logQualificationChange($mitarbeiter->id, 'RD', $oldName, $newName, $edituser);
             $mitarbeiter->qualird = $data['qualird'];
         }
 
         // FW-Quali-Wechsel logging
         if ($mitarbeiter->qualifw2 !== $data['qualifw2']) {
-            $oldName = FwQuali::find($mitarbeiter->qualifw2)->name ?? '?';
-            $newName = FwQuali::find($data['qualifw2'])->name ?? '?';
+            $oldName = FdSkill::find($mitarbeiter->qualifw2)->name ?? '?';
+            $newName = FdSkill::find($data['qualifw2'])->name ?? '?';
             $logManager->logQualificationChange($mitarbeiter->id, 'FW', $oldName, $newName, $edituser);
             $mitarbeiter->qualifw2 = $data['qualifw2'];
         }
@@ -363,8 +363,8 @@ class PersonnelController extends Controller
             $this->redirect('mitarbeiter/list');
         }
 
-        /** @var Mitarbeiter|null $mitarbeiter */
-        $mitarbeiter = Mitarbeiter::find($id);
+        /** @var Personnel|null $mitarbeiter */
+        $mitarbeiter = Personnel::find($id);
         if ($mitarbeiter === null) {
             $this->redirect('mitarbeiter/list');
         }
@@ -443,8 +443,8 @@ class PersonnelController extends Controller
         $profileId = $data['profileid'];
         $docType   = $data['docType'];
 
-        /** @var Mitarbeiter|null $mitarbeiter */
-        $mitarbeiter = Mitarbeiter::find($profileId);
+        /** @var Personnel|null $mitarbeiter */
+        $mitarbeiter = Personnel::find($profileId);
         if ($mitarbeiter === null) {
             Flash::error('Mitarbeiter nicht gefunden.');
             $this->redirect('mitarbeiter/list');
@@ -559,7 +559,7 @@ class PersonnelController extends Controller
         }
 
         // Dienstnummer-Eindeutigkeit prüfen
-        if (Mitarbeiter::query()->where('dienstnr', $data['dienstnr'])->exists()) {
+        if (Personnel::query()->where('dienstnr', $data['dienstnr'])->exists()) {
             $this->jsonResponse([
                 'success' => false,
                 'message' => 'Diese Dienstnummer ist bereits vergeben.',
@@ -567,10 +567,10 @@ class PersonnelController extends Controller
         }
 
         // Default-Quali-IDs ("Keine"-Einträge)
-        $defaultRdQualiId = RdQuali::query()->where('none', 1)->value('id') ?? 0;
-        $defaultFwQualiId = FwQuali::query()->where('none', 1)->value('id') ?? 0;
+        $defaultRdQualiId = AmbSkill::query()->where('none', 1)->value('id') ?? 0;
+        $defaultFwQualiId = FdSkill::query()->where('none', 1)->value('id') ?? 0;
 
-        $mitarbeiter = new Mitarbeiter();
+        $mitarbeiter = new Personnel();
         $mitarbeiter->fullname    = $data['fullname'];
         $mitarbeiter->gebdatum    = $data['gebdatum'];
         $mitarbeiter->dienstgrad  = $data['dienstgrad'];
@@ -626,7 +626,7 @@ class PersonnelController extends Controller
             $this->redirect('mitarbeiter/list');
         }
 
-        $deleted = Mitarbeiter::query()->where('id', $id)->delete();
+        $deleted = Personnel::query()->where('id', $id)->delete();
 
         if ($deleted > 0) {
             Flash::set('personal', 'deleted');
@@ -778,7 +778,7 @@ class PersonnelController extends Controller
         }
 
         // DB-Eintrag löschen
-        MitarbeiterDokument::query()->where('docid', $docid)->delete();
+        PersonnelDocument::query()->where('docid', $docid)->delete();
 
         (new AuditLogger($this->pdo))->log(
             (int) $_SESSION['userid'],

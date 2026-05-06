@@ -6,7 +6,7 @@ namespace App\Calendar;
 
 use App\Models\CalendarAttendee;
 use App\Models\CalendarEvent;
-use App\Models\Mitarbeiter;
+use App\Models\Personnel;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Support\Collection;
 
@@ -25,7 +25,7 @@ final class AttendeeResolver
     /**
      * Mitarbeiter, die am Event teilnehmen / fuer die das Event sichtbar ist.
      *
-     * @return Collection<int, Mitarbeiter>
+     * @return Collection<int, Personnel>
      */
     public static function resolve(CalendarEvent $event): Collection
     {
@@ -95,7 +95,7 @@ final class AttendeeResolver
         if ($ids === []) {
             return new Collection();
         }
-        return Mitarbeiter::query()
+        return Personnel::query()
             ->whereIn('id', $ids)
             ->get();
     }
@@ -118,7 +118,7 @@ final class AttendeeResolver
             return new Collection();
         }
 
-        return Mitarbeiter::query()
+        return Personnel::query()
             ->whereIn('discordtag', $discordIds)
             ->get();
     }

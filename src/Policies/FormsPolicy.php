@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Auth\Permissions;
-use App\Models\Antrag;
+use App\Models\Form;
 
 /**
  * FormsPolicy — Single Source of Truth für "wer darf was mit Anträgen".
@@ -40,7 +40,7 @@ class FormsPolicy
      * Wenn `$target` null ist (z.B. Permission-Check vor Load), wird auf
      * die globale Permission geprüft.
      */
-    public static function view(?Antrag $target = null): bool
+    public static function view(?Form $target = null): bool
     {
         if (Permissions::check(['admin', 'application.view'])) {
             return true;
@@ -64,7 +64,7 @@ class FormsPolicy
     /**
      * Darf der Aktor einen Antrag bearbeiten / Status setzen?
      */
-    public static function decide(?Antrag $target = null): bool
+    public static function decide(?Form $target = null): bool
     {
         return Permissions::check(['admin', 'application.edit']);
     }

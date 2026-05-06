@@ -10,7 +10,7 @@
  */
 
 use App\Helpers\Flash;
-use App\Models\Antrag;
+use App\Models\Form;
 
 $caseId     = $antrag->uniqueid;
 $createDate = $antrag->time_added;
@@ -119,7 +119,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                             <div class="mb-4">
                                 <label for="cirs_status" class="ignis-field__label font-bold">Status setzen <span class="text-red-500">*</span></label>
                                 <select class="form-select" id="cirs_status" name="cirs_status" required>
-                                    <?php foreach (Antrag::STATUS_LABELS as $value => $label): ?>
+                                    <?php foreach (Form::STATUS_LABELS as $value => $label): ?>
                                         <option value="<?= (int) $value ?>" <?= $antrag->cirs_status === $value ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($label) ?>
                                         </option>

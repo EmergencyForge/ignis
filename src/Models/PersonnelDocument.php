@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null    $template_id       (via spätere ALTER-Migration)
  * @property-read Mitarbeiter|null $mitarbeiter
  */
-class MitarbeiterDokument extends Model
+class PersonnelDocument extends Model
 {
     protected $table = 'intra_mitarbeiter_dokumente';
 
@@ -66,6 +66,6 @@ class MitarbeiterDokument extends Model
      */
     public function mitarbeiter(): BelongsTo
     {
-        return $this->belongsTo(Mitarbeiter::class, 'profileid', 'id');
+        return $this->belongsTo(Personnel::class, 'profileid', 'id');
     }
 }

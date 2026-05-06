@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Calendar;
 
-use App\Models\Antrag;
+use App\Models\Form;
 use App\Models\CalendarAttendee;
 use App\Models\CalendarEvent;
-use App\Models\Mitarbeiter;
+use App\Models\Personnel;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
@@ -19,7 +19,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  *
  * Pattern: aufrufen aus FormsController::decide() nach $antrag->save():
  *
- *   if ($isUrlaub && $newStatus === Antrag::STATUS_ACCEPTED) {
+ *   if ($isUrlaub && $newStatus === Form::STATUS_ACCEPTED) {
  *       AbsenceSyncService::syncFromAntrag($antrag, $vonDatum, $bisDatum);
  *   } elseif ($isUrlaub) {
  *       AbsenceSyncService::removeForAntrag($antrag->id);
@@ -44,7 +44,7 @@ final class AbsenceSyncService
      * (anhand des Typ-Namens). Zentrale Stelle, damit FormsController
      * und Console-Backfill dieselbe Regel benutzen.
      */
-    public static function isAbsenceAntrag(\App\Models\Antrag $antrag): bool
+    public static function isAbsenceAntrag(\App\Models\Form $antrag): bool
     {
         $name = strtolower(trim((string) ($antrag->typ?->name ?? '')));
         return in_array($name, self::URLAUB_TYP_NAMES, true);
@@ -57,7 +57,7 @@ final class AbsenceSyncService
      * @param string $vonDatum  ISO YYYY-MM-DD oder leerer String
      * @param string $bisDatum  ISO YYYY-MM-DD oder leerer String
      */
-    public static function syncFromAntrag(Antrag $antrag, string $vonDatum, string $bisDatum): ?CalendarEvent
+    public static function syncFromAntrag(Form $antrag, string $vonDatum, string $bisDatum): ?CalendarEvent
     {
         if ($vonDatum === '' || $bisDatum === '') {
             return null;
@@ -96,7 +96,7 @@ final class AbsenceSyncService
         // "Wer ist heute da"-Widget zaehlt das. Bei multi-day-Updates wird
         // firstOrCreate verwendet, sodass keine Duplikate entstehen.
         if (!empty($antrag->discordid)) {
-            $mitarbeiter = Mitarbeiter::query()
+            $mitarbeiter = Personnel::query()
                 ->where('discordtag', $antrag->discordid)
                 ->first(['id']);
             if ($mitarbeiter !== null) {
@@ -153,7 +153,7 @@ final class AbsenceSyncService
      * Anzeigename des Antragstellers — name_dn aus dem Antrag oder Fallback
      * auf den Discord-Tag.
      */
-    private static function displayName(Antrag $antrag): string
+    private static function displayName(Form $antrag): string
     {
         $name = trim((string) ($antrag->name_dn ?? ''));
         return $name !== '' ? $name : (string) $antrag->discordid;
@@ -162,7 +162,7 @@ final class AbsenceSyncService
     /**
      * Beschreibung mit Antragsnummer + Begruendung (sofern angegeben).
      */
-    private static function buildDescription(Antrag $antrag): ?string
+    private static function buildDescription(Form $antrag): ?string
     {
         $parts = ['Antrag #' . $antrag->uniqueid];
         $grund = $antrag->getFieldValue('grund');
@@ -177,7 +177,7 @@ final class AbsenceSyncService
      * Vorrang: Bearbeiter (cirs_manager_id, falls vorhanden) → Antragsteller
      * (via discordid → intra_users.id) → erster Admin-User.
      */
-    private static function resolveCreatorUserId(Antrag $antrag): int
+    private static function resolveCreatorUserId(Form $antrag): int
     {
         // 1) Bearbeiter, falls die Spalte existiert
         if (isset($antrag->cirs_manager_userid) && (int) $antrag->cirs_manager_userid > 0) {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Policies;
 
-use App\Models\Antrag;
+use App\Models\Form;
 use App\Policies\FormsPolicy;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
@@ -31,9 +31,9 @@ class FormsPolicyTest extends TestCase
         }
     }
 
-    private function makeAntrag(?string $discordid): Antrag
+    private function makeAntrag(?string $discordid): Form
     {
-        $a = new Antrag();
+        $a = new Form();
         $a->discordid = $discordid;
         return $a;
     }

@@ -267,39 +267,26 @@ $router->post('/calendar/delete',  [CalendarController::class, 'destroy'],      
 $router->post('/calendar/respond', [CalendarController::class, 'respondInvite'], $calendarViewAuth);
 
 // ----------------------------------------------------------------------------
-//  Lexikon-Modul (ehemals /wissensdb/-Folder am Webroot)
-//
-//  Die Templates liegen unter `templates/lexicon/` — der Router thunkt
-//  jede Route auf das passende Legacy-Template, das die alte Auth/Render-
-//  Logik selbst enthaelt. Spaeter wird das in einen sauberen
-//  LexiconController + slim Templates aufgeteilt; vorerst ist diese
-//  Bridge-Variante minimal-invasiv.
+//  Lexikon-Modul
 //
 //  Auth: AuthMiddleware mit `KB_PUBLIC_ACCESS`-Flag-Inversion. Wenn das
 //  Flag true ist, ist das Lexikon public lesbar; sonst Login-Pflicht.
-//  Edit/Manage-Routen erfordern zusaetzlich Permissions, die intern
-//  in den Templates geprueft werden.
+//  Edit-/Manage-Permissions werden im Controller via Permissions::check()
+//  pro Aktion geprueft.
 // ----------------------------------------------------------------------------
 
 $lexiconAuth = [new AuthMiddleware('KB_PUBLIC_ACCESS', invert: true)];
 
-$lexiconPage = function (string $template) {
-    return function () use ($template) {
-        require __DIR__ . '/../templates/lexicon/' . $template;
-        return \App\Http\Response::empty();
-    };
-};
-
-$router->match(['GET', 'POST'], '/lexicon',                $lexiconPage('index.php'),           $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/',               $lexiconPage('index.php'),           $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/index',          $lexiconPage('index.php'),           $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/view',           $lexiconPage('view.php'),            $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/create',         $lexiconPage('create.php'),          $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/edit',           $lexiconPage('edit.php'),            $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/archive',        $lexiconPage('archive.php'),         $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/pin',            $lexiconPage('pin.php'),             $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/manage-taxonomy',$lexiconPage('manage-taxonomy.php'), $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/toggle-editor',  $lexiconPage('toggle-editor.php'),   $lexiconAuth);
+$router->get( '/lexicon',                 [\App\Http\Controllers\LexiconController::class, 'index'],          $lexiconAuth);
+$router->get( '/lexicon/',                [\App\Http\Controllers\LexiconController::class, 'index'],          $lexiconAuth);
+$router->get( '/lexicon/index',           [\App\Http\Controllers\LexiconController::class, 'index'],          $lexiconAuth);
+$router->get( '/lexicon/view',            [\App\Http\Controllers\LexiconController::class, 'view'],           $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/create',         [\App\Http\Controllers\LexiconController::class, 'create'],         $lexiconAuth);
+$router->match(['GET', 'POST'], '/lexicon/edit',           [\App\Http\Controllers\LexiconController::class, 'edit'],           $lexiconAuth);
+$router->post('/lexicon/archive',         [\App\Http\Controllers\LexiconController::class, 'archive'],        $lexiconAuth);
+$router->post('/lexicon/pin',             [\App\Http\Controllers\LexiconController::class, 'pin'],            $lexiconAuth);
+$router->post('/lexicon/toggle-editor',   [\App\Http\Controllers\LexiconController::class, 'toggleEditor'],   $lexiconAuth);
+$router->get( '/lexicon/manage-taxonomy', [\App\Http\Controllers\LexiconController::class, 'manageTaxonomy'], $lexiconAuth);
 
 // ----------------------------------------------------------------------------
 //  Mitarbeiter-Modul

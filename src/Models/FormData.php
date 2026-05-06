@@ -14,9 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int    $antrag_id
  * @property string $feldname
  * @property string|null $wert
- * @property-read Antrag $antrag
+ * @property-read Form $antrag
  */
-class AntragData extends Model
+class FormData extends Model
 {
     protected $table = 'intra_antraege_daten';
 
@@ -27,6 +27,6 @@ class AntragData extends Model
 
     public function antrag(): BelongsTo
     {
-        return $this->belongsTo(Antrag::class, 'antrag_id', 'id');
+        return $this->belongsTo(Form::class, 'antrag_id', 'id');
     }
 }

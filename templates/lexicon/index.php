@@ -1,138 +1,3 @@
-<?php
-require_once __DIR__ . '/../../assets/config/config.php';
-require_once __DIR__ . '/../../vendor/autoload.php';
-require __DIR__ . '/../../assets/config/database.php';
-
-use App\Auth\Permissions;
-use App\Helpers\Flash;
-use App\KnowledgeBase\KBHelper;
-
-// Check if public access is enabled or user is logged in
-$publicAccess = defined('KB_PUBLIC_ACCESS') && KB_PUBLIC_ACCESS === true;
-$isLoggedIn = isset($_SESSION['userid']) && isset($_SESSION['permissions']);
-
-if (!$publicAccess && !$isLoggedIn) {
-    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
-    header("Location: " . BASE_PATH . "login.php");
-    exit();
-}
-
-// Get filter parameters
-$typeFilter = $_GET['type'] ?? 'all';
-$searchQuery = $_GET['search'] ?? '';
-$categoryFilter = isset($_GET['category']) ? (int)$_GET['category'] : 0;
-$tagFilter = isset($_GET['tag']) ? (int)$_GET['tag'] : 0;
-// Only allow viewing archived entries if user has kb.archive permission
-$showArchived = isset($_GET['archived']) && $_GET['archived'] === '1'
-                && $isLoggedIn && Permissions::check(['admin', 'kb.archive']);
-
-// Lade Kategorien und Tags für Filter
-$catStmt = $pdo->query("SELECT id, parent_id, name, icon FROM intra_kb_categories ORDER BY sort_order ASC, name ASC");
-$allCategories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
-
-$tagStmt = $pdo->query("SELECT t.id, t.name, t.color, COUNT(et.entry_id) as cnt FROM intra_kb_tags t LEFT JOIN intra_kb_entry_tags et ON t.id = et.tag_id GROUP BY t.id ORDER BY t.name ASC");
-$allTags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Build query with names from linked Discord profiles
-$sql = "SELECT kb.*,
-        kc.name as category_name, kc.icon as category_icon,
-        COALESCE(creator_m.fullname, creator.fullname) as creator_name,
-        COALESCE(updater_m.fullname, updater.fullname) as updater_name
-        FROM intra_kb_entries kb
-        LEFT JOIN intra_kb_categories kc ON kb.category_id = kc.id
-        LEFT JOIN intra_users creator ON kb.created_by = creator.id
-        LEFT JOIN intra_mitarbeiter creator_m ON creator.discord_id = creator_m.discordtag
-        LEFT JOIN intra_users updater ON kb.updated_by = updater.id
-        LEFT JOIN intra_mitarbeiter updater_m ON updater.discord_id = updater_m.discordtag
-        WHERE 1=1";
-
-$params = [];
-
-if (!$showArchived) {
-    $sql .= " AND kb.is_archived = 0";
-}
-
-if ($typeFilter !== 'all') {
-    $sql .= " AND kb.type = :type";
-    $params['type'] = $typeFilter;
-}
-
-if ($categoryFilter > 0) {
-    // Auch Unterkategorien einschliessen
-    $childIds = [$categoryFilter];
-    $childStmt = $pdo->prepare("SELECT id FROM intra_kb_categories WHERE parent_id = :pid");
-    $childStmt->execute(['pid' => $categoryFilter]);
-    while ($childId = $childStmt->fetchColumn()) {
-        $childIds[] = (int)$childId;
-    }
-    $placeholders = implode(',', array_fill(0, count($childIds), '?'));
-    $sql .= " AND kb.category_id IN ($placeholders)";
-    foreach ($childIds as $i => $cid) {
-        $params[] = $cid;
-    }
-}
-
-if ($tagFilter > 0) {
-    $sql .= " AND kb.id IN (SELECT entry_id FROM intra_kb_entry_tags WHERE tag_id = :tag_id)";
-    $params['tag_id'] = $tagFilter;
-}
-
-if (!empty($searchQuery)) {
-    // FULLTEXT-Suche mit BOOLEAN MODE für partielle Treffer
-    $ftQuery = '';
-    $words = preg_split('/\s+/', trim($searchQuery));
-    foreach ($words as $w) {
-        $w = trim($w);
-        if (mb_strlen($w) >= 2) {
-            // Sonderzeichen für BOOLEAN MODE escapen
-            $w = preg_replace('/[+\-><()~*"@]+/', '', $w);
-            if ($w !== '') {
-                $ftQuery .= '+' . $w . '* ';
-            }
-        }
-    }
-    $ftQuery = trim($ftQuery);
-
-    if ($ftQuery !== '') {
-        $sql .= " AND (
-            MATCH(kb.title, kb.subtitle, kb.content) AGAINST(:ft_main IN BOOLEAN MODE)
-            OR MATCH(kb.med_wirkstoff, kb.med_wirkstoffgruppe, kb.med_indikationen, kb.med_kontraindikationen, kb.med_dosierung, kb.med_besonderheiten) AGAINST(:ft_med IN BOOLEAN MODE)
-            OR MATCH(kb.mass_indikationen, kb.mass_kontraindikationen, kb.mass_durchfuehrung, kb.mass_risiken) AGAINST(:ft_mass IN BOOLEAN MODE)
-            OR kb.id IN (SELECT et.entry_id FROM intra_kb_entry_tags et JOIN intra_kb_tags t ON et.tag_id = t.id WHERE t.name LIKE :ft_tag)
-        )";
-        $params['ft_main'] = $ftQuery;
-        $params['ft_med'] = $ftQuery;
-        $params['ft_mass'] = $ftQuery;
-        $params['ft_tag'] = '%' . $searchQuery . '%';
-    } else {
-        // Fallback für sehr kurze Suchbegriffe (< 2 Zeichen pro Wort)
-        $sql .= " AND (kb.title LIKE :search1 OR kb.subtitle LIKE :search2)";
-        $searchParam = '%' . $searchQuery . '%';
-        $params['search1'] = $searchParam;
-        $params['search2'] = $searchParam;
-    }
-}
-
-// Order by pinned first, then by update/creation date
-$sql .= " ORDER BY kb.is_pinned DESC, kb.updated_at DESC, kb.created_at DESC";
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Tags pro Eintrag laden
-$entryIds = array_column($entries, 'id');
-$entryTagsMap = [];
-if (!empty($entryIds)) {
-    $placeholders = implode(',', array_fill(0, count($entryIds), '?'));
-    $tagMapStmt = $pdo->prepare("SELECT et.entry_id, t.name, t.color FROM intra_kb_entry_tags et JOIN intra_kb_tags t ON et.tag_id = t.id WHERE et.entry_id IN ($placeholders)");
-    $tagMapStmt->execute($entryIds);
-    foreach ($tagMapStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
-        $entryTagsMap[$row['entry_id']][] = $row;
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="de" data-bs-theme="light">
 
@@ -343,10 +208,10 @@ if (!empty($entryIds)) {
                         <h1>Wissensdatenbank</h1>
                         <div class="header-actions">
                             <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
-                                <a href="<?= BASE_PATH ?>wissensdb/manage-taxonomy.php" class="btn btn-outline-secondary">
+                                <a href="<?= BASE_PATH ?>lexicon/manage-taxonomy" class="btn btn-outline-secondary">
                                     <i class="fa-solid fa-tags"></i> Kategorien & Tags
                                 </a>
-                                <a href="<?= BASE_PATH ?>wissensdb/create.php" class="btn btn-success">
+                                <a href="<?= BASE_PATH ?>lexicon/create" class="btn btn-success">
                                     <i class="fa-solid fa-plus"></i> Neuer Eintrag
                                 </a>
                             <?php endif; ?>
@@ -431,7 +296,7 @@ if (!empty($entryIds)) {
                         <div class="alert alert-info">
                             <i class="fa-solid fa-info-circle"></i> Keine Einträge gefunden.
                             <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
-                                <a href="<?= BASE_PATH ?>wissensdb/create.php">Erstellen Sie den ersten Eintrag.</a>
+                                <a href="<?= BASE_PATH ?>lexicon/create">Erstellen Sie den ersten Eintrag.</a>
                             <?php endif; ?>
                         </div>
                     <?php else: ?>
@@ -442,7 +307,7 @@ if (!empty($entryIds)) {
                                 <div class="col">
                                     <div class="col-card-wrapper">
                                         <div class="card h-100 kb-card <?= $entry['is_archived'] ? 'kb-archived' : '' ?>" 
-                                             onclick="window.location.href='<?= BASE_PATH ?>wissensdb/view.php?id=<?= $entry['id'] ?>'"
+                                             onclick="window.location.href='<?= BASE_PATH ?>lexicon/view?id=<?= $entry['id'] ?>'"
                                              <?php if ($competency): ?>style="border-top: 3px solid <?= $competency['bg'] ?>;"<?php endif; ?>>
                                             <div class="card-body">
                                                 <div class="d-flex justify-content-between align-items-start mb-2">
@@ -510,7 +375,7 @@ if (!empty($entryIds)) {
                                                 </small>
                                                 <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
                                                     <div class="kb-card-footer-actions">
-                                                        <form method="POST" action="<?= BASE_PATH ?>wissensdb/pin.php" style="margin: 0; display: inline;" onclick="event.stopPropagation();">
+                                                        <form method="POST" action="<?= BASE_PATH ?>lexicon/pin" style="margin: 0; display: inline;" onclick="event.stopPropagation();">
                                                             <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                                             <input type="hidden" name="action" value="<?= !empty($entry['is_pinned']) ? 'unpin' : 'pin' ?>">
                                                             <button type="submit" class="kb-quick-btn">
@@ -518,7 +383,7 @@ if (!empty($entryIds)) {
                                                                 <span class="tooltip-text"><?= !empty($entry['is_pinned']) ? 'Lösen' : 'Anpinnen' ?></span>
                                                             </button>
                                                         </form>
-                                                        <a href="<?= BASE_PATH ?>wissensdb/edit.php?id=<?= $entry['id'] ?>" class="kb-quick-btn" onclick="event.stopPropagation();">
+                                                        <a href="<?= BASE_PATH ?>lexicon/edit?id=<?= $entry['id'] ?>" class="kb-quick-btn" onclick="event.stopPropagation();">
                                                             <i class="fa-solid fa-pen"></i>
                                                             <span class="tooltip-text">Bearbeiten</span>
                                                         </a>
@@ -562,7 +427,7 @@ if (!empty($entryIds)) {
                         if (data.results && data.results.length > 0) {
                             let html = '';
                             data.results.forEach(function(item) {
-                                html += '<a href="<?= BASE_PATH ?>wissensdb/view.php?id=' + item.id + '" class="search-suggestion-item">';
+                                html += '<a href="<?= BASE_PATH ?>lexicon/view?id=' + item.id + '" class="search-suggestion-item">';
                                 html += '<div class="search-suggestion-title">' + highlightTerms(escapeHtml(item.title), query) + '</div>';
                                 if (item.subtitle) {
                                     html += '<div class="search-suggestion-subtitle">' + highlightTerms(escapeHtml(item.subtitle), query) + '</div>';

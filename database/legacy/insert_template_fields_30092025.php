@@ -4,7 +4,7 @@ try {
     $stmt = $pdo->prepare("
 INSERT IGNORE INTO intra_dokument_template_fields
 (template_id, field_name, field_label, field_type, field_options, is_required, gender_specific, sort_order)
-VALUES (14, 'erhalter_rang', 'Dienstgrad', 'db_dg', NULL, 1, 1, 0)
+VALUES (14, 'erhalter_rang', 'Rank', 'db_dg', NULL, 1, 1, 0)
 ");
     $stmt->execute();
 
@@ -19,7 +19,7 @@ VALUES (14, 'ausstellungsdatum', 'Ausstellungsdatum', 'date', 1, 1)
     $stmt = $pdo->prepare("
 INSERT IGNORE INTO intra_dokument_template_fields
 (template_id, field_name, field_label, field_type, field_options, is_required, gender_specific, sort_order)
-VALUES (1, 'erhalter_rang', 'Neuer Dienstgrad', 'db_dg', NULL, 1, 1, 0)
+VALUES (1, 'erhalter_rang', 'Neuer Rank', 'db_dg', NULL, 1, 1, 0)
 ");
     $stmt->execute();
 

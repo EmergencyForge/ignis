@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Antraege;
 
 use App\Http\Requests\FormRequest;
-use App\Models\Antrag;
+use App\Models\Form;
 use Respect\Validation\Validatable;
 use Respect\Validation\Validator as v;
 
@@ -13,7 +13,7 @@ use Respect\Validation\Validator as v;
  * Validierung für POST /antrag/admin/view (Status-Update durch Bearbeiter).
  *
  * Felder:
- *   - cirs_status (int 0-3, einer der Antrag::STATUS_* Werte)
+ *   - cirs_status (int 0-3, einer der Form::STATUS_* Werte)
  *   - cirs_text   (optional, max 5000 Zeichen)
  */
 class DecideAntragRequest extends FormRequest
@@ -22,10 +22,10 @@ class DecideAntragRequest extends FormRequest
     {
         return v::keySet(
             v::key('cirs_status', v::stringVal()->intVal()->in([
-                (string) Antrag::STATUS_IN_PROGRESS,
-                (string) Antrag::STATUS_REJECTED,
-                (string) Antrag::STATUS_DEFERRED,
-                (string) Antrag::STATUS_ACCEPTED,
+                (string) Form::STATUS_IN_PROGRESS,
+                (string) Form::STATUS_REJECTED,
+                (string) Form::STATUS_DEFERRED,
+                (string) Form::STATUS_ACCEPTED,
             ])),
             v::key('cirs_text', v::optional(v::stringType()->length(0, 5000)), false),
             v::key('save',      v::optional(v::stringType()), false),

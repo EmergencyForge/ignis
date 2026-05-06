@@ -1,84 +1,3 @@
-<?php
-require_once __DIR__ . '/../../assets/config/config.php';
-require_once __DIR__ . '/../../vendor/autoload.php';
-require __DIR__ . '/../../assets/config/database.php';
-
-use App\Auth\Permissions;
-use App\Helpers\Flash;
-use App\KnowledgeBase\KBHelper;
-
-// Check if public access is enabled or user is logged in
-$publicAccess = defined('KB_PUBLIC_ACCESS') && KB_PUBLIC_ACCESS === true;
-$isLoggedIn = isset($_SESSION['userid']) && isset($_SESSION['permissions']);
-
-if (!$publicAccess && !$isLoggedIn) {
-    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
-    header("Location: " . BASE_PATH . "login.php");
-    exit();
-}
-
-// Get entry ID
-$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-if (!$id) {
-    Flash::error('Ungültige ID');
-    header("Location: " . BASE_PATH . "wissensdb/index.php");
-    exit();
-}
-
-// Fetch entry with names from linked Discord profiles
-$stmt = $pdo->prepare("
-    SELECT kb.*,
-           kc.name as category_name, kc.icon as category_icon,
-           kc_parent.name as parent_category_name, kc_parent.icon as parent_category_icon,
-           COALESCE(creator_m.fullname, creator.fullname) as creator_name,
-           COALESCE(updater_m.fullname, updater.fullname) as updater_name
-    FROM intra_kb_entries kb
-    LEFT JOIN intra_kb_categories kc ON kb.category_id = kc.id
-    LEFT JOIN intra_kb_categories kc_parent ON kc.parent_id = kc_parent.id
-    LEFT JOIN intra_users creator ON kb.created_by = creator.id
-    LEFT JOIN intra_mitarbeiter creator_m ON creator.discord_id = creator_m.discordtag
-    LEFT JOIN intra_users updater ON kb.updated_by = updater.id
-    LEFT JOIN intra_mitarbeiter updater_m ON updater.discord_id = updater_m.discordtag
-    WHERE kb.id = :id
-");
-$stmt->execute(['id' => $id]);
-$entry = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$entry) {
-    Flash::error('Eintrag nicht gefunden');
-    header("Location: " . BASE_PATH . "wissensdb/index.php");
-    exit();
-}
-
-// Don't show archived entries to non-privileged users
-if ($entry['is_archived'] && (!$isLoggedIn || !Permissions::check(['admin', 'kb.archive']))) {
-    Flash::error('Dieser Eintrag ist archiviert');
-    header("Location: " . BASE_PATH . "wissensdb/index.php");
-    exit();
-}
-
-// Lade Tags des Eintrags
-$tagStmt = $pdo->prepare("SELECT t.id, t.name, t.color FROM intra_kb_entry_tags et JOIN intra_kb_tags t ON et.tag_id = t.id WHERE et.entry_id = :id ORDER BY t.name");
-$tagStmt->execute(['id' => $id]);
-$entryTags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Lade verknüpfte Einträge (bidirektional)
-$relStmt = $pdo->prepare("
-    SELECT kb.id, kb.title, kb.subtitle, kb.type, kb.competency_level,
-           kc.name as category_name, kc.icon as category_icon
-    FROM intra_kb_entry_relations r
-    JOIN intra_kb_entries kb ON kb.id = CASE WHEN r.entry_id = :id1 THEN r.related_entry_id ELSE r.entry_id END
-    LEFT JOIN intra_kb_categories kc ON kb.category_id = kc.id
-    WHERE (r.entry_id = :id2 OR r.related_entry_id = :id3)
-    AND kb.is_archived = 0
-    ORDER BY kb.title ASC
-");
-$relStmt->execute(['id1' => $id, 'id2' => $id, 'id3' => $id]);
-$relatedEntries = $relStmt->fetchAll(PDO::FETCH_ASSOC);
-
-$competency = KBHelper::getCompetencyInfo($entry['competency_level']);
-?>
-
 <!DOCTYPE html>
 <html lang="de" data-bs-theme="light">
 
@@ -380,7 +299,7 @@ $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
                 <div class="col mb-5">
                     
                     <!-- Back Link -->
-                    <a href="<?= BASE_PATH ?>wissensdb/index.php" class="back-link mb-3">
+                    <a href="<?= BASE_PATH ?>lexicon/index" class="back-link mb-3">
                         <i class="fa-solid fa-arrow-left"></i> Zurück zur Übersicht
                     </a>
 
@@ -403,15 +322,15 @@ $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
                                     <i class="fa-solid fa-folder"></i>
                                     <?php if (!empty($entry['parent_category_name'])): ?>
                                         <?php if (!empty($entry['parent_category_icon'])): ?><i class="<?= htmlspecialchars($entry['parent_category_icon']) ?>"></i> <?php endif; ?>
-                                        <a href="<?= BASE_PATH ?>wissensdb/index.php?category=<?= (int)$entry['category_id'] ?>" class="text-muted"><?= htmlspecialchars($entry['parent_category_name']) ?></a>
+                                        <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-muted"><?= htmlspecialchars($entry['parent_category_name']) ?></a>
                                         <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem;"></i>
                                     <?php endif; ?>
                                     <?php if (!empty($entry['category_icon'])): ?><i class="<?= htmlspecialchars($entry['category_icon']) ?>"></i> <?php endif; ?>
-                                    <a href="<?= BASE_PATH ?>wissensdb/index.php?category=<?= (int)$entry['category_id'] ?>" class="text-muted"><?= htmlspecialchars($entry['category_name']) ?></a>
+                                    <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-muted"><?= htmlspecialchars($entry['category_name']) ?></a>
                                 </span>
                             <?php endif; ?>
                             <?php foreach ($entryTags as $etag): ?>
-                                <a href="<?= BASE_PATH ?>wissensdb/index.php?tag=<?= (int)$etag['id'] ?>" class="badge text-decoration-none" style="background-color: <?= htmlspecialchars($etag['color']) ?>; color: #fff;"><?= htmlspecialchars($etag['name']) ?></a>
+                                <a href="<?= BASE_PATH ?>lexicon/index?tag=<?= (int)$etag['id'] ?>" class="badge text-decoration-none" style="background-color: <?= htmlspecialchars($etag['color']) ?>; color: #fff;"><?= htmlspecialchars($etag['name']) ?></a>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
@@ -592,7 +511,7 @@ $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
                                     $relComp = KBHelper::getCompetencyInfo($rel['competency_level']);
                                 ?>
                                     <div class="col">
-                                        <a href="<?= BASE_PATH ?>wissensdb/view.php?id=<?= $rel['id'] ?>" class="text-decoration-none">
+                                        <a href="<?= BASE_PATH ?>lexicon/view?id=<?= $rel['id'] ?>" class="text-decoration-none">
                                             <div class="d-flex align-items-center p-3 rounded" style="background-color: rgba(255,255,255,0.05); border: 1px solid #444; transition: background-color 0.2s;"
                                                  onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'" onmouseout="this.style.backgroundColor='rgba(255,255,255,0.05)'">
                                                 <div class="me-3">
@@ -639,12 +558,12 @@ $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
                             <?php if ($isLoggedIn): ?>
                                 <div class="action-buttons">
                                     <?php if (Permissions::check(['admin', 'kb.edit'])): ?>
-                                        <a href="<?= BASE_PATH ?>wissensdb/edit.php?id=<?= $entry['id'] ?>" class="action-btn">
+                                        <a href="<?= BASE_PATH ?>lexicon/edit?id=<?= $entry['id'] ?>" class="action-btn">
                                             <i class="fa-solid fa-pen"></i>
                                             <span class="tooltip-text">Bearbeiten</span>
                                         </a>
                                         
-                                        <form method="POST" action="<?= BASE_PATH ?>wissensdb/pin.php" style="margin: 0; display: inline;">
+                                        <form method="POST" action="<?= BASE_PATH ?>lexicon/pin" style="margin: 0; display: inline;">
                                             <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                             <input type="hidden" name="action" value="<?= !empty($entry['is_pinned']) ? 'unpin' : 'pin' ?>">
                                             <button type="submit" class="action-btn">
@@ -656,7 +575,7 @@ $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
                                     
                                     <?php if (Permissions::check(['admin', 'kb.archive'])): ?>
                                         <?php if ($entry['is_archived']): ?>
-                                            <form method="POST" action="<?= BASE_PATH ?>wissensdb/archive.php" style="margin: 0; display: inline;">
+                                            <form method="POST" action="<?= BASE_PATH ?>lexicon/archive" style="margin: 0; display: inline;">
                                                 <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                                 <input type="hidden" name="action" value="restore">
                                                 <button type="submit" class="action-btn">
@@ -665,7 +584,7 @@ $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
                                                 </button>
                                             </form>
                                         <?php else: ?>
-                                            <form method="POST" action="<?= BASE_PATH ?>wissensdb/archive.php" style="margin: 0; display: inline;">
+                                            <form method="POST" action="<?= BASE_PATH ?>lexicon/archive" style="margin: 0; display: inline;">
                                                 <input type="hidden" name="id" value="<?= $entry['id'] ?>">
                                                 <input type="hidden" name="action" value="archive">
                                                 <button type="submit" class="action-btn">

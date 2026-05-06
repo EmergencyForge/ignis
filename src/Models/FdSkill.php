@@ -20,7 +20,7 @@ namespace App\Models;
  * @property bool   $none
  * @property \DateTime $created_at
  */
-class FwQuali extends Model
+class FdSkill extends Model
 {
     protected $table = 'intra_mitarbeiter_fwquali';
 

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Calendar\AbsenceSyncService;
-use App\Models\Antrag;
-use App\Models\AntragTyp;
+use App\Models\Form;
+use App\Models\FormType;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,7 +33,7 @@ final class CalendarBackfillAbsencesCommand extends Command
         // Nimm alle Antragstypen die als Abwesenheit gelten (siehe
         // AbsenceSyncService::URLAUB_TYP_NAMES). Match case-insensitive
         // direkt in der DB, weil Sammelliste klein ist.
-        $absenceTypes = AntragTyp::query()
+        $absenceTypes = FormType::query()
             ->get(['id', 'name'])
             ->filter(fn ($t) => self::isAbsenceTypeName((string) $t->name))
             ->all();
@@ -45,9 +45,9 @@ final class CalendarBackfillAbsencesCommand extends Command
 
         $typeIds = array_map(static fn ($t) => (int) $t->id, $absenceTypes);
 
-        $approved = Antrag::query()
+        $approved = Form::query()
             ->whereIn('antragstyp_id', $typeIds)
-            ->where('cirs_status', Antrag::STATUS_ACCEPTED)
+            ->where('cirs_status', Form::STATUS_ACCEPTED)
             ->with('daten', 'typ')
             ->get();
 
