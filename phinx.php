@@ -16,14 +16,23 @@
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-if (!isset($_ENV['DB_HOST'])) {
+// .env best-effort laden (Produktion + lokale Entwicklung). In der CI gibt es
+// keine .env — dort kommen die DB_*-Variablen direkt aus der Prozess-Umgebung.
+if (is_file(__DIR__ . '/.env')) {
     try {
-        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__, null, false);
-        $dotenv->load();
+        Dotenv\Dotenv::createImmutable(__DIR__, null, false)->load();
     } catch (\Throwable $e) {
-        // Erlaubt Phinx-CLI-Aufrufe ohne .env (z.B. für `phinx init`).
+        // Erlaubt Phinx-CLI-Aufrufe ohne lesbare .env (z.B. für `phinx init`).
     }
 }
+
+// $_ENV ist je nach variables_order leer, selbst wenn OS-Env-Variablen gesetzt
+// sind (Standard bei PHP-CLI in CI). Daher robust über $_ENV/$_SERVER/getenv()
+// auflösen, sonst landet Phinx auf 'localhost' + leerer DB → [2002] Socket-Fehler.
+$env = static function (string $key, ?string $default = null): ?string {
+    $val = $_ENV[$key] ?? $_SERVER[$key] ?? getenv($key);
+    return ($val === false || $val === null || $val === '') ? $default : (string) $val;
+};
 
 return [
     'paths' => [
@@ -37,22 +46,22 @@ return [
 
         'production' => [
             'adapter' => 'mysql',
-            'host'    => $_ENV['DB_HOST'] ?? 'localhost',
-            'name'    => $_ENV['DB_NAME'] ?? '',
-            'user'    => $_ENV['DB_USER'] ?? '',
-            'pass'    => $_ENV['DB_PASS'] ?? '',
-            'port'    => (int) ($_ENV['DB_PORT'] ?? 3306),
+            'host'    => $env('DB_HOST', 'localhost'),
+            'name'    => $env('DB_NAME', ''),
+            'user'    => $env('DB_USER', ''),
+            'pass'    => $env('DB_PASS', ''),
+            'port'    => (int) $env('DB_PORT', '3306'),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
         ],
 
         'testing' => [
             'adapter' => 'mysql',
-            'host'    => $_ENV['DB_TEST_HOST'] ?? $_ENV['DB_HOST'] ?? 'localhost',
-            'name'    => $_ENV['DB_TEST_NAME'] ?? 'intrarp_test',
-            'user'    => $_ENV['DB_TEST_USER'] ?? $_ENV['DB_USER'] ?? '',
-            'pass'    => $_ENV['DB_TEST_PASS'] ?? $_ENV['DB_PASS'] ?? '',
-            'port'    => (int) ($_ENV['DB_TEST_PORT'] ?? 3306),
+            'host'    => $env('DB_TEST_HOST', $env('DB_HOST', 'localhost')),
+            'name'    => $env('DB_TEST_NAME', 'intrarp_test'),
+            'user'    => $env('DB_TEST_USER', $env('DB_USER', '')),
+            'pass'    => $env('DB_TEST_PASS', $env('DB_PASS', '')),
+            'port'    => (int) $env('DB_TEST_PORT', '3306'),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
         ],
