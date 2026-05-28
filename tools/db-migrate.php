@@ -23,6 +23,16 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $root = dirname(__DIR__);
 
+// Ohne .env (CI-Runner, frischer Clone vor dem Setup) gibt es keine DB-
+// Credentials. Der Hook läuft über Composer post-install/-update — dort darf
+// eine fehlende .env kein FAILURE sein, sonst bricht jeder `composer install`
+// in der CI ab. Migration ist ein reiner Produktiv-Schritt; ohne .env wird
+// sie schlicht übersprungen.
+if (!is_file($root . '/.env')) {
+    fwrite(STDOUT, "[SKIP] Keine .env gefunden — DB-Migration übersprungen (CI/Erstinstallation).\n");
+    exit(0);
+}
+
 try {
     $dotenv = Dotenv\Dotenv::createImmutable($root);
     $dotenv->load();
