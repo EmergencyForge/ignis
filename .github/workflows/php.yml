@@ -14,13 +14,13 @@ permissions:
 jobs:
 
   # ─────────────────────────────────────────────
-  # 1. Build & Validate (PHP 8.1 – 8.4)
+  # 1. Build & Validate (PHP 8.3 – 8.4)
   # ─────────────────────────────────────────────
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ['8.1', '8.2', '8.3', '8.4']
+        php-version: ['8.3', '8.4']
       fail-fast: false
 
     steps:
@@ -625,7 +625,7 @@ jobs:
             body += '### Übersicht\n\n';
             body += '| Check | Status | Details |\n';
             body += '|-------|--------|---------|\n';
-            body += `| Build (PHP 8.1 – 8.4) | ${statusIcon(buildResult)} ${statusText(buildResult)} | |\n`;
+            body += `| Build (PHP 8.3 – 8.4) | ${statusIcon(buildResult)} ${statusText(buildResult)} | |\n`;
             body += `| Unit Tests (8.3/8.4) | ${statusIcon(unitResult)} ${statusText(unitResult)} | ${fmtStats(unitStats, unitResult)} |\n`;
             body += `| Integration Tests | ${statusIcon(integrationResult)} ${statusText(integrationResult)} | ${fmtStats(integrationStats, integrationResult)} |\n`;
             body += `| Feature Tests (HTTP) | ${statusIcon(integrationResult)} ${statusText(integrationResult)} | ${fmtStats(featureStats, integrationResult)} |\n`;
