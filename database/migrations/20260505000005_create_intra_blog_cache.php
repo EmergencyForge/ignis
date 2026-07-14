@@ -21,7 +21,8 @@ class CreateIntraBlogCache extends AbstractMigration
     {
         if (!$this->hasTable('intra_blog_cache')) {
             $this->table('intra_blog_cache', ['id' => false, 'primary_key' => ['id']])
-                ->addColumn('id', 'string', ['limit' => 80])
+                // explizit NOT NULL — siehe intra_changelog_cache (MySQL 1171)
+                ->addColumn('id', 'string', ['limit' => 80, 'null' => false])
                 ->addColumn('slug', 'string', ['limit' => 160])
                 ->addColumn('title', 'string', ['limit' => 255])
                 ->addColumn('subtitle', 'string', ['limit' => 255, 'null' => true])
@@ -44,7 +45,7 @@ class CreateIntraBlogCache extends AbstractMigration
 
         if (!$this->hasTable('intra_blog_meta')) {
             $this->table('intra_blog_meta', ['id' => false, 'primary_key' => ['key_name']])
-                ->addColumn('key_name', 'string', ['limit' => 64])
+                ->addColumn('key_name', 'string', ['limit' => 64, 'null' => false])
                 ->addColumn('value', 'text', ['null' => true])
                 ->addColumn('updated_at', 'datetime', ['default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
                 ->create();

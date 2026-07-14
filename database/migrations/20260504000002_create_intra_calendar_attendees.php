@@ -22,7 +22,8 @@ class CreateIntraCalendarAttendees extends AbstractMigration
 
         $this->table('intra_calendar_attendees', ['id' => 'id', 'signed' => false])
             ->addColumn('event_id',       'integer',   ['signed' => false])
-            ->addColumn('mitarbeiter_id', 'integer',   ['signed' => false])
+            // signed — intra_mitarbeiter.id ist signed int(11), FK braucht identischen Typ
+            ->addColumn('mitarbeiter_id', 'integer')
             ->addColumn('response',       'enum',      ['values' => ['pending', 'accepted', 'declined', 'tentative'], 'default' => 'pending'])
             ->addColumn('responded_at',   'datetime',  ['null' => true])
             ->addColumn('is_organizer',   'boolean',   ['default' => false])

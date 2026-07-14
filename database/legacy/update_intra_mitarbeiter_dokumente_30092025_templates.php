@@ -34,14 +34,29 @@ try {
     SQL;
     $pdo->exec($sql);
 
-    // Dokumente-Tabelle erweitern - SEPARATE Statements für MySQL 8.0
-    $sql = "ALTER TABLE `intra_mitarbeiter_dokumente` 
-            ADD COLUMN IF NOT EXISTS `template_id` INT DEFAULT NULL";
-    $pdo->exec($sql);
+    // Dokumente-Tabelle erweitern. Spalten-Existenz über information_schema
+    // prüfen statt "ADD COLUMN IF NOT EXISTS" — das ist MariaDB-only und
+    // schlägt auf MySQL mit Syntaxfehler fehl.
+    $hasColumn = function (string $column) use ($pdo): bool {
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = 'intra_mitarbeiter_dokumente'
+               AND COLUMN_NAME = ?"
+        );
+        $stmt->execute([$column]);
+        return (bool) $stmt->fetchColumn();
+    };
 
-    $sql = "ALTER TABLE `intra_mitarbeiter_dokumente` 
-            ADD COLUMN IF NOT EXISTS `custom_data` TEXT DEFAULT NULL";
-    $pdo->exec($sql);
+    if (!$hasColumn('template_id')) {
+        $pdo->exec("ALTER TABLE `intra_mitarbeiter_dokumente`
+                    ADD COLUMN `template_id` INT DEFAULT NULL");
+    }
+
+    if (!$hasColumn('custom_data')) {
+        $pdo->exec("ALTER TABLE `intra_mitarbeiter_dokumente`
+                    ADD COLUMN `custom_data` TEXT DEFAULT NULL");
+    }
 
     echo "✓ Template-Tabellen erstellt\n";
 } catch (PDOException $e) {

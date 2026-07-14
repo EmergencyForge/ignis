@@ -19,7 +19,8 @@ class CreateIntraCalendarEventRoles extends AbstractMigration
         if (!$this->hasTable('intra_calendar_event_roles')) {
             $this->table('intra_calendar_event_roles', ['id' => 'id', 'signed' => false])
                 ->addColumn('event_id', 'integer', ['signed' => false])
-                ->addColumn('role_id',  'integer', ['signed' => false])
+                // signed — intra_users_roles.id ist signed int(11), FK braucht identischen Typ
+                ->addColumn('role_id',  'integer')
                 ->addIndex(['event_id', 'role_id'], ['unique' => true, 'name' => 'uniq_event_role'])
                 ->addIndex(['role_id'], ['name' => 'idx_event_role_lookup'])
                 ->addForeignKey('event_id', 'intra_calendar_events', 'id', ['delete' => 'CASCADE'])
