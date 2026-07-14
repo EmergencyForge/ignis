@@ -569,11 +569,6 @@ jobs:
               }
             }
 
-            body += '<details>\n';
-            body += `<summary><strong>Frontend Build</strong> ${statusIcon(frontendResult)}</summary>\n\n`;
-            body += frontendSection + '\n\n';
-            body += '</details>\n\n';
-
             // ── Build comment ──
             const allPassed = buildResult === 'success' && auditResult === 'success' && phpstanResult === 'success'
               && unitResult === 'success' && integrationResult === 'success' && frontendResult === 'success';
@@ -719,6 +714,12 @@ jobs:
               body += covSection + '\n\n';
               body += '</details>\n\n';
             }
+
+            // Frontend build details
+            body += '<details>\n';
+            body += `<summary><strong>Frontend Build</strong> ${statusIcon(frontendResult)}</summary>\n\n`;
+            body += frontendSection + '\n\n';
+            body += '</details>\n\n';
 
             // PHPStan details
             body += '<details>\n';
