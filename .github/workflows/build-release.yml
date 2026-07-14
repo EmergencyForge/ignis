@@ -172,7 +172,7 @@ jobs:
           echo "file_count=$FILE_COUNT" >> $GITHUB_ENV
 
       - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             ${{ env.archive_name }}
