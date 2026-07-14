@@ -142,6 +142,11 @@ class SystemUpdater
                     if (!str_ends_with($name, '.zip')) {
                         continue;
                     }
+                    // Install-Package (setup.php + Archiv für Erstinstallationen)
+                    // ist KEIN Update-Artefakt — enthält ein ZIP im ZIP.
+                    if (str_ends_with($name, '-install.zip')) {
+                        continue;
+                    }
                     if (str_starts_with($name, 'ignis-')) {
                         $pickedAsset = $asset;
                         break;
