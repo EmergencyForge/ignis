@@ -29,11 +29,13 @@ class CreateIntraCalendarEvents extends AbstractMigration
             ->addColumn('category',           'string',    ['limit' => 32, 'default' => 'general'])
             // visibility: private|attendees|role|all
             ->addColumn('visibility',         'enum',      ['values' => ['private', 'attendees', 'role', 'all'], 'default' => 'attendees'])
-            ->addColumn('visibility_role_id', 'integer',   ['null' => true, 'signed' => false])
+            // signed, weil intra_users_roles.id ein signed int(11) ist — FK-Spalten
+            // müssen in Signedness exakt matchen, sonst errno 150/3780.
+            ->addColumn('visibility_role_id', 'integer',   ['null' => true])
             // Bridge zu anderen Quellen (Phase 2: source='antrag', source_ref_id=intra_antraege.id)
             ->addColumn('source',             'enum',      ['values' => ['manual', 'antrag'], 'default' => 'manual'])
             ->addColumn('source_ref_id',      'integer',   ['null' => true, 'signed' => false])
-            ->addColumn('created_by',         'integer',   ['signed' => false])
+            ->addColumn('created_by',         'integer')
             // Recurrence (subset RFC 5545 RRULE) — Parser in src/Calendar/RecurrenceExpander.php.
             // parent_event_id zeigt bei Exception-Rows auf die Master-Series.
             ->addColumn('recurrence_rule',    'string',    ['limit' => 255, 'null' => true])
