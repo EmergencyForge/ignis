@@ -23,7 +23,9 @@ class CreateIntraChangelogCache extends AbstractMigration
     {
         if (!$this->hasTable('intra_changelog_cache')) {
             $this->table('intra_changelog_cache', ['id' => false, 'primary_key' => ['id']])
-                ->addColumn('id', 'string', ['limit' => 80])
+                // explizit NOT NULL — Phinx setzt das bei manuellen PK-Spalten
+                // nicht selbst, und MySQL lehnt NULL-able PKs ab (Fehler 1171)
+                ->addColumn('id', 'string', ['limit' => 80, 'null' => false])
                 ->addColumn('version', 'string', ['limit' => 32, 'null' => true])
                 ->addColumn('product', 'string', ['limit' => 32, 'null' => true])
                 ->addColumn('title', 'string', ['limit' => 255])
@@ -38,7 +40,7 @@ class CreateIntraChangelogCache extends AbstractMigration
 
         if (!$this->hasTable('intra_changelog_meta')) {
             $this->table('intra_changelog_meta', ['id' => false, 'primary_key' => ['key_name']])
-                ->addColumn('key_name', 'string', ['limit' => 64])
+                ->addColumn('key_name', 'string', ['limit' => 64, 'null' => false])
                 ->addColumn('value', 'text', ['null' => true])
                 ->addColumn('updated_at', 'datetime', ['default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
                 ->create();
