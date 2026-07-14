@@ -447,7 +447,7 @@ jobs:
 
       - name: Generate PR report
         id: report
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
           script: |

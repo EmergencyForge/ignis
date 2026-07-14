@@ -33,7 +33,7 @@ jobs:
           private-key: ${{ secrets.BOT_PRIVATE_KEY }}
 
       - name: Ensure labels exist
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
@@ -76,7 +76,7 @@ jobs:
             }
 
       - name: Handle workflow result
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
           script: |
