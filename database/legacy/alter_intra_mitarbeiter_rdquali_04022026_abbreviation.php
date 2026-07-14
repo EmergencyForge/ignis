@@ -1,12 +1,19 @@
 <?php
 try {
-    // Add abbreviation column if not exists
-    $sql = <<<SQL
-    ALTER TABLE `intra_mitarbeiter_rdquali` 
-    ADD COLUMN IF NOT EXISTS `abkuerzung` varchar(50) DEFAULT NULL AFTER `name_w`;
-    SQL;
+    // Add abbreviation column if it doesn't exist yet. Checked via
+    // information_schema because "ADD COLUMN IF NOT EXISTS" is MariaDB-only
+    // syntax and errors out on MySQL.
+    $exists = $pdo->query(
+        "SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE()
+           AND TABLE_NAME = 'intra_mitarbeiter_rdquali'
+           AND COLUMN_NAME = 'abkuerzung'"
+    )->fetchColumn();
 
-    $pdo->exec($sql);
+    if (!$exists) {
+        $pdo->exec("ALTER TABLE `intra_mitarbeiter_rdquali`
+                    ADD COLUMN `abkuerzung` varchar(50) DEFAULT NULL AFTER `name_w`");
+    }
 
     // Update existing records with abbreviations
     $updateSql = <<<SQL
