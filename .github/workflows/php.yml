@@ -118,7 +118,7 @@ jobs:
 
       - name: Save audit result
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: audit-result
           path: audit-output.txt
@@ -167,7 +167,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: phpunit-unit-${{ matrix.php-version }}
           path: |
@@ -287,7 +287,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: phpunit-integration
           path: |
@@ -347,7 +347,7 @@ jobs:
 
       - name: Upload build diff
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-build-diff
           path: |
@@ -397,7 +397,7 @@ jobs:
 
       - name: Save PHPStan result
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: phpstan-result
           path: phpstan-result.json
