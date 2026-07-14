@@ -264,6 +264,10 @@ class GlobalAnnouncementManager
                 }
             }
 
+            // Hub-seitig angeforderte Heartbeats prüfen (Admin-Aktion
+            // "alle Installationen um aktuelle Daten bitten").
+            $this->handleHeartbeatRequest($data['heartbeat_requested_at'] ?? null);
+
             return [
                 'success' => true,
                 'message' => count($announcements) . ' Ankündigungen aktualisiert',
@@ -271,6 +275,42 @@ class GlobalAnnouncementManager
             ];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Fehler: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Der Hub liefert im Announcements-Response optional
+     * heartbeat_requested_at mit — der Zeitpunkt, zu dem ein Hub-Admin
+     * zuletzt alle Installationen um einen frischen Heartbeat gebeten hat.
+     * Ist diese Anforderung neuer als unser letzter Heartbeat, senden wir
+     * sofort einen. sendHeartbeat() prüft dabei selbst Telemetrie-Opt-in
+     * und Rate-Limit-Cooldowns, hier wird nur der Anlass erkannt.
+     */
+    private function handleHeartbeatRequest(mixed $requestedAt): void
+    {
+        if (!is_string($requestedAt) || $requestedAt === '') {
+            return;
+        }
+
+        $requestedTs = strtotime($requestedAt);
+        if ($requestedTs === false) {
+            return;
+        }
+
+        try {
+            $telemetry = new TelemetryManager($this->pdo);
+            if (!$telemetry->isEnabled()) {
+                return;
+            }
+
+            $lastHeartbeat = $telemetry->getLastHeartbeat();
+            if ($lastHeartbeat !== null && strtotime($lastHeartbeat) >= $requestedTs) {
+                return; // Anforderung ist älter als unser letzter Heartbeat
+            }
+
+            $telemetry->sendHeartbeat();
+        } catch (\Throwable $e) {
+            \App\Logging\Logger::warning('Angeforderter Heartbeat fehlgeschlagen: ' . $e->getMessage());
         }
     }
 
