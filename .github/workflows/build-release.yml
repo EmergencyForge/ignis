@@ -157,6 +157,57 @@ jobs:
           echo "archive_legacy=$ARCHIVE_LEGACY" >> $GITHUB_ENV
           echo "archive_size=$(du -h "$ARCHIVE_NAME" | cut -f1)" >> $GITHUB_ENV
 
+      # Install-Package: setup.php aus dem Setup-Repo + das App-Archiv +
+      # eine Kurzanleitung, zusammen als eigenes ZIP. Das Setup erkennt das
+      # danebenliegende Archiv und entpackt es lokal statt von GitHub zu
+      # laden — für Erstinstallationen ohne curl/allow_url_fopen und ohne
+      # Umweg über die Release-Seite.
+      - name: Build install package
+        run: |
+          INSTALL_NAME="ignis-${{ env.version }}-install.zip"
+          mkdir install-package
+          cp "${{ env.archive_name }}" install-package/
+
+          curl -fsSL -o install-package/setup.php \
+            https://raw.githubusercontent.com/EmergencyForge/intraRP-Setup/main/setup.php
+          php -l install-package/setup.php
+
+          cat > install-package/readme.txt << EOF
+          ignis ${{ env.version }} — Installationspaket
+          =============================================
+
+          Inhalt dieses Pakets:
+
+            setup.php                    der Installationsassistent
+            ${{ env.archive_name }}     die Anwendung (wird vom Assistenten entpackt)
+            readme.txt                   diese Anleitung
+
+          So installierst du ignis:
+
+          1. Lade setup.php UND ${{ env.archive_name }} unverändert in das
+             Zielverzeichnis auf deinem Webspace hoch — dorthin, wo ignis laufen
+             soll (z. B. das Hauptverzeichnis deiner Domain).
+             Wichtig: Das ZIP nicht selbst entpacken, das übernimmt der Assistent.
+
+          2. Rufe setup.php im Browser auf:
+             https://deine-domain.de/setup.php
+
+          3. Folge dem Assistenten. Er prüft die Server-Anforderungen, entpackt
+             die Anwendung, richtet Datenbank und Konfiguration ein und legt den
+             ersten Admin-Zugang an.
+
+          Nach erfolgreichem Abschluss räumt das Setup selbst auf:
+          ZIP-Archiv, readme.txt und setup.php werden automatisch gelöscht.
+
+          Voraussetzungen: PHP 8.3 oder neuer (u. a. mit zip- und pdo_mysql-
+          Erweiterung), MySQL- oder MariaDB-Datenbank, Apache oder nginx.
+
+          Fragen oder Probleme? https://github.com/EmergencyForge/ignis
+          EOF
+
+          (cd install-package && zip -q -r "../$INSTALL_NAME" .)
+          echo "install_name=$INSTALL_NAME" >> $GITHUB_ENV
+
       - name: Integrity check (SHA256)
         run: |
           CHECKSUM=$(sha256sum "${{ env.archive_name }}" | cut -d' ' -f1)
@@ -164,8 +215,12 @@ jobs:
           echo "$CHECKSUM  ${{ env.archive_name }}" > "${{ env.archive_name }}.sha256"
           echo "$CHECKSUM  ${{ env.archive_legacy }}" > "${{ env.archive_legacy }}.sha256"
 
+          INSTALL_CHECKSUM=$(sha256sum "${{ env.install_name }}" | cut -d' ' -f1)
+          echo "$INSTALL_CHECKSUM  ${{ env.install_name }}" > "${{ env.install_name }}.sha256"
+
           sha256sum -c "${{ env.archive_name }}.sha256"
           sha256sum -c "${{ env.archive_legacy }}.sha256"
+          sha256sum -c "${{ env.install_name }}.sha256"
           echo "Integrity OK: $CHECKSUM"
 
           FILE_COUNT=$(unzip -l "${{ env.archive_name }}" | tail -1 | awk '{print $2}')
@@ -179,6 +234,8 @@ jobs:
             ${{ env.archive_name }}.sha256
             ${{ env.archive_legacy }}
             ${{ env.archive_legacy }}.sha256
+            ${{ env.install_name }}
+            ${{ env.install_name }}.sha256
         env:
           GITHUB_TOKEN: ${{ steps.bot.outputs.token || secrets.GITHUB_TOKEN }}
 
