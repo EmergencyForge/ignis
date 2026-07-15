@@ -1553,7 +1553,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                         <?php endif; ?>
                     <?php endif; ?>
 
-                    <?php if (Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>
+                    <?php if (app(\App\Plugins\PluginLoader::class)->isActive('enotf') && Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>
                         <span class="sidebar-section-title" data-section="enotf-settings">eNOTF</span>
                         <?php if (Permissions::check(['admin', 'pois.view'])): ?>
                             <a href="<?= BASE_PATH ?>settings/pois/index" class="sidebar-sublink">POIs</a>

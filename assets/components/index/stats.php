@@ -1,11 +1,11 @@
 <?php
-// Optimiert: Eine UNION-Query statt 4 separate Queries
+// Optimiert: Eine UNION-Query statt separater Queries. Die eNOTF-Zahl
+// läuft getrennt — intra_edivi gehört zum Plugin, und eine fehlende
+// Tabelle würde sonst die komplette UNION (alle vier Werte) reißen.
 $statsQuery = "
     SELECT 'users' as stat_type, COUNT(*) as stat_count FROM intra_users
     UNION ALL
     SELECT 'mitarbeiter', COUNT(*) FROM intra_mitarbeiter
-    UNION ALL
-    SELECT 'enotf', COUNT(*) FROM intra_edivi
     UNION ALL
     SELECT 'dokumente', COUNT(*) FROM intra_mitarbeiter_dokumente
 ";
@@ -13,6 +13,15 @@ $statsStmt = $pdo->query($statsQuery);
 $statsData = [];
 while ($row = $statsStmt->fetch(PDO::FETCH_ASSOC)) {
     $statsData[$row['stat_type']] = (int)$row['stat_count'];
+}
+
+$statsEnotfActive = function_exists('app') && app(\App\Plugins\PluginLoader::class)->isActive('enotf');
+if ($statsEnotfActive) {
+    try {
+        $statsData['enotf'] = (int)$pdo->query("SELECT COUNT(*) FROM intra_edivi")->fetchColumn();
+    } catch (Exception) {
+        $statsEnotfActive = false;
+    }
 }
 ?>
 <div class="intra__stats-strip">
@@ -24,10 +33,12 @@ while ($row = $statsStmt->fetch(PDO::FETCH_ASSOC)) {
         <span class="intra__stat-value" data-count-to="<?= (int)($statsData['mitarbeiter'] ?? 0) ?>">0</span>
         <span class="intra__stat-label">Mitarbeiter</span>
     </div>
-    <div class="intra__stat-item">
-        <span class="intra__stat-value" data-count-to="<?= (int)($statsData['enotf'] ?? 0) ?>">0</span>
-        <span class="intra__stat-label">eNOTF-Protokolle</span>
-    </div>
+    <?php if ($statsEnotfActive): ?>
+        <div class="intra__stat-item">
+            <span class="intra__stat-value" data-count-to="<?= (int)($statsData['enotf'] ?? 0) ?>">0</span>
+            <span class="intra__stat-label">eNOTF-Protokolle</span>
+        </div>
+    <?php endif; ?>
     <div class="intra__stat-item">
         <span class="intra__stat-value" data-count-to="<?= (int)($statsData['dokumente'] ?? 0) ?>">0</span>
         <span class="intra__stat-label">Dokumente</span>
