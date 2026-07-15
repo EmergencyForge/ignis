@@ -58,6 +58,16 @@ $__footerVersion = is_array($__footerVersionInfo) && !empty($__footerVersionInfo
                 — Quellcode auf
                 <a href="https://github.com/EmergencyForge/ignis" target="_blank" rel="nofollow">GitHub</a>.
             </p>
+            <p class="ignis-about-credits">
+                Baut auf großartiger Open-Source-Arbeit auf:
+                <a href="https://fontawesome.com/" target="_blank" rel="nofollow">Font Awesome</a> ·
+                <a href="https://ckeditor.com/" target="_blank" rel="nofollow">CKEditor</a> ·
+                <a href="https://fonts.google.com/" target="_blank" rel="nofollow">Google Fonts</a> ·
+                <a href="https://www.chartjs.org/" target="_blank" rel="nofollow">Chart.js</a> ·
+                <a href="https://github.com/SortableJS/Sortable" target="_blank" rel="nofollow">SortableJS</a> ·
+                <a href="https://taktische-zeichen.dev/" target="_blank" rel="nofollow">Taktische Zeichen</a> ·
+                <a href="https://leafletjs.com/" target="_blank" rel="nofollow">Leaflet</a>
+            </p>
         </div>
     </dialog>
     <style>
@@ -119,6 +129,13 @@ $__footerVersion = is_array($__footerVersionInfo) && !empty($__footerVersionInfo
 
         .ignis-about-body p+p {
             margin-top: 0.75rem;
+        }
+
+        .ignis-about-credits {
+            font-size: 0.78rem;
+            color: #9a9a9a;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 0.75rem;
         }
 
         .ignis-about-body a {
