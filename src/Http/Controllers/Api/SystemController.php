@@ -7,7 +7,6 @@ namespace App\Http\Controllers\Api;
 use App\Auth\Gate;
 use App\Http\Request;
 use App\Http\Response;
-use App\KnowledgeBase\KBHelper;
 use App\Logging\Logger;
 use App\Policies\PersonnelPolicy;
 use App\Policies\FireIncidentPolicy;
@@ -398,6 +397,12 @@ final class SystemController
      */
     private function searchKnowledgeBase(string $query, string $searchParam): array
     {
+        // Kein Wissensdatenbank-Plugin, keine Treffer — sonst würde die
+        // globale Suche auf Seiten verlinken, deren Routen nicht existieren.
+        if (!app(\App\Plugins\PluginLoader::class)->isActive('knowledge-base')) {
+            return [];
+        }
+
         $ftQuery = '';
         $words = preg_split('/\s+/', trim($query)) ?: [];
         foreach ($words as $w) {
@@ -434,7 +439,7 @@ final class SystemController
 
         $items = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: [] as $row) {
-            $snippet = KBHelper::createSearchSnippet($row['content'], $query, 100);
+            $snippet = \Plugin\KnowledgeBase\KBHelper::createSearchSnippet($row['content'], $query, 100);
             $items[] = [
                 'title'    => $row['title'],
                 'subtitle' => $snippet ?? ($row['subtitle'] ?: ''),
