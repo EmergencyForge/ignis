@@ -169,7 +169,7 @@ jobs:
           cp "${{ env.archive_name }}" install-package/
 
           curl -fsSL -o install-package/setup.php \
-            https://raw.githubusercontent.com/EmergencyForge/intraRP-Setup/main/setup.php
+            https://raw.githubusercontent.com/EmergencyForge/ignis-setup/main/setup.php
           php -l install-package/setup.php
 
           cat > install-package/readme.txt << EOF
