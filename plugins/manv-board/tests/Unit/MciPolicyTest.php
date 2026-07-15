@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Policies;
+namespace Plugin\ManvBoard\Tests\Unit;
 
-use App\Policies\MciPolicy;
+use Plugin\ManvBoard\Policies\MciPolicy;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

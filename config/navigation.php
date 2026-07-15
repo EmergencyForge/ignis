@@ -139,21 +139,6 @@ return [
                     ],
                 ],
                 [
-                    'label'       => 'MANV-Board',
-                    'permissions' => ['admin', 'mci.manage'],
-                    'items'       => [
-                        [
-                            'label'        => 'MANV-Board',
-                            'href'         => BASE_PATH . 'mci/',
-                            'quick_action' => [
-                                'type'   => 'link',
-                                'target' => BASE_PATH . 'mci/create',
-                                'label'  => 'Neue MANV-Lage anlegen',
-                            ],
-                        ],
-                    ],
-                ],
-                [
                     'label' => 'FW Einsatzprotokolle',
                     'items' => [
                         [

@@ -15,6 +15,28 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+// Plugin-Klassen für Tests autoloaden — unabhängig vom Aktiv-Status in
+// der Datenbank: getestet wird der Code, nicht die Freischaltung.
+foreach (glob(__DIR__ . '/../plugins/*/manifest.php') ?: [] as $pluginManifestFile) {
+    $pluginManifest = require $pluginManifestFile;
+    if (!is_array($pluginManifest)) {
+        continue;
+    }
+    foreach ((array) ($pluginManifest['autoload'] ?? []) as $pluginNsPrefix => $pluginSrcDir) {
+        $pluginBaseDir = dirname($pluginManifestFile) . '/' . trim((string) $pluginSrcDir, '/\\');
+        spl_autoload_register(static function (string $class) use ($pluginNsPrefix, $pluginBaseDir): void {
+            if (!str_starts_with($class, (string) $pluginNsPrefix)) {
+                return;
+            }
+            $file = $pluginBaseDir . '/' . str_replace('\\', '/', substr($class, strlen((string) $pluginNsPrefix))) . '.php';
+            if (is_file($file)) {
+                require $file;
+            }
+        });
+    }
+}
+unset($pluginManifestFile, $pluginManifest, $pluginNsPrefix, $pluginSrcDir, $pluginBaseDir);
+
 // PHP-DI 7.0 hat ein paar PHP-8.4-Deprecations, die in Tests nur Noise sind
 error_reporting(E_ALL & ~E_DEPRECATED);
 

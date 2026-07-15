@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api;
+namespace Plugin\ManvBoard\Controllers\Api;
 
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
-use App\MANV\MANVLage;
-use App\MANV\MANVLog;
-use App\MANV\MANVPatient;
+use Plugin\ManvBoard\Models\MANVLage;
+use Plugin\ManvBoard\Models\MANVLog;
+use Plugin\ManvBoard\Models\MANVPatient;
 use PDO;
 
 /**
