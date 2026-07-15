@@ -18,14 +18,9 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AsuSyncController;
 use App\Http\Controllers\Api\DocumentsController;
-use App\Http\Controllers\Api\EnotfController;
 use App\Http\Controllers\Api\FederationController;
-use App\Http\Controllers\Api\FireController;
-use App\Http\Controllers\Api\HospitalAvailabilityController;
-use App\Http\Controllers\Api\KlinikCodeController;
 use App\Http\Controllers\Api\PersonnelController;
 use App\Http\Controllers\Api\PersonnelProfileController;
-use App\Http\Controllers\Api\PoiDepartmentsController;
 use App\Http\Controllers\Api\SystemController as SystemApiController;
 use App\Http\Controllers\Api\TelemetryApiController;
 use App\Http\Controllers\Api\VehicleTzTemplatesController;
@@ -94,56 +89,6 @@ $router->match(['POST'], '/api/documents/convert-twig',     $docHandler('convert
 $router->match(['GET', 'POST', 'DELETE'], '/api/documents/categories',     $docHandler('categories'), $auth);
 
 // ============================================================================
-//  eNOTF-API — vollständig refactored.
-//  Alle Endpoints laufen über EnotfController.
-// ============================================================================
-$enotfHandler = fn (string $method) => [EnotfController::class, $method];
-
-// ── Refactored Endpoints ──
-$router->match(['GET', 'POST'], '/api/enotf/prereg',         $enotfHandler('prereg'),              $auth);
-
-$router->match(['POST', 'DELETE'], '/api/enotf/delete-vehicle-session',     $enotfHandler('deleteVehicleSession'), $auth);
-
-$router->match(['GET'], '/api/enotf/sync-status',     $enotfHandler('syncStatus'), $auth);
-
-$router->match(['POST'], '/api/enotf/session-update',     $enotfHandler('sessionUpdate'), $auth);
-
-$router->match(['GET'], '/api/enotf/check-vehicle-session',     $enotfHandler('checkVehicleSession'), $auth);
-
-$router->match(['GET'], '/api/enotf/session-status',     $enotfHandler('sessionStatus'), $auth);
-
-$router->match(['GET', 'POST'], '/api/enotf/poi/poi-search',     $enotfHandler('poiSearch'), $auth);
-
-$router->match(['GET'], '/api/enotf/share/get-available-vehicles',     $enotfHandler('shareGetAvailableVehicles'), $auth);
-
-$router->match(['POST'], '/api/enotf/check-conflict',     $enotfHandler('checkConflict'), $auth);
-
-$router->match(['POST'], '/api/enotf/patient-sync',     $enotfHandler('patientSync'), $auth);
-
-$router->match(['POST'], '/api/enotf/poi/save-field',     $enotfHandler('poiSaveField'), $auth);
-
-$router->match(['POST', 'DELETE'], '/api/enotf/delete-protocol',     $enotfHandler('deleteProtocol'), $auth);
-
-$router->match(['GET'],  '/api/enotf/share/check-requests',       $enotfHandler('shareCheckRequests'),    $auth);
-$router->match(['GET'],  '/api/enotf/share/get-own-protocols',    $enotfHandler('shareGetOwnProtocols'),  $auth);
-$router->match(['POST'], '/api/enotf/share/reject-request',       $enotfHandler('shareRejectRequest'),    $auth);
-$router->match(['POST'], '/api/enotf/share/send-request',         $enotfHandler('shareSendRequest'),      $auth);
-
-$router->match(['POST'],         '/api/enotf/billing',              $enotfHandler('billing'),           $auth);
-
-$router->match(['GET', 'POST', 'DELETE'], '/api/enotf/bulk-delete-empty',     $enotfHandler('bulkDeleteEmpty'), $auth);
-
-$router->match(['POST'],        '/api/enotf/save-fields',          $enotfHandler('saveFields'),         $auth);
-
-$router->match(['POST'],        '/api/enotf/share/accept-request',     $enotfHandler('shareAcceptRequest'), $auth);
-
-// Legacy-Aliase (alte Redirect-Stubs)
-$router->post('/api/enotf-billing.php',         $enotfHandler('billing'),        $auth);
-$router->post('/api/enotf-delete-protocol.php', $enotfHandler('deleteProtocol'), $auth);
-$router->post('/api/enotf-patient-sync.php',    $enotfHandler('patientSync'),    $auth);
-$router->get( '/api/enotf-sync-status.php',     $enotfHandler('syncStatus'),     $auth);
-
-// ============================================================================
 //  Federation (Server-to-Server) — refactored.
 //  Auth läuft intern via FederationMiddleware::authenticate() — kein
 //  Router-Middleware-Stack, weil Federation einen eigenen DB-gespeicherten
@@ -155,33 +100,7 @@ $router->match(['GET'],         '/api/federation/personnel',          [Federatio
 $router->match(['GET'],         '/api/federation/enotf',              [FederationController::class, 'enotf'],         $public);
 $router->match(['GET'],         '/api/federation/fire-incidents',     [FederationController::class, 'fireIncidents'], $public);
 
-// ============================================================================
-//  Fire-Incident-API — vollständig refactored.
-// ============================================================================
-$fireQmAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'fire.incident.qm'])];
 
-$router->match(['GET', 'POST'], '/api/fire/status',     [FireController::class, 'status'], $auth);
-
-$router->match(['GET', 'POST', 'DELETE'], '/api/fire/bulk-delete-empty',     [FireController::class, 'bulkDeleteEmpty'], $fireQmAuth);
-
-$router->match(['GET', 'POST'], '/api/fire/lagekarte',     [\App\Http\Controllers\Api\FireLagekarteController::class, 'handle'], $auth);
-
-// ============================================================================
-//  Hospitals — refactored zum echten Controller
-// ============================================================================
-$hospitalGet    = [HospitalAvailabilityController::class, 'get'];
-$hospitalUpdate = [HospitalAvailabilityController::class, 'update'];
-$router->get( '/api/hospitals/availability-get',         $hospitalGet,    $auth);
-$router->post('/api/hospitals/availability-update',      $hospitalUpdate, $auth);
-$router->get( '/api/hospital-availability-get.php',      $hospitalGet,    $auth);
-$router->post('/api/hospital-availability-update.php',   $hospitalUpdate, $auth);
-
-// ============================================================================
-//  Klinik-Code — refactored zum echten Controller
-// ============================================================================
-$klinikHandler = [KlinikCodeController::class, 'generate'];
-$router->post('/api/klinik/generate-code',      $klinikHandler, $auth);
-$router->post('/api/generate-klinikcode.php',   $klinikHandler, $auth);
 
 // ============================================================================
 //  Personnel (Mitarbeiter-Admin-UI) — vollständig refactored
@@ -205,11 +124,6 @@ $router->match(['GET'], '/api/personnel/profile-logs',         [PersonnelProfile
 $router->post('/api/personnel/update-profile',     [PersonnelController::class, 'updateProfile'], $personnelEditAuth);
 $router->post('/api/personnel/upload-pfp',         [PersonnelController::class, 'uploadPfp'],     $personnelEditAuth);
 
-// ============================================================================
-//  POIs (Point-of-Interest Admin) — refactored zum echten Controller
-// ============================================================================
-$poiAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'pois.manage'])];
-$router->post('/api/pois/departments-sort',     [PoiDepartmentsController::class, 'updateSort'], $poiAuth);
 
 // ============================================================================
 //  System-Admin-API — vollständig refactored
