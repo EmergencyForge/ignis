@@ -30,9 +30,6 @@ return [
         'fire.incident.qm'  => 'FW Einsatzprotokolle bearbeiten',
     ],
     'Lexikon' => [
-        'kb.view'    => 'Lexikon ansehen',
-        'kb.edit'    => 'Lexikon bearbeiten',
-        'kb.archive' => 'Einträge archivieren',
     ],
     'Benutzer' => [
         'users.view'   => 'Benutzer ansehen',

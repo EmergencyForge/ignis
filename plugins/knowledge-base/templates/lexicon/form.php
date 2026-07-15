@@ -8,7 +8,7 @@ use App\Helpers\Flash;
 <head>
     <?php
     $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
-    include __DIR__ . "/../../assets/components/_base/admin/head.php";
+    include dirname(__DIR__, 4) . "/assets/components/_base/admin/head.php";
     ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/ckeditor5/ckeditor5.css">
     <style>
@@ -142,7 +142,7 @@ use App\Helpers\Flash;
 </head>
 
 <body data-bs-theme="dark" data-page="lexicon">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
+    <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
 
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container">
@@ -449,7 +449,7 @@ use App\Helpers\Flash;
         </div>
     </div>
 
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
+    <?php include dirname(__DIR__, 4) . "/assets/components/footer.php"; ?>
 
     <script type="importmap">
     {
