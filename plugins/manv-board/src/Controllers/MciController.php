@@ -2,23 +2,32 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace Plugin\ManvBoard\Controllers;
 
 use App\Helpers\Flash;
-use App\MANV\MANVLage;
-use App\MANV\MANVLog;
-use App\MANV\MANVPatient;
-use App\MANV\MANVRessource;
+use App\Http\Controllers\Controller;
+use Plugin\ManvBoard\Models\MANVLage;
+use Plugin\ManvBoard\Models\MANVLog;
+use Plugin\ManvBoard\Models\MANVPatient;
+use Plugin\ManvBoard\Models\MANVRessource;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * MciController — MANV-Lagen (Massenanfall von Verletzten).
  *
  * Die DB-Logik liegt im existierenden Service-Layer
- * (App\MANV\MANVLage, MANVLog, MANVPatient, MANVRessource).
+ * (Plugin\ManvBoard\Models\MANVLage, MANVLog, MANVPatient, MANVRessource).
  */
 class MciController extends Controller
 {
+    /**
+     * Views liegen im templates/-Verzeichnis des Plugins.
+     */
+    protected function viewBasePath(): string
+    {
+        return dirname(__DIR__, 2) . '/templates';
+    }
+
     private const ALLOWED_STATUS = ['aktiv', 'abgeschlossen', 'archiviert'];
 
     /**

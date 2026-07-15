@@ -242,6 +242,12 @@ class PluginLoader
      * Ein Plugin liefert in navigation.php eine Liste von Rail-Einträgen
      * im selben Format wie config/navigation.php.
      *
+     * Sonderfall `merge_into`: Statt einen eigenen Rail-Eintrag zu
+     * erzeugen, kann ein Fragment seine `sections` in einen bestehenden
+     * Rail-Eintrag einhängen — z.B. eine Modul-Section unter „Protokolle".
+     * Existiert der Ziel-Eintrag nicht (Kern umgebaut), wird das Fragment
+     * als eigener Rail-Eintrag angehängt statt verworfen.
+     *
      * @param array<string, mixed> $config
      * @return array<string, mixed>
      */
@@ -255,12 +261,38 @@ class PluginLoader
                 continue;
             }
             $fragment = require $file;
-            if (is_array($fragment)) {
-                foreach ($fragment as $entry) {
-                    if (is_array($entry)) {
-                        $rail[] = $entry;
-                    }
+            if (!is_array($fragment)) {
+                continue;
+            }
+            foreach ($fragment as $entry) {
+                if (!is_array($entry)) {
+                    continue;
                 }
+
+                $target = $entry['merge_into'] ?? null;
+                if (is_string($target) && $target !== '') {
+                    $merged = false;
+                    foreach ($rail as &$railEntry) {
+                        if (($railEntry['id'] ?? null) === $target) {
+                            $sections = is_array($railEntry['sections'] ?? null) ? $railEntry['sections'] : [];
+                            foreach ((array) ($entry['sections'] ?? []) as $section) {
+                                if (is_array($section)) {
+                                    $sections[] = $section;
+                                }
+                            }
+                            $railEntry['sections'] = $sections;
+                            $merged = true;
+                            break;
+                        }
+                    }
+                    unset($railEntry);
+                    if ($merged) {
+                        continue;
+                    }
+                    unset($entry['merge_into']);
+                }
+
+                $rail[] = $entry;
             }
         }
 

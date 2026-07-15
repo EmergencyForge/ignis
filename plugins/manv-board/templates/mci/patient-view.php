@@ -32,7 +32,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
 <html lang="de">
 
 <head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
     <style>
         .quick-action-btn { margin: 0.25rem; }
         .bg-sk5 { background-color: #000 !important; color: #fff !important; }
@@ -53,7 +53,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
 </head>
 
 <body data-bs-theme="dark" id="patient-view" data-page="edivi">
-    <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <?php Flash::render(); ?>
@@ -267,7 +267,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
         </div>
     </div>
 
-    <?php include __DIR__ . '/../../assets/components/footer.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
 
     <script>
         document.getElementById('transportmittel_id').addEventListener('change', function() {

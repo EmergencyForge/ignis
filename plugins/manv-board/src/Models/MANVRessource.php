@@ -1,6 +1,6 @@
 <?php
 
-namespace App\MANV;
+namespace Plugin\ManvBoard\Models;
 
 use PDO;
 
