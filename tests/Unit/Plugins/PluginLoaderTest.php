@@ -129,6 +129,38 @@ class PluginLoaderTest extends TestCase
     }
 
     #[Test]
+    public function bundled_plugins_count_as_installed_without_a_marker(): void
+    {
+        $this->assertTrue(PluginLoader::isBundled('knowledge-base'));
+        $this->assertTrue(PluginLoader::isInstalledDir('knowledge-base', sys_get_temp_dir()));
+    }
+
+    #[Test]
+    public function third_party_plugins_require_the_install_marker(): void
+    {
+        $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'ignis-plugin-gate-' . getmypid();
+        mkdir($dir, 0777, true);
+
+        try {
+            $this->assertFalse(PluginLoader::isBundled('community-thing'));
+            $this->assertFalse(
+                PluginLoader::isInstalledDir('community-thing', $dir),
+                'ohne Marker gilt ein Fremd-Plugin als nicht installiert'
+            );
+
+            $plugin = new Plugin(
+                PluginManifest::fromArray(['id' => 'community-thing', 'name' => 'Community Thing', 'version' => '1.0.0']),
+                $dir
+            );
+            $this->assertTrue(PluginLoader::markInstalled($plugin));
+            $this->assertTrue(PluginLoader::isInstalledDir('community-thing', $dir));
+        } finally {
+            @unlink($dir . DIRECTORY_SEPARATOR . '.installed');
+            @rmdir($dir);
+        }
+    }
+
+    #[Test]
     public function plugins_without_fragments_contribute_nothing(): void
     {
         // Manifest-only Plugin: kein navigation.php, events.php, …

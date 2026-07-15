@@ -355,6 +355,11 @@ return [
                             'permissions' => ['admin'],
                         ],
                         [
+                            'label'       => 'Plugins',
+                            'href'        => BASE_PATH . 'settings/system/plugins',
+                            'permissions' => ['admin'],
+                        ],
+                        [
                             'label'       => 'Telemetrie',
                             'href'        => BASE_PATH . 'settings/system/telemetry',
                             'permissions' => ['admin'],

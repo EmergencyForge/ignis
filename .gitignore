@@ -31,3 +31,5 @@ intrap
 .phpunit.cache/
 CLAUDE.md
 .impeccable.md
+# Installations-Marker manuell installierter Plugins (pro Instanz, nie committen)
+plugins/*/.installed
