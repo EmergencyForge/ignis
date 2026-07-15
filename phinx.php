@@ -36,7 +36,14 @@ $env = static function (string $key, ?string $default = null): ?string {
 
 return [
     'paths' => [
-        'migrations' => __DIR__ . '/database/migrations',
+        // Kern-Migrations plus die Migrations-Verzeichnisse aller
+        // installierten Plugins. Bewusst alle (nicht nur aktive): ein
+        // deaktiviertes Plugin behält sein Schema, und diese Datei muss
+        // auch ohne App-Bootstrap in der CLI funktionieren.
+        'migrations' => array_merge(
+            [__DIR__ . '/database/migrations'],
+            glob(__DIR__ . '/plugins/*/migrations', GLOB_ONLYDIR) ?: [],
+        ),
         'seeds'      => __DIR__ . '/database/seeds',
     ],
 
