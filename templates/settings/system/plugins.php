@@ -44,6 +44,9 @@ $csrfToken = CsrfProtection::getToken();
                     Nicht offiziell mitgelieferte Plugins bleiben nach dem Hochladen zunächst
                     vollständig inaktiv: Es wird kein Code ausgeführt und keine Migration
                     angewendet, bis die Installation hier ausdrücklich gestartet wird.
+                    Für Community-Plugins übernimmt EmergencyForge keine Gewähr — weder für
+                    Funktion und Sicherheit noch für mögliche Datenverluste. Die Nutzung
+                    erfolgt auf eigenes Risiko; Support leistet der jeweilige Herausgeber.
                 </p>
 
                 <?php if ($message !== ''): ?>
@@ -96,11 +99,18 @@ $csrfToken = CsrfProtection::getToken();
                                         <i class="fa-solid fa-triangle-exclamation mr-1"></i><?= htmlspecialchars($row['skipReason']) ?>
                                     </div>
                                 <?php endif; ?>
+                                <?php if (!$row['bundled']): ?>
+                                    <div class="text-gray-500 mt-1" style="font-size: 0.78rem;">
+                                        <i class="fa-solid fa-scale-balanced mr-1"></i>Community-Plugin — Nutzung auf eigenes Risiko.
+                                        EmergencyForge übernimmt keine Gewähr für Funktion, Sicherheit oder mögliche Datenverluste.
+                                        Support leistet ausschließlich der jeweilige Herausgeber.
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <div class="shrink-0">
                                 <?php if (!$row['installed']): ?>
                                     <form method="post" class="inline"
-                                        onsubmit="return confirm('ACHTUNG: <?= htmlspecialchars($m->name, ENT_QUOTES) ?> ist KEIN offiziell mitgeliefertes Plugin. Die Installation führt fremden Code aus und wendet dessen Datenbank-Migrationen an. Nur fortfahren, wenn du der Quelle vertraust. Jetzt installieren?');">
+                                        onsubmit="return confirm('ACHTUNG: <?= htmlspecialchars($m->name, ENT_QUOTES) ?> ist KEIN offiziell mitgeliefertes Plugin. Die Installation führt fremden Code aus und wendet dessen Datenbank-Migrationen an.\n\nEmergencyForge übernimmt keinerlei Gewähr für Funktion, Sicherheit oder mögliche Datenverluste durch Community-Plugins — die Nutzung erfolgt auf eigenes Risiko. Erstelle vorher ein Backup.\n\nNur fortfahren, wenn du der Quelle vertraust. Jetzt installieren?');">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                         <input type="hidden" name="plugin_action" value="install">
                                         <input type="hidden" name="plugin_id" value="<?= htmlspecialchars($row['id']) ?>">
