@@ -267,28 +267,6 @@ $router->post('/calendar/delete',  [CalendarController::class, 'destroy'],      
 $router->post('/calendar/respond', [CalendarController::class, 'respondInvite'], $calendarViewAuth);
 
 // ----------------------------------------------------------------------------
-//  Lexikon-Modul
-//
-//  Auth: AuthMiddleware mit `KB_PUBLIC_ACCESS`-Flag-Inversion. Wenn das
-//  Flag true ist, ist das Lexikon public lesbar; sonst Login-Pflicht.
-//  Edit-/Manage-Permissions werden im Controller via Permissions::check()
-//  pro Aktion geprueft.
-// ----------------------------------------------------------------------------
-
-$lexiconAuth = [new AuthMiddleware('KB_PUBLIC_ACCESS', invert: true)];
-
-$router->get( '/lexicon',                 [\App\Http\Controllers\LexiconController::class, 'index'],          $lexiconAuth);
-$router->get( '/lexicon/',                [\App\Http\Controllers\LexiconController::class, 'index'],          $lexiconAuth);
-$router->get( '/lexicon/index',           [\App\Http\Controllers\LexiconController::class, 'index'],          $lexiconAuth);
-$router->get( '/lexicon/view',            [\App\Http\Controllers\LexiconController::class, 'view'],           $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/create',         [\App\Http\Controllers\LexiconController::class, 'create'],         $lexiconAuth);
-$router->match(['GET', 'POST'], '/lexicon/edit',           [\App\Http\Controllers\LexiconController::class, 'edit'],           $lexiconAuth);
-$router->post('/lexicon/archive',         [\App\Http\Controllers\LexiconController::class, 'archive'],        $lexiconAuth);
-$router->post('/lexicon/pin',             [\App\Http\Controllers\LexiconController::class, 'pin'],            $lexiconAuth);
-$router->post('/lexicon/toggle-editor',   [\App\Http\Controllers\LexiconController::class, 'toggleEditor'],   $lexiconAuth);
-$router->get( '/lexicon/manage-taxonomy', [\App\Http\Controllers\LexiconController::class, 'manageTaxonomy'], $lexiconAuth);
-
-// ----------------------------------------------------------------------------
 //  Mitarbeiter-Modul
 //
 //  Das Mitarbeiter-Modul hat 7 URL-Entry-Points. profile.php hat einen

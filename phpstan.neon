@@ -399,6 +399,7 @@ parameters:
             identifier: missingType.iterableValue
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         # src/ defensive coding patterns - zusätzliche Sicherheitsprüfungen die technisch redundant sind
@@ -406,54 +407,63 @@ parameters:
             identifier: notIdentical.alwaysTrue
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: nullCoalesce.expr
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: nullCoalesce.offset
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: missingType.parameter
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: missingType.property
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: missingType.return
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: function.impossibleType
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: identical.alwaysTrue
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: deadCode.unreachable
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
@@ -466,30 +476,35 @@ parameters:
             identifier: catch.neverThrown
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: property.onlyWritten
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: greater.alwaysTrue
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: booleanNot.alwaysTrue
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: booleanAnd.leftAlwaysTrue
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         # Federation: FEDERATION_ENABLED Konstante wird zur Laufzeit aus der DB geladen
@@ -507,10 +522,12 @@ parameters:
             identifier: function.alreadyNarrowedType
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
 
         -
             identifier: booleanOr.rightAlwaysTrue
             paths:
                 - src/
+                - plugins/
             reportUnmatched: false
