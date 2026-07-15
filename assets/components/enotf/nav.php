@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../functions/enotf/conditions.php';
-use App\Helpers\EnotfUrl;
+use Plugin\Enotf\Helpers\EnotfUrl;
 $_navTz = isset($daten['transportziel']) ? (int)$daten['transportziel'] : null;
 $_navEnr = $daten['enr'];
 ?>
