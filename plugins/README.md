@@ -46,7 +46,15 @@ return [
     'requires'        => ['ignis' => '>=1.2 <2.0'],
     'depends'         => [],
     'permissions'     => ['enotf.view', 'enotf.edit', 'enotf.admin'],
+    // PSR-4-Autoloading für die Plugin-Klassen (Prefix => Ordner im Plugin)
+    'autoload'        => ['Plugin\\Enotf\\' => 'src/'],
+    // Gate-Policies: Ressource => Policy-Klasse
+    'policies'        => ['enotf' => 'Plugin\\Enotf\\Policies\\EnotfPolicy'],
     'default_enabled' => true,
     'removable'       => true,
 ];
 ```
+
+Controller in Plugins erben von `App\Http\Controllers\Controller` und
+überschreiben `viewBasePath()`, damit `renderView()` die Views aus dem
+eigenen `templates/`-Verzeichnis lädt.
