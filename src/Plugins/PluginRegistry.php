@@ -69,12 +69,13 @@ final class PluginRegistry
 
     /**
      * Berechnet das aktive Set für die gegebenen aktivierten IDs und die
-     * laufende ignis-Version. Idempotent — kann erneut mit anderem Set
-     * aufgerufen werden.
+     * laufende ignis-Version. Ohne bekannte Version (Entwicklungs-Checkout
+     * ohne Release-Build) entfällt die Kompatibilitätsprüfung. Idempotent —
+     * kann erneut mit anderem Set aufgerufen werden.
      *
      * @param list<string> $enabledIds
      */
-    public function resolve(array $enabledIds, string $ignisVersion): void
+    public function resolve(array $enabledIds, ?string $ignisVersion): void
     {
         $this->active = [];
         $enabled = array_fill_keys($enabledIds, true);
@@ -85,7 +86,7 @@ final class PluginRegistry
             if (!isset($enabled[$id])) {
                 continue; // deaktiviert — kein Skip-Grund, bewusst aus
             }
-            if (!$plugin->manifest->isCompatibleWith($ignisVersion)) {
+            if ($ignisVersion !== null && !$plugin->manifest->isCompatibleWith($ignisVersion)) {
                 $this->skipped[] = [
                     'id' => $id,
                     'reason' => "Benötigt ignis {$plugin->manifest->ignisRequire}, läuft auf {$ignisVersion}.",
