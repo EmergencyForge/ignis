@@ -22,6 +22,28 @@ use PDO;
  */
 class PluginLoader
 {
+    /**
+     * Offiziell mitgelieferte Plugins. Die Liste lebt bewusst im Core und
+     * nicht in den Manifesten — ein fremdes Plugin könnte sich sonst
+     * selbst zum vertrauenswürdigen Bestandteil erklären. Nur Plugins auf
+     * dieser Liste gelten ohne manuelle Installation als installiert.
+     */
+    public const BUNDLED = [
+        'knowledge-base',
+        'manv-board',
+        'enotf',
+        'firetab',
+    ];
+
+    /**
+     * Marker-Datei, die ein manuell installiertes (nicht mitgeliefertes)
+     * Plugin als freigegeben kennzeichnet. Eine Datei statt eines
+     * DB-Flags, damit auch phinx.php — das ohne Datenbank in der CLI
+     * läuft — installierte von bloß hochkopierten Plugins unterscheiden
+     * kann.
+     */
+    private const INSTALLED_MARKER = '.installed';
+
     /** @var list<Plugin>|null */
     private ?array $active = null;
 
@@ -34,20 +56,59 @@ class PluginLoader
         return dirname(__DIR__, 2) . '/plugins';
     }
 
+    public static function isBundled(string $pluginId): bool
+    {
+        return in_array($pluginId, self::BUNDLED, true);
+    }
+
     /**
-     * Migrations-Verzeichnisse ALLER installierten Plugins — bewusst ohne
+     * Installiert = mitgeliefert ODER vom Admin ausdrücklich freigegeben.
+     * Nicht installierte Plugins werden weder geladen noch migriert —
+     * ein nach plugins/ kopiertes Fremd-Archiv führt keinerlei Code aus,
+     * bis jemand die Installation bewusst startet.
+     */
+    public static function isInstalledDir(string $pluginId, string $directory): bool
+    {
+        return self::isBundled($pluginId)
+            || is_file($directory . DIRECTORY_SEPARATOR . self::INSTALLED_MARKER);
+    }
+
+    public static function isInstalled(Plugin $plugin): bool
+    {
+        return self::isInstalledDir($plugin->id(), $plugin->directory);
+    }
+
+    /**
+     * Kennzeichnet ein Fremd-Plugin als installiert. Erst danach nimmt
+     * der Migrationslauf seine Migrations mit und der Loader lädt es.
+     */
+    public static function markInstalled(Plugin $plugin): bool
+    {
+        $marker = $plugin->directory . DIRECTORY_SEPARATOR . self::INSTALLED_MARKER;
+        return @file_put_contents($marker, date('c') . "\n") !== false;
+    }
+
+    /**
+     * Migrations-Verzeichnisse aller INSTALLIERTEN Plugins — bewusst ohne
      * Blick in die Datenbank. Schema-Migrationen laufen auch für
-     * deaktivierte Plugins, damit Deaktivieren nie Daten oder Schema
-     * zurücklässt, das beim Reaktivieren fehlt. Außerdem wird diese Liste
-     * von phinx.php gebraucht, das auch ohne App-Bootstrap (CLI) läuft.
+     * deaktivierte (aber installierte) Plugins, damit Deaktivieren nie
+     * Daten oder Schema zurücklässt, das beim Reaktivieren fehlt. Diese
+     * Liste wird auch von phinx.php gebraucht, das ohne App-Bootstrap in
+     * der CLI läuft.
      *
      * @return list<string>
      */
     public static function migrationPaths(): array
     {
-        $dirs = glob(self::pluginsDir() . '/*/migrations', GLOB_ONLYDIR) ?: [];
-        sort($dirs);
-        return array_values($dirs);
+        $paths = [];
+        foreach (glob(self::pluginsDir() . '/*/migrations', GLOB_ONLYDIR) ?: [] as $dir) {
+            $pluginId = basename(dirname($dir));
+            if (self::isInstalledDir($pluginId, dirname($dir))) {
+                $paths[] = $dir;
+            }
+        }
+        sort($paths);
+        return array_values($paths);
     }
 
     /**
@@ -69,7 +130,26 @@ class PluginLoader
 
             $repository = new PluginRepository($this->pdo);
             $repository->syncDiscovered($registry->all());
-            $registry->resolve($repository->enabledIds(), self::ignisVersion());
+
+            // Nur installierte Plugins kommen in die Auflösung — ein bloß
+            // nach plugins/ kopiertes Fremd-Plugin bleibt vollständig
+            // inert, bis der Admin die Installation ausdrücklich startet.
+            $enabledIds = array_values(array_filter(
+                $repository->enabledIds(),
+                function (string $id) use ($registry): bool {
+                    $plugin = $registry->get($id);
+                    if ($plugin === null) {
+                        return false;
+                    }
+                    if (!self::isInstalled($plugin)) {
+                        Logger::warning("Plugin '{$id}' übersprungen: Installation wurde noch nicht bestätigt.");
+                        return false;
+                    }
+                    return true;
+                },
+            ));
+
+            $registry->resolve($enabledIds, self::ignisVersion());
 
             foreach ($registry->skipped() as $skip) {
                 Logger::warning("Plugin '{$skip['id']}' übersprungen: {$skip['reason']}");
