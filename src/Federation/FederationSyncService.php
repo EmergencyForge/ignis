@@ -306,6 +306,11 @@ class FederationSyncService
      */
     public function syncFireIncidents(int $linkId): array
     {
+        // Fire-Incident-Tabellen gehören zum fireTab-Plugin.
+        if (!app(\App\Plugins\PluginLoader::class)->isActive('firetab')) {
+            return ['success' => false, 'records' => 0, 'error' => 'fireTab-Plugin ist nicht aktiv'];
+        }
+
         $link = $this->getActiveLink($linkId);
 
         if (!$link) {

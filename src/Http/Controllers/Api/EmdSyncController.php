@@ -416,7 +416,7 @@ final class EmdSyncController
             }
 
             // Fire Incident Status für Feuerwehr-Fahrzeuge (rd_type = 3)
-            if ($rdType === 3) {
+            if ($rdType === 3 && $this->firetabActive()) {
                 $findFireIncidentStmt = $this->pdo->prepare(
                     "SELECT id FROM intra_fire_incidents WHERE incident_number = :incident_number LIMIT 1"
                 );
@@ -757,7 +757,7 @@ final class EmdSyncController
         ]);
 
         // ── Fire Incident erstellen/updaten ──
-        if ($hasFireVehicle) {
+        if ($hasFireVehicle && $this->firetabActive()) {
             $this->upsertFireIncident(
                 $dispatchId,
                 $fireVehicles,
@@ -1340,6 +1340,10 @@ final class EmdSyncController
      */
     private function collectPendingStatusQueue(): array
     {
+        if (!$this->firetabActive()) {
+            return [];
+        }
+
         $statusQueueStmt = $this->pdo->prepare("
             SELECT id, vehicle_name, new_status, incident_number, created_at
             FROM intra_fire_status_queue
@@ -1371,5 +1375,15 @@ final class EmdSyncController
             ->execute($statusIdsToDeliver);
 
         return $statusChanges;
+    }
+
+    /**
+     * Fire-Incidents, Status-Queue und FW-Fahrzeugstatus leben im
+     * fireTab-Plugin — ohne installiertes Plugin existieren die Tabellen
+     * nicht, also werden alle FW-Codepfade übersprungen.
+     */
+    private function firetabActive(): bool
+    {
+        return app(\App\Plugins\PluginLoader::class)->isActive('firetab');
     }
 }

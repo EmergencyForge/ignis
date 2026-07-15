@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace App\Policies;
+namespace Plugin\Firetab\Policies;
 
 use App\Auth\Permissions;
-use App\Models\FireIncident;
+use Plugin\Firetab\Models\FireIncident;
 
 /**
  * FireIncidentPolicy — wer darf was im einsatz/-Modul (Feuerwehr-Einsätze).

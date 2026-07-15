@@ -17,7 +17,7 @@ use App\Helpers\Flash;
 <html lang="de" data-bs-theme="light">
 
 <head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
 <body data-bs-theme="dark" data-page="fahrtenbuch">
@@ -25,7 +25,7 @@ use App\Helpers\Flash;
         <?php
         $einsatzActivePage = 'fahrtenbuch';
         $einsatzExtraNav = '';
-        include __DIR__ . '/../../assets/components/firetab-sidebar.php';
+        include dirname(__DIR__, 4) . '/assets/components/firetab-sidebar.php';
         ?>
 
         <div class="flex-1 overflow-y-auto">
@@ -50,7 +50,7 @@ use App\Helpers\Flash;
                         <?php
                         $context = 'firetab';
                         $entry = null;
-                        include __DIR__ . '/../../assets/components/logbook/_form-fields.php';
+                        include dirname(__DIR__, 4) . '/assets/components/logbook/_form-fields.php';
                         ?>
 
                         <div class="mt-3 flex gap-2">
@@ -72,7 +72,7 @@ use App\Helpers\Flash;
                         <?php
                         $context = 'firetab';
                         $entry = null;
-                        include __DIR__ . '/../../assets/components/logbook/_form-fields.php';
+                        include dirname(__DIR__, 4) . '/assets/components/logbook/_form-fields.php';
                         ?>
 
                         <div class="mt-3 flex gap-2">
@@ -89,7 +89,7 @@ use App\Helpers\Flash;
                     $canEdit = true;
                     $canDelete = false;
                     $actionsUrl = BASE_PATH . 'logbook/actions';
-                    include __DIR__ . '/../../assets/components/logbook/_list-table.php';
+                    include dirname(__DIR__, 4) . '/assets/components/logbook/_list-table.php';
                     ?>
                 </div>
             </div>

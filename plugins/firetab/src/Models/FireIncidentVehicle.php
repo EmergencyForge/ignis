@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Models;
+namespace Plugin\Firetab\Models;
 
+use App\Models\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**

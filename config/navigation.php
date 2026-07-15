@@ -138,21 +138,6 @@ return [
                         ],
                     ],
                 ],
-                [
-                    'label' => 'FW Einsatzprotokolle',
-                    'items' => [
-                        [
-                            'label'    => 'fireTab öffnen',
-                            'href'     => BASE_PATH . 'firetab/',
-                            'external' => true,
-                        ],
-                        [
-                            'label'       => 'Qualitätsmanagement',
-                            'href'        => BASE_PATH . 'firetab/admin/list',
-                            'permissions' => ['admin', 'fire.incident.qm'],
-                        ],
-                    ],
-                ],
             ],
         ],
 

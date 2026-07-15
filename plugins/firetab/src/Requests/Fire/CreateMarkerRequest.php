@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Fire;
+namespace Plugin\Firetab\Requests\Fire;
 
 use App\Http\Requests\FormRequest;
 use Respect\Validation\Validatable;

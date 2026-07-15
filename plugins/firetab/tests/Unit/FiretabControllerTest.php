@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Http;
+namespace Plugin\Firetab\Tests\Unit;
 
-use App\Http\Controllers\FiretabController;
+use Plugin\Firetab\Controllers\FiretabController;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

@@ -13,7 +13,7 @@ use App\Helpers\Flash;
 <html lang="de" data-bs-theme="light">
 
 <head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
     <style>
         .enotf-dropdown-container.form-select {
             padding: .375rem .75rem;
@@ -31,7 +31,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="protokolle">
     <div class="flex">
-        <?php $einsatzActivePage = 'create'; include __DIR__ . '/../../assets/components/firetab-sidebar.php'; ?>
+        <?php $einsatzActivePage = 'create'; include dirname(__DIR__, 4) . '/assets/components/firetab-sidebar.php'; ?>
 
         <!-- Main Content -->
         <div class="flex-1 overflow-y-auto">

@@ -29,7 +29,7 @@ function einsatz_fmt_dt(?string $ts): string
 <html lang="de" data-bs-theme="light">
 
 <head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
     <style>
         .incident-card { transition: all 0.2s; }
         .incident-card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
@@ -39,7 +39,7 @@ function einsatz_fmt_dt(?string $ts): string
 
 <body data-bs-theme="dark" data-page="einsatzliste">
     <div class="flex">
-        <?php $einsatzActivePage = 'list'; include __DIR__ . '/../../assets/components/firetab-sidebar.php'; ?>
+        <?php $einsatzActivePage = 'list'; include dirname(__DIR__, 4) . '/assets/components/firetab-sidebar.php'; ?>
 
         <!-- Main Content -->
         <div class="flex-1 overflow-y-auto">

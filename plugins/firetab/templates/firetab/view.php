@@ -42,7 +42,7 @@ function fmt_elapsed(int|string $seconds): string
 <html lang="de" data-bs-theme="light">
 
 <head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
     <style>
         .enotf-dropdown-container.form-select {
             padding: .375rem .75rem;
@@ -90,7 +90,7 @@ function fmt_elapsed(int|string $seconds): string
             <i class="fa-solid fa-history"></i><span>Protokoll</span>
         </a>
         <?php $einsatzExtraNav = ob_get_clean(); ?>
-        <?php include __DIR__ . '/../../assets/components/firetab-sidebar.php'; ?>
+        <?php include dirname(__DIR__, 4) . '/assets/components/firetab-sidebar.php'; ?>
 
         <!-- Main Content -->
         <div class="einsatz-main flex-1 overflow-y-auto">

@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace Plugin\Firetab\Controllers;
 
 use App\Auth\Gate;
 use App\Federation\FederatedPersonnel;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
+use App\Http\Controllers\Controller;
 use App\Http\FiveMSupport;
 use App\Integrations\DiscordWebhook;
-use App\Models\FireIncident;
+use Plugin\Firetab\Models\FireIncident;
 use App\Notifications\NotificationManager;
 use App\Utils\AuditLogger;
 use DateTime;
@@ -36,6 +37,11 @@ use PDOException;
  */
 class FiretabController extends Controller
 {
+    protected function viewBasePath(): string
+    {
+        return dirname(__DIR__, 2) . '/templates';
+    }
+
     /**
      * GET /einsatz/index.php — Entry-Point.
      * Wenn FireTab-Session existiert → list.php, sonst → login-fahrzeug.php.
@@ -696,7 +702,7 @@ class FiretabController extends Controller
         // nichts von der konkreten Integration, das entkoppelt saubere
         // Domain-Logik von Infrastruktur-Details.
         app(\App\Events\EventDispatcher::class)->fire(
-            new \App\Events\FireProtocolReleased($incidentData)
+            new \Plugin\Firetab\Events\FireProtocolReleased($incidentData)
         );
 
         Flash::success('Protokoll zur QM-Sichtung markiert.');

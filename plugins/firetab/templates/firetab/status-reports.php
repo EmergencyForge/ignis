@@ -17,7 +17,7 @@ use App\Helpers\Flash;
 <html lang="de" data-bs-theme="light">
 
 <head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
     <style>
         .status-grid {
             display: grid;
@@ -100,7 +100,7 @@ use App\Helpers\Flash;
         <?php
         $einsatzActivePage = 'statusmeldungen';
         $einsatzExtraNav = '';
-        include __DIR__ . '/../../assets/components/firetab-sidebar.php';
+        include dirname(__DIR__, 4) . '/assets/components/firetab-sidebar.php';
         ?>
 
         <!-- Main Content -->

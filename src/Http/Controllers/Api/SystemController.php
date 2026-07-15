@@ -9,7 +9,6 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
 use App\Policies\PersonnelPolicy;
-use App\Policies\FireIncidentPolicy;
 use App\Policies\VehiclePolicy;
 use App\Policies\DocumentPolicy;
 use App\Utils\AuditLogger;
@@ -344,7 +343,7 @@ final class SystemController
                 }
             }
 
-            if (FireIncidentPolicy::manageQm()) {
+            if (app(\App\Plugins\PluginLoader::class)->isActive('firetab') && \Plugin\Firetab\Policies\FireIncidentPolicy::manageQm()) {
                 $items = $this->searchFireIncidents($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'Brandeinsätze', 'icon' => 'fa-fire', 'items' => $items];

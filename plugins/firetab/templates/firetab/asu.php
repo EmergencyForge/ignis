@@ -14,7 +14,7 @@
 <html lang="de" data-bs-theme="light">
 
 <head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
     <style>
         .progress {
             background-color: var(--body-bg-darker);
@@ -38,7 +38,7 @@
         if ($prefillIncidentId) {
             $einsatzExtraNav = '<a href="' . BASE_PATH . 'firetab/view?id=' . (int)$prefillIncidentId . '&tab=bericht" class="sidebar-link"><i class="fa-solid fa-arrow-left"></i><span>Zurück zum Einsatz</span></a>';
         }
-        include __DIR__ . '/../../assets/components/firetab-sidebar.php';
+        include dirname(__DIR__, 4) . '/assets/components/firetab-sidebar.php';
         ?>
 
         <!-- Main Content -->

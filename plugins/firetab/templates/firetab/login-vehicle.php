@@ -15,7 +15,7 @@ use App\Helpers\Flash;
 <html lang="de" data-bs-theme="light">
 
 <head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
     <!-- CitizenFX: Session-ID an FiveM-Client senden -->
     <script>
     (function() {

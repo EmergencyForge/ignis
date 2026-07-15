@@ -13,11 +13,11 @@ use App\Helpers\Flash;
 <html lang="de" data-bs-theme="light">
 
 <head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
 <body data-bs-theme="dark" data-page="protokolle">
-    <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container my-4">
         <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">Einsatz QM</span></nav>
         <div class="page-header mb-4">
@@ -330,7 +330,7 @@ use App\Helpers\Flash;
                 });
         };
     </script>
-    <?php include __DIR__ . '/../../assets/components/footer.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
 </body>
 
 </html>
