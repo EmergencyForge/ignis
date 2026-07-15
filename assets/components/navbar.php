@@ -1506,10 +1506,12 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             </div>
         </div>
 
-        <!-- Lexikon (Legacy-Modul-Folder, serviert direkt via DirectoryIndex unter /lexicon/) -->
-        <a href="<?= BASE_PATH ?>lexicon/index" class="sidebar-link" data-page="lexicon">
-            <i class="fa-solid fa-book-medical"></i><span>Lexikon</span>
-        </a>
+        <!-- Lexikon (Wissensdatenbank-Plugin) -->
+        <?php if (app(\App\Plugins\PluginLoader::class)->isActive('knowledge-base')): ?>
+            <a href="<?= BASE_PATH ?>lexicon/index" class="sidebar-link" data-page="lexicon">
+                <i class="fa-solid fa-book-medical"></i><span>Lexikon</span>
+            </a>
+        <?php endif; ?>
 
         <!-- Fahrzeuge -->
         <?php if (Permissions::check(['admin', 'vehicles.view'])): ?>
