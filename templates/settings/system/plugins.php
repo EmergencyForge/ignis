@@ -110,7 +110,7 @@ $csrfToken = CsrfProtection::getToken();
                             <div class="shrink-0">
                                 <?php if (!$row['installed']): ?>
                                     <form method="post" class="inline"
-                                        onsubmit="return confirm('ACHTUNG: <?= htmlspecialchars($m->name, ENT_QUOTES) ?> ist KEIN offiziell mitgeliefertes Plugin. Die Installation führt fremden Code aus und wendet dessen Datenbank-Migrationen an.\n\nEmergencyForge übernimmt keinerlei Gewähr für Funktion, Sicherheit oder mögliche Datenverluste durch Community-Plugins — die Nutzung erfolgt auf eigenes Risiko. Erstelle vorher ein Backup.\n\nNur fortfahren, wenn du der Quelle vertraust. Jetzt installieren?');">
+                                        onsubmit="event.preventDefault(); showConfirm('<?= htmlspecialchars($m->name, ENT_QUOTES) ?> ist KEIN offiziell mitgeliefertes Plugin. Die Installation führt fremden Code aus und wendet dessen Datenbank-Migrationen an. EmergencyForge übernimmt keinerlei Gewähr für Funktion, Sicherheit oder mögliche Datenverluste — Nutzung auf eigenes Risiko. Erstelle vorher ein Backup und fahre nur fort, wenn du der Quelle vertraust.', {title: 'Community-Plugin installieren', confirmText: 'Jetzt installieren', cancelText: 'Abbrechen', danger: true}).then(result => { if (result) this.submit(); });">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                         <input type="hidden" name="plugin_action" value="install">
                                         <input type="hidden" name="plugin_id" value="<?= htmlspecialchars($row['id']) ?>">
@@ -121,7 +121,7 @@ $csrfToken = CsrfProtection::getToken();
                                 <?php elseif ($row['enabled']): ?>
                                     <?php $blocked = !$m->removable || $row['requiredBy'] !== []; ?>
                                     <form method="post" class="inline"
-                                        <?php if (!$blocked): ?>onsubmit="return confirm('Plugin <?= htmlspecialchars($m->name, ENT_QUOTES) ?> wirklich deaktivieren? Daten bleiben erhalten.');"<?php endif; ?>>
+                                        <?php if (!$blocked): ?>onsubmit="event.preventDefault(); showConfirm('Plugin <?= htmlspecialchars($m->name, ENT_QUOTES) ?> wirklich deaktivieren? Daten bleiben erhalten.', {title: 'Plugin deaktivieren', confirmText: 'Deaktivieren', cancelText: 'Abbrechen', danger: true}).then(result => { if (result) this.submit(); });"<?php endif; ?>>
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken) ?>">
                                         <input type="hidden" name="plugin_id" value="<?= htmlspecialchars($row['id']) ?>">
                                         <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-danger" <?= $blocked ? 'disabled' : '' ?>
