@@ -231,7 +231,13 @@ HTML;
      */
     private function buildLegacyToPhinxMapping(): array
     {
+        // Plugin-Migrations gehören mit ins Mapping — sonst würde die Bridge
+        // bei Alt-Installationen deren Legacy-Einträge nicht spiegeln und
+        // Phinx liefe bereits angewendete Migrationen erneut.
         $files = glob($this->migrationsPath . '/*.php') ?: [];
+        foreach ($this->extraMigrationPaths as $dir) {
+            $files = array_merge($files, glob($dir . '/*.php') ?: []);
+        }
         $mapping = [];
         foreach ($files as $path) {
             $basename = basename($path, '.php');
