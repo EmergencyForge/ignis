@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers\Api;
+namespace Plugin\Firetab\Controllers\Api;
 
 use App\Auth\Gate;
 use App\Helpers\MapCoordinates;
@@ -66,7 +66,7 @@ final class FireLagekarteController
     {
         // FormRequest-Validation — wirft ValidationException → JsonExceptionMiddleware
         // wandelt in 422 JSON. Der Controller ist danach frei von Input-Checks.
-        $data = \App\Http\Requests\Fire\CreateMarkerRequest::validate($request->post);
+        $data = \Plugin\Firetab\Requests\Fire\CreateMarkerRequest::validate($request->post);
 
         $this->assertIncidentEditable($data['incident_id']);
         $this->assertVehicleAssignedOrAdmin($data['incident_id']);

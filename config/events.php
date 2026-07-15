@@ -28,17 +28,12 @@ declare(strict_types=1);
 
 use App\Events\EnotfPreregistered;
 use App\Events\EnotfProtocolReleased;
-use App\Events\FireProtocolReleased;
 use App\Listeners\DispatchDiscordWebhookOnEnotfPreregistered;
 use App\Listeners\DispatchDiscordWebhookOnEnotfReleased;
-use App\Listeners\DispatchDiscordWebhookOnFireReleased;
 
 return [
     EnotfProtocolReleased::class => [
         DispatchDiscordWebhookOnEnotfReleased::class,
-    ],
-    FireProtocolReleased::class => [
-        DispatchDiscordWebhookOnFireReleased::class,
     ],
     EnotfPreregistered::class => [
         DispatchDiscordWebhookOnEnotfPreregistered::class,

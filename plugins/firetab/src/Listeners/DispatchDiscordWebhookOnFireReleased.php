@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Listeners;
+namespace Plugin\Firetab\Listeners;
 
-use App\Events\FireProtocolReleased;
 use App\Jobs\JobDispatcher;
 use App\Jobs\SendDiscordWebhookJob;
+use Plugin\Firetab\Events\FireProtocolReleased;
 
 /**
  * Listener: dispatcht einen SendDiscordWebhookJob, sobald ein

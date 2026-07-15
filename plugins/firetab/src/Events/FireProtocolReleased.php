@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Events;
+namespace Plugin\Firetab\Events;
+
+use App\Events\Event;
 
 /**
  * Wird gefeuert, wenn ein Fire-Incident-Protokoll final freigegeben

@@ -260,6 +260,11 @@ final class FederationController
      */
     public function fireIncidents(Request $request): Response
     {
+        // Fire-Incident-Tabellen gehören zum fireTab-Plugin.
+        if (!app(\App\Plugins\PluginLoader::class)->isActive('firetab')) {
+            ApiResponse::error('fireTab-Plugin ist auf dieser Instanz nicht aktiv', 404);
+        }
+
         $link = FederationMiddleware::authenticate($this->pdo);
         FederationMiddleware::requireProvidePermission($link, 'fire');
 

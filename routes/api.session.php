@@ -20,7 +20,6 @@ use App\Http\Controllers\Api\AsuSyncController;
 use App\Http\Controllers\Api\DocumentsController;
 use App\Http\Controllers\Api\EnotfController;
 use App\Http\Controllers\Api\FederationController;
-use App\Http\Controllers\Api\FireController;
 use App\Http\Controllers\Api\HospitalAvailabilityController;
 use App\Http\Controllers\Api\KlinikCodeController;
 use App\Http\Controllers\Api\PersonnelController;
@@ -154,17 +153,6 @@ $router->match(['POST'],        '/api/federation/pair',               [Federatio
 $router->match(['GET'],         '/api/federation/personnel',          [FederationController::class, 'personnel'],     $public);
 $router->match(['GET'],         '/api/federation/enotf',              [FederationController::class, 'enotf'],         $public);
 $router->match(['GET'],         '/api/federation/fire-incidents',     [FederationController::class, 'fireIncidents'], $public);
-
-// ============================================================================
-//  Fire-Incident-API — vollständig refactored.
-// ============================================================================
-$fireQmAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'fire.incident.qm'])];
-
-$router->match(['GET', 'POST'], '/api/fire/status',     [FireController::class, 'status'], $auth);
-
-$router->match(['GET', 'POST', 'DELETE'], '/api/fire/bulk-delete-empty',     [FireController::class, 'bulkDeleteEmpty'], $fireQmAuth);
-
-$router->match(['GET', 'POST'], '/api/fire/lagekarte',     [\App\Http\Controllers\Api\FireLagekarteController::class, 'handle'], $auth);
 
 // ============================================================================
 //  Hospitals — refactored zum echten Controller
