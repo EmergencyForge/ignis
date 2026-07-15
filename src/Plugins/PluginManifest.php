@@ -30,15 +30,17 @@ use InvalidArgumentException;
 final class PluginManifest
 {
     /**
-     * @param string        $id            Eindeutige, stabile Plugin-ID (kebab/snake, [a-z0-9_-])
-     * @param string        $name          Menschlich lesbarer Anzeigename
-     * @param string        $version       Semver-Version des Plugins
-     * @param string        $vendor        Herausgeber (z.B. "EmergencyForge")
-     * @param string        $ignisRequire  Kompatibilitätsbereich zur ignis-Version
-     * @param list<string>  $depends       IDs anderer Plugins, die aktiv sein müssen
-     * @param list<string>  $permissions   Permissions, die dieses Plugin einbringt
-     * @param bool          $defaultEnabled Bei Erstinstallation direkt aktiv?
-     * @param bool          $removable      Darf der Nutzer es deaktivieren?
+     * @param string                $id            Eindeutige, stabile Plugin-ID (kebab/snake, [a-z0-9_-])
+     * @param string                $name          Menschlich lesbarer Anzeigename
+     * @param string                $version       Semver-Version des Plugins
+     * @param string                $vendor        Herausgeber (z.B. "EmergencyForge")
+     * @param string                $ignisRequire  Kompatibilitätsbereich zur ignis-Version
+     * @param list<string>          $depends       IDs anderer Plugins, die aktiv sein müssen
+     * @param list<string>          $permissions   Permissions, die dieses Plugin einbringt
+     * @param array<string, string> $autoload      PSR-4-Map: Namespace-Prefix => Verzeichnis (relativ zum Plugin)
+     * @param array<string, string> $policies      Gate-Ressource => Policy-Klasse (FQCN)
+     * @param bool                  $defaultEnabled Bei Erstinstallation direkt aktiv?
+     * @param bool                  $removable      Darf der Nutzer es deaktivieren?
      */
     private function __construct(
         public readonly string $id,
@@ -48,6 +50,8 @@ final class PluginManifest
         public readonly string $ignisRequire,
         public readonly array $depends,
         public readonly array $permissions,
+        public readonly array $autoload,
+        public readonly array $policies,
         public readonly bool $defaultEnabled,
         public readonly bool $removable,
     ) {}
@@ -79,6 +83,8 @@ final class PluginManifest
             ignisRequire: isset($requires['ignis']) ? (string) $requires['ignis'] : '*',
             depends: self::stringList($data['depends'] ?? []),
             permissions: self::stringList($data['permissions'] ?? []),
+            autoload: self::stringMap($data['autoload'] ?? []),
+            policies: self::stringMap($data['policies'] ?? []),
             defaultEnabled: (bool) ($data['default_enabled'] ?? false),
             removable: (bool) ($data['removable'] ?? true),
         );
@@ -114,5 +120,23 @@ final class PluginManifest
             return [];
         }
         return array_values(array_map(static fn ($v): string => (string) $v, $value));
+    }
+
+    /**
+     * @param mixed $value
+     * @return array<string, string>
+     */
+    private static function stringMap(mixed $value): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+        $out = [];
+        foreach ($value as $k => $v) {
+            if (is_string($k) && is_string($v) && $k !== '' && $v !== '') {
+                $out[$k] = $v;
+            }
+        }
+        return $out;
     }
 }

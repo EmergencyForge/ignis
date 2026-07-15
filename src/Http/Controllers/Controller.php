@@ -81,11 +81,24 @@ abstract class Controller
      * (navbar.php, global-announcements.php, footer.php, ...) die Variable
      * als lokale Referenz erwarten.
      *
+     * Views werden relativ zu viewBasePath() aufgelöst — Controller in
+     * Plugins überschreiben die Methode und zeigen auf ihr eigenes
+     * templates/-Verzeichnis.
+     *
      * @param array<string,mixed> $data
      */
+    /**
+     * Basis-Verzeichnis für renderView(). Plugin-Controller überschreiben
+     * das und liefern das templates/-Verzeichnis ihres Plugins.
+     */
+    protected function viewBasePath(): string
+    {
+        return dirname(__DIR__, 3) . '/templates';
+    }
+
     protected function renderView(string $view, array $data = []): void
     {
-        $templatePath = dirname(__DIR__, 3) . '/templates/' . $view . '.php';
+        $templatePath = rtrim($this->viewBasePath(), '/\\') . '/' . $view . '.php';
         if (!is_file($templatePath)) {
             throw new \RuntimeException("View not found: $view ($templatePath)");
         }

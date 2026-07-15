@@ -66,6 +66,23 @@ class Gate
     }
 
     /**
+     * Explizit registrierte Policies (Ressource => Policy-Klasse).
+     * Ergänzt die Namespace-Konvention — Plugins registrieren ihre
+     * Policies hierüber, weil sie außerhalb von App\Policies leben.
+     *
+     * @var array<string, class-string>
+     */
+    private static array $registered = [];
+
+    /**
+     * @param class-string $policyClass
+     */
+    public static function registerPolicy(string $resource, string $policyClass): void
+    {
+        self::$registered[strtolower($resource)] = $policyClass;
+    }
+
+    /**
      * @return array{0: class-string|null, 1: string}
      */
     private static function resolve(string $ability): array
@@ -74,7 +91,9 @@ class Gate
             return [null, ''];
         }
         [$resource, $method] = explode('.', $ability, 2);
-        $policyClass = '\\App\\Policies\\' . ucfirst($resource) . 'Policy';
+
+        $policyClass = self::$registered[strtolower($resource)]
+            ?? '\\App\\Policies\\' . ucfirst($resource) . 'Policy';
 
         if (!class_exists($policyClass)) {
             return [null, $method];
