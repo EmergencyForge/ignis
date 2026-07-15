@@ -19,6 +19,9 @@ export default {
     // Variants (`md:`, `sm:`) komplett purgen.
     content: [
         'templates/**/*.php',
+        // Plugin-Templates nutzen dieselben Utility-Klassen und müssen
+        // mitgescannt werden, sonst purged Tailwind ihre Klassen.
+        'plugins/*/templates/**/*.php',
         'assets/components/**/*.php',
         'public/*.php',
         // Root-Level PHP-Entry-Points (login.php, dashboard.php, index.php, ...)
