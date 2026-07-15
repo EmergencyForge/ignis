@@ -23,9 +23,6 @@ return [
         'application.edit' => 'Anträge bearbeiten',
     ],
     'Protokolle' => [
-        'edivi.view'        => 'eNOTF Protokolle ansehen',
-        'edivi.edit'        => 'eNOTF Protokolle bearbeiten',
-        'enotf.view'        => 'eNOTF System nutzen',
     ],
     'Lexikon' => [
     ],
@@ -57,7 +54,5 @@ return [
         'dashboard.manage'  => 'Dashboard verwalten',
         'vehicles.view'     => 'Fahrzeuge ansehen',
         'vehicles.manage'   => 'Fahrzeuge verwalten',
-        'pois.view'         => 'POIs ansehen',
-        'pois.manage'       => 'POIs und Krankenhaus-Fachrichtungen verwalten',
     ],
 ];

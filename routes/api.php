@@ -104,11 +104,6 @@ $router->get('/api/users/{id:\d+}/card',
     [new AuthMiddleware()]
 );
 
-$router->get('/api/pois/{id:\d+}/card',
-    [\App\Http\Controllers\Api\PoiCardController::class, 'show'],
-    [new AuthMiddleware()]
-);
-
 $router->get('/api/vehicles/{id:\d+}/card',
     [\App\Http\Controllers\Api\VehicleCardController::class, 'show'],
     [new AuthMiddleware()]

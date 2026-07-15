@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Events;
 
-use App\Events\EnotfPreregistered;
-use App\Events\EnotfProtocolReleased;
+use Plugin\Enotf\Events\EnotfPreregistered;
+use Plugin\Enotf\Events\EnotfProtocolReleased;
 use App\Events\Event;
 use App\Events\EventDispatcher;
 use Illuminate\Events\Dispatcher as IlluminateDispatcher;

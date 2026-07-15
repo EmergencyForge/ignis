@@ -1,7 +1,7 @@
 <?php
 
 use App\Auth\Permissions;
-use App\Helpers\EnotfUrl;
+use Plugin\Enotf\Helpers\EnotfUrl;
 
 // Session wird durch config.php gestartet (SessionManager)
 if (session_status() === PHP_SESSION_NONE) {
