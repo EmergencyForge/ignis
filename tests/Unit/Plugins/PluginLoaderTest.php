@@ -48,12 +48,27 @@ class PluginLoaderTest extends TestCase
     {
         $loader = $this->loaderWith([$this->goodPlugin()]);
 
-        $config = ['rail' => [['id' => 'core', 'label' => 'Core']]];
+        $config = ['rail' => [['id' => 'core', 'label' => 'Core', 'sections' => []]]];
         $merged = $loader->mergeNavigation($config);
 
+        // Eintrag 1 wird angehängt, Eintrag 2 (merge_into) landet als
+        // Section im bestehenden core-Eintrag.
         $this->assertCount(2, $merged['rail']);
         $this->assertSame('core', $merged['rail'][0]['id']);
         $this->assertSame('good', $merged['rail'][1]['id']);
+        $this->assertSame('Good Tools', $merged['rail'][0]['sections'][0]['label']);
+    }
+
+    #[Test]
+    public function merge_into_falls_back_to_an_own_rail_entry_when_the_target_is_missing(): void
+    {
+        $loader = $this->loaderWith([$this->goodPlugin()]);
+
+        $merged = $loader->mergeNavigation(['rail' => []]);
+
+        $ids = array_column($merged['rail'], 'id');
+        $this->assertContains('good', $ids);
+        $this->assertContains('good-extra', $ids);
     }
 
     #[Test]

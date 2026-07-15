@@ -23,7 +23,6 @@ use App\Http\Controllers\Api\FederationController;
 use App\Http\Controllers\Api\FireController;
 use App\Http\Controllers\Api\HospitalAvailabilityController;
 use App\Http\Controllers\Api\KlinikCodeController;
-use App\Http\Controllers\Api\MciController;
 use App\Http\Controllers\Api\PersonnelController;
 use App\Http\Controllers\Api\PersonnelProfileController;
 use App\Http\Controllers\Api\PoiDepartmentsController;
@@ -183,12 +182,6 @@ $router->post('/api/hospital-availability-update.php',   $hospitalUpdate, $auth)
 $klinikHandler = [KlinikCodeController::class, 'generate'];
 $router->post('/api/klinik/generate-code',      $klinikHandler, $auth);
 $router->post('/api/generate-klinikcode.php',   $klinikHandler, $auth);
-
-// ============================================================================
-//  MANV (Massenanfall) — refactored
-// ============================================================================
-$router->match(['GET', 'POST'], '/api/mci/api',     [MciController::class, 'handle'], $auth);
-$router->match(['GET', 'POST'], '/api/mci-api.php', [MciController::class, 'handle'], $auth);
 
 // ============================================================================
 //  Personnel (Mitarbeiter-Admin-UI) — vollständig refactored

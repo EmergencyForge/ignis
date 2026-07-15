@@ -14,11 +14,11 @@ $SITE_TITLE = 'Aktionslog - ' . htmlspecialchars($lage['einsatznummer']);
 <html lang="de">
 
 <head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
 <body data-bs-theme="dark" id="manv-log" data-page="edivi">
-    <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="container mx-auto">
             <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -70,7 +70,7 @@ $SITE_TITLE = 'Aktionslog - ' . htmlspecialchars($lage['einsatznummer']);
         </div>
     </div>
 
-    <?php include __DIR__ . '/../../assets/components/footer.php'; ?>
+    <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
 </body>
 
 </html>

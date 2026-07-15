@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Http;
+namespace Plugin\ManvBoard\Tests\Unit;
 
-use App\Http\Controllers\MciController;
+use Plugin\ManvBoard\Controllers\MciController;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 

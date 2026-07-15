@@ -193,7 +193,6 @@ return [
     \App\Http\Controllers\Api\SystemController::class              => \DI\autowire(),
     \App\Http\Controllers\Api\TelemetryApiController::class        => \DI\autowire(),
     \App\Http\Controllers\Api\FireController::class                => \DI\autowire(),
-    \App\Http\Controllers\Api\MciController::class                => \DI\autowire(),
     \App\Http\Controllers\Api\AsuSyncController::class             => \DI\autowire(),
     \App\Http\Controllers\Api\VehicleTzTemplatesController::class  => \DI\autowire(),
     \App\Http\Controllers\Api\FederationController::class          => \DI\autowire(),
