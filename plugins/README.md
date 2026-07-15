@@ -6,7 +6,7 @@ Hier liegen die installierten ignis-Plugins — je ein Unterordner mit einer
 
 Die Module **eNOTF, fireTab, MANV-Board und Wissensdatenbank** werden als
 Plugins ausgeliefert; alle übrigen Funktionen sind fester Bestandteil des
-Cores. Details zum Aufbau: [docs/design/plugin-system.md](../docs/design/plugin-system.md).
+Cores.
 
 ## Aufbau eines Plugins
 
