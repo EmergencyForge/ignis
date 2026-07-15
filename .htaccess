@@ -55,6 +55,7 @@ RewriteRule ^config/ - [F,L]
 RewriteRule ^docker/ - [F,L]
 RewriteRule ^routes/ - [F,L]
 RewriteRule ^\.github/ - [F,L]
+RewriteRule ^plugins/ - [F,L]
 
 # cron/ bleibt erreichbar, weil HTTP-triggerbare Cron-Endpoints dort liegen
 # (queue-worker-cron.php, telemetry-cron.php). Diese prüfen API-Key intern
