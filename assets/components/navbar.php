@@ -1475,14 +1475,20 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             </div>
         <?php endif; ?>
 
-        <!-- Protokolle -->
+        <!-- Protokolle — nur zeigen, wenn mindestens ein Protokoll-Plugin aktiv ist -->
+        <?php
+        $pluginNav = app(\App\Plugins\PluginLoader::class);
+        $hasProtocolPlugin = $pluginNav->isActive('enotf')
+            || $pluginNav->isActive('firetab')
+            || ($pluginNav->isActive('manv-board') && Permissions::check(['admin', 'mci.manage']));
+        ?>
+        <?php if ($hasProtocolPlugin): ?>
         <a href="#" class="sidebar-link sidebar-toggle" data-page="protokolle" data-menu="protokolle">
             <i class="fa-solid fa-file-medical"></i><span>Protokolle</span>
             <i class="fa-solid fa-chevron-down sidebar-chevron"></i>
         </a>
         <div class="sidebar-submenu" data-submenu="protokolle">
             <div class="sidebar-submenu-inner">
-                <?php $pluginNav = app(\App\Plugins\PluginLoader::class); ?>
                 <?php if ($pluginNav->isActive('enotf')): ?>
                     <span class="sidebar-section-title" data-section="enotf">eNOTF</span>
                     <a href="<?= BASE_PATH ?>enotf/" target="_blank" class="sidebar-sublink">eNOTF öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
@@ -1505,6 +1511,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                 <?php endif; ?>
             </div>
         </div>
+        <?php endif; ?>
 
         <!-- Lexikon (Wissensdatenbank-Plugin) -->
         <?php if (app(\App\Plugins\PluginLoader::class)->isActive('knowledge-base')): ?>

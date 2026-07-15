@@ -296,6 +296,14 @@ class PluginLoader
             }
         }
 
+        // Rail-Einträge, die nur als Merge-Anker dienen (keine eigenen
+        // Sections, kein eigener Link), verschwinden, wenn kein aktives
+        // Plugin etwas beigesteuert hat — sonst bleibt z.B. „Protokolle"
+        // als toter Eintrag stehen, wenn alle Protokoll-Plugins aus sind.
+        $rail = array_values(array_filter($rail, static function ($entry): bool {
+            return is_array($entry) && (!empty($entry['sections']) || !empty($entry['href']));
+        }));
+
         $config['rail'] = $rail;
         return $config;
     }
