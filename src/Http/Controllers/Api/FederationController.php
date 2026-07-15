@@ -190,6 +190,11 @@ final class FederationController
      */
     public function enotf(Request $request): Response
     {
+        // eNOTF-Tabellen gehören zum eNOTF-Plugin.
+        if (!app(\App\Plugins\PluginLoader::class)->isActive('enotf')) {
+            ApiResponse::error('eNOTF-Plugin ist auf dieser Instanz nicht aktiv', 404);
+        }
+
         $link = FederationMiddleware::authenticate($this->pdo);
         FederationMiddleware::requireProvidePermission($link, 'enotf');
 

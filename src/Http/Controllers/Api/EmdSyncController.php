@@ -359,6 +359,14 @@ final class EmdSyncController
             $vehicleIdentifier = $vehicleRow['identifier'];
             $rdType            = (int) ($vehicleRow['rd_type'] ?? 0);
 
+            // Status-Zuordnung läuft über intra_edivi (eNOTF-Plugin) — ohne
+            // aktives Plugin gibt es keine Protokolle, denen der Status
+            // zugeordnet werden könnte.
+            if (!$this->enotfActive()) {
+                $notFound++;
+                continue;
+            }
+
             $findEnrStmt = $this->pdo->prepare("
                 SELECT enr
                 FROM intra_edivi
@@ -1070,6 +1078,10 @@ final class EmdSyncController
         array $dispatchDataByDispatch,
         int &$createdEntries,
     ): void {
+        if (!$this->enotfActive()) {
+            return;
+        }
+
         $checkExistingStmt = $this->pdo->prepare("
             SELECT enr
             FROM intra_edivi
@@ -1288,6 +1300,10 @@ final class EmdSyncController
      */
     private function collectPendingPatientUpdates(): array
     {
+        if (!$this->enotfActive()) {
+            return [];
+        }
+
         $patSyncStmt = $this->pdo->prepare("
             SELECT enr, pat_vorname, pat_nachname, patgebdat, prot_by, fzg_na, fzg_transp, ziel_poi
             FROM intra_edivi
@@ -1385,5 +1401,15 @@ final class EmdSyncController
     private function firetabActive(): bool
     {
         return app(\App\Plugins\PluginLoader::class)->isActive('firetab');
+    }
+
+    /**
+     * eNOTF-Protokolle (intra_edivi) leben im eNOTF-Plugin — ohne
+     * installiertes Plugin werden Protokoll-Erstellung, Status- und
+     * Patienten-Sync übersprungen.
+     */
+    private function enotfActive(): bool
+    {
+        return app(\App\Plugins\PluginLoader::class)->isActive('enotf');
     }
 }
