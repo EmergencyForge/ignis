@@ -77,8 +77,8 @@ server {
     }
 
     # Nicht-web-Verzeichnisse — synchron zur .htaccess-Blocklist
-    # (src, cli, tools, tests, database, config, docker, routes, .github)
-    location ~ ^/(src|cli|tools|tests|database|config|docker|routes|\.github)/ {
+    # (src, cli, tools, tests, database, config, docker, routes, plugins, .github)
+    location ~ ^/(src|cli|tools|tests|database|config|docker|routes|plugins|\.github)/ {
         return 403;
     }
 

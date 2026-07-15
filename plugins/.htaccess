@@ -1,0 +1,15 @@
+# Plugins sind reiner Anwendungscode und werden ausschließlich über den
+# PluginLoader eingebunden — direkter HTTP-Zugriff würde Templates und
+# Migrations-Dateien ohne Bootstrap ausführen. Deshalb ist das gesamte
+# Verzeichnis für den Webserver gesperrt.
+#
+# Wenn Plugins später eigene statische Assets ausliefern (plugin.css,
+# plugin.js), bekommt deren assets/-Unterordner hier eine explizite
+# Ausnahme — bis dahin gilt: alles dicht.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>
