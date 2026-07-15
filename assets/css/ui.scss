@@ -3150,44 +3150,47 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   // ── Variants — match badge palette ────────────────────────────
+  // Die Signalfarbe tragen Fläche, Icon und Titel/Hervorhebungen —
+  // der Fließtext bleibt neutral hell, sonst ist er auf dunklem
+  // Grund kaum lesbar (getönte Farbe auf getönter Fläche).
   &--success {
     background: rgba(58, 125, 68, 0.1);
     border-left-color: var(--btn-success-bg, #3a7d44);
-    color: #6abf76;
+    color: var(--text-normal, #c6c5cc);
 
-    .ignis-alert__title { color: #6abf76; }
+    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: #6abf76; }
   }
 
   &--danger {
     background: rgba(176, 58, 58, 0.1);
     border-left-color: var(--btn-danger-bg, #b03a3a);
-    color: #d46b6b;
+    color: var(--text-normal, #c6c5cc);
 
-    .ignis-alert__title { color: #d46b6b; }
+    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: #d46b6b; }
   }
 
   &--warning {
     background: rgba(196, 154, 42, 0.1);
     border-left-color: var(--btn-warning-bg, #c49a2a);
-    color: #ddb84a;
+    color: var(--text-normal, #c6c5cc);
 
-    .ignis-alert__title { color: #ddb84a; }
+    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: #ddb84a; }
   }
 
   &--info {
     background: rgba(74, 111, 165, 0.1);
     border-left-color: var(--btn-primary-bg, #4a6fa5);
-    color: #7ba3d4;
+    color: var(--text-normal, #c6c5cc);
 
-    .ignis-alert__title { color: #7ba3d4; }
+    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: #7ba3d4; }
   }
 
   &--accent {
     background: rgba(var(--main-color-rgb, 255, 77, 0), 0.1);
     border-left-color: var(--main-color, #ff4d00);
-    color: var(--main-color, #ff4d00);
+    color: var(--text-normal, #c6c5cc);
 
-    .ignis-alert__title { color: var(--main-color, #ff4d00); }
+    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--main-color, #ff4d00); }
   }
 }
 
