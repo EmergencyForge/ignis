@@ -215,17 +215,71 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
 <!-- Trigger Button für manuelles Öffnen -->
 <div id="efAnnouncementsTrigger" class="fixed" style="bottom: 20px; right: 20px; z-index: 1040; display: none;">
-    <button type="button" class="ignis-btn btn-<?= $hasCritical ? 'danger' : ($hasWarning ? 'warning' : 'primary') ?> rounded-full shadow-lg relative"
-        data-bs-toggle="modal" data-bs-target="#efAnnouncementsModal">
-        <i class="fa-solid fa-bullhorn mr-2"></i>
-        <span class="hidden d-sm-inline"><?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?></span>
-        <span class="absolute top-0 start-100 translate-middle ignis-chip rounded-full bg-[#b03a3a] sm:hidden">
-            <?= count($announcements) ?>
-        </span>
+    <button type="button"
+        class="ef-announce-fab ef-announce-fab--<?= $hasCritical ? 'critical' : ($hasWarning ? 'warning' : 'info') ?>"
+        data-bs-toggle="modal" data-bs-target="#efAnnouncementsModal"
+        title="<?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?>"
+        aria-label="<?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?> anzeigen">
+        <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
+        <span class="ef-announce-fab__count"><?= count($announcements) ?></span>
     </button>
 </div>
 
 <style>
+    /* Floating-Trigger unten rechts: quadratisch mit leichter Rundung,
+       Zähler als Eck-Badge. Bewusst eigene Klasse statt ignis-btn —
+       der FAB hat feste Maße und eigene Severity-Farben. */
+    .ef-announce-fab {
+        width: 46px;
+        height: 46px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 12px;
+        color: #fff;
+        font-size: 1.05rem;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .ef-announce-fab:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.55);
+    }
+
+    .ef-announce-fab--info {
+        background: var(--btn-primary-bg, #4a6fa5);
+    }
+
+    .ef-announce-fab--warning {
+        background: #a87b2d;
+    }
+
+    .ef-announce-fab--critical {
+        background: #b03a3a;
+    }
+
+    .ef-announce-fab__count {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #b03a3a;
+        border: 2px solid #1c1b21;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
     /* EmergencyForge Announcements Modal Styles */
     #efAnnouncementsModal .ef-modal-content {
         background: #29282f;
