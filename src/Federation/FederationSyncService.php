@@ -235,6 +235,11 @@ class FederationSyncService
      */
     public function syncEnotf(int $linkId): array
     {
+        // eNOTF-Tabellen gehören zum eNOTF-Plugin.
+        if (!app(\App\Plugins\PluginLoader::class)->isActive('enotf')) {
+            return ['success' => false, 'records' => 0, 'error' => 'eNOTF-Plugin ist nicht aktiv'];
+        }
+
         $link = $this->getActiveLink($linkId);
 
         if (!$link) {

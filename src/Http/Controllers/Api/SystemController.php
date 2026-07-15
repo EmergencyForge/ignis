@@ -140,13 +140,23 @@ final class SystemController
             }
             $data['users'] = $users;
 
-            // Content-Statistiken
+            // Content-Statistiken — Modul-Tabellen (eNOTF, KB, fireTab)
+            // existieren nur bei installiertem Plugin, deshalb einzeln
+            // abgesichert.
             $contentStats = [
-                'mitarbeiter'      => (int) $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter")->fetchColumn(),
-                'enotf_protokolle' => (int) $this->pdo->query("SELECT COUNT(*) FROM intra_edivi")->fetchColumn(),
-                'dokumente'        => (int) $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter_dokumente")->fetchColumn(),
-                'kb_eintraege'     => (int) $this->pdo->query("SELECT COUNT(*) FROM intra_kb_entries WHERE is_archived = 0")->fetchColumn(),
+                'mitarbeiter' => (int) $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter")->fetchColumn(),
+                'dokumente'   => (int) $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter_dokumente")->fetchColumn(),
             ];
+            try {
+                $contentStats['enotf_protokolle'] = (int) $this->pdo->query("SELECT COUNT(*) FROM intra_edivi")->fetchColumn();
+            } catch (PDOException) {
+                $contentStats['enotf_protokolle'] = 0;
+            }
+            try {
+                $contentStats['kb_eintraege'] = (int) $this->pdo->query("SELECT COUNT(*) FROM intra_kb_entries WHERE is_archived = 0")->fetchColumn();
+            } catch (PDOException) {
+                $contentStats['kb_eintraege'] = 0;
+            }
             try {
                 $contentStats['brandeinsaetze'] = (int) $this->pdo->query("SELECT COUNT(*) FROM intra_fire_incidents")->fetchColumn();
             } catch (PDOException) {
@@ -350,7 +360,7 @@ final class SystemController
                 }
             }
 
-            if (Gate::allows('enotf.viewAdminList')) {
+            if (app(\App\Plugins\PluginLoader::class)->isActive('enotf') && Gate::allows('enotf.viewAdminList')) {
                 $items = $this->searchEnotf($searchParam);
                 if (!empty($items)) {
                     $results[] = ['module' => 'eNOTF Protokolle', 'icon' => 'fa-file-medical', 'items' => $items];

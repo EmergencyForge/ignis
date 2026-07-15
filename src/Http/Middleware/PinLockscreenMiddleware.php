@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Auth\Permissions;
-use App\Helpers\EnotfUrl;
 use App\Http\Request;
 use App\Http\Response;
 
@@ -64,8 +63,8 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
 
             \App\Session\SessionManager::setPinVerified(false);
 
-            $target = class_exists(EnotfUrl::class)
-                ? EnotfUrl::page('lockscreen')
+            $target = class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)
+                ? \Plugin\Enotf\Helpers\EnotfUrl::page('lockscreen')
                 : ((defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'enotf/lockscreen.php');
 
             return Response::redirect($target);
