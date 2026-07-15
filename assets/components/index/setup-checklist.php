@@ -37,6 +37,9 @@ try {
 } catch (Exception $e) {
 }
 
+// POIs gehören zum eNOTF-Plugin — ohne aktives Plugin entfällt der Schritt.
+$setupEnotfActive = function_exists('app') && app(\App\Plugins\PluginLoader::class)->isActive('enotf');
+
 $checkDienstgrade = _setupCount($pdo, 'intra_mitarbeiter_dienstgrade');
 $checkQuali       = _setupCount($pdo, 'intra_mitarbeiter_rdquali');
 $checkRollen      = _setupCount($pdo, 'intra_users_roles');
@@ -56,10 +59,10 @@ $doneFahrzeuge    = $checkFahrzeuge > 0;
 // Required steps (must all be done to hide checklist)
 $requiredSteps = 5;
 $completedRequired = (int)$doneConfig + (int)$doneDienstgrade + (int)$doneQuali + (int)$doneRollen + (int)$doneMitarbeiter;
-$completedOptional = (int)$donePois + (int)$doneFahrzeuge;
+$completedOptional = ($setupEnotfActive ? (int)$donePois : 0) + (int)$doneFahrzeuge;
 
 $totalDisplay = $completedRequired + $completedOptional;
-$totalAll = $requiredSteps + 2;
+$totalAll = $requiredSteps + ($setupEnotfActive ? 2 : 1);
 
 // Don't show if all required steps are done
 if ($completedRequired >= $requiredSteps) return;
@@ -134,14 +137,16 @@ $stepNum = 1;
     <div style="margin-top:0.75rem;padding-top:0.6rem;border-top:1px solid var(--darkgray);">
         <div style="font-size:var(--fs-xs);color:var(--text-dimmed);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.4rem;">Optional</div>
         <div class="setup-steps">
-            <?php $done = $donePois; ?>
-            <a href="<?= BASE_PATH ?>settings/pois/index" class="setup-step <?= $done ? 'done' : '' ?>">
-                <span class="setup-step-icon" style="background:rgba(255,255,255,0.06);color:var(--text-dimmed);"><?= $done ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-map-marker-alt" style="font-size:0.65rem"></i>' ?></span>
-                <span class="setup-step-text">
-                    <strong>POIs einrichten</strong>
-                    <small>Einsatzorte und Krankenhäuser auf der Karte</small>
-                </span>
-            </a>
+            <?php if ($setupEnotfActive): ?>
+                <?php $done = $donePois; ?>
+                <a href="<?= BASE_PATH ?>settings/pois/index" class="setup-step <?= $done ? 'done' : '' ?>">
+                    <span class="setup-step-icon" style="background:rgba(255,255,255,0.06);color:var(--text-dimmed);"><?= $done ? '<i class="fa-solid fa-check"></i>' : '<i class="fa-solid fa-map-marker-alt" style="font-size:0.65rem"></i>' ?></span>
+                    <span class="setup-step-text">
+                        <strong>POIs einrichten</strong>
+                        <small>Einsatzorte und Krankenhäuser auf der Karte</small>
+                    </span>
+                </a>
+            <?php endif; ?>
 
             <?php $done = $doneFahrzeuge; ?>
             <a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index" class="setup-step <?= $done ? 'done' : '' ?>">
