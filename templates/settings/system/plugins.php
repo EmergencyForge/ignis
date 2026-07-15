@@ -44,7 +44,7 @@ $csrfToken = CsrfProtection::getToken();
                     bleiben erhalten</strong> und stehen nach dem Reaktivieren unverändert
                     wieder zur Verfügung.
                 </p>
-                <div class="ignis-alert ignis-alert--warning mb-4" style="max-width: 720px;">
+                <div class="ignis-alert ignis-alert--warning mb-4">
                     <i class="fa-solid fa-shield-halved ignis-alert__icon"></i>
                     <div class="ignis-alert__body">
                         <div class="ignis-alert__title">Community-Plugins — Nutzung auf eigenes Risiko</div>
