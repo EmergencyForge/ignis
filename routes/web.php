@@ -581,6 +581,8 @@ $router->post('/settings/system/config',      [\App\Http\Controllers\Settings\Sy
 $router->get('/settings/system/performance', [\App\Http\Controllers\Settings\SystemController::class, 'performance'], $settingsAuth);
 $router->get('/settings/system/telemetry',      [\App\Http\Controllers\Settings\SystemController::class, 'telemetry'],   $settingsAuth);
 $router->post('/settings/system/telemetry',     [\App\Http\Controllers\Settings\SystemController::class, 'telemetry'],   $settingsAuth);
+$router->get('/settings/system/plugins',        [\App\Http\Controllers\Settings\PluginsController::class, 'index'],      $settingsAuth);
+$router->post('/settings/system/plugins',       [\App\Http\Controllers\Settings\PluginsController::class, 'index'],      $settingsAuth);
 $router->get('/settings/system/logs',     [\App\Http\Controllers\Settings\LogsController::class, 'index'], $settingsAuth);
 
 // Cron-Verwaltung
