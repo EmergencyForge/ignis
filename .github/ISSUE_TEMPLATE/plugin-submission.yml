@@ -1,0 +1,85 @@
+name: Plugin einreichen
+description: Reiche dein Plugin für den EmergencyForge-Hub-Katalog ein (hub.emergencyforge.de/plugins).
+title: "[Plugin] "
+labels: ["plugin-submission"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke, dass du ein Plugin für **ignis** einreichst! Der Hub-Katalog listet nur Metadaten —
+        dein Plugin bleibt als GitHub-Release in **deinem** Repository. Bitte stelle sicher, dass
+        dein Release ein ZIP-Asset mit einer `manifest.php` im Archiv-Root enthält.
+
+  - type: input
+    id: name
+    attributes:
+      label: Plugin-Name
+      placeholder: z.B. Dienstplan-Manager
+    validations:
+      required: true
+
+  - type: input
+    id: repo
+    attributes:
+      label: GitHub-Repository
+      description: Öffentliches Repository mit dem Quellcode.
+      placeholder: https://github.com/dein-name/dein-plugin
+    validations:
+      required: true
+
+  - type: input
+    id: tag
+    attributes:
+      label: Release-Tag
+      description: Der Git-Tag des Releases, das gelistet werden soll (SemVer empfohlen).
+      placeholder: v1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: zip
+    attributes:
+      label: ZIP-Asset-URL
+      description: Direkter Link zum Release-Asset (.zip) auf GitHub.
+      placeholder: https://github.com/dein-name/dein-plugin/releases/download/v1.0.0/dein-plugin-1.0.0.zip
+    validations:
+      required: true
+
+  - type: input
+    id: sha256
+    attributes:
+      label: SHA256-Digest des ZIPs
+      description: "`sha256sum dein-plugin-1.0.0.zip` — der Hub pinnt diese Version, ignis prüft den Digest vor der Installation."
+      placeholder: 64 Hex-Zeichen
+    validations:
+      required: true
+
+  - type: input
+    id: ignis-min
+    attributes:
+      label: Benötigte ignis-Mindestversion
+      placeholder: "1.1"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Beschreibung
+      description: Was macht das Plugin? 1–3 Sätze, erscheinen so im Katalog.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: requirements
+    attributes:
+      label: Voraussetzungen
+      options:
+        - label: Das Release-ZIP enthält eine gültige `manifest.php` im Archiv-Root (id, name, version, requires).
+          required: true
+        - label: Der Quellcode steht unter einer Open-Source-Lizenz und darf vom EmergencyForge-Team gesichtet werden.
+          required: true
+        - label: Mir ist bewusst, dass mein Plugin zunächst als „Ungetestet" gelistet wird und EmergencyForge keine Gewähr übernimmt — Support leiste ich selbst.
+          required: true
+        - label: Das Plugin enthält keinen obfuskierten Code, keine Telemetrie an Dritte und keine Fernwartungs-Hintertüren.
+          required: true
