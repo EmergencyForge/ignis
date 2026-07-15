@@ -36,13 +36,17 @@ $env = static function (string $key, ?string $default = null): ?string {
 
 return [
     'paths' => [
-        // Kern-Migrations plus die Migrations-Verzeichnisse aller
-        // installierten Plugins. Bewusst alle (nicht nur aktive): ein
-        // deaktiviertes Plugin behält sein Schema, und diese Datei muss
-        // auch ohne App-Bootstrap in der CLI funktionieren.
+        // Kern-Migrations plus die Migrations-Verzeichnisse installierter
+        // Plugins. Installiert = mitgeliefert oder vom Admin bestätigt —
+        // ein bloß nach plugins/ kopiertes Fremd-Plugin migriert nichts.
+        // Deaktivierte (aber installierte) Plugins bleiben drin: ihr
+        // Schema gehört erhalten. Die Filterlogik lebt im PluginLoader
+        // und ist datenbankfrei, damit sie auch hier in der CLI läuft.
         'migrations' => array_merge(
             [__DIR__ . '/database/migrations'],
-            glob(__DIR__ . '/plugins/*/migrations', GLOB_ONLYDIR) ?: [],
+            class_exists(\App\Plugins\PluginLoader::class)
+                ? \App\Plugins\PluginLoader::migrationPaths()
+                : [],
         ),
         'seeds'      => __DIR__ . '/database/seeds',
     ],

@@ -25,13 +25,21 @@ plugins/<id>/
 ```
 
 Die Fragmente aktiver Plugins werden beim Boot vom `PluginLoader` in die
-jeweiligen Register gemergt. Zwei Besonderheiten:
+jeweiligen Register gemergt. Drei Besonderheiten:
 
-- **Migrations laufen immer** — auch für deaktivierte Plugins. Deaktivieren
-  entfernt Routen/Nav/Listener, lässt Tabellen und Daten aber unangetastet,
-  damit beim Reaktivieren nichts fehlt.
+- **Fremde Plugins sind erst nach ausdrücklicher Installation aktiv.** Nur
+  die offiziell mitgelieferten Plugins (Liste `PluginLoader::BUNDLED` im
+  Core) laufen ohne weiteres Zutun. Alles andere bleibt nach dem Ablegen in
+  `plugins/` vollständig inert — kein Code, keine Migration — bis ein Admin
+  die Installation in den Systemeinstellungen startet (schreibt die
+  Marker-Datei `.installed` in den Plugin-Ordner).
+- **Migrations installierter Plugins laufen immer** — auch für deaktivierte.
+  Deaktivieren entfernt Routen/Nav/Listener, lässt Tabellen und Daten aber
+  unangetastet, damit beim Reaktivieren nichts fehlt.
 - **Plugin-Routen können Kern-Routen nicht überschreiben**, sie werden nach
   den Kern-Routen registriert.
+
+Verwaltet werden Plugins unter **Einstellungen → System → Plugins**.
 
 Das Manifest ist die einzige Pflichtdatei:
 
