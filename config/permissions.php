@@ -26,7 +26,6 @@ return [
         'edivi.view'        => 'eNOTF Protokolle ansehen',
         'edivi.edit'        => 'eNOTF Protokolle bearbeiten',
         'enotf.view'        => 'eNOTF System nutzen',
-        'mci.manage'        => 'MCI-Lagen verwalten',
         'fire.incident.qm'  => 'FW Einsatzprotokolle bearbeiten',
     ],
     'Lexikon' => [
