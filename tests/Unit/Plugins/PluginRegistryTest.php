@@ -79,6 +79,19 @@ class PluginRegistryTest extends TestCase
     }
 
     #[Test]
+    public function it_treats_an_unknown_ignis_version_as_compatible(): void
+    {
+        $registry = new PluginRegistry($this->keyed([
+            $this->plugin('enotf', [], '>=2.0'),
+        ]));
+
+        $registry->resolve(['enotf'], null);
+
+        $this->assertSame(['enotf'], $this->ids($registry->active()));
+        $this->assertSame([], $registry->skipped());
+    }
+
+    #[Test]
     public function it_skips_version_incompatible_plugins(): void
     {
         $registry = new PluginRegistry($this->keyed([

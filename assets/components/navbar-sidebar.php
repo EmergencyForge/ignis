@@ -15,6 +15,13 @@ use App\Auth\Permissions;
 
 $navigationConfig = require __DIR__ . '/../../config/navigation.php';
 
+// Navigations-Einträge aktiver Plugins anhängen.
+try {
+    $navigationConfig = app(\App\Plugins\PluginLoader::class)->mergeNavigation($navigationConfig);
+} catch (\Throwable $e) {
+    \App\Logging\Logger::warning('Plugin-Navigation nicht geladen: ' . $e->getMessage());
+}
+
 /**
  * Filtert Rail/Sections/Items rekursiv nach Permissions.
  * Entfernt leere Sections/Rails, wenn nichts mehr sichtbar ist.

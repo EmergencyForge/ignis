@@ -31,6 +31,13 @@ final class Application extends SymfonyApplication
     {
         $commands = require __DIR__ . '/../../config/console.php';
 
+        // Commands aktiver Plugins anhängen.
+        try {
+            $commands = $this->container->get(\App\Plugins\PluginLoader::class)->mergeConsoleCommands($commands);
+        } catch (\Throwable $e) {
+            \App\Logging\Logger::warning('Plugin-Commands nicht geladen: ' . $e->getMessage());
+        }
+
         foreach ($commands as $commandClass) {
             /** @var Command $command */
             $command = $this->container->get($commandClass);

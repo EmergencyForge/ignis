@@ -159,6 +159,9 @@ return [
     \App\Http\Pipeline::class => \DI\autowire(),
     \App\Http\Router::class   => \DI\autowire(),
 
+    // Plugin-Loader — einmal pro Request, cached das aktive Plugin-Set.
+    \App\Plugins\PluginLoader::class => \DI\autowire(),
+
     // Stateless Middlewares ohne Parameter — als Singletons registriert,
     // damit sie per Pipeline-Shortstring ("FQCN") aufgelöst werden können.
     \App\Http\Middleware\ApiKeyMiddleware::class       => \DI\autowire(),
@@ -285,8 +288,14 @@ return [
 
         // Listener aus config/events.php laden und beim Illuminate-Dispatcher
         // registrieren. Jeder Listener wird lazy aus dem Container resolved,
-        // damit Constructor-Injection funktioniert.
+        // damit Constructor-Injection funktioniert. Aktive Plugins hängen
+        // ihre eigenen Listener über events.php-Fragmente an.
         $eventMap = require __DIR__ . '/events.php';
+        try {
+            $eventMap = $c->get(\App\Plugins\PluginLoader::class)->mergeEventMap($eventMap);
+        } catch (\Throwable $e) {
+            \App\Logging\Logger::warning('Plugin-Events nicht geladen: ' . $e->getMessage());
+        }
         foreach ($eventMap as $eventClass => $listenerClasses) {
             foreach ($listenerClasses as $listenerClass) {
                 $illuminate->listen($eventClass, function ($event) use ($c, $listenerClass): void {

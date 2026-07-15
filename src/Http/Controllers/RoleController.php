@@ -38,6 +38,14 @@ class RoleController extends Controller
         $roles            = Role::query()->orderBy('priority')->get();
         $permissionGroups = require dirname(__DIR__, 3) . '/config/permissions.php';
 
+        // Permissions aktiver Plugins in den Katalog aufnehmen, damit sie
+        // in der Rollen-Verwaltung zuweisbar sind.
+        try {
+            $permissionGroups = app(\App\Plugins\PluginLoader::class)->mergePermissionGroups($permissionGroups);
+        } catch (\Throwable $e) {
+            \App\Logging\Logger::warning('Plugin-Permissions nicht geladen: ' . $e->getMessage());
+        }
+
         $this->renderView('roles/index', [
             'roles'            => $roles,
             'permissionGroups' => $permissionGroups,

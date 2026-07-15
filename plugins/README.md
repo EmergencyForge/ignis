@@ -13,16 +13,25 @@ Cores.
 ```
 plugins/<id>/
   manifest.php        Pflicht: Metadaten, Kompatibilität, Abhängigkeiten
-  routes.web.php      optional: web-Routen (bekommt $router)
+  routes.web.php      optional: web-Routen (bekommt $router, lädt nach den Kern-Routen)
   routes.api.php      optional: API-Routen
-  navigation.php      optional: Nav-Fragment (rail/sections)
-  events.php          optional: Event → Listener-Map
-  console.php         optional: Console-Command-Klassen
-  cron.php            optional: Cron-Job-Definitionen
-  migrations/         optional: eigene Phinx-Migrations (Prefix plugin_<id>_*)
+  navigation.php      optional: Liste von Rail-Einträgen (Format wie config/navigation.php)
+  events.php          optional: Event → Listener-Map (wird an die Kern-Map angehängt)
+  console.php         optional: Liste von Console-Command-Klassen
+  permissions.php     optional: Permission-Katalog (Gruppen-Format wie config/permissions.php)
+  migrations/         optional: eigene Phinx-Migrations (Tabellen-Prefix plugin_<id>_*)
   templates/          optional: Views
   src/                optional: Controller, Services (autowired)
 ```
+
+Die Fragmente aktiver Plugins werden beim Boot vom `PluginLoader` in die
+jeweiligen Register gemergt. Zwei Besonderheiten:
+
+- **Migrations laufen immer** — auch für deaktivierte Plugins. Deaktivieren
+  entfernt Routen/Nav/Listener, lässt Tabellen und Daten aber unangetastet,
+  damit beim Reaktivieren nichts fehlt.
+- **Plugin-Routen können Kern-Routen nicht überschreiben**, sie werden nach
+  den Kern-Routen registriert.
 
 Das Manifest ist die einzige Pflichtdatei:
 
