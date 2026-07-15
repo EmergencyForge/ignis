@@ -1569,9 +1569,11 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                     <?php if (Permissions::check(['admin'])): ?>
                         <a href="<?= BASE_PATH ?>settings/system/config" class="sidebar-sublink">Konfiguration</a>
                         <a href="<?= BASE_PATH ?>settings/system/index" class="sidebar-sublink">Updater</a>
+                        <a href="<?= BASE_PATH ?>settings/system/plugins" class="sidebar-sublink">Plugins</a>
                         <a href="<?= BASE_PATH ?>settings/system/telemetry" class="sidebar-sublink">Telemetrie</a>
                         <a href="<?= BASE_PATH ?>settings/system/performance" class="sidebar-sublink">Performance</a>
                         <a href="<?= BASE_PATH ?>settings/system/logs" class="sidebar-sublink">Logs &amp; Errors</a>
+                        <a href="<?= BASE_PATH ?>settings/system/cron" class="sidebar-sublink">Cron-Jobs</a>
                         <a href="<?= BASE_PATH ?>settings/federation/index" class="sidebar-sublink">Instanzvernetzung</a>
                     <?php endif; ?>
                 </div>

@@ -44,6 +44,12 @@ $cards = [
         'desc' => 'System-Daten, API-Keys, Brand-Identität.',
     ],
     [
+        'href' => BASE_PATH . 'settings/system/plugins',
+        'icon' => 'fa-solid fa-puzzle-piece',
+        'title' => 'Plugins',
+        'desc' => 'Module aktivieren/deaktivieren, Community-Plugins installieren.',
+    ],
+    [
         'href' => BASE_PATH . 'settings/system/performance',
         'icon' => 'fa-solid fa-gauge-high',
         'title' => 'Performance',
