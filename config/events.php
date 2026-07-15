@@ -26,21 +26,6 @@ declare(strict_types=1);
  * anfassen.
  */
 
-use App\Events\EnotfPreregistered;
-use App\Events\EnotfProtocolReleased;
-use App\Events\FireProtocolReleased;
-use App\Listeners\DispatchDiscordWebhookOnEnotfPreregistered;
-use App\Listeners\DispatchDiscordWebhookOnEnotfReleased;
-use App\Listeners\DispatchDiscordWebhookOnFireReleased;
-
-return [
-    EnotfProtocolReleased::class => [
-        DispatchDiscordWebhookOnEnotfReleased::class,
-    ],
-    FireProtocolReleased::class => [
-        DispatchDiscordWebhookOnFireReleased::class,
-    ],
-    EnotfPreregistered::class => [
-        DispatchDiscordWebhookOnEnotfPreregistered::class,
-    ],
-];
+// Modul-Events kommen aus den Plugin-Fragmenten (plugins/*/events.php)
+// per PluginLoader::mergeEventMap() dazu.
+return [];

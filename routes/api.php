@@ -56,7 +56,6 @@ $router->get('/api/_router/whoami', function ($request) {
 
 use App\Http\Controllers\Api\CharacterController;
 use App\Http\Controllers\Api\EmdSyncController;
-use App\Http\Controllers\Api\FireStatusPollController;
 use App\Http\Controllers\Api\NotificationController;
 
 // Browser-side: aktuelle Session-ID abfragen — kein Auth, läuft im
@@ -66,12 +65,6 @@ $router->match(['GET', 'POST'], '/api/character/get-session-id',     [CharacterC
 // FiveM-Server: Charakter-Daten in Spieler-Session injizieren
 $router->post('/api/character/identify',
     [CharacterController::class, 'identify'],
-    [ApiKeyMiddleware::class]
-);
-
-// FiveM-Server: Fire-Status-Queue pollen
-$router->post('/api/emd/status-poll',
-    [FireStatusPollController::class, 'poll'],
     [ApiKeyMiddleware::class]
 );
 
@@ -108,11 +101,6 @@ $router->get('/api/personnel/by-dienstnr/{nr:[A-Za-z0-9_\-]+}/card',
 
 $router->get('/api/users/{id:\d+}/card',
     [\App\Http\Controllers\UserController::class, 'card'],
-    [new AuthMiddleware()]
-);
-
-$router->get('/api/pois/{id:\d+}/card',
-    [\App\Http\Controllers\Api\PoiCardController::class, 'show'],
     [new AuthMiddleware()]
 );
 

@@ -42,7 +42,6 @@
 
 declare(strict_types=1);
 
-use App\Helpers\EnotfUrl;
 
 return [
     'rail' => [
@@ -117,43 +116,14 @@ return [
         // ─────────────────────────────────────────────────────────────
         // Protokolle
         // ─────────────────────────────────────────────────────────────
+        // Sections kommen aus den Protokoll-Plugins (eNOTF, fireTab,
+        // MANV-Board) per merge_into — der Rail-Eintrag bleibt als Anker.
         [
             'id'        => 'protokolle',
             'label'     => 'Protokolle',
             'icon'      => 'fa-solid fa-file-medical',
             'data_page' => 'protokolle',
-            'sections'  => [
-                [
-                    'label' => 'eNOTF',
-                    'items' => [
-                        [
-                            'label'    => 'eNOTF öffnen',
-                            'href'     => BASE_PATH . 'enotf/',
-                            'external' => true,
-                        ],
-                        [
-                            'label'       => 'Prüfliste',
-                            'href'        => EnotfUrl::admin('list'),
-                            'permissions' => ['admin', 'edivi.view'],
-                        ],
-                    ],
-                ],
-                [
-                    'label' => 'FW Einsatzprotokolle',
-                    'items' => [
-                        [
-                            'label'    => 'fireTab öffnen',
-                            'href'     => BASE_PATH . 'firetab/',
-                            'external' => true,
-                        ],
-                        [
-                            'label'       => 'Qualitätsmanagement',
-                            'href'        => BASE_PATH . 'firetab/admin/list',
-                            'permissions' => ['admin', 'fire.incident.qm'],
-                        ],
-                    ],
-                ],
-            ],
+            'sections'  => [],
         ],
 
         // ─────────────────────────────────────────────────────────────
@@ -281,42 +251,6 @@ return [
                                 'type'   => 'link',
                                 'target' => BASE_PATH . 'settings/forms/create',
                                 'label'  => 'Neuen Antragstyp anlegen',
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'label'       => 'eNOTF',
-                    'permissions' => ['admin', 'edivi.view', 'pois.view'],
-                    'items'       => [
-                        [
-                            'label'        => 'POIs',
-                            'href'         => BASE_PATH . 'settings/pois/index',
-                            'permissions'  => ['admin', 'pois.view'],
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'poi-create',
-                                'label'  => 'Neuen POI anlegen',
-                            ],
-                        ],
-                        [
-                            'label'        => 'Medikamente',
-                            'href'         => BASE_PATH . 'settings/medications/index',
-                            'permissions'  => ['admin', 'edivi.view'],
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'medikament-create',
-                                'label'  => 'Neues Medikament anlegen',
-                            ],
-                        ],
-                        [
-                            'label'        => 'Schnellzugriff',
-                            'href'         => BASE_PATH . 'settings/enotf/index',
-                            'permissions'  => ['admin', 'edivi.view'],
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'schnellzugriff-link-create',
-                                'label'  => 'Neuen Link anlegen',
                             ],
                         ],
                     ],

@@ -3,7 +3,7 @@ date_default_timezone_set('Europe/Berlin');
 require_once __DIR__ . '/../../../assets/config/config.php';
 require __DIR__ . '/../../../assets/config/database.php';
 
-use App\Helpers\EnotfUrl;
+use Plugin\Enotf\Helpers\EnotfUrl;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $action = $_POST["action"];

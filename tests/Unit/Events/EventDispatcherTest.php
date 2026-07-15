@@ -4,14 +4,24 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Events;
 
-use App\Events\EnotfPreregistered;
-use App\Events\EnotfProtocolReleased;
+use Plugin\Enotf\Events\EnotfPreregistered;
+use Plugin\Enotf\Events\EnotfProtocolReleased;
 use App\Events\Event;
 use App\Events\EventDispatcher;
-use App\Events\FireProtocolReleased;
 use Illuminate\Events\Dispatcher as IlluminateDispatcher;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
+
+/**
+ * Testlokales Event — Modul-Events (eNOTF, fireTab, …) leben in Plugins
+ * und taugen deshalb nicht als Specimen für Kern-Dispatcher-Tests.
+ */
+final class OrderProbeEvent extends Event
+{
+    public function __construct(public readonly array $data = [])
+    {
+    }
+}
 
 class EventDispatcherTest extends TestCase
 {
@@ -46,14 +56,14 @@ class EventDispatcherTest extends TestCase
         $dispatcher = new EventDispatcher($illuminate);
 
         $log = [];
-        $illuminate->listen(FireProtocolReleased::class, function () use (&$log): void {
+        $illuminate->listen(OrderProbeEvent::class, function () use (&$log): void {
             $log[] = 'first';
         });
-        $illuminate->listen(FireProtocolReleased::class, function () use (&$log): void {
+        $illuminate->listen(OrderProbeEvent::class, function () use (&$log): void {
             $log[] = 'second';
         });
 
-        $dispatcher->fire(new FireProtocolReleased(['id' => 1]));
+        $dispatcher->fire(new OrderProbeEvent(['id' => 1]));
 
         $this->assertSame(['first', 'second'], $log);
     }

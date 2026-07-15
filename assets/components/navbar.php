@@ -2,7 +2,6 @@
 
 use App\Auth\Permissions;
 use App\Config\ConfigManager;
-use App\Helpers\EnotfUrl;
 use App\Notifications\NotificationManager;
 
 $unreadCount = 0;
@@ -1483,21 +1482,26 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         </a>
         <div class="sidebar-submenu" data-submenu="protokolle">
             <div class="sidebar-submenu-inner">
-                <span class="sidebar-section-title" data-section="enotf">eNOTF</span>
-                <a href="<?= BASE_PATH ?>enotf/" target="_blank" class="sidebar-sublink">eNOTF öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
-                <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
-                    <a href="<?= EnotfUrl::admin('list') ?>" class="sidebar-sublink">Prüfliste</a>
+                <?php $pluginNav = app(\App\Plugins\PluginLoader::class); ?>
+                <?php if ($pluginNav->isActive('enotf')): ?>
+                    <span class="sidebar-section-title" data-section="enotf">eNOTF</span>
+                    <a href="<?= BASE_PATH ?>enotf/" target="_blank" class="sidebar-sublink">eNOTF öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
+                    <?php if (Permissions::check(['admin', 'edivi.view'])): ?>
+                        <a href="<?= \Plugin\Enotf\Helpers\EnotfUrl::admin('list') ?>" class="sidebar-sublink">Prüfliste</a>
+                    <?php endif; ?>
                 <?php endif; ?>
 
-                <?php if (Permissions::check(['admin', 'mci.manage'])): ?>
+                <?php if ($pluginNav->isActive('manv-board') && Permissions::check(['admin', 'mci.manage'])): ?>
                     <span class="sidebar-section-title" data-section="manv">MANV-Board</span>
                     <a href="<?= BASE_PATH ?>mci/" class="sidebar-sublink">MANV-Board</a>
                 <?php endif; ?>
 
-                <span class="sidebar-section-title" data-section="firetab">FW Einsatzprotokolle</span>
-                <a href="<?= BASE_PATH ?>firetab/" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
-                <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
-                    <a href="<?= BASE_PATH ?>firetab/admin/list" class="sidebar-sublink">Qualitätsmanagement</a>
+                <?php if ($pluginNav->isActive('firetab')): ?>
+                    <span class="sidebar-section-title" data-section="firetab">FW Einsatzprotokolle</span>
+                    <a href="<?= BASE_PATH ?>firetab/" target="_blank" class="sidebar-sublink">fireTab öffnen <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:0.6rem;opacity:0.5;margin-left:0.25rem"></i></a>
+                    <?php if (Permissions::check(['admin', 'fire.incident.qm'])): ?>
+                        <a href="<?= BASE_PATH ?>firetab/admin/list" class="sidebar-sublink">Qualitätsmanagement</a>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
         </div>

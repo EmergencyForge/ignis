@@ -10,7 +10,7 @@
  */
 
 use App\Auth\Permissions;
-use App\Helpers\EnotfUrl;
+use Plugin\Enotf\Helpers\EnotfUrl;
 
 // Session-Crew-Daten bei jedem Seitenaufruf aus DB aktualisieren
 if (isset($pdo)) {

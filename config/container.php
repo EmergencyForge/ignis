@@ -178,29 +178,22 @@ return [
     // -----------------------------------------------------------------------
 
     \App\Http\Controllers\Api\CharacterController::class         => \DI\autowire(),
-    \App\Http\Controllers\Api\FireStatusPollController::class    => \DI\autowire(),
     \App\Http\Controllers\Api\EmdSyncController::class           => \DI\autowire(),
     \App\Http\Controllers\Api\NotificationController::class      => \DI\autowire(),
     \App\Http\Controllers\Api\VersionController::class             => \DI\autowire(),
     \App\Http\Controllers\Api\HealthController::class              => \DI\autowire(),
-    \App\Http\Controllers\Api\PoiDepartmentsController::class      => \DI\autowire(),
-    \App\Http\Controllers\Api\KlinikCodeController::class          => \DI\autowire(),
     \App\Http\Controllers\Api\PersonnelProfileController::class    => \DI\autowire(),
     \App\Http\Controllers\Api\AnnouncementController::class        => \DI\autowire(),
-    \App\Http\Controllers\Api\HospitalAvailabilityController::class => \DI\autowire(),
     \App\Http\Controllers\Api\KnowledgebaseController::class       => \DI\autowire(),
     \App\Http\Controllers\Api\PersonnelController::class           => \DI\autowire(),
     \App\Http\Controllers\Api\SystemController::class              => \DI\autowire(),
     \App\Http\Controllers\Api\TelemetryApiController::class        => \DI\autowire(),
-    \App\Http\Controllers\Api\FireController::class                => \DI\autowire(),
     \App\Http\Controllers\Api\AsuSyncController::class             => \DI\autowire(),
     \App\Http\Controllers\Api\VehicleTzTemplatesController::class  => \DI\autowire(),
     \App\Http\Controllers\Api\FederationController::class          => \DI\autowire(),
     \App\Http\Controllers\Api\DocumentsController::class           => \DI\autowire(),
-    \App\Http\Controllers\Api\EnotfController::class               => \DI\autowire(),
     \App\Http\Controllers\Api\VehicleImportController::class       => \DI\autowire(),
     \App\Http\Controllers\Api\VehicleDefectsController::class      => \DI\autowire(),
-    \App\Http\Controllers\Api\FireLagekarteController::class       => \DI\autowire(),
 
     // Service-Klassen die von Controllern via Constructor-Injection genutzt werden
     \App\Notifications\NotificationManager::class => \DI\autowire(),
@@ -309,9 +302,6 @@ return [
     },
 
     // Listener werden autowired — Constructor-Injection von JobDispatcher etc.
-    \App\Listeners\DispatchDiscordWebhookOnEnotfReleased::class      => \DI\autowire(),
-    \App\Listeners\DispatchDiscordWebhookOnFireReleased::class       => \DI\autowire(),
-    \App\Listeners\DispatchDiscordWebhookOnEnotfPreregistered::class => \DI\autowire(),
 
     // -----------------------------------------------------------------------
     //  Console — Symfony-Console-Commands
