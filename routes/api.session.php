@@ -23,7 +23,6 @@ use App\Http\Controllers\Api\FederationController;
 use App\Http\Controllers\Api\FireController;
 use App\Http\Controllers\Api\HospitalAvailabilityController;
 use App\Http\Controllers\Api\KlinikCodeController;
-use App\Http\Controllers\Api\KnowledgebaseController;
 use App\Http\Controllers\Api\MciController;
 use App\Http\Controllers\Api\PersonnelController;
 use App\Http\Controllers\Api\PersonnelProfileController;
@@ -184,29 +183,6 @@ $router->post('/api/hospital-availability-update.php',   $hospitalUpdate, $auth)
 $klinikHandler = [KlinikCodeController::class, 'generate'];
 $router->post('/api/klinik/generate-code',      $klinikHandler, $auth);
 $router->post('/api/generate-klinikcode.php',   $klinikHandler, $auth);
-
-// ============================================================================
-//  Knowledgebase — refactored zum echten Controller.
-//
-//  GET-Routen sind config-gated (KB_PUBLIC_ACCESS). Write-Operationen
-//  (POST/DELETE categories, POST/DELETE tags) erfordern Session + kb.edit
-//  und werden intern im Controller geprüft.
-// ============================================================================
-$kbReadAuth  = [JsonExceptionMiddleware::class, new AuthMiddleware('KB_PUBLIC_ACCESS', invert: true)];
-$kbWriteAuth = [JsonExceptionMiddleware::class, new AuthMiddleware(), new PermissionMiddleware(['admin', 'kb.edit'])];
-
-// Categories
-$router->get(   '/api/knowledgebase/categories',     [KnowledgebaseController::class, 'listCategories'],  $kbReadAuth);
-$router->post(  '/api/knowledgebase/categories',     [KnowledgebaseController::class, 'saveCategory'],    $kbWriteAuth);
-$router->delete('/api/knowledgebase/categories',     [KnowledgebaseController::class, 'deleteCategory'], $kbWriteAuth);
-
-// Tags
-$router->get(   '/api/knowledgebase/tags',     [KnowledgebaseController::class, 'listTags'],   $kbReadAuth);
-$router->post(  '/api/knowledgebase/tags',     [KnowledgebaseController::class, 'saveTag'],    $kbWriteAuth);
-$router->delete('/api/knowledgebase/tags',     [KnowledgebaseController::class, 'deleteTag'],  $kbWriteAuth);
-
-// Search
-$router->get(   '/api/knowledgebase/search',     [KnowledgebaseController::class, 'search'], $kbReadAuth);
 
 // ============================================================================
 //  MANV (Massenanfall) — refactored

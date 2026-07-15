@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Controllers;
+namespace Plugin\KnowledgeBase\Controllers;
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
-use App\KnowledgeBase\KBHelper;
+use App\Http\Controllers\Controller;
+use Plugin\KnowledgeBase\KBHelper;
 use PDO;
 use PDOException;
 
@@ -21,6 +22,14 @@ use PDOException;
  */
 class LexiconController extends Controller
 {
+    /**
+     * Views liegen im templates/-Verzeichnis des Plugins.
+     */
+    protected function viewBasePath(): string
+    {
+        return dirname(__DIR__, 2) . '/templates';
+    }
+
     /**
      * GET /lexicon — Listen-Seite mit Filter (Kategorie, Tag, Suche, Typ).
      */

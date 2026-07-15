@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Policies;
+namespace Plugin\KnowledgeBase\Policies;
 
 use App\Auth\Permissions;
 

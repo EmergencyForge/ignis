@@ -9,7 +9,7 @@ use App\KnowledgeBase\KBHelper;
 <head>
     <?php
     $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
-    include __DIR__ . "/../../assets/components/_base/admin/head.php";
+    include dirname(__DIR__, 4) . "/assets/components/_base/admin/head.php";
     ?>
     <style>
         .competency-header {
@@ -284,7 +284,7 @@ use App\KnowledgeBase\KBHelper;
 
 <body data-bs-theme="dark" data-page="lexicon">
     <?php if ($isLoggedIn): ?>
-        <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
+        <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
     <?php else: ?>
         <nav class="navbar navbar-expand-lg bg-body-tertiary mb-4">
             <div class="container">
@@ -609,7 +609,7 @@ use App\KnowledgeBase\KBHelper;
         </div>
     </div>
 
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
+    <?php include dirname(__DIR__, 4) . "/assets/components/footer.php"; ?>
 </body>
 
 </html>

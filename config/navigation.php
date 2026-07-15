@@ -172,22 +172,6 @@ return [
         ],
 
         // ─────────────────────────────────────────────────────────────
-        // Lexikon (Legacy-Modul-Folder unter /lexicon/, eigener DirectoryIndex)
-        // ─────────────────────────────────────────────────────────────
-        [
-            'id'           => 'lexicon',
-            'label'        => 'Lexikon',
-            'icon'         => 'fa-solid fa-book-medical',
-            'href'         => BASE_PATH . 'lexicon/index',
-            'data_page'    => 'lexicon',
-            'quick_action' => [
-                'type'   => 'link',
-                'target' => BASE_PATH . 'lexicon/create',
-                'label'  => 'Neuen Artikel schreiben',
-            ],
-        ],
-
-        // ─────────────────────────────────────────────────────────────
         // Kalender — Termine, role-getaggte Dienste, Recurring-Events
         // ─────────────────────────────────────────────────────────────
         [

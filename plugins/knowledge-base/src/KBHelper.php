@@ -1,6 +1,6 @@
 <?php
 
-namespace App\KnowledgeBase;
+namespace Plugin\KnowledgeBase;
 
 /**
  * Helper class for Knowledge Base functionality

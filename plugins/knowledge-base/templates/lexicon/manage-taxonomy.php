@@ -6,11 +6,11 @@ use App\Helpers\Flash;
 <head>
     <?php
     $SITE_TITLE = 'KB Kategorien & Tags';
-    include __DIR__ . '/../../assets/components/_base/admin/head.php';
+    include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php';
     ?>
 </head>
 <body data-bs-theme="dark" data-page="lexicon">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
+    <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="container my-5">
             <nav class="admin-breadcrumb">
@@ -294,6 +294,6 @@ use App\Helpers\Flash;
             else showToast('Fehler: ' + result.error, 'error');
         }
     </script>
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
+    <?php include dirname(__DIR__, 4) . "/assets/components/footer.php"; ?>
 </body>
 </html>
