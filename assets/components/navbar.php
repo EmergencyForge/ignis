@@ -1506,10 +1506,12 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
             </div>
         </div>
 
-        <!-- Lexikon (Legacy-Modul-Folder, serviert direkt via DirectoryIndex unter /lexicon/) -->
-        <a href="<?= BASE_PATH ?>lexicon/index" class="sidebar-link" data-page="lexicon">
-            <i class="fa-solid fa-book-medical"></i><span>Lexikon</span>
-        </a>
+        <!-- Lexikon (Wissensdatenbank-Plugin) -->
+        <?php if (app(\App\Plugins\PluginLoader::class)->isActive('knowledge-base')): ?>
+            <a href="<?= BASE_PATH ?>lexicon/index" class="sidebar-link" data-page="lexicon">
+                <i class="fa-solid fa-book-medical"></i><span>Lexikon</span>
+            </a>
+        <?php endif; ?>
 
         <!-- Fahrzeuge -->
         <?php if (Permissions::check(['admin', 'vehicles.view'])): ?>
@@ -1551,7 +1553,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                         <?php endif; ?>
                     <?php endif; ?>
 
-                    <?php if (Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>
+                    <?php if (app(\App\Plugins\PluginLoader::class)->isActive('enotf') && Permissions::check(['admin', 'edivi.view', 'pois.view'])): ?>
                         <span class="sidebar-section-title" data-section="enotf-settings">eNOTF</span>
                         <?php if (Permissions::check(['admin', 'pois.view'])): ?>
                             <a href="<?= BASE_PATH ?>settings/pois/index" class="sidebar-sublink">POIs</a>
@@ -1569,9 +1571,11 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
                     <?php if (Permissions::check(['admin'])): ?>
                         <a href="<?= BASE_PATH ?>settings/system/config" class="sidebar-sublink">Konfiguration</a>
                         <a href="<?= BASE_PATH ?>settings/system/index" class="sidebar-sublink">Updater</a>
+                        <a href="<?= BASE_PATH ?>settings/system/plugins" class="sidebar-sublink">Plugins</a>
                         <a href="<?= BASE_PATH ?>settings/system/telemetry" class="sidebar-sublink">Telemetrie</a>
                         <a href="<?= BASE_PATH ?>settings/system/performance" class="sidebar-sublink">Performance</a>
                         <a href="<?= BASE_PATH ?>settings/system/logs" class="sidebar-sublink">Logs &amp; Errors</a>
+                        <a href="<?= BASE_PATH ?>settings/system/cron" class="sidebar-sublink">Cron-Jobs</a>
                         <a href="<?= BASE_PATH ?>settings/federation/index" class="sidebar-sublink">Instanzvernetzung</a>
                     <?php endif; ?>
                 </div>

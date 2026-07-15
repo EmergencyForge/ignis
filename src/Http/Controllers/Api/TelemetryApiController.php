@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Auth\Gate;
+use App\Auth\Permissions;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
@@ -86,7 +86,7 @@ final class TelemetryApiController
 
     private function backgroundHeartbeat(): Response
     {
-        if (!Gate::check(['admin'])) {
+        if (!Permissions::check(['admin'])) {
             return Response::json(['success' => false, 'message' => 'Nur für Admins'], 403);
         }
 
