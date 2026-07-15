@@ -81,6 +81,18 @@ try {
     \App\Logging\Logger::warning("Auto-migration check failed: " . $e->getMessage());
 }
 
+// Aktive Plugins anbinden: Autoloading für ihre Klassen und Gate-Policies
+// registrieren. Muss vor dem Routing laufen, weil Plugin-Controller sonst
+// beim Dispatch nicht auflösbar wären. Schlägt fehl-tolerant fehl — ohne
+// ladbare Plugins läuft der Kern normal weiter.
+try {
+    $pluginLoader = $GLOBALS['app_container']->get(\App\Plugins\PluginLoader::class);
+    $pluginLoader->registerAutoloading();
+    $pluginLoader->registerPolicies();
+} catch (\Throwable $e) {
+    \App\Logging\Logger::warning('Plugin-Bootstrap fehlgeschlagen: ' . $e->getMessage());
+}
+
 try {
     $configManager = new ConfigManager($pdo);
     $configManager->loadAndDefineConfig();

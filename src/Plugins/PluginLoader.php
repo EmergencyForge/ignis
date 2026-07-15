@@ -86,6 +86,58 @@ class PluginLoader
     }
 
     /**
+     * Ist ein bestimmtes Plugin installiert UND aktiv? Für Kern-Code, der
+     * modulübergreifende Inhalte nur anbieten soll, wenn das Modul läuft
+     * (z.B. Suchergebnisse eines abgeschalteten Moduls unterdrücken).
+     */
+    public function isActive(string $pluginId): bool
+    {
+        foreach ($this->active() as $plugin) {
+            if ($plugin->id() === $pluginId) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Registriert die PSR-4-Autoload-Maps der aktiven Plugins. Muss im
+     * Bootstrap laufen, bevor Plugin-Klassen (Controller, Listener,
+     * Policies) referenziert werden.
+     */
+    public function registerAutoloading(): void
+    {
+        foreach ($this->active() as $plugin) {
+            foreach ($plugin->manifest->autoload as $prefix => $relativeDir) {
+                $baseDir = $plugin->directory . DIRECTORY_SEPARATOR . trim($relativeDir, '/\\');
+                spl_autoload_register(static function (string $class) use ($prefix, $baseDir): void {
+                    if (!str_starts_with($class, $prefix)) {
+                        return;
+                    }
+                    $relative = substr($class, strlen($prefix));
+                    $file = $baseDir . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $relative) . '.php';
+                    if (is_file($file)) {
+                        require $file;
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Registriert die Gate-Policies der aktiven Plugins (Manifest-Feld
+     * `policies`: Ressource => Policy-FQCN).
+     */
+    public function registerPolicies(): void
+    {
+        foreach ($this->active() as $plugin) {
+            foreach ($plugin->manifest->policies as $resource => $policyClass) {
+                \App\Auth\Gate::registerPolicy($resource, $policyClass);
+            }
+        }
+    }
+
+    /**
      * Routen-Fragmente der aktiven Plugins (web zuerst, dann api —
      * gleiche Reihenfolge wie die Kern-Routen).
      *

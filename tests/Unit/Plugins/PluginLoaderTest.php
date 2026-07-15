@@ -107,6 +107,28 @@ class PluginLoaderTest extends TestCase
     }
 
     #[Test]
+    public function it_reports_active_plugins_by_id(): void
+    {
+        $loader = $this->loaderWith([$this->goodPlugin()]);
+
+        $this->assertTrue($loader->isActive('good'));
+        $this->assertFalse($loader->isActive('missing'));
+    }
+
+    #[Test]
+    public function it_autoloads_plugin_classes_and_registers_their_policies(): void
+    {
+        $loader = $this->loaderWith([$this->goodPlugin()]);
+
+        $loader->registerAutoloading();
+        $loader->registerPolicies();
+
+        $this->assertTrue(class_exists('GoodPluginFixture\\Policies\\GoodresPolicy'));
+        $this->assertTrue(\App\Auth\Gate::allows('goodres.view'));
+        $this->assertFalse(\App\Auth\Gate::allows('goodres.edit'));
+    }
+
+    #[Test]
     public function plugins_without_fragments_contribute_nothing(): void
     {
         // Manifest-only Plugin: kein navigation.php, events.php, …
