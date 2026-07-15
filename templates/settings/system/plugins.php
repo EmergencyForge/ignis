@@ -30,6 +30,11 @@ $csrfToken = CsrfProtection::getToken();
             <div class="mb-6">
                 <div class="mb-4 flex items-center justify-between">
                     <h1 class="mb-0">Plugins</h1>
+                    <a href="https://hub.emergencyforge.de/plugins" target="_blank" rel="nofollow"
+                        class="ignis-btn ignis-btn--soft-primary ignis-btn--sm">
+                        <i class="fa-solid fa-compass mr-1"></i>Plugins erkunden
+                        <i class="fa-solid fa-arrow-up-right-from-square ml-1" style="font-size:0.65rem;opacity:0.6;"></i>
+                    </a>
                 </div>
 
                 <p class="text-gray-400 mb-4" style="max-width: 720px;">
@@ -39,15 +44,18 @@ $csrfToken = CsrfProtection::getToken();
                     bleiben erhalten</strong> und stehen nach dem Reaktivieren unverändert
                     wieder zur Verfügung.
                 </p>
-                <p class="text-gray-400 mb-4" style="max-width: 720px; font-size: 0.85rem;">
-                    <i class="fa-solid fa-shield-halved mr-1"></i>
-                    Nicht offiziell mitgelieferte Plugins bleiben nach dem Hochladen zunächst
-                    vollständig inaktiv: Es wird kein Code ausgeführt und keine Migration
-                    angewendet, bis die Installation hier ausdrücklich gestartet wird.
-                    Für Community-Plugins übernimmt EmergencyForge keine Gewähr — weder für
-                    Funktion und Sicherheit noch für mögliche Datenverluste. Die Nutzung
-                    erfolgt auf eigenes Risiko; Support leistet der jeweilige Herausgeber.
-                </p>
+                <div class="ignis-alert ignis-alert--warning mb-4" style="max-width: 720px;">
+                    <i class="fa-solid fa-shield-halved ignis-alert__icon"></i>
+                    <div class="ignis-alert__body">
+                        <div class="ignis-alert__title">Community-Plugins — Nutzung auf eigenes Risiko</div>
+                        Nicht offiziell mitgelieferte Plugins bleiben nach dem Hochladen zunächst
+                        vollständig inaktiv: Es wird kein Code ausgeführt und keine Migration
+                        angewendet, bis die Installation hier ausdrücklich gestartet wird.
+                        Für Community-Plugins übernimmt EmergencyForge keine Gewähr — weder für
+                        Funktion und Sicherheit noch für mögliche Datenverluste. Support leistet
+                        der jeweilige Herausgeber.
+                    </div>
+                </div>
 
                 <?php if ($message !== ''): ?>
                     <div class="alert alert-<?= htmlspecialchars($messageType) ?> mb-4" role="alert">
