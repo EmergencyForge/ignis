@@ -43,12 +43,16 @@ Config, das Navigations-Gerüst (Rail/Flyout-Shell), Dashboard, Settings-Rahmen,
 SystemUpdater, Telemetrie/Hub-Client.
 
 **First-Party-Plugins (extrahiert, standardmäßig aktiv):**
-eNOTF, fireTab (Fire Incidents), MANV, Dokumente, Wissensdatenbank, Kalender,
-Fahrtenbuch, Fahrzeuge, Anträge, Föderation.
+Genau vier Module werden aus der festen Verdrahtung gelöst:
 
-> Grenzfall **Personal (Personnel):** eng mit Users/Roles verkoppelt. Kandidat,
-> im Kernel zu bleiben oder als „nicht-deaktivierbares Basis-Plugin" zu starten.
-> Zu entscheiden bei der Extraktion.
+- **eNOTF** – Notfallprotokolle
+- **fireTab** – Fire Incidents
+- **MANV-Board**
+- **Wissensdatenbank**
+
+**Core (bleibt fest verdrahtet):** alles andere — Kalender, Dokumente, Personal,
+Fahrtenbuch, Fahrzeuge, Anträge, Föderation, Dashboard, Settings, Users/Roles,
+Auth. Diese Module sind Grundfunktionalität und werden bewusst *nicht* zu Plugins.
 
 ## Plugin-Struktur & Manifest
 
