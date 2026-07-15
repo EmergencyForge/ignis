@@ -24,11 +24,18 @@ class AutoMigrator
     private string $cacheFile;
     private string $migrationsPath;
 
+    /** @var list<string> zusätzliche Migrations-Verzeichnisse (Plugins) */
+    private array $extraMigrationPaths = [];
+
     public function __construct(PDO $pdo)
     {
         $this->pdo            = $pdo;
         $this->appRoot        = dirname(__DIR__, 2);
         $this->migrationsPath = $this->appRoot . '/database/migrations';
+        // Plugin-Migrations laufen unabhängig vom Aktiv-Status mit — ein
+        // deaktiviertes Plugin behält sein Schema, damit beim Reaktivieren
+        // nichts fehlt. phinx.php kennt dieselben Pfade.
+        $this->extraMigrationPaths = \App\Plugins\PluginLoader::migrationPaths();
 
         $logDir = $this->appRoot . '/storage/logs';
         if (!is_dir($logDir)) @mkdir($logDir, 0755, true);
@@ -43,6 +50,9 @@ class AutoMigrator
     public function runIfNeeded(): void
     {
         $files = glob($this->migrationsPath . '/*.php') ?: [];
+        foreach ($this->extraMigrationPaths as $dir) {
+            $files = array_merge($files, glob($dir . '/*.php') ?: []);
+        }
         if (count($files) === 0) {
             return;
         }

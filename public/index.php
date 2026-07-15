@@ -43,6 +43,17 @@ foreach ($routeFiles as $file) {
     }
 }
 
+// Routen aktiver Plugins registrieren — nach den Kern-Routen, damit ein
+// Plugin niemals eine Kern-Route shadowen kann. Jedes Fragment bekommt
+// dasselbe $router wie die Kern-Route-Dateien.
+try {
+    foreach (app(\App\Plugins\PluginLoader::class)->routeFiles() as $file) {
+        require $file;
+    }
+} catch (\Throwable $e) {
+    \App\Logging\Logger::warning('Plugin-Routen nicht geladen: ' . $e->getMessage());
+}
+
 // Eingehende Requests mit `.php`-Suffix → clean URL.
 // GET/HEAD bekommen einen 301, damit Browser-/Suchmaschinen-Cache
 // aufräumt; non-idempotente Methoden werden intern umgeschrieben,
