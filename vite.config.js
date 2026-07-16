@@ -33,9 +33,7 @@ const scriptEntries = {
 const styleEntries = {
     admin:             'assets/css/admin.scss',
     style:             'assets/css/style.scss',
-    cirs:              'assets/css/cirs.scss',
     divi:              'assets/css/divi.scss',
-    dokumente:         'assets/css/dokumente.scss',
     personal:          'assets/css/personal.scss',
     print:             'assets/css/print.scss',
     'template-editor': 'assets/css/template-editor.scss',
