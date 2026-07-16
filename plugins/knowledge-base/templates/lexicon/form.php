@@ -159,7 +159,7 @@ use App\Helpers\Flash;
                     <?php Flash::render(); ?>
 
                     <?php if (!empty($errors)): ?>
-                        <div class="alert alert-danger">
+                        <div class="ignis-alert ignis-alert--danger">
                             <ul class="mb-0">
                                 <?php foreach ($errors as $error): ?>
                                     <li><?= htmlspecialchars($error) ?></li>
@@ -169,7 +169,7 @@ use App\Helpers\Flash;
                     <?php endif; ?>
 
                     <?php if ($isEdit && $entry['updated_at']): ?>
-                        <div class="alert alert-info">
+                        <div class="ignis-alert ignis-alert--info">
                             <i class="fa-solid fa-info-circle"></i>
                             Zuletzt bearbeitet am <?= date('d.m.Y H:i', strtotime($entry['updated_at'])) ?>
                             <?php if ($updaterName): ?>
@@ -436,10 +436,10 @@ use App\Helpers\Flash;
 
                         <!-- Submit Buttons -->
                         <div class="d-flex justify-content-between">
-                            <a href="<?= BASE_PATH ?>lexicon/index" class="btn btn-ghost">
+                            <a href="<?= BASE_PATH ?>lexicon/index" class="ignis-btn ignis-btn--ghost">
                                 <i class="fa-solid fa-arrow-left"></i> Abbrechen
                             </a>
-                            <button type="submit" class="btn btn-success">
+                            <button type="submit" class="ignis-btn ignis-btn--success">
                                 <i class="fa-solid fa-save"></i> <?= $isEdit ? 'Änderungen speichern' : 'Eintrag erstellen' ?>
                             </button>
                         </div>
