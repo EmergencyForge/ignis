@@ -315,7 +315,7 @@ use App\KnowledgeBase\KBHelper;
                     <?php endif; ?>
 
                     <?php if ($entry['is_archived']): ?>
-                        <div class="alert alert-warning">
+                        <div class="ignis-alert ignis-alert--warning">
                             <i class="fa-solid fa-archive"></i> Dieser Eintrag ist archiviert.
                         </div>
                     <?php endif; ?>

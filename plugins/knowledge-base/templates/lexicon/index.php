@@ -213,10 +213,10 @@ use App\KnowledgeBase\KBHelper;
                         <h1>Wissensdatenbank</h1>
                         <div class="header-actions">
                             <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
-                                <a href="<?= BASE_PATH ?>lexicon/manage-taxonomy" class="btn btn-outline-secondary">
+                                <a href="<?= BASE_PATH ?>lexicon/manage-taxonomy" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-tags"></i> Kategorien & Tags
                                 </a>
-                                <a href="<?= BASE_PATH ?>lexicon/create" class="btn btn-success">
+                                <a href="<?= BASE_PATH ?>lexicon/create" class="ignis-btn ignis-btn--success">
                                     <i class="fa-solid fa-plus"></i> Neuer Eintrag
                                 </a>
                             <?php endif; ?>
@@ -289,7 +289,7 @@ use App\KnowledgeBase\KBHelper;
                                 </div>
                             <?php endif; ?>
                             <div class="col-auto">
-                                <button type="submit" class="btn btn-soft-primary">
+                                <button type="submit" class="ignis-btn ignis-btn--soft-primary">
                                     <i class="fa-solid fa-search"></i> Filtern
                                 </button>
                             </div>
@@ -298,7 +298,7 @@ use App\KnowledgeBase\KBHelper;
 
                     <!-- Entries Grid -->
                     <?php if (empty($entries)): ?>
-                        <div class="alert alert-info">
+                        <div class="ignis-alert ignis-alert--info">
                             <i class="fa-solid fa-info-circle"></i> Keine Einträge gefunden.
                             <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
                                 <a href="<?= BASE_PATH ?>lexicon/create">Erstellen Sie den ersten Eintrag.</a>
