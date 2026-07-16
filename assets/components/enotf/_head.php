@@ -16,17 +16,17 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
      6. tailwind.css         — Utility-Klassen, gewinnt bei gleicher Spezifität -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor-enotf.css') ?>">
-<link rel="stylesheet" href="<?= asset('assets/css/bootstrap-compat.min.css') ?>">
+<link rel="stylesheet" href="<?= asset('public/assets/dist/bootstrap-compat.css') ?>">
 <!-- Geist Sans + Geist Mono fuer das eNOTF-UI (Clock, Stempel,
      numerische Display-Stellen profitieren von Geist Mono). -->
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
-<link rel="stylesheet" href="<?= asset('assets/css/divi.min.css') ?>" />
+<link rel="stylesheet" href="<?= asset('public/assets/dist/divi.css') ?>" />
 <!-- admin.min.css für gemeinsame Komponenten (Beladelisten, Hover-Cards,
      DataTables-Styling etc.). Reihenfolge: nach divi (eNOTF-spezifische
      Overrides via #edivi__container haben höhere Specificity), vor ui. -->
-<link rel="stylesheet" href="<?= asset('assets/css/admin.min.css') ?>" />
-<link rel="stylesheet" href="<?= asset('assets/css/ui.min.css') ?>" />
+<link rel="stylesheet" href="<?= asset('public/assets/dist/admin.css') ?>" />
+<link rel="stylesheet" href="<?= asset('public/assets/dist/ui.css') ?>" />
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-modals.css') ?>">
 <link rel="stylesheet" href="<?= asset('assets/css/enotf-toast.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">

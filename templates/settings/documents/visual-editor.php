@@ -33,7 +33,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
 <head>
     <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/template-editor.min.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/template-editor.css" />
     <style>
         /* Nur Styles die spezifisch fuer visual-editor.php sind und nicht in template-editor.css */
         body { overflow: hidden; }
