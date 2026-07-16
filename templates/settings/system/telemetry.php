@@ -258,7 +258,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <div class="mb-3 flex flex-wrap gap-2">
                                         <form method="POST" class="inline">
                                             <input type="hidden" name="action" value="toggle_telemetry">
-                                            <button type="submit" class="ignis-btn btn-<?= $telemetryEnabled ? 'warning' : 'success' ?>">
+                                            <button type="submit" class="ignis-btn ignis-btn--<?= $telemetryEnabled ? 'warning' : 'success' ?>">
                                                 <i class="fas fa-<?= $telemetryEnabled ? 'toggle-off' : 'toggle-on' ?> mr-1"></i>
                                                 <?= $telemetryEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                                             </button>
@@ -326,7 +326,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <div class="mb-3 flex gap-2">
                                         <form method="POST" class="inline">
                                             <input type="hidden" name="action" value="toggle_announcements">
-                                            <button type="submit" class="ignis-btn btn-<?= $announcementsEnabled ? 'warning' : 'success' ?>">
+                                            <button type="submit" class="ignis-btn ignis-btn--<?= $announcementsEnabled ? 'warning' : 'success' ?>">
                                                 <i class="fas fa-<?= $announcementsEnabled ? 'toggle-off' : 'toggle-on' ?> mr-1"></i>
                                                 <?= $announcementsEnabled ? 'Deaktivieren' : 'Aktivieren' ?>
                                             </button>
