@@ -109,7 +109,6 @@ foreach ($announcements as $ann) {
     if ($ann['type'] === 'critical') $hasCritical = true;
     if ($ann['type'] === 'warning') $hasWarning = true;
 }
-$headerAccent = $hasCritical ? 'critical' : ($hasWarning ? 'warning' : 'update');
 
 // Icon-Box-Farben für Announcement-Typen
 $iconBoxColors = [
@@ -124,28 +123,9 @@ $iconBoxColors = [
 $allAnnouncementIds = array_column($announcements, 'announcement_id');
 ?>
 
-<!-- EmergencyForge Announcements Modal -->
-<div class="modal fade" id="efAnnouncementsModal" tabindex="-1" aria-labelledby="efAnnouncementsModalLabel" aria-hidden="true" data-auto-show="<?= $alreadyShown ? 'false' : 'true' ?>">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content ef-modal-content">
-            <!-- Header -->
-            <div class="ef-modal-header <?= $headerAccent ?>">
-                <div class="flex items-center gap-3">
-                    <div class="ef-logo-container <?= $headerAccent ?>">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
-                    </div>
-                    <div>
-                        <h5 class="modal-title mb-0" id="efAnnouncementsModalLabel">
-                            Offizielle Ankündigung
-                        </h5>
-                        <small class="ef-subtitle">von EmergencyForge</small>
-                    </div>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Schließen"></button>
-            </div>
-
-            <!-- Body mit Announcements -->
-            <div class="modal-body p-0">
+<!-- EmergencyForge Announcements — Inhalt liegt versteckt im DOM und wird
+     über die Dialog-Komponente (assets/js/ui/dialog.js) geöffnet. -->
+<div id="efAnnouncementsBody" class="ef-announcements-body" hidden data-auto-show="<?= $alreadyShown ? 'false' : 'true' ?>">
                 <?php foreach ($announcements as $index => $ann):
                     $config = $typeConfig[$ann['type']] ?? $typeConfig['info'];
                     $isAdminOnly = !empty($ann['admin_only']);
@@ -197,19 +177,10 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
                         </div>
                     </div>
                 <?php endforeach; ?>
-            </div>
 
-            <!-- Footer -->
-            <div class="ef-modal-footer">
-                <small class="ef-meta-text">
-                    <i class="fa-solid fa-shield-halved mr-1"></i>
-                    Diese Nachricht stammt von EmergencyForge
-                </small>
-                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="efDismissAllBtn">
-                    <i class="fa-solid fa-check mr-1"></i> Verstanden
-                </button>
-            </div>
-        </div>
+    <div class="ef-announcements-source ef-meta-text">
+        <i class="fa-solid fa-shield-halved mr-1"></i>
+        Diese Nachricht stammt von EmergencyForge
     </div>
 </div>
 
@@ -217,7 +188,6 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 <div id="efAnnouncementsTrigger" class="fixed" style="bottom: 20px; right: 20px; z-index: 1040; display: none;">
     <button type="button"
         class="ef-announce-fab ef-announce-fab--<?= $hasCritical ? 'critical' : ($hasWarning ? 'warning' : 'info') ?>"
-        data-bs-toggle="modal" data-bs-target="#efAnnouncementsModal"
         title="<?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?>"
         aria-label="<?= count($announcements) ?> Ankündigung<?= count($announcements) > 1 ? 'en' : '' ?> anzeigen">
         <i class="fa-solid fa-bullhorn" aria-hidden="true"></i>
@@ -280,75 +250,27 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         line-height: 1;
     }
 
-    /* EmergencyForge Announcements Modal Styles */
-    #efAnnouncementsModal .ef-modal-content {
-        background: #29282f;
-        border: 1px solid var(--darkgray, #3d3a44);
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    /* EmergencyForge Announcements — Inhalt lebt im ignis-dialog__body.
+       Dessen Innenabstand wird neutralisiert, damit die Einträge wie
+       zuvor kante-zu-kante mit eigenen Abständen laufen. */
+    .ignis-dialog__body:has(> .ef-announcements-body) {
+        padding: 0;
     }
 
-    #efAnnouncementsModal .ef-modal-header {
-        padding: 1rem 1.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid var(--darkgray, #3d3a44);
-        background: rgba(255, 255, 255, 0.02);
-    }
-
-    #efAnnouncementsModal .ef-modal-header .modal-title {
-        font-size: 0.9rem;
-        font-weight: 500;
-        color: #fff;
-    }
-
-    #efAnnouncementsModal .ef-subtitle {
-        font-size: 0.72rem;
-        color: var(--text-dimmed, #818189);
-    }
-
-    #efAnnouncementsModal .ef-logo-container {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        font-size: 1.1rem;
-    }
-
-    #efAnnouncementsModal .ef-logo-container.critical {
-        background: rgba(176, 58, 58, 0.15);
-        color: #d46b6b;
-    }
-
-    #efAnnouncementsModal .ef-logo-container.warning {
-        background: rgba(196, 154, 42, 0.15);
-        color: #ddb84a;
-    }
-
-    #efAnnouncementsModal .ef-logo-container.update {
-        background: rgba(74, 111, 165, 0.15);
-        color: #7ba3d4;
-    }
-
-    #efAnnouncementsModal .announcement-item {
+    .ef-announcements-body .announcement-item {
         padding: 1rem 1.25rem;
         transition: background-color 0.15s ease;
     }
 
-    #efAnnouncementsModal .announcement-item.border-top {
+    .ef-announcements-body .announcement-item.border-top {
         border-top: 1px solid rgba(255, 255, 255, 0.03) !important;
     }
 
-    #efAnnouncementsModal .announcement-item:hover {
+    .ef-announcements-body .announcement-item:hover {
         background-color: rgba(255, 255, 255, 0.02);
     }
 
-    #efAnnouncementsModal .ef-announcement-icon {
+    .ef-announcements-body .ef-announcement-icon {
         width: 40px;
         height: 40px;
         border-radius: 10px;
@@ -359,53 +281,50 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         font-size: 1rem;
     }
 
-    #efAnnouncementsModal .ef-announcement-title {
+    .ef-announcements-body .ef-announcement-title {
         font-weight: 500;
         font-size: 0.88rem;
         color: #fff;
         margin-bottom: 0.25rem;
     }
 
-    #efAnnouncementsModal .ef-badge-admin {
+    .ef-announcements-body .ef-badge-admin {
         background: rgba(255, 255, 255, 0.06);
         color: var(--text-dimmed, #818189);
     }
 
-    #efAnnouncementsModal .ef-meta-text {
+    .ef-announcements-body .ef-meta-text {
         font-size: 0.72rem;
         color: var(--text-dimmed, #818189);
     }
 
-    #efAnnouncementsModal .ef-modal-footer {
+    .ef-announcements-body .ef-announcements-source {
         padding: 0.65rem 1.25rem;
         border-top: 1px solid var(--darkgray, #3d3a44);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         background: rgba(255, 255, 255, 0.02);
     }
 
     /* Markdown Formatierung */
-    #efAnnouncementsModal .announcement-message {
+    .ef-announcements-body .announcement-message {
         line-height: 1.6;
         font-size: 0.8rem;
         color: var(--text-dimmed, #818189);
     }
 
-    #efAnnouncementsModal .announcement-message p {
+    .ef-announcements-body .announcement-message p {
         margin-bottom: 0.75rem;
     }
 
-    #efAnnouncementsModal .announcement-message p:last-child {
+    .ef-announcements-body .announcement-message p:last-child {
         margin-bottom: 0;
     }
 
-    #efAnnouncementsModal .announcement-message strong {
+    .ef-announcements-body .announcement-message strong {
         font-weight: 600;
         color: var(--text-normal, #bbbac1);
     }
 
-    #efAnnouncementsModal .announcement-message code {
+    .ef-announcements-body .announcement-message code {
         background: rgba(255, 255, 255, 0.08);
         padding: 0.2em 0.4em;
         border-radius: 4px;
@@ -413,7 +332,7 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         font-size: 0.9em;
     }
 
-    #efAnnouncementsModal .announcement-message pre {
+    .ef-announcements-body .announcement-message pre {
         background: var(--body-bg-darker, #232128);
         padding: 0.75rem;
         border-radius: 6px;
@@ -421,31 +340,31 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         margin-bottom: 0.75rem;
     }
 
-    #efAnnouncementsModal .announcement-message pre code {
+    .ef-announcements-body .announcement-message pre code {
         background: none;
         padding: 0;
     }
 
-    #efAnnouncementsModal .announcement-message ul,
-    #efAnnouncementsModal .announcement-message ol {
+    .ef-announcements-body .announcement-message ul,
+    .ef-announcements-body .announcement-message ol {
         margin-left: 1.5rem;
         margin-bottom: 0.75rem;
     }
 
-    #efAnnouncementsModal .announcement-message li {
+    .ef-announcements-body .announcement-message li {
         margin-bottom: 0.25rem;
     }
 
-    #efAnnouncementsModal .announcement-message a {
+    .ef-announcements-body .announcement-message a {
         color: #7ba3d4;
         text-decoration: underline;
     }
 
-    #efAnnouncementsModal .announcement-message a:hover {
+    .ef-announcements-body .announcement-message a:hover {
         color: #92b5e0;
     }
 
-    #efAnnouncementsModal .announcement-message blockquote {
+    .ef-announcements-body .announcement-message blockquote {
         border-left: 3px solid var(--darkgray, #3d3a44);
         padding-left: 1rem;
         margin-left: 0;
@@ -454,35 +373,35 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
         opacity: 0.9;
     }
 
-    #efAnnouncementsModal .announcement-message h1,
-    #efAnnouncementsModal .announcement-message h2,
-    #efAnnouncementsModal .announcement-message h3,
-    #efAnnouncementsModal .announcement-message h4,
-    #efAnnouncementsModal .announcement-message h5,
-    #efAnnouncementsModal .announcement-message h6 {
+    .ef-announcements-body .announcement-message h1,
+    .ef-announcements-body .announcement-message h2,
+    .ef-announcements-body .announcement-message h3,
+    .ef-announcements-body .announcement-message h4,
+    .ef-announcements-body .announcement-message h5,
+    .ef-announcements-body .announcement-message h6 {
         margin-top: 1rem;
         margin-bottom: 0.5rem;
         font-weight: 500;
         color: #fff;
     }
 
-    #efAnnouncementsModal .announcement-message h1 {
+    .ef-announcements-body .announcement-message h1 {
         font-size: 1.3rem;
     }
 
-    #efAnnouncementsModal .announcement-message h2 {
+    .ef-announcements-body .announcement-message h2 {
         font-size: 1.15rem;
     }
 
-    #efAnnouncementsModal .announcement-message h3 {
+    .ef-announcements-body .announcement-message h3 {
         font-size: 1rem;
     }
 
-    #efAnnouncementsModal .announcement-message h4 {
+    .ef-announcements-body .announcement-message h4 {
         font-size: 0.9rem;
     }
 
-    #efAnnouncementsModal .announcement-message hr {
+    .ef-announcements-body .announcement-message hr {
         margin: 1rem 0;
         border-color: var(--darkgray, #3d3a44);
         opacity: 0.5;
@@ -510,67 +429,90 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const modal = document.getElementById('efAnnouncementsModal');
+        const body = document.getElementById('efAnnouncementsBody');
         const trigger = document.getElementById('efAnnouncementsTrigger');
-        const dismissAllBtn = document.getElementById('efDismissAllBtn');
 
-        if (!modal) return;
+        if (!body) return;
 
-        const bsModal = new bootstrap.Modal(modal);
-        const autoShow = modal.dataset.autoShow === 'true';
-
-        // Alle Announcement IDs
+        const autoShow = body.dataset.autoShow === 'true';
         const allAnnouncementIds = <?= json_encode($allAnnouncementIds) ?>;
 
-        // Auto-show Modal wenn noch nicht in dieser Session gezeigt
-        if (autoShow) {
-            setTimeout(() => bsModal.show(), 500);
-        } else {
-            // Zeige Trigger-Button
-            if (trigger) trigger.style.display = 'block';
+        let currentDialog = null;
+
+        function remainingCount() {
+            return body.querySelectorAll('.announcement-item').length;
         }
 
-        // Nach Modal-Schließen: Zeige Trigger-Button
-        modal.addEventListener('hidden.bs.modal', function() {
-            // Nur zeigen wenn noch Announcements übrig sind
-            const remaining = modal.querySelectorAll('.announcement-item');
-            if (remaining.length > 0 && trigger) {
-                trigger.style.display = 'block';
-            }
-        });
+        function updateTrigger() {
+            if (!trigger) return;
+            trigger.style.display = remainingCount() > 0 ? 'block' : 'none';
+            const countEl = trigger.querySelector('.ef-announce-fab__count');
+            if (countEl) countEl.textContent = remainingCount();
+        }
 
-        // "Verstanden" Button - ALLE Announcements permanent ausblenden
-        if (dismissAllBtn) {
-            dismissAllBtn.addEventListener('click', function() {
-                dismissAllBtn.disabled = true;
-                dismissAllBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Wird gespeichert...';
+        function closeDialog() {
+            if (currentDialog) currentDialog.close();
+        }
 
-                // Alle Announcements nacheinander dismissan
-                Promise.all(allAnnouncementIds.map(id =>
-                        fetch('<?= BASE_PATH ?>api/announcements/dismiss', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                announcement_id: id
+        function openDialog() {
+            if (remainingCount() === 0) return;
+            body.hidden = false;
+            currentDialog = new window.Dialog({
+                title: 'Offizielle Ankündigungen von EmergencyForge',
+                body: body,
+                size: 'lg',
+                preserveBody: true,
+                actions: [{
+                    label: 'Verstanden',
+                    variant: 'primary',
+                    primary: true,
+                    close: false,
+                    onClick: (dlg) => {
+                        const btn = dlg.element.querySelector('[data-dialog-action="0"]');
+                        if (!btn || btn.disabled) return;
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Wird gespeichert...';
+                        Promise.all(allAnnouncementIds.map(id =>
+                                fetch('<?= BASE_PATH ?>api/announcements/dismiss', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ announcement_id: id })
+                                })
+                            ))
+                            .then(() => {
+                                body.querySelectorAll('.announcement-item').forEach(el => el.remove());
+                                dlg.close();
+                                updateTrigger();
                             })
-                        })
-                    ))
-                    .then(() => {
-                        bsModal.hide();
-                        if (trigger) trigger.style.display = 'none';
-                    })
-                    .catch(err => {
-                        console.error('Dismiss all failed:', err);
-                        dismissAllBtn.disabled = false;
-                        dismissAllBtn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Verstanden';
-                    });
+                            .catch(err => {
+                                console.error('Dismiss all failed:', err);
+                                btn.disabled = false;
+                                btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Verstanden';
+                            });
+                    },
+                }],
+                onClose: () => {
+                    body.hidden = true;
+                    currentDialog = null;
+                    updateTrigger();
+                },
             });
+            currentDialog.open();
+        }
+
+        // Auto-show, wenn noch nicht in dieser Session gezeigt
+        if (autoShow) {
+            setTimeout(openDialog, 500);
+        } else {
+            updateTrigger();
+        }
+
+        if (trigger) {
+            trigger.querySelector('button')?.addEventListener('click', openDialog);
         }
 
         // Einzelne Announcement ausblenden
-        document.querySelectorAll('.dismiss-single-btn').forEach(btn => {
+        body.querySelectorAll('.dismiss-single-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 const announcementId = this.dataset.announcementId;
                 const item = this.closest('.announcement-item');
@@ -580,30 +522,22 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
                 fetch('<?= BASE_PATH ?>api/announcements/dismiss', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            announcement_id: announcementId
-                        })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ announcement_id: announcementId })
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Item ausblenden mit Animation
                             item.style.transition = 'all 0.3s ease';
                             item.style.opacity = '0';
                             item.style.transform = 'translateX(20px)';
 
                             setTimeout(() => {
                                 item.remove();
-
-                                // Wenn keine Announcements mehr, Modal schließen
-                                const remaining = modal.querySelectorAll('.announcement-item');
-                                if (remaining.length === 0) {
-                                    bsModal.hide();
-                                    if (trigger) trigger.style.display = 'none';
+                                if (remainingCount() === 0) {
+                                    closeDialog();
                                 }
+                                updateTrigger();
                             }, 300);
                         }
                     })
