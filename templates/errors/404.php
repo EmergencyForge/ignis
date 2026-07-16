@@ -22,7 +22,7 @@ if (!defined('BASE_PATH')) {
     <title>404 — Seite nicht gefunden</title>
     <link rel="preload" href="<?= BASE_PATH ?>assets/fonts/geist/fonts/geist-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css">
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/style.min.css">
+    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/style.css">
     <link rel="icon" type="image/svg+xml" href="<?= BASE_PATH ?>assets/favicon/favicon.svg">
     <link rel="shortcut icon" href="<?= BASE_PATH ?>assets/favicon/favicon.ico">
     <style>

@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Klinikzugang &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
 
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/divi.min.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/divi.css" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />

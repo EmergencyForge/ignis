@@ -13,14 +13,14 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- Vendor + App-SCSS zuerst, Tailwind-Utilities zuletzt damit sie bei
      gleicher Spezifität im Cascade-Tie gewinnen. -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
-<link rel="stylesheet" href="<?= asset('assets/css/bootstrap-compat.min.css') ?>">
+<link rel="stylesheet" href="<?= asset('public/assets/dist/bootstrap-compat.css') ?>">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/ckeditor5/ckeditor5.css" />
-<link rel="stylesheet" href="<?= asset('assets/css/style.min.css') ?>" />
-<link rel="stylesheet" href="<?= asset('assets/css/admin.min.css') ?>" />
-<link rel="stylesheet" href="<?= asset('assets/css/personal.min.css') ?>" />
-<link rel="stylesheet" href="<?= asset('assets/css/ui.min.css') ?>" />
+<link rel="stylesheet" href="<?= asset('public/assets/dist/style.css') ?>" />
+<link rel="stylesheet" href="<?= asset('public/assets/dist/admin.css') ?>" />
+<link rel="stylesheet" href="<?= asset('public/assets/dist/personal.css') ?>" />
+<link rel="stylesheet" href="<?= asset('public/assets/dist/ui.css') ?>" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
 <script>
 // Akzentfarbe sofort aus localStorage anwenden (kein Flackern)
