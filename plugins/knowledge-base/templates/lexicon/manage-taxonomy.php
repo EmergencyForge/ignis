@@ -30,7 +30,7 @@ use App\Helpers\Flash;
                     <div class="intra__tile p-3 mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="mb-0"><i class="fa-solid fa-folder-tree"></i> Kategorien</h4>
-                            <button class="btn btn-sm btn-soft-primary" onclick="showCatModal()"><i class="fa-solid fa-plus"></i> Neue Kategorie</button>
+                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="showCatModal()"><i class="fa-solid fa-plus"></i> Neue Kategorie</button>
                         </div>
                         <table class="table table-striped mb-0">
                             <thead>
@@ -54,9 +54,9 @@ use App\Helpers\Flash;
                                             <td><?= (int)$cat['entry_count'] ?></td>
                                             <td>
                                                 <div class="d-flex gap-1">
-                                                    <button class="btn btn-sm btn-soft-primary btn-icon" data-tooltip="Bearbeiten" onclick='editCat(<?= json_encode($cat) ?>)'><i class="fa-solid fa-pen"></i></button>
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-tooltip="Bearbeiten" onclick='editCat(<?= json_encode($cat) ?>)'><i class="fa-solid fa-pen"></i></button>
                                                     <?php if ($cat['entry_count'] == 0): ?>
-                                                        <button class="btn btn-sm btn-outline-danger btn-icon" data-tooltip="Löschen" onclick="deleteCat(<?= $cat['id'] ?>, '<?= htmlspecialchars($cat['name'], ENT_QUOTES) ?>')"><i class="fa-solid fa-trash"></i></button>
+                                                        <button class="ignis-btn ignis-btn--sm ignis-btn--soft-danger ignis-btn--icon" data-tooltip="Löschen" onclick="deleteCat(<?= $cat['id'] ?>, '<?= htmlspecialchars($cat['name'], ENT_QUOTES) ?>')"><i class="fa-solid fa-trash"></i></button>
                                                     <?php endif; ?>
                                                 </div>
                                             </td>
@@ -73,7 +73,7 @@ use App\Helpers\Flash;
                     <div class="intra__tile p-3 mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="mb-0"><i class="fa-solid fa-tags"></i> Tags</h4>
-                            <button class="btn btn-sm btn-soft-primary" onclick="showTagModal()"><i class="fa-solid fa-plus"></i> Neuer Tag</button>
+                            <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="showTagModal()"><i class="fa-solid fa-plus"></i> Neuer Tag</button>
                         </div>
                         <table class="table table-striped mb-0">
                             <thead>
@@ -93,8 +93,8 @@ use App\Helpers\Flash;
                                             <td><?= (int)$tag['usage_count'] ?>x</td>
                                             <td>
                                                 <div class="d-flex gap-1">
-                                                    <button class="btn btn-sm btn-soft-primary btn-icon" data-tooltip="Bearbeiten" onclick='editTag(<?= json_encode($tag) ?>)'><i class="fa-solid fa-pen"></i></button>
-                                                    <button class="btn btn-sm btn-outline-danger btn-icon" data-tooltip="Löschen" onclick="deleteTag(<?= $tag['id'] ?>, '<?= htmlspecialchars($tag['name'], ENT_QUOTES) ?>')"><i class="fa-solid fa-trash"></i></button>
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-tooltip="Bearbeiten" onclick='editTag(<?= json_encode($tag) ?>)'><i class="fa-solid fa-pen"></i></button>
+                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-danger ignis-btn--icon" data-tooltip="Löschen" onclick="deleteTag(<?= $tag['id'] ?>, '<?= htmlspecialchars($tag['name'], ENT_QUOTES) ?>')"><i class="fa-solid fa-trash"></i></button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -144,8 +144,8 @@ use App\Helpers\Flash;
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" onclick="saveCat()"><i class="fa-solid fa-save"></i> Speichern</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--primary" onclick="saveCat()"><i class="fa-solid fa-save"></i> Speichern</button>
                 </div>
             </div>
         </div>
@@ -172,8 +172,8 @@ use App\Helpers\Flash;
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-ghost" data-bs-dismiss="modal">Abbrechen</button>
-                    <button type="button" class="btn btn-primary" onclick="saveTag()"><i class="fa-solid fa-save"></i> Speichern</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--primary" onclick="saveTag()"><i class="fa-solid fa-save"></i> Speichern</button>
                 </div>
             </div>
         </div>

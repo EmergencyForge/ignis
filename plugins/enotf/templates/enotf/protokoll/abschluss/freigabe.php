@@ -167,7 +167,7 @@ $pinEnabled = (defined('ENOTF_USE_PIN') && ENOTF_USE_PIN === true) ? 'true' : 'f
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>[#<?= $daten['enr'] ?>] &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
         <!-- Stylesheets -->
-        <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/divi.min.css" />
+        <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/divi.css" />
         <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/lineawesome/css/line-awesome.min.css" />
         <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
         <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />

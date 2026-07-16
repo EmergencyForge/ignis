@@ -146,7 +146,7 @@ use App\Helpers\Flash;
                                     $defectBadge = '';
                                     if ($openDefects > 0) {
                                         $badgeColor = ($minOperable !== null && (int)$minOperable === 0) ? 'danger' : 'warning';
-                                        $defectBadge = "<a href='" . BASE_PATH . "settings/vehicles/defects/index?vehicle=" . $row['id'] . "' class='ignis-chip text-bg-{$badgeColor}' title='Offene Defekte anzeigen'>{$openDefects}</a>";
+                                        $defectBadge = "<a href='" . BASE_PATH . "settings/vehicles/defects/index?vehicle=" . $row['id'] . "' class='ignis-chip ignis-chip--{$badgeColor}' title='Offene Defekte anzeigen'>{$openDefects}</a>";
                                     } else {
                                         $defectBadge = "<span class='text-muted'>—</span>";
                                     }

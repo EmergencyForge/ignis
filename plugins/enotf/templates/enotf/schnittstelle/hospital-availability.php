@@ -115,7 +115,7 @@ $status_config = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Krankenhaus-Verfügbarkeit &rsaquo; eNOTF &rsaquo; <?php echo SYSTEM_NAME ?></title>
 
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/divi.min.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/divi.css" />
 
     <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
     <link rel="shortcut icon" href="<?= BASE_PATH ?>assets/favicon/favicon.ico" />

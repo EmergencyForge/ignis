@@ -58,7 +58,7 @@ $csrfToken = CsrfProtection::getToken();
                 </div>
 
                 <?php if ($message !== ''): ?>
-                    <div class="alert alert-<?= htmlspecialchars($messageType) ?> mb-4" role="alert">
+                    <div class="ignis-alert ignis-alert--<?= htmlspecialchars($messageType) ?> mb-4" role="alert">
                         <?= htmlspecialchars($message) ?>
                     </div>
                 <?php endif; ?>
@@ -76,21 +76,21 @@ $csrfToken = CsrfProtection::getToken();
                             <div class="flex-1" style="min-width: 260px;">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <strong><?= htmlspecialchars($m->name) ?></strong>
-                                    <span class="badge text-bg-secondary"><?= htmlspecialchars($m->version) ?></span>
+                                    <span class="ignis-chip"><?= htmlspecialchars($m->version) ?></span>
                                     <?php if (!$row['installed']): ?>
-                                        <span class="badge text-bg-danger">Nicht installiert</span>
+                                        <span class="ignis-chip ignis-chip--danger">Nicht installiert</span>
                                     <?php elseif ($row['active']): ?>
-                                        <span class="badge text-bg-success">Aktiv</span>
+                                        <span class="ignis-chip ignis-chip--success">Aktiv</span>
                                     <?php elseif ($row['enabled'] && $row['skipReason'] !== null): ?>
-                                        <span class="badge text-bg-warning" title="<?= htmlspecialchars($row['skipReason']) ?>">Übersprungen</span>
+                                        <span class="ignis-chip ignis-chip--warning" title="<?= htmlspecialchars($row['skipReason']) ?>">Übersprungen</span>
                                     <?php else: ?>
-                                        <span class="badge text-bg-dark">Inaktiv</span>
+                                        <span class="ignis-chip">Inaktiv</span>
                                     <?php endif; ?>
                                     <?php if ($row['bundled']): ?>
-                                        <span class="badge text-bg-primary" title="Offiziell mit ıgnıs ausgeliefert.">Offiziell</span>
+                                        <span class="ignis-chip ignis-chip--info" title="Offiziell mit ıgnıs ausgeliefert.">Offiziell</span>
                                     <?php endif; ?>
                                     <?php if (!$m->removable): ?>
-                                        <span class="badge text-bg-info" title="Dieses Plugin ist fester Bestandteil und kann nicht deaktiviert werden.">Erforderlich</span>
+                                        <span class="ignis-chip ignis-chip--info" title="Dieses Plugin ist fester Bestandteil und kann nicht deaktiviert werden.">Erforderlich</span>
                                     <?php endif; ?>
                                 </div>
                                 <div class="text-gray-400 mt-1" style="font-size: 0.82rem;">

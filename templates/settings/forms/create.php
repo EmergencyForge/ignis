@@ -17,8 +17,8 @@ use App\Helpers\Flash;
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Neuer Antragstyp &rsaquo; <?= SYSTEM_NAME ?></title>
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/style.min.css" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/admin.min.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/style.css" />
+    <link rel="stylesheet" href="<?= BASE_PATH ?>public/assets/dist/admin.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/lineawesome/css/line-awesome.min.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
