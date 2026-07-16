@@ -47,6 +47,19 @@ return [
     'rail' => [
 
         // ─────────────────────────────────────────────────────────────
+        // Dashboard — direkter Link, kein Flyout (das Logo verlinkt
+        // ebenfalls auf die Startseite, aber ein benannter Eintrag ist
+        // auffindbarer und entspricht der alten Sidebar)
+        // ─────────────────────────────────────────────────────────────
+        [
+            'id'        => 'dashboard',
+            'label'     => 'Dashboard',
+            'icon'      => 'fa-solid fa-house',
+            'href'      => BASE_PATH . 'index',
+            'data_page' => 'dashboard',
+        ],
+
+        // ─────────────────────────────────────────────────────────────
         // Personal
         // ─────────────────────────────────────────────────────────────
         [
