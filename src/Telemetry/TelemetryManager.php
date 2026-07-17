@@ -363,26 +363,34 @@ class TelemetryManager
 
     private function getVersion(): string
     {
-        // Primär: version.json (vom SystemUpdater verwendet)
-        $versionJsonFile = __DIR__ . '/../../system/updates/version.json';
-        if (file_exists($versionJsonFile)) {
-            $content = file_get_contents($versionJsonFile);
-            $data = json_decode($content, true);
-            if (isset($data['version'])) {
-                return $data['version'];
+        // Primär: storage/version.json — die Quelle, die Release-Build und
+        // SystemUpdater tatsächlich pflegen (auch der Footer liest sie).
+        // Der alte Pfad system/updates/version.json existiert nur noch auf
+        // Alt-Installationen und meldete auf frischen Installs 'unknown'.
+        $candidates = [
+            __DIR__ . '/../../storage/version.json',
+            __DIR__ . '/../../system/updates/version.json',
+        ];
+        foreach ($candidates as $versionJsonFile) {
+            if (!file_exists($versionJsonFile)) {
+                continue;
+            }
+            $data = json_decode((string) file_get_contents($versionJsonFile), true);
+            if (is_array($data) && !empty($data['version']) && is_string($data['version'])) {
+                return trim($data['version']);
             }
         }
 
         // Fallback 1: VERSION Datei
         $versionFile = __DIR__ . '/../../VERSION';
         if (file_exists($versionFile)) {
-            return trim(file_get_contents($versionFile));
+            return trim((string) file_get_contents($versionFile));
         }
 
         // Fallback 2: composer.json
         $composerFile = __DIR__ . '/../../composer.json';
         if (file_exists($composerFile)) {
-            $composer = json_decode(file_get_contents($composerFile), true);
+            $composer = json_decode((string) file_get_contents($composerFile), true);
             if (isset($composer['version'])) {
                 return $composer['version'];
             }
@@ -428,6 +436,15 @@ class TelemetryManager
         $endpoint = rtrim($hubUrl, '/') . '/api/telemetry/heartbeat.php';
         $data = $this->collectData();
 
+        // Konfigwerte (Systemname, Stadt, …) können auf Alt-Installationen
+        // Latin-1-Reste enthalten — ohne Substitute-Flag liefert json_encode
+        // dann false und es ginge ein leerer/kaputter Body raus.
+        $payload = json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE);
+        if ($payload === false) {
+            \App\Logging\Logger::warning('Telemetry: Payload nicht encodierbar: ' . json_last_error_msg());
+            return ['success' => false, 'message' => 'Payload konnte nicht kodiert werden: ' . json_last_error_msg()];
+        }
+
         $context = stream_context_create([
             'http' => [
                 'method' => 'POST',
@@ -437,7 +454,7 @@ class TelemetryManager
                     'User-Agent: ignis-Telemetry/1.0',
                     'X-Installation-ID: ' . $data['installation_id'],
                 ],
-                'content' => json_encode($data),
+                'content' => $payload,
                 'timeout' => 3,
                 'ignore_errors' => true,
             ],
