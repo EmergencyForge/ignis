@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eNOTF UI-Konzept — Variante 2: Baum + Detailpanel</title>
+  <link rel="stylesheet" href="enotf-mock.css">
+</head>
+<body>
+  <div id="chrome"></div>
+  <div class="layout">
+    <nav class="sectionnav" id="sectionnav"></nav>
+    <aside class="tree-panel">
+      <div class="tree-search">
+        <input type="search" id="tree-filter" placeholder="Diagnose filtern …" autocomplete="off">
+      </div>
+      <div class="tree" id="tree"></div>
+    </aside>
+    <main class="detail-panel" id="detail"></main>
+  </div>
+  <div class="save-toast" id="save-toast"></div>
+
+  <script src="tree-data.js"></script>
+  <script>
+    renderChrome("Variante 2");
+
+    const state = {
+      expanded: new Set(["Trauma"]),
+      selectedPath: ["Trauma", "spezielle"],
+      selectedOption: "Verbrennung / Verbrühung",
+      filter: "",
+    };
+
+    function nodeMatches(node, filter) {
+      if (!filter) return true;
+      const f = filter.toLowerCase();
+      if (node.label.toLowerCase().includes(f)) return true;
+      if (node.options && node.options.some((o) => o.toLowerCase().includes(f))) return true;
+      if (node.children && node.children.some((c) => nodeMatches(c, filter))) return true;
+      return false;
+    }
+
+    function highlight(label) {
+      if (!state.filter) return label;
+      const f = state.filter.toLowerCase();
+      const idx = label.toLowerCase().indexOf(f);
+      if (idx === -1) return label;
+      return (
+        label.slice(0, idx) +
+        "<mark>" + label.slice(idx, idx + state.filter.length) + "</mark>" +
+        label.slice(idx + state.filter.length)
+      );
+    }
+
+    function renderTree() {
+      const rootLabel = `<button class="node" style="color:#a2a2a2; cursor: default;">Diagnose (führend)</button>`;
+      const items = DIAGNOSE_TREE
+        .filter((n) => nodeMatches(n, state.filter))
+        .map((n) => renderNode(n, [n.label]))
+        .join("");
+      document.getElementById("tree").innerHTML = rootLabel + `<div class="children">${items}</div>`;
+      bindTreeEvents();
+    }
+
+    function renderNode(node, path) {
+      const hasChildren = !!node.children;
+      const isExpanded = state.expanded.has(node.label) || !!state.filter;
+      const isSelected = state.selectedPath.join("/") === path.join("/");
+      const twisty = hasChildren ? (isExpanded ? "▾" : "▸") : "·";
+
+      let html = `<button class="node ${isSelected ? "selected" : ""}" data-path="${path.join("/")}" data-toggle="${hasChildren}">` +
+        `<span class="twisty">${twisty}</span>${highlight(node.label)}</button>`;
+
+      if (hasChildren && isExpanded) {
+        html += `<div class="children">` +
+          node.children
+            .filter((c) => nodeMatches(c, state.filter))
+            .map((c) => renderNode(c, path.concat(c.label)))
+            .join("") +
+          `</div>`;
+      }
+      return html;
+    }
+
+    function resolvePath(path) {
+      let list = DIAGNOSE_TREE;
+      let node = null;
+      for (const label of path) {
+        node = (list || []).find((n) => n.label === label) || null;
+        if (!node) return null;
+        list = node.children;
+      }
+      return node;
+    }
+
+    function renderDetail() {
+      const node = resolvePath(state.selectedPath);
+      const pathText = ["Diagnose (führend)"].concat(state.selectedPath).join(" › ");
+
+      if (!node) {
+        document.getElementById("detail").innerHTML =
+          `<h2>Diagnose wählen</h2><p class="path">Baum links aufklappen oder Filter benutzen.</p>`;
+        return;
+      }
+
+      if (node.options) {
+        document.getElementById("detail").innerHTML =
+          `<h2>${node.label}</h2>` +
+          `<div class="path">${pathText}</div>` +
+          `<div class="option-list">` +
+          node.options.map(
+            (o) =>
+              `<label class="option ${state.selectedOption === o ? "selected" : ""}" data-option="${o}"><span>${o}</span></label>`
+          ).join("") +
+          `</div>`;
+      } else if (node.children) {
+        document.getElementById("detail").innerHTML =
+          `<h2>${node.label}</h2>` +
+          `<div class="path">${pathText}</div>` +
+          `<p style="color:#a2a2a2">Unterkategorie im Baum wählen.</p>`;
+      } else {
+        document.getElementById("detail").innerHTML =
+          `<h2>${node.label}</h2>` +
+          `<div class="path">${pathText}</div>` +
+          `<div class="mock-note" style="margin:0">${MOCK_NOTE}</div>`;
+      }
+      bindDetailEvents();
+    }
+
+    function bindTreeEvents() {
+      document.querySelectorAll(".tree .node[data-path]").forEach((el) =>
+        el.addEventListener("click", () => {
+          const path = el.dataset.path.split("/");
+          const label = path[path.length - 1];
+          if (el.dataset.toggle === "true") {
+            state.expanded.has(label) ? state.expanded.delete(label) : state.expanded.add(label);
+          }
+          state.selectedPath = path;
+          renderTree();
+          renderDetail();
+        })
+      );
+    }
+
+    function bindDetailEvents() {
+      document.querySelectorAll(".option-list [data-option]").forEach((el) =>
+        el.addEventListener("click", () => {
+          state.selectedOption = el.dataset.option;
+          renderDetail();
+          showSaveToast(state.selectedOption);
+        })
+      );
+    }
+
+    document.getElementById("tree-filter").addEventListener("input", (e) => {
+      state.filter = e.target.value.trim();
+      renderTree();
+    });
+
+    renderTree();
+    renderDetail();
+  </script>
+</body>
+</html>

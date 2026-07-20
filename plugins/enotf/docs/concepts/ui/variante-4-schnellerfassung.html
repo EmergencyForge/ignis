@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eNOTF UI-Konzept — Variante 4: Schnellerfassung</title>
+  <link rel="stylesheet" href="enotf-mock.css">
+</head>
+<body>
+  <div id="chrome"></div>
+  <div class="layout">
+    <nav class="sectionnav" id="sectionnav"></nav>
+    <main style="flex: 1;">
+      <button class="search-trigger" id="open-palette">
+        <span>⌕</span>
+        <span>Diagnose suchen …</span>
+        <kbd>Strg + K</kbd>
+      </button>
+      <div class="recent-chips" id="recent"></div>
+      <div class="breadcrumb" id="breadcrumb"></div>
+      <div style="display: flex;" id="columns"></div>
+    </main>
+  </div>
+
+  <div class="palette-backdrop" id="palette-backdrop">
+    <div class="palette">
+      <input type="search" id="palette-input" placeholder="z. B. verbrenn, stemi, krampf …" autocomplete="off">
+      <div class="results" id="palette-results"></div>
+      <div class="hint">↑↓ wählen · Enter übernehmen · Esc schließen — die Auswahl wird sofort gespeichert und die Spaltenansicht springt an die Stelle.</div>
+    </div>
+  </div>
+  <div class="save-toast" id="save-toast"></div>
+
+  <script src="tree-data.js"></script>
+  <script>
+    renderChrome("Variante 4");
+
+    // Flacher Index aller wählbaren Optionen mit Pfad — Grundlage der Suche
+    const INDEX = [];
+    (function build(list, path) {
+      list.forEach((node) => {
+        const p = path.concat(node.label);
+        if (node.options) node.options.forEach((o) => INDEX.push({ option: o, path: p }));
+        if (node.children) build(node.children, p);
+      });
+    })(DIAGNOSE_TREE, []);
+
+    const state = {
+      category: "Trauma",
+      sub: "spezielle",
+      selected: "Verbrennung / Verbrühung",
+      recent: ["ACS / STEMI", "Krampfanfall", "Schlaganfall / TIA / ICB"],
+      highlighted: 0,
+    };
+
+    /* ---------- Spaltenansicht (wie Variante 1, verkürzt) ---------- */
+
+    function findCategory(label) {
+      return DIAGNOSE_TREE.find((c) => c.label === label) || null;
+    }
+
+    function render() {
+      const category = findCategory(state.category);
+      const sub = category && category.children
+        ? category.children.find((c) => c.label === state.sub) || null
+        : null;
+
+      const columns = [];
+      columns.push(
+        `<div class="ibtn-col">` +
+          DIAGNOSE_TREE.map(
+            (c) => `<a href="#" data-category="${c.label}" class="${state.category === c.label ? "active" : ""}"><span>${c.label}</span></a>`
+          ).join("") +
+        `</div>`
+      );
+
+      if (category && category.children) {
+        columns.push(
+          `<div class="ibtn-col">` +
+            category.children.map(
+              (c) => `<a href="#" data-sub="${c.label}" class="${state.sub === c.label ? "active" : ""}"><span>${c.label}</span></a>`
+            ).join("") +
+          `</div>`
+        );
+        if (sub && sub.options) columns.push(renderOptions(sub.options));
+        else if (state.sub) columns.push(`<div class="mock-note">${MOCK_NOTE}</div>`);
+      } else if (category && category.options) {
+        columns.push(renderOptions(category.options));
+      } else if (category) {
+        columns.push(`<div class="mock-note">${MOCK_NOTE}</div>`);
+      }
+
+      document.getElementById("columns").innerHTML = columns.join("");
+
+      const parts = ["Diagnose", "führend", state.category];
+      if (sub) parts.push(sub.label);
+      if (state.selected) parts.push(`<strong style="color:#fff">${state.selected}</strong>`);
+      document.getElementById("breadcrumb").innerHTML = parts.join('<span class="sep">›</span>');
+
+      renderRecent();
+      bindColumnEvents();
+    }
+
+    function renderOptions(options) {
+      return (
+        `<div class="ibtn-col">` +
+        options.map(
+          (o) => `<label class="option ${state.selected === o ? "selected" : ""}" data-option="${o}"><span>${o}</span></label>`
+        ).join("") +
+        `</div>`
+      );
+    }
+
+    function renderRecent() {
+      document.getElementById("recent").innerHTML =
+        `<span class="label">Zuletzt verwendet:</span>` +
+        state.recent.map((r) => `<button data-recent="${r}">${r}</button>`).join("");
+      document.querySelectorAll("[data-recent]").forEach((el) =>
+        el.addEventListener("click", () => applyOption(el.dataset.recent))
+      );
+    }
+
+    function bindColumnEvents() {
+      document.querySelectorAll("[data-category]").forEach((el) =>
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          state.category = el.dataset.category;
+          state.sub = null;
+          render();
+        })
+      );
+      document.querySelectorAll("[data-sub]").forEach((el) =>
+        el.addEventListener("click", (e) => {
+          e.preventDefault();
+          state.sub = el.dataset.sub;
+          render();
+        })
+      );
+      document.querySelectorAll("[data-option]").forEach((el) =>
+        el.addEventListener("click", () => applyOption(el.dataset.option))
+      );
+    }
+
+    function applyOption(option) {
+      const entry = INDEX.find((e) => e.option === option);
+      if (entry) {
+        state.category = entry.path[0];
+        state.sub = entry.path[1] || null;
+      }
+      state.selected = option;
+      state.recent = [option].concat(state.recent.filter((r) => r !== option)).slice(0, 4);
+      render();
+      showSaveToast(option);
+    }
+
+    /* ---------- Suchpalette ---------- */
+
+    const backdrop = document.getElementById("palette-backdrop");
+    const input = document.getElementById("palette-input");
+    const resultsEl = document.getElementById("palette-results");
+
+    function openPalette() {
+      backdrop.classList.add("open");
+      input.value = "";
+      state.highlighted = 0;
+      renderResults();
+      input.focus();
+    }
+
+    function closePalette() {
+      backdrop.classList.remove("open");
+    }
+
+    function currentResults() {
+      const q = input.value.trim().toLowerCase();
+      if (!q) return INDEX.slice(0, 8);
+      return INDEX.filter(
+        (e) =>
+          e.option.toLowerCase().includes(q) ||
+          e.path.join(" ").toLowerCase().includes(q)
+      ).slice(0, 12);
+    }
+
+    function renderResults() {
+      const results = currentResults();
+      if (results.length === 0) {
+        resultsEl.innerHTML = `<div class="result" style="color:#a2a2a2; cursor:default">Keine Treffer</div>`;
+        return;
+      }
+      resultsEl.innerHTML = results.map(
+        (e, i) =>
+          `<button class="result ${i === state.highlighted ? "highlighted" : ""}" data-idx="${i}">` +
+          `${e.option}<span class="path">Diagnose (führend) › ${e.path.join(" › ")}</span>` +
+          `</button>`
+      ).join("");
+      resultsEl.querySelectorAll("[data-idx]").forEach((el) =>
+        el.addEventListener("click", () => {
+          applyOption(results[parseInt(el.dataset.idx, 10)].option);
+          closePalette();
+        })
+      );
+    }
+
+    document.getElementById("open-palette").addEventListener("click", openPalette);
+    document.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        openPalette();
+      }
+      if (!backdrop.classList.contains("open")) return;
+      const results = currentResults();
+      if (e.key === "Escape") closePalette();
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        state.highlighted = Math.min(state.highlighted + 1, results.length - 1);
+        renderResults();
+      }
+      if (e.key === "ArrowUp") {
+        e.preventDefault();
+        state.highlighted = Math.max(state.highlighted - 1, 0);
+        renderResults();
+      }
+      if (e.key === "Enter" && results[state.highlighted]) {
+        applyOption(results[state.highlighted].option);
+        closePalette();
+      }
+    });
+    input.addEventListener("input", () => {
+      state.highlighted = 0;
+      renderResults();
+    });
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) closePalette();
+    });
+
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eNOTF UI-Konzepte (Konzept C)</title>
+  <link rel="stylesheet" href="enotf-mock.css">
+  <style>
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      margin: 0 0 8px;
+    }
+
+    p.intro {
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin: 0 0 28px;
+    }
+
+    .variant {
+      border: 1px solid var(--divider);
+      margin-bottom: 16px;
+      padding: 18px 20px;
+    }
+
+    .variant h2 {
+      font-size: 1.05rem;
+      margin: 0 0 6px;
+    }
+
+    .variant h2 a {
+      color: var(--text);
+    }
+
+    .variant p {
+      margin: 0 0 10px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .variant .facts {
+      display: flex;
+      gap: 24px;
+      font-size: 0.85rem;
+    }
+
+    .variant .facts div {
+      flex: 1;
+    }
+
+    .variant .facts strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .variant .facts span {
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>eNOTF UI-Konzepte (Konzept C — Frontend-Modernisierung)</h1>
+    <p class="intro">
+      Vier klickbare Mockups für die Protokoll-Oberfläche ohne Full-Page-Reloads.
+      Alle Inhalte (Diagnosebaum, Optionen, Sektionen) sind unverändert aus den bestehenden
+      Templates übernommen — die Varianten unterscheiden sich nur in Navigation und Layout.
+      Beispielstrecke ist jeweils der Diagnosebaum (ZNS, Herz-Kreislauf und Trauma sind
+      vollständig hinterlegt). Der grüne Toast unten rechts deutet die Feld-für-Feld-Autospeicherung an.
+    </p>
+
+    <div class="variant">
+      <h2><a href="variante-1-spalten-live.html">Variante 1 — Spalten, live</a></h2>
+      <p>
+        Die heutige Miller-Spalten-Navigation, aber client-seitig gerendert: Klicks tauschen
+        die Spalten sofort aus statt die Seite neu zu laden. Zusätzlich ein Breadcrumb-Pfad
+        über den Spalten. Für Bestandsnutzer ändert sich am Bedienmodell nichts.
+      </p>
+      <div class="facts">
+        <div><strong>Stärke</strong><span>Null Umgewöhnung, größter Performance-Sprung im CEF-Browser bei kleinstem UI-Risiko.</span></div>
+        <div><strong>Schwäche</strong><span>Tiefe Bäume brauchen weiterhin viele Klicks; horizontaler Platzbedarf bleibt.</span></div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <h2><a href="variante-2-baum-split.html">Variante 2 — Baum + Detailpanel</a></h2>
+      <p>
+        Ein dauerhaft sichtbarer, aufklappbarer Baum links (mit Filterfeld), rechts ein
+        Panel mit den Auswahlmöglichkeiten des gewählten Knotens. Der gesamte Baum ist
+        auf einen Blick erreichbar, der Filter macht tiefe Ebenen direkt anspringbar.
+      </p>
+      <div class="facts">
+        <div><strong>Stärke</strong><span>Schnellste Navigation für geübte Nutzer, Überblick über die gesamte Struktur, Filter ersetzt Klickpfade.</span></div>
+        <div><strong>Schwäche</strong><span>Bricht am stärksten mit dem NIDA-artigen Bedienmodell; kleinteiliger für Touch-Bedienung.</span></div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <h2><a href="variante-3-kacheln.html">Variante 3 — Kacheln (Touch)</a></h2>
+      <p>
+        Eine Ebene pro Bildschirm als großes Kachelraster mit Breadcrumb-Chips zum
+        Zurückspringen. Kacheln zeigen an, wie viele Unterpunkte dahinterliegen.
+        Ausgelegt auf Touch/Tablet-Bedienung im Fahrzeug.
+      </p>
+      <div class="facts">
+        <div><strong>Stärke</strong><span>Große Ziele, gut lesbar, funktioniert auch auf schmalen Fenstern; nah an echten Pad-Systemen (NIDA/corpuls).</span></div>
+        <div><strong>Schwäche</strong><span>Nur eine Ebene sichtbar — der Kontext der Nachbarebenen geht verloren, mehr Klicks als Variante 2.</span></div>
+      </div>
+    </div>
+
+    <div class="variant">
+      <h2><a href="variante-4-schnellerfassung.html">Variante 4 — Schnellerfassung (Suchpalette)</a></h2>
+      <p>
+        Variante 1 als Basis, ergänzt um eine Suchpalette (Strg+K): Freitext tippen,
+        Treffer zeigen den vollen Pfad, Enter übernimmt die Auswahl und die Spaltenansicht
+        springt an die Stelle. Dazu „Zuletzt verwendet“-Chips für häufige Diagnosen.
+      </p>
+      <div class="facts">
+        <div><strong>Stärke</strong><span>Erfasst Routinediagnosen in Sekunden; als Zusatzebene mit jeder Basisvariante kombinierbar.</span></div>
+        <div><strong>Schwäche</strong><span>Nur ein Aufsatz, keine eigenständige Lösung; Tastaturfokus passt nicht zu jeder Einsatzsituation.</span></div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,636 @@
+/*
+ * Gemeinsames Stylesheet für die eNOTF-UI-Konzept-Mockups (Konzept C).
+ * Farben, Flächen und Button-Optik entsprechen assets/css/divi.scss,
+ * damit die Varianten direkt mit dem Bestand vergleichbar sind.
+ */
+
+:root {
+  --bg: #191919;
+  --surface: #333333;
+  --surface-active: #5f5f5f;
+  --border-dark: #191919;
+  --divider: #424242;
+  --main-color: #ff4d00;
+  --main-color-dimmed: #cc3d00;
+  --secondary-color: #011e4a;
+  --text: #ffffff;
+  --text-muted: #a2a2a2;
+  --validation-red: #d91425;
+  --validation-yellow: #f7ec5d;
+  --validation-green: #55b530;
+  --focus-ring: #5783cf;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: "Geist", system-ui, sans-serif;
+  font-size: 15px;
+}
+
+/* ---------- Topbar (wie assets/components/enotf/topbar.php) ---------- */
+
+.topbar {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--main-color);
+  min-height: 72px;
+}
+
+.topbar__left,
+.topbar__right {
+  display: flex;
+  align-items: center;
+}
+
+.topbar__iconlink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 0 14px;
+  color: var(--text);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  align-self: stretch;
+}
+
+.topbar__iconlink:hover {
+  background-color: #222;
+}
+
+.topbar__iconlink .icon {
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.topbar__iconlink small {
+  font-size: 0.6rem;
+  color: var(--text);
+}
+
+.topbar__home {
+  border-right: 2px solid var(--divider);
+  font-size: 1.9rem;
+}
+
+.topbar__crew {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  padding: 0 15px;
+}
+
+.topbar__crew small {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.topbar__sync {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 15px;
+  border-left: 2px solid var(--divider);
+  font-size: 0.9rem;
+}
+
+.topbar__sync .ok {
+  color: #28a745;
+}
+
+.topbar__clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 0 15px;
+  border-left: 2px solid var(--divider);
+}
+
+.topbar__clock .time {
+  font-size: 1.6rem;
+  line-height: 0.9;
+}
+
+.topbar__clock .date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.topbar__enr {
+  padding: 0 15px;
+  border-left: 2px solid var(--divider);
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* ---------- Grundlayout ---------- */
+
+.layout {
+  display: flex;
+  align-items: stretch;
+  min-height: calc(100vh - 74px);
+}
+
+/* Sektionsnavigation links (wie #edivi__nidanav) */
+.sectionnav {
+  display: flex;
+  flex-direction: column;
+  width: 118px;
+  flex-shrink: 0;
+}
+
+.sectionnav a {
+  position: relative;
+  display: block;
+  padding: 22px 10px 22px 14px;
+  background-color: var(--surface);
+  border: 1px solid var(--border-dark);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  overflow: hidden;
+}
+
+.sectionnav a:hover,
+.sectionnav a.active {
+  background-color: var(--surface-active);
+}
+
+/* Validierungsbalken (wie edivi__validation-*) */
+.val-red::before,
+.val-yellow::before,
+.val-green::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 3px;
+  height: 20px;
+}
+
+.val-red::before {
+  background-color: var(--validation-red);
+  top: 8px;
+}
+
+.val-yellow::before {
+  background-color: var(--validation-yellow);
+  top: 8px;
+}
+
+.val-green::before {
+  background-color: var(--validation-green);
+  top: 28px;
+}
+
+/* ---------- Interact-Buttons (wie edivi__interactbutton) ---------- */
+
+.ibtn-col {
+  display: flex;
+  flex-direction: column;
+  width: 16.5%;
+  padding: 0 12px;
+}
+
+.ibtn-col a,
+.ibtn-col label,
+.ibtn {
+  position: relative;
+  display: block;
+  padding: 20px 30px 20px 14px;
+  background-color: var(--surface);
+  border: 1px solid var(--border-dark);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  overflow: hidden;
+  word-wrap: break-word;
+  transition: background-color 0.15s ease;
+  font-size: 0.95rem;
+}
+
+.ibtn-col a:hover,
+.ibtn-col label:hover,
+.ibtn:hover {
+  background-color: var(--surface-active);
+}
+
+.ibtn-col a.active,
+.ibtn-col label.active,
+.ibtn.active {
+  background-color: var(--surface-active);
+}
+
+/* Radio-Optik: Kreis rechts wie die btn-check-Labels im Bestand */
+.ibtn-col label.option::after,
+label.option::after {
+  content: "○";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.ibtn-col label.option.selected::after,
+label.option.selected::after {
+  content: "◉";
+  color: var(--text);
+}
+
+.ibtn-col input[type="radio"],
+input.visually-hidden-radio {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+  pointer-events: none;
+}
+
+/* ---------- Autosave-Toast ---------- */
+
+.save-toast {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  background-color: var(--surface);
+  border-left: 3px solid var(--validation-green);
+  color: var(--text);
+  padding: 10px 16px;
+  font-size: 0.85rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.save-toast.visible {
+  opacity: 1;
+}
+
+.save-toast .muted {
+  color: var(--text-muted);
+}
+
+/* ---------- Breadcrumb ---------- */
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.breadcrumb a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb .sep {
+  color: var(--divider);
+}
+
+/* ---------- Hinweisbox für nicht hinterlegte Mock-Inhalte ---------- */
+
+.mock-note {
+  margin: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--divider);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  max-width: 480px;
+}
+
+/* ---------- Variante 2: Baum + Panel ---------- */
+
+.tree-panel {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--divider);
+  display: flex;
+  flex-direction: column;
+}
+
+.tree-search {
+  margin: 12px;
+}
+
+.tree-search input {
+  width: 100%;
+  background-color: var(--surface);
+  border: 1px solid var(--divider);
+  color: var(--text);
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.tree-search input:focus {
+  outline: none;
+  border-color: var(--focus-ring);
+}
+
+.tree {
+  overflow-y: auto;
+  padding: 0 4px 12px;
+  font-size: 0.9rem;
+}
+
+.tree .node {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: inherit;
+  padding: 7px 8px;
+  cursor: pointer;
+}
+
+.tree .node:hover {
+  background-color: var(--surface);
+}
+
+.tree .node.selected {
+  background-color: var(--surface-active);
+}
+
+.tree .node .twisty {
+  display: inline-block;
+  width: 14px;
+  color: var(--text-muted);
+}
+
+.tree .node mark {
+  background-color: var(--main-color);
+  color: var(--text);
+}
+
+.tree .children {
+  margin-left: 14px;
+  border-left: 1px solid var(--divider);
+}
+
+.detail-panel {
+  flex: 1;
+  padding: 16px 24px;
+}
+
+.detail-panel h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.detail-panel .path {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+
+.option-list {
+  display: flex;
+  flex-direction: column;
+  max-width: 460px;
+}
+
+.option-list label {
+  position: relative;
+  padding: 16px 40px 16px 14px;
+  background-color: var(--surface);
+  border: 1px solid var(--border-dark);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.option-list label:hover,
+.option-list label.selected {
+  background-color: var(--surface-active);
+}
+
+/* ---------- Variante 3: Kacheln ---------- */
+
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+  padding: 8px 16px 24px;
+}
+
+.tile {
+  position: relative;
+  min-height: 110px;
+  background-color: var(--surface);
+  border: 1px solid var(--border-dark);
+  color: var(--text);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: left;
+  padding: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tile:hover {
+  background-color: var(--surface-active);
+}
+
+.tile.selected {
+  background-color: var(--surface-active);
+  border-left: 3px solid var(--main-color);
+}
+
+.tile .tile-meta {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.tile.tile-back {
+  background-color: transparent;
+  border: 1px solid var(--divider);
+  color: var(--text-muted);
+  min-height: 60px;
+  justify-content: center;
+}
+
+.crumb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 16px 6px;
+}
+
+.crumb-chips button {
+  background-color: var(--surface);
+  border: 1px solid var(--divider);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.crumb-chips button:hover {
+  background-color: var(--surface-active);
+}
+
+.crumb-chips button.current {
+  background-color: var(--surface-active);
+}
+
+/* ---------- Variante 4: Schnellerfassung ---------- */
+
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+  z-index: 50;
+}
+
+.palette-backdrop.open {
+  display: flex;
+}
+
+.palette {
+  width: min(560px, 90vw);
+  background-color: #222;
+  border: 1px solid var(--divider);
+}
+
+.palette input {
+  width: 100%;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--divider);
+  color: var(--text);
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 1.05rem;
+}
+
+.palette input:focus {
+  outline: none;
+}
+
+.palette .results {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.palette .result {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 10px 16px;
+  cursor: pointer;
+}
+
+.palette .result .path {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.palette .result:hover,
+.palette .result.highlighted {
+  background-color: var(--surface-active);
+}
+
+.palette .hint {
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--divider);
+}
+
+.recent-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 16px;
+  align-items: center;
+}
+
+.recent-chips .label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.recent-chips button {
+  background-color: var(--surface);
+  border: 1px solid var(--divider);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.recent-chips button:hover {
+  background-color: var(--surface-active);
+}
+
+.search-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 16px;
+  width: min(460px, 90%);
+  background-color: var(--surface);
+  border: 1px solid var(--divider);
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 10px 14px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.search-trigger:hover {
+  border-color: var(--focus-ring);
+}
+
+.search-trigger kbd {
+  margin-left: auto;
+  border: 1px solid var(--divider);
+  padding: 1px 6px;
+  font-size: 0.75rem;
+  font-family: inherit;
+  color: var(--text-muted);
+}
