@@ -36,3 +36,8 @@ plugins/*/.installed
 
 # Interne Planungs-/Designdokumente gehören nicht ins öffentliche Repo
 /docs/
+.superpowers/
+.codex/
+AGENTS.md
+Scratchpad.md
+Task Board.md
