@@ -13,8 +13,9 @@ declare(strict_types=1);
  *
  * Die .htaccess leitet alle nicht-existierenden Pfade hierher weiter
  * (Fallback nach !-f/!-d Check). Bestehende Modul-Stubs werden weiterhin
- * direkt von Apache gehandhabt — sie sind echte Files und MultiViews/
- * RewriteRules matchen sie, bevor die Fallback-Regel greift.
+ * direkt von Apache gehandhabt — sie sind echte Files, und extensionslose
+ * Aufrufe mappt die .htaccess per RewriteRule auf `<pfad>.php`, bevor
+ * die Fallback-Regel greift.
  */
 
 use App\Exceptions\AuthorizationException;

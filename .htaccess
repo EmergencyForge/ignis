@@ -62,11 +62,7 @@ RewriteRule ^plugins/ - [F,L]
 # und sind die einzigen expliziten Einsprungspunkte — andere Dateien dort
 # werden nicht erstellt, aber Legacy-Datei-Schutz hängt an den Script-Checks.
 
-#2 ---- Without extension
-
-Options +MultiViews
-
-#3 ---- Rewrites
+#2 ---- Rewrites
 
 RewriteEngine On
 
@@ -81,10 +77,18 @@ RewriteEngine On
 #
 # Bestehende Modul-Files (benutzer/list.php, einsatz/index.php, ...)
 # bleiben unberührt, weil `!-f` dann false ist und die Regel nicht
-# greift. MultiViews (+MultiViews oben) resolvt zusätzlich `/foo`
-# zu `/foo.php` BEVOR die Rewrites laufen, sodass Extension-lose
-# Legacy-URLs weiterhin direkt funktionieren.
+# greift. Extension-lose URLs auf echte Files (z.B. Form-Actions wie
+# assets/functions/enotf/enrbridge) mappt die `.php`-Regel davor —
+# analog zum `$uri.php`-Schritt in der nginx.conf.example.
 # ============================================================
+
+# Extensionslose URLs -> .php. Ersetzt MultiViews, das auf PHP-FPM-Setups
+# (KeyHelp, Plesk, ...) stillschweigend versagt, weil mod_negotiation
+# .php ohne mod_mime-Typ nicht als Variante erkennt.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)$ $1.php [L]
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

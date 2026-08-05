@@ -1,2 +1,7 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shell-Scripts brauchen LF im Working Tree — mit CRLF (Windows-Checkout,
+# core.autocrlf=true) scheitert der Docker-Container am Shebang von
+# entrypoint.sh mit "no such file or directory".
+*.sh text eol=lf
