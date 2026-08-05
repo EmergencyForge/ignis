@@ -203,29 +203,21 @@ class GlobalAnnouncementManager
             'installation_id' => $installationId,
         ]);
 
-        $context = stream_context_create([
-            'http' => [
-                'method' => 'GET',
-                'header' => [
+        try {
+            $result = \App\Utils\HttpClient::request($endpoint . '?' . $queryParams, [
+                'headers' => [
                     'Accept: application/json',
                     'User-Agent: ignis-Client/1.0',
                     'X-Installation-ID: ' . $installationId,
                 ],
                 'timeout' => 3,
-                'ignore_errors' => true,
-            ],
-            'ssl' => [
-                'verify_peer' => true,
-                'verify_peer_name' => true,
-            ],
-        ]);
+            ]);
 
-        try {
-            $response = @file_get_contents($endpoint . '?' . $queryParams, false, $context);
-
-            if ($response === false) {
+            if ($result === null) {
                 return ['success' => false, 'message' => 'Verbindung zum Hub fehlgeschlagen'];
             }
+
+            $response = $result['body'];
 
             $data = json_decode($response, true);
 
