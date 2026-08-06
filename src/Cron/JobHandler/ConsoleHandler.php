@@ -60,6 +60,12 @@ final class ConsoleHandler implements JobHandlerInterface
             2 => ['pipe', 'w'],
         ];
 
+        // proc_open steht in disable_functions vieler Shared-Hosting-Setups —
+        // seit PHP 8 wirft der Aufruf dann einen fatalen Error statt false.
+        if (!function_exists('proc_open')) {
+            return JobResult::failed(0, 'proc_open ist auf diesem Hosting deaktiviert (disable_functions) — Console-Jobs können nicht ausgeführt werden.');
+        }
+
         $startedAt = microtime(true);
         $proc = @proc_open($cmd, $descriptors, $pipes, $appRoot);
         if (!is_resource($proc)) {

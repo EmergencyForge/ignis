@@ -117,28 +117,19 @@ final class ChangelogClient
             $headers[] = 'If-Modified-Since: ' . $meta['last_modified'];
         }
 
-        $context = stream_context_create([
-            'http' => [
-                'method'        => 'GET',
-                'header'        => $headers,
-                'timeout'       => self::TIMEOUT_SECONDS,
-                'ignore_errors' => true,
-            ],
-            'ssl' => [
-                'verify_peer'      => true,
-                'verify_peer_name' => true,
-            ],
+        $result = \App\Utils\HttpClient::request($endpoint, [
+            'headers' => $headers,
+            'timeout' => self::TIMEOUT_SECONDS,
         ]);
 
-        $body = @file_get_contents($endpoint, false, $context);
-        $statusLine = $http_response_header[0] ?? '';
-        $status = $this->parseStatusCode($statusLine);
-
         // Hub konnte nicht erreicht werden (Timeout / DNS / TLS) — alter Cache bleibt.
-        if ($body === false && $status === 0) {
+        if ($result === null) {
             Logger::info('ChangelogClient: hub unreachable, keeping stale cache');
             return ['success' => false, 'status' => 0, 'message' => 'Hub nicht erreichbar', 'count' => 0];
         }
+
+        $status = $result['status'];
+        $body   = $result['body'];
 
         // 304 Not Modified — Cache ist noch valide, nichts zu tun.
         if ($status === 304) {
@@ -167,8 +158,8 @@ final class ChangelogClient
         $written = $this->persist($items);
 
         // ETag/Last-Modified fuer naechsten conditional Request merken.
-        $newEtag         = $this->headerValue($http_response_header ?? [], 'ETag');
-        $newLastModified = $this->headerValue($http_response_header ?? [], 'Last-Modified');
+        $newEtag         = $this->headerValue($result['headers'], 'ETag');
+        $newLastModified = $this->headerValue($result['headers'], 'Last-Modified');
         $this->saveMeta([
             'etag'           => $newEtag,
             'last_modified'  => $newLastModified,
@@ -294,17 +285,6 @@ final class ChangelogClient
         } catch (\PDOException $e) {
             Logger::warning('ChangelogClient: saveMeta failed: ' . $e->getMessage());
         }
-    }
-
-    private function parseStatusCode(string $statusLine): int
-    {
-        if ($statusLine === '') {
-            return 0;
-        }
-        if (preg_match('#^HTTP/\S+\s+(\d{3})#', $statusLine, $m) === 1) {
-            return (int) $m[1];
-        }
-        return 0;
     }
 
     /** @param array<int,string> $headers */

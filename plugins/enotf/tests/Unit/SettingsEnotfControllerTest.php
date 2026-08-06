@@ -8,7 +8,7 @@ use Plugin\Enotf\Controllers\Settings\EnotfController;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
-class EnotfControllerTest extends TestCase
+class SettingsEnotfControllerTest extends TestCase
 {
     #[Test]
     public function controller_resolves_via_container(): void
