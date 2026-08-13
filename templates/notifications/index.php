@@ -142,12 +142,18 @@ foreach ($notifications as $n) {
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
 
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <h1>Benachrichtigungen</h1>
+        <div class="twplus-page">
+            <header class="twplus-page-header">
+                <div class="twplus-page-header__copy">
+                    <p class="twplus-page-header__eyebrow">Posteingang</p>
+                    <h1>Benachrichtigungen</h1>
+                    <p class="twplus-page-header__description">Neuigkeiten aus Anträgen, Protokollen, Dokumenten und dem System.</p>
+                </div>
+            </header>
 
             <?php Flash::render(); ?>
 
-            <div class="my-3 flex items-center justify-between">
+            <div class="twplus-table-card__toolbar my-3 rounded-lg border border-[var(--border-color)]">
                 <div class="flex flex-wrap items-center gap-1">
                     <a href="<?= notifFilterUrl(['filter' => 'all', 'type' => null]) ?>" class="ignis-btn ignis-btn--sm no-underline hover:no-underline <?= $filter === 'all' && !$typeFilter ? 'ignis-btn--soft-primary' : 'ignis-btn--outline-secondary' ?>">
                         Alle
@@ -172,11 +178,12 @@ foreach ($notifications as $n) {
                 <?php endif; ?>
             </div>
 
-            <div class="intra__tile mb-6 p-0">
+            <div class="twplus-table-card mb-6">
                 <?php if (empty($notifications)): ?>
-                    <div class="p-4 text-center text-gray-400">
-                        <i class="fa-solid fa-inbox fa-3x mb-3"></i>
-                        <p class="mb-0">Keine Benachrichtigungen vorhanden</p>
+                    <div class="twplus-empty m-4">
+                        <i class="fa-solid fa-inbox twplus-empty__icon" aria-hidden="true"></i>
+                        <h2 class="twplus-empty__title">Keine Benachrichtigungen vorhanden</h2>
+                        <p class="twplus-empty__description">Neue Meldungen erscheinen automatisch in diesem Posteingang.</p>
                     </div>
                 <?php else: ?>
                     <?php foreach ($groups as $gi => $group):

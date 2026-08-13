@@ -24,26 +24,26 @@ if ($statsEnotfActive) {
     }
 }
 ?>
-<div class="intra__stats-strip">
-    <div class="intra__stat-item">
-        <span class="intra__stat-value" data-count-to="<?= (int)($statsData['users'] ?? 0) ?>">0</span>
-        <span class="intra__stat-label">Benutzer</span>
+<dl class="twplus-stats" aria-label="Systemstatistiken">
+    <div class="twplus-stats__item">
+        <dt class="twplus-stats__label"><i class="fa-solid fa-users mr-1" aria-hidden="true"></i> Benutzer</dt>
+        <dd class="twplus-stats__value" data-count-to="<?= (int)($statsData['users'] ?? 0) ?>">0</dd>
     </div>
-    <div class="intra__stat-item">
-        <span class="intra__stat-value" data-count-to="<?= (int)($statsData['mitarbeiter'] ?? 0) ?>">0</span>
-        <span class="intra__stat-label">Mitarbeiter</span>
+    <div class="twplus-stats__item">
+        <dt class="twplus-stats__label"><i class="fa-solid fa-id-card mr-1" aria-hidden="true"></i> Mitarbeiter</dt>
+        <dd class="twplus-stats__value" data-count-to="<?= (int)($statsData['mitarbeiter'] ?? 0) ?>">0</dd>
     </div>
     <?php if ($statsEnotfActive): ?>
-        <div class="intra__stat-item">
-            <span class="intra__stat-value" data-count-to="<?= (int)($statsData['enotf'] ?? 0) ?>">0</span>
-            <span class="intra__stat-label">eNOTF-Protokolle</span>
+        <div class="twplus-stats__item">
+            <dt class="twplus-stats__label"><i class="fa-solid fa-truck-medical mr-1" aria-hidden="true"></i> eNOTF-Protokolle</dt>
+            <dd class="twplus-stats__value" data-count-to="<?= (int)($statsData['enotf'] ?? 0) ?>">0</dd>
         </div>
     <?php endif; ?>
-    <div class="intra__stat-item">
-        <span class="intra__stat-value" data-count-to="<?= (int)($statsData['dokumente'] ?? 0) ?>">0</span>
-        <span class="intra__stat-label">Dokumente</span>
+    <div class="twplus-stats__item">
+        <dt class="twplus-stats__label"><i class="fa-solid fa-folder-open mr-1" aria-hidden="true"></i> Dokumente</dt>
+        <dd class="twplus-stats__value" data-count-to="<?= (int)($statsData['dokumente'] ?? 0) ?>">0</dd>
     </div>
-</div>
+</dl>
 <script>
 // Stats count-up: command center power-on effect
 (function() {

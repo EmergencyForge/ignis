@@ -23,15 +23,19 @@ use App\Helpers\Flash;
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
                         <span class="ignis-breadcrumb__item is-active">Benutzer</span>
                     </nav>
-                    <div class="page-header mb-4">
-                        <h1>Benutzerübersicht</h1>
+                    <div class="page-header twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy">
+                            <p class="twplus-page-header__eyebrow">Zugriffsverwaltung</p>
+                            <h1>Benutzerübersicht</h1>
+                            <p class="twplus-page-header__description">Konten, Rollen und Zugriffsstatus auf einen Blick.</p>
+                        </div>
                     </div>
                     <?php Flash::render(); ?>
                     <div class="mb-3">
@@ -41,8 +45,9 @@ use App\Helpers\Flash;
                             <button type="button" class="filter-btn" data-filter="inactive">Deaktiviert</button>
                         </div>
                     </div>
-                    <div class="intra__tile py-2 px-3">
-                        <table class="table table-striped" id="userTable">
+                    <div class="twplus-table-card">
+                        <div class="twplus-table-card__scroll">
+                        <table class="table table-striped twplus-table" id="userTable">
                             <thead>
                                 <th scope="col">UID</th>
                                 <th scope="col">Name (Benutzername)</th>
@@ -111,6 +116,7 @@ use App\Helpers\Flash;
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>

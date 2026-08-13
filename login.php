@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="de" class="h-full">
 
 <head>
     <?php
@@ -62,18 +62,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
 </head>
 
 <body data-bs-theme="dark" id="alogin" class="relative">
-    <div id="login-background">
-        <div class="bg-grid"></div>
-        <div class="bg-floats"></div>
-        <div class="bg-glow bg-glow--1"></div>
-        <div class="bg-glow bg-glow--2"></div>
-    </div>
-
-    <div class="container mx-auto flex h-full flex-col items-center justify-center">
-        <div class="w-[30%]">
-            <div class="text-center">
-                <img src="https://web-assets.emergencyforge.de/images/defaultLogo.webp" alt="EmergencyForge Logo" class="mx-auto mb-6" width="75%" height="auto">
-                <div class="card px-6 py-4 text-center">
+    <div class="twplus-login">
+        <section class="twplus-login__panel">
+            <div class="twplus-login__content">
+                <div class="twplus-login__brand">
+                    <img src="https://web-assets.emergencyforge.de/images/defaultLogo.webp" alt="EmergencyForge Logo">
+                </div>
+                <div class="twplus-login__card">
                     <h1 id="loginHeader"><?php echo SYSTEM_NAME ?></h1>
                     <p class="subtext">Das Intranet der Stadt <?php echo SERVER_CITY ?>!</p>
 
@@ -112,8 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                         <a href="<?= BASE_PATH ?>auth/discord.php" class="btn btn-soft-primary btn-lg block w-full"><i class="fa-brands fa-discord"></i> Login</a>
                     </div>
                 </div>
-            </div>
-        </div>
         <p class="mt-4 text-center text-xs">&copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
         <?php
         $impressumUrl = defined('LEGAL_IMPRESSUM_URL') ? LEGAL_IMPRESSUM_URL : '';
@@ -132,6 +125,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                 <?php endif; ?>
             </p>
         <?php endif; ?>
+            </div>
+        </section>
+        <aside class="twplus-login__visual" id="login-background" aria-hidden="true">
+            <div class="bg-grid"></div>
+            <div class="bg-floats"></div>
+            <div class="bg-glow bg-glow--1"></div>
+            <div class="bg-glow bg-glow--2"></div>
+            <div class="twplus-login__visual-copy">
+                <p class="twplus-page-header__eyebrow">EmergencyForge</p>
+                <h2>Alles, was deine Organisation im Einsatz zusammenhält.</h2>
+                <p>Personal, Dokumente, Anträge und Einsatzprotokolle in einer gemeinsamen, verlässlichen Oberfläche.</p>
+            </div>
+        </aside>
     </div>
     <script>
     (() => {

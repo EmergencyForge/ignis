@@ -26,13 +26,17 @@ use App\Helpers\Flash;
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item is-active">Mitarbeiter</span></nav>
-                    <div class="page-header mb-4">
-                        <h1>Mitarbeiterübersicht</h1>
-                        <div class="header-actions">
+                    <div class="page-header twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy">
+                            <p class="twplus-page-header__eyebrow">Personal</p>
+                            <h1>Mitarbeiterübersicht</h1>
+                            <p class="twplus-page-header__description">Mitarbeiter, Dienstgrade und Qualifikationen zentral verwalten.</p>
+                        </div>
+                        <div class="header-actions twplus-page-header__actions">
                             <?php if (Gate::allows('personnel.create') && !$showArchive): ?>
                                 <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" onclick="openCreateMitarbeiterModal()">
                                     <i class="fa-solid fa-plus mr-1"></i>Neuer Mitarbeiter
@@ -48,7 +52,7 @@ use App\Helpers\Flash;
                     <?php Flash::render(); ?>
 
                     <!-- Filter-Leiste -->
-                    <div class="intra__tile py-2 px-3 mb-3">
+                    <div class="twplus-table-card__toolbar mb-3 rounded-lg border border-[var(--border-color)]">
                         <div class="flex flex-wrap -mx-3 g-2 items-end">
                             <div class="px-3">
                                 <label for="filterDienstgrad" class="ignis-field__label text-sm mb-1">Dienstgrad</label>
@@ -94,15 +98,16 @@ use App\Helpers\Flash;
                         </div>
                     </div>
 
-                    <div class="intra__tile py-2 px-3">
-                        <table class="table table-striped" id="mitarbeiterTable">
+                    <div class="twplus-table-card">
+                        <div class="twplus-table-card__scroll">
+                        <table class="table table-striped twplus-table" id="mitarbeiterTable">
                             <thead>
-                                <th scope="col">Dienstnummer</th>
+                                <th scope="col" data-tw-priority="medium">Dienstnummer</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Dienstgrad</th>
-                                <th scope="col">RD-Quali</th>
-                                <th scope="col">FW-Quali</th>
-                                <th scope="col">Einstellungsdatum</th>
+                                <th scope="col" data-tw-priority="low">RD-Quali</th>
+                                <th scope="col" data-tw-priority="low">FW-Quali</th>
+                                <th scope="col" data-tw-priority="medium">Einstellungsdatum</th>
                                 <th scope="col"></th>
                             </thead>
                             <tbody>
@@ -117,7 +122,7 @@ use App\Helpers\Flash;
                                     $badgeImg  = $m->dienstgradModel?->badge;
                                 ?>
                                     <tr data-dg="<?= htmlspecialchars($dgNeutral) ?>" data-rd="<?= htmlspecialchars($rdNeutral) ?>" data-fw="<?= htmlspecialchars($fwShort) ?>">
-                                        <td><?= htmlspecialchars($m->dienstnr) ?></td>
+                                        <td data-tw-priority="medium"><?= htmlspecialchars($m->dienstnr) ?></td>
                                         <td>
                                             <a href="<?= BASE_PATH ?>personnel/profile?id=<?= (int) $m->id ?>"
                                                data-mitarbeiter-card="<?= (int) $m->id ?>"
@@ -160,6 +165,7 @@ use App\Helpers\Flash;
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>

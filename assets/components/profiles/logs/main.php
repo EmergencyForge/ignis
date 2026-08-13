@@ -27,25 +27,26 @@ if (empty($logs)): ?>
         <p class="mb-0 mt-2">Keine Protokolleinträge vorhanden</p>
     </div>
 <?php else: ?>
-    <?php foreach ($logs as $log):
-        $logType = PersonalLogManager::getTypeName($log['type']);
-        $logtime = date("d.m.Y H:i", strtotime($log['datetime']));
-        $icon = $typeIcons[$logType] ?? 'fa-circle-info';
-    ?>
-        <div class="comment-item comment-item--<?= $logType ?>">
-            <div class="comment-item__indicator"></div>
-            <div class="comment-item__body">
-                <div class="comment-item__content"><?= $log['content'] ?></div>
-                <div class="comment-item__meta">
-                    <span><i class="fa-solid fa-user"></i> <?= htmlspecialchars($log['paneluser']) ?></span>
-                    <span><i class="fa-solid fa-clock"></i> <?= $logtime ?></span>
+    <div class="twplus-feed">
+        <?php foreach ($logs as $log):
+            $logType = PersonalLogManager::getTypeName($log['type']);
+            $logtime = date("d.m.Y H:i", strtotime($log['datetime']));
+            $icon = $typeIcons[$logType] ?? 'fa-circle-info';
+        ?>
+            <div class="twplus-feed__item">
+                <span class="twplus-feed__icon" title="<?= ucfirst($logType) ?>">
+                    <i class="fa-solid <?= $icon ?>" aria-hidden="true"></i>
+                </span>
+                <div class="twplus-feed__body">
+                    <div class="twplus-feed__content"><?= $log['content'] ?></div>
+                    <div class="twplus-feed__meta">
+                        <span><i class="fa-solid fa-user" aria-hidden="true"></i> <?= htmlspecialchars($log['paneluser']) ?></span>
+                        <span><i class="fa-solid fa-clock" aria-hidden="true"></i> <?= $logtime ?></span>
+                    </div>
                 </div>
             </div>
-            <div class="comment-item__type-icon" title="<?= ucfirst($logType) ?>">
-                <i class="fa-solid <?= $icon ?>"></i>
-            </div>
-        </div>
-    <?php endforeach; ?>
+        <?php endforeach; ?>
+    </div>
 <?php endif;
 
 // Pagination

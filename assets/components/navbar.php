@@ -1,12 +1,11 @@
 <?php
 
 use App\Auth\Permissions;
-use App\Config\ConfigManager;
 use App\Notifications\NotificationManager;
 
 $unreadCount = 0;
 $recentNotifications = [];
-$useNewNavbar = false;
+$useNewNavbar = true;
 try {
     if (!isset($pdo) || !$pdo instanceof PDO) {
         require_once __DIR__ . '/../config/database.php';
@@ -21,9 +20,6 @@ try {
         $unreadCount = $notificationManager->getUnreadCount($_SESSION['userid']);
         $recentNotifications = $notificationManager->getAll($_SESSION['userid'], 5);
 
-        $configManager = new ConfigManager($pdo);
-        $flagValue = $configManager->get('UI_NEW_NAVBAR_ENABLED');
-        $useNewNavbar = in_array(strtolower((string) $flagValue), ['1', 'true', 'yes', 'on'], true);
     }
 } catch (Exception $e) {
     error_log("Notification count error: " . $e->getMessage());
@@ -166,13 +162,13 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     .global-search-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.72);
         z-index: 1080;
         display: none;
         align-items: flex-start;
         justify-content: center;
-        padding-top: 12vh;
-        backdrop-filter: blur(4px);
+        padding: 10vh 1rem 1rem;
+        backdrop-filter: blur(8px);
     }
 
     .global-search-overlay.show {
@@ -181,11 +177,11 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 
     .global-search-modal {
         width: 100%;
-        max-width: 560px;
-        background: var(--sidebar-bg);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 14px;
-        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+        max-width: 680px;
+        background: var(--card-bg, #141416);
+        border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+        border-radius: 16px;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.58);
         overflow: hidden;
         animation: gsm-in 0.15s ease;
     }
@@ -205,7 +201,8 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     .gsm-input-wrap {
         display: flex;
         align-items: center;
-        padding: 0.75rem 1rem;
+        min-height: 3.65rem;
+        padding: 0.85rem 1rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         gap: 0.6rem;
     }
@@ -240,7 +237,7 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
     }
 
     .gsm-results {
-        max-height: 420px;
+        max-height: min(440px, 58vh);
         overflow-y: auto;
         padding: 0.35rem 0;
         scrollbar-width: thin;
@@ -275,17 +272,19 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
 
     .gsr-item {
         display: block;
-        padding: 0.45rem 1rem;
+        padding: 0.62rem 0.75rem;
         color: #ccc;
         text-decoration: none;
         transition: background 0.12s;
-        border-radius: 8px;
-        margin: 1px 0.4rem;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        margin: 2px 0.5rem;
     }
 
     .gsr-item:hover,
     .gsr-item.gsr-active {
-        background: var(--sidebar-hover-bg);
+        background: rgba(var(--main-color-rgb, 255, 77, 0), 0.1);
+        border-color: rgba(var(--main-color-rgb, 255, 77, 0), 0.22);
         color: #fff;
         text-decoration: none;
     }
@@ -1728,14 +1727,26 @@ $topbarTimeAgo = static function (string $createdAt): string {
 </header>
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+<?php
+$navbarRequestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '';
+$showSystemSettingsNav = str_contains($navbarRequestPath, '/settings/system/')
+    && !str_contains($navbarRequestPath, '/settings/system/index');
+?>
+<?php if ($showSystemSettingsNav): ?>
+    <div class="twplus-page" style="padding-bottom:0;">
+        <?php include __DIR__ . '/settings/system/_navigation.php'; ?>
+    </div>
+<?php endif; ?>
+
 <!-- ===================== -->
 <!-- GLOBAL SEARCH MODAL   -->
 <!-- ===================== -->
-<div class="global-search-overlay" id="globalSearchOverlay">
+<div class="global-search-overlay" id="globalSearchOverlay" role="dialog" aria-modal="true" aria-labelledby="globalSearchLabel">
     <div class="global-search-modal">
         <div class="gsm-input-wrap">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" id="globalSearchInput" placeholder="Suchen..." autocomplete="off" />
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <label for="globalSearchInput" class="sr-only" id="globalSearchLabel">Globale Suche</label>
+            <input type="text" id="globalSearchInput" placeholder="Mitarbeiter, Dokumente, Anträge und Seiten durchsuchen …" autocomplete="off" />
             <span class="gsm-shortcut">ESC</span>
         </div>
         <div class="gsm-results" id="globalSearchResults"></div>

@@ -48,10 +48,16 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
 <body data-bs-theme="dark" data-page="mitarbeiter">
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
-                    <h1 class="mb-3">Mitarbeiterprofil</h1>
+                    <header class="twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy">
+                            <p class="twplus-page-header__eyebrow">Personalakte</p>
+                            <h1>Mitarbeiterprofil</h1>
+                            <p class="twplus-page-header__description"><?= htmlspecialchars($row['fullname']) ?> · Akten-ID <?= (int) $row['id'] ?></p>
+                        </div>
+                    </header>
 
                     <div class="mb-3 flex flex-wrap items-center gap-2 rounded px-3 py-2" style="background: var(--card-bg); border: 1px solid var(--border-color);">
                         <span class="font-semibold" style="font-size: var(--font-size-sm);">Konto-Status:</span>
@@ -101,7 +107,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                     <?php include __DIR__ . '/../../assets/components/profiles/checks.php' ?>
 
                     <div class="flex flex-wrap -mx-3">
-                        <div class="w-5/12 p-3 shadow-sm border ma-basedata px-3">
+                        <div class="w-full p-3 shadow-sm border ma-basedata px-3 ignis-card lg:w-5/12">
                             <form id="profil" method="post">
                                 <div class="flex flex-wrap -mx-3">
                                     <div class="flex-1 px-3">
@@ -160,7 +166,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                     <?php endif; ?>
 
                                     <hr class="my-3">
-                                    <table class="mx-auto w-full">
+                                    <table class="mx-auto w-full twplus-description-table">
                                         <tbody class="text-left">
                                             <?php if ($canEdit): ?>
                                             <tr>
@@ -214,8 +220,8 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                 </div>
                             </form>
                         </div>
-                        <div class="flex-1 ml-4 px-3">
-                            <div class="p-3 shadow-sm border ma-comments mb-3">
+                        <div class="mt-4 flex-1 px-3 lg:ml-4 lg:mt-0">
+                            <div class="p-3 shadow-sm border ma-comments mb-3 ignis-card">
                                 <div class="comment-settings mb-3">
                                     <h4>Kommentare/Notizen</h4>
                                 </div>
@@ -223,7 +229,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                     <?php include __DIR__ . '/../../assets/components/profiles/comments/main.php' ?>
                                 </div>
                             </div>
-                            <div class="p-3 shadow-sm border ma-logs">
+                            <div class="p-3 shadow-sm border ma-logs ignis-card">
                                 <details<?php echo isset($_GET['logpage']) ? ' open' : ''; ?>>
                                     <summary class="mb-3" style="cursor: pointer;">
                                         <h5 class="inline">Systemprotokoll</h5>
@@ -236,7 +242,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                         </div>
                     </div>
                     <div class="flex flex-wrap -mx-3 mt-3 mb-4">
-                        <div class="flex-1 p-3 shadow-sm border ma-documents px-3">
+                        <div class="flex-1 p-3 shadow-sm border ma-documents px-3 ignis-card">
                             <h4>Dokumente</h4>
                             <?php include __DIR__ . '/../../assets/components/profiles/documents/main.php' ?>
                         </div>

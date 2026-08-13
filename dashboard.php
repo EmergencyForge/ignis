@@ -11,7 +11,7 @@ require_once __DIR__ . '/assets/config/config.php';
 </head>
 
 <body data-bs-theme="dark" id="dashboard" class="container-full position-relative">
-  <div class="container-full mx-5">
+  <div class="twplus-page">
     <div class="row mt-3">
       <div class="col-4 mx-auto text-center">
         <img src="<?php echo SYSTEM_LOGO ?>" alt="<?php echo SYSTEM_NAME ?>" style="height:128px;width:auto">
@@ -66,37 +66,21 @@ require_once __DIR__ . '/assets/config/config.php';
         foreach ($categories as $row) {
           $result2 = $row['tiles'];
         ?>
-          <div class="mb-5">
-            <div class="row">
-              <div class="col mb-3">
-                <h2><?= htmlspecialchars($row['title']) ?></h2>
-              </div>
+          <section class="mb-8">
+            <h2 class="mb-3"><?= htmlspecialchars($row['title']) ?></h2>
+            <div class="twplus-link-grid">
+              <?php foreach ($result2 as $tile) { ?>
+                <a href="<?= htmlspecialchars($tile['url']) ?>" class="twplus-link-card">
+                  <span class="twplus-link-card__icon"><i class="<?= htmlspecialchars($tile['icon']) ?>" aria-hidden="true"></i></span>
+                  <span class="twplus-link-card__body">
+                    <span class="twplus-link-card__title"><?= htmlspecialchars($tile['title']) ?></span>
+                    <span class="twplus-link-card__description">Bereich öffnen</span>
+                  </span>
+                  <i class="fa-solid fa-chevron-right twplus-link-card__arrow" aria-hidden="true"></i>
+                </a>
+              <?php } ?>
             </div>
-
-            <?php
-            $chunkedTiles = array_chunk($result2, 6);
-            foreach ($chunkedTiles as $tileRow) {
-            ?>
-              <div class="row mb-3">
-                <?php foreach ($tileRow as $tile) { ?>
-                  <div class="col-md-2"> <!-- 12 / 6 = 2 per tile -->
-                    <a href="<?= htmlspecialchars($tile['url']) ?>">
-                      <div class="card h-100">
-                        <div class="card-body">
-                          <div class="card-fa mb-3 text-center d-block">
-                            <i class="<?= htmlspecialchars($tile['icon']) ?>"></i>
-                          </div>
-                          <h5 class="card-title text-center fw-bold">
-                            <?= htmlspecialchars($tile['title']) ?>
-                          </h5>
-                        </div>
-                      </div>
-                    </a>
-                  </div>
-                <?php } ?>
-              </div>
-            <?php } ?>
-          </div>
+          </section>
         <?php }
         if (empty($categories)) {
           echo '<div class="alert alert-warning" role="alert">Es wurde noch kein Dashboard konfiguriert. Bitte konfiguriere dein Dashboard in der <a class="fw-bold link-underline" href="' . BASE_PATH . 'settings/dashboard/index.php">Administrationsoberfläche</a>.</div>';

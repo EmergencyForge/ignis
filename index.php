@@ -37,12 +37,16 @@ use App\Helpers\Flash;
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
+        <div class="twplus-page">
             <!-- Page header + stats: tight grouping (related) -->
-            <div id="startpage">
-                <h1>Dashboard</h1>
-                <?php Flash::render(); ?>
+            <div id="startpage" class="twplus-page-header">
+                <div class="twplus-page-header__copy">
+                    <p class="twplus-page-header__eyebrow">Übersicht</p>
+                    <h1>Dashboard</h1>
+                    <p class="twplus-page-header__description">Deine wichtigsten Kennzahlen, Dokumente, Anträge und Protokolle auf einen Blick.</p>
+                </div>
             </div>
+            <?php Flash::render(); ?>
             <?php include __DIR__ . '/assets/components/index/stats.php' ?>
             <?php include __DIR__ . '/assets/components/index/setup-checklist.php' ?>
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" style="margin-top:var(--space-xl);">
