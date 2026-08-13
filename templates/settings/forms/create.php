@@ -29,13 +29,13 @@ use App\Helpers\Flash;
 <body data-bs-theme="dark" data-page="antragstyp-create">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="max-w-4xl mx-auto">
-                    <h1><i class="fa-solid fa-circle-plus mr-2"></i>Neuen Antragstyp erstellen</h1>
+                    <header class="twplus-page-header mb-4"><div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Formularbaukasten</p><h1><i class="fa-solid fa-circle-plus mr-2"></i>Neuen Antragstyp erstellen</h1><p class="twplus-page-header__description">Grunddaten festlegen; Formularfelder werden anschließend ergänzt.</p></div></header>
 
                     <?php Flash::render(); ?>
 
-                    <div class="intra__tile p-4">
+                    <div class="twplus-section-card p-4">
                         <form method="post" action="">
                             <div class="mb-4">
                                 <label for="name" class="ignis-field__label font-bold">
@@ -113,7 +113,7 @@ use App\Helpers\Flash;
                                 <strong>Hinweis:</strong> Nach dem Erstellen können Sie Formularfelder für diesen Antragstyp hinzufügen.
                             </div>
 
-                            <div class="flex justify-between">
+                            <div class="twplus-sticky-actions">
                                 <a href="<?= BASE_PATH ?>settings/forms/list" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-xmark mr-2"></i>Abbrechen
                                 </a>
@@ -126,7 +126,6 @@ use App\Helpers\Flash;
                 </div>
             </div>
         </div>
-    </div>
 
     <script>
         $('#icon').on('input', function() {

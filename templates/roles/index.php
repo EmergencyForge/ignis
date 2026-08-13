@@ -26,7 +26,7 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
@@ -34,9 +34,9 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>users/list">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active">Rollen</span>
                     </nav>
-                    <div class="page-header mb-4">
-                        <h1>Rollenverwaltung</h1>
-                        <div class="header-actions">
+                    <div class="page-header twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Zugriffsverwaltung</p><h1>Rollenverwaltung</h1><p class="twplus-page-header__description">Rollen, Prioritäten und Berechtigungen zentral pflegen.</p></div>
+                        <div class="header-actions twplus-page-header__actions">
                             <?php if (Gate::allows('role.create')): ?>
                                 <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateRoleModal()">
                                     <i class="fa-solid fa-plus"></i> Rolle erstellen
@@ -45,8 +45,8 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
                         </div>
                     </div>
                     <?php Flash::render(); ?>
-                    <div class="intra__tile py-2 px-3">
-                        <table class="table table-striped" id="table-rollen">
+                    <div class="twplus-table-card">
+                        <table class="table table-striped twplus-table" id="table-rollen">
                             <thead>
                                 <tr>
                                     <th scope="col">ID</th>

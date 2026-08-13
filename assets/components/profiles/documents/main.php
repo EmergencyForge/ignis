@@ -12,7 +12,7 @@ use App\Auth\Permissions;
 </div>
 <?php endif; ?>
 
-<table class="table table-striped" id="documentTable">
+<table class="table table-striped twplus-table" id="documentTable">
     <thead>
         <th scope="col">Dokumenten-Typ</th>
         <th scope="col">#</th>

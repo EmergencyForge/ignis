@@ -42,20 +42,23 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
 
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <h1>
-                <i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?> mr-2"></i>
-                <?= htmlspecialchars($antrag->typ->name) ?> bearbeiten #<?= htmlspecialchars($caseId) ?>
-            </h1>
+        <div class="twplus-page">
+            <header class="twplus-page-header mb-4">
+                <div class="twplus-page-header__copy">
+                    <p class="twplus-page-header__eyebrow">Antrag #<?= htmlspecialchars($caseId) ?></p>
+                    <h1><i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?> mr-2"></i><?= htmlspecialchars($antrag->typ->name) ?> bearbeiten</h1>
+                    <p class="twplus-page-header__description">Status, Zuständigkeit und Rückmeldung an den Antragsteller bearbeiten.</p>
+                </div>
+            </header>
 
             <?php Flash::render(); ?>
 
             <form method="post">
-                <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                <div class="twplus-form-layout">
                     <!-- Haupt-Spalte (lg: 2/3 Breite) -->
-                    <div class="lg:col-span-2">
+                    <div class="twplus-form-layout__main">
                         <!-- Antragsteller -->
-                        <div class="intra__tile mb-4 p-3">
+                        <div class="twplus-section-card mb-4 p-3">
                             <h5 class="mb-4"><i class="fa-solid fa-user mr-2"></i>Antragsteller</h5>
                             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                                 <div>
@@ -70,7 +73,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                         </div>
 
                         <!-- Antragsinhalt -->
-                        <div class="intra__tile mb-4 p-3">
+                        <div class="twplus-section-card mb-4 p-3">
                             <h5 class="mb-4"><i class="fa-solid fa-file-lines mr-2"></i>Antragsinhalt</h5>
 
                             <?php if (!empty($felderMitWerten)): ?>
@@ -101,7 +104,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                         </div>
 
                         <!-- Bearbeitung -->
-                        <div class="intra__tile mb-6 p-3">
+                        <div class="twplus-section-card mb-6 p-3">
                             <h5 class="mb-4"><i class="fa-solid fa-clipboard-check mr-2"></i>Bearbeitung</h5>
 
                             <div class="mb-4">
@@ -145,9 +148,9 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                     </div>
 
                     <!-- Sidebar (lg: 1/3 Breite) -->
-                    <div class="lg:col-span-1">
+                    <div class="twplus-form-layout__aside">
                         <!-- Antragsdetails -->
-                        <div class="intra__tile mb-4 p-3">
+                        <div class="twplus-section-card mb-4 p-3">
                             <h6 class="mb-4"><i class="fa-solid fa-circle-info mr-2"></i>Antragsdetails</h6>
                             <div class="text-sm">
                                 <div class="flex justify-between border-b border-white/10 py-2">
@@ -183,7 +186,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
                         </div>
 
                         <!-- Aktionen -->
-                        <div class="intra__tile p-3">
+                        <div class="twplus-section-card p-3">
                             <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Aktionen</h6>
                             <div class="flex flex-col gap-2">
                                 <button type="submit" name="save" class="ignis-btn ignis-btn--success">

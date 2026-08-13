@@ -116,13 +116,17 @@ $statusLabels = [
 <body data-bs-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . "/../../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active">Defekt-Meldungen</span></nav>
 
-                    <div class="page-header mb-4">
-                        <h1>Defekt-Meldungen</h1>
-                        <div class="header-actions">
+                    <div class="page-header twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy">
+                            <p class="twplus-page-header__eyebrow">Fuhrpark</p>
+                            <h1>Defekt-Meldungen</h1>
+                            <p class="twplus-page-header__description">Einsatzfähigkeit, Bearbeitungsstand und Lösungen aller Fahrzeugmängel.</p>
+                        </div>
+                        <div class="header-actions twplus-page-header__actions">
                             <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateDefectModal()">
                                 <i class="fa-solid fa-plus"></i> Defekt melden
                             </button>
@@ -139,31 +143,31 @@ $statusLabels = [
                     <?php endif; ?>
 
                     <!-- Statistik-Karten -->
-                    <div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-5">
-                        <div class="intra__tile p-3 text-center">
-                            <div class="text-3xl font-bold text-[#d46b6b]"><?= (int)$stats['open_count'] ?></div>
-                            <small class="text-gray-400">Offen</small>
+                    <dl class="twplus-stats twplus-stats--five" aria-label="Defektstatistik">
+                        <div class="twplus-stats__item">
+                            <dt class="twplus-stats__label">Offen</dt>
+                            <dd class="twplus-stats__value text-[#d46b6b]"><?= (int)$stats['open_count'] ?></dd>
                         </div>
-                        <div class="intra__tile p-3 text-center">
-                            <div class="text-3xl font-bold text-[#ddb84a]"><?= (int)$stats['in_progress_count'] ?></div>
-                            <small class="text-gray-400">In Bearbeitung</small>
+                        <div class="twplus-stats__item">
+                            <dt class="twplus-stats__label">In Bearbeitung</dt>
+                            <dd class="twplus-stats__value text-[#ddb84a]"><?= (int)$stats['in_progress_count'] ?></dd>
                         </div>
-                        <div class="intra__tile p-3 text-center">
-                            <div class="text-3xl font-bold text-[#7ba3d4]"><?= (int)$stats['deferred_count'] ?></div>
-                            <small class="text-gray-400">Aufgeschoben</small>
+                        <div class="twplus-stats__item">
+                            <dt class="twplus-stats__label">Aufgeschoben</dt>
+                            <dd class="twplus-stats__value text-[#7ba3d4]"><?= (int)$stats['deferred_count'] ?></dd>
                         </div>
-                        <div class="intra__tile p-3 text-center">
-                            <div class="text-3xl font-bold text-[#6abf76]"><?= (int)$stats['resolved_count'] ?></div>
-                            <small class="text-gray-400">Gelöst</small>
+                        <div class="twplus-stats__item">
+                            <dt class="twplus-stats__label">Gelöst</dt>
+                            <dd class="twplus-stats__value text-[#6abf76]"><?= (int)$stats['resolved_count'] ?></dd>
                         </div>
-                        <div class="intra__tile p-3 text-center">
-                            <div class="text-3xl font-bold" style="color:#ff4444;"><?= (int)$stats['not_operable_open'] ?></div>
-                            <small class="text-gray-400">Nicht einsatzfähig</small>
+                        <div class="twplus-stats__item">
+                            <dt class="twplus-stats__label">Nicht einsatzfähig</dt>
+                            <dd class="twplus-stats__value" style="color:#ff4444;"><?= (int)$stats['not_operable_open'] ?></dd>
                         </div>
-                    </div>
+                    </dl>
 
                     <!-- Filter -->
-                    <div class="intra__tile mb-4 p-3">
+                    <div class="twplus-toolbar mb-4">
                         <form method="GET" class="flex flex-wrap items-end gap-2">
                             <div>
                                 <label class="ignis-field__label mb-1">Fahrzeug</label>
@@ -194,7 +198,7 @@ $statusLabels = [
                     </div>
 
                     <!-- Defekt-Liste -->
-                    <div class="intra__tile">
+                    <div class="twplus-stacked-list">
                         <?php if (!empty($defects)): ?>
                             <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
                                 <div class="input-group input-group-sm">
@@ -208,9 +212,10 @@ $statusLabels = [
                             <div>Keine Treffer</div>
                         </div>
                         <?php if (empty($defects)): ?>
-                            <div class="p-4 text-center text-gray-400">
-                                <i class="fa-solid fa-check-circle fa-2x mb-2" style="opacity:0.4;"></i>
-                                <div>Keine Defekte gefunden</div>
+                            <div class="twplus-empty">
+                                <i class="fa-solid fa-circle-check twplus-empty__icon" aria-hidden="true"></i>
+                                <h2 class="twplus-empty__title">Keine Defekte gefunden</h2>
+                                <p class="twplus-empty__description">Für die gewählten Filter liegen keine offenen oder archivierten Meldungen vor.</p>
                             </div>
                         <?php else: ?>
                             <?php foreach ($defects as $d):

@@ -1,7 +1,7 @@
 <?php
 // Modal zum Auswählen des Zielfarzeugs
 ?>
-<div class="modal fade" id="shareProtocolModal" tabindex="-1" aria-labelledby="shareProtocolModalLabel" aria-hidden="true">
+<div class="modal fade twplus-dialog-surface" id="shareProtocolModal" tabindex="-1" aria-labelledby="shareProtocolModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -28,7 +28,7 @@
                 </div>
                 <div id="shareErrorMessage" class="ignis-alert ignis-alert--danger hidden"></div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer twplus-mobile-actions">
                 <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
                 <button type="button" class="ignis-btn ignis-btn--soft-primary" id="confirmShareBtn" disabled>Teilen</button>
             </div>
@@ -37,7 +37,7 @@
 </div>
 
 <!-- Modal zur Benachrichtigung über empfangene Share-Anfrage -->
-<div class="modal fade" id="shareRequestReceivedModal" tabindex="-1" aria-labelledby="shareRequestReceivedModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade twplus-dialog-surface" id="shareRequestReceivedModal" tabindex="-1" aria-labelledby="shareRequestReceivedModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -50,12 +50,12 @@
                 <div class="ignis-alert ignis-alert--info">
                     <strong id="shareSourceVehicle"></strong> möchte folgendes Protokoll mit dir teilen:
                 </div>
-                <div class="card mb-3">
+                <div class="twplus-section-card mb-3">
                     <div class="card-header">
                         <strong>Protokoll-Details</strong>
                     </div>
                     <div class="card-body">
-                        <table class="table table-sm">
+                        <table class="twplus-description-table">
                             <tbody>
                                 <tr>
                                     <th style="width: 200px;">Einsatznummer:</th>
@@ -92,7 +92,7 @@
                         <small class="text-[var(--text-dimmed,#818189)]">Erstellt ein neues Protokoll mit den geteilten Daten und deinen Fahrzeugdaten.</small>
                     </span></label>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer twplus-mobile-actions">
                 <button type="button" class="ignis-btn ignis-btn--ghost-danger" id="rejectShareBtn">Ablehnen</button>
                 <button type="button" class="ignis-btn ignis-btn--soft-primary" id="acceptShareBtn" disabled>Annehmen</button>
             </div>
@@ -247,7 +247,7 @@
         }
 
         this.disabled = true;
-        this.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Wird gesendet...';
+        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Wird gesendet...';
 
         // Sende Share-Request
         fetch('<?= BASE_PATH ?>api/enotf/share/send-request', {
@@ -356,7 +356,7 @@
         const targetEnr = action === 'merge' ? document.getElementById('existingProtocolSelect').value : null;
 
         this.disabled = true;
-        this.innerHTML = '<span class="spinner-border spinner-border-sm mr-2"></span>Wird verarbeitet...';
+        this.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Wird verarbeitet...';
 
         fetch('<?= BASE_PATH ?>api/enotf/share/accept-request', {
                 method: 'POST',

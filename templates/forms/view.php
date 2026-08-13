@@ -47,19 +47,22 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
 
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <div class="flex items-center justify-between">
-                <h1>
-                    <?= htmlspecialchars($antrag->typ->name) ?> #<?= htmlspecialchars($caseId) ?>
-                </h1>
-            </div>
+        <div class="twplus-page">
+            <header class="twplus-page-header mb-4">
+                <div class="twplus-page-header__copy">
+                    <p class="twplus-page-header__eyebrow">Antrag #<?= htmlspecialchars($caseId) ?></p>
+                    <h1><?= htmlspecialchars($antrag->typ->name) ?></h1>
+                    <p class="twplus-page-header__description">Antragsinhalt, Bearbeitungsstand und zuständige Person.</p>
+                </div>
+                <span class="ignis-chip ignis-chip--<?= $currentStatus['class'] ?>"><i class="<?= $currentStatus['icon'] ?> mr-1"></i><?= $currentStatus['text'] ?></span>
+            </header>
             <?php Flash::render(); ?>
 
-            <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div class="twplus-form-layout">
                 <!-- Haupt-Spalte (lg: 2/3 Breite) -->
-                <div class="lg:col-span-2">
+                <div class="twplus-form-layout__main">
                     <!-- Antragsteller -->
-                    <div class="intra__tile mb-4 p-3">
+                    <div class="twplus-section-card mb-4 p-3">
                         <h5 class="mb-4">Antragsteller</h5>
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
@@ -78,7 +81,7 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                     </div>
 
                     <!-- Antragsinhalt -->
-                    <div class="intra__tile mb-4 p-3">
+                    <div class="twplus-section-card mb-4 p-3">
                         <h5 class="mb-4">Antragsinhalt</h5>
 
                         <?php if (!empty($felderMitWerten)): ?>
@@ -103,14 +106,15 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                                 <?php endforeach; ?>
                             </div>
                         <?php else: ?>
-                            <div class="rounded bg-black/30 p-3">
-                                <p class="mb-0 text-gray-400"><i>Keine Felddaten vorhanden</i></p>
+                            <div class="twplus-empty">
+                                <i class="fa-solid fa-file-circle-question twplus-empty__icon" aria-hidden="true"></i>
+                                <p class="twplus-empty__title">Keine Felddaten vorhanden</p>
                             </div>
                         <?php endif; ?>
                     </div>
 
                     <!-- Bearbeitung -->
-                    <div class="intra__tile mb-6 p-3">
+                    <div class="twplus-section-card mb-6 p-3">
                         <h5 class="mb-4">Bearbeitung</h5>
                         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div>
@@ -160,9 +164,9 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                 </div>
 
                 <!-- Sidebar (lg: 1/3 Breite) -->
-                <div class="lg:col-span-1">
+                <div class="twplus-form-layout__aside">
                     <!-- Antragsdetails -->
-                    <div class="intra__tile mb-4 p-3">
+                    <div class="twplus-section-card mb-4 p-3">
                         <h6 class="mb-4">Antragsdetails</h6>
                         <div class="text-sm">
                             <div class="flex justify-between border-b border-white/10 py-2">
@@ -194,7 +198,7 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
                     </div>
 
                     <!-- Aktionen -->
-                    <div class="intra__tile p-3">
+                    <div class="twplus-section-card p-3">
                         <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Aktionen</h6>
                         <div class="flex flex-col gap-2">
                             <a href="<?= BASE_PATH ?>index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">

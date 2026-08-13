@@ -25,7 +25,7 @@ $SITE_TITLE = 'Einladungen verwalten';
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
@@ -33,12 +33,14 @@ $SITE_TITLE = 'Einladungen verwalten';
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>users/list">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active">Einladungen</span>
                     </nav>
-                    <div class="flex flex-wrap -mx-3 mb-3">
-                        <div class="flex-1 px-3">
+                    <div class="twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy">
+                            <p class="twplus-page-header__eyebrow">Zugriffsverwaltung</p>
                             <h1>Einladungen verwalten</h1>
+                            <p class="twplus-page-header__description">Einladungscodes erstellen, teilen und ihren Status nachvollziehen.</p>
                         </div>
                         <?php if ($registrationMode === 'code'): ?>
-                            <div class="flex-1 text-right px-3">
+                            <div class="twplus-page-header__actions">
                                 <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="openCreateInviteModal()">
                                     <i class="fa-solid fa-plus"></i> Einladung erstellen
                                 </button>
@@ -67,9 +69,10 @@ $SITE_TITLE = 'Einladungen verwalten';
                         </div>
                     </div>
 
-                    <div class="intra__tile py-2 px-3">
-                        <h5 class="mb-3">Alle Einladungen</h5>
-                        <table class="table table-striped" id="inviteTable">
+                    <div class="twplus-table-card">
+                        <div class="twplus-table-card__toolbar"><h2 class="twplus-section-card__title">Alle Einladungen</h2></div>
+                        <div class="twplus-table-card__scroll">
+                        <table class="table table-striped twplus-table" id="inviteTable">
                             <thead>
                                 <tr>
                                     <th scope="col">Bezeichnung</th>
@@ -147,6 +150,7 @@ $SITE_TITLE = 'Einladungen verwalten';
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>

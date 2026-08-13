@@ -125,13 +125,13 @@ $allAnnouncementIds = array_column($announcements, 'announcement_id');
 
 <!-- EmergencyForge Announcements — Inhalt liegt versteckt im DOM und wird
      über die Dialog-Komponente (assets/js/ui/dialog.js) geöffnet. -->
-<div id="efAnnouncementsBody" class="ef-announcements-body" hidden data-auto-show="<?= $alreadyShown ? 'false' : 'true' ?>">
+<div id="efAnnouncementsBody" class="ef-announcements-body twplus-stacked-list" hidden data-auto-show="<?= $alreadyShown ? 'false' : 'true' ?>">
                 <?php foreach ($announcements as $index => $ann):
                     $config = $typeConfig[$ann['type']] ?? $typeConfig['info'];
                     $isAdminOnly = !empty($ann['admin_only']);
                     $iconColors = $iconBoxColors[$ann['type']] ?? $iconBoxColors['info'];
                 ?>
-                    <div class="announcement-item <?= $index > 0 ? 'border-t' : '' ?>"
+                    <div class="announcement-item twplus-stacked-list__item <?= $index > 0 ? 'border-t' : '' ?>"
                         data-announcement-id="<?= htmlspecialchars($ann['announcement_id']) ?>">
                         <div class="flex gap-3">
                             <!-- Icon -->

@@ -23,23 +23,25 @@ $SITE_TITLE = 'Antragsübersicht';
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
 
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-5">
-                <div class="mb-4 flex items-center justify-between">
-                    <h1 class="mb-0">
+                <div class="twplus-page-header mb-4">
+                    <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Workflow</p><h1>
                         <i class="fa-solid fa-clipboard-list mr-2"></i>Antragsübersicht
-                    </h1>
+                    </h1><p class="twplus-page-header__description">Eingereichte Anträge prüfen, priorisieren und bearbeiten.</p></div>
+                    <div class="twplus-page-header__actions">
                     <?php if (Gate::allows('forms.decide')): ?>
                         <a href="<?= BASE_PATH ?>settings/forms/list" class="ignis-btn ignis-btn--soft-primary">
                             <i class="fa-solid fa-gear mr-2"></i>Antragstypen verwalten
                         </a>
                     <?php endif; ?>
+                    </div>
                 </div>
 
                     <?php Flash::render(); ?>
 
-                    <div class="intra__tile py-2 px-3">
-                        <table class="table table-striped" id="table-antrag">
+                    <div class="twplus-table-card">
+                        <table class="table table-striped twplus-table" id="table-antrag">
                             <thead>
                                 <tr>
                                     <th scope="col">Nr.</th>

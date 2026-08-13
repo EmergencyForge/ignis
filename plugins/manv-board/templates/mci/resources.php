@@ -23,13 +23,14 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
 <body data-bs-theme="dark" id="manv-ressourcen" data-page="edivi">
     <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div>
+        <div class="twplus-page">
+            <header class="twplus-page-header mb-6">
+                <div class="twplus-page-header__copy">
+                    <p class="twplus-page-header__eyebrow">Ressourcen</p>
                     <h1>Fahrzeugverwaltung</h1>
-                    <p class="text-gray-400">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
+                    <p class="twplus-page-header__description">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?></p>
                 </div>
-                <div class="flex flex-col gap-2 lg:flex-row lg:justify-end">
+                <div class="twplus-page-header__actions">
                     <button type="button" class="ignis-btn ignis-btn--success ignis-btn--icon" onclick="openQuickAddRessourceModal()" title="Schnell hinzufügen">
                         <i class="fas fa-bolt"></i>
                     </button>
@@ -37,25 +38,29 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                         <i class="fas fa-plus mr-1"></i> Fahrzeug hinzufügen
                     </button>
                 </div>
-            </div>
+            </header>
 
             <?php Flash::render(); ?>
 
-            <div class="ignis-card mb-4">
+            <div class="twplus-table-card mb-4">
                 <div class="ignis-card__header">
                     <h5 class="mb-0">Fahrzeuge (<?= count($fahrzeuge) ?>)</h5>
                 </div>
-                <div class="ignis-card__body">
+                <div class="twplus-table-card__scroll">
                     <?php if (empty($fahrzeuge)): ?>
-                        <p class="text-gray-400">Keine Fahrzeuge vorhanden.</p>
+                        <div class="twplus-empty">
+                            <i class="fas fa-truck-medical twplus-empty__icon"></i>
+                            <h2 class="twplus-empty__title">Keine Fahrzeuge vorhanden</h2>
+                            <p class="twplus-empty__description">Füge das erste Fahrzeug hinzu, um Ressourcen der Lage zuzuordnen.</p>
+                        </div>
                     <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table table-striped">
+                        <div>
+                            <table class="twplus-table">
                                 <thead>
                                     <tr>
                                         <th>Bezeichnung</th>
-                                        <th>Art</th>
-                                        <th>Lokalisation</th>
+                                        <th data-tw-priority="medium">Art</th>
+                                        <th data-tw-priority="low">Lokalisation</th>
                                         <th>Aktionen</th>
                                     </tr>
                                 </thead>
@@ -63,8 +68,8 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                                     <?php foreach ($fahrzeuge as $fzg): ?>
                                         <tr>
                                             <td><strong><?= htmlspecialchars($fzg['bezeichnung']) ?></strong></td>
-                                            <td><?= htmlspecialchars($fzg['fahrzeugtyp'] ?? '-') ?></td>
-                                            <td><?= htmlspecialchars($fzg['lokalisation'] ?? '-') ?></td>
+                                            <td data-tw-priority="medium"><?= htmlspecialchars($fzg['fahrzeugtyp'] ?? '-') ?></td>
+                                            <td data-tw-priority="low"><?= htmlspecialchars($fzg['lokalisation'] ?? '-') ?></td>
                                             <td>
                                                 <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon mr-1 edit-ressource-btn"
                                                     data-id="<?= (int) $fzg['id'] ?>"
@@ -90,7 +95,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                 </div>
             </div>
 
-            <div class="mb-4">
+            <div class="twplus-mobile-actions mb-4">
                 <a href="<?= BASE_PATH ?>mci/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                     <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                 </a>
@@ -122,7 +127,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
         </template>
 
         <!-- Create Modal -->
-        <div class="modal fade" id="createModal" tabindex="-1">
+        <div class="modal fade twplus-dialog-surface" id="createModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content bg-[rgba(0,0,0,0.3)]">
                     <form method="POST" action="">
@@ -224,7 +229,6 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             </div>
         </template>
 
-    </div>
     </div>
     <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
 
@@ -365,11 +369,11 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             });
         }
 
-        document.getElementById('createModal').addEventListener('shown.bs.modal', function() {
+        document.getElementById('createModal')?.addEventListener('shown.bs.modal', function() {
             searchInput.focus();
         });
 
-        document.getElementById('createModal').addEventListener('hidden.bs.modal', function() {
+        document.getElementById('createModal')?.addEventListener('hidden.bs.modal', function() {
             searchInput.value = '';
             fahrzeugIdInput.value = '';
             bezeichnungInput.value = '';
@@ -379,7 +383,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             selectedVehicle = null;
         });
 
-        document.getElementById('quickAddModal').addEventListener('shown.bs.modal', function() {
+        document.getElementById('quickAddModal')?.addEventListener('shown.bs.modal', function() {
             document.getElementById('quick_bezeichnung').focus();
         });
     </script>

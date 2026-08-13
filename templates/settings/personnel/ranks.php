@@ -19,13 +19,13 @@ use App\Helpers\Flash;
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Dienstgrade</span></nav>
-                    <div class="page-header mb-4">
-                        <h1>Dienstgrade verwalten</h1>
-                        <div class="header-actions">
+                    <div class="page-header twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Personalstammdaten</p><h1>Dienstgrade verwalten</h1><p class="twplus-page-header__description">Bezeichnungen, Badges und Sortierung der Dienstgrade pflegen.</p></div>
+                        <div class="header-actions twplus-page-header__actions">
                             <?php if (Permissions::check('admin')) : ?>
                                 <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateDienstgradModal()">
                                     <i class="fa-solid fa-plus"></i> Dienstgrad erstellen
@@ -34,8 +34,8 @@ use App\Helpers\Flash;
                         </div>
                     </div>
                     <?php Flash::render(); ?>
-                    <div class="intra__tile py-2 px-3">
-                        <table class="table table-striped" id="table-dienstgrade">
+                    <div class="twplus-table-card">
+                        <table class="table table-striped twplus-table" id="table-dienstgrade">
                             <thead>
                                 <tr>
                                     <th scope="col">Priorität</th>

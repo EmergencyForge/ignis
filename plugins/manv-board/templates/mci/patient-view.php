@@ -55,7 +55,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
 <body data-bs-theme="dark" id="patient-view" data-page="edivi">
     <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <?php Flash::render(); ?>
 
             <?php if (!empty($success)): ?>
@@ -72,7 +72,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                 </div>
             <?php endif; ?>
 
-            <div class="patient-header mb-6">
+            <div class="patient-header twplus-detail-hero mb-6">
                 <div class="flex flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
                         <h1 class="mb-2"><?= htmlspecialchars($patient['patienten_nummer']) ?></h1>
@@ -98,11 +98,11 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                 </div>
             </div>
 
-            <div class="ignis-card mb-4">
+            <div class="twplus-section-card mb-4">
                 <div class="ignis-card__header">
                     <h5 class="mb-0">Schnell-Sichtung</h5>
                 </div>
-                <div class="ignis-card__body text-center">
+                <div class="ignis-card__body twplus-mobile-actions justify-center">
                     <a href="?id=<?= $patientId ?>&quick_sk=SK1" class="ignis-btn ignis-btn--danger quick-action-btn">
                         <i class="fas fa-circle mr-1"></i>SK1 - Rot
                     </a>
@@ -127,7 +127,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
             <form method="POST" action="">
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                        <div class="ignis-card mb-4">
+                        <div class="twplus-section-card mb-4">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0">Personalien</h5>
                             </div>
@@ -156,7 +156,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             </div>
                         </div>
 
-                        <div class="ignis-card mb-4">
+                        <div class="twplus-section-card mb-4">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0">Sichtungskategorie</h5>
                             </div>
@@ -177,7 +177,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                     </div>
 
                     <div>
-                        <div class="ignis-card mb-4">
+                        <div class="twplus-section-card mb-4">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0"><?= $canTransport ? 'Transport' : 'Fahrzeugzuweisung' ?></h5>
                             </div>
@@ -237,7 +237,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                             </div>
                         </div>
 
-                        <div class="ignis-card mb-4">
+                        <div class="twplus-section-card mb-4">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0">Medizinische Informationen</h5>
                             </div>
@@ -255,7 +255,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
                     </div>
                 </div>
 
-                <div class="mb-4 flex items-center justify-between">
+                <div class="twplus-sticky-actions justify-between">
                     <a href="<?= BASE_PATH ?>mci/board?id=<?= (int) $patient['manv_lage_id'] ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>

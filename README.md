@@ -11,6 +11,7 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
 ### Benutzte Assets
 
 - [Font Awesome 7 (Free)](https://fontawesome.com/)
+- [Tailwind Plus](https://tailwindcss.com/plus) als lizenzierte Designreferenz; Original-Komponenten und Pakete sind nicht Bestandteil des Repositories. Details und Mitwirkenden-Regeln stehen in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 - [CKEditor5](https://ckeditor.com/)
 - Beinhaltete Schriftarten von [Google Fonts](https://fonts.google.com/)
 - [Chart.js](https://www.chartjs.org/)

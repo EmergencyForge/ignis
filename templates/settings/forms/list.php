@@ -18,26 +18,29 @@ use App\Helpers\Flash;
 <body data-bs-theme="dark" data-page="antragstypen">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <div class="mb-4 flex items-center justify-between">
-                <h1>Antragstypen verwalten</h1>
+        <div class="twplus-page">
+            <div class="twplus-page-header mb-4">
+                <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Formularbaukasten</p><h1>Antragstypen verwalten</h1><p class="twplus-page-header__description">Formulare, Felder, Status und Sortierung konfigurieren.</p></div>
+                <div class="twplus-page-header__actions">
                 <a href="<?= BASE_PATH ?>settings/forms/create" class="ignis-btn ignis-btn--success no-underline hover:no-underline">
                     <i class="fa-solid fa-plus mr-2"></i>Neuer Antragstyp
                 </a>
+                </div>
             </div>
 
             <?php Flash::render(); ?>
 
             <?php if (empty($typen)): ?>
-                <div class="ignis-alert ignis-alert--info">
-                    <i class="fa-solid fa-info-circle mr-2"></i>
-                    Noch keine Antragstypen vorhanden. Erstellen Sie jetzt Ihren ersten Antragstyp!
+                <div class="twplus-empty">
+                    <i class="fa-solid fa-file-circle-plus twplus-empty__icon"></i>
+                    <h2 class="twplus-empty__title">Noch keine Antragstypen vorhanden</h2>
+                    <p class="twplus-empty__description">Erstelle den ersten Antragstyp und füge anschließend die benötigten Felder hinzu.</p>
                 </div>
             <?php else: ?>
                 <form method="post" action="">
-                    <div class="intra__tile p-3">
+                    <div class="twplus-table-card">
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover twplus-table">
                                 <thead>
                                     <tr>
                                         <th style="width: 60px;">Sort.</th>
@@ -107,7 +110,7 @@ use App\Helpers\Flash;
                             </table>
                         </div>
 
-                        <div class="mt-4">
+                        <div class="twplus-sticky-actions">
                             <button type="submit" name="update_sortierung" class="ignis-btn ignis-btn--soft-primary">
                                 <i class="fa-solid fa-save mr-2"></i>Sortierung speichern
                             </button>

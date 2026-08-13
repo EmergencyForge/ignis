@@ -94,6 +94,7 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars(_err_classBasename($exceptionClass)) ?> - Fehler</title>
     <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>public/assets/dist/vendor.css">
     <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/geist/css/all.min.css">
     <link rel="stylesheet" href="<?= defined('BASE_PATH') ? BASE_PATH : '/' ?>assets/fonts/geist-mono/css/all.min.css">
     <style>
@@ -180,8 +181,10 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
         /* Tiles - matching .intra__tile */
         .err-tile {
             background-color: var(--body-bg-lighter);
+            border: 1px solid var(--darkgray);
             border-radius: 12px;
             padding: 1rem 1.25rem;
+            box-shadow: 0 18px 45px rgba(0,0,0,0.28);
         }
 
         /* Tabs */
@@ -388,6 +391,19 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
             max-width: 520px;
             margin: 3rem auto;
         }
+        .err-prod-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--main-color);
+            background: rgba(var(--main-color-rgb, 209,0,0), 0.1);
+            border: 1px solid rgba(var(--main-color-rgb, 209,0,0), 0.22);
+            border-radius: 12px;
+            font-size: 1.35rem;
+        }
         .err-prod-meta {
             background: var(--body-bg-darker);
             border-radius: 8px;
@@ -462,10 +478,9 @@ $vendorFrames = array_filter($frames, fn($f) => $f['is_vendor']);
     <?php if (!$isDev): ?>
         <!-- ========== PRODUCTION ========== -->
         <div class="err-prod-card">
-            <div class="err-tile text-center">
-                <div class="mb-3">
-                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 2.5rem; color: var(--main-color);"></i>
-                </div>
+            <div class="err-tile text-center" role="alert">
+                <div class="err-prod-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <span class="err-badge err-badge-danger mb-3">Fehler 500</span>
                 <h5 class="text-white mb-2">Ein unerwarteter Fehler ist aufgetreten</h5>
                 <p class="text-[var(--text-dimmed,#818189)] mb-4" style="font-size:0.88rem;">
                     Der Fehler wurde automatisch protokolliert. Bitte teilen Sie den untenstehenden

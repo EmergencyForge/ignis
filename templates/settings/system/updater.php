@@ -269,15 +269,15 @@ if ($isDevMode) {
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
-                    <div class="mb-6 flex items-center justify-between">
-                        <h1 class="mb-0">System-Updates</h1>
+                    <div class="twplus-page-header mb-6">
+                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Wartung</p><h1>System-Updates</h1><p class="twplus-page-header__description">Version, verfügbare Releases und Update-Kanal verwalten.</p></div>
                     </div>
                     <?php Flash::render(); ?>
 
                     <!-- Current Version Card -->
-                    <div class="ignis-card mb-4">
+                    <div class="ignis-card twplus-section-card mb-4">
                         <div class="ignis-card__header">
                             <h5 class="mb-0">Aktuelle Version</h5>
                         </div>
@@ -363,7 +363,7 @@ if ($isDevMode) {
 
                     <?php if ($checking && $updateInfo): ?>
                         <!-- Update Information Card -->
-                        <div class="ignis-card mb-4">
+                        <div class="ignis-card twplus-section-card mb-4">
                             <div class="ignis-card__header">
                                 <h5 class="mb-0">
                                     Update-Informationen
@@ -501,7 +501,7 @@ if ($isDevMode) {
 
                     <?php if ($isDevMode): ?>
                         <!-- Dev Mode: Branch Update -->
-                        <div class="ignis-card mb-4 border-warning">
+                        <div class="ignis-card twplus-section-card mb-4 border-warning">
                             <div class="ignis-card__header bg-[#c49a2a] bg-opacity-10">
                                 <h5 class="mb-0"><i class="fa-solid fa-code-branch mr-2"></i>Entwickler-Modus: Branch-Update</h5>
                             </div>

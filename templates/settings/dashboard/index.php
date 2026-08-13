@@ -19,10 +19,14 @@ use App\Helpers\Flash;
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <div class="mb-6 flex items-center justify-between">
-                <h1 class="mb-0">Dashboard-Konfiguration</h1>
-                <div class="flex gap-2">
+        <div class="twplus-page">
+            <div class="twplus-page-header mb-6">
+                <div class="twplus-page-header__copy">
+                    <p class="twplus-page-header__eyebrow">Navigation</p>
+                    <h1>Dashboard-Konfiguration</h1>
+                    <p class="twplus-page-header__description">Kategorien und Schnellzugriffe des zusätzlichen Dashboards verwalten.</p>
+                </div>
+                <div class="twplus-page-header__actions">
                     <a href="<?= BASE_PATH ?>dashboard" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline" target="_blank"><i class="fa-solid fa-external-link-alt"></i> Dashboard aufrufen</a>
                     <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateDashboardCategoryModal()">
                         <i class="fa-solid fa-plus"></i> Kategorie erstellen
@@ -30,9 +34,9 @@ use App\Helpers\Flash;
                 </div>
             </div>
             <?php Flash::render(); ?>
-            <div class="intra__tile px-3 py-2">
+            <div class="twplus-section-card p-3">
                 <?php if (empty($categories)): ?>
-                    <div class="ignis-alert ignis-alert--warning" role="alert">Es wurde noch kein Dashboard konfiguriert.</div>
+                    <div class="twplus-empty"><i class="fa-solid fa-table-cells-large twplus-empty__icon"></i><h2 class="twplus-empty__title">Noch kein Dashboard konfiguriert</h2><p class="twplus-empty__description">Erstelle zuerst eine Kategorie und füge anschließend Verlinkungen hinzu.</p></div>
                 <?php else: ?>
                     <?php foreach ($categories as $row):
                         $tiles = $tilesByCategory[(int)$row['id']] ?? [];
@@ -56,10 +60,11 @@ use App\Helpers\Flash;
                                     </button>
                                 </div>
                             </div>
-                            <ol>
+                            <ol class="twplus-stacked-list">
                                 <?php foreach ($tiles as $tile): ?>
-                                    <li class="mb-4 flex items-center justify-between">
-                                        <h4><i class="<?= htmlspecialchars($tile['icon']) ?>"></i> <?= htmlspecialchars($tile['title']) ?></h4>
+                                    <li class="twplus-stacked-list__item">
+                                        <span class="twplus-stacked-list__icon"><i class="<?= htmlspecialchars($tile['icon']) ?>"></i></span>
+                                        <div class="twplus-stacked-list__body"><h4 class="twplus-stacked-list__title"><?= htmlspecialchars($tile['title']) ?></h4><div class="twplus-stacked-list__meta"><?= htmlspecialchars($tile['url']) ?></div></div>
                                         <button type="button"
                                             class="ignis-btn ignis-btn--sm ignis-btn--soft-primary whitespace-nowrap"
                                             onclick="openEditTileModal(this)"

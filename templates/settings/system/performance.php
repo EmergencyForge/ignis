@@ -120,7 +120,7 @@ use App\Helpers\Flash;
 
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
-    <div class="container mt-4 mb-5">
+    <div class="twplus-page mt-4 mb-5">
 
         <nav class="ignis-breadcrumb mb-3" aria-label="breadcrumb">
             <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
@@ -128,33 +128,35 @@ use App\Helpers\Flash;
             <span class="ignis-breadcrumb__item is-active">Performance</span>
         </nav>
 
-        <div class="mb-4 flex items-center justify-between">
-            <h1 class="mb-0">Performance-Dashboard</h1>
+        <div class="twplus-page-header mb-4">
+            <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Diagnostik</p><h1>Performance-Dashboard</h1><p class="twplus-page-header__description">Datenbank, Laufzeitumgebung und Systemauslastung im Überblick.</p></div>
+            <div class="twplus-page-header__actions">
             <button class="ignis-btn ignis-btn--outline-secondary ignis-btn--sm" id="refreshBtn" onclick="loadData()">
                 <i class="fa-solid fa-arrows-rotate"></i> Aktualisieren
             </button>
+            </div>
         </div>
 
         <?php Flash::render(); ?>
 
         <!-- Übersicht-Karten -->
-        <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div class="perf-card">
+        <div class="twplus-stats mb-4">
+            <div class="perf-card twplus-stats__item">
                 <h6><i class="fa-solid fa-database mr-1"></i> Datenbank-Größe</h6>
                 <div class="perf-stat" id="dbSize">--</div>
                 <div class="perf-label" id="dbSizeDetail">Lade...</div>
             </div>
-            <div class="perf-card">
+            <div class="perf-card twplus-stats__item">
                 <h6><i class="fa-solid fa-table mr-1"></i> Tabellen / Zeilen</h6>
                 <div class="perf-stat" id="dbTables">--</div>
                 <div class="perf-label" id="dbRows">--</div>
             </div>
-            <div class="perf-card">
+            <div class="perf-card twplus-stats__item">
                 <h6><i class="fa-solid fa-users mr-1"></i> Aktive Benutzer</h6>
                 <div class="perf-stat" id="activeUsers">--</div>
                 <div class="perf-label" id="activeUsersDetail">Lade...</div>
             </div>
-            <div class="perf-card">
+            <div class="perf-card twplus-stats__item">
                 <h6><i class="fa-solid fa-server mr-1"></i> Server-Uptime</h6>
                 <div class="perf-stat" id="uptime">--</div>
                 <div class="perf-label" id="uptimeDetail">Lade...</div>
@@ -192,7 +194,7 @@ use App\Helpers\Flash;
         <div class="perf-card mb-4">
             <h6><i class="fa-solid fa-list mr-1"></i> Top 10 Tabellen nach Größe</h6>
             <div class="table-responsive">
-                <table class="table table-sm perf-table mb-0">
+                <table class="table table-sm perf-table mb-0 twplus-table">
                     <thead>
                         <tr>
                             <th>Tabelle</th>

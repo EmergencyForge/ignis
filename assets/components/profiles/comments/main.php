@@ -19,9 +19,10 @@ $typeIcons = [
 ];
 
 if (empty($comments)): ?>
-    <div class="text-center text-[var(--text-dimmed,#818189)] py-3" style="font-size: var(--font-size-sm);">
-        <i class="fa-solid fa-comments" style="font-size: 1.5rem; opacity: 0.3;"></i>
-        <p class="mb-0 mt-2">Keine Kommentare vorhanden</p>
+    <div class="twplus-empty">
+        <i class="fa-solid fa-comments twplus-empty__icon"></i>
+        <h3 class="twplus-empty__title">Keine Kommentare vorhanden</h3>
+        <p class="twplus-empty__description">Neue Notizen und Rückmeldungen erscheinen hier chronologisch.</p>
     </div>
 <?php else: ?>
     <?php foreach ($comments as $comment):
@@ -55,17 +56,18 @@ if ($totalPages > 1):
     $baseParams = ['id' => $_GET['id']];
     if (isset($_GET['logpage'])) $baseParams['logpage'] = $_GET['logpage'];
 ?>
-    <nav aria-label="Kommentar-Seiten" class="mt-3">
-        <ul class="pagination pagination-sm justify-center mb-0">
+    <nav aria-label="Kommentar-Seiten" class="twplus-pagination-wrap">
+        <span>Seite <?= (int) $page ?> von <?= (int) $totalPages ?></span>
+        <ul class="ignis-pagination ignis-pagination--sm">
             <?php foreach (\App\Helpers\Pagination::pages((int) $page, (int) $totalPages) as $entry):
                 if ($entry === null): ?>
-                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                    <li><span class="ignis-pagination__item ignis-pagination__item--ellipsis">…</span></li>
                 <?php else:
                     $baseParams['page'] = $entry;
                     $url = '?' . http_build_query($baseParams);
                 ?>
-                    <li class="page-item <?= $entry === (int) $page ? 'active' : '' ?>">
-                        <a class="page-link" href="<?= $url ?>"><?= $entry ?></a>
+                    <li>
+                        <a class="ignis-pagination__item <?= $entry === (int) $page ? 'is-active' : '' ?>" href="<?= $url ?>"><?= $entry ?></a>
                     </li>
                 <?php endif; ?>
             <?php endforeach; ?>

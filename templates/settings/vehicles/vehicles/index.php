@@ -24,13 +24,13 @@ use App\Helpers\Flash;
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">Fahrzeuge</span></nav>
-                    <div class="page-header mb-4">
-                        <h1>Fahrzeugverwaltung</h1>
-                        <div class="header-actions">
+                    <div class="page-header twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Fuhrpark</p><h1>Fahrzeugverwaltung</h1><p class="twplus-page-header__description">Fahrzeuge, Kennungen und Stammdaten verwalten.</p></div>
+                        <div class="header-actions twplus-page-header__actions">
                             <a href="<?= BASE_PATH ?>settings/vehicles/defects/index" class="ignis-btn ignis-btn--outline-warning">
                                 <i class="fa-solid fa-triangle-exclamation"></i> Defekt-Meldungen
                             </a>
@@ -51,8 +51,8 @@ use App\Helpers\Flash;
                     <?php
                     Flash::render();
                     ?>
-                    <div class="intra__tile py-2 px-3">
-                        <table class="table table-striped" id="table-fahrzeuge">
+                    <div class="twplus-table-card">
+                        <table class="table table-striped twplus-table" id="table-fahrzeuge">
                             <thead>
                                 <tr>
                                     <th scope="col">Priorität</th>

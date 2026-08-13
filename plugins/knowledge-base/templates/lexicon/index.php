@@ -23,13 +23,9 @@ use App\KnowledgeBase\KBHelper;
         .kb-card {
             transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
-            background-color: rgba(255,255,255,0.05);
-            border: 1px solid #444;
         }
         .kb-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            background-color: rgba(255,255,255,0.08);
         }
         .kb-type-badge {
             font-size: 0.7rem;
@@ -201,17 +197,20 @@ use App\KnowledgeBase\KBHelper;
     <?php endif; ?>
 
     <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+        <div class="twplus-page">
+            <div class="mb-5">
                     <nav class="admin-breadcrumb">
                         <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
                         <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
                         <span class="current">Wissensdatenbank</span>
                     </nav>
-                    <div class="page-header mb-4">
-                        <h1>Wissensdatenbank</h1>
-                        <div class="header-actions">
+                    <div class="twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy">
+                            <p class="twplus-page-header__eyebrow">Nachschlagewerk</p>
+                            <h1>Wissensdatenbank</h1>
+                            <p class="twplus-page-header__description">Medikamente, Maßnahmen und allgemeine Fachinformationen zentral durchsuchen.</p>
+                        </div>
+                        <div class="twplus-page-header__actions">
                             <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
                                 <a href="<?= BASE_PATH ?>lexicon/manage-taxonomy" class="ignis-btn ignis-btn--ghost">
                                     <i class="fa-solid fa-tags"></i> Kategorien & Tags
@@ -226,9 +225,8 @@ use App\KnowledgeBase\KBHelper;
                     <?php Flash::render(); ?>
 
                     <!-- Filter Section -->
-                    <div class="intra__tile py-3 px-4 mb-4">
-                        <form method="GET" class="row g-3 align-items-end">
-                            <div class="col-md-2">
+                    <form method="GET" class="twplus-filter-bar mb-4">
+                            <div class="twplus-filter-bar__field">
                                 <label for="type" class="form-label">Typ</label>
                                 <select name="type" id="type" class="form-select">
                                     <option value="all" <?= $typeFilter === 'all' ? 'selected' : '' ?>>Alle Typen</option>
@@ -238,7 +236,7 @@ use App\KnowledgeBase\KBHelper;
                                 </select>
                             </div>
                             <?php if (!empty($allCategories)): ?>
-                            <div class="col-md-2">
+                            <div class="twplus-filter-bar__field">
                                 <label for="category" class="form-label">Kategorie</label>
                                 <select name="category" id="category" class="form-select">
                                     <option value="">Alle</option>
@@ -260,7 +258,7 @@ use App\KnowledgeBase\KBHelper;
                             </div>
                             <?php endif; ?>
                             <?php if (!empty($allTags)): ?>
-                            <div class="col-md-2">
+                            <div class="twplus-filter-bar__field">
                                 <label for="tag" class="form-label">Tag</label>
                                 <select name="tag" id="tag" class="form-select">
                                     <option value="">Alle</option>
@@ -270,7 +268,7 @@ use App\KnowledgeBase\KBHelper;
                                 </select>
                             </div>
                             <?php endif; ?>
-                            <div class="col">
+                            <div class="twplus-filter-bar__search">
                                 <label for="search" class="form-label">Suche</label>
                                 <div class="position-relative">
                                     <input type="text" name="search" id="search" class="form-control"
@@ -280,7 +278,7 @@ use App\KnowledgeBase\KBHelper;
                                 </div>
                             </div>
                             <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.archive'])): ?>
-                                <div class="col-auto">
+                                <div class="twplus-filter-bar__toggle">
                                     <div class="form-check mt-4">
                                         <input class="form-check-input" type="checkbox" name="archived" value="1"
                                                id="showArchived" <?= $showArchived ? 'checked' : '' ?>>
@@ -288,33 +286,34 @@ use App\KnowledgeBase\KBHelper;
                                     </div>
                                 </div>
                             <?php endif; ?>
-                            <div class="col-auto">
+                            <div class="twplus-filter-bar__actions">
                                 <button type="submit" class="ignis-btn ignis-btn--soft-primary">
                                     <i class="fa-solid fa-search"></i> Filtern
                                 </button>
                             </div>
-                        </form>
-                    </div>
+                    </form>
 
                     <!-- Entries Grid -->
                     <?php if (empty($entries)): ?>
-                        <div class="ignis-alert ignis-alert--info">
-                            <i class="fa-solid fa-info-circle"></i> Keine Einträge gefunden.
+                        <div class="twplus-empty">
+                            <i class="fa-solid fa-book-open twplus-empty__icon"></i>
+                            <h2 class="twplus-empty__title">Keine Einträge gefunden</h2>
+                            <p class="twplus-empty__description">Passe Suche oder Filter an, um weitere Inhalte anzuzeigen.</p>
                             <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.edit'])): ?>
-                                <a href="<?= BASE_PATH ?>lexicon/create">Erstellen Sie den ersten Eintrag.</a>
+                                <a class="ignis-btn ignis-btn--soft-primary twplus-empty__action" href="<?= BASE_PATH ?>lexicon/create"><i class="fa-solid fa-plus"></i> Ersten Eintrag erstellen</a>
                             <?php endif; ?>
                         </div>
                     <?php else: ?>
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                        <div class="twplus-content-grid">
                             <?php foreach ($entries as $entry): 
                                 $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
                             ?>
-                                <div class="col">
+                                <div>
                                     <div class="col-card-wrapper">
-                                        <div class="card h-100 kb-card <?= $entry['is_archived'] ? 'kb-archived' : '' ?>" 
+                                        <article class="twplus-content-card kb-card <?= $entry['is_archived'] ? 'kb-archived' : '' ?>"
                                              onclick="window.location.href='<?= BASE_PATH ?>lexicon/view?id=<?= $entry['id'] ?>'"
                                              <?php if ($competency): ?>style="border-top: 3px solid <?= $competency['bg'] ?>;"<?php endif; ?>>
-                                            <div class="card-body">
+                                            <div class="twplus-content-card__body">
                                                 <div class="d-flex justify-content-between align-items-start mb-2">
                                                     <div>
                                                         <?php if (!empty($entry['is_pinned'])): ?>
@@ -332,7 +331,7 @@ use App\KnowledgeBase\KBHelper;
                                                         <span class="badge bg-warning text-dark">Archiviert</span>
                                                     <?php endif; ?>
                                                 </div>
-                                                <h5 class="card-title"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['title']), $searchQuery) : htmlspecialchars($entry['title']) ?></h5>
+                                                <h2 class="twplus-content-card__title"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['title']), $searchQuery) : htmlspecialchars($entry['title']) ?></h2>
                                                 <?php if (!empty($entry['subtitle'])): ?>
                                                     <p class="card-text text-muted small"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['subtitle']), $searchQuery) : htmlspecialchars($entry['subtitle']) ?></p>
                                                 <?php endif; ?>
@@ -364,7 +363,7 @@ use App\KnowledgeBase\KBHelper;
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
-                                            <div class="kb-card-footer">
+                                            <div class="kb-card-footer twplus-content-card__footer">
                                                 <small class="text-muted kb-card-footer-text">
                                                     <?php if ($entry['updated_at']): ?>
                                                         Aktualisiert: <?= date('d.m.Y H:i', strtotime($entry['updated_at'])) ?>
@@ -395,14 +394,13 @@ use App\KnowledgeBase\KBHelper;
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
-                                        </div>
+                                        </article>
                                     </div><!-- /.col-card-wrapper -->
                                 </div>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
-            </div>
         </div>
     </div>
 

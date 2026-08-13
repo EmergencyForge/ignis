@@ -27,7 +27,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
@@ -35,10 +35,14 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>users/list">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($target->username) ?></span>
                     </nav>
-                    <div class="flex flex-wrap items-center gap-2 mb-3">
-                        <h1 class="m-0">Benutzer bearbeiten</h1>
+                    <div class="twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy">
+                            <p class="twplus-page-header__eyebrow">Benutzerkonto</p>
+                            <h1>Benutzer bearbeiten</h1>
+                            <p class="twplus-page-header__description"><?= htmlspecialchars($target->username) ?> · Konto und Rollenmitgliedschaft verwalten.</p>
+                        </div>
                         <?php if (Gate::allows('user.delete', $target)): ?>
-                            <div class="ml-auto flex flex-wrap gap-2">
+                            <div class="twplus-page-header__actions">
                                 <?php if ($target->is_active): ?>
                                     <button class="ignis-btn ignis-btn--outline-warning ignis-btn--sm" id="btnDeactivate"><i class="fa-solid fa-user-slash"></i> Deaktivieren</button>
                                 <?php else: ?>
@@ -53,9 +57,9 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                     <form name="form" method="post" action="">
                         <input type="hidden" name="new" value="1" />
                         <input name="id" type="hidden" value="<?= (int) $target->id ?>" />
-                        <div class="flex flex-wrap -mx-3">
+                        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div class="flex-1 mr-2 px-3">
-                                <div class="intra__tile py-2 px-3">
+                                <div class="twplus-section-card py-2 px-3">
                                     <div class="flex flex-wrap -mx-3">
                                         <div class="flex-1 mb-3 px-3">
                                             <div class="ignis-field">
@@ -67,7 +71,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                                 </div>
                             </div>
                             <div class="flex-1 px-3">
-                                <div class="intra__tile py-2 px-3">
+                                <div class="twplus-section-card py-2 px-3">
                                     <div class="flex flex-wrap -mx-3">
                                         <div class="flex-1 mb-3 px-3">
                                             <div class="ignis-field">
@@ -85,9 +89,9 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                                 </div>
                             </div>
                         </div>
-                        <div class="flex flex-wrap -mx-3">
+                        <div class="twplus-sticky-actions">
                             <div class="flex-1 mb-3 mx-auto px-3">
-                                <button type="submit" name="submit" class="mt-4 ignis-btn ignis-btn--success ignis-btn--sm">Änderungen speichern</button>
+                                <button type="submit" name="submit" class="ignis-btn ignis-btn--success ignis-btn--sm"><i class="fa-solid fa-floppy-disk mr-1"></i>Änderungen speichern</button>
                             </div>
                         </div>
                     </form>
@@ -95,11 +99,12 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
             </div>
 
             <?php if (Gate::allows('user.viewAuditLog')): ?>
-                <h1 class="mb-3">Benutzer-Log</h1>
+                <h2 class="mb-3">Benutzer-Log</h2>
                 <div class="flex flex-wrap -mx-3">
                     <div class="flex-1 px-3">
-                        <div class="intra__tile py-2 px-3">
-                            <table class="table table-striped" id="table-audit">
+                        <div class="twplus-table-card">
+                            <div class="twplus-table-card__scroll">
+                            <table class="table table-striped twplus-table" id="table-audit">
                                 <thead>
                                     <tr>
                                         <th scope="col">Zeitstempel</th>
@@ -122,6 +127,7 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     </div>
                 </div>

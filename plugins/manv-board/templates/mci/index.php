@@ -43,14 +43,15 @@ $SITE_TITLE = 'MANV-Übersicht';
 <body data-bs-theme="dark" id="manv-overview" data-page="edivi">
     <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
+        <div class="twplus-page">
+            <header class="twplus-page-header mb-6">
+                <div class="twplus-page-header__copy">
                     <?php if ($statusFilter !== 'aktiv'): ?>
                         <a href="<?= BASE_PATH ?>mci/index" class="ignis-btn ignis-btn--ghost mb-3 no-underline hover:no-underline">
                             <i class="fas fa-arrow-left mr-2"></i>Zurück zu aktiven Lagen
                         </a>
                     <?php endif; ?>
+                    <p class="twplus-page-header__eyebrow">Einsatzführung</p>
                     <h1>MANV-Übersicht
                         <?php if ($statusFilter === 'abgeschlossen'): ?>
                             <small class="ml-2 text-gray-400">(Abgeschlossene Lagen)</small>
@@ -58,18 +59,20 @@ $SITE_TITLE = 'MANV-Übersicht';
                             <small class="ml-2 text-gray-400">(Archivierte Lagen)</small>
                         <?php endif; ?>
                     </h1>
-                    <p class="text-gray-400">Massenanfall von Verletzten - Lagenverwaltung</p>
+                    <p class="twplus-page-header__description">Massenanfall von Verletzten – aktive, abgeschlossene und archivierte Lagen im Überblick.</p>
                 </div>
-                <div class="md:text-right">
+                <div class="twplus-page-header__actions">
                     <a href="<?= BASE_PATH ?>mci/create" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg no-underline hover:no-underline">
                         <i class="fas fa-plus mr-2"></i>Neue MANV-Lage anlegen
                     </a>
                 </div>
-            </div>
+            </header>
 
             <?php if (empty($lagen)): ?>
-                <div class="ignis-alert ignis-alert--info">
-                    <i class="fas fa-info-circle mr-2"></i>
+                <div class="twplus-empty">
+                    <i class="fas fa-truck-medical twplus-empty__icon"></i>
+                    <h2 class="twplus-empty__title">Keine MANV-Lagen vorhanden</h2>
+                    <p class="twplus-empty__description">
                     <?php
                     if ($statusFilter === 'abgeschlossen') {
                         echo 'Derzeit sind keine abgeschlossenen MANV-Lagen vorhanden.';
@@ -79,9 +82,13 @@ $SITE_TITLE = 'MANV-Übersicht';
                         echo 'Derzeit sind keine aktiven MANV-Lagen vorhanden.';
                     }
                     ?>
+                    </p>
+                    <?php if ($statusFilter === 'aktiv'): ?>
+                        <a href="<?= BASE_PATH ?>mci/create" class="ignis-btn ignis-btn--soft-primary twplus-empty__action"><i class="fas fa-plus"></i> Lage anlegen</a>
+                    <?php endif; ?>
                 </div>
             <?php else: ?>
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <div class="twplus-content-grid">
                     <?php foreach ($lagen as $lage):
                         $stats = $statistiken[$lage['id']] ?? [
                             'total_patienten' => 0, 'sk1' => 0, 'sk2' => 0, 'sk3' => 0, 'sk4' => 0,
@@ -98,7 +105,7 @@ $SITE_TITLE = 'MANV-Übersicht';
                             $statusText  = 'Archiviert';
                         }
                     ?>
-                        <div class="ignis-card manv-card h-full" onclick="window.location.href='<?= BASE_PATH ?>mci/board?id=<?= (int) $lage['id'] ?>'">
+                        <article class="ignis-card twplus-content-card manv-card h-full" onclick="window.location.href='<?= BASE_PATH ?>mci/board?id=<?= (int) $lage['id'] ?>'">
                             <div class="ignis-card__header flex items-center justify-between">
                                 <h5 class="mb-0">
                                     <i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($lage['einsatznummer']) ?>
@@ -148,17 +155,17 @@ $SITE_TITLE = 'MANV-Übersicht';
                                     Beginn: <?= !empty($lage['einsatzbeginn']) ? \App\Helpers\DateTimeHelper::formatShortLocal($lage['einsatzbeginn']) : 'Nicht angegeben' ?>
                                 </div>
                             </div>
-                        </div>
+                        </article>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
 
             <div class="mt-4 mb-6">
-                <div class="ignis-card">
-                    <div class="ignis-card__header">
+                <div class="twplus-section-card">
+                    <div class="twplus-section-card__header">
                         <h5 class="mb-0">Archivierte Lagen</h5>
                     </div>
-                    <div class="ignis-card__body flex flex-wrap gap-2">
+                    <div class="twplus-section-card__body flex flex-wrap gap-2">
                         <a href="<?= BASE_PATH ?>mci/index?status=abgeschlossen" class="ignis-btn ignis-btn--outline-secondary no-underline hover:no-underline">
                             <i class="fas fa-archive mr-2"></i>Abgeschlossene Lagen anzeigen
                         </a>

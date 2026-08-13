@@ -26,15 +26,19 @@ $SITE_TITLE = 'Kalender';
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
 
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
                 <nav class="ignis-breadcrumb">
                     <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span>
                     <span class="ignis-breadcrumb__item is-active">Kalender</span>
                 </nav>
 
-                <div class="page-header mb-3">
-                    <h1>Kalender</h1>
+                <div class="page-header twplus-page-header mb-3">
+                    <div class="twplus-page-header__copy">
+                        <p class="twplus-page-header__eyebrow">Organisation</p>
+                        <h1>Kalender</h1>
+                        <p class="twplus-page-header__description">Termine, Abwesenheiten und Einladungen in einer gemeinsamen Ansicht.</p>
+                    </div>
                 </div>
 
                 <?php Flash::render(); ?>
@@ -56,7 +60,7 @@ $SITE_TITLE = 'Kalender';
                     die volle Breite kriegt — der frueher rechts angedockte Sidebar-
                     Block hat den Raum zu schlecht ausgenutzt.
                 -->
-                <div class="calendar-toolbar mb-3">
+                <div class="calendar-toolbar twplus-toolbar mb-3">
                     <div class="calendar-toolbar__filters" role="group" aria-label="Kategorien filtern">
                         <span class="calendar-toolbar__label">Kategorien:</span>
                         <?php foreach ($categories as $key => $label): ?>
@@ -76,7 +80,7 @@ $SITE_TITLE = 'Kalender';
                     </div>
                 </div>
 
-                <div id="calendar-grid" class="ignis-card p-3"></div>
+                <div id="calendar-grid" class="ignis-card twplus-section-card p-3"></div>
             </div>
         </div>
     </div>

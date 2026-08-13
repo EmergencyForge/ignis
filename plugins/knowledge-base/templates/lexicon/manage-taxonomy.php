@@ -12,7 +12,7 @@ use App\Helpers\Flash;
 <body data-bs-theme="dark" data-page="lexicon">
     <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
     <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container my-5">
+        <div class="twplus-page my-5">
             <nav class="admin-breadcrumb">
                 <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
                 <span class="separator"><i class="fa-solid fa-chevron-right"></i></span>
@@ -21,18 +21,30 @@ use App\Helpers\Flash;
                 <span class="current">Kategorien & Tags</span>
             </nav>
 
-            <h1 class="mb-4">Kategorien & Tags verwalten</h1>
+            <header class="twplus-page-header mb-4">
+                <div class="twplus-page-header__copy">
+                    <p class="twplus-page-header__eyebrow">Wissensdatenbank</p>
+                    <h1>Kategorien & Tags verwalten</h1>
+                    <p class="twplus-page-header__description">Struktur und Schlagwörter für ein schneller auffindbares Nachschlagewerk pflegen.</p>
+                </div>
+                <div class="twplus-page-header__actions">
+                    <a href="<?= BASE_PATH ?>lexicon/index" class="ignis-btn ignis-btn--ghost"><i class="fa-solid fa-arrow-left"></i> Zur Übersicht</a>
+                </div>
+            </header>
             <?php Flash::render(); ?>
 
             <div class="row">
                 <!-- Kategorien -->
                 <div class="col-md-7">
-                    <div class="intra__tile p-3 mb-4">
+                    <div class="twplus-table-card mb-4">
+                        <div class="p-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="mb-0"><i class="fa-solid fa-folder-tree"></i> Kategorien</h4>
                             <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="showCatModal()"><i class="fa-solid fa-plus"></i> Neue Kategorie</button>
                         </div>
-                        <table class="table table-striped mb-0">
+                        </div>
+                        <div class="twplus-table-card__scroll">
+                        <table class="twplus-table">
                             <thead>
                                 <tr>
                                     <th>Name</th>
@@ -65,17 +77,21 @@ use App\Helpers\Flash;
                                 <?php endif; ?>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Tags -->
                 <div class="col-md-5">
-                    <div class="intra__tile p-3 mb-4">
+                    <div class="twplus-table-card mb-4">
+                        <div class="p-3">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h4 class="mb-0"><i class="fa-solid fa-tags"></i> Tags</h4>
                             <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="showTagModal()"><i class="fa-solid fa-plus"></i> Neuer Tag</button>
                         </div>
-                        <table class="table table-striped mb-0">
+                        </div>
+                        <div class="twplus-table-card__scroll">
+                        <table class="twplus-table">
                             <thead>
                                 <tr>
                                     <th>Tag</th>
@@ -102,6 +118,7 @@ use App\Helpers\Flash;
                                 <?php endif; ?>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -109,7 +126,7 @@ use App\Helpers\Flash;
     </div>
 
     <!-- Kategorie Modal -->
-    <div class="modal fade" id="catModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade twplus-dialog-surface" id="catModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -152,7 +169,7 @@ use App\Helpers\Flash;
     </div>
 
     <!-- Tag Modal -->
-    <div class="modal fade" id="tagModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade twplus-dialog-surface" id="tagModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

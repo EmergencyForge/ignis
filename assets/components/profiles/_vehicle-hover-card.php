@@ -21,6 +21,7 @@ $vehType    = (string) ($vehicle->veh_type ?? '');
             <i class="fa-solid fa-truck-medical"></i>
         </div>
         <div class="user-hover-card__title">
+            <span class="user-hover-card__eyebrow">Fahrzeug</span>
             <strong><?= htmlspecialchars($vehicle->name ?? '') ?></strong>
             <span class="user-hover-card__dnr">
                 <?= $identifier !== '' ? htmlspecialchars($identifier) : 'ID: ' . (int) $vehicle->id ?>

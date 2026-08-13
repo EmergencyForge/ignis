@@ -603,7 +603,7 @@ function renderTemplateList() {
             const isVisual = template.editor_type === 'visual';
             const col = document.createElement('div');
             col.innerHTML = `
-                <div class="card h-full template-card" style="cursor:pointer;transition:border-color 0.15s;" data-template-id="${template.id}">
+                <div class="card h-full template-card twplus-resource-card" style="cursor:pointer;transition:border-color 0.15s;" data-template-id="${template.id}">
                     <div class="p-3">
                         <div class="flex justify-between items-start mb-2">
                             <div>

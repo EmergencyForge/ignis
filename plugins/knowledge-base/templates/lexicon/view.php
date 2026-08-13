@@ -299,9 +299,8 @@ use App\KnowledgeBase\KBHelper;
     <?php endif; ?>
 
     <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+        <div class="twplus-page">
+            <div class="mb-5">
                     
                     <!-- Back Link -->
                     <a href="<?= BASE_PATH ?>lexicon/index" class="back-link mb-3">
@@ -341,10 +340,10 @@ use App\KnowledgeBase\KBHelper;
                     <?php endif; ?>
 
                     <!-- Entry Content -->
-                    <div class="intra__tile p-4">
+                    <article class="twplus-section-card p-4">
                         <!-- Header with Title and Competency -->
                         <?php if ($competency): ?>
-                            <div class="kb-header position-relative" style="background-color: <?= $competency['bg'] ?>;">
+                            <div class="kb-header twplus-detail-hero position-relative" style="background-color: <?= $competency['bg'] ?>;">
                                 <!-- Category badge positioned in top right -->
                                 <span class="kb-category-badge bg-dark" style="color: #ffffff;">
                                     <?= KBHelper::getTypeLabel($entry['type']) ?>
@@ -364,7 +363,7 @@ use App\KnowledgeBase\KBHelper;
                                 </div>
                             </div>
                         <?php else: ?>
-                            <div class="kb-header-content mb-4 position-relative">
+                            <div class="kb-header-content twplus-detail-hero mb-4 position-relative">
                                 <span class="kb-category-badge bg-dark" style="color: #ffffff; top: 0; right: 0;">
                                     <?= KBHelper::getTypeLabel($entry['type']) ?>
                                 </span>
@@ -381,7 +380,7 @@ use App\KnowledgeBase\KBHelper;
                             <div class="row">
                                 <div class="col-12">
                                     <!-- Basic Info Table -->
-                                    <table class="kb-entry-table mb-4">
+                                    <table class="kb-entry-table twplus-description-table mb-4">
                                         <tbody>
                                             <?php if (!empty($entry['med_wirkstoff'])): ?>
                                                 <tr>
@@ -446,7 +445,7 @@ use App\KnowledgeBase\KBHelper;
                             <div class="row">
                                 <div class="col-12">
                                     <!-- Basic Info Table -->
-                                    <table class="kb-entry-table mb-4">
+                                    <table class="kb-entry-table twplus-description-table mb-4">
                                         <tbody>
                                             <?php if (!empty($entry['mass_wirkprinzip'])): ?>
                                                 <tr>
@@ -511,19 +510,17 @@ use App\KnowledgeBase\KBHelper;
                         <!-- Verknüpfte Einträge -->
                         <div class="mt-4">
                             <h5><i class="fa-solid fa-link"></i> Verknüpfte Einträge</h5>
-                            <div class="row row-cols-1 row-cols-md-2 g-3 mt-1">
+                            <div class="twplus-link-grid mt-3">
                                 <?php foreach ($relatedEntries as $rel):
                                     $relComp = KBHelper::getCompetencyInfo($rel['competency_level']);
                                 ?>
-                                    <div class="col">
-                                        <a href="<?= BASE_PATH ?>lexicon/view?id=<?= $rel['id'] ?>" class="text-decoration-none">
-                                            <div class="d-flex align-items-center p-3 rounded" style="background-color: rgba(255,255,255,0.05); border: 1px solid #444; transition: background-color 0.2s;"
-                                                 onmouseover="this.style.backgroundColor='rgba(255,255,255,0.1)'" onmouseout="this.style.backgroundColor='rgba(255,255,255,0.05)'">
-                                                <div class="me-3">
+                                    <div>
+                                        <a href="<?= BASE_PATH ?>lexicon/view?id=<?= $rel['id'] ?>" class="twplus-link-card">
+                                                <div class="twplus-link-card__icon">
                                                     <i class="fa-solid fa-<?= $rel['type'] === 'medication' ? 'pills' : ($rel['type'] === 'measure' ? 'hand-holding-medical' : 'file-lines') ?> fa-lg" style="color: <?= KBHelper::getTypeColor($rel['type']) ?>;"></i>
                                                 </div>
-                                                <div class="flex-grow-1 min-width-0">
-                                                    <div class="fw-bold text-white"><?= htmlspecialchars($rel['title']) ?></div>
+                                                <div class="twplus-link-card__body">
+                                                    <div class="twplus-link-card__title"><?= htmlspecialchars($rel['title']) ?></div>
                                                     <?php if (!empty($rel['subtitle'])): ?>
                                                         <small class="text-muted"><?= htmlspecialchars(mb_strimwidth($rel['subtitle'], 0, 80, '...')) ?></small>
                                                     <?php endif; ?>
@@ -534,7 +531,6 @@ use App\KnowledgeBase\KBHelper;
                                                         <span class="badge" style="background-color: <?= $relComp['bg'] ?>; color: <?= $relComp['text'] ?? '#fff' ?>; font-size: 0.65rem;"><?= $relComp['label'] ?></span>
                                                     <?php endif; ?>
                                                 </div>
-                                            </div>
                                         </a>
                                     </div>
                                 <?php endforeach; ?>
@@ -561,7 +557,7 @@ use App\KnowledgeBase\KBHelper;
                             </div>
                             
                             <?php if ($isLoggedIn): ?>
-                                <div class="action-buttons">
+                                <div class="action-buttons twplus-mobile-actions">
                                     <?php if (Permissions::check(['admin', 'kb.edit'])): ?>
                                         <a href="<?= BASE_PATH ?>lexicon/edit?id=<?= $entry['id'] ?>" class="action-btn">
                                             <i class="fa-solid fa-pen"></i>
@@ -603,9 +599,8 @@ use App\KnowledgeBase\KBHelper;
                             <?php endif; ?>
                         </div>
                         </div><!-- /.kb-content-wrapper -->
-                    </div><!-- /.intra__tile -->
+                    </article>
                 </div>
-            </div>
         </div>
     </div>
 

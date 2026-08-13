@@ -22,7 +22,7 @@ use App\Helpers\Flash;
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container">
+        <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
                 <div class="flex-1 mb-5 px-3">
                     <nav class="ignis-breadcrumb">
@@ -30,12 +30,12 @@ use App\Helpers\Flash;
                         <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>users/list">Benutzer</a></span>
                         <span class="ignis-breadcrumb__item is-active">Audit Log</span>
                     </nav>
-                    <div class="flex justify-between items-center mb-5">
-                        <h1 class="mb-0">Audit Log</h1>
+                    <div class="twplus-page-header mb-5">
+                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Sicherheit</p><h1>Audit Log</h1><p class="twplus-page-header__description">Systemweite Änderungen mit Zeitpunkt, Modul und verantwortlichem Benutzer.</p></div>
                     </div>
                     <?php Flash::render(); ?>
-                    <div class="intra__tile py-2 px-3">
-                        <table class="table table-striped" id="table-audit">
+                    <div class="twplus-table-card">
+                        <table class="table table-striped twplus-table" id="table-audit">
                             <thead>
                                 <tr>
                                     <th scope="col">Zeitstempel</th>

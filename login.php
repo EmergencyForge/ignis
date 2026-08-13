@@ -74,34 +74,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
 
                     <?php
                     if ($error) {
-                        echo '<div class="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-red-400" role="alert">';
-                        echo '<i class="fa-solid fa-exclamation-triangle"></i> ' . htmlspecialchars($error);
+                        echo '<div class="ignis-alert ignis-alert--danger mb-4" role="alert">';
+                        echo '<i class="fa-solid fa-exclamation-triangle ignis-alert__icon"></i><div class="ignis-alert__body"><strong>Einladung konnte nicht bestätigt werden</strong><br>' . htmlspecialchars($error) . '</div>';
                         echo '</div>';
                     }
 
                     // Normal login view
                     if ($registrationMode === 'closed' && !$error) {
-                        echo '<div class="mb-4 rounded-lg border border-yellow-500/20 bg-yellow-500/10 px-4 py-3 text-yellow-400" role="alert">';
-                        echo '<i class="fa-solid fa-exclamation-triangle"></i> Registrierung für neue Benutzer ist derzeit geschlossen.';
+                        echo '<div class="ignis-alert ignis-alert--warning mb-4" role="alert">';
+                        echo '<i class="fa-solid fa-lock ignis-alert__icon"></i><div class="ignis-alert__body">Registrierung für neue Benutzer ist derzeit geschlossen.</div>';
                         echo '</div>';
                     } elseif ($registrationMode === 'code') {
                         if (!$error) {
-                            echo '<div class="mb-4 rounded-lg border border-sky-500/20 bg-sky-500/10 px-4 py-3 text-sky-400" role="alert">';
-                            echo '<i class="fa-solid fa-info-circle"></i> Neue Benutzer benötigen einen Registrierungscode.';
+                            echo '<div class="ignis-alert ignis-alert--info mb-4" role="alert">';
+                            echo '<i class="fa-solid fa-ticket ignis-alert__icon"></i><div class="ignis-alert__body"><strong>Einladung erforderlich</strong><br>Neue Benutzer benötigen einen Registrierungscode.</div>';
                             echo '</div>';
                         }
 
                         // Optional code input field
                         echo '<form method="POST" class="mb-4">';
                         echo '<div class="relative mb-3">';
+                        echo '<label class="ignis-field__label" for="registration_code">Registrierungscode</label>';
                         echo '<i class="fa-solid fa-key pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"></i>';
-                        echo '<input type="text" class="form-control" name="registration_code" placeholder="Registrierungscode" style="padding-left: 35px;">';
+                        echo '<input type="text" class="form-control" id="registration_code" name="registration_code" placeholder="Code aus der Einladung" autocomplete="one-time-code" style="padding-left: 35px;">';
                         echo '</div>';
                         echo '<button type="submit" class="btn btn-ghost block w-full">Mit Code registrieren</button>';
                         echo '</form>';
                         echo '<div class="mb-3 text-center"><small class="text-gray-400">oder</small></div>';
                     }
                     ?>
+
+                    <ol class="twplus-login__steps" aria-label="Anmeldeablauf">
+                        <li><i class="fa-solid fa-ticket"></i><span>Einladung prüfen</span></li>
+                        <li><i class="fa-brands fa-discord"></i><span>Discord bestätigen</span></li>
+                        <li><i class="fa-solid fa-circle-check"></i><span>Zugang erhalten</span></li>
+                    </ol>
 
                     <div class="mb-4 text-center">
                         <a href="<?= BASE_PATH ?>auth/discord.php" class="btn btn-soft-primary btn-lg block w-full"><i class="fa-brands fa-discord"></i> Login</a>

@@ -24,11 +24,14 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
 <body data-bs-theme="dark" id="manv-edit" data-page="edivi">
     <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <div class="mb-6">
+        <div class="twplus-page">
+            <header class="twplus-page-header mb-6">
+                <div class="twplus-page-header__copy">
+                <p class="twplus-page-header__eyebrow">Einsatzführung</p>
                 <h1>MANV-Lage bearbeiten</h1>
-                <p class="text-gray-400"><?= htmlspecialchars($lage['einsatznummer']) ?></p>
-            </div>
+                <p class="twplus-page-header__description"><?= htmlspecialchars($lage['einsatznummer']) ?></p>
+                </div>
+            </header>
 
             <?php Flash::render(); ?>
 
@@ -47,7 +50,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
             <?php endif; ?>
 
             <form method="POST" action="">
-                <div class="ignis-card mb-4">
+                <div class="twplus-section-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Grunddaten</h5>
                     </div>
@@ -89,7 +92,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                     </div>
                 </div>
 
-                <div class="ignis-card mb-4">
+                <div class="twplus-section-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Einsatzleitung</h5>
                     </div>
@@ -127,7 +130,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                     </div>
                 </div>
 
-                <div class="ignis-card mb-4">
+                <div class="twplus-section-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Notizen</h5>
                     </div>
@@ -139,7 +142,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
                     </div>
                 </div>
 
-                <div class="mb-4 flex items-center justify-between">
+                <div class="twplus-sticky-actions justify-between">
                     <a href="<?= BASE_PATH ?>mci/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>

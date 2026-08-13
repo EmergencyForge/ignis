@@ -26,10 +26,14 @@ $csrfToken = CsrfProtection::getToken();
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
-                <div class="mb-4 flex items-center justify-between">
-                    <h1 class="mb-0">Plugins</h1>
+                <div class="twplus-page-header mb-4">
+                    <div class="twplus-page-header__copy">
+                        <p class="twplus-page-header__eyebrow">Erweiterungen</p>
+                        <h1>Plugins</h1>
+                        <p class="twplus-page-header__description">Installierte Module, Abhängigkeiten und Aktivierungsstatus verwalten.</p>
+                    </div>
                     <a href="https://hub.emergencyforge.de/plugins" target="_blank" rel="nofollow"
                         class="ignis-btn ignis-btn--soft-primary ignis-btn--sm">
                         <i class="fa-solid fa-compass mr-1"></i>Plugins erkunden
@@ -64,14 +68,18 @@ $csrfToken = CsrfProtection::getToken();
                 <?php endif; ?>
 
                 <?php if ($rows === []): ?>
-                    <div class="intra__tile p-4 text-gray-400">
-                        Keine Plugins installiert.
+                    <div class="twplus-empty">
+                        <i class="fa-solid fa-puzzle-piece twplus-empty__icon" aria-hidden="true"></i>
+                        <h2 class="twplus-empty__title">Keine Plugins installiert</h2>
+                        <p class="twplus-empty__description">Installierte Erweiterungen und deren Status erscheinen hier.</p>
                     </div>
                 <?php endif; ?>
 
+                <?php if ($rows !== []): ?><div class="twplus-stacked-list"><?php endif; ?>
                 <?php foreach ($rows as $row): ?>
                     <?php $m = $row['manifest']; ?>
-                    <div class="intra__tile mb-3 p-3">
+                    <div class="twplus-stacked-list__item">
+                        <span class="twplus-stacked-list__icon"><i class="fa-solid fa-puzzle-piece" aria-hidden="true"></i></span>
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="flex-1" style="min-width: 260px;">
                                 <div class="flex flex-wrap items-center gap-2">
@@ -150,6 +158,7 @@ $csrfToken = CsrfProtection::getToken();
                         </div>
                     </div>
                 <?php endforeach; ?>
+                <?php if ($rows !== []): ?></div><?php endif; ?>
 
             </div>
         </div>

@@ -6,7 +6,7 @@ use App\Security\CsrfProtection;
 ?>
 
 <!-- Dokument-Viewer Modal (Akte-Stil) -->
-<div class="modal fade" id="documentViewerModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade twplus-dialog-surface" id="documentViewerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <!-- Akte-Header: Metadaten als kompakte Zeile -->
@@ -34,7 +34,7 @@ use App\Security\CsrfProtection;
             </div>
 
             <!-- Aktions-Leiste -->
-            <div class="modal-footer justify-between py-2 px-3" id="docViewer-actions">
+            <div class="modal-footer twplus-mobile-actions justify-between py-2 px-3" id="docViewer-actions">
                 <div id="docViewer-status"></div>
                 <div class="flex gap-1" id="docViewer-buttons"></div>
             </div>
@@ -149,7 +149,7 @@ async function toggleArchiveFromViewer(docid, archive) {
     $fachdienste = $stmtfdc->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <template id="fdqualiFormTemplate">
-    <table class="table table-striped">
+    <table class="table table-striped twplus-table">
         <thead>
             <tr>
                 <th>Ja/Nein</th>
@@ -235,7 +235,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
     $templateManager = new DocumentTemplateManager($pdo);
     $customTemplates = $templateManager->listTemplates();
 ?>
-    <div class="modal fade" id="modalDokuCreate" tabindex="-1" aria-labelledby="modalDokuCreateLabel" aria-hidden="true">
+    <div class="modal fade twplus-dialog-surface" id="modalDokuCreate" tabindex="-1" aria-labelledby="modalDokuCreateLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -277,7 +277,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                             <p class="text-[var(--text-dimmed,#818189)]">Wähle ein Template aus...</p>
                         </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer twplus-mobile-actions">
                         <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
                         <button type="button" class="ignis-btn ignis-btn--outline-info" id="btn-preview-doc" title="PDF-Vorschau mit den aktuell eingegebenen Daten">
                             <i class="fa-solid fa-eye mr-1"></i>Vorschau
@@ -330,7 +330,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 return;
             }
 
-            formContainer.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div><p>Lade Formular...</p></div>';
+            formContainer.innerHTML = '<div class="twplus-status-state" role="status"><span class="twplus-status-state__spinner"></span><span>Formular wird geladen...</span></div>';
 
             try {
                 const response = await fetch(BASE_PATH + `api/documents/get?id=${templateId}`);
@@ -344,7 +344,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 currentTemplate = template;
                 await renderTemplateForm(template);
             } catch (error) {
-                formContainer.innerHTML = `<div class="ignis-alert ignis-alert--danger">Fehler beim Laden: ${error.message}</div>`;
+                formContainer.innerHTML = `<div class="twplus-status-state twplus-status-state--error"><i class="fa-solid fa-triangle-exclamation"></i><span>Fehler beim Laden: ${error.message}</span></div>`;
             }
         });
 

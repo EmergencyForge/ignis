@@ -261,15 +261,15 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
-                    <div class="mb-6 flex items-center justify-between">
-                        <h1 class="mb-0"><i class="fa-solid fa-link" style="color:var(--main-color);margin-right:0.5rem"></i>Instanzvernetzung</h1>
+                    <div class="twplus-page-header mb-6">
+                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Vernetzung</p><h1><i class="fa-solid fa-link" style="color:var(--main-color);margin-right:0.5rem"></i>Instanzvernetzung</h1><p class="twplus-page-header__description">Verbundene Installationen, Freigaben und Synchronisierung verwalten.</p></div>
                     </div>
                     <?php Flash::render(); ?>
 
                     <!-- Federation Toggle -->
-                    <div class="ignis-card mb-4">
+                    <div class="ignis-card twplus-section-card mb-4">
                         <div class="ignis-card__header flex items-center justify-between">
                             <h5 class="mb-0">Instanzübergreifende Vernetzung</h5>
                             <form method="post" class="inline">
@@ -315,7 +315,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                     <?php if ($federationEnabled): ?>
 
                     <!-- Connection Actions -->
-                    <div class="ignis-card mb-4">
+                    <div class="ignis-card twplus-section-card mb-4">
                         <div class="ignis-card__header">
                             <h5 class="mb-0">Verbindung herstellen</h5>
                         </div>
@@ -375,7 +375,7 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
                     </div>
 
                     <!-- Connected Instances -->
-                    <div class="ignis-card mb-4">
+                    <div class="ignis-card twplus-section-card mb-4">
                         <div class="ignis-card__header">
                             <h5 class="mb-0">Verbundene Instanzen <span class="ignis-chip"><?= count($links) ?></span></h5>
                         </div>

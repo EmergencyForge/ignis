@@ -38,6 +38,7 @@ foreach ($departments as $d) {
             <i class="fa-solid fa-hospital"></i>
         </div>
         <div class="user-hover-card__title">
+            <span class="user-hover-card__eyebrow">Point of Interest</span>
             <strong><?= htmlspecialchars($poi->name ?? '') ?></strong>
             <span class="user-hover-card__dnr">POI-ID: <?= (int) $poi->id ?></span>
         </div>

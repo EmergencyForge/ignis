@@ -1,4 +1,4 @@
-<table class="table table-striped" id="documentTable">
+<table class="table table-striped twplus-table" id="documentTable">
     <thead>
         <th scope="col">Typ</th>
         <th scope="col">Status</th>

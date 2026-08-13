@@ -34,7 +34,7 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
 
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto" data-calendar-event-detail>
+        <div class="twplus-page" data-calendar-event-detail>
             <div class="mb-4">
                 <nav class="ignis-breadcrumb">
                     <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>calendar">Kalender</a></span>
@@ -44,7 +44,7 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
 
             <?php Flash::render(); ?>
 
-            <div class="ignis-card mb-4">
+            <div class="ignis-card twplus-section-card mb-4">
                 <div class="ignis-card__header">
                     <div>
                         <h2 class="mb-1"><?= htmlspecialchars($event->title) ?></h2>
@@ -70,7 +70,7 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
                 </div>
 
                 <div class="ignis-card__body">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="twplus-description-list">
                         <div>
                             <div class="ignis-field__label">Beginn</div>
                             <div><?= htmlspecialchars($event->starts_at instanceof DateTimeInterface ? $event->starts_at->format('d.m.Y H:i') : (string) $event->starts_at) ?></div>
@@ -132,12 +132,12 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
                     'pending'   => ['icon' => 'fa-circle-dot',      'class' => 'attendee-status--pending',   'label' => 'Ausstehend'],
                 ];
                 ?>
-                <div class="ignis-card mb-4">
+                <div class="ignis-card twplus-section-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Teilnehmer (<?= (int) $attendeeCount ?>)</h5>
                     </div>
                     <div class="ignis-card__body">
-                        <ul class="attendee-list">
+                        <ul class="attendee-list twplus-stacked-list">
                             <?php foreach ($attendeesData as $att):
                                 $m       = $att['mitarbeiter'];
                                 $resp    = $att['response'];
@@ -145,7 +145,7 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
                                 $name    = trim((string) ($m->fullname ?? ''));
                                 $dnr     = $m->dienstnr ? ' · ' . $m->dienstnr : '';
                             ?>
-                                <li class="attendee-list__row">
+                                <li class="attendee-list__row twplus-stacked-list__item">
                                     <span class="attendee-list__name">
                                         <?= htmlspecialchars($name . $dnr) ?>
                                         <?php if (!empty($att['is_organizer'])): ?>

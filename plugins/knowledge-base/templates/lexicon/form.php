@@ -145,16 +145,21 @@ use App\Helpers\Flash;
     <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
 
     <div class="container-full position-relative" id="mainpageContainer">
-        <div class="container">
-            <div class="row">
-                <div class="col mb-5">
+        <div class="twplus-page">
+            <div class="mb-5">
                     
                     <!-- Back Link -->
                     <a href="<?= BASE_PATH ?>lexicon/index" class="back-link mb-3">
                         <i class="fa-solid fa-arrow-left"></i> Zurück zur Übersicht
                     </a>
 
-                    <h1 class="mb-4"><?= $isEdit ? 'Eintrag bearbeiten' : 'Neuer Eintrag' ?></h1>
+                    <header class="twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy">
+                            <p class="twplus-page-header__eyebrow">Wissensdatenbank</p>
+                            <h1><?= $isEdit ? 'Eintrag bearbeiten' : 'Neuer Eintrag' ?></h1>
+                            <p class="twplus-page-header__description">Fachinhalt, Freigabestufe, Taxonomie und Querverweise in einem strukturierten Formular pflegen.</p>
+                        </div>
+                    </header>
 
                     <?php Flash::render(); ?>
 
@@ -179,7 +184,7 @@ use App\Helpers\Flash;
                     <?php endif; ?>
 
                     <form method="POST" class="needs-validation" novalidate>
-                        <div class="intra__tile p-4 mb-4">
+                        <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3">Grunddaten</h4>
                             
                             <div class="row">
@@ -270,7 +275,7 @@ use App\Helpers\Flash;
                         </div>
 
                         <!-- Medication Fields -->
-                        <div id="medication-fields" class="type-fields intra__tile p-4 mb-4">
+                        <div id="medication-fields" class="type-fields twplus-section-card p-4 mb-4">
                             <h4 class="mb-3"><i class="fa-solid fa-pills"></i> Medikament-Informationen</h4>
                             
                             <div class="row">
@@ -327,7 +332,7 @@ use App\Helpers\Flash;
                         </div>
 
                         <!-- Measure Fields -->
-                        <div id="measure-fields" class="type-fields intra__tile p-4 mb-4">
+                        <div id="measure-fields" class="type-fields twplus-section-card p-4 mb-4">
                             <h4 class="mb-3"><i class="fa-solid fa-hand-holding-medical"></i> Maßnahmen-Informationen</h4>
                             
                             <div class="mb-3">
@@ -370,7 +375,7 @@ use App\Helpers\Flash;
                         </div>
 
                         <!-- General Content (CKEditor) -->
-                        <div class="intra__tile p-4 mb-4">
+                        <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3">Zusätzlicher Inhalt</h4>
                             <p class="text-muted small">Optionaler Freitext für weitere Informationen (mit Formatierung)</p>
                             
@@ -378,7 +383,7 @@ use App\Helpers\Flash;
                         </div>
 
                         <!-- Verknüpfte Einträge -->
-                        <div class="intra__tile p-4 mb-4">
+                        <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3"><i class="fa-solid fa-link"></i> Verknüpfte Einträge</h4>
                             <p class="text-muted small">Querverweise zu zusammenhängenden Einträgen hinzufügen</p>
 
@@ -401,7 +406,7 @@ use App\Helpers\Flash;
 
                         <?php if ($isEdit): ?>
                         <!-- Admin Options (only when editing) -->
-                        <div class="intra__tile p-4 mb-4">
+                        <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3"><i class="fa-solid fa-cog"></i> Optionen</h4>
                             
                             <div class="row">
@@ -435,7 +440,7 @@ use App\Helpers\Flash;
                         <?php endif; ?>
 
                         <!-- Submit Buttons -->
-                        <div class="d-flex justify-content-between">
+                        <div class="twplus-sticky-actions justify-content-between">
                             <a href="<?= BASE_PATH ?>lexicon/index" class="ignis-btn ignis-btn--ghost">
                                 <i class="fa-solid fa-arrow-left"></i> Abbrechen
                             </a>
@@ -445,7 +450,6 @@ use App\Helpers\Flash;
                         </div>
                     </form>
                 </div>
-            </div>
         </div>
     </div>
 

@@ -31,17 +31,19 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <div class="mb-6 flex items-center justify-between">
-                <h1 class="mb-0">Cron-Jobs</h1>
+        <div class="twplus-page">
+            <div class="twplus-page-header mb-6">
+                <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Automatisierung</p><h1>Cron-Jobs</h1><p class="twplus-page-header__description">Zeitpläne, letzte Ausführungen und Fehlerstatus geplanter Aufgaben.</p></div>
+                <div class="twplus-page-header__actions">
                 <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateCronJobModal()">
                     <i class="fa-solid fa-plus"></i> Neuer Job
                 </button>
+                </div>
             </div>
 
             <?php Flash::render(); ?>
 
-            <details class="intra__tile mb-4 px-4 py-3">
+            <details class="twplus-section-card mb-4 px-4 py-3">
                 <summary class="cursor-pointer text-sm text-gray-400 flex items-center gap-2 select-none">
                     <i class="fa-solid fa-link"></i>
                     <strong>Externer Trigger-Endpoint</strong>
@@ -59,8 +61,8 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                 <small class="text-gray-500 mt-2 block">Wenn weder Unix-Cron noch die Piggyback-Middleware laufen, rufe diesen URL minütlich auf — der Scheduler wird dann alle fälligen Jobs abarbeiten. Der Token gilt als Passwort und sollte nur an vertrauenswürdige Dienste weitergegeben werden.</small>
             </details>
 
-            <div class="intra__tile px-3 py-2">
-                <table class="table table-striped" id="table-cron-jobs">
+            <div class="twplus-table-card">
+                <table class="table table-striped twplus-table" id="table-cron-jobs">
                     <thead>
                         <tr>
                             <th>Identifier</th>

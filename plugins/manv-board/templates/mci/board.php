@@ -38,23 +38,24 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
 <body data-bs-theme="dark" id="manv-board" data-page="edivi">
     <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <div class="mb-6 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
+        <div class="twplus-page">
+            <header class="twplus-page-header mb-6">
+                <div class="twplus-page-header__copy">
+                    <p class="twplus-page-header__eyebrow">Aktive MANV-Lage</p>
                     <h1><?= htmlspecialchars($lage['einsatznummer']) ?></h1>
-                    <p class="mb-0 text-gray-400">
+                    <p class="twplus-page-header__description">
                         <i class="fas fa-map-marker-alt mr-2"></i><?= htmlspecialchars($lage['einsatzort']) ?>
                     </p>
                     <small class="text-gray-400">
                         Beginn: <?= !empty($lage['einsatzbeginn']) ? \App\Helpers\DateTimeHelper::formatShortLocal($lage['einsatzbeginn']) : 'Nicht angegeben' ?>
                     </small>
                 </div>
-                <div class="md:text-right">
+                <div class="twplus-page-header__actions">
                     <a href="<?= BASE_PATH ?>mci/edit?id=<?= $lageId ?>" class="ignis-btn ignis-btn--soft-primary no-underline hover:no-underline">
                         <i class="fas fa-edit mr-2"></i>Bearbeiten
                     </a>
                 </div>
-            </div>
+            </header>
 
             <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div class="ignis-card">
@@ -69,44 +70,42 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                 </div>
             </div>
 
-            <div class="stats-bar">
-                <div class="grid grid-cols-4 gap-2 text-center md:grid-cols-8">
-                    <div>
+            <div class="twplus-stats">
+                    <div class="twplus-stats__item">
                         <h3 class="mb-0"><?= (int) $stats['total_patienten'] ?></h3>
-                        <small class="text-gray-400">Gesamt</small>
+                        <small class="twplus-stats__label">Gesamt</small>
                     </div>
-                    <div>
+                    <div class="twplus-stats__item">
                         <h3 class="mb-0 text-[#d46b6b]"><?= (int) $stats['sk1'] ?></h3>
                         <small class="text-gray-400">SK1</small>
                     </div>
-                    <div>
+                    <div class="twplus-stats__item">
                         <h3 class="mb-0 text-[#ddb84a]"><?= (int) $stats['sk2'] ?></h3>
                         <small class="text-gray-400">SK2</small>
                     </div>
-                    <div>
+                    <div class="twplus-stats__item">
                         <h3 class="mb-0 text-[#6abf76]"><?= (int) $stats['sk3'] ?></h3>
                         <small class="text-gray-400">SK3</small>
                     </div>
-                    <div>
+                    <div class="twplus-stats__item">
                         <h3 class="mb-0 text-[#5bb8cc]"><?= (int) $stats['sk4'] ?></h3>
                         <small class="text-gray-400">SK4</small>
                     </div>
-                    <div>
+                    <div class="twplus-stats__item">
                         <h3 class="mb-0" style="color: #fff;"><?= (int) ($stats['sk5'] ?? 0) ?></h3>
                         <small class="text-gray-400">SK5</small>
                     </div>
-                    <div>
+                    <div class="twplus-stats__item">
                         <h3 class="mb-0" style="color: #9b59b6;"><?= (int) ($stats['sk6'] ?? 0) ?></h3>
                         <small class="text-gray-400">SK6</small>
                     </div>
-                    <div>
+                    <div class="twplus-stats__item">
                         <h3 class="mb-0"><?= (int) $stats['transportiert'] ?></h3>
                         <small class="text-gray-400">Transportiert</small>
                     </div>
-                </div>
             </div>
 
-            <div class="ignis-card mb-4">
+            <div class="twplus-table-card mb-4">
                 <div class="ignis-card__header flex flex-wrap items-center justify-between gap-2">
                     <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Patienten</h5>
                     <div class="flex flex-wrap gap-2">
@@ -118,17 +117,16 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                         </a>
                     </div>
                 </div>
-                <div class="ignis-card__body">
-                    <div class="table-responsive">
-                        <table id="patientenTable" class="table table-striped">
+                <div class="twplus-table-card__scroll">
+                        <table id="patientenTable" class="twplus-table">
                             <thead>
                                 <tr>
                                     <th>Pat.-Nr.</th>
                                     <th>SK</th>
                                     <th>Name</th>
-                                    <th>Verletzung</th>
-                                    <th>Transportmittel</th>
-                                    <th>Transportziel</th>
+                                    <th data-tw-priority="low">Verletzung</th>
+                                    <th data-tw-priority="medium">Transportmittel</th>
+                                    <th data-tw-priority="low">Transportziel</th>
                                     <th>Status</th>
                                     <th>Aktionen</th>
                                 </tr>
@@ -141,12 +139,12 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                 ?>
                                     <tr>
                                         <td><strong><?= htmlspecialchars($patient['patienten_nummer']) ?></strong></td>
-                                        <td>
+                                        <td data-tw-priority="low">
                                             <span class="ignis-chip <?= $skBadgeClass ?>">
                                                 <?= htmlspecialchars($patient['sichtungskategorie'] ?? '') ?>
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-tw-priority="medium">
                                             <?= htmlspecialchars($patient['name'] ?? 'Unbekannt') ?>
                                             <?php if (!empty($patient['vorname'])): ?>
                                                 <?= htmlspecialchars($patient['vorname']) ?>
@@ -166,7 +164,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                                 <span class="text-gray-400">Nicht zugewiesen</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td><?= !empty($patient['transportziel']) ? htmlspecialchars($patient['transportziel']) : '-' ?></td>
+                                        <td data-tw-priority="low"><?= !empty($patient['transportziel']) ? htmlspecialchars($patient['transportziel']) : '-' ?></td>
                                         <td>
                                             <?php if (!empty($patient['transport_abfahrt'])): ?>
                                                 <span class="ignis-chip ignis-chip--status ignis-chip--dark">Abgefahren</span>
@@ -192,13 +190,12 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                    </div>
                 </div>
             </div>
 
             <div class="mb-4 mt-4">
                 <div class="ignis-card">
-                    <div class="ignis-card__body flex flex-wrap gap-2">
+                    <div class="ignis-card__body twplus-mobile-actions">
                         <a href="index" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                             <i class="fas fa-arrow-left mr-2"></i>Zurück zur Übersicht
                         </a>

@@ -169,13 +169,13 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container my-5">
+        <div class="twplus-page my-5">
             <?php Flash::render(); ?>
 
             <!-- Header mit Titel + Aktionen -->
-            <div class="flex justify-between items-center mb-4">
-                <h1 class="mb-0">Dokumenten-Templates</h1>
-                <div class="flex gap-2">
+            <div class="twplus-page-header mb-4">
+                <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Dokumente</p><h1>Dokumenten-Templates</h1><p class="twplus-page-header__description">Vorlagen erstellen, duplizieren, versionieren und visuell bearbeiten.</p></div>
+                <div class="twplus-page-header__actions">
                     <button class="ignis-btn ignis-btn--outline-info ignis-btn--sm" id="btn-convert-all" title="Alle Twig-Templates in visuelle Editor-Layouts neu konvertieren">
                         <i class="fa-solid fa-arrows-rotate mr-1"></i> Aus Vorlagen neu generieren
                     </button>
@@ -191,12 +191,13 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <!-- Template-Liste als Karten-Grid -->
-            <div id="templateGrid" class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div id="templateGrid" class="twplus-resource-grid mb-4">
                 <!-- Wird dynamisch befüllt -->
             </div>
-            <div id="templateGridEmpty" class="text-center text-[var(--text-dimmed,#818189)] py-5" style="display:none;">
-                <i class="fa-solid fa-file-circle-plus fa-3x mb-3" style="opacity:0.2;"></i>
-                <p>Noch keine Templates vorhanden</p>
+            <div id="templateGridEmpty" class="twplus-empty" style="display:none;">
+                <i class="fa-solid fa-file-circle-plus twplus-empty__icon"></i>
+                <h2 class="twplus-empty__title">Noch keine Templates vorhanden</h2>
+                <p class="twplus-empty__description">Erstelle eine Vorlage oder generiere vorhandene Twig-Vorlagen neu.</p>
             </div>
 
         </div>

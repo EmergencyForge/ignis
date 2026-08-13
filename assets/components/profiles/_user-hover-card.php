@@ -22,6 +22,7 @@ $mitarbeiterUrl = $mitarbeiter !== null
             <?= strtoupper(substr($user->username ?? 'U', 0, 1)) ?>
         </div>
         <div class="user-hover-card__title">
+            <span class="user-hover-card__eyebrow">Benutzerkonto</span>
             <strong><?= htmlspecialchars($user->username ?? '') ?></strong>
             <span class="user-hover-card__dnr">UID: <?= (int) $user->id ?></span>
         </div>

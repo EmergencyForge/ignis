@@ -34,7 +34,7 @@ $fahrttypBadges = [
     </div>
 <?php else: ?>
     <div class="table-responsive">
-        <table class="table <?= $context === 'admin' ? 'intra__table' : 'table-dark-custom' ?> table-sm mb-0" id="fahrtenbuchTable">
+        <table class="table <?= $context === 'admin' ? 'intra__table' : 'table-dark-custom' ?> table-sm mb-0 twplus-table" id="fahrtenbuchTable">
             <thead>
                 <tr>
                     <th>Datum</th>

@@ -19,6 +19,7 @@ $fwQuali    = trim($mitarbeiter->fwQualiLabel());
             <?= strtoupper(substr($mitarbeiter->fullname ?? 'M', 0, 1)) ?>
         </div>
         <div class="user-hover-card__title">
+            <span class="user-hover-card__eyebrow">Mitarbeiter</span>
             <strong><?= htmlspecialchars($mitarbeiter->fullname) ?></strong>
             <?php if ($mitarbeiter->dienstnr !== ''): ?>
                 <span class="user-hover-card__dnr">DNr: <?= htmlspecialchars($mitarbeiter->dienstnr) ?></span>

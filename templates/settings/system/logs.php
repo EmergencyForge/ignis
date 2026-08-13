@@ -207,12 +207,12 @@ function logs_level_badge(string $level): string
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item">System</span> <span class="ignis-breadcrumb__item is-active">Fehlerprotokoll</span></nav>
-                    <div class="page-header mb-4">
-                        <h1>Fehlerprotokoll</h1>
-                        <div class="header-actions">
+                    <div class="page-header twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Diagnostik</p><h1>Fehlerprotokoll</h1><p class="twplus-page-header__description">Fehler suchen, gruppierte Ereignisse untersuchen und fehlgeschlagene Jobs behandeln.</p></div>
+                        <div class="header-actions twplus-page-header__actions">
                             <button type="button" class="ignis-btn ignis-btn--ghost" id="refreshBtn">
                                 <i class="fa-solid fa-rotate mr-1"></i>Aktualisieren
                             </button>
@@ -221,7 +221,7 @@ function logs_level_badge(string $level): string
                     <?php Flash::render(); ?>
 
                     <!-- ───────────── HERO: Error-ID Lookup (primärer Use-Case) ───────────── -->
-                    <div class="intra__tile logs-lookup-hero mb-3 p-3">
+                    <div class="twplus-toolbar logs-lookup-hero mb-3 p-3">
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="shrink-0">
                                 <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-[#7ba3d4]"></i>Error-ID Lookup</div>
@@ -248,31 +248,31 @@ function logs_level_badge(string $level): string
                     </div>
 
                     <!-- ───────────── Stats ───────────── -->
-                    <div class="mb-3 grid grid-cols-2 gap-2 md:grid-cols-5">
-                        <div class="intra__tile h-full p-3 text-center">
+                    <div class="twplus-stats twplus-stats--five mb-3">
+                        <div class="twplus-stats__item h-full p-3 text-center">
                             <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Errors gesamt</div>
                             <div class="mt-1 text-xl font-bold"><?= number_format($stats['total'] ?? 0, 0, ',', '.') ?></div>
                         </div>
-                        <div class="intra__tile h-full p-3 text-center">
+                        <div class="twplus-stats__item h-full p-3 text-center">
                             <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Letzte 24h</div>
                             <div class="mt-1 text-xl font-bold text-[#ddb84a]"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></div>
                         </div>
-                        <div class="intra__tile h-full p-3 text-center">
+                        <div class="twplus-stats__item h-full p-3 text-center">
                             <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Letzte 7 Tage</div>
                             <div class="mt-1 text-xl font-bold text-[#ddb84a]"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></div>
                         </div>
-                        <div class="intra__tile h-full p-3 text-center">
+                        <div class="twplus-stats__item h-full p-3 text-center">
                             <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Critical</div>
                             <div class="mt-1 text-xl font-bold text-[#d46b6b]"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></div>
                         </div>
-                        <div class="intra__tile h-full p-3 text-center">
+                        <div class="twplus-stats__item h-full p-3 text-center">
                             <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Error</div>
                             <div class="mt-1 text-xl font-bold text-[#d46b6b]"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></div>
                         </div>
                     </div>
 
                     <!-- ───────────── Browse / Filter / Inbox ───────────── -->
-                    <div class="intra__tile p-3">
+                    <div class="twplus-section-card p-3">
                         <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
                             <div>
                                 <h5 class="mb-0"><i class="fa-solid fa-inbox mr-2"></i>Letzte Fehler</h5>
@@ -332,7 +332,7 @@ function logs_level_badge(string $level): string
                     $failedTotal = $failedJobsStats['total'] ?? 0;
                     $failed24h   = $failedJobsStats['last_24h'] ?? 0;
                     ?>
-                    <div class="intra__tile p-3 mt-3">
+                    <div class="twplus-section-card p-3 mt-3">
                         <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
                             <div class="flex items-center gap-2">
                                 <i class="fa-solid fa-hexagon-exclamation text-[#ddb84a]"></i>
@@ -431,11 +431,11 @@ function logs_level_badge(string $level): string
                     </div>
 
                     <!-- ───────────── Files (collapsed) ───────────── -->
-                    <details class="intra__tile p-3 mt-3">
+                    <details class="twplus-section-card p-3 mt-3">
                         <summary class="font-bold" style="cursor:pointer;">
                             <i class="fa-solid fa-folder-tree mr-2"></i>Verfügbare Log-Dateien (<?= count($files) ?>)
                         </summary>
-                        <table class="table table-striped table-sm mt-3 mb-0">
+                        <table class="table table-striped table-sm mt-3 mb-0 twplus-table">
                             <thead>
                                 <tr>
                                     <th>Datei</th>

@@ -1,4 +1,4 @@
-<table class="table table-striped" id="fireProtocolTable">
+<table class="table table-striped twplus-table" id="fireProtocolTable">
     <thead>
         <th scope="col">Status</th>
         <th scope="col">#</th>

@@ -24,11 +24,14 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
 <body data-bs-theme="dark" id="patient-create" data-page="edivi">
     <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <div class="mb-6">
+        <div class="twplus-page">
+            <header class="twplus-page-header mb-6">
+                <div class="twplus-page-header__copy">
+                <p class="twplus-page-header__eyebrow">Patientenerfassung</p>
                 <h1>Neuer Patient</h1>
-                <p class="text-gray-400">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?> - <?= htmlspecialchars($lage['einsatzort']) ?></p>
-            </div>
+                <p class="twplus-page-header__description">MANV-Lage: <?= htmlspecialchars($lage['einsatznummer']) ?> – <?= htmlspecialchars($lage['einsatzort']) ?></p>
+                </div>
+            </header>
 
             <?php Flash::render(); ?>
 
@@ -39,7 +42,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
             <?php endif; ?>
 
             <form method="POST" action="">
-                <div class="ignis-card mb-4">
+                <div class="twplus-section-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Personalien</h5>
                     </div>
@@ -70,7 +73,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                 </div>
 
-                <div class="ignis-card mb-4">
+                <div class="twplus-section-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Sichtungskategorie</h5>
                     </div>
@@ -100,7 +103,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                 </div>
 
-                <div class="ignis-card mb-4">
+                <div class="twplus-section-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Transport</h5>
                     </div>
@@ -148,7 +151,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                 </div>
 
-                <div class="ignis-card mb-4">
+                <div class="twplus-section-card mb-4">
                     <div class="ignis-card__header">
                         <h5 class="mb-0">Medizinische Informationen</h5>
                     </div>
@@ -164,7 +167,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
                     </div>
                 </div>
 
-                <div class="mb-4 flex items-center justify-between">
+                <div class="twplus-sticky-actions justify-between">
                     <a href="<?= BASE_PATH ?>mci/board?id=<?= $lageId ?>" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
                         <i class="fas fa-arrow-left mr-2"></i>Zurück zum Board
                     </a>

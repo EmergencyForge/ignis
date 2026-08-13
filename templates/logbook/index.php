@@ -30,14 +30,18 @@ $SITE_TITLE = 'Fahrtenbuch';
 <body data-bs-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
                 <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index">Fahrzeuge</a></span> <span class="ignis-breadcrumb__item is-active">Fahrtenbuch</span></nav>
 
-                <div class="page-header mb-4">
-                    <h1>Fahrtenbuch</h1>
+                <div class="page-header twplus-page-header mb-4">
+                    <div class="twplus-page-header__copy">
+                        <p class="twplus-page-header__eyebrow">Fuhrpark</p>
+                        <h1>Fahrtenbuch</h1>
+                        <p class="twplus-page-header__description">Fahrten, Kilometerstände und Fahrzeugnutzung zentral nachvollziehen.</p>
+                    </div>
                     <?php if ($canManage): ?>
-                        <div class="header-actions">
+                        <div class="header-actions twplus-page-header__actions">
                             <button type="button" class="ignis-btn ignis-btn--success" id="toggleCreateForm">
                                 <i class="fa-solid fa-plus"></i> Neuer Eintrag
                             </button>
@@ -55,20 +59,20 @@ $SITE_TITLE = 'Fahrtenbuch';
                 <?php else: ?>
 
                 <!-- Stats -->
-                <div class="mb-4 grid grid-cols-2 gap-3 md:grid-cols-4">
-                    <div class="intra__tile p-3 text-center">
-                        <div class="text-3xl font-bold"><?= (int) $stats['total'] ?></div>
-                        <small class="text-gray-400">Einträge gesamt</small>
+                <dl class="twplus-stats" aria-label="Fahrtenbuchstatistik">
+                    <div class="twplus-stats__item">
+                        <dt class="twplus-stats__label">Einträge gesamt</dt>
+                        <dd class="twplus-stats__value"><?= (int) $stats['total'] ?></dd>
                     </div>
-                    <div class="intra__tile p-3 text-center">
-                        <div class="text-3xl font-bold"><?= number_format((float) $stats['total_km'], 1, ',', '.') ?></div>
-                        <small class="text-gray-400">Kilometer gesamt</small>
+                    <div class="twplus-stats__item">
+                        <dt class="twplus-stats__label">Kilometer gesamt</dt>
+                        <dd class="twplus-stats__value"><?= number_format((float) $stats['total_km'], 1, ',', '.') ?></dd>
                     </div>
-                </div>
+                </dl>
 
                 <!-- Create Form -->
                 <?php if ($canManage): ?>
-                <div id="createFormWrap" style="display:none;" class="intra__tile mb-4 p-4">
+                <div id="createFormWrap" style="display:none;" class="twplus-section-card twplus-slide-over mb-4 p-4">
                     <h5 class="mb-4">Neuer Eintrag</h5>
                     <form method="POST" action="<?= BASE_PATH ?>logbook/actions">
                         <input type="hidden" name="action" value="create">
@@ -93,7 +97,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                 </div>
 
                 <!-- Edit Form -->
-                <div id="editFormWrap" style="display:none;" class="intra__tile mb-4 p-4">
+                <div id="editFormWrap" style="display:none;" class="twplus-section-card twplus-slide-over mb-4 p-4">
                     <h5 class="mb-4">Eintrag bearbeiten</h5>
                     <form method="POST" action="<?= BASE_PATH ?>logbook/actions" id="editForm">
                         <input type="hidden" name="action" value="update">
@@ -115,7 +119,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                 <?php endif; ?>
 
                 <!-- Filter -->
-                <div class="intra__tile mb-4 p-3">
+                <div class="twplus-toolbar mb-4">
                     <form method="GET" class="flex flex-wrap items-end gap-2">
                         <div>
                             <label class="ignis-field__label mb-1">Fahrzeug</label>
@@ -155,7 +159,7 @@ $SITE_TITLE = 'Fahrtenbuch';
                 </div>
 
                 <!-- Entries Table -->
-                <div class="intra__tile">
+                <div class="twplus-table-card">
                     <?php if (!empty($entries)): ?>
                         <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
                             <div class="input-group input-group-sm">
@@ -166,13 +170,14 @@ $SITE_TITLE = 'Fahrtenbuch';
                     <?php endif; ?>
                     <div class="p-3">
                         <?php if (empty($entries)): ?>
-                            <div class="py-4 text-center text-gray-400">
-                                <i class="fa-solid fa-book fa-2x mb-2" style="opacity:0.4;"></i>
-                                <div>Keine Einträge gefunden</div>
+                            <div class="twplus-empty">
+                                <i class="fa-solid fa-book twplus-empty__icon" aria-hidden="true"></i>
+                                <h2 class="twplus-empty__title">Keine Fahrten gefunden</h2>
+                                <p class="twplus-empty__description">Passe die Filter an oder erfasse den ersten Fahrtenbucheintrag.</p>
                             </div>
                         <?php else: ?>
                             <div class="table-responsive">
-                                <table class="table intra__table table-sm mb-0" id="fahrtenbuchAdminTable">
+                                <table class="table intra__table table-sm mb-0 twplus-table" id="fahrtenbuchAdminTable">
                                     <thead>
                                         <tr>
                                             <th>Datum</th>

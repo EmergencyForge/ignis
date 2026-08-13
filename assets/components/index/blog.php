@@ -40,7 +40,7 @@ $timeAgo = static function (string $iso): string {
     return date('d.m.Y', $ts);
 };
 ?>
-<div class="intra__tile intra__blog" data-section="blog">
+<div class="intra__blog twplus-dashboard-widget p-3" data-section="blog">
     <div class="flex items-center justify-between mb-3">
         <h4 class="mb-0">
             <i class="fa-solid fa-pen-nib" style="color:var(--main-color); margin-right:0.4rem;"></i>

@@ -38,8 +38,8 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
 
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <h1><?= htmlspecialchars($typ->name) ?> stellen</h1>
+        <div class="twplus-page">
+            <header class="twplus-page-header mb-4"><div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Neuer Antrag</p><h1><?= htmlspecialchars($typ->name) ?> stellen</h1><p class="twplus-page-header__description">Fülle die erforderlichen Angaben aus und prüfe sie vor dem Absenden.</p></div></header>
 
             <?php if (!empty($typ->beschreibung)): ?>
                 <p class="text-gray-400"><?= htmlspecialchars($typ->beschreibung) ?></p>
@@ -54,7 +54,7 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
                 </div>
             <?php endif; ?>
 
-            <div class="intra__tile p-6">
+            <div class="twplus-section-card p-6">
                 <form method="post" action="">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <?php foreach ($felder as $feld):

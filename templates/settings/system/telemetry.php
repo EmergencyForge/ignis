@@ -115,10 +115,10 @@ $cacheInfo = $announcements->getCacheInfo();
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
-                    <div class="mb-4 flex items-center justify-between">
-                        <h1 class="mb-0">Telemetrie & Ankündigungen</h1>
+                    <div class="twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">System</p><h1>Telemetrie &amp; Ankündigungen</h1><p class="twplus-page-header__description">Support-Verbindung, Datentransparenz und globale Hinweise verwalten.</p></div>
                     </div>
 
                     <?php
@@ -158,7 +158,7 @@ $cacheInfo = $announcements->getCacheInfo();
                             filter: blur(0);
                         }
                     </style>
-                    <div class="intra__tile uuid-banner mb-4 p-3">
+                    <div class="twplus-section-card uuid-banner mb-4 p-3">
                         <div class="flex flex-wrap items-center gap-3">
                             <div class="shrink-0" style="font-size: 1.1rem; color: var(--bs-primary, #0d6efd);">
                                 <i class="fa-solid fa-id-card"></i>
@@ -281,7 +281,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <hr>
 
                                     <h6>Status</h6>
-                                    <table class="table table-sm">
+                                    <table class="table table-sm twplus-table">
                                         <tr>
                                             <td class="text-gray-400">Installation-ID:</td>
                                             <td>
@@ -345,7 +345,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <hr>
 
                                     <h6>Cache-Status</h6>
-                                    <table class="table table-sm mb-3">
+                                    <table class="table table-sm mb-3 twplus-table">
                                         <tr>
                                             <td class="text-gray-400">Einträge im Cache:</td>
                                             <td><?= $cacheInfo['count'] ?></td>

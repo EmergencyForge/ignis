@@ -57,7 +57,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
 <body data-bs-theme="dark">
     <!-- Einzeilige Toolbar -->
-    <div class="editor-toolbar">
+    <div class="editor-toolbar twplus-toolbar">
         <a href="<?= BASE_PATH ?>settings/documents/templates" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="btn-back"
             onclick="if(window.TemplateEditor&&window.TemplateEditor.isDirty){event.preventDefault();var href=this.href;showConfirm('Ungespeicherte Änderungen verwerfen?',{title:'Seite verlassen',danger:true,confirmText:'Verwerfen'}).then(function(ok){if(ok)window.location=href;});}">
             <i class="fa-solid fa-arrow-left"></i>
@@ -256,7 +256,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <!-- Main editor layout -->
     <div class="editor-wrapper">
         <!-- Left sidebar: Element library + Layers (Tab-basiert) -->
-        <div class="editor-sidebar" id="sidebar-left">
+        <div class="editor-sidebar twplus-section-card" id="sidebar-left">
             <!-- Sidebar-Tabs -->
             <ul class="nav nav-pills nav-fill sidebar-tabs" id="sidebar-left-tabs">
                 <li class="nav-item">
@@ -285,7 +285,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         </div>
 
         <!-- Canvas area (mit Toggle-Buttons an den Rändern) -->
-        <div class="editor-canvas-area" id="canvas-area" style="position:relative;">
+        <div class="editor-canvas-area twplus-section-card" id="canvas-area" style="position:relative;">
             <!-- Toggle links -->
             <div class="sidebar-toggle" id="toggle-left" style="left:8px;" onclick="toggleSidebar('sidebar-left','toggle-left')" title="Elemente-Panel">
                 <i class="fa-solid fa-chevron-left"></i>
@@ -307,7 +307,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         </div>
 
         <!-- Right sidebar: Properties panel -->
-        <div class="editor-properties" id="sidebar-right">
+        <div class="editor-properties twplus-section-card" id="sidebar-right">
             <div id="no-selection-msg">
                 <i class="fa-solid fa-mouse-pointer" style="font-size:2rem;opacity:0.3;"></i>
                 <p class="mt-2">Wähle ein Element auf dem Canvas aus, um seine Eigenschaften zu bearbeiten.</p>
@@ -457,7 +457,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <!-- Shortcut-Hilfe Park-Body -->
     <div id="shortcutHelpModal" class="ignis-dialog-park" hidden>
         <div class="p-0" style="font-size:0.82rem;">
-            <table class="table table-sm table-striped mb-0">
+            <table class="table table-sm table-striped mb-0 twplus-table">
                 <tbody>
                     <tr><td class="pl-3"><kbd>Ctrl+S</kbd></td><td>Speichern</td></tr>
                     <tr><td class="pl-3"><kbd>Ctrl+Z</kbd></td><td>Rückgängig</td></tr>

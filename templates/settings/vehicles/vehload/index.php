@@ -84,11 +84,11 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
         <!-- ------------ -->
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div>
-                    <div class="mb-4 flex items-center justify-between">
-                        <h2>Beladelisten</h2>
-                        <div>
+                    <div class="twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Fuhrpark</p><h1>Beladelisten</h1><p class="twplus-page-header__description">Kategorien und Gegenstände nach Fahrzeugtyp organisieren.</p></div>
+                        <div class="twplus-page-header__actions">
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
                                 <button class="ignis-btn ignis-btn--success mr-2" onclick="openAddBeladungCategoryModal()">
                                     <i class="fa-solid fa-plus"></i> Neue Kategorie
@@ -101,7 +101,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
 
                     <!-- Filter + Live-Suche -->
-                    <div class="ignis-card mb-4">
+                    <div class="ignis-card twplus-toolbar mb-4">
                         <div class="ignis-card__body">
                             <div class="grid grid-cols-1 items-end gap-3 md:grid-cols-12">
                                 <div class="md:col-span-6">
@@ -143,7 +143,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
 
-            <div class="intra__tile mb-6 px-3 py-2">
+            <div class="twplus-section-card mb-6 px-3 py-2">
                 <?php
                 // Tiles für alle Kategorien in einem Query laden (statt N+1).
                 $catIds = array_column($categories, 'id');

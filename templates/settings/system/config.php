@@ -143,15 +143,19 @@ $configByCategory = $configManager->getConfigByCategory();
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
+        <div class="twplus-page">
             <div class="mb-6">
                     <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item is-active">System</span></nav>
-                    <div class="page-header mb-4">
-                        <h1>System-Konfiguration</h1>
+                    <div class="page-header twplus-page-header mb-4">
+                        <div class="twplus-page-header__copy">
+                            <p class="twplus-page-header__eyebrow">System</p>
+                            <h1>System-Konfiguration</h1>
+                            <p class="twplus-page-header__description">Identität, Schnittstellen und Laufzeitverhalten des Systems konfigurieren.</p>
+                        </div>
                     </div>
                     <?php Flash::render(); ?>
 
-                    <div class="mb-4">
+                    <div class="twplus-toolbar mb-4">
                         <div class="btn-toolbar-group" id="categoryFilter">
                             <button class="ignis-btn active" data-category="">Alle</button>
                             <?php foreach ($configByCategory as $category => $configs): ?>
@@ -163,7 +167,7 @@ $configByCategory = $configManager->getConfigByCategory();
                     <form method="post" id="configForm">
                         <?php foreach ($configByCategory as $category => $configs): ?>
                             <div class="config-section" data-config-category="<?= htmlspecialchars($category) ?>">
-                                <div class="ignis-card mb-4">
+                                <div class="ignis-card twplus-section-card mb-4">
                                     <div class="ignis-card__header">
                                         <h5 class="mb-0"><?= htmlspecialchars($configManager->getCategoryDisplayName($category)) ?></h5>
                                     </div>
@@ -311,7 +315,7 @@ $configByCategory = $configManager->getConfigByCategory();
                             </div>
                         <?php endforeach; ?>
 
-                        <div class="mb-6 flex flex-col gap-2 md:flex-row md:justify-end">
+                        <div class="twplus-sticky-actions mb-6">
                             <button type="submit" name="save_config" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg">
                                 <i class="fa-solid fa-save"></i> Änderungen speichern
                             </button>

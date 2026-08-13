@@ -20,13 +20,13 @@ use App\Helpers\Flash;
 <body data-bs-theme="dark" data-page="antragstyp-edit">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto">
-            <h1><?= htmlspecialchars($typ['name']) ?> bearbeiten</h1>
+        <div class="twplus-page">
+            <header class="twplus-page-header mb-4"><div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Formularbaukasten</p><h1><?= htmlspecialchars($typ['name']) ?> bearbeiten</h1><p class="twplus-page-header__description">Grundeinstellungen und Formularfelder des Antragstyps verwalten.</p></div></header>
 
             <?php Flash::render(); ?>
 
             <!-- Grundeinstellungen -->
-            <div class="intra__tile mb-4 p-4">
+            <div class="twplus-section-card mb-4 p-4">
                 <h4 class="mb-4">Grundeinstellungen</h4>
                 <form method="post">
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -60,7 +60,7 @@ use App\Helpers\Flash;
             </div>
 
             <!-- Felder Verwaltung -->
-            <div class="intra__tile mb-4 p-4">
+            <div class="twplus-section-card mb-4 p-4">
                 <div class="mb-4 flex items-center justify-between">
                     <h4><i class="fa-solid fa-list mr-2"></i>Formularfelder (<?= count($felder) ?>)</h4>
                     <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" onclick="openAddFeldModal()">
@@ -76,7 +76,7 @@ use App\Helpers\Flash;
                 <?php else: ?>
                     <form method="post">
                         <div class="table-responsive">
-                            <table class="table table-hover">
+                            <table class="table table-hover twplus-table">
                                 <thead>
                                     <tr>
                                         <th style="width: 60px;">Sort.</th>

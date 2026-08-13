@@ -25,12 +25,12 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <body data-bs-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
-        <div class="container mx-auto my-6">
+        <div class="twplus-page my-6">
             <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Dokumenten-Kategorien</span></nav>
 
-            <div class="page-header mb-4">
-                <h1>Dokumenten-Kategorien</h1>
-                <div class="header-actions">
+            <div class="page-header twplus-page-header mb-4">
+                <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Dokumente</p><h1>Dokumenten-Kategorien</h1><p class="twplus-page-header__description">Kategorien, Farben, Icons und Reihenfolge der Dokumentablage verwalten.</p></div>
+                <div class="header-actions twplus-page-header__actions">
                     <a href="<?= BASE_PATH ?>settings/documents/templates" class="ignis-btn ignis-btn--outline-secondary">
                         <i class="fa-solid fa-file-lines"></i> Templates verwalten
                     </a>
@@ -42,8 +42,8 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             <?php Flash::render(); ?>
 
-            <div class="intra__tile px-3 py-2">
-                <table class="table table-striped mb-0" id="categoryTable">
+            <div class="twplus-table-card">
+                <table class="table table-striped mb-0 twplus-table" id="categoryTable">
                     <thead>
                         <tr>
                             <th scope="col" style="width:60px">Reihenfolge</th>

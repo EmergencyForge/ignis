@@ -55,25 +55,25 @@ use App\Helpers\Flash;
             </div>
 
             <!-- Content sections: generous spacing between groups -->
-            <div class="intra__tile" data-section="documents" style="margin-top:var(--space-xl)">
-                <h4 class="mb-3">Eigene Dokumente</h4>
+            <div class="twplus-dashboard-widget" data-section="documents" style="margin-top:var(--space-xl)">
+                <div class="twplus-section-card__header"><h4 class="twplus-section-card__title">Eigene Dokumente</h4></div>
                 <?php include __DIR__ . '/assets/components/index/documents.php' ?>
             </div>
-            <div class="intra__tile" data-section="applications" style="margin-top:var(--space-lg)">
-                <div class="flex items-center justify-between mb-3">
-                    <h4 class="mb-0">Eigene Anträge</h4>
+            <div class="twplus-dashboard-widget" data-section="applications" style="margin-top:var(--space-lg)">
+                <div class="twplus-section-card__header">
+                    <h4 class="twplus-section-card__title">Eigene Anträge</h4>
                     <a href="<?= BASE_PATH ?>forms/select" class="ignis-btn ignis-btn--sm ignis-btn--soft-success"><i class="fa-solid fa-plus"></i> Antrag einreichen</a>
                 </div>
                 <?php include __DIR__ . '/assets/components/index/applications.php' ?>
             </div>
 
             <!-- Protokolle group: tighter spacing (related) -->
-            <div class="intra__tile" data-section="enotf" style="margin-top:var(--space-xl)">
-                <h4 class="mb-3">Eigene eNOTF-Protokolle</h4>
+            <div class="twplus-dashboard-widget" data-section="enotf" style="margin-top:var(--space-xl)">
+                <div class="twplus-section-card__header"><h4 class="twplus-section-card__title">Eigene eNOTF-Protokolle</h4></div>
                 <?php include __DIR__ . '/assets/components/index/protocols.php' ?>
             </div>
-            <div class="intra__tile" data-section="firetab" style="margin-top:var(--space-lg)">
-                <h4 class="mb-3">Eigene fireTab-Protokolle</h4>
+            <div class="twplus-dashboard-widget" data-section="firetab" style="margin-top:var(--space-lg)">
+                <div class="twplus-section-card__header"><h4 class="twplus-section-card__title">Eigene fireTab-Protokolle</h4></div>
                 <?php include __DIR__ . '/assets/components/index/fire-protocols.php' ?>
             </div>
             <div style="height:var(--space-xl)"></div>
