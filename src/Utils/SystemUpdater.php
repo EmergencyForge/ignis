@@ -1111,6 +1111,18 @@ class SystemUpdater
      */
     private function runComposerInstall(string $appRoot): array
     {
+        // exec() steht in disable_functions vieler Shared-Hosting-Setups —
+        // seit PHP 8 wirft der Aufruf dann einen fatalen Error statt still
+        // zu scheitern. Ohne exec() kann Composer hier nicht laufen.
+        if (!function_exists('exec')) {
+            return [
+                'executed' => false,
+                'success' => false,
+                'error' => true,
+                'message' => 'exec() ist auf diesem Hosting deaktiviert (disable_functions) — bitte `composer install --no-dev` manuell ausführen oder ein Release-Paket mit vendor/ verwenden.'
+            ];
+        }
+
         // Check if composer is available
         $composerPath = $this->findComposerExecutable();
 
@@ -1237,7 +1249,13 @@ class SystemUpdater
             }
         }
 
-        // For composer in PATH, use which/where command with strict validation
+        // For composer in PATH, use which/where command with strict validation.
+        // Without exec() (disable_functions) the PATH probe is impossible —
+        // the absolute-path candidates above remain the only option then.
+        if (!function_exists('exec')) {
+            return null;
+        }
+
         $pathNames = ['composer', 'composer.phar'];
         $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 
@@ -2156,7 +2174,7 @@ class SystemUpdater
         $composerAvailable = !empty($composerPath);
         $composerVersion = null;
 
-        if ($composerAvailable) {
+        if ($composerAvailable && function_exists('exec')) {
             $output = [];
             $returnCode = 0;
             @exec(escapeshellarg($composerPath) . ' --version 2>&1', $output, $returnCode);

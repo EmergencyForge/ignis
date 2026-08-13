@@ -445,32 +445,25 @@ class TelemetryManager
             return ['success' => false, 'message' => 'Payload konnte nicht kodiert werden: ' . json_last_error_msg()];
         }
 
-        $context = stream_context_create([
-            'http' => [
-                'method' => 'POST',
-                'header' => [
+        try {
+            $result = \App\Utils\HttpClient::request($endpoint, [
+                'method'  => 'POST',
+                'headers' => [
                     'Content-Type: application/json',
                     'Accept: application/json',
                     'User-Agent: ignis-Telemetry/1.0',
                     'X-Installation-ID: ' . $data['installation_id'],
                 ],
-                'content' => $payload,
+                'body'    => $payload,
                 'timeout' => 3,
-                'ignore_errors' => true,
-            ],
-            'ssl' => [
-                'verify_peer' => true,
-                'verify_peer_name' => true,
-            ],
-        ]);
+            ]);
 
-        try {
-            $response = @file_get_contents($endpoint, false, $context);
-
-            if ($response === false) {
+            if ($result === null) {
                 $error = error_get_last();
-                return ['success' => false, 'message' => 'Verbindung fehlgeschlagen: ' . ($error['message'] ?? 'Unbekannt')];
+                return ['success' => false, 'message' => 'Verbindung fehlgeschlagen: ' . ($error['message'] ?? 'Hub nicht erreichbar')];
             }
+
+            $response = $result['body'];
 
             $result = json_decode($response, true);
 
