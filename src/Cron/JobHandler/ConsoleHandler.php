@@ -6,6 +6,7 @@ namespace App\Cron\JobHandler;
 
 use App\Cron\JobResult;
 use App\Plugins\PluginLoader;
+use App\Utils\SystemUpdater;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Command\Command;
 
@@ -65,6 +66,13 @@ final class ConsoleHandler implements JobHandlerInterface
     {
         if (!$this->isAvailable($handler)) {
             return JobResult::skipped("Command '{$handler}' ist nicht registriert; das zugehörige Plugin ist möglicherweise inaktiv.");
+        }
+
+        // Der Update-Check benötigt weder einen separaten Prozess noch eine
+        // Queue. Ihn im aktuellen PHP-Prozess auszuführen hält die automatische
+        // Erkennung auch auf Managed Hosting mit deaktiviertem proc_open aktiv.
+        if ($handler === 'updates:check') {
+            return $this->runPortableUpdateCheck();
         }
 
         $appRoot = dirname(__DIR__, 3);
@@ -140,6 +148,31 @@ final class ConsoleHandler implements JobHandlerInterface
             return JobResult::success($durationMs, $output);
         }
         return JobResult::failed($durationMs, "Exit {$exitCode}\n" . $output);
+    }
+
+    private function runPortableUpdateCheck(): JobResult
+    {
+        $startedAt = microtime(true);
+        try {
+            $result = (new SystemUpdater())->checkForUpdatesCached(forceRefresh: true);
+            $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
+            if (!empty($result['error'])) {
+                return JobResult::failed($durationMs, (string) ($result['message'] ?? 'Update-Check fehlgeschlagen.'));
+            }
+
+            $current = (string) ($result['current_version'] ?? '?');
+            $latest = (string) ($result['latest_version'] ?? '?');
+            $message = !empty($result['available'])
+                ? "Neue Version verfügbar: {$latest} (aktuell: {$current})."
+                : "Installation ist aktuell ({$current}).";
+
+            return JobResult::success($durationMs, $message);
+        } catch (\Throwable $e) {
+            return JobResult::failed(
+                (int) round((microtime(true) - $startedAt) * 1000),
+                'Update-Check fehlgeschlagen: ' . $e->getMessage()
+            );
+        }
     }
 
     /**

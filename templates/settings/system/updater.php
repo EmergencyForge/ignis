@@ -27,6 +27,14 @@ $isDevMode = isset($_GET['dev']);
 $devBranches = [];
 $devBranchInfo = null;
 
+// Beim Öffnen der Seite automatisch den persistenten Status anzeigen. Der
+// tägliche Piggyback-Cron hält ihn aktuell; nur bei fehlendem/veraltetem Cache
+// ist ein kurzer GitHub-Request nötig.
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && !$isDevMode) {
+    $updateInfo = $updater->checkForUpdatesCached();
+    $checking = true;
+}
+
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // CSRF Token validation — hash_equals statt validateToken(), damit
@@ -65,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $downloadUrl = $_POST['download_url'] ?? '';
         $newVersion = $_POST['new_version'] ?? '';
         $isPreRelease = isset($_POST['is_prerelease']) && $_POST['is_prerelease'] === '1';
+        $expectedSha256 = trim((string) ($_POST['expected_sha256'] ?? '')) ?: null;
 
         // Check if this is an AJAX request
         $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
@@ -100,12 +109,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($downloadUrl && $newVersion) {
-            $installResult = $updater->downloadAndApplyUpdate($downloadUrl, $newVersion, $isPreRelease);
+            $installResult = $updater->downloadAndApplyUpdate($downloadUrl, $newVersion, $isPreRelease, $expectedSha256);
 
             // Fallback: Wenn Release-Asset-URL fehlschlägt, Zipball-URL versuchen
             // (Abwärtskompatibilität für ältere SystemUpdater-Versionen die nur Zipball akzeptieren)
             $fallbackUrl = $_POST['download_url_fallback'] ?? '';
-            if (!$installResult['success'] && $fallbackUrl && $fallbackUrl !== $downloadUrl
+            if (!$installResult['success'] && $expectedSha256 === null && $fallbackUrl && $fallbackUrl !== $downloadUrl
                 && filter_var($fallbackUrl, FILTER_VALIDATE_URL)
                 && str_starts_with($fallbackUrl, 'https://api.github.com/')) {
                 $installResult = $updater->downloadAndApplyUpdate($fallbackUrl, $newVersion, $isPreRelease);
@@ -377,7 +386,7 @@ if ($isDevMode) {
                                     </div>
                                 <?php elseif ($updateInfo['available']): ?>
                                     <?php
-                                    $urgency = $updater->getUpdateUrgency();
+                                    $urgency = $updater->getUpdateUrgency($updateInfo);
                                     $urgencyColors = [
                                         'low' => 'info',
                                         'medium' => 'warning',
@@ -403,8 +412,19 @@ if ($isDevMode) {
                                             <?php if (isset($updateInfo['cached']) && $updateInfo['cached']): ?>
                                                 <span class="ignis-chip ml-1" title="Gecachte Daten"><i class="fa-solid fa-clock"></i> Gecacht</span>
                                             <?php endif; ?>
+                                            <?php if (!empty($updateInfo['checksum_sha256'])): ?>
+                                                <span class="ignis-chip ignis-chip--success ml-1" title="GitHub SHA-256-Digest wird vor der Installation geprüft"><i class="fa-solid fa-shield-halved"></i> Integrität geprüft</span>
+                                            <?php endif; ?>
                                         </p>
                                     </div>
+
+                                    <?php if (!empty($updateInfo['stale'])): ?>
+                                        <div class="ignis-alert ignis-alert--warning mb-3">
+                                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                                            Der letzte automatische Abruf ist fehlgeschlagen. Angezeigt wird der zuletzt bekannte Stand.
+                                            <?= !empty($updateInfo['refresh_error']) ? htmlspecialchars($updateInfo['refresh_error']) : '' ?>
+                                        </div>
+                                    <?php endif; ?>
 
                                     <?php if (isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] && $isPreRelease): ?>
                                         <div class="ignis-alert ignis-alert--warning mb-3">
@@ -451,6 +471,7 @@ if ($isDevMode) {
                                                 <input type="hidden" name="download_url_fallback" value="<?= htmlspecialchars($updateInfo['download_url_fallback'] ?? '') ?>">
                                                 <input type="hidden" name="new_version" value="<?= htmlspecialchars($updateInfo['latest_version']) ?>">
                                                 <input type="hidden" name="is_prerelease" value="<?= isset($updateInfo['is_prerelease']) && $updateInfo['is_prerelease'] ? '1' : '0' ?>">
+                                                <input type="hidden" name="expected_sha256" value="<?= htmlspecialchars($updateInfo['checksum_sha256'] ?? '') ?>">
                                                 <button type="button" id="install-update-btn" class="ignis-btn ignis-btn--success w-full">
                                                     <i class="fa-solid fa-download"></i> Update jetzt installieren
                                                 </button>
@@ -485,7 +506,7 @@ if ($isDevMode) {
 
                                     <div class="ignis-alert ignis-alert--info mt-3">
                                         <strong><i class="fa-solid fa-info-circle"></i> Hinweis:</strong>
-                                        Das Update wird automatisch installiert und ein Backup wird im Verzeichnis <code>system/updates/</code> erstellt.
+                                        Das Update wird PHP-nativ und ohne Composer-/Shell-Zwang installiert. Das Release-Archiv wird gestreamt, vor dem Entpacken geprüft und ein Backup unter <code>storage/backups/updates/</code> erstellt.
                                         Bei Problemen können Sie das Backup manuell wiederherstellen.
                                         <br><strong>Wichtig:</strong> Erstellen Sie zusätzlich ein manuelles Backup Ihrer Datenbank!
                                     </div>
