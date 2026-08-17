@@ -21,7 +21,7 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
     <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" id="manv-edit" data-page="edivi">
+<body data-theme="dark" id="manv-edit" data-page="edivi">
     <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -38,14 +38,14 @@ $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer'
             <?php if (!empty($success)): ?>
                 <div class="ignis-alert ignis-alert--success alert-dismissible fade show">
                     <i class="fas fa-check-circle mr-2"></i><?= htmlspecialchars($success) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close" data-dialog-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($error)): ?>
                 <div class="ignis-alert ignis-alert--danger alert-dismissible fade show">
                     <i class="fas fa-exclamation-triangle mr-2"></i><?= htmlspecialchars($error) ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close" data-dialog-dismiss="alert"></button>
                 </div>
             <?php endif; ?>
 

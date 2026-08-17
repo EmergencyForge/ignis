@@ -40,7 +40,7 @@
             const id = title.replace(/[^a-z]/gi, '').toLowerCase();
             const showClass = defaultOpen ? ' show' : '';
             let html = '<div class="lib-section mb-1" data-default-open="' + (defaultOpen ? '1' : '0') + '">';
-            html += '<div class="sidebar-section-title" role="button" data-bs-toggle="collapse" data-bs-target="#lib-' + id + '">';
+            html += '<div class="sidebar-section-title" role="button" data-collapse-target="#lib-' + id + '">';
             html += '<i class="' + icon + '"></i> ' + title;
             html += ' <i class="fa-solid fa-chevron-right lib-chevron float-end" style="font-size:0.6rem;margin-top:4px;"></i>';
             html += '</div>';
@@ -50,7 +50,7 @@
             return html;
         }
 
-        /** Bindet Chevron-Rotation an Bootstrap-Collapse-Events */
+        /** Bindet Chevron-Rotation und das Auf-/Zuklappen. */
         bindChevrons() {
             this.container.querySelectorAll('.collapse').forEach(collapseEl => {
                 const chevron = collapseEl.previousElementSibling?.querySelector('.lib-chevron');
@@ -58,8 +58,10 @@
                 // Initial-Zustand setzen
                 if (collapseEl.classList.contains('show')) chevron.classList.add('open');
 
-                collapseEl.addEventListener('show.bs.collapse', () => chevron.classList.add('open'));
-                collapseEl.addEventListener('hide.bs.collapse', () => chevron.classList.remove('open'));
+                collapseEl.previousElementSibling?.addEventListener('click', () => {
+                    collapseEl.classList.toggle('show');
+                    chevron.classList.toggle('open', collapseEl.classList.contains('show'));
+                });
             });
         }
 
@@ -87,17 +89,16 @@
 
                     const collapseEl = section.querySelector('.collapse');
                     if (!collapseEl) return;
-                    const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl, { toggle: false });
-
                     if (q) {
                         // Suche aktiv: aufklappen
-                        bsCollapse.show();
+                        collapseEl.classList.add('show');
                     } else {
                         // Suche leer: Default-Zustand wiederherstellen
                         const shouldBeOpen = section.dataset.defaultOpen === '1';
-                        if (shouldBeOpen) bsCollapse.show();
-                        else bsCollapse.hide();
+                        collapseEl.classList.toggle('show', shouldBeOpen);
                     }
+                    collapseEl.previousElementSibling?.querySelector('.lib-chevron')
+                        ?.classList.toggle('open', collapseEl.classList.contains('show'));
                 });
             });
         }

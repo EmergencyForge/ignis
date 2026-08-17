@@ -361,6 +361,25 @@ class PluginLoader
     }
 
     /**
+     * Kompilierte CSS-/JS-Dateien aktiver Plugins. Plugins liefern diese
+     * Dateien fertig gebaut aus; ignis führt keinen Build zur Laufzeit aus.
+     *
+     * @return array{css:list<string>,js:list<string>}
+     */
+    public function assetFiles(): array
+    {
+        $assets = ['css' => [], 'js' => []];
+        foreach ($this->active() as $plugin) {
+            foreach (['css' => 'assets/plugin.css', 'js' => 'assets/plugin.js'] as $type => $relative) {
+                if ($plugin->path($relative) !== null) {
+                    $assets[$type][] = 'plugins/' . rawurlencode($plugin->id()) . '/' . $relative;
+                }
+            }
+        }
+        return $assets;
+    }
+
+    /**
      * Mergt die Permission-Kataloge der aktiven Plugins (permissions.php,
      * gleiche Gruppen-Struktur wie config/permissions.php) in den
      * Kern-Katalog. Gleichnamige Gruppen werden zusammengeführt.
@@ -394,7 +413,7 @@ class PluginLoader
      * Entwicklungs-Checkouts ohne Release-Build (dann gelten alle
      * Plugins als kompatibel).
      */
-    private static function ignisVersion(): ?string
+    public static function ignisVersion(): ?string
     {
         $file = dirname(__DIR__, 2) . '/storage/version.json';
         if (!is_file($file)) {

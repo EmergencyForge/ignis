@@ -5,7 +5,7 @@
  * der User die Installation aus der UI heraus auslöst.
  */
 ?>
-<div class="modal fade" id="composer-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+<div data-dialog-source class="modal" id="composer-modal" data-dialog-static tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">

@@ -4,8 +4,13 @@ $stmt->execute();
 $bfqsel = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<div class="form-floating">
-    <select class="form-select mt-3" name="qualifw2" id="qualifw2">
+<div class="twplus-form-section">
+    <div>
+        <label class="twplus-form-section__label" for="qualifw2">Feuerwehr</label>
+        <div class="twplus-form-section__hint">Aktuelle feuerwehrtechnische Qualifikation.</div>
+    </div>
+    <div>
+    <select class="form-select" name="qualifw2" id="qualifw2">
         <?php foreach ($bfqsel as $data) {
             if ($bfq2 == $data['id']) {
                 echo "<option value='{$data['id']}' selected='selected'>{$data['name']}</option>";
@@ -14,5 +19,5 @@ $bfqsel = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         } ?>
     </select>
-    <label for="qualifw2">Qualifikation Feuerwehr</label>
+    </div>
 </div>

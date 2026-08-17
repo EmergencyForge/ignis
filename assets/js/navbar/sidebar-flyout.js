@@ -240,14 +240,12 @@
     'schnellzugriff-link-create': { fn: null,                        selector: '#createQuicklinkModal'  },
   };
 
-  const openBootstrapModal = (selector) => {
+  const openDialog = (selector) => {
     if (!selector) return false;
     const el = document.querySelector(selector);
     if (!el) return false;
-    if (typeof window.bootstrap === 'undefined' || !window.bootstrap.Modal) {
-      return false;
-    }
-    window.bootstrap.Modal.getOrCreateInstance(el).show();
+    if (!window.Dialog) return false;
+    window.Dialog.openElement(el);
     return true;
   };
 
@@ -261,7 +259,7 @@
       window[entry.fn]();
       return;
     }
-    openBootstrapModal(entry.selector);
+    openDialog(entry.selector);
   };
 
   Object.keys(QUICK_ACTION_MAP).forEach((target) => {

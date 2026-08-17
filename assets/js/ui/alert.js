@@ -14,9 +14,9 @@
  */
 
 document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.ignis-alert__close');
+  const btn = e.target.closest('.ignis-alert__close, [data-dialog-dismiss="alert"]');
   if (!btn) return;
-  const alert = btn.closest('.ignis-alert');
+  const alert = btn.closest('.ignis-alert, .alert');
   if (!alert) return;
 
   e.preventDefault();

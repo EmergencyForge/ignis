@@ -10,13 +10,11 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- Reihenfolge:
      1. vendor.css           — FontAwesome (gemeinsam mit Admin)
      2. vendor-enotf.css     — Bootstrap 5 (nur eNOTF)
-     3. bootstrap-compat.min — kleinere ıgnıs-Anpassungen oben drauf
-     4. divi.min, ui.min     — eNOTF-spezifisches Styling
-     5. enotf-modals/-toast  — eNOTF-Komponenten
-     6. tailwind.css         — Utility-Klassen, gewinnt bei gleicher Spezifität -->
+     3. divi.min, ui.min     — eNOTF-spezifisches Styling
+     4. enotf-modals/-toast  — eNOTF-Komponenten
+     5. tailwind.css         — Utility-Klassen, gewinnt bei gleicher Spezifität -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor-enotf.css') ?>">
-<link rel="stylesheet" href="<?= asset('public/assets/dist/bootstrap-compat.css') ?>">
 <!-- Geist Sans + Geist Mono fuer das eNOTF-UI (Clock, Stempel,
      numerische Display-Stellen profitieren von Geist Mono). -->
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />

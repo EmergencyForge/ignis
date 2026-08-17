@@ -24,6 +24,7 @@
 
 let activeStack = [];
 let nextId = 1;
+const elementDialogs = new WeakMap();
 
 const FOCUSABLE_SELECTOR =
     'a[href], button:not([disabled]), textarea:not([disabled]), ' +
@@ -240,6 +241,60 @@ export class Dialog {
         });
 
         return d.open();
+    }
+
+    /**
+     * Oeffnet vorhandenes, serverseitig gerendertes Dialog-Markup mit dem
+     * Ignis-Dialog. Das Quell-Element bleibt erhalten und wird nach dem
+     * Schliessen an seine urspruengliche Position zurueckgesetzt.
+     */
+    static openElement(elementOrSelector, opts = {}) {
+        const source = typeof elementOrSelector === 'string'
+            ? document.querySelector(elementOrSelector)
+            : elementOrSelector;
+        if (!(source instanceof HTMLElement)) return null;
+
+        const existing = elementDialogs.get(source);
+        if (existing?.element) return existing;
+
+        const content = source.querySelector(':scope > .modal-dialog > .modal-content')
+            || source.querySelector(':scope > .modal-content')
+            || source;
+        const dialogNode = source.querySelector(':scope > .modal-dialog');
+        let size = opts.size || 'md';
+        if (dialogNode?.classList.contains('modal-sm')) size = 'sm';
+        if (dialogNode?.classList.contains('modal-lg')) size = 'lg';
+        if (dialogNode?.classList.contains('modal-xl')) size = 'xl';
+
+        const dlg = new Dialog({
+            body: content,
+            size,
+            actions: [],
+            preserveBody: true,
+            closeOnBackdrop: opts.closeOnBackdrop ?? !source.hasAttribute('data-dialog-static'),
+            closeOnEscape: opts.closeOnEscape ?? !source.hasAttribute('data-dialog-static'),
+            ariaLabel: opts.ariaLabel || source.getAttribute('aria-label') || 'Dialog',
+            onOpen: (instance) => {
+                instance.element.classList.add('ignis-dialog--embedded');
+                source.dispatchEvent(new CustomEvent('shown.ignis.dialog', { bubbles: true }));
+                if (typeof opts.onOpen === 'function') opts.onOpen(instance);
+            },
+            onClose: (result) => {
+                source.dispatchEvent(new CustomEvent('hidden.ignis.dialog', { bubbles: true, detail: { result } }));
+                if (typeof opts.onClose === 'function') opts.onClose(result);
+            },
+        });
+        elementDialogs.set(source, dlg);
+        dlg.open();
+        return dlg;
+    }
+
+    static closeElement(elementOrSelector, result = null) {
+        const source = typeof elementOrSelector === 'string'
+            ? document.querySelector(elementOrSelector)
+            : elementOrSelector;
+        const dlg = source instanceof HTMLElement ? elementDialogs.get(source) : null;
+        if (dlg) dlg.close(result);
     }
 
     /**
@@ -554,4 +609,25 @@ if (typeof window !== 'undefined') {
     window.intraConfirm = window.showConfirm;
     window.intraAlert   = window.showAlert;
     window.intraPrompt  = window.showPrompt;
+
+    document.addEventListener('click', (event) => {
+        const opener = event.target.closest('[data-dialog-target]');
+        if (opener) {
+            event.preventDefault();
+            Dialog.openElement(opener.getAttribute('data-dialog-target'));
+            return;
+        }
+
+        const closer = event.target.closest('[data-dialog-dismiss]');
+        if (closer) {
+            event.preventDefault();
+            const source = closer.closest('[data-dialog-source]');
+            if (source) {
+                Dialog.closeElement(source);
+            } else {
+                const active = [...activeStack].reverse().find((dlg) => dlg.element?.contains(closer));
+                active?.close(null);
+            }
+        }
+    });
 }

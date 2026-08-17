@@ -86,7 +86,7 @@ $configByCategory = $configManager->getConfigByCategory();
 ?>
 
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php
@@ -140,7 +140,7 @@ $configByCategory = $configManager->getConfigByCategory();
     </style>
 </head>
 
-<body data-bs-theme="dark" data-page="settings">
+<body data-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -173,10 +173,16 @@ $configByCategory = $configManager->getConfigByCategory();
                                     </div>
                                     <div class="ignis-card__body">
                                         <?php foreach ($configs as $config): ?>
-                                            <div class="mb-4">
-                                                <label for="<?= htmlspecialchars($config['config_key']) ?>" class="ignis-field__label">
-                                                    <?= htmlspecialchars($config['description']) ?>
-                                                </label>
+                                            <div class="twplus-form-section">
+                                                <div>
+                                                    <label for="<?= htmlspecialchars($config['config_key']) ?>" class="twplus-form-section__label">
+                                                        <?= htmlspecialchars($config['description']) ?>
+                                                    </label>
+                                                    <div class="twplus-form-section__hint">
+                                                        <?= htmlspecialchars($config['config_key']) ?> · <?= htmlspecialchars($config['config_type']) ?>
+                                                    </div>
+                                                </div>
+                                                <div>
 
                                                 <?php if ($config['config_key'] === 'API_KEY'): ?>
                                                     <div class="input-group">
@@ -308,6 +314,7 @@ $configByCategory = $configManager->getConfigByCategory();
                                                         name="<?= htmlspecialchars($config['config_key']) ?>"
                                                         value="<?= htmlspecialchars($config['config_value']) ?>">
                                                 <?php endif; ?>
+                                                </div>
                                             </div>
                                         <?php endforeach; ?>
                                     </div>

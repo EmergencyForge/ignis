@@ -26,7 +26,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php
@@ -78,7 +78,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 
-<body data-bs-theme="dark" data-page="fahrzeuge">
+<body data-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . "/../../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->

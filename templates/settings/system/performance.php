@@ -118,7 +118,7 @@ use App\Helpers\Flash;
     </style>
 </head>
 
-<body data-bs-theme="dark" data-page="settings">
+<body data-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="twplus-page mt-4 mb-5">
 

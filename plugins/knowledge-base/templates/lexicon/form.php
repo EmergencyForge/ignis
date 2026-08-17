@@ -3,7 +3,7 @@ use App\Auth\Permissions;
 use App\Helpers\Flash;
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php
@@ -141,7 +141,7 @@ use App\Helpers\Flash;
     </style>
 </head>
 
-<body data-bs-theme="dark" data-page="lexicon">
+<body data-theme="dark" data-page="lexicon">
     <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
 
     <div class="container-full position-relative" id="mainpageContainer">

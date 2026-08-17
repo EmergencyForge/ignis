@@ -1,0 +1,19 @@
+/**
+ * Tailwind-4-Entry — bewusst separates CSS statt SCSS.
+ *
+ * Preflight bleibt deaktiviert, damit Bootstrap und die bestehenden Ignis-
+ * Komponenten nicht global zurückgesetzt werden. Die bestehende JS-Config
+ * liefert während der schrittweisen Migration weiterhin Brand-Tokens und die
+ * offiziellen Forms-/Typography-Plugins.
+ */
+
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@config "../../tailwind.config.js";
+
+@source "../../templates/**/*.php";
+@source "../../plugins/*/templates/**/*.php";
+@source "../components/**/*.php";
+@source "../../public/*.php";
+@source "../../*.php";

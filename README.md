@@ -8,6 +8,10 @@ Das Ziel von _**ıgnıs**_ (vormals intraRP) ist es eine Allround-Lösung für d
 
 Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstützung, Anpassungen, Wünsche & Ideen offen. Einen Vorteil kann man jedoch dauerhaft genießen: Das Projekt ist vollkommen Open Source und kann von jedem angewandt, umgesetzt und verändert/angepasst werden.
 
+Plugins können über die Systemverwaltung installiert und entwickelt werden.
+Struktur, Sicherheitsmodell, Assets, Cron-Pattern und der versionierte
+Event-Vertrag stehen in [PLUGINS.md](PLUGINS.md).
+
 ### Benutzte Assets
 
 - [Font Awesome 7 (Free)](https://fontawesome.com/)
@@ -21,3 +25,24 @@ Das Projekt wird hobbymäßig weiterentwickelt und ist für jegliche Unterstütz
 
 > [!CAUTION]
 > Es handelte sich hierbei um ein **kontinuierliches Entwicklungsprojekt**! Es kommt zu stetigen Anpassungen. Wir garantieren **nicht** für Fehlerfreiheit und Datensicherheit!
+
+### Hosting und URL-Rewriting
+
+ıgnıs benötigt Apache mit `mod_rewrite` und aktivem `.htaccess`-Override. In
+der VirtualHost-Konfiguration muss für das Installationsverzeichnis mindestens
+`AllowOverride FileInfo Options` (oder `AllowOverride All`) gelten. Bei einer
+Installation in einem Unterverzeichnis muss `BASE_PATH` einschließlich
+abschließendem Slash gesetzt sein, zum Beispiel `/ignis/`.
+
+Nach der Anmeldung prüft das Dashboard automatisch sowohl eine Router-URL als
+auch die extensionlose Auflösung einer echten PHP-Datei. Erscheint die Warnung
+„URL-Rewriting funktioniert nicht“, prüfe zuerst:
+
+1. Ist `mod_rewrite` aktiviert?
+2. Darf der Webserver die mitgelieferte `.htaccess` lesen und anwenden?
+3. Zeigt der Document-Root auf das Repository beziehungsweise ist die
+   Weiterleitung nach `public/index.php` erlaubt?
+
+Für nginx enthält [`nginx.conf.example`](nginx.conf.example) die entsprechenden
+`try_files`-Regeln. Der öffentliche Endpunkt `/api/health` meldet zusätzlich
+fehlende PHP-Erweiterungen, HTTP-Transport und eingeschränkte Prozessfunktionen.

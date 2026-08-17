@@ -12,6 +12,7 @@
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Utils\SystemUpdater;
 
 $SITE_TITLE = 'System';
 
@@ -29,6 +30,13 @@ $currentVersion = (string) ($versionInfo['version'] ?? 'unbekannt');
 $buildNumber    = (string) ($versionInfo['build_number'] ?? '');
 $lastUpdate     = (string) ($versionInfo['updated_at'] ?? '');
 
+$automaticUpdateInfo = null;
+try {
+    $automaticUpdateInfo = (new SystemUpdater())->checkForUpdatesCached();
+} catch (\Throwable) {
+    // Die Systemübersicht bleibt auch ohne ausgehende Verbindung nutzbar.
+}
+
 $cards = [
     [
         'href' => BASE_PATH . 'settings/system/updater',
@@ -36,6 +44,9 @@ $cards = [
         'title' => 'Updater',
         'desc' => 'Auf neue Releases prüfen, Updates installieren, Branches wechseln.',
         'accent' => 'var(--main-color)',
+        'badge' => !empty($automaticUpdateInfo['available'])
+            ? 'Neu: ' . (string) ($automaticUpdateInfo['latest_version'] ?? 'Update')
+            : null,
     ],
     [
         'href' => BASE_PATH . 'settings/system/config',
@@ -76,13 +87,13 @@ $cards = [
 ];
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" data-page="settings-system">
+<body data-theme="dark" data-page="settings-system">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
 
     <div class="container-full position-relative" id="mainpageContainer">
@@ -130,6 +141,9 @@ $cards = [
                                 <span class="twplus-link-card__icon"><i class="<?= htmlspecialchars($card['icon']) ?>" aria-hidden="true"></i></span>
                                 <span class="twplus-link-card__body">
                                     <span class="twplus-link-card__title"><?= htmlspecialchars($card['title']) ?></span>
+                                    <?php if (!empty($card['badge'])): ?>
+                                        <span class="ignis-chip ignis-chip--warning mt-1"><i class="fa-solid fa-arrow-up"></i> <?= htmlspecialchars($card['badge']) ?></span>
+                                    <?php endif; ?>
                                     <span class="twplus-link-card__description"><?= htmlspecialchars($card['desc']) ?></span>
                                 </span>
                                 <i class="fa-solid fa-chevron-right twplus-link-card__arrow" aria-hidden="true"></i>

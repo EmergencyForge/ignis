@@ -9,7 +9,7 @@ use App\Helpers\Flash;
     include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php';
     ?>
 </head>
-<body data-bs-theme="dark" data-page="lexicon">
+<body data-theme="dark" data-page="lexicon">
     <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
     <div class="container-full position-relative" id="mainpageContainer">
         <div class="twplus-page my-5">
@@ -126,12 +126,12 @@ use App\Helpers\Flash;
     </div>
 
     <!-- Kategorie Modal -->
-    <div class="modal fade twplus-dialog-surface" id="catModal" tabindex="-1" aria-hidden="true">
+    <div data-dialog-source class="modal twplus-dialog-surface" id="catModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="catModalLabel">Kategorie erstellen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-dialog-dismiss></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="catId">
@@ -161,7 +161,7 @@ use App\Helpers\Flash;
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
                     <button type="button" class="ignis-btn ignis-btn--primary" onclick="saveCat()"><i class="fa-solid fa-save"></i> Speichern</button>
                 </div>
             </div>
@@ -169,12 +169,12 @@ use App\Helpers\Flash;
     </div>
 
     <!-- Tag Modal -->
-    <div class="modal fade twplus-dialog-surface" id="tagModal" tabindex="-1" aria-hidden="true">
+    <div data-dialog-source class="modal twplus-dialog-surface" id="tagModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="tagModalLabel">Tag erstellen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-dialog-dismiss></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="tagId">
@@ -189,7 +189,7 @@ use App\Helpers\Flash;
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                    <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
                     <button type="button" class="ignis-btn ignis-btn--primary" onclick="saveTag()"><i class="fa-solid fa-save"></i> Speichern</button>
                 </div>
             </div>
@@ -198,8 +198,8 @@ use App\Helpers\Flash;
 
     <script>
         var BASE_PATH = '<?= BASE_PATH ?>';
-        var catModal = new bootstrap.Modal(document.getElementById('catModal'));
-        var tagModal = new bootstrap.Modal(document.getElementById('tagModal'));
+        var catModal = { show: () => Dialog.openElement('#catModal'), hide: () => Dialog.closeElement('#catModal') };
+        var tagModal = { show: () => Dialog.openElement('#tagModal'), hide: () => Dialog.closeElement('#tagModal') };
 
         document.getElementById('catIcon').addEventListener('input', function() {
             document.getElementById('catIconPreview').className = this.value + ' ms-1';

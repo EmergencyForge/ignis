@@ -570,12 +570,21 @@ async function saveTemplate(e) {
 }
 
 async function loadTemplates() {
+    const grid = document.getElementById('templateGrid');
+    grid.innerHTML = Array.from({ length: 6 }, () => `
+        <div class="twplus-skeleton" aria-hidden="true">
+            <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+            <div class="twplus-skeleton__line"></div>
+            <div class="twplus-skeleton__line"></div>
+        </div>
+    `).join('');
     try {
         const response = await fetch(BASE_PATH + 'api/documents/list');
         templates = await response.json();
         renderTemplateList();
     } catch (error) {
         console.error('Fehler beim Laden der Templates:', error);
+        grid.innerHTML = '<div class="twplus-status-state twplus-status-state--error">Templates konnten nicht geladen werden.</div>';
     }
 }
 

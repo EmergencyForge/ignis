@@ -55,6 +55,10 @@ RewriteRule ^config/ - [F,L]
 RewriteRule ^docker/ - [F,L]
 RewriteRule ^routes/ - [F,L]
 RewriteRule ^\.github/ - [F,L]
+# Aktive Plugins dürfen ausschließlich fertig gebaute, statische Dateien aus
+# ihrem assets/-Ordner ausliefern. Alles andere bleibt gesperrt; die zweite
+# Schutzschicht in plugins/.htaccess prüft dieselbe Allowlist.
+RewriteRule ^plugins/[a-z0-9_-]+/assets/(?:.+/)?[^/]+\.(?:css|js|map|woff2|png|svg|webp)$ - [L,NC]
 RewriteRule ^plugins/ - [F,L]
 
 # cron/ bleibt erreichbar, weil HTTP-triggerbare Cron-Endpoints dort liegen

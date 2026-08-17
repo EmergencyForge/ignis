@@ -12,13 +12,17 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <!-- Vendor + App-SCSS zuerst, Tailwind-Utilities zuletzt damit sie bei
      gleicher Spezifität im Cascade-Tie gewinnen. -->
 <link rel="stylesheet" href="<?= asset('public/assets/dist/vendor.css') ?>">
-<link rel="stylesheet" href="<?= asset('public/assets/dist/bootstrap-compat.css') ?>">
+<link rel="stylesheet" href="<?= asset('public/assets/dist/legacy-utilities.css') ?>">
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
 <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/style.css') ?>" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/admin.css') ?>" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/ui.css') ?>" />
 <link rel="stylesheet" href="<?= asset('public/assets/dist/tailwind.css') ?>">
+<?php $__pluginAssets = app(\App\Plugins\PluginLoader::class)->assetFiles(); ?>
+<?php foreach ($__pluginAssets['css'] as $__pluginCss): ?>
+<link rel="stylesheet" href="<?= htmlspecialchars(asset($__pluginCss), ENT_QUOTES) ?>">
+<?php endforeach; ?>
 <script>
 // Akzentfarbe sofort aus localStorage anwenden (kein Flackern)
 (function(){var a=localStorage.getItem('intra_theme_accent');if(!a)return;var p={red:{m:'#d10000',d:'#660000'},blue:{m:'#2563eb',d:'#1e40af'},green:{m:'#16a34a',d:'#15803d'},purple:{m:'#7c3aed',d:'#6d28d9'},orange:{m:'#ea580c',d:'#c2410c'},teal:{m:'#0d9488',d:'#0f766e'},pink:{m:'#db2777',d:'#be185d'},amber:{m:'#d97706',d:'#b45309'}};var mc,dc;if(p[a]){mc=p[a].m;dc=p[a].d;}else if(/^#[0-9a-fA-F]{6}$/.test(a)){mc=a;var r=parseInt(a.slice(1,3),16),g=parseInt(a.slice(3,5),16),b=parseInt(a.slice(5,7),16);dc='#'+[r,g,b].map(function(c){return Math.max(0,Math.round(c*0.65)).toString(16).padStart(2,'0');}).join('');}else return;var rgb=parseInt(mc.slice(1,3),16)+', '+parseInt(mc.slice(3,5),16)+', '+parseInt(mc.slice(5,7),16);var s=document.documentElement.style;s.setProperty('--main-color',mc);s.setProperty('--main-color-dimmed',dc);s.setProperty('--main-color-rgb',rgb);s.setProperty('--fw-red',mc);})();
@@ -45,6 +49,9 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <script type="module" src="<?= BASE_PATH ?>assets/js/modules/user-hover-card.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/snackbar.js"></script>
 <script defer src="<?= BASE_PATH ?>assets/js/force-24h-time.js"></script>
+<?php foreach ($__pluginAssets['js'] as $__pluginJs): ?>
+<script defer src="<?= htmlspecialchars(asset($__pluginJs), ENT_QUOTES) ?>"></script>
+<?php endforeach; ?>
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
 <link rel="icon" type="image/svg+xml" href="<?= BASE_PATH ?>assets/favicon/favicon.svg" />

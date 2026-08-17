@@ -23,14 +23,14 @@ use App\Helpers\Flash;
 $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/pages/calendar.css">
 </head>
 
-<body data-bs-theme="dark" data-page="kalender">
+<body data-theme="dark" data-page="kalender">
     <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
 
     <div class="container-full relative" id="mainpageContainer">

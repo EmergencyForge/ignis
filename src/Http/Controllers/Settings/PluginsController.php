@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Auth\Gate;
+use App\Config\ConfigManager;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Plugins\CatalogClient;
+use App\Plugins\CatalogInstaller;
 use App\Plugins\PluginLoader;
 use App\Plugins\PluginRegistry;
 use App\Plugins\PluginRepository;
@@ -36,6 +39,8 @@ final class PluginsController extends Controller
         $registry   = PluginRegistry::fromDirectory(PluginLoader::pluginsDir());
         $repository = new PluginRepository($this->pdo);
         $repository->syncDiscovered($registry->all());
+        $catalogClient = $this->catalogClient();
+        $installer = $this->catalogInstaller();
 
         $message     = '';
         $messageType = '';
@@ -44,22 +49,22 @@ final class PluginsController extends Controller
             if (!CsrfProtection::validateToken((string) ($_POST['csrf_token'] ?? ''))) {
                 $message     = 'Sitzung abgelaufen — bitte Seite neu laden und erneut versuchen.';
                 $messageType = 'danger';
-            } elseif (($_POST['plugin_action'] ?? '') === 'install') {
-                [$message, $messageType] = $this->handleInstall(
-                    (string) ($_POST['plugin_id'] ?? ''),
-                    $registry,
-                    $repository,
-                );
             } else {
-                [$message, $messageType] = $this->handleToggle(
-                    (string) ($_POST['plugin_id'] ?? ''),
-                    $registry,
-                    $repository,
-                );
+                $action = (string) ($_POST['plugin_action'] ?? 'toggle');
+                $pluginId = (string) ($_POST['plugin_id'] ?? '');
+                [$message, $messageType] = match ($action) {
+                    'install' => $this->handleInstall($pluginId, $registry, $repository),
+                    'catalog_stage' => $this->handleCatalogStage($pluginId, false, $catalogClient, $installer),
+                    'catalog_update' => $this->handleCatalogStage($pluginId, true, $catalogClient, $installer),
+                    'remove' => $this->handleRemove($pluginId, $registry, $repository, $installer),
+                    default => $this->handleToggle($pluginId, $registry, $repository),
+                };
             }
         }
 
         // Aktueller Zustand nach eventueller Änderung
+        $registry = PluginRegistry::fromDirectory(PluginLoader::pluginsDir());
+        $repository->syncDiscovered($registry->all());
         $enabledIds = $repository->enabledIds();
         $registry->resolve($enabledIds, null);
 
@@ -87,11 +92,95 @@ final class PluginsController extends Controller
         }
         usort($rows, static fn (array $a, array $b): int => strcasecmp($a['manifest']->name, $b['manifest']->name));
 
+        $installedVersions = [];
+        $installedStates = [];
+        foreach ($registry->all() as $id => $plugin) {
+            $installedVersions[$id] = $plugin->manifest->version;
+            $installedStates[$id] = PluginLoader::isInstalled($plugin);
+        }
+        $catalog = $catalogClient->catalog();
+        $catalogRows = [];
+        foreach ($catalog['plugins'] as $entry) {
+            $installedVersion = $installedVersions[$entry['slug']] ?? null;
+            $entry['installed_version'] = $installedVersion;
+            $entry['installed'] = $installedStates[$entry['slug']] ?? false;
+            $entry['update_available'] = $installedVersion !== null && $entry['installed']
+                && version_compare((string) $entry['version'], $installedVersion, '>');
+            $catalogRows[] = $entry;
+        }
+
         $this->renderView('settings/system/plugins', [
             'rows'        => $rows,
             'message'     => $message,
             'messageType' => $messageType,
+            'catalogRows' => $catalogRows,
+            'catalogStale' => $catalog['stale'],
+            'catalogFetchedAt' => $catalog['fetched_at'],
+            'catalogError' => $catalog['error'],
         ]);
+    }
+
+    /** @return array{0:string,1:string} */
+    private function handleCatalogStage(
+        string $pluginId,
+        bool $update,
+        CatalogClient $catalog,
+        CatalogInstaller $installer,
+    ): array {
+        $entry = $catalog->find($pluginId);
+        if ($entry === null) return ['Plugin wurde im aktuellen Katalog nicht gefunden.', 'danger'];
+        if (!($entry['installable'] ?? false)) return ['Installation ist gesperrt: Download oder SHA256-Pin fehlt.', 'warning'];
+
+        try {
+            $plugin = $installer->stage($entry, $update);
+            if ($update) {
+                return ["„{$plugin->manifest->name}“ wurde auf {$plugin->manifest->version} aktualisiert. Der Aktivierungszustand bleibt erhalten.", 'success'];
+            }
+            return ["„{$plugin->manifest->name}“ wurde geprüft und heruntergeladen. Bitte bestätige jetzt separat die Installation.", 'success'];
+        } catch (\Throwable $e) {
+            return ['Katalog-Installation abgebrochen: ' . $e->getMessage(), 'danger'];
+        }
+    }
+
+    /** @return array{0:string,1:string} */
+    private function handleRemove(
+        string $pluginId,
+        PluginRegistry $registry,
+        PluginRepository $repository,
+        CatalogInstaller $installer,
+    ): array {
+        $plugin = $registry->get($pluginId);
+        if ($plugin === null) return ['Unbekanntes Plugin.', 'danger'];
+        if (PluginLoader::isBundled($pluginId)) return ['Mitgelieferte Plugins können nicht entfernt werden.', 'warning'];
+        if (in_array($pluginId, $repository->enabledIds(), true)) {
+            return ['Plugin muss vor dem Entfernen deaktiviert werden.', 'warning'];
+        }
+        try {
+            $installer->remove($pluginId);
+            return ["Plugin-Dateien von „{$plugin->manifest->name}“ wurden entfernt. Tabellen und Daten bleiben erhalten.", 'success'];
+        } catch (\Throwable $e) {
+            return ['Plugin konnte nicht entfernt werden: ' . $e->getMessage(), 'danger'];
+        }
+    }
+
+    private function catalogClient(): CatalogClient
+    {
+        $override = trim((string) ($_ENV['HUB_PLUGINS_URL'] ?? getenv('HUB_PLUGINS_URL') ?: ''));
+        $hubUrl = trim((string) (new ConfigManager($this->pdo))->get('HUB_URL', 'https://hub.emergencyforge.de'));
+        if ($hubUrl === '') $hubUrl = 'https://hub.emergencyforge.de';
+        $endpoint = $override !== '' ? $override : rtrim($hubUrl, '/') . '/v1/plugins';
+        $cache = dirname(__DIR__, 4) . '/storage/cache/plugin-catalog.json';
+        return new CatalogClient($endpoint, $cache);
+    }
+
+    private function catalogInstaller(): CatalogInstaller
+    {
+        $root = dirname(__DIR__, 4);
+        return new CatalogInstaller(
+            PluginLoader::pluginsDir(),
+            $root . '/storage/cache',
+            PluginLoader::ignisVersion(),
+        );
     }
 
     /**

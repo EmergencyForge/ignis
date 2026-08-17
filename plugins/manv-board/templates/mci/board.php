@@ -35,7 +35,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
     </style>
 </head>
 
-<body data-bs-theme="dark" id="manv-board" data-page="edivi">
+<body data-theme="dark" id="manv-board" data-page="edivi">
     <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">

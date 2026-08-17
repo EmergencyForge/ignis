@@ -12,9 +12,13 @@ use Exception;
  */
 class SystemUpdater
 {
+    private const UPDATE_CACHE_TTL_SECONDS = 21600;
+    private const MAX_UPDATE_ARCHIVE_BYTES = 536870912;
+
     private string $versionFile;
     private string $composerPendingFile;
-    private string $githubRepo = 'EmergencyForge/intraRP';
+    private string $updateCacheFile;
+    private string $githubRepo = 'EmergencyForge/ignis';
     private string $githubApiUrl;
     private array $currentVersion;
     private array $diagnosticLog = [];
@@ -25,6 +29,7 @@ class SystemUpdater
         $appRoot = dirname(dirname(__DIR__));
         $this->versionFile = $appRoot . '/storage/version.json';
         $this->composerPendingFile = $appRoot . '/storage/composer_pending.json';
+        $this->updateCacheFile = $appRoot . '/storage/cache/update-check.json';
         $this->diagnosticFile = $appRoot . '/storage/logs/updater-diagnostic.log';
         $this->githubApiUrl = "https://api.github.com/repos/{$this->githubRepo}";
         $this->migrateLegacySystemDirectory($appRoot);
@@ -135,6 +140,8 @@ class SystemUpdater
             // Reihenfolge: ignis-*.zip > intraRP-*.zip (Legacy) > irgendein *.zip.
             $downloadUrl = $latestRelease['zipball_url'] ?? null;
             $hasReleaseAsset = false;
+            $checksumSha256 = null;
+            $downloadSize = null;
             if (!empty($latestRelease['assets'])) {
                 $pickedAsset = null;
                 foreach ($latestRelease['assets'] as $asset) {
@@ -158,6 +165,15 @@ class SystemUpdater
                 if ($pickedAsset !== null) {
                     $downloadUrl = $pickedAsset['browser_download_url'];
                     $hasReleaseAsset = true;
+                    $downloadSize = isset($pickedAsset['size']) ? (int) $pickedAsset['size'] : null;
+
+                    // GitHub berechnet für Release-Assets serverseitig einen
+                    // SHA-256-Digest. Damit prüfen wir das Archiv vor dem
+                    // Entpacken, ohne eine zweite, manipulierbare Formularquelle.
+                    $digest = (string) ($pickedAsset['digest'] ?? '');
+                    if (preg_match('/^sha256:([a-f0-9]{64})$/i', $digest, $matches)) {
+                        $checksumSha256 = strtolower($matches[1]);
+                    }
                 }
             }
 
@@ -172,7 +188,9 @@ class SystemUpdater
                 'download_url_fallback' => $latestRelease['zipball_url'] ?? null,
                 'html_url' => $latestRelease['html_url'] ?? null,
                 'is_prerelease' => $isLatestPreRelease,
-                'has_release_asset' => $hasReleaseAsset
+                'has_release_asset' => $hasReleaseAsset,
+                'checksum_sha256' => $checksumSha256,
+                'download_size' => $downloadSize,
             ];
         } catch (Exception $e) {
             return [
@@ -250,15 +268,14 @@ class SystemUpdater
      */
     private function httpGet(string $url, int $timeout = 10): ?string
     {
+        $headers = $this->githubHeaders('application/vnd.github+json');
+
         // Try file_get_contents first
         if (ini_get('allow_url_fopen')) {
             $context = stream_context_create([
                 'http' => [
                     'method' => 'GET',
-                    'header' => [
-                        'User-Agent: ignis-Updater',
-                        'Accept: application/vnd.github+json'
-                    ],
+                    'header' => $headers,
                     'timeout' => $timeout
                 ]
             ]);
@@ -274,7 +291,7 @@ class SystemUpdater
                 CURLOPT_FOLLOWLOCATION => true,
                 CURLOPT_TIMEOUT => $timeout,
                 CURLOPT_USERAGENT => 'ignis-Updater',
-                CURLOPT_HTTPHEADER => ['Accept: application/vnd.github+json'],
+                CURLOPT_HTTPHEADER => $headers,
                 CURLOPT_SSL_VERIFYPEER => true,
             ]);
             $response = curl_exec($ch);
@@ -292,51 +309,120 @@ class SystemUpdater
     /**
      * Download a large file (ZIP) with cURL fallback
      */
-    private function httpDownload(string $url): ?string
+    private function httpDownloadToFile(string $url, string $targetFile): int
     {
+        $headers = $this->githubHeaders('application/zip, application/octet-stream', false);
+
+        // cURL schreibt direkt auf die Platte. Das hält den PHP-Speicherbedarf
+        // unabhängig von der Archivgröße und funktioniert auch bei kleinen
+        // memory_limit-Werten auf Shared Hosting.
+        if (function_exists('curl_init')) {
+            $output = @fopen($targetFile, 'wb');
+            if ($output === false) {
+                throw new Exception('Konnte temporäre Update-Datei nicht zum Schreiben öffnen.');
+            }
+
+            $tooLarge = false;
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_FILE => $output,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_MAXREDIRS => 5,
+                CURLOPT_TIMEOUT => 300,
+                CURLOPT_CONNECTTIMEOUT => 15,
+                CURLOPT_USERAGENT => 'ignis-Updater',
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+                CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
+                CURLOPT_REDIR_PROTOCOLS => CURLPROTO_HTTPS,
+                CURLOPT_NOPROGRESS => false,
+                CURLOPT_XFERINFOFUNCTION => static function ($resource, float $downloadTotal, float $downloaded) use (&$tooLarge): int {
+                    if ($downloadTotal > self::MAX_UPDATE_ARCHIVE_BYTES || $downloaded > self::MAX_UPDATE_ARCHIVE_BYTES) {
+                        $tooLarge = true;
+                        return 1;
+                    }
+                    return 0;
+                },
+            ]);
+            $success = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
+            curl_close($ch);
+            fclose($output);
+
+            if ($success !== false && $httpCode >= 200 && $httpCode < 300) {
+                $size = filesize($targetFile);
+                if ($size !== false && $size > 0 && $size <= self::MAX_UPDATE_ARCHIVE_BYTES) {
+                    return (int) $size;
+                }
+            }
+
+            @unlink($targetFile);
+            if ($tooLarge) {
+                throw new Exception('Das Update-Archiv überschreitet die erlaubte Größe von 512 MB.');
+            }
+            if (!ini_get('allow_url_fopen')) {
+                throw new Exception('cURL-Download fehlgeschlagen' . ($curlError !== '' ? ': ' . $curlError : '.'));
+            }
+        }
+
         if (ini_get('allow_url_fopen')) {
             $context = stream_context_create([
                 'http' => [
                     'method' => 'GET',
-                    'header' => [
-                        'User-Agent: ignis-Updater',
-                        'Accept: application/zip, application/octet-stream'
-                    ],
+                    'header' => $headers,
                     'timeout' => 300,
                     'follow_location' => 1,
-                    'max_redirects' => 5
+                    'max_redirects' => 5,
+                    'ignore_errors' => false,
                 ],
                 'ssl' => [
                     'verify_peer' => true,
                     'verify_peer_name' => true,
-                    'allow_self_signed' => false
-                ]
+                    'allow_self_signed' => false,
+                ],
             ]);
-            $content = @file_get_contents($url, false, $context);
-            if ($content !== false) return $content;
-        }
-
-        if (function_exists('curl_init')) {
-            $ch = curl_init($url);
-            curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_MAXREDIRS => 5,
-                CURLOPT_TIMEOUT => 300,
-                CURLOPT_USERAGENT => 'ignis-Updater',
-                CURLOPT_HTTPHEADER => ['Accept: application/zip, application/octet-stream'],
-                CURLOPT_SSL_VERIFYPEER => true,
-            ]);
-            $content = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            curl_close($ch);
-
-            if ($content !== false && $httpCode >= 200 && $httpCode < 300) {
-                return $content;
+            $input = @fopen($url, 'rb', false, $context);
+            $output = @fopen($targetFile, 'wb');
+            if ($input !== false && $output !== false) {
+                $bytes = stream_copy_to_stream($input, $output, self::MAX_UPDATE_ARCHIVE_BYTES + 1);
+                fclose($input);
+                fclose($output);
+                if ($bytes !== false && $bytes > 0 && $bytes <= self::MAX_UPDATE_ARCHIVE_BYTES) {
+                    return (int) $bytes;
+                }
+                @unlink($targetFile);
+                if ($bytes !== false && $bytes > self::MAX_UPDATE_ARCHIVE_BYTES) {
+                    throw new Exception('Das Update-Archiv überschreitet die erlaubte Größe von 512 MB.');
+                }
+            } else {
+                if (is_resource($input)) fclose($input);
+                if (is_resource($output)) fclose($output);
+                @unlink($targetFile);
             }
         }
 
-        return null;
+        throw new Exception('Der Update-Download ist fehlgeschlagen. cURL und allow_url_fopen konnten das Archiv nicht streamen.');
+    }
+
+    /** @return list<string> */
+    private function githubHeaders(string $accept, bool $authenticate = true): array
+    {
+        $headers = [
+            'User-Agent: ignis-Updater',
+            'Accept: ' . $accept,
+            'X-GitHub-Api-Version: 2022-11-28',
+        ];
+
+        // Optional für private Mirrors oder höhere API-Limits. Der Token wird
+        // ausschließlich als Header verwendet und niemals geloggt/gecached.
+        $token = trim((string) getenv('IGNIS_GITHUB_TOKEN'));
+        if ($authenticate && $token !== '') {
+            $headers[] = 'Authorization: Bearer ' . $token;
+        }
+
+        return $headers;
     }
 
     /**
@@ -346,35 +432,11 @@ class SystemUpdater
     private function checkPhpLimits(): array
     {
         $warnings = [];
-        $requirements = [
-            'memory_limit'        => ['min' => 256, 'recommended' => 512, 'unit' => 'M'],
-            'max_execution_time'  => ['min' => 120, 'recommended' => 300, 'unit' => 's'],
-            'upload_max_filesize' => ['min' => 128, 'recommended' => 256, 'unit' => 'M'],
-            'post_max_size'       => ['min' => 128, 'recommended' => 256, 'unit' => 'M'],
-        ];
-
-        foreach ($requirements as $key => $req) {
-            $raw = ini_get($key);
-            if ($raw === false || $raw === '') continue;
-
-            $value = $this->parsePhpSize($raw);
-
-            // max_execution_time: 0 = unlimited (OK), values in seconds
-            if ($key === 'max_execution_time') {
-                if ($value !== 0 && $value < $req['min']) {
-                    $warnings[] = "{$key} = {$raw} (mindestens {$req['min']}s, empfohlen: {$req['recommended']}s)";
-                }
-                continue;
-            }
-
-            // Memory/upload sizes in MB
-            $valueMB = $value / (1024 * 1024);
-            // -1 = unlimited (OK)
-            if ($value === -1) continue;
-
-            if ($valueMB < $req['min']) {
-                $warnings[] = "{$key} = {$raw} (mindestens {$req['min']}M, empfohlen: {$req['recommended']}M)";
-            }
+        if (!class_exists('ZipArchive')) {
+            $warnings[] = 'Die PHP-Erweiterung zip (ZipArchive) ist nicht verfügbar.';
+        }
+        if (!function_exists('curl_init') && !ini_get('allow_url_fopen')) {
+            $warnings[] = 'Weder cURL noch allow_url_fopen stehen für HTTPS-Downloads zur Verfügung.';
         }
 
         return $warnings;
@@ -417,12 +479,20 @@ class SystemUpdater
      * @param bool $isPreRelease Whether the new version is a pre-release
      * @return array Result of the update operation
      */
-    public function downloadAndApplyUpdate(string $downloadUrl, string $newVersion, bool $isPreRelease = false): array
+    public function downloadAndApplyUpdate(
+        string $downloadUrl,
+        string $newVersion,
+        bool $isPreRelease = false,
+        ?string $expectedSha256 = null
+    ): array
     {
         try {
             // Security: Validate download URL is from GitHub (zipball or release asset)
-            $isValidZipball = preg_match('#^https://api\.github\.com/repos/' . preg_quote($this->githubRepo, '#') . '/zipball/#', $downloadUrl);
-            $isValidAsset = preg_match('#^https://github\.com/' . preg_quote($this->githubRepo, '#') . '/releases/download/#', $downloadUrl);
+            // Alte Installationen dürfen noch gecachte intraRP-URLs verwenden;
+            // neue Releases kommen ausschließlich aus EmergencyForge/ignis.
+            $allowedRepoPattern = 'EmergencyForge/(?:ignis|intraRP)';
+            $isValidZipball = preg_match('#^https://api\.github\.com/repos/' . $allowedRepoPattern . '/zipball/#i', $downloadUrl);
+            $isValidAsset = preg_match('#^https://github\.com/' . $allowedRepoPattern . '/releases/download/#i', $downloadUrl);
             if (!$isValidZipball && !$isValidAsset) {
                 // Backwards compatibility: old updater versions only accept zipball URLs.
                 // If this is a release asset URL that fails validation on an old install,
@@ -440,6 +510,15 @@ class SystemUpdater
                 throw new Exception('Ungültiges Versionsformat.');
             }
 
+            if ($expectedSha256 !== null && $expectedSha256 !== '') {
+                $expectedSha256 = strtolower(trim($expectedSha256));
+                if (!preg_match('/^[a-f0-9]{64}$/', $expectedSha256)) {
+                    throw new Exception('Ungültige SHA-256-Prüfsumme für das Update-Artefakt.');
+                }
+            } else {
+                $expectedSha256 = null;
+            }
+
             $appRoot = dirname(dirname(__DIR__));
 
             // Check write permissions
@@ -447,7 +526,9 @@ class SystemUpdater
                 throw new Exception('Keine Schreibberechtigung für das Anwendungsverzeichnis. Bitte Dateiberechtigungen prüfen.');
             }
 
-            // Check PHP configuration for large file handling
+            // Nur echte technische Voraussetzungen blockieren. Speicher-,
+            // Upload- und POST-Limits sind durch den gestreamten Server-
+            // Download nicht relevant.
             $phpWarnings = $this->checkPhpLimits();
             if (!empty($phpWarnings)) {
                 throw new Exception("PHP-Konfiguration unzureichend für Update:\n" . implode("\n", $phpWarnings));
@@ -489,35 +570,22 @@ class SystemUpdater
             $zipFile = $tempDir . '/update.zip';
             $extractDir = $tempDir . '/extracted';
 
-            // Step 1: Download update
-            $updateContent = $this->httpDownload($downloadUrl);
+            // Step 1: Download update directly to storage/temp. This avoids
+            // holding the complete vendor-containing release in memory.
+            $downloadSize = $this->httpDownloadToFile($downloadUrl, $zipFile);
 
-            if ($updateContent === null) {
-                throw new Exception('Fehler beim Herunterladen des Updates von: ' . $downloadUrl . '. Bitte Internetverbindung prüfen.');
+            $signatureHandle = @fopen($zipFile, 'rb');
+            $signature = $signatureHandle !== false ? fread($signatureHandle, 2) : false;
+            if (is_resource($signatureHandle)) fclose($signatureHandle);
+            if ($signature !== 'PK') {
+                throw new Exception('Der Download ist kein gültiges ZIP-Archiv.');
             }
 
-            // Check if download has content
-            $downloadSize = strlen($updateContent);
-            if ($downloadSize === 0) {
-                throw new Exception('Download war erfolgreich, aber die Datei ist leer (0 Bytes). URL: ' . $downloadUrl);
-            }
-
-            // Verify it looks like a ZIP file (starts with PK)
-            if (substr($updateContent, 0, 2) !== 'PK') {
-                // It might be an error message or HTML page
-                $preview = substr($updateContent, 0, 200);
-                throw new Exception('Download ist keine gültige ZIP-Datei. Möglicherweise API-Fehler oder Berechtigung fehlt. Inhalt-Start: ' . htmlspecialchars($preview));
-            }
-
-            $bytesWritten = @file_put_contents($zipFile, $updateContent);
-            if ($bytesWritten === false) {
-                $error = error_get_last();
-                $errorMsg = $error ? $error['message'] : 'Unbekannter Fehler';
-                throw new Exception('Konnte Update-Datei nicht speichern in: ' . $zipFile . '. Fehler: ' . $errorMsg . '. Bitte Speicherplatz und Berechtigungen prüfen.');
-            }
-
-            if ($bytesWritten === 0 && $downloadSize > 0) {
-                throw new Exception('Update-Datei wurde mit 0 Bytes geschrieben. Möglicherweise fehlt Speicherplatz oder Schreibrechte für: ' . $zipFile);
+            if ($expectedSha256 !== null) {
+                $actualSha256 = hash_file('sha256', $zipFile);
+                if ($actualSha256 === false || !hash_equals($expectedSha256, strtolower($actualSha256))) {
+                    throw new Exception('Integritätsprüfung fehlgeschlagen: Die SHA-256-Prüfsumme des Downloads stimmt nicht mit dem GitHub-Release überein.');
+                }
             }
 
             // Step 2: Extract ZIP
@@ -557,6 +625,13 @@ class SystemUpdater
             if ($numFiles === 0) {
                 $zip->close();
                 throw new Exception('ZIP-Datei enthält keine Dateien. Möglicherweise ist das Update beschädigt.');
+            }
+
+            try {
+                $this->validateArchiveEntries($zip);
+            } catch (Exception $e) {
+                $zip->close();
+                throw $e;
             }
 
             // Create extraction directory before extracting
@@ -599,56 +674,45 @@ class SystemUpdater
                 throw new Exception('Konnte Update-Dateien nicht finden. Extrahierte Inhalte: ' . $itemsList);
             }
 
-            // Step 3: Create backup
-            $backupDir = $appRoot . '/system/updates/backup_' . date('Y-m-d_H-i-s');
-            if (!is_writable(dirname($backupDir))) {
-                throw new Exception('Keine Schreibberechtigung für Backup-Verzeichnis: ' . dirname($backupDir));
+            // Release assets include vendor/ — source zipballs do not.
+            $excludeDirs = $isReleaseAsset
+                ? ['storage', 'system/updates']
+                : ['vendor', 'storage', 'system/updates'];
+            $excludeFiles = ['.env', '.git', '.gitignore'];
+            $preserveDirs = ['assets/img'];
+
+            // Step 3: Back up every existing file that the release can
+            // overwrite. The former hard-coded src/assets/api list missed
+            // templates, routes, config and vendor, making restoration partial.
+            $backupBase = $appRoot . '/storage/backups/updates';
+            if (!is_dir($backupBase) && !mkdir($backupBase, 0755, true)) {
+                throw new Exception('Konnte Backup-Verzeichnis nicht erstellen: ' . $backupBase);
+            }
+            $backupDir = $backupBase . '/backup_' . date('Y-m-d_H-i-s');
+            if (!is_writable($backupBase)) {
+                throw new Exception('Keine Schreibberechtigung für Backup-Verzeichnis: ' . $backupBase);
             }
 
             if (!mkdir($backupDir, 0755, true)) {
                 throw new Exception('Konnte Backup-Verzeichnis nicht erstellen: ' . $backupDir);
             }
 
-            $filesToBackup = ['.htaccess', 'index.php', 'composer.json', 'composer.lock'];
-            $dirsToBackup = ['src', 'assets', 'api'];
+            $backupSummary = $this->backupUpdateFiles(
+                $sourceDir,
+                $appRoot,
+                $backupDir,
+                $excludeDirs,
+                $excludeFiles
+            );
 
-            foreach ($filesToBackup as $file) {
-                if (file_exists($appRoot . '/' . $file)) {
-                    if (!copy($appRoot . '/' . $file, $backupDir . '/' . $file)) {
-                        throw new Exception('Konnte Datei nicht sichern: ' . $file);
-                    }
+            if (file_exists($this->versionFile)) {
+                if (!is_dir($backupDir . '/storage')) {
+                    mkdir($backupDir . '/storage', 0755, true);
                 }
-            }
-
-            foreach ($dirsToBackup as $dir) {
-                if (is_dir($appRoot . '/' . $dir)) {
-                    try {
-                        $this->recursiveCopy($appRoot . '/' . $dir, $backupDir . '/' . $dir);
-                    } catch (Exception $e) {
-                        throw new Exception('Konnte Verzeichnis nicht sichern: ' . $dir . ' - ' . $e->getMessage());
-                    }
-                }
-            }
-
-            // Backup only version.json from system directory (not the whole system/updates)
-            if (!is_dir($backupDir . '/system')) {
-                mkdir($backupDir . '/system', 0755, true);
-            }
-            if (file_exists($appRoot . '/system/updates/version.json')) {
-                if (!is_dir($backupDir . '/system/updates')) {
-                    mkdir($backupDir . '/system/updates', 0755, true);
-                }
-                copy($appRoot . '/system/updates/version.json', $backupDir . '/system/updates/version.json');
+                copy($this->versionFile, $backupDir . '/storage/version.json');
             }
 
             // Step 4: Apply update (copy files)
-            // Release assets include vendor/ — zipballs don't
-            $excludeDirs = $isReleaseAsset
-                ? ['storage', 'system/updates']              // Release asset: vendor/ included
-                : ['vendor', 'storage', 'system/updates'];   // Zipball: vendor/ excluded (needs composer)
-            $excludeFiles = ['.env', '.git', '.gitignore'];
-            $preserveDirs = ['assets/img'];
-
             try {
                 $this->copyUpdateFiles($sourceDir, $appRoot, $excludeDirs, $excludeFiles, $preserveDirs);
             } catch (Exception $e) {
@@ -704,9 +768,9 @@ class SystemUpdater
             }
 
             // Step 7: Clear cache
-            $cacheFile = sys_get_temp_dir() . '/intrarp_update_cache.json';
-            if (file_exists($cacheFile)) {
-                @unlink($cacheFile);
+            $this->clearCache();
+            if (function_exists('opcache_reset')) {
+                @opcache_reset();
             }
 
             // Clean up temp files
@@ -719,7 +783,10 @@ class SystemUpdater
                     : 'Update erfolgreich auf ' . $newVersion . ' installiert!',
                 'version' => $newVersion,
                 'backup_dir' => $backupDir,
-                'composer_pending' => $composerPending
+                'backup_files' => $backupSummary['backed_up_files'],
+                'composer_pending' => $composerPending,
+                'download_size' => $downloadSize,
+                'integrity_verified' => $expectedSha256 !== null,
             ];
         } catch (Exception $e) {
             // Clean up temp files if they exist
@@ -750,6 +817,124 @@ class SystemUpdater
                 'diagnostic_support' => $this->formatDiagnosticForSupport($diagnostics)
             ];
         }
+    }
+
+    /**
+     * Reject archive entries that could escape the extraction directory or
+     * create symbolic links. ZipArchive::extractTo() behavior differs between
+     * libzip versions, so the updater enforces the boundary itself.
+     */
+    private function validateArchiveEntries(\ZipArchive $zip): void
+    {
+        for ($index = 0; $index < $zip->numFiles; $index++) {
+            $name = $zip->getNameIndex($index);
+            if (!is_string($name) || $name === '' || str_contains($name, "\0")) {
+                throw new Exception('Das Update-Archiv enthält einen ungültigen Dateinamen.');
+            }
+
+            $normalized = str_replace('\\', '/', $name);
+            $segments = explode('/', $normalized);
+            if (str_starts_with($normalized, '/')
+                || preg_match('/^[a-zA-Z]:\//', $normalized)
+                || in_array('..', $segments, true)) {
+                throw new Exception('Das Update-Archiv enthält einen unsicheren Pfad: ' . $name);
+            }
+
+            $operatingSystem = 0;
+            $attributes = 0;
+            if ($zip->getExternalAttributesIndex($index, $operatingSystem, $attributes)) {
+                $fileType = ($attributes >> 16) & 0170000;
+                if ($fileType === 0120000) {
+                    throw new Exception('Symbolische Links sind in Update-Archiven nicht erlaubt: ' . $name);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param list<string> $excludeDirs
+     * @param list<string> $excludeFiles
+     * @return array{backed_up_files:int, created_files:list<string>}
+     */
+    private function backupUpdateFiles(
+        string $source,
+        string $appRoot,
+        string $backupDir,
+        array $excludeDirs,
+        array $excludeFiles
+    ): array {
+        $sourceNormalized = realpath($source);
+        if ($sourceNormalized === false) {
+            throw new Exception('Update-Quelle für Backup nicht gefunden: ' . $source);
+        }
+
+        $backedUp = 0;
+        $createdFiles = [];
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($sourceNormalized, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($iterator as $item) {
+            if (!$item->isFile()) {
+                continue;
+            }
+
+            $subPath = str_replace('\\', '/', substr($item->getPathname(), strlen($sourceNormalized) + 1));
+            if ($this->isExcludedUpdatePath($subPath, $excludeDirs, $excludeFiles)) {
+                continue;
+            }
+
+            $currentPath = $appRoot . '/' . $subPath;
+            if (!is_file($currentPath)) {
+                $createdFiles[] = $subPath;
+                continue;
+            }
+
+            $backupPath = $backupDir . '/' . $subPath;
+            $backupParent = dirname($backupPath);
+            if (!is_dir($backupParent) && !mkdir($backupParent, 0755, true)) {
+                throw new Exception('Konnte Backup-Unterverzeichnis nicht erstellen: ' . $backupParent);
+            }
+            if (!copy($currentPath, $backupPath)) {
+                throw new Exception('Konnte Datei nicht sichern: ' . $subPath);
+            }
+            $backedUp++;
+        }
+
+        $manifest = [
+            'created_at' => date(DATE_ATOM),
+            'backed_up_files' => $backedUp,
+            'created_files' => $createdFiles,
+        ];
+        if (@file_put_contents(
+            $backupDir . '/_update-backup.json',
+            json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            LOCK_EX
+        ) === false) {
+            throw new Exception('Konnte Backup-Manifest nicht speichern.');
+        }
+
+        return $manifest;
+    }
+
+    /** @param list<string> $excludeDirs @param list<string> $excludeFiles */
+    private function isExcludedUpdatePath(string $subPath, array $excludeDirs, array $excludeFiles): bool
+    {
+        foreach ($excludeDirs as $excludeDir) {
+            $excludeDir = trim(str_replace('\\', '/', $excludeDir), '/');
+            if ($subPath === $excludeDir || str_starts_with($subPath, $excludeDir . '/')) {
+                return true;
+            }
+        }
+
+        foreach ($excludeFiles as $excludeFile) {
+            if ($subPath === $excludeFile || basename($subPath) === $excludeFile) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -833,24 +1018,7 @@ class SystemUpdater
             $subPath = substr($itemRealPath, strlen($sourceNormalized) + 1);
             $subPath = str_replace('\\', '/', $subPath); // Normalize to forward slashes
 
-            // Check if path contains excluded directory
-            $skip = false;
-            foreach ($excludeDirs as $excludeDir) {
-                if (strpos($subPath, $excludeDir) === 0) {
-                    $skip = true;
-                    break;
-                }
-            }
-
-            // Check if file is excluded
-            foreach ($excludeFiles as $excludeFile) {
-                if ($subPath === $excludeFile || basename($subPath) === $excludeFile) {
-                    $skip = true;
-                    break;
-                }
-            }
-
-            if ($skip) {
+            if ($this->isExcludedUpdatePath($subPath, $excludeDirs, $excludeFiles)) {
                 continue;
             }
 
@@ -859,7 +1027,8 @@ class SystemUpdater
             // Check if path is in a preserve directory
             $inPreserveDir = false;
             foreach ($preserveDirs as $preserveDir) {
-                if (strpos($subPath, $preserveDir) === 0) {
+                $preserveDir = trim(str_replace('\\', '/', $preserveDir), '/');
+                if ($subPath === $preserveDir || str_starts_with($subPath, $preserveDir . '/')) {
                     $inPreserveDir = true;
                     break;
                 }
@@ -1484,11 +1653,11 @@ class SystemUpdater
      * Get update urgency level
      * Returns: 'none', 'low', 'medium', 'high', 'critical'
      */
-    public function getUpdateUrgency(): string
+    public function getUpdateUrgency(?array $updateInfo = null): string
     {
-        $updateInfo = $this->checkForUpdates();
+        $updateInfo ??= $this->checkForUpdatesCached();
 
-        if (!$updateInfo['available']) {
+        if (!($updateInfo['available'] ?? false)) {
             return 'none';
         }
 
@@ -1589,51 +1758,84 @@ class SystemUpdater
     /**
      * Cache update check results to avoid rate limiting
      */
-    private function getCachedUpdateCheck(): ?array
+    private function getCachedUpdateCheck(?bool $includePreRelease = null, bool $allowExpired = false): ?array
     {
-        $cacheFile = sys_get_temp_dir() . '/intrarp_update_cache.json';
-
-        if (!file_exists($cacheFile)) {
+        if (!file_exists($this->updateCacheFile)) {
             return null;
         }
 
-        $cacheData = json_decode(file_get_contents($cacheFile), true);
+        $cacheData = json_decode((string) @file_get_contents($this->updateCacheFile), true);
 
-        if (!$cacheData || !isset($cacheData['timestamp'])) {
+        if (!is_array($cacheData)) {
             return null;
         }
 
-        // Cache valid for 1 hour
-        if (time() - $cacheData['timestamp'] > 3600) {
+        $channel = $this->updateCacheChannel($includePreRelease);
+        $entry = $cacheData['channels'][$channel] ?? null;
+
+        // Read caches written by pre-channel updater versions once, then they
+        // will be replaced using the current structure.
+        if (!is_array($entry) && isset($cacheData['timestamp'], $cacheData['data'])) {
+            $entry = $cacheData;
+        }
+
+        if (!is_array($entry) || !isset($entry['timestamp']) || !is_array($entry['data'] ?? null)) {
+            return null;
+        }
+
+        if (!$allowExpired && time() - (int) $entry['timestamp'] > self::UPDATE_CACHE_TTL_SECONDS) {
             return null;
         }
 
         // Invalidate cache if current version has changed
         // This ensures users see accurate update notifications after local upgrades
-        $cachedVersion = $cacheData['current_version'] ?? null;
+        $cachedVersion = $entry['current_version'] ?? null;
         $actualVersion = $this->currentVersion['version'] ?? null;
 
         if ($cachedVersion !== null && $actualVersion !== null && $cachedVersion !== $actualVersion) {
             return null;
         }
 
-        return $cacheData['data'] ?? null;
+        $data = $entry['data'];
+        $data['checked_at'] = date(DATE_ATOM, (int) $entry['timestamp']);
+        return $data;
     }
 
     /**
      * Save update check results to cache
      */
-    private function cacheUpdateCheck(array $data): void
+    private function cacheUpdateCheck(array $data, ?bool $includePreRelease = null): void
     {
-        $cacheFile = sys_get_temp_dir() . '/intrarp_update_cache.json';
+        $cacheDir = dirname($this->updateCacheFile);
+        if (!is_dir($cacheDir)) {
+            @mkdir($cacheDir, 0755, true);
+        }
 
-        $cacheData = [
+        $cacheData = [];
+        if (is_file($this->updateCacheFile)) {
+            $decoded = json_decode((string) @file_get_contents($this->updateCacheFile), true);
+            if (is_array($decoded) && isset($decoded['channels'])) {
+                $cacheData = $decoded;
+            }
+        }
+
+        $cacheData['channels'][$this->updateCacheChannel($includePreRelease)] = [
             'timestamp' => time(),
             'current_version' => $this->currentVersion['version'] ?? 'unknown',
-            'data' => $data
+            'data' => $data,
         ];
 
-        @file_put_contents($cacheFile, json_encode($cacheData));
+        @file_put_contents(
+            $this->updateCacheFile,
+            json_encode($cacheData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+            LOCK_EX
+        );
+    }
+
+    private function updateCacheChannel(?bool $includePreRelease): string
+    {
+        $resolved = $includePreRelease ?? $this->isPreRelease();
+        return $resolved ? 'prerelease' : 'stable';
     }
 
     /**
@@ -1645,7 +1847,7 @@ class SystemUpdater
     public function checkForUpdatesCached(bool $forceRefresh = false, ?bool $includePreRelease = null): array
     {
         if (!$forceRefresh) {
-            $cached = $this->getCachedUpdateCheck();
+            $cached = $this->getCachedUpdateCheck($includePreRelease);
 
             if ($cached !== null) {
                 $cached['cached'] = true;
@@ -1654,7 +1856,20 @@ class SystemUpdater
         }
 
         $result = $this->checkForUpdates($includePreRelease);
-        $this->cacheUpdateCheck($result);
+        if (!isset($result['error'])) {
+            $this->cacheUpdateCheck($result, $includePreRelease);
+        } else {
+            // GitHub-/Netzwerkfehler dürfen eine zuletzt bekannte Meldung
+            // nicht vernichten. Für Managed Hosting ist ein markierter,
+            // veralteter Status hilfreicher als gar kein Status.
+            $stale = $this->getCachedUpdateCheck($includePreRelease, true);
+            if ($stale !== null) {
+                $stale['cached'] = true;
+                $stale['stale'] = true;
+                $stale['refresh_error'] = $result['message'] ?? 'Update-Check fehlgeschlagen.';
+                return $stale;
+            }
+        }
         $result['cached'] = false;
 
         return $result;
@@ -1665,10 +1880,8 @@ class SystemUpdater
      */
     public function clearCache(): bool
     {
-        $cacheFile = sys_get_temp_dir() . '/intrarp_update_cache.json';
-
-        if (file_exists($cacheFile)) {
-            return @unlink($cacheFile);
+        if (file_exists($this->updateCacheFile)) {
+            return @unlink($this->updateCacheFile);
         }
 
         return true;
@@ -2433,7 +2646,7 @@ class SystemUpdater
                 'Webserver-Prozess-Benutzer identifizieren (ps aux | grep apache/nginx)'
             ],
             'disk_space' => [
-                'Speicherplatz freigeben: storage/temp/* und system/updates/backup_* löschen',
+                'Speicherplatz freigeben: storage/temp/* und alte storage/backups/updates/backup_* löschen',
                 'Alte Dateien in storage/cache/* und storage/documents/* aufräumen',
                 'Bei Plesk/cPanel: Disk-Quota im Hosting-Panel prüfen und erhöhen',
                 'Backup-Dateien auf lokalen Computer herunterladen und vom Server löschen',
@@ -2474,7 +2687,7 @@ class SystemUpdater
                 'Manuellen Download und Upload erwägen'
             ],
             'backup' => [
-                'Alte Backups manuell wiederherstellen aus system/updates/backup_*',
+                'Alte Backups manuell wiederherstellen aus storage/backups/updates/backup_*',
                 'Speicherplatz für Backups sicherstellen',
                 'Backup-Verzeichnis auf Schreibrechte prüfen'
             ],

@@ -17,7 +17,7 @@ $createDate = $antrag->time_added;
 $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspecialchars($caseId) . ']';
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
@@ -38,7 +38,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
     </style>
 </head>
 
-<body data-bs-theme="dark" data-page="antrag-admin-view">
+<body data-theme="dark" data-page="antrag-admin-view">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
 
     <div class="container-full relative" id="mainpageContainer">

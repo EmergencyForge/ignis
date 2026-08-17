@@ -100,10 +100,7 @@
     const progressText = document.getElementById('update-progress-text');
     const statusText   = document.getElementById('update-status-text');
 
-    const progressModal = new global.bootstrap.Modal(modalElement);
-    progressModal.show();
-    modalElement.setAttribute('data-bs-backdrop', 'static');
-    modalElement.setAttribute('data-bs-keyboard', 'false');
+    global.Dialog.openElement(modalElement, { closeOnBackdrop: false, closeOnEscape: false });
 
     let currentStep = 0;
     const advance = () => {
@@ -154,7 +151,7 @@
     setTimeout(() => {
       modalElement.querySelector('.modal-header').innerHTML =
         '<h5 class="modal-title text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle mr-2"></i>' + title + '</h5>' +
-        '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>';
+        '<button type="button" class="btn-close" data-dialog-dismiss></button>';
       const alertInfo = modalElement.querySelector('.modal-body .alert-info');
       if (alertInfo) alertInfo.classList.add('hidden');
     }, 1000);
@@ -227,8 +224,7 @@
     const basePath = cfg.basePath || '/';
 
     function showComposerModal() {
-      composerModal = new global.bootstrap.Modal(document.getElementById('composer-modal'));
-      composerModal.show();
+      composerModal = global.Dialog.openElement('#composer-modal', { closeOnBackdrop: false, closeOnEscape: false });
       checkComposerStatus();
     }
 
@@ -291,7 +287,7 @@
     }
 
     function dismissComposerModal() {
-      if (composerModal) composerModal.hide();
+      if (composerModal) composerModal.close();
     }
 
     if (cfg.showOnLoad) {

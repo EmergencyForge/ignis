@@ -91,6 +91,76 @@ final class PluginManifest
     }
 
     /**
+     * Liest ein Manifest ohne es als PHP-Code auszuführen. Erlaubt ist nur
+     * eine einzelne `return [...]`-Anweisung aus skalaren Literalen und
+     * Arrays. Funktionsaufrufe, Variablen, Konstanten und Ausdrücke werden
+     * abgewiesen, bevor der literal-only Ausdruck ausgewertet wird.
+     */
+    public static function fromFile(string $path): self
+    {
+        $source = @file_get_contents($path);
+        if (!is_string($source) || $source === '') {
+            throw new InvalidArgumentException('Plugin-Manifest konnte nicht gelesen werden.');
+        }
+
+        $tokens = token_get_all($source);
+        $expression = '';
+        $seenReturn = false;
+        $seenSemicolon = false;
+
+        foreach ($tokens as $token) {
+            if (is_array($token)) {
+                [$type, $text] = $token;
+                if (in_array($type, [T_OPEN_TAG, T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+                    continue;
+                }
+                if ($type === T_RETURN && !$seenReturn) {
+                    $seenReturn = true;
+                    continue;
+                }
+                if (!$seenReturn || $seenSemicolon) {
+                    throw new InvalidArgumentException('Plugin-Manifest darf nur `return [...]` enthalten.');
+                }
+                if (in_array($type, [T_CONSTANT_ENCAPSED_STRING, T_LNUMBER, T_DNUMBER, T_ARRAY, T_DOUBLE_ARROW], true)) {
+                    $expression .= $text;
+                    continue;
+                }
+                if ($type === T_STRING && in_array(strtolower($text), ['true', 'false', 'null'], true)) {
+                    $expression .= strtolower($text);
+                    continue;
+                }
+                throw new InvalidArgumentException('Plugin-Manifest enthält nicht erlaubten ausführbaren Code.');
+            }
+
+            if (!$seenReturn || $seenSemicolon) {
+                if (trim($token) === '') {
+                    continue;
+                }
+                throw new InvalidArgumentException('Plugin-Manifest darf nur `return [...]` enthalten.');
+            }
+            if ($token === ';') {
+                $seenSemicolon = true;
+                continue;
+            }
+            if (!in_array($token, ['[', ']', '(', ')', ',', '=>', '-', '+'], true)) {
+                throw new InvalidArgumentException('Plugin-Manifest enthält einen nicht erlaubten Ausdruck.');
+            }
+            $expression .= $token;
+        }
+
+        if (!$seenReturn || !$seenSemicolon || trim($expression) === '') {
+            throw new InvalidArgumentException('Plugin-Manifest enthält keine vollständige return-Anweisung.');
+        }
+
+        /** @var mixed $data */
+        $data = eval('return ' . $expression . ';');
+        if (!is_array($data)) {
+            throw new InvalidArgumentException('Plugin-Manifest gibt kein Array zurück.');
+        }
+        return self::fromArray($data);
+    }
+
+    /**
      * Ist dieses Plugin mit der laufenden ignis-Version kompatibel?
      */
     public function isCompatibleWith(string $ignisVersion): bool

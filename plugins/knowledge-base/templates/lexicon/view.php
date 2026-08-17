@@ -4,7 +4,7 @@ use App\Helpers\Flash;
 use App\KnowledgeBase\KBHelper;
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php
@@ -282,7 +282,7 @@ use App\KnowledgeBase\KBHelper;
     </style>
 </head>
 
-<body data-bs-theme="dark" data-page="lexicon">
+<body data-theme="dark" data-page="lexicon">
     <?php if ($isLoggedIn): ?>
         <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
     <?php else: ?>

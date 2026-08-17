@@ -29,7 +29,7 @@ if (!$template) {
 $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="dark">
+<html lang="de" data-theme="dark">
 
 <head>
     <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
@@ -55,7 +55,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     </style>
 </head>
 
-<body data-bs-theme="dark">
+<body data-theme="dark">
     <!-- Einzeilige Toolbar -->
     <div class="editor-toolbar twplus-toolbar">
         <a href="<?= BASE_PATH ?>settings/documents/templates" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="btn-back"
@@ -113,7 +113,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         <div class="separator"></div>
 
         <div class="dropdown">
-            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Ausrichten">
+            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary dropdown-toggle" type="button" title="Ausrichten">
                 <i class="fa-solid fa-align-center"></i>
             </button>
             <ul class="dropdown-menu dropdown-menu-dark" style="min-width:180px;">
@@ -221,7 +221,7 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
         <span class="tft-sep"></span>
         <!-- Variable einfuegen Dropdown -->
         <div class="dropdown" style="display:inline-flex;">
-            <button class="tft-btn dropdown-toggle" data-bs-toggle="dropdown" title="Variable einf&uuml;gen" style="width:auto;padding:0 6px;">
+            <button class="tft-btn dropdown-toggle" title="Variable einf&uuml;gen" style="width:auto;padding:0 6px;">
                 <i class="fa-solid fa-code" style="font-size:0.7rem;"></i>
             </button>
             <ul class="dropdown-menu dropdown-menu-dark" id="tft-var-dropdown" style="font-size:0.78rem;max-height:250px;overflow-y:auto;">
@@ -247,9 +247,11 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
     <!-- Canvas Loading Overlay -->
     <div id="canvas-loading" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;">
-        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:#fff;">
-            <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
-            <p class="mt-2" style="font-size:0.85rem;" id="canvas-loading-text">Layout wird geladen...</p>
+        <div class="twplus-skeleton" style="width:min(28rem,calc(100% - 2rem));" role="status">
+            <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+            <div class="twplus-skeleton__line"></div>
+            <div class="twplus-skeleton__line"></div>
+            <p class="mt-2 mb-0 text-center" style="font-size:0.85rem;" id="canvas-loading-text">Layout wird geladen...</p>
         </div>
     </div>
 
@@ -356,7 +358,11 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
     <!-- Versions-Park -->
     <div id="versionsModal" class="ignis-dialog-park" hidden>
         <div class="p-0" id="versions-list" style="max-height:400px;overflow-y:auto;">
-            <div class="text-center p-3"><i class="fa-solid fa-spinner fa-spin"></i></div>
+            <div class="twplus-skeleton m-3" aria-label="Versionen werden geladen">
+                <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+                <div class="twplus-skeleton__line"></div>
+                <div class="twplus-skeleton__line"></div>
+            </div>
         </div>
     </div>
 

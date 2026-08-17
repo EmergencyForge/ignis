@@ -22,13 +22,13 @@ if ($publicUrl !== '' && !preg_match('~^https?://~i', $publicUrl)) {
 $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars($cronEndpointToken);
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" data-page="settings">
+<body data-theme="dark" data-page="settings">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -97,6 +97,9 @@ $cronUrl = rtrim($publicUrl, '/') . $base . 'cron.php?token=' . htmlspecialchars
                                 <td><code style="font-size:0.78rem;"><?= htmlspecialchars($job['schedule']) ?></code></td>
                                 <td>
                                     <span class="ignis-chip" style="font-size:0.65rem;"><?= htmlspecialchars($job['handler_type']) ?></span>
+                                    <?php if (!($job['handler_available'] ?? true)): ?>
+                                        <span class="ignis-chip ignis-chip--warning" title="Der Console-Command ist nicht registriert; das Plugin ist vermutlich deaktiviert.">Plugin inaktiv</span>
+                                    <?php endif; ?>
                                     <div style="font-size:0.72rem;word-break:break-all;max-width:220px;"><?= htmlspecialchars($job['handler']) ?></div>
                                 </td>
                                 <td><?= $activeBadge ?></td>

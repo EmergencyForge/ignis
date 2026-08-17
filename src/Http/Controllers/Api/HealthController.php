@@ -43,10 +43,13 @@ final class HealthController
     public function index(Request $request): Response
     {
         $checks = [
-            'db'         => $this->checkDatabase(),
-            'queue'      => $this->checkQueue(),
-            'storage'    => $this->checkStorage(),
-            'migrations' => $this->checkMigrations(),
+            'db'              => $this->checkDatabase(),
+            'queue'           => $this->checkQueue(),
+            'storage'         => $this->checkStorage(),
+            'migrations'      => $this->checkMigrations(),
+            'outbound_http'   => $this->checkOutboundHttp(),
+            'process_control' => $this->checkProcessControl(),
+            'php_extensions'  => $this->checkPhpExtensions(),
         ];
 
         $overall = $this->aggregateStatus($checks);
@@ -136,6 +139,81 @@ final class HealthController
         } catch (\Throwable $e) {
             return ['status' => 'down', 'error' => 'phinxlog-missing'];
         }
+    }
+
+    /**
+     * Hub, Updater und Plugin-Katalog brauchen mindestens einen sicheren
+     * HTTP-Transport. cURL wird bevorzugt, URL-fopen bleibt der Webspace-
+     * kompatible Fallback.
+     *
+     * @return array<string,mixed>
+     */
+    private function checkOutboundHttp(): array
+    {
+        $curl = function_exists('curl_init');
+        $urlFopen = filter_var(ini_get('allow_url_fopen'), FILTER_VALIDATE_BOOL);
+
+        return [
+            'status' => ($curl || $urlFopen) ? 'ok' : 'degraded',
+            'curl' => $curl,
+            'allow_url_fopen' => $urlFopen,
+        ];
+    }
+
+    /**
+     * Updates via Composer und Console-Cronjobs sind auf Shared Hosting oft
+     * durch disable_functions eingeschraenkt. Die App bleibt bedienbar, der
+     * Health-Check weist diese Betriebsgrenze deshalb als degraded aus.
+     *
+     * @return array<string,mixed>
+     */
+    private function checkProcessControl(): array
+    {
+        $disabled = array_filter(array_map(
+            'trim',
+            explode(',', (string) ini_get('disable_functions')),
+        ));
+
+        $availability = [];
+        foreach (['exec', 'proc_open'] as $function) {
+            $availability[$function] = function_exists($function)
+                && !in_array($function, $disabled, true);
+        }
+
+        return [
+            'status' => in_array(false, $availability, true) ? 'degraded' : 'ok',
+            'available' => $availability,
+        ];
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function checkPhpExtensions(): array
+    {
+        $required = [
+            'curl',
+            'fileinfo',
+            'gd',
+            'intl',
+            'json',
+            'mbstring',
+            'openssl',
+            'pdo',
+            'pdo_mysql',
+            'xml',
+            'zip',
+        ];
+        $missing = array_values(array_filter(
+            $required,
+            static fn (string $extension): bool => !extension_loaded($extension),
+        ));
+
+        return [
+            'status' => $missing === [] ? 'ok' : 'degraded',
+            'required' => $required,
+            'missing' => $missing,
+        ];
     }
 
     /**

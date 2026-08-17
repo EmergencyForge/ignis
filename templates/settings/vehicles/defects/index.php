@@ -107,13 +107,13 @@ $statusLabels = [
 ?>
 
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php $SITE_TITLE = 'Fahrzeug-Defekte'; include __DIR__ . '/../../../../assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" data-page="fahrzeuge">
+<body data-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . "/../../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
