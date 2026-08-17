@@ -143,11 +143,17 @@
 
     function bindTzTemplateManager(cfg) {
         const TZ_TPL_API = cfg.tzTplApi;
+        const loadingSkeleton = (label) => `
+            <div class="twplus-skeleton" role="status" aria-label="${label}">
+                <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+                <div class="twplus-skeleton__line"></div>
+                <div class="twplus-skeleton__line"></div>
+            </div>`;
 
         global.openTzTemplateManager = function () {
             const modal = global.Dialog.openElement('#tzTemplateModal');
             const body  = document.getElementById('tzTemplateModalBody');
-            body.innerHTML = '<div class="flex justify-center py-4"><div class="spinner-border" role="status"></div></div>';
+            body.innerHTML = loadingSkeleton('Vorlagen werden geladen');
             loadTzTemplateList();
         };
 
@@ -277,6 +283,12 @@
         const IMPORT_API   = cfg.importApi;
         const rdTypeLabels = { 0: 'Andere', 1: 'RD - Mit NA', 2: 'RD - Ohne NA', 3: 'Feuerwehr' };
         const rdTypeBadges = { 0: 'dark',   1: 'warning',    2: 'success',     3: 'danger'    };
+        const loadingSkeleton = (label) => `
+            <div class="twplus-skeleton" role="status" aria-label="${label}">
+                <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+                <div class="twplus-skeleton__line"></div>
+                <div class="twplus-skeleton__line"></div>
+            </div>`;
 
         // Beim Laden: prüfen ob Imports pending sind
         fetch(IMPORT_API + '?action=status')
@@ -306,7 +318,7 @@
             importDidChange = false;
             global.Dialog.openElement(importModal);
             const body  = document.getElementById('importModalBody');
-            body.innerHTML = '<div class="flex justify-center py-4"><div class="spinner-border" role="status"></div></div>';
+            body.innerHTML = loadingSkeleton('Importstatus wird geladen');
             fetch(IMPORT_API + '?action=status')
                 .then((r) => r.json())
                 .then((data) => {
@@ -381,7 +393,7 @@
 
         global.requestVehicleImport = function () {
             const body = document.getElementById('importModalBody');
-            body.innerHTML = '<div class="flex justify-center py-4"><div class="spinner-border" role="status"></div></div>';
+            body.innerHTML = loadingSkeleton('Importdaten werden geladen');
             const fd = new FormData();
             fd.append('action', 'request');
             fetch(IMPORT_API, { method: 'POST', body: fd })

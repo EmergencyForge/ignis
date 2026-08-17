@@ -4,8 +4,13 @@ $stmt->execute();
 $dgsel = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
-<div class="form-floating">
-    <select class="form-select mt-3" name="dienstgrad" id="dienstgrad">
+<div class="twplus-form-section">
+    <div>
+        <label class="twplus-form-section__label" for="dienstgrad">Rank</label>
+        <div class="twplus-form-section__hint">Legt Dienstgrad und Darstellung im Profil fest.</div>
+    </div>
+    <div>
+    <select class="form-select" name="dienstgrad" id="dienstgrad">
         <?php foreach ($dgsel as $data) {
             if ($dg == $data['id']) {
                 echo "<option value='{$data['id']}' selected='selected'>{$data['name']}</option>";
@@ -14,5 +19,5 @@ $dgsel = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         } ?>
     </select>
-    <label for="dienstgrad">Rank</label>
+    </div>
 </div>

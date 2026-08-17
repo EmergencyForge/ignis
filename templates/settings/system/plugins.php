@@ -200,14 +200,14 @@ $csrfToken = CsrfProtection::getToken();
                             <p class="twplus-empty__description">Die installierten Plugins lassen sich weiterhin normal verwalten.</p>
                         </div>
                     <?php else: ?>
-                        <div class="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                        <div class="twplus-resource-grid">
                             <?php foreach ($catalogRows as $plugin): ?>
                                 <?php
                                 $trustLabels = ['official' => 'Offiziell', 'verified' => 'Geprüft', 'tested' => 'Geprüft', 'untested' => 'Ungetestet'];
                                 $trust = (string) ($plugin['trust'] ?? 'untested');
                                 $installedVersion = $plugin['installed_version'] ?? null;
                                 ?>
-                                <article class="ignis-card ignis-card--bordered">
+                                <article class="ignis-card ignis-card--bordered twplus-resource-card">
                                     <div class="ignis-card__header">
                                         <div>
                                             <h3 class="ignis-card__title"><?= htmlspecialchars((string) $plugin['name']) ?></h3>

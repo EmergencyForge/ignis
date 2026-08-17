@@ -300,8 +300,7 @@
             if (dgb && data.display.dgBadge) dgb.src = data.display.dgBadge;
             const pn = document.getElementById('display-profilename');
             if (pn) pn.textContent = data.display.profileName;
-            const modalEl = document.getElementById('modalQualiEdit');
-            if (modalEl && global.Dialog) global.Dialog.closeElement(modalEl);
+            document.querySelector('#profileQualificationDrawer [data-ignis-drawer-close]')?.click();
             toast('Rang & Qualifikationen gespeichert', 'success');
             setTimeout(() => location.reload(), 600);
           } else {

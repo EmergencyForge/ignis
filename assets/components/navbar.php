@@ -1731,6 +1731,23 @@ $topbarTimeAgo = static function (string $createdAt): string {
 $navbarRequestPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?: '';
 $showSystemSettingsNav = str_contains($navbarRequestPath, '/settings/system/')
     && !str_contains($navbarRequestPath, '/settings/system/index');
+
+$commandPaletteItems = [
+    ['group' => 'Navigation', 'icon' => 'fa-house', 'title' => 'Dashboard', 'subtitle' => 'Zur Startseite', 'url' => 'index', 'keywords' => 'start home übersicht'],
+    ['group' => 'Schnellaktionen', 'icon' => 'fa-file-circle-plus', 'title' => 'Neuen Antrag stellen', 'subtitle' => 'Formular auswählen', 'url' => 'forms/select', 'keywords' => 'formular antrag erstellen neu'],
+];
+if (Permissions::check(['admin', 'personnel.view'])) {
+    $commandPaletteItems[] = ['group' => 'Navigation', 'icon' => 'fa-users', 'title' => 'Mitarbeiter', 'subtitle' => 'Personalübersicht öffnen', 'url' => 'personnel/list', 'keywords' => 'personal mitarbeiter personen'];
+}
+if (Permissions::check(['admin', 'vehicles.view'])) {
+    $commandPaletteItems[] = ['group' => 'Navigation', 'icon' => 'fa-truck', 'title' => 'Fahrzeuge', 'subtitle' => 'Fahrzeugverwaltung öffnen', 'url' => 'settings/vehicles/vehicles/index', 'keywords' => 'fahrzeuge flotte leitstelle'];
+    $commandPaletteItems[] = ['group' => 'Schnellaktionen', 'icon' => 'fa-triangle-exclamation', 'title' => 'Defekt-Meldungen', 'subtitle' => 'Offene Fahrzeugdefekte', 'url' => 'settings/vehicles/defects/index', 'keywords' => 'defekt schaden fahrzeug melden'];
+}
+if (Permissions::check(['admin'])) {
+    $commandPaletteItems[] = ['group' => 'Administration', 'icon' => 'fa-arrow-up-from-bracket', 'title' => 'System-Updates', 'subtitle' => 'Version prüfen und aktualisieren', 'url' => 'settings/system/updater', 'keywords' => 'update updater version release'];
+    $commandPaletteItems[] = ['group' => 'Administration', 'icon' => 'fa-puzzle-piece', 'title' => 'Plugins', 'subtitle' => 'Erweiterungen verwalten', 'url' => 'settings/system/plugins', 'keywords' => 'plugin addon module'];
+    $commandPaletteItems[] = ['group' => 'Schnellaktionen', 'icon' => 'fa-file-circle-plus', 'title' => 'Dokumentvorlage erstellen', 'subtitle' => 'Template-Verwaltung öffnen', 'url' => 'settings/documents/templates', 'keywords' => 'dokument template vorlage neu'];
+}
 ?>
 <?php if ($showSystemSettingsNav): ?>
     <div class="twplus-page" style="padding-bottom:0;">
@@ -1745,8 +1762,8 @@ $showSystemSettingsNav = str_contains($navbarRequestPath, '/settings/system/')
     <div class="global-search-modal">
         <div class="gsm-input-wrap">
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <label for="globalSearchInput" class="sr-only" id="globalSearchLabel">Globale Suche</label>
-            <input type="text" id="globalSearchInput" placeholder="Mitarbeiter, Dokumente, Anträge und Seiten durchsuchen …" autocomplete="off" />
+            <label for="globalSearchInput" class="sr-only" id="globalSearchLabel">Command-Palette</label>
+            <input type="text" id="globalSearchInput" placeholder="Navigieren, suchen oder Schnellaktion starten …" autocomplete="off" />
             <span class="gsm-shortcut">ESC</span>
         </div>
         <div class="gsm-results" id="globalSearchResults"></div>
@@ -1916,11 +1933,12 @@ $showSystemSettingsNav = str_contains($navbarRequestPath, '/settings/system/')
         var searchTimer = null;
         var searchXhr = null;
         var activeIndex = -1;
+        var commandItems = <?= json_encode($commandPaletteItems, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
         function openSearch() {
             $overlay.addClass("show");
             $searchInput.val("").focus();
-            $searchResults.empty();
+            renderSearchResults(commandGroups(''), '');
             activeIndex = -1;
         }
 
@@ -1946,18 +1964,18 @@ $showSystemSettingsNav = str_contains($navbarRequestPath, '/settings/system/')
             activeIndex = -1;
 
             if (q.length < 2) {
-                $searchResults.empty();
+                renderSearchResults(commandGroups(q), q);
                 return;
             }
 
-            $searchResults.html('<div class="gsr-loading"><i class="fa-solid fa-spinner fa-spin"></i> Suche...</div>');
+            $searchResults.html('<div class="twplus-skeleton m-3" role="status" aria-label="Suche läuft"><div class="twplus-skeleton__line twplus-skeleton__line--short"></div><div class="twplus-skeleton__line"></div><div class="twplus-skeleton__line"></div></div>');
 
             searchTimer = setTimeout(function() {
                 searchXhr = $.getJSON("<?= BASE_PATH ?>api/system/global-search", {
                         q: q
                     })
                     .done(function(data) {
-                        renderSearchResults(data.results || [], q);
+                        renderSearchResults(commandGroups(q).concat(data.results || []), q);
                     })
                     .fail(function(jqXHR, status) {
                         if (status !== "abort") {
@@ -1966,6 +1984,18 @@ $showSystemSettingsNav = str_contains($navbarRequestPath, '/settings/system/')
                     });
             }, 300);
         });
+
+        function commandGroups(query) {
+            var needle = String(query || '').toLocaleLowerCase('de');
+            var grouped = {};
+            commandItems.forEach(function(item) {
+                var haystack = [item.title, item.subtitle, item.keywords, item.group].join(' ').toLocaleLowerCase('de');
+                if (needle && haystack.indexOf(needle) === -1) return;
+                if (!grouped[item.group]) grouped[item.group] = { module: item.group, icon: item.icon, items: [] };
+                grouped[item.group].items.push({ title: item.title, subtitle: item.subtitle, url: item.url });
+            });
+            return Object.keys(grouped).map(function(key) { return grouped[key]; });
+        }
 
         function renderSearchResults(groups, query) {
             if (groups.length === 0) {

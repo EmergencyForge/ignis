@@ -39,28 +39,30 @@ $SITE_TITLE = "Antrag einreichen";
                     <p class="twplus-empty__description">Sobald ein Formular für dich freigegeben ist, erscheint es an dieser Stelle.</p>
                 </div>
             <?php else: ?>
-                <div class="twplus-link-grid">
+                <div class="twplus-resource-grid">
                     <?php foreach ($typen as $typ): ?>
                         <a href="<?= BASE_PATH . 'forms/create?typ=' . (int) $typ->id ?>"
-                            class="twplus-link-card">
-                            <span class="twplus-link-card__icon"><i class="fa-solid fa-file-circle-plus" aria-hidden="true"></i></span>
-                            <div class="twplus-link-card__body">
-                                <h4 class="twplus-link-card__title"><?= htmlspecialchars($typ->name) ?></h4>
+                            class="twplus-resource-card no-underline">
+                            <div class="flex items-start gap-3">
+                                <span class="twplus-link-card__icon"><i class="fa-solid fa-file-circle-plus" aria-hidden="true"></i></span>
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="twplus-link-card__title"><?= htmlspecialchars($typ->name) ?></h4>
 
-                                <?php if (!empty($typ->beschreibung)): ?>
-                                    <p class="twplus-link-card__description">
-                                        <?= htmlspecialchars($typ->beschreibung) ?>
-                                    </p>
-                                <?php endif; ?>
-
-                                <div class="mt-4">
-                                    <span class="ignis-btn ignis-btn--soft-primary ignis-btn--sm">
-                                        <i class="fa-solid fa-arrow-right mr-1"></i>
-                                        Antrag stellen
-                                    </span>
+                                    <?php if (!empty($typ->beschreibung)): ?>
+                                        <p class="twplus-link-card__description">
+                                            <?= htmlspecialchars($typ->beschreibung) ?>
+                                        </p>
+                                    <?php endif; ?>
                                 </div>
                             </div>
-                            <i class="fa-solid fa-chevron-right twplus-link-card__arrow" aria-hidden="true"></i>
+
+                            <div class="mt-4 flex items-center justify-between">
+                                <span class="text-gray-500 text-xs">Formular öffnen</span>
+                                <span class="ignis-btn ignis-btn--soft-primary ignis-btn--sm">
+                                    <i class="fa-solid fa-arrow-right mr-1"></i>
+                                    Antrag stellen
+                                </span>
+                            </div>
                         </a>
                     <?php endforeach; ?>
                 </div>

@@ -237,8 +237,10 @@ use App\Helpers\Flash;
                     <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body" id="tzTemplateModalBody">
-                    <div class="flex justify-center">
-                        <div class="spinner-border" role="status"></div>
+                    <div class="twplus-skeleton" aria-label="Vorlagen werden geladen">
+                        <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+                        <div class="twplus-skeleton__line"></div>
+                        <div class="twplus-skeleton__line"></div>
                     </div>
                 </div>
             </div>
@@ -258,10 +260,10 @@ use App\Helpers\Flash;
                     <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body" id="importModalBody">
-                    <div class="flex justify-center">
-                        <div class="spinner-border" role="status">
-                            <span class="sr-only">Laden...</span>
-                        </div>
+                    <div class="twplus-skeleton" aria-label="Importstatus wird geladen">
+                        <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+                        <div class="twplus-skeleton__line"></div>
+                        <div class="twplus-skeleton__line"></div>
                     </div>
                 </div>
             </div>

@@ -160,7 +160,7 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
                                     </p>
 
                                     <?php if ($canEdit): ?>
-                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary mt-2" data-dialog-target="#modalQualiEdit">
+                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary mt-2" data-ignis-drawer-trigger="#profileQualificationDrawer">
                                             <i class="fa-solid fa-sliders mr-1"></i>Rang &amp; Qualifikationen
                                         </button>
                                     <?php endif; ?>
@@ -255,32 +255,28 @@ $SITE_TITLE = $row['fullname'] . " &rsaquo; Administration &rsaquo; " . SYSTEM_N
     <?php include __DIR__ . '/../../assets/components/profiles/modals.php' ?>
 
     <?php if ($canEdit): ?>
-    <!-- Modal: Rang & Qualifikationen -->
-    <div data-dialog-source class="modal" id="modalQualiEdit" tabindex="-1" aria-labelledby="modalQualiEditLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalQualiEditLabel"><i class="fa-solid fa-sliders mr-2"></i>Rang &amp; Qualifikationen</h5>
-                    <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="qualiEditForm">
-                        <?php
-                        include __DIR__ . '/../../assets/components/profiles/dienstgradselector_bf.php';
-                        include __DIR__ . '/../../assets/components/profiles/dienstgradselector_rd.php';
-                        include __DIR__ . '/../../assets/components/profiles/qualiselector.php';
-                        ?>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-dialog-dismiss>Abbrechen</button>
-                    <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" id="qualiSaveBtn">
-                        <i class="fa-solid fa-check mr-1"></i>Speichern
-                    </button>
-                </div>
-            </div>
+    <!-- Mobile-first Drawer: Rang & Qualifikationen -->
+    <aside class="ignis-drawer ignis-drawer--right" id="profileQualificationDrawer" role="dialog" aria-modal="true" aria-labelledby="profileQualificationDrawerTitle">
+        <div class="ignis-drawer__header">
+            <h3 class="ignis-drawer__title" id="profileQualificationDrawerTitle"><i class="fa-solid fa-sliders mr-2"></i>Rang &amp; Qualifikationen</h3>
+            <button type="button" class="ignis-drawer__close" data-ignis-drawer-close aria-label="Schließen">&times;</button>
         </div>
-    </div>
+        <div class="ignis-drawer__body">
+            <form id="qualiEditForm">
+                <?php
+                include __DIR__ . '/../../assets/components/profiles/dienstgradselector_bf.php';
+                include __DIR__ . '/../../assets/components/profiles/dienstgradselector_rd.php';
+                include __DIR__ . '/../../assets/components/profiles/qualiselector.php';
+                ?>
+            </form>
+        </div>
+        <div class="ignis-drawer__footer flex justify-end gap-2">
+            <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" data-ignis-drawer-close>Abbrechen</button>
+            <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" id="qualiSaveBtn">
+                <i class="fa-solid fa-check mr-1"></i>Speichern
+            </button>
+        </div>
+    </aside>
     <?php endif; ?>
 
     <?php include __DIR__ . "/../../assets/components/footer.php"; ?>

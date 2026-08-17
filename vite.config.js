@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'node:path';
+import tailwindcss from '@tailwindcss/vite';
 
 /**
  * Vite-Build-Konfiguration für ignis.
@@ -75,7 +76,7 @@ export default defineConfig(({ mode }) => {
         // damit der Browser die Fonts immer relativ zur CSS-Datei sucht — unabhängig
         // davon, ob die App unter `/`, einer Subdomain oder einem Subdirectory läuft.
         base: './',
-        plugins: stylesPass ? [dropStyleStubs()] : [],
+        plugins: [tailwindcss(), ...(stylesPass ? [dropStyleStubs()] : [])],
         build: {
             outDir: resolve(__dirname, 'public/assets/dist'),
             emptyOutDir: false,

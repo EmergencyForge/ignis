@@ -142,7 +142,7 @@
         document.getElementById('btn-versions')?.addEventListener('click', async () => {
             const list = document.getElementById('versions-list');
             if (!list) return;
-            list.innerHTML = '<div class="text-center p-3"><i class="fa-solid fa-spinner fa-spin"></i></div>';
+            list.innerHTML = '<div class="twplus-skeleton m-3" role="status" aria-label="Versionen werden geladen"><div class="twplus-skeleton__line twplus-skeleton__line--short"></div><div class="twplus-skeleton__line"></div><div class="twplus-skeleton__line"></div></div>';
             window.VisualEditorDialogs?.versions?.show();
 
             try {
