@@ -21,7 +21,7 @@ $SITE_TITLE = 'Neuer Patient - ' . htmlspecialchars($lage['einsatznummer']);
     <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" id="patient-create" data-page="edivi">
+<body data-theme="dark" id="patient-create" data-page="edivi">
     <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">

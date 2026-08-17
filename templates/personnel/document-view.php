@@ -18,7 +18,7 @@ use App\Security\CsrfProtection;
 $SITE_TITLE = htmlspecialchars($typLabel);
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="dark">
+<html lang="de" data-theme="dark">
 <head>
     <?php include __DIR__ . '/../../assets/components/_base/mitarbeiter/head.php'; ?>
     <style>

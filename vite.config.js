@@ -38,7 +38,7 @@ const styleEntries = {
     print:             'assets/css/print.scss',
     'template-editor': 'assets/css/template-editor.scss',
     ui:                'assets/css/ui.scss',
-    'bootstrap-compat': 'assets/css/bootstrap-compat.scss',
+    'legacy-utilities': 'assets/css/legacy-utilities.scss',
 };
 
 // Rollup erzeugt zu jeder Entry einen JS-Chunk — bei reinen

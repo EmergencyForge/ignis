@@ -76,6 +76,16 @@ server {
         return 403;
     }
 
+    # Kompilierte Plugin-Assets — muss VOR der allgemeinen Plugin-Sperre
+    # stehen. Nur die dokumentierte Endungs-Allowlist wird ausgeliefert.
+    location ~ ^/plugins/[a-z0-9_-]+/assets/(?:.+/)?[^/]+\.(?:css|js|map|woff2|png|svg|webp)$ {
+        try_files $uri =404;
+        expires 7d;
+        add_header Cache-Control "public, immutable";
+        add_header Content-Security-Policy $csp_header always;
+        add_header X-Frame-Options $frame_options always;
+    }
+
     # Nicht-web-Verzeichnisse — synchron zur .htaccess-Blocklist
     # (src, cli, tools, tests, database, config, docker, routes, plugins, .github)
     location ~ ^/(src|cli|tools|tests|database|config|docker|routes|plugins|\.github)/ {

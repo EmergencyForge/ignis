@@ -28,13 +28,13 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
 };
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
 </head>
 
-<body data-bs-theme="dark" data-page="antrag-create">
+<body data-theme="dark" data-page="antrag-create">
     <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
 
     <div class="container-full relative" id="mainpageContainer">

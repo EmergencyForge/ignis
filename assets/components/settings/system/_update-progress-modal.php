@@ -8,7 +8,7 @@
  * gerendert wurden).
  */
 ?>
-<div class="modal fade" id="update-progress-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+<div data-dialog-source class="modal" id="update-progress-modal" data-dialog-static tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">

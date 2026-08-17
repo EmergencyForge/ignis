@@ -14,7 +14,7 @@ if (!defined('BASE_PATH')) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="dark">
+<html lang="de" data-theme="dark">
 
 <head>
     <meta charset="UTF-8">
@@ -175,7 +175,7 @@ if (!defined('BASE_PATH')) {
     </style>
 </head>
 
-<body data-bs-theme="dark" data-page="error-404">
+<body data-theme="dark" data-page="error-404">
     <main class="err404">
         <div class="err404__signal" aria-hidden="true">
             <span class="err404__ring"></span>

@@ -1010,6 +1010,39 @@ table.twplus-table {
   }
 }
 
+// Bestehende serverseitige Formulare koennen als Body des Ignis-Dialogs
+// weiterverwendet werden. Die alten Bootstrap-Container liefern nur noch die
+// Inhaltsstruktur; Darstellung, Fokus und Lebenszyklus kommen von Dialog.js.
+[data-dialog-source] { display: none; }
+
+.btn-close {
+  position: relative;
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0;
+  color: var(--text-dimmed, #818189);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+  appearance: none;
+  &::before, &::after { position: absolute; top: 50%; left: 50%; width: 12px; height: 1.5px; background: currentColor; content: ''; transform: translate(-50%, -50%) rotate(45deg); }
+  &::after { transform: translate(-50%, -50%) rotate(-45deg); }
+  &:hover, &:focus-visible { color: #fff; background: rgba(255, 255, 255, 0.06); outline: none; }
+}
+.btn-close-white { color: #fff; }
+
+.ignis-dialog--embedded {
+  .ignis-dialog__body { padding: 0; overflow: auto; }
+  .modal-content { display: flex; min-height: 0; flex: 1; flex-direction: column; background: transparent; }
+  .modal-header, .modal-footer { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; }
+  .modal-header { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+  .modal-footer { justify-content: flex-end; border-top: 1px solid rgba(255, 255, 255, 0.08); }
+  .modal-title { margin: 0; color: var(--text-title, #fff); font-size: 1rem; }
+  .modal-body { min-height: 0; flex: 1; overflow: auto; padding: 1.25rem; }
+  .btn-close { margin-left: auto; color: inherit; background: transparent; border: 0; cursor: pointer; }
+}
+
 // Kein Scroll auf dem Body wenn Dialog offen
 body:has(.ignis-dialog-backdrop.is-open) {
   overflow: hidden;

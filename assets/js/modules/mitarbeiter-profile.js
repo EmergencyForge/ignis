@@ -301,10 +301,7 @@
             const pn = document.getElementById('display-profilename');
             if (pn) pn.textContent = data.display.profileName;
             const modalEl = document.getElementById('modalQualiEdit');
-            if (modalEl && global.bootstrap && global.bootstrap.Modal) {
-              const inst = global.bootstrap.Modal.getInstance(modalEl);
-              if (inst) inst.hide();
-            }
+            if (modalEl && global.Dialog) global.Dialog.closeElement(modalEl);
             toast('Rang & Qualifikationen gespeichert', 'success');
             setTimeout(() => location.reload(), 600);
           } else {

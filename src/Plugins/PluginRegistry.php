@@ -51,11 +51,7 @@ final class PluginRegistry
         foreach (glob($pluginsDir . '/*/manifest.php') ?: [] as $manifestFile) {
             $dir = dirname($manifestFile);
             try {
-                $data = require $manifestFile;
-                if (!is_array($data)) {
-                    throw new \InvalidArgumentException('manifest.php gibt kein Array zurück.');
-                }
-                $manifest = PluginManifest::fromArray($data);
+                $manifest = PluginManifest::fromFile($manifestFile);
                 $discovered[$manifest->id] = new Plugin($manifest, $dir);
             } catch (\Throwable $e) {
                 $skipped[] = ['id' => basename($dir), 'reason' => 'Ungültiges Manifest: ' . $e->getMessage()];

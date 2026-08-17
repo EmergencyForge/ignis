@@ -10,8 +10,24 @@ require_once __DIR__ . '/assets/config/config.php';
   include __DIR__ . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" id="dashboard" class="container-full position-relative">
+<body data-theme="dark" id="dashboard" class="container-full position-relative">
   <div class="twplus-page">
+    <div
+      id="hosting-self-test"
+      class="alert alert-warning d-none mt-3"
+      role="status"
+      aria-live="polite"
+      data-base-path="<?= htmlspecialchars(BASE_PATH, ENT_QUOTES) ?>"
+    >
+      <strong data-hosting-self-test-title>Hosting-Konfiguration prüfen</strong>
+      <span data-hosting-self-test-message></span>
+      <a
+        class="fw-bold link-underline"
+        href="https://github.com/EmergencyForge/ignis#hosting-und-url-rewriting"
+        target="_blank"
+        rel="noopener noreferrer"
+      >Hosting-Hilfe öffnen</a>
+    </div>
     <div class="row mt-3">
       <div class="col-4 mx-auto text-center">
         <img src="<?php echo SYSTEM_LOGO ?>" alt="<?php echo SYSTEM_NAME ?>" style="height:128px;width:auto">
@@ -90,6 +106,7 @@ require_once __DIR__ . '/assets/config/config.php';
 
   </div>
   <?php include __DIR__ . "/assets/components/footer.php"; ?>
+  <script type="module" src="<?= BASE_PATH ?>assets/js/modules/hosting-self-test.js"></script>
 </body>
 
 </html>

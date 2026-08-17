@@ -154,7 +154,7 @@ function showToast(message, type = "info") {
             <div class="toast align-items-center text-white bg-${type} border-0" role="alert">
                 <div class="d-flex">
                     <div class="toast-body">${escapeHtml(message)}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"></button>
                 </div>
             </div>
         `;
@@ -225,17 +225,17 @@ function showDiagnosticModal(diagnostics) {
 
   if (!modal) {
     const modalHTML = `
-            <div class="modal fade" id="diagnosticModal" tabindex="-1">
+            <div data-dialog-source class="modal" id="diagnosticModal" tabindex="-1">
                 <div class="modal-dialog modal-lg modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Update-Diagnose</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <button type="button" class="btn-close" data-dialog-dismiss></button>
                         </div>
                         <div class="modal-body" id="diagnostic-modal-body">
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+                            <button type="button" class="btn btn-secondary" data-dialog-dismiss>Schließen</button>
                         </div>
                     </div>
                 </div>
@@ -249,14 +249,7 @@ function showDiagnosticModal(diagnostics) {
   // Setze Content
   showDiagnosticReport(diagnostics, "diagnostic-modal-body");
 
-  // Öffne Modal
-  if (typeof bootstrap !== "undefined" && bootstrap.Modal) {
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
-  } else {
-    modal.style.display = "block";
-    modal.classList.add("show");
-  }
+  Dialog.openElement(modal);
 }
 
 // Beispiel-Integration für Update-Prozess

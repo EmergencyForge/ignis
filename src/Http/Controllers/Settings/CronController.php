@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Cron\CronScheduler;
+use App\Cron\JobHandler\ConsoleHandler;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
@@ -20,7 +21,11 @@ use PDO;
  */
 final class CronController extends Controller
 {
-    public function __construct(PDO $pdo, private readonly CronScheduler $scheduler)
+    public function __construct(
+        PDO $pdo,
+        private readonly CronScheduler $scheduler,
+        private readonly ConsoleHandler $consoleHandler,
+    )
     {
         parent::__construct($pdo);
     }
@@ -37,6 +42,12 @@ final class CronController extends Controller
                        FROM intra_cron_jobs
                       ORDER BY is_builtin DESC, identifier ASC")
             ->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($jobs as &$job) {
+            $job['handler_available'] = $job['handler_type'] !== 'console'
+                || $this->consoleHandler->isAvailable((string) $job['handler']);
+        }
+        unset($job);
 
         $token = defined('CRON_ENDPOINT_TOKEN') ? (string) CRON_ENDPOINT_TOKEN : '';
 

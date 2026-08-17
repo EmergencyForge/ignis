@@ -39,7 +39,7 @@ function fmt_elapsed(int|string $seconds): string
 }
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
@@ -61,7 +61,7 @@ function fmt_elapsed(int|string $seconds): string
     </script>
 </head>
 
-<body data-bs-theme="dark" data-page="protokolle">
+<body data-theme="dark" data-page="protokolle">
     <div class="flex">
         <?php
         $einsatzActivePage = 'view';

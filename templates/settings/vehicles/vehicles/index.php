@@ -10,7 +10,7 @@ use App\Helpers\Flash;
 ?>
 
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php
@@ -18,7 +18,7 @@ use App\Helpers\Flash;
     ?>
 </head>
 
-<body data-bs-theme="dark" data-page="fahrzeuge">
+<body data-theme="dark" data-page="fahrzeuge">
     <?php include __DIR__ . "/../../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
@@ -227,14 +227,14 @@ use App\Helpers\Flash;
 
     <!-- TZ Template Manager Modal -->
     <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-    <div class="modal fade" id="tzTemplateModal" tabindex="-1" aria-labelledby="tzTemplateModalLabel" aria-hidden="true">
+    <div data-dialog-source class="modal" id="tzTemplateModal" tabindex="-1" aria-labelledby="tzTemplateModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="tzTemplateModalLabel">
                         <i class="fa-solid fa-shapes mr-2"></i>TZ-Vorlagen verwalten
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body" id="tzTemplateModalBody">
                     <div class="flex justify-center">
@@ -248,14 +248,14 @@ use App\Helpers\Flash;
 
     <!-- EMD Vehicle Import Modal -->
     <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
-    <div class="modal fade" id="vehicleImportModal" tabindex="-1" aria-labelledby="vehicleImportModalLabel" aria-hidden="true">
+    <div data-dialog-source class="modal" id="vehicleImportModal" tabindex="-1" aria-labelledby="vehicleImportModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="vehicleImportModalLabel">
                         <i class="fa-solid fa-satellite-dish mr-2"></i>Fahrzeuge aus EMD importieren
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Schließen"></button>
+                    <button type="button" class="btn-close" data-dialog-dismiss aria-label="Schließen"></button>
                 </div>
                 <div class="modal-body" id="importModalBody">
                     <div class="flex justify-center">

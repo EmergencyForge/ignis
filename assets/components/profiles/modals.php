@@ -6,7 +6,7 @@ use App\Security\CsrfProtection;
 ?>
 
 <!-- Dokument-Viewer Modal (Akte-Stil) -->
-<div class="modal fade twplus-dialog-surface" id="documentViewerModal" tabindex="-1" aria-hidden="true">
+<div data-dialog-source class="modal twplus-dialog-surface" id="documentViewerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <!-- Akte-Header: Metadaten als kompakte Zeile -->
@@ -19,7 +19,7 @@ use App\Security\CsrfProtection;
                     </div>
                     <div class="flex items-center gap-1 shrink-0">
                         <a href="#" id="docViewer-detailLink" class="ignis-btn ignis-btn--sm ignis-btn--ghost" title="Detailseite"><i class="fa-solid fa-up-right-from-square"></i></a>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-dialog-dismiss></button>
                     </div>
                 </div>
                 <!-- Meta-Chips -->
@@ -44,7 +44,7 @@ use App\Security\CsrfProtection;
 
 <script>
 function openDocumentViewer(docid) {
-    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('documentViewerModal'));
+    const modal = Dialog.openElement('#documentViewerModal');
     const chipsEl = document.getElementById('docViewer-chips');
     const iframe = document.getElementById('docViewer-iframe');
     const titleEl = document.getElementById('docViewer-title');
@@ -58,7 +58,6 @@ function openDocumentViewer(docid) {
     iframe.src = 'about:blank';
     statusEl.innerHTML = '';
     buttonsEl.innerHTML = '';
-    modal.show();
 
     fetch('<?= BASE_PATH ?>api/documents/get-document?docid=' + encodeURIComponent(docid))
         .then(r => r.json())
@@ -135,7 +134,7 @@ async function toggleArchiveFromViewer(docid, archive) {
         })
     }).then(r => r.json()).then(result => {
         if (result.success) {
-            bootstrap.Modal.getInstance(document.getElementById('documentViewerModal'))?.hide();
+            Dialog.closeElement('#documentViewerModal');
             location.reload();
         }
     });
@@ -235,12 +234,12 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
     $templateManager = new DocumentTemplateManager($pdo);
     $customTemplates = $templateManager->listTemplates();
 ?>
-    <div class="modal fade twplus-dialog-surface" id="modalDokuCreate" tabindex="-1" aria-labelledby="modalDokuCreateLabel" aria-hidden="true">
+    <div data-dialog-source class="modal twplus-dialog-surface" id="modalDokuCreate" tabindex="-1" aria-labelledby="modalDokuCreateLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalDokuCreateLabel">Dokument anlegen</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dialog-dismiss aria-label="Close"></button>
                 </div>
                 <form id="newDocForm" method="post">
                     <div class="modal-body">
@@ -278,7 +277,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                         </div>
                     </div>
                     <div class="modal-footer twplus-mobile-actions">
-                        <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                        <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
                         <button type="button" class="ignis-btn ignis-btn--outline-info" id="btn-preview-doc" title="PDF-Vorschau mit den aktuell eingegebenen Daten">
                             <i class="fa-solid fa-eye mr-1"></i>Vorschau
                         </button>
@@ -537,7 +536,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
         });
 
         // Cleanup beim Schließen des Modals
-        document.getElementById('modalDokuCreate')?.addEventListener('hidden.bs.modal', async function() {
+        document.getElementById('modalDokuCreate')?.addEventListener('hidden.ignis.dialog', async function() {
             for (let id in editorInstances) {
                 if (editorInstances[id]) {
                     try {

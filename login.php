@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
     include __DIR__ . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" id="alogin" class="relative">
+<body data-theme="dark" id="alogin" class="relative">
     <div class="twplus-login">
         <section class="twplus-login__panel">
             <div class="twplus-login__content">

@@ -1,15 +1,16 @@
-# Plugins sind reiner Anwendungscode und werden ausschließlich über den
-# PluginLoader eingebunden — direkter HTTP-Zugriff würde Templates und
-# Migrations-Dateien ohne Bootstrap ausführen. Deshalb ist das gesamte
-# Verzeichnis für den Webserver gesperrt.
-#
-# Wenn Plugins später eigene statische Assets ausliefern (plugin.css,
-# plugin.js), bekommt deren assets/-Unterordner hier eine explizite
-# Ausnahme — bis dahin gilt: alles dicht.
+# Plugins sind Anwendungscode. Öffentlich sind nur statische Dateien aus
+# plugins/<id>/assets/ mit einer kleinen Endungs-Allowlist. PHP, Templates,
+# Manifest, Migrationen und beliebige Dateien außerhalb von assets/ bleiben
+# auch dann gesperrt, wenn sie eine vermeintlich harmlose Endung tragen.
+SetEnvIf Request_URI "/plugins/[a-z0-9_-]+/assets/(?:.+/)?[^/]+\.(css|js|map|woff2|png|svg|webp)$" plugin_static_asset=1
+
 <IfModule mod_authz_core.c>
-    Require all denied
+    <RequireAny>
+        Require env plugin_static_asset
+    </RequireAny>
 </IfModule>
 <IfModule !mod_authz_core.c>
-    Order allow,deny
+    Order deny,allow
     Deny from all
+    Allow from env=plugin_static_asset
 </IfModule>

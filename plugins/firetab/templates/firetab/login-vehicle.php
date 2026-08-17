@@ -12,7 +12,7 @@
 use App\Helpers\Flash;
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
@@ -54,7 +54,7 @@ use App\Helpers\Flash;
     </style>
 </head>
 
-<body data-bs-theme="dark">
+<body data-theme="dark">
     <div class="container mx-auto">
         <div class="login-container">
             <?php if (isset($_SESSION['einsatz_vehicle_id'])): ?>

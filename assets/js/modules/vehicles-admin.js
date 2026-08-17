@@ -145,10 +145,9 @@
         const TZ_TPL_API = cfg.tzTplApi;
 
         global.openTzTemplateManager = function () {
-            const modal = new global.bootstrap.Modal(document.getElementById('tzTemplateModal'));
+            const modal = global.Dialog.openElement('#tzTemplateModal');
             const body  = document.getElementById('tzTemplateModalBody');
             body.innerHTML = '<div class="flex justify-center py-4"><div class="spinner-border" role="status"></div></div>';
-            modal.show();
             loadTzTemplateList();
         };
 
@@ -298,18 +297,16 @@
 
         const importModal = document.getElementById('vehicleImportModal');
         if (importModal) {
-            importModal.addEventListener('hidden.bs.modal', function () {
+            importModal.addEventListener('hidden.ignis.dialog', function () {
                 if (importDidChange) location.reload();
             });
         }
 
         global.openVehicleImport = function () {
             importDidChange = false;
-            const modal = new global.bootstrap.Modal(importModal);
+            global.Dialog.openElement(importModal);
             const body  = document.getElementById('importModalBody');
             body.innerHTML = '<div class="flex justify-center py-4"><div class="spinner-border" role="status"></div></div>';
-            modal.show();
-
             fetch(IMPORT_API + '?action=status')
                 .then((r) => r.json())
                 .then((data) => {
@@ -377,7 +374,7 @@
                     .catch(() => {});
             }, 3000);
 
-            importModal.addEventListener('hidden.bs.modal', () => {
+            importModal.addEventListener('hidden.ignis.dialog', () => {
                 if (waitingPollTimer) { clearInterval(waitingPollTimer); waitingPollTimer = null; }
             }, { once: true });
         }

@@ -59,7 +59,7 @@
   --input-text: #fff;
 }
 
-[data-bs-theme="dark"] {
+[data-theme="dark"] {
   --chat-bg-light: rgba(255, 255, 255, 0.05);
   --chat-border-light: #192231;
   --message-shadow: rgba(0, 0, 0, 0.3);
@@ -491,7 +491,7 @@ body {
   border-top: 1px solid var(--darkgray);
 }
 
-[data-bs-theme="dark"] .footer {
+[data-theme="dark"] .footer {
   background-color: var(--body-bg) !important;
 }
 

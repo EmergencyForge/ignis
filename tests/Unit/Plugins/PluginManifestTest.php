@@ -101,4 +101,21 @@ class PluginManifestTest extends TestCase
         $this->assertFalse($m->isCompatibleWith('2.0.0'));
         $this->assertFalse($m->isCompatibleWith('1.0.0'));
     }
+
+    #[Test]
+    public function it_reads_literal_manifest_files_without_executing_code(): void
+    {
+        $file = tempnam(sys_get_temp_dir(), 'ignis-manifest-');
+        $marker = $file . '.executed';
+        file_put_contents($file, "<?php file_put_contents(" . var_export($marker, true) . ", 'x'); return ['id'=>'evil','name'=>'Evil','version'=>'1.0.0'];");
+
+        try {
+            $this->expectException(InvalidArgumentException::class);
+            PluginManifest::fromFile($file);
+        } finally {
+            $this->assertFileDoesNotExist($marker);
+            @unlink($file);
+            @unlink($marker);
+        }
+    }
 }

@@ -20,7 +20,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
     <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" id="manv-ressourcen" data-page="edivi">
+<body data-theme="dark" id="manv-ressourcen" data-page="edivi">
     <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -34,7 +34,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                     <button type="button" class="ignis-btn ignis-btn--success ignis-btn--icon" onclick="openQuickAddRessourceModal()" title="Schnell hinzufügen">
                         <i class="fas fa-bolt"></i>
                     </button>
-                    <button type="button" class="ignis-btn ignis-btn--soft-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                    <button type="button" class="ignis-btn ignis-btn--soft-primary" data-dialog-target="#createModal">
                         <i class="fas fa-plus mr-1"></i> Fahrzeug hinzufügen
                     </button>
                 </div>
@@ -127,14 +127,14 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
         </template>
 
         <!-- Create Modal -->
-        <div class="modal fade twplus-dialog-surface" id="createModal" tabindex="-1">
+        <div data-dialog-source class="modal twplus-dialog-surface" id="createModal" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content bg-[rgba(0,0,0,0.3)]">
                     <form method="POST" action="">
                         <input type="hidden" name="action" value="create">
                         <div class="modal-header">
                             <h5 class="modal-title"><i class="fas fa-ambulance mr-2"></i>Fahrzeug hinzufügen</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            <button type="button" class="btn-close" data-dialog-dismiss></button>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3" style="display: none;">
@@ -193,7 +193,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" data-bs-dismiss="modal">Abbrechen</button>
+                            <button type="button" class="ignis-btn ignis-btn--ghost" data-dialog-dismiss>Abbrechen</button>
                             <button type="submit" class="ignis-btn ignis-btn--soft-primary ignis-btn--lg"><i class="fas fa-plus mr-2"></i>Fahrzeug hinzufügen</button>
                         </div>
                     </form>
@@ -369,11 +369,11 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             });
         }
 
-        document.getElementById('createModal')?.addEventListener('shown.bs.modal', function() {
+        document.getElementById('createModal')?.addEventListener('shown.ignis.dialog', function() {
             searchInput.focus();
         });
 
-        document.getElementById('createModal')?.addEventListener('hidden.bs.modal', function() {
+        document.getElementById('createModal')?.addEventListener('hidden.ignis.dialog', function() {
             searchInput.value = '';
             fahrzeugIdInput.value = '';
             bezeichnungInput.value = '';
@@ -383,9 +383,6 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             selectedVehicle = null;
         });
 
-        document.getElementById('quickAddModal')?.addEventListener('shown.bs.modal', function() {
-            document.getElementById('quick_bezeichnung').focus();
-        });
     </script>
 </body>
 

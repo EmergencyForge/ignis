@@ -257,7 +257,7 @@ if ($isDevMode) {
 ?>
 
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php
@@ -266,7 +266,7 @@ if ($isDevMode) {
     ?>
 </head>
 
-<body data-bs-theme="dark" data-page="settings">
+<body data-theme="dark" data-page="settings">
     <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">

@@ -10,7 +10,7 @@
 use App\Helpers\Flash;
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <meta charset="UTF-8" />
@@ -26,7 +26,7 @@ use App\Helpers\Flash;
     <meta name="theme-color" content="<?= SYSTEM_COLOR ?>" />
 </head>
 
-<body data-bs-theme="dark" data-page="antragstyp-create">
+<body data-theme="dark" data-page="antragstyp-create">
     <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">

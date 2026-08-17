@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Cron\JobHandler;
 
 use App\Cron\JobResult;
+use App\Plugins\PluginLoader;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Console\Command\Command;
 
 /**
  * Führt einen registrierten Symfony-Console-Command via CLI-Entrypoint
@@ -34,10 +37,34 @@ final class ConsoleHandler implements JobHandlerInterface
         'updates:check',
     ];
 
+    public function __construct(private readonly ContainerInterface $container)
+    {
+    }
+
+    public function isAvailable(string $handler): bool
+    {
+        if (in_array($handler, self::ALLOWLIST, true)) {
+            return true;
+        }
+
+        try {
+            $classes = $this->container->get(PluginLoader::class)->mergeConsoleCommands([]);
+            foreach ($classes as $class) {
+                $command = $this->container->get($class);
+                if ($command instanceof Command && $command->getName() === $handler) {
+                    return true;
+                }
+            }
+        } catch (\Throwable) {
+            return false;
+        }
+        return false;
+    }
+
     public function run(string $handler, array $config, int $timeoutSeconds): JobResult
     {
-        if (!in_array($handler, self::ALLOWLIST, true)) {
-            return JobResult::failed(0, "Command '{$handler}' ist nicht in der Allowlist registriert.");
+        if (!$this->isAvailable($handler)) {
+            return JobResult::skipped("Command '{$handler}' ist nicht registriert; das zugehörige Plugin ist möglicherweise inaktiv.");
         }
 
         $appRoot = dirname(__DIR__, 3);
