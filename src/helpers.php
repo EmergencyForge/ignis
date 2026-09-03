@@ -49,17 +49,33 @@ if (!function_exists('asset')) {
      * muss. Existiert die Datei nicht, entfällt der Query-String.
      *
      *     asset('public/assets/dist/vendor.css')
-     *     → /public/assets/dist/vendor.css?v=1713456789
+     *     → /assets/dist/vendor.css?v=1713456789
+     *
+     * Das Docroot ist public/. Ein führendes `public/` im Pfad fällt
+     * deshalb aus der URL heraus; die Datei wird für den Cache-Buster
+     * zuerst unter public/ gesucht (dort landen auch die vom Build
+     * gespiegelten assets/img, assets/js usw.) und sonst im Projekt-Root
+     * (Plugin-Assets, die eine Route ausliefert).
      *
      * BASE_PATH wird vorangestellt, damit Subdirectory-Installs
      * (`/intrarp/abc/…`) automatisch korrekt verlinkt werden.
      */
     function asset(string $path): string
     {
-        $relPath  = ltrim($path, '/');
-        $base     = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-        $absolute = dirname(__DIR__) . '/' . $relPath;
-        $version  = is_file($absolute) ? (int) filemtime($absolute) : 0;
+        $relPath = ltrim($path, '/');
+        if (str_starts_with($relPath, 'public/')) {
+            $relPath = substr($relPath, strlen('public/'));
+        }
+        $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
+        $root = dirname(__DIR__);
+
+        $version = 0;
+        foreach ([$root . '/public/' . $relPath, $root . '/' . $relPath] as $absolute) {
+            if (is_file($absolute)) {
+                $version = (int) filemtime($absolute);
+                break;
+            }
+        }
 
         $url = rtrim($base, '/') . '/' . $relPath;
         return $version > 0 ? $url . '?v=' . $version : $url;

@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'node:path';
+import { resolve, extname, basename } from 'node:path';
+import { cpSync, existsSync, statSync } from 'node:fs';
 import tailwindcss from '@tailwindcss/vite';
 
 /**
@@ -58,6 +59,50 @@ function dropStyleStubs() {
     };
 }
 
+// Alles unter assets/, was der Browser per URL lädt, ins Docroot spiegeln.
+// Der Webserver liefert nur noch aus public/ aus; Bilder, Webfonts, die
+// unbundled ES-Module unter assets/js/ui und assets/js/modules, die
+// Standalone-CSS und die Fremdbibliotheken unter assets/_ext lagen aber
+// im Repo-Root. publicDir ist bewusst aus (siehe unten), also kopiert
+// dieser Schritt. Das Ergebnis wird wie die dist-Bundles committet, weil
+// auf dem Webspace kein Node läuft.
+//
+// Nicht kopiert werden die Quellen, die Vite selbst verarbeitet: SCSS,
+// die Tailwind-Quelle und die vier Bundle-Entries.
+const viteSources = new Set([
+    ...Object.values(scriptEntries).map((p) => basename(p)),
+    'tailwind.css',
+]);
+
+function publishStaticAssets(root) {
+    const copies = [
+        ['assets/img',     'public/assets/img'],
+        ['assets/fonts',   'public/assets/fonts'],
+        ['assets/favicon', 'public/assets/favicon'],
+        ['assets/_ext',    'public/assets/_ext'],
+        ['assets/json',    'public/assets/json'],
+        ['assets/css',     'public/assets/css'],
+        ['assets/js',      'public/assets/js'],
+    ];
+    const filter = (src) => {
+        if (statSync(src).isDirectory()) return true;
+        if (extname(src) === '.scss') return false;
+        return !viteSources.has(basename(src));
+    };
+
+    return {
+        name: 'ignis-publish-static-assets',
+        apply: 'build',
+        closeBundle() {
+            for (const [from, to] of copies) {
+                const src = resolve(root, from);
+                if (!existsSync(src)) continue;
+                cpSync(src, resolve(root, to), { recursive: true, filter });
+            }
+        },
+    };
+}
+
 export default defineConfig(({ mode }) => {
     const singleEntry = Object.hasOwn(scriptEntries, mode) ? mode : null;
     const stylesPass  = mode === 'styles';
@@ -77,7 +122,9 @@ export default defineConfig(({ mode }) => {
         // damit der Browser die Fonts immer relativ zur CSS-Datei sucht — unabhängig
         // davon, ob die App unter `/`, einer Subdomain oder einem Subdirectory läuft.
         base: './',
-        plugins: [tailwindcss(), ...(stylesPass ? [dropStyleStubs()] : [])],
+        // Der styles-Pass läuft als letzter (siehe package.json) und
+        // spiegelt danach die statischen Dateien nach public/assets.
+        plugins: [tailwindcss(), ...(stylesPass ? [dropStyleStubs(), publishStaticAssets(__dirname)] : [])],
         build: {
             outDir: resolve(__dirname, 'public/assets/dist'),
             emptyOutDir: false,
