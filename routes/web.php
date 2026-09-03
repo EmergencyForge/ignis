@@ -36,7 +36,9 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PluginAssetController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StorageFileController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\AuthMiddleware;
 use App\Http\Middleware\PolicyMiddleware;
@@ -456,6 +458,18 @@ $settingsApiRedirect = function (string $target): \Closure {
 };
 $router->match(['GET', 'POST'], '/settings/vehicles/defects/handler.php',       $settingsApiRedirect('/api/vehicles/defects-handler'));
 $router->match(['GET', 'POST'], '/settings/system/regenerate-api-key.php',      $settingsApiRedirect('/api/system/regenerate-api-key'));
+
+// ----------------------------------------------------------------------------
+//  Statische Dateien außerhalb des Docroots
+//
+//  Plugin-Assets und Uploads liegen nicht unter public/. Diese Routen
+//  liefern sie mit Endungs-Allowlist und realpath-Prüfung aus; die
+//  Details stehen in den Controllern. Keine Auth — wie zuvor beim
+//  direkten Zugriff durch den Webserver.
+// ----------------------------------------------------------------------------
+
+$router->get('/plugins/{id:[a-z0-9_-]+}/assets/{path:.+}', [PluginAssetController::class, 'serve']);
+$router->get('/storage/{area:[a-z-]+}/{file:[^/]+}',       [StorageFileController::class, 'serve']);
 
 /*
  * BEISPIEL — Benutzer-Modul mit Policy-basierter Autorisierung
