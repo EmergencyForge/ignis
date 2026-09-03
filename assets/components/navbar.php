@@ -1317,6 +1317,41 @@ $roleHex = $roleColorMap[$roleColor] ?? '#6c757d';
         color: #fff;
     }
 
+    /* Darstellungsmodus im Benutzermenü */
+    .user-dropdown-section {
+        padding: 0.35rem 0.65rem 0.15rem;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-3);
+    }
+
+    .user-dropdown-theme .user-dropdown-item {
+        width: 100%;
+        background: none;
+        border: 0;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .user-dropdown-item.is-current,
+    .user-dropdown-item.is-current i {
+        color: var(--accent);
+    }
+
+    .user-dropdown-check {
+        margin-left: auto;
+        font-size: 0.75rem;
+    }
+
+    .user-dropdown-sep {
+        height: 1px;
+        margin: 0.35rem 0;
+        background: var(--fill-2);
+    }
+
     /* Overlay — smooth backdrop with blur */
     .sidebar-overlay {
         position: fixed;
@@ -1706,6 +1741,28 @@ $topbarTimeAgo = static function (string $createdAt): string {
                         </span>
                     </div>
                 </div>
+                <?php
+                // Darstellungsmodus: drei Knöpfe in einem Formular, ohne JS.
+                // ProfileController::theme() speichert und leitet hierher zurück.
+                $navTheme  = \App\Helpers\Theme::mode();
+                $navThemes = [
+                    'dark'   => ['Dunkel', 'moon'],
+                    'light'  => ['Hell', 'sun'],
+                    'system' => ['Wie das System', 'circle-half-stroke'],
+                ];
+                ?>
+                <div class="user-dropdown-section">Darstellung</div>
+                <form method="POST" action="<?= BASE_PATH ?>profile/theme" class="user-dropdown-theme">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(\App\Security\CsrfProtection::getToken(), ENT_QUOTES) ?>">
+                    <?php foreach ($navThemes as $navThemeKey => [$navThemeLabel, $navThemeIcon]): ?>
+                        <button type="submit" name="theme" value="<?= $navThemeKey ?>" class="user-dropdown-item<?= $navTheme === $navThemeKey ? ' is-current' : '' ?>" role="menuitemradio" aria-checked="<?= $navTheme === $navThemeKey ? 'true' : 'false' ?>">
+                            <i class="fa-solid fa-<?= $navThemeIcon ?>"></i>
+                            <span><?= $navThemeLabel ?></span>
+                            <?php if ($navTheme === $navThemeKey): ?><i class="fa-solid fa-check user-dropdown-check"></i><?php endif; ?>
+                        </button>
+                    <?php endforeach; ?>
+                </form>
+                <div class="user-dropdown-sep"></div>
                 <a href="<?= BASE_PATH ?>logout" class="user-dropdown-item">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     <span>Abmelden</span>

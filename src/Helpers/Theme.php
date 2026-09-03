@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Helpers;
 
+use App\Models\User;
+use App\Session\SessionManager;
+
 /**
- * Darstellung: Akzentfarbe der Installation.
+ * Darstellung: Akzentfarbe der Installation und Modus des Kontos.
  *
  * Die Stylesheets kennen die Farben nur als Tokens (assets/css/_tokens.scss).
  * Der Betreiber legt in der Systemkonfiguration SYSTEM_COLOR fest; head.php
@@ -13,11 +16,64 @@ namespace App\Helpers;
  * ein Stylesheet lädt. Solange die Farbe auf einem der Auslieferungswerte
  * steht, bleibt der Tag weg, damit der helle Satz seinen eigenen,
  * dunkleren Akzent behält.
+ *
+ * Der Modus (dark, light, system) steht in intra_users.theme und in der
+ * Session. headScript() setzt ihn als data-theme am <html>, bevor ein
+ * Stylesheet lädt; „system" löst das Script nach der Systemeinstellung
+ * des Browsers auf. Die Seiten bauen ihr <html> selbst (die Hülle kommt mit
+ * I4), deshalb ein Script statt eines Attributs im Template.
  */
 final class Theme
 {
     /** Akzent des dunklen Satzes, identisch mit --accent in _tokens.scss. */
     public const DEFAULT_ACCENT = '#f0500a';
+
+    /** Erlaubte Werte für intra_users.theme. */
+    public const MODES = ['dark', 'light', 'system'];
+
+    /**
+     * Modus des angemeldeten Kontos. Aus der Session; eine Session von vor
+     * dieser Spalte liest ihn einmal aus intra_users und merkt ihn sich.
+     * Ohne Login: dark.
+     */
+    public static function mode(): string
+    {
+        $mode = $_SESSION['theme'] ?? null;
+        if (is_string($mode) && in_array($mode, self::MODES, true)) {
+            return $mode;
+        }
+
+        $userId = SessionManager::userId();
+        if ($userId === null) {
+            return 'dark';
+        }
+
+        try {
+            $stored = User::query()->whereKey($userId)->value('theme');
+        } catch (\Throwable) {
+            return 'dark';
+        }
+
+        $mode = is_string($stored) && in_array($stored, self::MODES, true) ? $stored : 'dark';
+        $_SESSION['theme'] = $mode;
+
+        return $mode;
+    }
+
+    /**
+     * Inline-Script für den <head>, vor dem ersten Stylesheet: setzt
+     * data-theme am <html>, damit die Tokens des richtigen Satzes gelten,
+     * bevor etwas gezeichnet wird.
+     */
+    public static function headScript(): string
+    {
+        $mode = self::mode();
+        if ($mode === 'system') {
+            return "<script>document.documentElement.dataset.theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';</script>";
+        }
+
+        return '<script>document.documentElement.dataset.theme = "' . $mode . '";</script>';
+    }
 
     /**
      * Werte, die als „nicht angepasst" gelten: der Token-Standard, das

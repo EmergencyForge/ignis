@@ -219,6 +219,10 @@ class SessionManager
         $_SESSION['aktenid']            = $user['aktenid'] ?? null;
         $_SESSION['role']               = $user['role'] ?? null;
         $_SESSION['discordtag']         = $user['discord_id'] ?? null;
+        // Darstellungsmodus des Kontos (dark|light|system); head.php liest
+        // ihn über App\Helpers\Theme, ProfileController::theme() hält
+        // Session und Spalte gleich.
+        $_SESSION['theme']              = (string) ($user['theme'] ?? 'dark');
         $_SESSION['permissions']        = $permissions;
         $_SESSION['permissions_loaded'] = time();
     }
