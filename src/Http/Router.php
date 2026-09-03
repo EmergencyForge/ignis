@@ -30,9 +30,25 @@ use function FastRoute\simpleDispatcher;
  *   - Closure: fn(Request $r) => Response
  *   - [ControllerClass::class, 'method'] — wird via Container aufgelöst
  *   - "ControllerClass@method" — String-Kurzform
+ *
+ * Haken (angehängt in App\Http\RouterFactory, der einzigen Stelle, an der
+ * ein Router entsteht):
+ *   - beforeDispatch(): läuft zu Beginn jedes dispatch(), etwa um
+ *     Request-gebundene Zwischenspeicher zurückzusetzen
+ *   - afterDispatch(): sieht jede Antwort (auch 404/405) und darf sie
+ *     ersetzen, etwa um Redirects für fetch-Aufrufer umzuschreiben
+ *
+ * Eine App\Http\RedirectException aus einem Handler (Controller::redirect())
+ * wird direkt am Handler zu Response::redirect(), siehe buildHandlerCallable().
  */
 final class Router
 {
+    /** @var list<callable(Request): void> */
+    private array $beforeDispatch = [];
+
+    /** @var list<callable(Request, Response): Response> */
+    private array $afterDispatch = [];
+
     /**
      * @var array<int, array{
      *     methods: array<int,string>,
@@ -63,6 +79,24 @@ final class Router
          */
         private readonly bool $enableCache = true,
     ) {}
+
+    // ── Haken ─────────────────────────────────────────────────────────
+
+    /**
+     * @param callable(Request): void $hook
+     */
+    public function beforeDispatch(callable $hook): void
+    {
+        $this->beforeDispatch[] = $hook;
+    }
+
+    /**
+     * @param callable(Request, Response): Response $hook
+     */
+    public function afterDispatch(callable $hook): void
+    {
+        $this->afterDispatch[] = $hook;
+    }
 
     // ── Route-Registrierung ───────────────────────────────────────────
 
@@ -159,6 +193,21 @@ final class Router
     // ── Dispatching ───────────────────────────────────────────────────
 
     public function dispatch(Request $request): Response
+    {
+        foreach ($this->beforeDispatch as $hook) {
+            $hook($request);
+        }
+
+        $response = $this->dispatchRoute($request);
+
+        foreach ($this->afterDispatch as $hook) {
+            $response = $hook($request, $response);
+        }
+
+        return $response;
+    }
+
+    private function dispatchRoute(Request $request): Response
     {
         $dispatcher = $this->buildDispatcher();
         $info       = $dispatcher->dispatch($request->method, $request->path);
@@ -286,7 +335,11 @@ final class Router
         // Closure: direkt durchreichen
         if ($handler instanceof \Closure) {
             return function (Request $req) use ($handler, $params): Response {
-                $result = $handler($req, ...array_values($params));
+                try {
+                    $result = $handler($req, ...array_values($params));
+                } catch (RedirectException $e) {
+                    return $e->toResponse();
+                }
                 return $result instanceof Response ? $result : Response::empty();
             };
         }
@@ -304,8 +357,14 @@ final class Router
                 /** @var object $controller */
                 $controller = $this->container->get($class);
                 $args = array_values($params);
-                // Request als erster Parameter, dann die Route-Parameter
-                $result = $controller->{$method}($req, ...$args);
+                // Request als erster Parameter, dann die Route-Parameter.
+                // Controller::redirect() wirft; hier wird daraus die Antwort,
+                // bevor die Middlewares sie auf dem Rückweg sehen.
+                try {
+                    $result = $controller->{$method}($req, ...$args);
+                } catch (RedirectException $e) {
+                    return $e->toResponse();
+                }
                 return $result instanceof Response ? $result : Response::empty();
             };
         }

@@ -8,6 +8,7 @@ use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Helpers\UserHelper;
 use App\Http\Requests\Mitarbeiter\CreateDocumentRequest;
+use App\Http\Requests\FormRequest;
 use App\Http\Requests\Mitarbeiter\CreateMitarbeiterRequest;
 use App\Http\Requests\Mitarbeiter\UpdateMitarbeiterRequest;
 use App\Http\Response;
@@ -593,23 +594,32 @@ class PersonnelController extends Controller
     }
 
     /**
-     * POST /mitarbeiter/create.php — AJAX-Endpoint zum Anlegen eines Mitarbeiters.
-     * Antwortet IMMER mit JSON.
-     *
-     * Response-Shape:
-     *   - GET-Request → Redirect zur Liste
-     *   - POST ohne Permission → 403 JSON
-     *   - POST mit invaliden Daten → success=false JSON
-     *   - POST erfolgreich → success=true + redirect-URL
+     * GET /personnel/create — das Anlage-Formular, als Seite oder als
+     * Fragment im Drawer (assets/js/ui/drawer-form.js).
+     */
+    public function create(): void
+    {
+        if (\App\Auth\Gate::denies('personnel.create')) {
+            Flash::set('error', 'no-permissions');
+            $this->redirect('mitarbeiter/list');
+        }
+
+        $this->renderView('personnel/create', [
+            'dienstgrade' => Rank::query()->where('archive', 0)->orderBy('priority')->get(),
+        ]);
+    }
+
+    /**
+     * POST /personnel/create — legt den Mitarbeiter an. Ein normaler
+     * Formular-Post: bei ungültiger Eingabe zurück aufs Formular mit der
+     * Eingabe (old()) und der Meldung, bei Erfolg weiter zum Profil.
+     * Vor I7 war das ein JSON-Endpunkt für das Modal der Liste.
      */
     public function store(): void
     {
-
         if (\App\Auth\Gate::denies('personnel.create')) {
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                $this->jsonResponse(['success' => false, 'message' => 'Keine Berechtigung'], 403);
-            }
-            $this->redirect('index');
+            Flash::set('error', 'no-permissions');
+            $this->redirect('mitarbeiter/list');
         }
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -619,26 +629,22 @@ class PersonnelController extends Controller
         try {
             $data = CreateMitarbeiterRequest::validate($_POST);
         } catch (ValidationException $e) {
-            $this->jsonResponse([
-                'success' => false,
-                'message' => $e->firstError() ?? 'Ungültige Eingabe.',
-            ]);
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('personnel/create');
         }
 
         // Conditional Charakter-ID-Pflicht: nur wenn CHAR_ID-Konstante aktiv ist
         if (defined('CHAR_ID') && CHAR_ID && $data['charakterid'] === '') {
-            $this->jsonResponse([
-                'success' => false,
-                'message' => 'Bitte alle erforderlichen Felder ausfüllen.',
-            ]);
+            FormRequest::rememberInput($_POST);
+            Flash::error('Bitte alle erforderlichen Felder ausfüllen.');
+            $this->redirect('personnel/create');
         }
 
         // Dienstnummer-Eindeutigkeit prüfen
         if (Personnel::query()->where('dienstnr', $data['dienstnr'])->exists()) {
-            $this->jsonResponse([
-                'success' => false,
-                'message' => 'Diese Dienstnummer ist bereits vergeben.',
-            ]);
+            FormRequest::rememberInput($_POST);
+            Flash::error('Diese Dienstnummer ist bereits vergeben.');
+            $this->redirect('personnel/create');
         }
 
         // Default-Quali-IDs ("Keine"-Einträge)
@@ -663,10 +669,9 @@ class PersonnelController extends Controller
         try {
             $mitarbeiter->save();
         } catch (\Throwable $e) {
-            $this->jsonResponse([
-                'success' => false,
-                'message' => 'Fehler: ' . $e->getMessage(),
-            ]);
+            FormRequest::rememberInput($_POST);
+            Flash::error('Fehler: ' . $e->getMessage());
+            $this->redirect('personnel/create');
         }
 
         // Personal-Log + Audit-Log
@@ -682,11 +687,8 @@ class PersonnelController extends Controller
             1
         );
 
-        $this->jsonResponse([
-            'success'  => true,
-            'message'  => 'Mitarbeiter erfolgreich erstellt!',
-            'redirect' => BASE_PATH . 'personnel/profile?id=' . (int) $mitarbeiter->id . '&new_created=1',
-        ]);
+        Flash::success('Mitarbeiter erfolgreich erstellt!');
+        $this->redirect('personnel/profile?id=' . (int) $mitarbeiter->id . '&new_created=1');
     }
 
     /**
@@ -870,22 +872,6 @@ class PersonnelController extends Controller
     // -----------------------------------------------------------------------
     //  Mitarbeiter-spezifische Helpers
     // -----------------------------------------------------------------------
-
-    /**
-     * Antwortet mit einer JSON-Response und exit(). Wird vom AJAX-Endpoint
-     * store() benutzt, der immer JSON liefert.
-     *
-     * @param array<string,mixed> $payload
-     */
-    private function jsonResponse(array $payload, int $httpCode = 200): never
-    {
-        if (!headers_sent()) {
-            http_response_code($httpCode);
-            header('Content-Type: application/json; charset=utf-8');
-        }
-        echo json_encode($payload, JSON_UNESCAPED_UNICODE);
-        exit;
-    }
 
     /**
      * Redirect zum HTTP-Referer (wo der Klick herkam) oder Fallback zur

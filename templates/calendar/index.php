@@ -67,9 +67,9 @@ $bodyId = 'kalender';
                         <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="btn-subscribe" title="Diesen Kalender abonnieren">
                             <i class="fa-solid fa-rss"></i> Abonnieren
                         </button>
-                        <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" id="btn-new-event">
+                        <a href="<?= BASE_PATH ?>calendar/create" class="ignis-btn ignis-btn--primary ignis-btn--sm" id="btn-new-event" data-ignis-drawer>
                             <i class="fa-solid fa-plus"></i> Neuer Termin
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -78,158 +78,9 @@ $bodyId = 'kalender';
         </div>
     </div>
 
-    <!-- Form-Template fuer Dialog.form() — Termin erstellen / bearbeiten -->
+    <!-- Felder fuer den Bearbeiten-Dialog (Dialog.form in calendar.js); Anlegen laeuft ueber /calendar/create im Drawer -->
     <template id="calendarEventFormTemplate">
-        <div class="grid grid-cols-1 gap-3">
-            <div>
-                <label for="evt-title" class="ignis-field__label">Titel <span class="text-[#d46b6b]">*</span></label>
-                <input type="text" id="evt-title" name="title" class="ignis-input" required maxlength="160">
-            </div>
-
-            <div class="ignis-checkbox">
-                <input type="checkbox" id="evt-allday" name="all_day" value="1" data-allday-toggle>
-                <label for="evt-allday">Ganztägig</label>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="ignis-field__label">Start <span class="text-[#d46b6b]">*</span></label>
-                    <div data-picker-slot="starts_at">
-                        <div data-ignis-datetimepicker data-name="starts_at" data-required="true"></div>
-                    </div>
-                </div>
-                <div>
-                    <label class="ignis-field__label">Ende <span class="text-[#d46b6b]">*</span></label>
-                    <div data-picker-slot="ends_at">
-                        <div data-ignis-datetimepicker data-name="ends_at" data-required="true"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div>
-                <label for="evt-location" class="ignis-field__label">Ort</label>
-                <input type="text" id="evt-location" name="location" class="ignis-input" maxlength="255">
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label for="evt-category" class="ignis-field__label">Kategorie</label>
-                    <select id="evt-category" name="category" class="form-select">
-                        <?php foreach ($categories as $key => $label): ?>
-                            <?php if ($key === 'absence') continue; /* nur via Antrag-Sync */ ?>
-                            <option value="<?= htmlspecialchars($key) ?>"><?= htmlspecialchars($label) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div>
-                    <label for="evt-color" class="ignis-field__label">Farbe</label>
-                    <select id="evt-color" name="color" class="form-select">
-                        <?php
-                        $colorLabelsDe = [
-                            'orange' => 'Orange',
-                            'blue'   => 'Blau',
-                            'green'  => 'Grün',
-                            'red'    => 'Rot',
-                            'purple' => 'Lila',
-                            'gray'   => 'Grau',
-                        ];
-                        foreach ($colors as $color): ?>
-                            <option value="<?= htmlspecialchars($color) ?>"><?= htmlspecialchars($colorLabelsDe[$color] ?? ucfirst($color)) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-            </div>
-
-            <div>
-                <label for="evt-visibility" class="ignis-field__label">Sichtbarkeit</label>
-                <select id="evt-visibility" name="visibility" class="form-select">
-                    <option value="private">Privat (nur ich)</option>
-                    <option value="attendees" selected>Eingeladene Mitarbeiter</option>
-                    <option value="role">Bestimmte Rolle</option>
-                    <option value="all">Alle (öffentlich)</option>
-                </select>
-            </div>
-
-            <?php
-            // JSON-Optionsliste fuer den Multi-Select. Mitarbeiter mit
-            // Dienstnummer-Suffix damit zwei Maxe Mustermanns auseinander-
-            // gehalten werden koennen.
-            $rolesOptions = array_map(static fn ($r) => [
-                'value' => (int) $r['id'],
-                'label' => (string) $r['name'],
-            ], $roles);
-            $mitarbeiterOptions = $mitarbeiter->map(static fn ($m) => [
-                'value' => (int) $m->id,
-                'label' => trim(($m->fullname ?? '') . ' (' . ($m->dienstnr ?? '—') . ')'),
-            ])->all();
-            ?>
-
-            <div data-visibility-role-row style="display:none;">
-                <label class="ignis-field__label">Rollen</label>
-                <div data-ignis-multi-select
-                     data-name="visibility_role_ids[]"
-                     data-options='<?= htmlspecialchars(json_encode($rolesOptions, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>'
-                     data-placeholder="Rolle suchen…"
-                     data-empty-text="Keine Rolle gefunden"></div>
-                <small class="text-[var(--text-dimmed,#818189)]">Mehrere Rollen wählbar — alle Mitglieder sehen den Termin</small>
-
-                <div class="ignis-checkbox mt-2">
-                    <input type="checkbox" id="evt-track-attendance" name="track_attendance" value="1" data-track-attendance>
-                    <label for="evt-track-attendance">Teilnehmer-Antworten verfolgen (Rollenmitglieder können zusagen/absagen)</label>
-                </div>
-            </div>
-
-            <div data-visibility-attendees-row>
-                <label class="ignis-field__label">Eingeladene Mitarbeiter</label>
-                <div data-ignis-multi-select
-                     data-name="attendees[]"
-                     data-options='<?= htmlspecialchars(json_encode($mitarbeiterOptions, JSON_UNESCAPED_UNICODE | JSON_HEX_APOS | JSON_HEX_QUOT), ENT_QUOTES, 'UTF-8') ?>'
-                     data-placeholder="Mitarbeiter suchen…"
-                     data-empty-text="Keine Mitarbeiter gefunden"></div>
-            </div>
-
-            <hr class="my-2">
-
-            <div class="ignis-checkbox">
-                <input type="checkbox" id="evt-recurring" data-recurrence-toggle>
-                <label for="evt-recurring">Wiederholt sich</label>
-            </div>
-
-            <div data-recurrence-row style="display:none;" class="grid grid-cols-2 gap-3">
-                <div>
-                    <label for="evt-rrule-freq" class="ignis-field__label">Frequenz</label>
-                    <select id="evt-rrule-freq" data-rrule="freq" class="form-select">
-                        <option value="DAILY">Täglich</option>
-                        <option value="WEEKLY" selected>Wöchentlich</option>
-                        <option value="MONTHLY">Monatlich</option>
-                    </select>
-                </div>
-                <div>
-                    <label for="evt-rrule-interval" class="ignis-field__label">Intervall</label>
-                    <input type="number" id="evt-rrule-interval" data-rrule="interval" class="ignis-input" min="1" value="1">
-                </div>
-                <div class="col-span-2" data-rrule-byday-row>
-                    <label class="ignis-field__label">Wochentage (nur wöchentlich)</label>
-                    <div class="flex flex-wrap gap-2">
-                        <?php foreach (['MO' => 'Mo', 'TU' => 'Di', 'WE' => 'Mi', 'TH' => 'Do', 'FR' => 'Fr', 'SA' => 'Sa', 'SU' => 'So'] as $code => $label): ?>
-                            <label class="ignis-chip ignis-chip--toggle">
-                                <input type="checkbox" data-rrule-byday="<?= $code ?>"><?= $label ?>
-                            </label>
-                        <?php endforeach; ?>
-                    </div>
-                </div>
-                <div class="col-span-2">
-                    <label for="evt-rrule-until" class="ignis-field__label">Bis Datum (optional)</label>
-                    <input type="date" id="evt-rrule-until" name="recurrence_until" class="ignis-input">
-                </div>
-                <input type="hidden" name="recurrence_rule" data-rrule-output>
-            </div>
-
-            <div>
-                <label for="evt-description" class="ignis-field__label">Beschreibung</label>
-                <textarea id="evt-description" name="description" class="ignis-input" rows="3" maxlength="2000"></textarea>
-            </div>
-        </div>
+        <?php require __DIR__ . '/_event-form.php'; ?>
     </template>
 
     <script>

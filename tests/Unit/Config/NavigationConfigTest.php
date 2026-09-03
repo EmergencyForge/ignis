@@ -54,9 +54,15 @@ final class NavigationConfigTest extends TestCase
                     $this->assertStringStartsWith('/', $prefix);
                 }
                 if (isset($item['quick_action'])) {
-                    $this->assertContains($item['quick_action']['type'], ['link', 'modal']);
+                    $this->assertContains($item['quick_action']['type'], ['drawer', 'link', 'modal']);
                     $this->assertNotSame('', $item['quick_action']['target']);
                     $this->assertNotSame('', $item['quick_action']['label']);
+                    if ($item['quick_action']['type'] !== 'modal') {
+                        $this->assertStringStartsWith('/', $item['quick_action']['target'], 'drawer und link zeigen auf eine URL');
+                    }
+                    if (isset($item['quick_action']['permissions'])) {
+                        $this->assertNotEmpty($item['quick_action']['permissions']);
+                    }
                 }
                 $hrefs[] = $item['href'];
             }

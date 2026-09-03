@@ -23,17 +23,25 @@
  *                                     Eintrag als aktiv gilt, zusätzlich zum href
  *           external?: bool,          target=_blank mit Pfeil
  *           quick_action?: array{
- *               type: 'link'|'modal',
- *               target: string,       URL (link) oder Event-Name (modal)
+ *               type: 'drawer'|'link'|'modal',
+ *               target: string,       URL (drawer, link) oder Event-Name (modal)
  *               label: string,        Tooltip des Plus-Knopfs, Eintrag im Neu-Menü
  *               icon?: string,        Standard: das Icon des Eintrags
+ *               permissions?: string[], ANY-Match; fehlt: wer den Eintrag sieht
  *           }
  *       }>
  *   }>
  *
- * Schnellaktionen vom Typ 'modal' feuern window.CustomEvent('quick-action:<target>').
- * Ist der Nutzer nicht auf der Seite des Eintrags, geht es erst dorthin,
- * mit ?action=create&quick=<target>, und die Seite öffnet das Modal beim
+ * Schnellaktionen vom Typ 'drawer' zeigen auf eine Formularseite; mit JS
+ * öffnet sie sich als Drawer neben der aktuellen Seite (data-ignis-drawer,
+ * assets/js/ui/drawer-form.js), ohne JS als Seite. Das ist der Weg für
+ * Termin, Mitarbeiter, Fahrzeug und Mangel (I7).
+ *
+ * 'modal' bleibt, wo es keine Formularseite gibt, nur ein Dialog auf der
+ * Liste: Einladung, Rolle, Dienstgrad, FW-/RD-Qualifikation, Fachdienst.
+ * Der Typ feuert window.CustomEvent('quick-action:<target>'). Ist der
+ * Nutzer nicht auf der Seite des Eintrags, geht es erst dorthin, mit
+ * ?action=create&quick=<target>, und die Seite öffnet das Modal beim
  * Laden (assets/js/ui/shell.js).
  *
  * Plugins liefern in plugins/<id>/navigation.php eine Liste von Fragmenten
@@ -67,9 +75,10 @@ return [
                     'permissions'  => ['admin', 'calendar.view'],
                     'match'        => ['/calendar'],
                     'quick_action' => [
-                        'type'   => 'modal',
-                        'target' => 'calendar-event-create',
-                        'label'  => 'Neuen Termin erstellen',
+                        'type'        => 'drawer',
+                        'target'      => BASE_PATH . 'calendar/create',
+                        'label'       => 'Neuen Termin erstellen',
+                        'permissions' => ['admin', 'calendar.create'],
                     ],
                 ],
             ],
@@ -122,9 +131,10 @@ return [
                     'permissions'  => ['admin', 'personnel.view'],
                     'match'        => ['/personnel'],
                     'quick_action' => [
-                        'type'   => 'modal',
-                        'target' => 'mitarbeiter-create',
-                        'label'  => 'Neuen Mitarbeiter anlegen',
+                        'type'        => 'drawer',
+                        'target'      => BASE_PATH . 'personnel/create',
+                        'label'       => 'Neuen Mitarbeiter anlegen',
+                        'permissions' => ['admin', 'personnel.edit'],
                     ],
                 ],
                 [
@@ -157,9 +167,10 @@ return [
                     'icon'         => 'fa-solid fa-truck',
                     'match'        => ['/settings/vehicles/vehicles'],
                     'quick_action' => [
-                        'type'   => 'modal',
-                        'target' => 'fahrzeug-create',
-                        'label'  => 'Neues Fahrzeug anlegen',
+                        'type'        => 'drawer',
+                        'target'      => BASE_PATH . 'settings/vehicles/vehicles/create',
+                        'label'       => 'Neues Fahrzeug anlegen',
+                        'permissions' => ['admin', 'vehicles.manage'],
                     ],
                 ],
                 [
@@ -168,9 +179,9 @@ return [
                     'icon'         => 'fa-solid fa-triangle-exclamation',
                     'match'        => ['/settings/vehicles/defects'],
                     'quick_action' => [
-                        'type'   => 'modal',
-                        'target' => 'defekt-create',
-                        'label'  => 'Neue Defektmeldung erfassen',
+                        'type'   => 'drawer',
+                        'target' => BASE_PATH . 'settings/vehicles/defects/create',
+                        'label'  => 'Mangel melden',
                     ],
                 ],
                 [

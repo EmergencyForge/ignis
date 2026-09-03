@@ -157,7 +157,10 @@ return [
     // -----------------------------------------------------------------------
 
     \App\Http\Pipeline::class => \DI\autowire(),
-    \App\Http\Router::class   => \DI\autowire(),
+    // Über die Factory, damit der Router seine Haken bekommt (Old-Input-
+    // Reset, Fragment-Redirects); FeatureTestCase baut ihn genauso.
+    \App\Http\Router::class   => \DI\factory(static fn (\Psr\Container\ContainerInterface $c): \App\Http\Router
+        => \App\Http\RouterFactory::create($c, $c->get(\App\Http\Pipeline::class))),
 
     // Plugin-Loader — einmal pro Request, cached das aktive Plugin-Set.
     \App\Plugins\PluginLoader::class => \DI\autowire(),

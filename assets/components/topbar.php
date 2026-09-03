@@ -135,8 +135,9 @@ foreach ($topActions as $topAction) {
             <summary class="ignis-btn ignis-btn--primary ignis-btn--sm ignis-topbar__new"><i class="fa-solid fa-plus" aria-hidden="true"></i> <span class="ignis-topbar__new-label">Neu</span> <i class="fa-solid fa-chevron-down ignis-menu__caret" aria-hidden="true"></i></summary>
             <div class="ignis-menu__panel" role="menu">
                 <?php foreach ($topActions as $topAction): ?>
-                    <?php if ($topAction['type'] === 'link'): ?>
-                        <a href="<?= htmlspecialchars($topAction['target'], ENT_QUOTES) ?>" class="ignis-menu__item" role="menuitem"><i class="<?= htmlspecialchars($topAction['icon']) ?>" aria-hidden="true"></i> <?= htmlspecialchars($topAction['label']) ?></a>
+                    <?php if ($topAction['type'] === 'drawer' || $topAction['type'] === 'link'): ?>
+                        <?php // drawer: das Formular öffnet neben der Seite (drawer-form.js), ohne JS als Seite. ?>
+                        <a href="<?= htmlspecialchars($topAction['target'], ENT_QUOTES) ?>" class="ignis-menu__item" role="menuitem"<?= $topAction['type'] === 'drawer' ? ' data-ignis-drawer' : '' ?>><i class="<?= htmlspecialchars($topAction['icon']) ?>" aria-hidden="true"></i> <?= htmlspecialchars($topAction['label']) ?></a>
                     <?php else: ?>
                         <button type="button" class="ignis-menu__item" role="menuitem"
                             data-quick-action-type="<?= htmlspecialchars($topAction['type'], ENT_QUOTES) ?>"

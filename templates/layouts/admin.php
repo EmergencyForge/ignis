@@ -41,6 +41,7 @@ $layoutSystemNav = str_starts_with($layoutPath, '/settings/system/') && $layoutP
     <script>try { if (localStorage.getItem('ignis.sidebar') === 'collapsed') document.documentElement.classList.add('is-collapsed'); } catch (e) {}</script>
     <?php require dirname(__DIR__, 2) . '/assets/components/_base/admin/head.php'; ?>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/shell.js"></script>
+    <script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer-form.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/navbar/global-search.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/navbar/notifications.js"></script>
     <?= $layoutHead ?>

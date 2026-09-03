@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Auth\Gate;
+use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FormRequest;
+use App\Http\Requests\Vehicles\CreateDefectRequest;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
+use App\Vehicles\DefectReporter;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
@@ -81,6 +85,18 @@ class FahrzeugeController extends Controller
         ]);
     }
 
+    /**
+     * GET /settings/vehicles/vehicles/create — das Anlage-Formular, als
+     * Seite oder als Fragment im Drawer (assets/js/ui/drawer-form.js).
+     */
+    public function create(): void
+    {
+        $this->requireAuth();
+        $this->ensureManage();
+
+        $this->renderView('settings/vehicles/vehicles/create', []);
+    }
+
     public function store(): void
     {
         $this->requireAuth();
@@ -98,8 +114,10 @@ class FahrzeugeController extends Controller
         $data = $this->collectVehicleData($name, $kennzeichen, $vehType, $identifier, $priority, $rdType, $active, $allowedJobs);
 
         if ($name === '' || $vehType === '' || $identifier === '') {
+            // Zurück aufs Formular, mit der Eingabe (old()) und der Meldung.
+            FormRequest::rememberInput($_POST);
             Flash::set('error', 'missing-fields');
-            $this->redirect('settings/vehicles/vehicles/index');
+            $this->redirect('settings/vehicles/vehicles/create');
         }
 
         try {
@@ -320,6 +338,69 @@ class FahrzeugeController extends Controller
         $this->ensureView('index.php');
 
         $this->renderView('settings/vehicles/defects/index', []);
+    }
+
+    /**
+     * GET /settings/vehicles/defects/create[?vehicle=ID] — Mangel melden,
+     * als Seite oder als Fragment im Drawer. `vehicle` wählt das Fahrzeug
+     * vor, etwa aus der Fahrzeugliste heraus.
+     */
+    public function defektCreate(): void
+    {
+        $this->requireAuth();
+        if (!Gate::allows('vehicle.createDefect')) {
+            Flash::set('error', 'no-permissions');
+            $this->redirect('settings/vehicles/defects/index');
+        }
+
+        $vehicles = Capsule::table('intra_fahrzeuge')
+            ->orderBy('name')
+            ->get(['id', 'name', 'identifier', 'kennzeichen', 'veh_type'])
+            ->map(static fn ($row) => (array) $row)
+            ->all();
+
+        $this->renderView('settings/vehicles/defects/create', [
+            'vehicles'        => $vehicles,
+            'selectedVehicle' => (int) ($_GET['vehicle'] ?? 0),
+        ]);
+    }
+
+    /**
+     * POST /settings/vehicles/defects/create — legt den Mangel über den
+     * DefectReporter an (derselbe Weg wie die JSON-API für eNOTF-Besatzungen).
+     * Ungültige Eingabe führt zurück aufs Formular mit old() und Meldung.
+     */
+    public function defektStore(): void
+    {
+        $this->requireAuth();
+        if (!Gate::allows('vehicle.createDefect')) {
+            Flash::set('error', 'no-permissions');
+            $this->redirect('settings/vehicles/defects/index');
+        }
+
+        try {
+            $data = CreateDefectRequest::validate($_POST);
+        } catch (ValidationException $e) {
+            Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
+            $this->redirect('settings/vehicles/defects/create');
+        }
+
+        if (!Capsule::table('intra_fahrzeuge')->where('id', $data['vehicle_id'])->exists()) {
+            FormRequest::rememberInput($_POST);
+            Flash::error('Das Fahrzeug gibt es nicht.');
+            $this->redirect('settings/vehicles/defects/create');
+        }
+
+        $defectId = (new DefectReporter())->report(
+            $data,
+            (int) $_SESSION['userid'],
+            (string) ($_SESSION['cirs_username'] ?? 'Unbekannt'),
+            false,
+        );
+
+        $this->audit('Defekt gemeldet [ID: ' . $defectId . ']', 'Fahrzeug-ID: ' . $data['vehicle_id'] . ' | ' . $data['title']);
+        Flash::success($data['vehicle_operable'] ? 'Mangel gemeldet.' : 'Mangel gemeldet, Fahrzeug außer Dienst.');
+        $this->redirect('settings/vehicles/defects/index?vehicle=' . $data['vehicle_id']);
     }
 
     // ── Helpers ────────────────────────────────────────────

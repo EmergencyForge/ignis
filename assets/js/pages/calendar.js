@@ -1,12 +1,14 @@
 /**
- * Calendar Page — initialisiert FullCalendar + wraps Create/Edit/Detail
- * Modals via Dialog.form / Dialog.
+ * Calendar Page — initialisiert FullCalendar, den Bearbeiten- und den
+ * Detail-Dialog (Dialog.form / Dialog). Anlegen läuft über die Seite
+ * /calendar/create im Drawer, die Formular-Dynamik steht in calendar-form.js.
  *
  * Konfiguration kommt aus window.CalendarPageConfig (im Template gesetzt).
  * FullCalendar muss vorher geladen sein (assets/_ext/fullcalendar/...).
  */
 
 import { Dialog } from '../ui/dialog.js';
+import { bindEventForm } from './calendar-form.js';
 
 (function () {
     'use strict';
@@ -76,7 +78,7 @@ import { Dialog } from '../ui/dialog.js';
             if (color) info.el.style.setProperty('--event-color', color);
         },
         dateClick: (info) => {
-            openCreateModal({ prefilledStart: info.dateStr });
+            openCreateDrawer(info.dateStr);
         },
     });
     calendar.render();
@@ -109,27 +111,17 @@ import { Dialog } from '../ui/dialog.js';
         return true;
     }
 
-    // ── Create-Modal ────────────────────────────────────────────────────
-    function openCreateModal(opts = {}) {
-        Dialog.form({
-            title: 'Neuer Termin',
-            template: 'calendarEventFormTemplate',
-            formAction: CFG.createUrl,
-            submitLabel: 'Erstellen',
-            size: 'lg',
-            onOpen: (dlg) => {
-                bindFormDynamics(dlg.element);
-                if (opts.prefilledStart) {
-                    const startsInput = dlg.element.querySelector('[data-name="starts_at"]');
-                    const endsInput   = dlg.element.querySelector('[data-name="ends_at"]');
-                    const start = opts.prefilledStart + 'T09:00';
-                    const end   = opts.prefilledStart + 'T10:00';
-                    if (startsInput) startsInput.dataset.value = start;
-                    if (endsInput)   endsInput.dataset.value   = end;
-                }
-            },
-            onSubmit: (formData, dlg) => submitForm(formData, dlg),
-        });
+    // ── Anlegen im Drawer ───────────────────────────────────────────────
+    // Das Formular ist eine eigene Seite (GET /calendar/create); mit JS
+    // lädt drawer-form.js sie in den Drawer, ein Tag aus dem Kalender
+    // kommt als ?date= mit.
+    function openCreateDrawer(date) {
+        const url = CFG.createUrl + (date ? '?date=' + encodeURIComponent(date) : '');
+        if (window.ignis?.drawerForm) {
+            window.ignis.drawerForm.load(url);
+        } else {
+            window.location.href = url;
+        }
     }
 
     // ── Edit-Modal ──────────────────────────────────────────────────────
@@ -149,7 +141,7 @@ import { Dialog } from '../ui/dialog.js';
                     size: 'lg',
                     onOpen: (dlg) => {
                         prefillForm(dlg.element, res.event);
-                        bindFormDynamics(dlg.element);
+                        bindEventForm(dlg.element);
                     },
                     onSubmit: (formData, dlg) => submitForm(formData, dlg),
                 });
@@ -225,132 +217,9 @@ import { Dialog } from '../ui/dialog.js';
             });
     }
 
-    // ── Form-Dynamics (Visibility-Toggle, Recurrence-UI, AllDay-Switch) ─
-    function bindFormDynamics(scope) {
-        const visSelect    = scope.querySelector('[name="visibility"]');
-        const roleRow      = scope.querySelector('[data-visibility-role-row]');
-        const attendeesRow = scope.querySelector('[data-visibility-attendees-row]');
-        const recurToggle  = scope.querySelector('[data-recurrence-toggle]');
-        const recurRow     = scope.querySelector('[data-recurrence-row]');
-        const rruleOutput  = scope.querySelector('[data-rrule-output]');
-        const freqSelect   = scope.querySelector('[data-rrule="freq"]');
-        const intervalIn   = scope.querySelector('[data-rrule="interval"]');
-        const bydayInputs  = scope.querySelectorAll('[data-rrule-byday]');
-        const bydayRow     = scope.querySelector('[data-rrule-byday-row]');
-        const untilIn      = scope.querySelector('[name="recurrence_until"]');
-        const alldayToggle = scope.querySelector('[data-allday-toggle]');
-
-        function applyVisibility() {
-            const v = visSelect?.value;
-            if (roleRow)      roleRow.style.display      = v === 'role'      ? '' : 'none';
-            if (attendeesRow) attendeesRow.style.display = v === 'attendees' ? '' : 'none';
-            // track_attendance ist nur fuer role-Visibility relevant. Bei
-            // anderen Visibility-Modi schaltet das Backend das Flag eh aus,
-            // aber wir clearen den Frontend-State auch sichtbar.
-            const trackBox = scope.querySelector('[data-track-attendance]');
-            if (trackBox && v !== 'role') {
-                trackBox.checked = false;
-            }
-        }
-        function applyRecurrence() {
-            const on = recurToggle?.checked;
-            if (recurRow) recurRow.style.display = on ? '' : 'none';
-            if (bydayRow) bydayRow.style.display = freqSelect?.value === 'WEEKLY' ? '' : 'none';
-            buildRrule();
-        }
-        function buildRrule() {
-            if (!rruleOutput) return;
-            if (!recurToggle?.checked) {
-                rruleOutput.value = '';
-                return;
-            }
-            const parts = ['FREQ=' + (freqSelect?.value || 'WEEKLY')];
-            const interval = parseInt(intervalIn?.value || '1', 10);
-            if (interval > 1) parts.push('INTERVAL=' + interval);
-            if (freqSelect?.value === 'WEEKLY') {
-                const days = Array.from(bydayInputs).filter((i) => i.checked).map((i) => i.dataset.rruleByday);
-                if (days.length > 0) parts.push('BYDAY=' + days.join(','));
-            }
-            // recurrence_until kommt als separates Feld an den Server
-            rruleOutput.value = parts.join(';');
-        }
-
-        function applyPickerType() {
-            syncPickerType(scope, !!alldayToggle?.checked);
-        }
-
-        visSelect?.addEventListener('change', applyVisibility);
-        recurToggle?.addEventListener('change', applyRecurrence);
-        freqSelect?.addEventListener('change', applyRecurrence);
-        intervalIn?.addEventListener('input', buildRrule);
-        bydayInputs.forEach((i) => i.addEventListener('change', buildRrule));
-        untilIn?.addEventListener('change', buildRrule);
-        alldayToggle?.addEventListener('change', applyPickerType);
-
-        applyVisibility();
-        applyRecurrence();
-        applyPickerType();
-    }
-
-    /**
-     * Tauscht die Picker-Slots zwischen Datetime und Date je nach all_day.
-     * Aktueller Wert wird gerettet, Slot neu aufgebaut, MutationObserver
-     * der Picker-Module kuemmert sich um Auto-Init.
-     */
-    function syncPickerType(scope, allDay) {
-        ['starts_at', 'ends_at'].forEach((fieldName) => {
-            const slot = scope.querySelector(`[data-picker-slot="${fieldName}"]`);
-            if (!slot) return;
-
-            const currentValue = readPickerValue(slot);
-
-            // Wenn der bereits gerenderte Slot schon den richtigen Typ hat,
-            // nichts tun (verhindert Picker-Re-Init beim ersten applyPickerType).
-            const hasDatetime = !!slot.querySelector('[data-ignis-datetimepicker]');
-            const hasDate     = !!slot.querySelector('input[data-ignis-datepicker]');
-            if (allDay && hasDate && !hasDatetime) return;
-            if (!allDay && hasDatetime && !hasDate) return;
-
-            slot.innerHTML = '';
-
-            if (allDay) {
-                const inp = document.createElement('input');
-                inp.type = 'date';
-                inp.className = 'ignis-input';
-                inp.name = fieldName;
-                inp.required = true;
-                inp.setAttribute('data-ignis-datepicker', '');
-                if (currentValue) inp.value = currentValue.slice(0, 10);
-                slot.appendChild(inp);
-            } else {
-                const div = document.createElement('div');
-                div.setAttribute('data-ignis-datetimepicker', '');
-                div.dataset.name = fieldName;
-                div.dataset.required = 'true';
-                if (currentValue) {
-                    // Wenn current nur ein Datum war (10 Zeichen), Default-Zeit ergaenzen.
-                    div.dataset.value = currentValue.length >= 16 ? currentValue : (currentValue + 'T09:00');
-                }
-                slot.appendChild(div);
-            }
-        });
-    }
-
-    function readPickerValue(slot) {
-        // Datetime-Picker schreibt seinen Wert in einen versteckten <input>
-        const dtpHidden = slot.querySelector('[data-ignis-datetimepicker] input[type="hidden"]');
-        if (dtpHidden && dtpHidden.value) return dtpHidden.value;
-        // Datepicker = direktes <input type="date">
-        const dpInput = slot.querySelector('input[type="date"]');
-        if (dpInput && dpInput.value) return dpInput.value;
-        // Fallback: data-value vom Mount-Element
-        const mount = slot.querySelector('[data-ignis-datetimepicker], [data-ignis-datepicker]');
-        return mount?.dataset.value || '';
-    }
-
     /**
      * Befuellt das Edit-Form mit den Daten aus /api/kalender/event.
-     * Wird VOR bindFormDynamics aufgerufen, damit applyPickerType() den
+     * Wird VOR bindEventForm aufgerufen, damit applyPickerType() den
      * korrekten Wert aus den Inputs ablesen kann.
      */
     function prefillForm(scope, ev) {
@@ -505,9 +374,7 @@ import { Dialog } from '../ui/dialog.js';
         return out;
     }
 
-    // ── Quick-Action-Hook (Sidebar-+-Button) ────────────────────────────
-    window.addEventListener('quick-action:calendar-event-create', () => openCreateModal());
-    document.getElementById('btn-new-event')?.addEventListener('click', () => openCreateModal());
+    // Der Knopf Neuer Termin ist ein Link mit data-ignis-drawer (drawer-form.js).
 
     // ── Subscribe-Dialog (iCal-Feed-URL) ────────────────────────────────
     document.getElementById('btn-subscribe')?.addEventListener('click', () => openSubscribeDialog());
@@ -592,8 +459,8 @@ import { Dialog } from '../ui/dialog.js';
         return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
     }
 
-    // Auto-Open wenn ?action=create
+    // ?action=create (alte Schnellaktion, Lesezeichen): Formular im Drawer
     if (new URLSearchParams(location.search).get('action') === 'create') {
-        openCreateModal();
+        openCreateDrawer();
     }
 })();

@@ -17,6 +17,9 @@ namespace App\Helpers;
  *   $layoutBodyPage data-page des <body> (Standard: die id)
  *   $layoutHead     zusätzliches Markup für den <head>
  *   $SITE_TITLE     Seitentitel, gelesen von head.php
+ *
+ * Mit `X-Requested-With: fragment` (Drawer) kommt statt der Hülle nur
+ * fragment(): der Inhalt in <div class="ignis-fragment" data-title="…">.
  */
 final class Layout
 {
@@ -26,10 +29,41 @@ final class Layout
     }
 
     /**
+     * Will der Aufrufer nur den Inhalt, ohne Hülle? assets/js/ui/drawer-form.js
+     * lädt die Anlage-Formulare mit `X-Requested-With: fragment` in einen
+     * Drawer. Ohne JavaScript ruft niemand mit diesem Header, die Seite
+     * kommt komplett.
+     */
+    public static function wantsFragment(): bool
+    {
+        return ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'fragment';
+    }
+
+    /**
+     * Der Inhalt einer Ansicht ohne Hülle, mit dem Seitentitel als Attribut
+     * (der Drawer nimmt ihn als Überschrift) und der wartenden Flash-Meldung
+     * davor, damit sie nach einer Weiterleitung zurück aufs Formular im
+     * Drawer als Toast erscheint statt auf der nächsten ganzen Seite.
+     */
+    public static function fragment(string $content, ?string $title = null): string
+    {
+        ob_start();
+        Flash::render();
+        $flash = (string) ob_get_clean();
+
+        return '<div class="ignis-fragment" data-title="' . htmlspecialchars((string) $title, ENT_QUOTES) . '">'
+            . $flash . $content . '</div>';
+    }
+
+    /**
      * @param array<string, mixed> $vars  SITE_TITLE, bodyId, bodyPage, layoutHead
      */
     public static function render(string $name, string $content, array $vars = []): string
     {
+        if (self::wantsFragment()) {
+            return self::fragment($content, self::text($vars['SITE_TITLE'] ?? null));
+        }
+
         $layoutPath = self::path($name);
         if (!is_file($layoutPath)) {
             throw new \RuntimeException("Layout not found: $name ($layoutPath)");

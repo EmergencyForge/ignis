@@ -18,7 +18,8 @@
  * CustomEvent `quick-action:<target>` am window, wenn die Seite des
  * Eintrags schon offen ist; sonst geht es erst dorthin mit
  * `?action=create&quick=<target>`, und dieses Modul feuert das Event nach
- * dem Laden.
+ * dem Laden. Schnellaktionen vom Typ `drawer` sind Links mit
+ * data-ignis-drawer und laufen über assets/js/ui/drawer-form.js.
  */
 const STORAGE_KEY = 'ignis.sidebar';
 const MOBILE_QUERY = '(max-width: 900px)';

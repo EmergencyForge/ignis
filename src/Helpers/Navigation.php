@@ -68,6 +68,13 @@ final class Navigation
                 if (!is_string($item['icon'] ?? null) || $item['icon'] === '') {
                     $item['icon'] = 'fa-solid fa-circle-dot';
                 }
+                // Die Schnellaktion darf ein eigenes Recht verlangen (Termin
+                // anlegen braucht mehr als Kalender sehen); ohne das Recht
+                // bleibt der Eintrag, das Plus verschwindet.
+                $quick = $item['quick_action'] ?? null;
+                if (is_array($quick) && !empty($quick['permissions']) && !Permissions::check($quick['permissions'])) {
+                    unset($item['quick_action']);
+                }
                 $item['active'] = false;
                 $items[] = $item;
             }
