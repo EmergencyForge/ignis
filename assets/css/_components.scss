@@ -1,0 +1,348 @@
+// _components.scss — Bausteine des Redesigns (I6)
+//
+// Die vier Button-Stufen, die Semantik-Aliase für Chips und Alerts und die
+// Tabellen ohne DataTables. Die Grundformen (.ignis-btn, .ignis-chip,
+// .ignis-alert, .ignis-pagination) stehen weiter in ui.scss; diese Datei
+// wird am Ende von ui.scss geladen (meta.load-css), damit ihre Regeln bei
+// gleicher Spezifität gewinnen. Nur Tokens, keine Farbwerte
+// (tests/Unit/Assets/ThemeTokensTest.php); jeder Modifier im Markup muss im
+// gebauten CSS stehen (tests/Unit/Assets/ComponentClassTest.php).
+//
+// Farbe auf Text: Weiß nur auf Akzent- und Bedeutungsflächen (--on-accent,
+// --white auf --ok/--warn/--danger), sonst --text, damit der helle Satz
+// lesbar bleibt.
+
+// =====================================================
+// Buttons: primary | secondary | ghost | danger, dazu --sm und --icon
+// (beide in ui.scss). Die alten Modifier (--accent, --soft-*, --outline-*,
+// --ghost-danger, --success, --warning) bleiben in ui.scss definiert.
+// =====================================================
+
+.ignis-btn--primary {
+  color: var(--on-accent);
+}
+
+.ignis-btn--accent {
+  color: var(--on-accent);
+}
+
+.ignis-btn--secondary {
+  background: var(--fill-3);
+  color: var(--text);
+  border-color: transparent;
+
+  &:hover:not(:disabled):not(.is-loading) {
+    background: var(--fill-4);
+    color: var(--text);
+    transform: none;
+    box-shadow: none;
+  }
+
+  &:active:not(:disabled):not(.is-loading) {
+    background: var(--fill-3);
+  }
+}
+
+.ignis-btn--ghost {
+  &:hover:not(:disabled):not(.is-loading) {
+    color: var(--text);
+  }
+}
+
+.ignis-btn--info {
+  background: var(--info-soft);
+  color: var(--info);
+
+  &:hover:not(:disabled):not(.is-loading) {
+    background: rgba(var(--info-rgb), 0.25);
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+// =====================================================
+// Chips: ok | warn | danger | info, mit --dot als Punkt vor dem Text.
+// --success/--warning bleiben als Aliase, --status ist der alte Name für --dot.
+// =====================================================
+
+.ignis-chip--ok {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.ignis-chip--warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+
+.ignis-chip--secondary {
+  background: var(--fill-2);
+  color: var(--text-2);
+}
+
+.ignis-chip--dot {
+  gap: 0.45em;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+}
+
+// Chip als Schalter: ein <label> mit Checkbox, angehakt bekommt es die Akzentfläche.
+.ignis-chip--toggle {
+  cursor: pointer;
+
+  input {
+    margin: 0 0.35em 0 0;
+    accent-color: var(--accent);
+  }
+
+  &:has(input:checked) {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+}
+
+// =====================================================
+// Alerts inline: ok | warn | error als Aliase von success | warning | danger
+// =====================================================
+
+.ignis-alert--ok {
+  background: var(--ok-soft);
+  border-left-color: var(--ok);
+
+  .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--ok); }
+}
+
+.ignis-alert--warn {
+  background: var(--warn-soft);
+  border-left-color: var(--warn);
+
+  .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--warn); }
+}
+
+.ignis-alert--error {
+  background: var(--danger-soft);
+  border-left-color: var(--danger);
+
+  .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--danger); }
+}
+
+// =====================================================
+// Pagination: aktiver Eintrag auf Akzent mit --on-accent, Hover in Textfarbe
+// =====================================================
+
+.ignis-pagination__item {
+  &:hover:not(:disabled):not(.is-active) {
+    color: var(--text);
+  }
+
+  &.is-active {
+    color: var(--on-accent);
+  }
+}
+
+// =====================================================
+// Tabellen: klebender Kopf, Zeilenaktionen beim Überfahren, Zahlen rechts
+// in Tabellenziffern, Kennzeichen in Mono, kein Zebra.
+// =====================================================
+
+table.ignis-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 0.6rem 0.9rem;
+    color: var(--text-3);
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.055em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.7rem 0.9rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--fill-2);
+    font-size: 0.8rem;
+    line-height: 1.4;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background 120ms ease;
+
+    &:hover { background: var(--fill-1); }
+    &:last-child td { border-bottom: 0; }
+    &.is-muted td { color: var(--text-3); }
+  }
+
+  .ignis-table__num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ignis-table__actions {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  a:not(.ignis-btn):not(.ignis-chip) {
+    color: inherit;
+  }
+}
+
+.ignis-table__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: inherit;
+  text-decoration: none;
+
+  i {
+    font-size: 0.8em;
+    opacity: 0.45;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text);
+    text-decoration: none;
+    outline: none;
+
+    i { opacity: 0.8; }
+  }
+
+  &.is-asc,
+  &.is-desc {
+    color: var(--text);
+
+    i {
+      color: var(--accent);
+      opacity: 1;
+    }
+  }
+}
+
+.ignis-row-actions {
+  display: inline-flex;
+  gap: 0.25rem;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+
+  tr:hover &,
+  tr:focus-within & {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    opacity: 1;
+  }
+}
+
+.ignis-mono {
+  font-family: var(--mono);
+  font-size: 0.95em;
+  letter-spacing: 0.01em;
+}
+
+.ignis-table-empty {
+  padding: 2rem 1rem;
+  color: var(--text-3);
+  font-size: 0.82rem;
+  text-align: center;
+}
+
+// Werkzeugleiste über der Tabelle: Suchfeld als GET-Formular, Filter als Links.
+.ignis-list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+
+  &__search {
+    position: relative;
+    flex: 1 1 14rem;
+    max-width: 22rem;
+
+    > i {
+      position: absolute;
+      top: 50%;
+      left: 0.7rem;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      font-size: 0.8rem;
+      pointer-events: none;
+    }
+
+    .ignis-input {
+      padding-left: 2rem;
+    }
+  }
+
+  &__spacer { flex: 1 1 auto; }
+
+  .ignis-field__label {
+    margin-bottom: 0.2rem;
+  }
+}
+
+.ignis-filter-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.2rem;
+  background: var(--fill-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+
+  a {
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover { background: var(--fill-2); color: var(--text); }
+
+    &.is-active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+  }
+}
+
+.ignis-list-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.6rem 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.ignis-list-meta {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 0.78rem;
+}
