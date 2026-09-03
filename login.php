@@ -1,25 +1,23 @@
 <?php
 require_once __DIR__ . '/assets/config/config.php';
 
-use App\Helpers\EnotfUrl;
+use App\Http\Response;
 use App\Models\RegistrationCode;
 
 // Session wird bereits durch config.php gestartet (SessionManager)
 
 if (isset($_SESSION['userid']) && isset($_SESSION['permissions'])) {
     // Check if there's an eNOTF redirect pending
-    if (isset($_GET['redirect']) && $_GET['redirect'] === 'enotf') {
-        header('Location: ' . EnotfUrl::page('login'));
-        exit;
+    if (isset($_GET['redirect']) && $_GET['redirect'] === 'enotf' && class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)) {
+        return Response::redirect(\Plugin\Enotf\Helpers\EnotfUrl::page('login'));
     }
-    header('Location: ' . BASE_PATH . 'index.php');
-    exit;
+    return Response::redirect(BASE_PATH . 'index');
 }
 
 // Preserve redirect parameter in session for OAuth flow
-if (isset($_GET['redirect']) && $_GET['redirect'] === 'enotf') {
+if (isset($_GET['redirect']) && $_GET['redirect'] === 'enotf' && class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)) {
     if (!\App\Session\SessionManager::has('redirect_url')) {
-        \App\Session\SessionManager::setRedirectUrl(EnotfUrl::page('login'));
+        \App\Session\SessionManager::setRedirectUrl(\Plugin\Enotf\Helpers\EnotfUrl::page('login'));
     }
 }
 
@@ -44,8 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
             } else {
                 \App\Session\SessionManager::setRegistrationCode($code);
                 // Redirect to Discord auth
-                header('Location: ' . BASE_PATH . 'auth/discord.php');
-                exit;
+                return Response::redirect(BASE_PATH . 'auth/discord');
             }
         } else {
             $error = 'Ungültiger oder bereits verwendeter Einladungscode.';
@@ -112,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
                     </ol>
 
                     <div class="mb-4 text-center">
-                        <a href="<?= BASE_PATH ?>auth/discord.php" class="btn btn-soft-primary btn-lg block w-full"><i class="fa-brands fa-discord"></i> Login</a>
+                        <a href="<?= BASE_PATH ?>auth/discord" class="btn btn-soft-primary btn-lg block w-full"><i class="fa-brands fa-discord"></i> Login</a>
                     </div>
                 </div>
         <p class="mt-4 text-center text-xs">&copy; 2024-<?php echo date("Y") ?> <a href="https://emergencyforge.de" target="_blank" rel="nofollow">EmergencyForge</a>. Alle Rechte vorbehalten.</p>
