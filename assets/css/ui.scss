@@ -1,3 +1,6 @@
+@use 'sass:meta';
+@use 'tokens';
+
 // =====================================================
 // ıgnıs UI — Dialog
 // Hauseigener Ersatz für confirm/alert/prompt und Bootstrap-Modals.
@@ -44,13 +47,13 @@
   justify-content: space-between;
   gap: 1rem 2rem;
   padding-bottom: 1.25rem;
-  border-bottom: 1px solid var(--border-color, #2a2a2a);
+  border-bottom: 1px solid var(--border);
 
   &__copy { min-width: 0; }
 
   &__eyebrow {
     margin: 0 0 0.35rem;
-    color: var(--main-color, #ff4d00);
+    color: var(--accent);
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -59,7 +62,7 @@
 
   h1 {
     margin: 0;
-    color: var(--text-title, #fff);
+    color: var(--text);
     font-size: clamp(1.45rem, 2vw, 2rem);
     line-height: 1.2;
   }
@@ -67,7 +70,7 @@
   &__description {
     max-width: 48rem;
     margin: 0.45rem 0 0;
-    color: var(--text-dimmed, #9b99a1);
+    color: var(--text-3);
     font-size: 0.86rem;
     line-height: 1.55;
   }
@@ -85,23 +88,23 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   overflow: hidden;
   margin: 1.25rem 0;
-  background: var(--card-bg, var(--body-bg-lighter, #161616));
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow-soft, 0 1px 3px rgba(0, 0, 0, 0.24));
+  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.24));
 
   @media (min-width: 768px) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
   &__item {
     min-width: 0;
     padding: 1rem 1.1rem;
-    border-right: 1px solid var(--border-color, #2a2a2a);
-    border-bottom: 1px solid var(--border-color, #2a2a2a);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
 
     &:nth-child(2n) { border-right: 0; }
     @media (min-width: 768px) {
       border-bottom: 0;
-      &:nth-child(2n) { border-right: 1px solid var(--border-color, #2a2a2a); }
+      &:nth-child(2n) { border-right: 1px solid var(--border); }
       &:last-child { border-right: 0; }
     }
   }
@@ -109,7 +112,7 @@
   &__label {
     display: block;
     overflow: hidden;
-    color: var(--text-dimmed, #9b99a1);
+    color: var(--text-3);
     font-size: 0.76rem;
     font-weight: 600;
     text-overflow: ellipsis;
@@ -119,7 +122,7 @@
   &__value {
     display: block;
     margin-top: 0.35rem;
-    color: var(--text-title, #fff);
+    color: var(--text);
     font-family: 'Geist Mono', ui-monospace, monospace;
     font-size: clamp(1.45rem, 3vw, 2rem);
     font-weight: 700;
@@ -148,18 +151,18 @@
   min-width: 0;
   padding: 1rem;
   color: inherit;
-  background: var(--card-bg, var(--body-bg-lighter, #161616));
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg, 8px);
-  box-shadow: var(--shadow-soft, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
   text-decoration: none;
   transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
 
   &:hover,
   &:focus-visible {
     color: inherit;
-    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.045);
-    border-color: rgba(var(--main-color-rgb, 255, 77, 0), 0.7);
+    background: rgba(var(--accent-rgb), 0.045);
+    border-color: rgba(var(--accent-rgb), 0.7);
     outline: none;
     text-decoration: none;
     transform: translateY(-1px);
@@ -172,25 +175,25 @@
     width: 2.65rem;
     height: 2.65rem;
     flex: 0 0 2.65rem;
-    color: var(--main-color, #ff4d00);
-    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.1);
-    border: 1px solid rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.1);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
     border-radius: var(--radius-lg, 8px);
   }
 
   &__body { min-width: 0; flex: 1; }
-  &__title { margin: 0; color: var(--text-title, #fff); font-size: 0.9rem; font-weight: 650; }
-  &__description { margin: 0.25rem 0 0; color: var(--text-dimmed, #9b99a1); font-size: 0.77rem; line-height: 1.45; }
-  &__arrow { margin-left: auto; color: var(--text-dimmed, #9b99a1); font-size: 0.75rem; }
+  &__title { margin: 0; color: var(--text); font-size: 0.9rem; font-weight: 650; }
+  &__description { margin: 0.25rem 0 0; color: var(--text-3); font-size: 0.77rem; line-height: 1.45; }
+  &__arrow { margin-left: auto; color: var(--text-3); font-size: 0.75rem; }
 }
 
 .twplus-table-card {
   overflow-x: auto;
   overflow-y: hidden;
-  background: var(--card-bg, var(--body-bg-lighter, #161616));
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow-soft, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
 
   &__toolbar {
     display: flex;
@@ -198,7 +201,7 @@
     align-items: end;
     gap: 0.75rem;
     padding: 0.9rem 1rem;
-    border-bottom: 1px solid var(--border-color, #2a2a2a);
+    border-bottom: 1px solid var(--border);
   }
 
   &__scroll { overflow-x: auto; }
@@ -211,9 +214,9 @@ table.twplus-table {
 
   th {
     padding: 0.7rem 0.9rem !important;
-    color: var(--text-dimmed, #9b99a1) !important;
-    background: rgba(255, 255, 255, 0.018) !important;
-    border-bottom: 1px solid var(--border-color, #2a2a2a) !important;
+    color: var(--text-3) !important;
+    background: var(--fill-1) !important;
+    border-bottom: 1px solid var(--border) !important;
     font-size: 0.68rem !important;
     font-weight: 700 !important;
     letter-spacing: 0.055em;
@@ -224,15 +227,15 @@ table.twplus-table {
 
   td {
     padding: 0.78rem 0.9rem !important;
-    color: var(--text-color, #d8d7dc);
+    color: var(--text);
     background: transparent !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.055) !important;
+    border-bottom: 1px solid var(--fill-2) !important;
     font-size: 0.79rem;
     vertical-align: middle;
   }
 
   tbody tr { transition: background 120ms ease; }
-  tbody tr:hover { background: rgba(255, 255, 255, 0.025) !important; }
+  tbody tr:hover { background: var(--fill-1) !important; }
   tbody tr:last-child td { border-bottom: 0 !important; }
 
   @media (max-width: 767px) {
@@ -270,13 +273,13 @@ table.twplus-table {
   justify-content: center;
   min-height: 12rem;
   padding: 2rem 1.25rem;
-  color: var(--text-dimmed, #9b99a1);
-  border: 1px dashed var(--border-color, #3a3840);
+  color: var(--text-3);
+  border: 1px dashed var(--border);
   border-radius: var(--radius-xl, 10px);
   text-align: center;
 
-  &__icon { margin-bottom: 0.8rem; color: var(--text-dimmed, #77757d); font-size: 1.8rem; }
-  &__title { margin: 0; color: var(--text-title, #fff); font-size: 0.9rem; font-weight: 650; }
+  &__icon { margin-bottom: 0.8rem; color: var(--text-3); font-size: 1.8rem; }
+  &__title { margin: 0; color: var(--text); font-size: 0.9rem; font-weight: 650; }
   &__description { max-width: 32rem; margin: 0.35rem 0 0; font-size: 0.78rem; line-height: 1.5; }
   &__action { margin-top: 1rem; }
 }
@@ -289,8 +292,8 @@ table.twplus-table {
   justify-content: center;
   min-height: 10rem;
   padding: 1.75rem 1rem;
-  color: var(--text-dimmed, #9b99a1);
-  border: 1px dashed var(--border-color, #3a3840);
+  color: var(--text-3);
+  border: 1px dashed var(--border);
   border-radius: var(--radius-xl, 10px);
   text-align: center;
 }
@@ -302,15 +305,15 @@ table.twplus-table {
   width: 2.8rem;
   height: 2.8rem;
   margin-bottom: 0.75rem;
-  color: var(--main-color, #ff4d00);
-  background: rgba(var(--main-color-rgb, 255, 77, 0), 0.1);
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.1);
   border-radius: 50%;
 }
 
 .twplus-description-list {
   overflow: hidden;
   margin: 0;
-  border: 1px solid var(--border-color, #2a2a2a);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg, 8px);
 
   &__row {
@@ -318,12 +321,12 @@ table.twplus-table {
     grid-template-columns: minmax(8rem, 0.8fr) minmax(0, 1.7fr);
     gap: 1rem;
     padding: 0.8rem 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+    border-bottom: 1px solid var(--fill-2);
     &:last-child { border-bottom: 0; }
   }
 
-  dt { color: var(--text-title, #fff); font-size: 0.76rem; font-weight: 600; }
-  dd { min-width: 0; margin: 0; color: var(--text-color, #d8d7dc); font-size: 0.79rem; }
+  dt { color: var(--text); font-size: 0.76rem; font-weight: 600; }
+  dd { min-width: 0; margin: 0; color: var(--text); font-size: 0.79rem; }
 
   @media (max-width: 540px) {
     &__row { grid-template-columns: 1fr; gap: 0.25rem; }
@@ -335,7 +338,7 @@ table.twplus-table {
   grid-template-columns: minmax(8rem, 0.8fr) minmax(0, 1.7fr);
   gap: 1rem;
   padding: 0.8rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  border-bottom: 1px solid var(--fill-2);
   &:last-child { border-bottom: 0; }
   @media (max-width: 540px) { grid-template-columns: 1fr; gap: 0.25rem; }
 }
@@ -347,12 +350,12 @@ table.twplus-table {
 
   td {
     padding: 0.72rem 0.85rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+    border-bottom: 1px solid var(--fill-2);
     font-size: 0.78rem;
     vertical-align: top;
   }
   tr:last-child td { border-bottom: 0; }
-  td:first-child { width: 42%; color: var(--text-dimmed, #9b99a1); font-weight: 600; }
+  td:first-child { width: 42%; color: var(--text-3); font-weight: 600; }
 }
 
 .twplus-feed {
@@ -374,7 +377,7 @@ table.twplus-table {
     bottom: 0;
     left: 1.05rem;
     width: 1px;
-    background: var(--border-color, #2a2a2a);
+    background: var(--border);
     content: '';
   }
 
@@ -386,16 +389,16 @@ table.twplus-table {
     justify-content: center;
     width: 2.15rem;
     height: 2.15rem;
-    color: var(--main-color, #ff4d00);
-    background: var(--card-bg, #161616);
-    border: 1px solid var(--border-color, #2a2a2a);
+    color: var(--accent);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: 50%;
     font-size: 0.78rem;
   }
 
   &__body { min-width: 0; padding-top: 0.2rem; }
-  &__content { color: var(--text-color, #d8d7dc); font-size: 0.8rem; line-height: 1.5; }
-  &__meta { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 0.3rem; color: var(--text-dimmed, #8a8890); font-size: 0.68rem; }
+  &__content { color: var(--text); font-size: 0.8rem; line-height: 1.5; }
+  &__meta { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 0.3rem; color: var(--text-3); font-size: 0.68rem; }
 }
 
 .twplus-settings-layout {
@@ -410,20 +413,20 @@ table.twplus-table {
 .twplus-settings-nav {
   align-self: start;
   padding: 0.5rem;
-  background: var(--card-bg, var(--body-bg-lighter, #161616));
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
 
   @media (min-width: 1024px) { position: sticky; top: 5.25rem; }
 
-  &__title { padding: 0.45rem 0.65rem 0.55rem; color: var(--text-dimmed, #9b99a1); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+  &__title { padding: 0.45rem 0.65rem 0.55rem; color: var(--text-3); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
   &__list { display: grid; gap: 0.15rem; margin: 0; padding: 0; list-style: none; }
   &__link {
     display: flex;
     align-items: center;
     gap: 0.65rem;
     padding: 0.55rem 0.65rem;
-    color: var(--text-dimmed, #aaa8b0);
+    color: var(--text-3);
     border-radius: var(--radius-md, 6px);
     font-size: 0.76rem;
     font-weight: 550;
@@ -431,9 +434,9 @@ table.twplus-table {
     transition: color 120ms ease, background 120ms ease;
 
     i { width: 1rem; text-align: center; }
-    &:hover { color: var(--text-title, #fff); background: rgba(255, 255, 255, 0.045); text-decoration: none; }
-    &.is-active { color: #fff; background: rgba(var(--main-color-rgb, 255, 77, 0), 0.14); }
-    &.is-active i { color: var(--main-color, #ff4d00); }
+    &:hover { color: var(--text); background: var(--fill-2); text-decoration: none; }
+    &.is-active { color: var(--white); background: rgba(var(--accent-rgb), 0.14); }
+    &.is-active i { color: var(--accent); }
   }
 }
 
@@ -453,28 +456,28 @@ table.twplus-table {
 
   @media (min-width: 960px) { grid-template-columns: minmax(24rem, 0.85fr) minmax(0, 1.15fr); }
 
-  &__panel { display: flex; align-items: center; justify-content: center; padding: 2rem 1.25rem; background: var(--body-bg, #0d0d0f); }
+  &__panel { display: flex; align-items: center; justify-content: center; padding: 2rem 1.25rem; background: var(--bg); }
   &__content { width: 100%; max-width: 25rem; }
   &__brand { margin-bottom: 2rem; }
   &__brand img { display: block; width: min(18rem, 75%); height: auto; }
-  &__card { padding: 1.4rem; background: var(--card-bg, #161616); border: 1px solid var(--border-color, #2a2a2a); border-radius: var(--radius-xl, 10px); box-shadow: var(--shadow-strong, 0 18px 45px rgba(0,0,0,.32)); }
-  &__visual { position: relative; display: none; overflow: hidden; background: #080809; }
-  &__visual::after { position: absolute; inset: 0; background: radial-gradient(circle at 25% 30%, rgba(var(--main-color-rgb,255,77,0),.28), transparent 38%), linear-gradient(145deg, transparent, rgba(255,255,255,.025)); content: ''; }
-  &__visual-copy { position: relative; z-index: 1; align-self: end; max-width: 38rem; padding: 4rem; color: #fff; }
+  &__card { padding: 1.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl, 10px); box-shadow: var(--shadow-lg, 0 18px 45px rgba(0,0,0,.32)); }
+  &__visual { position: relative; display: none; overflow: hidden; background: var(--bg-2); }
+  &__visual::after { position: absolute; inset: 0; background: radial-gradient(circle at 25% 30%, rgba(var(--accent-rgb),.28), transparent 38%), linear-gradient(145deg, transparent, var(--fill-1)); content: ''; }
+  &__visual-copy { position: relative; z-index: 1; align-self: end; max-width: 38rem; padding: 4rem; color: var(--white); }
   &__visual-copy h2 { margin: 0; font-size: clamp(2rem, 4vw, 3.75rem); line-height: 1.05; letter-spacing: -.045em; }
   &__visual-copy p { max-width: 30rem; margin: 1rem 0 0; color: rgba(255,255,255,.68); font-size: .95rem; line-height: 1.6; }
   &__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.45rem; margin: 0 0 1rem; padding: 0; list-style: none; }
-  &__steps li { display: grid; gap: 0.3rem; justify-items: center; color: var(--text-dimmed, #9b99a1); font-size: 0.64rem; text-align: center; }
-  &__steps i { display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; color: var(--main-color, #ff4d00); background: rgba(var(--main-color-rgb,255,77,0),.1); border-radius: 50%; }
+  &__steps li { display: grid; gap: 0.3rem; justify-items: center; color: var(--text-3); font-size: 0.64rem; text-align: center; }
+  &__steps i { display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; color: var(--accent); background: rgba(var(--accent-rgb),.1); border-radius: 50%; }
   @media (min-width: 960px) { &__visual { display: flex; } }
 }
 
 .twplus-section-card {
   overflow: hidden;
-  background: var(--card-bg, var(--body-bg-lighter, #161616));
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow-soft, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
 
   &__header {
     display: flex;
@@ -483,13 +486,13 @@ table.twplus-table {
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.9rem 1rem;
-    border-bottom: 1px solid var(--border-color, #2a2a2a);
+    border-bottom: 1px solid var(--border);
   }
 
-  &__title { margin: 0; color: var(--text-title, #fff); font-size: 0.9rem; font-weight: 650; }
-  &__description { margin: 0.25rem 0 0; color: var(--text-dimmed, #9b99a1); font-size: 0.75rem; line-height: 1.45; }
+  &__title { margin: 0; color: var(--text); font-size: 0.9rem; font-weight: 650; }
+  &__description { margin: 0.25rem 0 0; color: var(--text-3); font-size: 0.75rem; line-height: 1.45; }
   &__body { padding: 1rem; }
-  &__footer { padding: 0.8rem 1rem; border-top: 1px solid var(--border-color, #2a2a2a); }
+  &__footer { padding: 0.8rem 1rem; border-top: 1px solid var(--border); }
 }
 
 .twplus-toolbar {
@@ -499,8 +502,8 @@ table.twplus-table {
   justify-content: space-between;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
-  background: var(--card-bg, var(--body-bg-lighter, #161616));
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg, 8px);
 
   &__group { display: flex; flex: 1 1 auto; flex-wrap: wrap; align-items: end; gap: 0.65rem; }
@@ -511,8 +514,8 @@ table.twplus-table {
   overflow: hidden;
   margin: 0;
   padding: 0;
-  background: var(--card-bg, var(--body-bg-lighter, #161616));
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
   list-style: none;
 
@@ -522,7 +525,7 @@ table.twplus-table {
     align-items: center;
     gap: 0.8rem 1rem;
     padding: 0.9rem 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+    border-bottom: 1px solid var(--fill-2);
     &:last-child { border-bottom: 0; }
   }
 
@@ -533,13 +536,13 @@ table.twplus-table {
     width: 2.4rem;
     height: 2.4rem;
     flex: 0 0 2.4rem;
-    color: var(--main-color, #ff4d00);
-    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.1);
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.1);
     border-radius: var(--radius-lg, 8px);
   }
   &__body { min-width: 12rem; flex: 1; }
-  &__title { color: var(--text-title, #fff); font-size: 0.82rem; font-weight: 650; }
-  &__meta { margin-top: 0.2rem; color: var(--text-dimmed, #9b99a1); font-size: 0.72rem; line-height: 1.45; }
+  &__title { color: var(--text); font-size: 0.82rem; font-weight: 650; }
+  &__meta { margin-top: 0.2rem; color: var(--text-3); font-size: 0.72rem; line-height: 1.45; }
   &__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
 }
 
@@ -558,12 +561,12 @@ table.twplus-table {
   grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   padding: 1rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+  border-bottom: 1px solid var(--fill-2);
   &:first-child { padding-top: 0; }
   &:last-child { padding-bottom: 0; border-bottom: 0; }
   @media (min-width: 760px) { grid-template-columns: minmax(10rem, 0.7fr) minmax(0, 1.5fr); }
-  &__label { color: var(--text-title, #fff); font-size: 0.8rem; font-weight: 650; }
-  &__hint { margin-top: 0.25rem; color: var(--text-dimmed, #9b99a1); font-size: 0.72rem; line-height: 1.45; }
+  &__label { color: var(--text); font-size: 0.8rem; font-weight: 650; }
+  &__hint { margin-top: 0.25rem; color: var(--text-3); font-size: 0.72rem; line-height: 1.45; }
 }
 
 .twplus-sticky-actions {
@@ -578,7 +581,7 @@ table.twplus-table {
   margin-top: 1rem;
   padding: 0.75rem;
   background: rgba(20, 20, 22, 0.92);
-  border: 1px solid var(--border-color, #2a2a2a);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
   box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(14px);
@@ -594,9 +597,9 @@ table.twplus-table {
   margin: 0 !important;
   padding: 1.25rem !important;
   overflow-y: auto;
-  background: var(--card-bg, #161616) !important;
+  background: var(--surface) !important;
   border: 0 !important;
-  border-left: 1px solid var(--border-color, #2a2a2a) !important;
+  border-left: 1px solid var(--border) !important;
   border-radius: 0 !important;
   box-shadow: -24px 0 70px rgba(0, 0, 0, 0.5);
 }
@@ -614,22 +617,22 @@ table.twplus-table {
   min-width: 0;
   flex-direction: column;
   padding: 1rem;
-  background: var(--card-bg, #161616);
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
   color: inherit;
   text-decoration: none;
   transition: border-color 140ms ease, transform 140ms ease;
-  &:hover { border-color: rgba(var(--main-color-rgb, 255, 77, 0), 0.55); transform: translateY(-1px); }
+  &:hover { border-color: rgba(var(--accent-rgb), 0.55); transform: translateY(-1px); }
 }
 
 .twplus-dashboard-widget {
   overflow-x: auto;
   overflow-y: hidden;
-  background: var(--card-bg, var(--body-bg-lighter, #161616));
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow-soft, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
 }
 
 .twplus-dashboard-widget > table,
@@ -642,8 +645,8 @@ table.twplus-table {
   justify-content: space-between;
   gap: 1rem;
   padding: 1rem;
-  background: linear-gradient(135deg, rgba(var(--main-color-rgb, 255, 77, 0), 0.1), transparent 55%), var(--card-bg, #161616);
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.1), transparent 55%), var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
 }
 
@@ -652,10 +655,10 @@ table.twplus-table {
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 0.8rem;
   padding: 1rem;
-  background: var(--card-bg, var(--body-bg-lighter, #161616));
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow-soft, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
 
   &__field { grid-column: span 3; min-width: 0; }
   &__search { grid-column: span 5; min-width: 0; }
@@ -690,22 +693,22 @@ table.twplus-table {
   flex-direction: column;
   overflow: hidden;
   color: inherit;
-  background: var(--card-bg, var(--body-bg-lighter, #161616));
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface, var(--surface));
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
-  box-shadow: var(--shadow-soft, 0 1px 3px rgba(0, 0, 0, 0.22));
+  box-shadow: var(--shadow, 0 1px 3px rgba(0, 0, 0, 0.22));
   transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
 
   &:hover, &:focus-within {
-    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.035);
-    border-color: rgba(var(--main-color-rgb, 255, 77, 0), 0.55);
+    background: rgba(var(--accent-rgb), 0.035);
+    border-color: rgba(var(--accent-rgb), 0.55);
     transform: translateY(-1px);
   }
   &__body { min-width: 0; flex: 1; padding: 1rem; }
   &__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin-bottom: 0.75rem; }
-  &__title { margin: 0; color: var(--text-title, #fff); font-size: 0.95rem; font-weight: 650; line-height: 1.35; }
-  &__description { margin: 0.4rem 0 0; color: var(--text-dimmed, #9b99a1); font-size: 0.77rem; line-height: 1.5; }
-  &__footer { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 1rem; border-top: 1px solid rgba(255, 255, 255, 0.055); }
+  &__title { margin: 0; color: var(--text); font-size: 0.95rem; font-weight: 650; line-height: 1.35; }
+  &__description { margin: 0.4rem 0 0; color: var(--text-3); font-size: 0.77rem; line-height: 1.5; }
+  &__footer { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 1rem; border-top: 1px solid var(--fill-2); }
 }
 
 .twplus-mobile-actions {
@@ -720,7 +723,7 @@ table.twplus-table {
     margin-inline: -0.25rem;
     padding: 0.65rem;
     background: rgba(20, 20, 22, 0.94);
-    border: 1px solid var(--border-color, #2a2a2a);
+    border: 1px solid var(--border);
     border-radius: var(--radius-xl, 10px);
     box-shadow: 0 14px 38px rgba(0, 0, 0, 0.38);
     backdrop-filter: blur(14px);
@@ -735,26 +738,26 @@ table.twplus-table {
   justify-content: center;
   gap: 0.75rem;
   padding: 1.5rem;
-  color: var(--text-dimmed, #9b99a1);
-  background: var(--card-bg, #161616);
-  border: 1px dashed var(--border-color, #34323a);
+  color: var(--text-3);
+  background: var(--surface);
+  border: 1px dashed var(--border);
   border-radius: var(--radius-xl, 10px);
   font-size: 0.8rem;
 
-  &--error { color: #e88787; border-color: rgba(212, 107, 107, 0.35); background: rgba(176, 58, 58, 0.06); }
-  &__spinner { width: 1.35rem; height: 1.35rem; border: 2px solid rgba(255, 255, 255, 0.13); border-top-color: var(--main-color, #ff4d00); border-radius: 50%; animation: twplus-spin .75s linear infinite; }
+  &--error { color: var(--danger); border-color: rgba(var(--danger-rgb), 0.35); background: rgba(var(--danger-rgb), 0.06); }
+  &__spinner { width: 1.35rem; height: 1.35rem; border: 2px solid var(--fill-3); border-top-color: var(--accent); border-radius: 50%; animation: twplus-spin .75s linear infinite; }
 }
 
 .twplus-skeleton {
   display: grid;
   gap: 0.65rem;
   padding: 1rem;
-  background: var(--card-bg, #161616);
-  border: 1px solid var(--border-color, #2a2a2a);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
 
-  &__line { height: 0.72rem; overflow: hidden; background: rgba(255, 255, 255, 0.065); border-radius: 999px; }
-  &__line::after { display: block; width: 45%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent); animation: twplus-shimmer 1.3s infinite; content: ''; }
+  &__line { height: 0.72rem; overflow: hidden; background: var(--fill-2); border-radius: 999px; }
+  &__line::after { display: block; width: 45%; height: 100%; background: linear-gradient(90deg, transparent, var(--fill-3), transparent); animation: twplus-shimmer 1.3s infinite; content: ''; }
   &__line--short { width: 45%; }
 }
 
@@ -765,19 +768,19 @@ table.twplus-table {
   justify-content: space-between;
   gap: 0.75rem;
   padding-top: 1rem;
-  color: var(--text-dimmed, #9b99a1);
+  color: var(--text-3);
   font-size: 0.75rem;
 }
 
 .twplus-dialog-surface .modal-content {
   overflow: hidden;
-  border: 1px solid var(--border-color, #2a2a2a);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.58);
 }
 
 .twplus-dialog-surface .modal-header,
-.twplus-dialog-surface .modal-footer { background: rgba(255, 255, 255, 0.018); }
+.twplus-dialog-surface .modal-footer { background: var(--fill-1); }
 
 @keyframes twplus-spin { to { transform: rotate(360deg); } }
 @keyframes twplus-shimmer { from { transform: translateX(-120%); } to { transform: translateX(240%); } }
@@ -788,11 +791,11 @@ table.twplus-table {
   left: 50%;
   width: calc(100% - 2rem);
   max-height: calc(100vh - 3rem);
-  background: var(--body-bg-lighter, #161616);
-  color: var(--text-normal, #bbbac1);
+  background: var(--surface);
+  color: var(--text-2);
   border-radius: var(--radius-xl, 10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--fill-2);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--fill-1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -820,7 +823,7 @@ table.twplus-table {
     align-items: center;
     justify-content: space-between;
     padding: 1rem 1.25rem 0.85rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--fill-2);
     flex-shrink: 0;
   }
 
@@ -829,7 +832,7 @@ table.twplus-table {
     font-family: 'Geist', system-ui, sans-serif;
     font-size: 1.05rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--white);
     letter-spacing: -0.01em;
   }
 
@@ -839,7 +842,7 @@ table.twplus-table {
     border-radius: var(--radius-sm, 4px);
     border: none;
     background: transparent;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -848,12 +851,12 @@ table.twplus-table {
     transition: color 0.12s ease, background 0.12s ease;
 
     &:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.06);
+      color: var(--white);
+      background: var(--fill-2);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--main-color);
+      outline: 2px solid var(--accent);
       outline-offset: 1px;
     }
   }
@@ -864,38 +867,38 @@ table.twplus-table {
     flex: 1 1 auto;
     min-height: 0;
     scrollbar-width: thin;
-    scrollbar-color: var(--darkgray, #3d3a44) transparent;
+    scrollbar-color: var(--border) transparent;
   }
 
   .ignis-dialog__text {
     margin: 0;
     font-size: 0.92rem;
     line-height: 1.5;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
   }
 
   .ignis-dialog__label {
     display: block;
     font-size: 0.82rem;
     font-weight: 500;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     margin-bottom: 0.4rem;
   }
 
   .ignis-dialog__input {
     width: 100%;
     padding: 0.375rem 0.75rem;
-    background: var(--input-bg, #161616);
-    border: 1px solid var(--darkgray, #2a2a2a);
+    background: var(--input-bg);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md, 6px);
-    color: #fff;
+    color: var(--white);
     font-size: 0.92rem;
     transition: border-color 0.12s ease, box-shadow 0.12s ease;
 
     &:focus {
       outline: none;
-      border-color: var(--main-color);
-      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
     }
   }
 
@@ -910,10 +913,10 @@ table.twplus-table {
       flex-shrink: 0;
     }
 
-    &--info    > i { color: #4a9fd4; }
-    &--success > i { color: #2fbf75; }
-    &--warning > i { color: #e0a43a; }
-    &--error   > i { color: #d1484a; }
+    &--info    > i { color: var(--info); }
+    &--success > i { color: var(--ok); }
+    &--warning > i { color: var(--warn); }
+    &--error   > i { color: var(--danger); }
   }
 
   .ignis-dialog__footer {
@@ -921,7 +924,7 @@ table.twplus-table {
     gap: 0.5rem;
     justify-content: flex-end;
     padding: 0.85rem 1.25rem 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--fill-2);
     flex-shrink: 0;
   }
 
@@ -943,64 +946,64 @@ table.twplus-table {
     }
 
     &:focus-visible {
-      outline: 2px solid var(--main-color);
+      outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
 
     // Variants
     &--primary {
-      background: var(--main-color);
-      color: #fff;
+      background: var(--accent);
+      color: var(--white);
 
       &:hover { filter: brightness(1.1); }
     }
 
     &--danger {
-      background: #c94141;
-      color: #fff;
+      background: var(--danger);
+      color: var(--white);
 
-      &:hover { background: #dc4e4e; }
+      &:hover { background: var(--danger); }
     }
 
     &--ghost {
       background: transparent;
-      color: var(--text-normal, #bbbac1);
+      color: var(--text-2);
       border-color: transparent;
 
       &:hover {
-        color: #fff;
-        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+        background: var(--fill-2);
       }
     }
 
     &--secondary {
-      background: rgba(255, 255, 255, 0.06);
-      color: #fff;
+      background: var(--fill-2);
+      color: var(--white);
 
-      &:hover { background: rgba(255, 255, 255, 0.12); }
+      &:hover { background: var(--fill-3); }
     }
 
     &--success {
-      background: #2d8054;
-      color: #fff;
+      background: var(--ok);
+      color: var(--white);
 
-      &:hover { background: #339161; }
+      &:hover { background: var(--ok); }
     }
 
     &--soft-primary {
-      background: rgba(var(--main-color-rgb, 255, 77, 0), 0.18);
-      color: var(--main-color);
+      background: rgba(var(--accent-rgb), 0.18);
+      color: var(--accent);
 
-      &:hover { background: rgba(var(--main-color-rgb, 255, 77, 0), 0.26); }
+      &:hover { background: rgba(var(--accent-rgb), 0.26); }
     }
 
     &--ghost-danger {
       background: transparent;
-      color: #c44545;
+      color: var(--danger);
 
       &:hover {
-        background: rgba(196, 69, 69, 0.12);
-        color: #e05555;
+        background: rgba(var(--danger-rgb), 0.12);
+        color: var(--danger);
       }
     }
 
@@ -1022,7 +1025,7 @@ table.twplus-table {
   width: 1.4rem;
   height: 1.4rem;
   padding: 0;
-  color: var(--text-dimmed, #818189);
+  color: var(--text-3);
   background: transparent;
   border: 0;
   border-radius: var(--radius-sm, 4px);
@@ -1030,17 +1033,17 @@ table.twplus-table {
   appearance: none;
   &::before, &::after { position: absolute; top: 50%; left: 50%; width: 12px; height: 1.5px; background: currentColor; content: ''; transform: translate(-50%, -50%) rotate(45deg); }
   &::after { transform: translate(-50%, -50%) rotate(-45deg); }
-  &:hover, &:focus-visible { color: #fff; background: rgba(255, 255, 255, 0.06); outline: none; }
+  &:hover, &:focus-visible { color: var(--white); background: var(--fill-2); outline: none; }
 }
-.btn-close-white { color: #fff; }
+.btn-close-white { color: var(--white); }
 
 .ignis-dialog--embedded {
   .ignis-dialog__body { padding: 0; overflow: auto; }
   .modal-content { display: flex; min-height: 0; flex: 1; flex-direction: column; background: transparent; }
   .modal-header, .modal-footer { display: flex; align-items: center; gap: 0.75rem; padding: 1rem 1.25rem; }
-  .modal-header { border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
-  .modal-footer { justify-content: flex-end; border-top: 1px solid rgba(255, 255, 255, 0.08); }
-  .modal-title { margin: 0; color: var(--text-title, #fff); font-size: 1rem; }
+  .modal-header { border-bottom: 1px solid var(--fill-2); }
+  .modal-footer { justify-content: flex-end; border-top: 1px solid var(--fill-2); }
+  .modal-title { margin: 0; color: var(--text); font-size: 1rem; }
   .modal-body { min-height: 0; flex: 1; overflow: auto; padding: 1.25rem; }
   .btn-close { margin-left: auto; color: inherit; background: transparent; border: 0; cursor: pointer; }
 }
@@ -1098,24 +1101,24 @@ body:has(.ignis-dialog-backdrop.is-open) {
     gap: 0.5rem;
     width: 100%;
     padding: 0.375rem 0.75rem;
-    background: var(--input-bg, #161616);
-    border: 1px solid var(--darkgray, #2a2a2a);
+    background: var(--input-bg);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md, 6px);
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     font-size: var(--fs-sm, 0.88rem);
     text-align: left;
     cursor: pointer;
     transition: border-color 0.12s ease, box-shadow 0.12s ease;
 
     &:hover:not(:disabled) {
-      border-color: rgba(255, 255, 255, 0.2);
+      border-color: var(--fill-4);
     }
 
     &:focus-visible,
     &:focus {
       outline: none;
-      border-color: var(--main-color);
-      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
     }
 
     &:disabled {
@@ -1131,25 +1134,25 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   .ignis-dropdown__label {
     flex: 1 1 auto;
-    color: #fff;
+    color: var(--white);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 
     &.is-placeholder {
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
       font-weight: 400;
     }
   }
 
   .ignis-dropdown__label-icon {
     margin-right: 0.4rem;
-    color: var(--main-color);
+    color: var(--accent);
     font-size: 0.85em;
   }
 
   .ignis-dropdown__chevron {
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     font-size: 0.7rem;
     transition: transform 0.18s var(--spring, ease);
     flex-shrink: 0;
@@ -1187,8 +1190,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
   max-height: 0;
   display: flex;
   flex-direction: column;
-  background: var(--body-bg-lighter, #161616);
-  border: 1px solid var(--darkgray, #2a2a2a);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
   overflow: hidden;
@@ -1222,19 +1225,19 @@ body:has(.ignis-dialog-backdrop.is-open) {
   .ignis-dropdown__search {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    background: var(--input-bg, #161616);
+    background: var(--input-bg);
     border: 0;
-    border-bottom: 1px solid var(--darkgray, #2a2a2a);
-    color: #fff;
+    border-bottom: 1px solid var(--border);
+    color: var(--white);
     font-size: var(--fs-sm, 0.88rem);
     outline: none;
 
     &::placeholder {
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
     }
 
     &:focus {
-      background: rgba(var(--main-color-rgb, 255, 77, 0), 0.04);
+      background: rgba(var(--accent-rgb), 0.04);
     }
   }
 
@@ -1245,7 +1248,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     overflow-y: auto;
     flex: 1 1 auto;
     scrollbar-width: thin;
-    scrollbar-color: var(--darkgray, #2a2a2a) transparent;
+    scrollbar-color: var(--border) transparent;
 
     li {
       display: flex;
@@ -1253,7 +1256,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
       gap: 0.55rem;
       padding: 0.45rem 0.6rem;
       border-radius: var(--radius-sm, 4px);
-      color: var(--text-normal, #bbbac1);
+      color: var(--text-2);
       font-size: var(--fs-sm, 0.88rem);
       cursor: pointer;
       line-height: 1.3;
@@ -1261,18 +1264,18 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
       &:hover,
       &:focus {
-        background: rgba(255, 255, 255, 0.05);
-        color: #fff;
+        background: var(--fill-2);
+        color: var(--white);
         outline: none;
       }
 
       &.is-selected {
-        color: #fff;
-        background: rgba(var(--main-color-rgb, 255, 77, 0), 0.12);
+        color: var(--white);
+        background: rgba(var(--accent-rgb), 0.12);
       }
 
       &[aria-disabled="true"] {
-        color: var(--text-dimmed, #818189);
+        color: var(--text-3);
         cursor: default;
 
         &:hover { background: transparent; }
@@ -1281,7 +1284,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   .ignis-dropdown__option-icon {
-    color: var(--main-color);
+    color: var(--accent);
     width: 1em;
     flex-shrink: 0;
     font-size: 0.85em;
@@ -1290,7 +1293,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   .ignis-dropdown__empty {
     padding: 0.75rem;
     text-align: center;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     font-size: var(--fs-sm, 0.88rem);
     font-style: italic;
   }
@@ -1310,9 +1313,9 @@ body:has(.ignis-dialog-backdrop.is-open) {
   display: block;
   width: 100%;
   padding: 0.375rem 0.75rem;
-  background: var(--input-bg, #161616);
-  color: var(--input-text, #fff);
-  border: 1px solid var(--darkgray, #2a2a2a);
+  background: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
   font-size: var(--fs-sm, 0.88rem);
   line-height: 1.4;
@@ -1323,18 +1326,18 @@ body:has(.ignis-dialog-backdrop.is-open) {
     background 0.12s ease;
 
   &::placeholder {
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
   }
 
   &:hover:not(:disabled):not([readonly]) {
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: var(--fill-4);
   }
 
   &:focus,
   &:focus-visible {
     outline: none;
-    border-color: var(--main-color);
-    box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
   }
 
   &:disabled {
@@ -1343,17 +1346,17 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   &[readonly] {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--fill-1);
     cursor: default;
   }
 
   // Invalid-State (nach Browser-native Validierung oder via .is-invalid)
   &.is-invalid,
   &:invalid:not(:focus):not(:placeholder-shown) {
-    border-color: #d1484a;
+    border-color: var(--danger);
 
     &:focus {
-      box-shadow: 0 0 0 3px rgba(209, 72, 74, 0.18);
+      box-shadow: 0 0 0 3px rgba(var(--danger-rgb), 0.18);
     }
   }
 
@@ -1380,7 +1383,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     top: 50%;
     left: 0.75rem;
     transform: translateY(-50%);
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     pointer-events: none;
     font-size: 0.9em;
     z-index: 1;
@@ -1391,7 +1394,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   &:focus-within .ignis-input-group__icon {
-    color: var(--main-color);
+    color: var(--accent);
   }
 }
 
@@ -1455,23 +1458,23 @@ body:has(.ignis-dialog-backdrop.is-open) {
   .ignis-field__label {
     font-size: 0.82rem;
     font-weight: 500;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
 
     .ignis-field__required {
-      color: var(--main-color);
+      color: var(--accent);
       margin-left: 0.15rem;
     }
   }
 
   .ignis-field__hint {
     font-size: 0.72rem;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     line-height: 1.4;
   }
 
   .ignis-field__error {
     font-size: 0.72rem;
-    color: #d1484a;
+    color: var(--danger);
     display: flex;
     align-items: center;
     gap: 0.3rem;
@@ -1489,7 +1492,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   &.is-invalid .ignis-input,
   &.is-invalid .ignis-textarea {
-    border-color: #d1484a;
+    border-color: var(--danger);
   }
 }
 
@@ -1502,16 +1505,16 @@ body:has(.ignis-dialog-backdrop.is-open) {
   cursor: pointer;
   user-select: none;
   font-size: var(--fs-sm, 0.88rem);
-  color: var(--text-normal, #bbbac1);
+  color: var(--text-2);
 
   input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     width: 1.1rem;
     height: 1.1rem;
-    border: 1.5px solid var(--darkgray, #2a2a2a);
+    border: 1.5px solid var(--border);
     border-radius: var(--radius-sm, 4px);
-    background: var(--input-bg, #161616);
+    background: var(--input-bg);
     cursor: pointer;
     position: relative;
     transition:
@@ -1527,18 +1530,18 @@ body:has(.ignis-dialog-backdrop.is-open) {
       transform: translate(-50%, -60%) rotate(45deg) scale(0);
       width: 0.3rem;
       height: 0.55rem;
-      border: solid #fff;
+      border: solid var(--white);
       border-width: 0 2px 2px 0;
       transition: transform 0.15s var(--spring, ease);
     }
 
     &:hover:not(:disabled) {
-      border-color: rgba(255, 255, 255, 0.35);
+      border-color: var(--fill-5);
     }
 
     &:checked {
-      background: var(--main-color);
-      border-color: var(--main-color);
+      background: var(--accent);
+      border-color: var(--accent);
 
       &::after {
         transform: translate(-50%, -60%) rotate(45deg) scale(1);
@@ -1547,12 +1550,12 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     &:focus-visible {
       outline: none;
-      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25);
     }
 
     &:indeterminate {
-      background: var(--main-color);
-      border-color: var(--main-color);
+      background: var(--accent);
+      border-color: var(--accent);
 
       &::after {
         transform: translate(-50%, -50%) scale(1);
@@ -1583,16 +1586,16 @@ body:has(.ignis-dialog-backdrop.is-open) {
   cursor: pointer;
   user-select: none;
   font-size: var(--fs-sm, 0.88rem);
-  color: var(--text-normal, #bbbac1);
+  color: var(--text-2);
 
   input[type="radio"] {
     appearance: none;
     -webkit-appearance: none;
     width: 1.1rem;
     height: 1.1rem;
-    border: 1.5px solid var(--darkgray, #2a2a2a);
+    border: 1.5px solid var(--border);
     border-radius: 50%;
-    background: var(--input-bg, #161616);
+    background: var(--input-bg);
     cursor: pointer;
     position: relative;
     transition:
@@ -1609,17 +1612,17 @@ body:has(.ignis-dialog-backdrop.is-open) {
       width: 0.5rem;
       height: 0.5rem;
       border-radius: 50%;
-      background: #fff;
+      background: var(--white);
       transition: transform 0.15s var(--spring, ease);
     }
 
     &:hover:not(:disabled) {
-      border-color: rgba(255, 255, 255, 0.35);
+      border-color: var(--fill-5);
     }
 
     &:checked {
-      background: var(--main-color);
-      border-color: var(--main-color);
+      background: var(--accent);
+      border-color: var(--accent);
 
       &::after {
         transform: translate(-50%, -50%) scale(1);
@@ -1628,7 +1631,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     &:focus-visible {
       outline: none;
-      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25);
     }
 
     &:disabled {
@@ -1647,14 +1650,14 @@ body:has(.ignis-dialog-backdrop.is-open) {
   cursor: pointer;
   user-select: none;
   font-size: var(--fs-sm, 0.88rem);
-  color: var(--text-normal, #bbbac1);
+  color: var(--text-2);
 
   input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     width: 2.2rem;
     height: 1.2rem;
-    background: var(--darkgray, #2a2a2a);
+    background: var(--border);
     border-radius: 999px;
     cursor: pointer;
     position: relative;
@@ -1670,13 +1673,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
       width: calc(1.2rem - 4px);
       height: calc(1.2rem - 4px);
       border-radius: 50%;
-      background: #fff;
+      background: var(--white);
       transition: transform 0.22s var(--spring, ease);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
     }
 
     &:checked {
-      background: var(--main-color);
+      background: var(--accent);
 
       &::after {
         transform: translateX(1rem);
@@ -1685,7 +1688,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     &:focus-visible {
       outline: none;
-      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25);
     }
 
     &:disabled {
@@ -1716,14 +1719,14 @@ body:has(.ignis-dialog-backdrop.is-open) {
   align-items: stretch;
   width: 100%;
   max-width: 9rem;
-  border: 1px solid var(--darkgray, #2a2a2a);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
   overflow: hidden;
-  background: var(--input-bg, #161616);
+  background: var(--input-bg);
 
   &:focus-within {
-    border-color: var(--main-color);
-    box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
   }
 
   input[type="number"] {
@@ -1731,7 +1734,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     background: transparent;
     border: 0;
     padding: 0.4rem 0.5rem;
-    color: #fff;
+    color: var(--white);
     text-align: center;
     font-size: var(--fs-sm, 0.88rem);
     min-width: 0;
@@ -1754,18 +1757,18 @@ body:has(.ignis-dialog-backdrop.is-open) {
     width: 1.9rem;
     background: transparent;
     border: 0;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     font-size: 0.85rem;
     cursor: pointer;
     transition: background 0.12s ease, color 0.12s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
+      background: var(--fill-2);
+      color: var(--white);
     }
 
     &:active {
-      background: rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+      background: rgba(var(--accent-rgb), 0.15);
     }
   }
 }
@@ -1781,7 +1784,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   .ignis-tabs__headers {
     display: flex;
     gap: 0;
-    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+    border-bottom: 1px solid var(--border);
     margin-bottom: 1.25rem;
     flex-wrap: wrap;
   }
@@ -1789,7 +1792,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   .ignis-tabs__header {
     background: none;
     border: none;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     padding: 0.65rem 1rem;
     cursor: pointer;
     font-size: var(--fs-sm, 0.88rem);
@@ -1801,19 +1804,19 @@ body:has(.ignis-dialog-backdrop.is-open) {
     position: relative;
 
     &:hover:not(.is-active) {
-      color: var(--text-normal, #bbbac1);
+      color: var(--text-2);
     }
 
     &:focus-visible {
       outline: none;
-      color: var(--text-normal, #bbbac1);
-      background: rgba(255, 255, 255, 0.03);
+      color: var(--text-2);
+      background: var(--fill-1);
       border-radius: var(--radius-sm, 4px) var(--radius-sm, 4px) 0 0;
     }
 
     &.is-active {
-      color: var(--text-title, #fff);
-      border-bottom-color: var(--main-color);
+      color: var(--text);
+      border-bottom-color: var(--accent);
     }
   }
 
@@ -1838,13 +1841,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
       margin-bottom: 0;
 
       &.is-active {
-        background: var(--main-color);
-        color: #fff;
+        background: var(--accent);
+        color: var(--white);
         border-bottom: 0;
       }
 
       &:hover:not(.is-active) {
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--fill-2);
       }
     }
   }
@@ -1865,13 +1868,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
   gap: 0.4rem;
 
   .ignis-accordion__item {
-    background: var(--body-bg-lighter, #161616);
-    border: 1px solid var(--darkgray, #2a2a2a);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md, 6px);
     overflow: hidden;
 
     &.is-open {
-      border-color: rgba(var(--main-color-rgb, 255, 77, 0), 0.35);
+      border-color: rgba(var(--accent-rgb), 0.35);
     }
   }
 
@@ -1884,7 +1887,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     padding: 0.75rem 1rem;
     background: transparent;
     border: none;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     font-size: var(--fs-sm, 0.88rem);
     font-weight: 500;
     text-align: left;
@@ -1905,18 +1908,18 @@ body:has(.ignis-dialog-backdrop.is-open) {
     }
 
     &:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.03);
+      color: var(--white);
+      background: var(--fill-1);
     }
 
     &:focus-visible {
       outline: none;
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--fill-1);
     }
   }
 
   .ignis-accordion__item.is-open .ignis-accordion__header {
-    color: #fff;
+    color: var(--white);
 
     &::after {
       transform: rotate(225deg);
@@ -1957,7 +1960,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     .ignis-accordion__header {
       padding: 0.4rem 0.25rem;
-      border-bottom: 1px solid var(--main-color, #ff4d00);
+      border-bottom: 1px solid var(--accent);
       font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -1965,7 +1968,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
       &:hover {
         background: transparent;
-        color: #fff;
+        color: var(--white);
       }
     }
 
@@ -2004,10 +2007,10 @@ body:has(.ignis-dialog-backdrop.is-open) {
     gap: 0.6rem;
     width: 100%;
     padding: 0.375rem 0.75rem;
-    background: var(--input-bg, #161616);
-    border: 1px solid var(--darkgray, #2a2a2a);
+    background: var(--input-bg);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md, 6px);
-    color: #fff;
+    color: var(--white);
     font-size: var(--fs-sm, 0.88rem);
     text-align: left;
     cursor: pointer;
@@ -2015,14 +2018,14 @@ body:has(.ignis-dialog-backdrop.is-open) {
     transition: border-color 0.12s ease, box-shadow 0.12s ease;
 
     &:hover:not(:disabled) {
-      border-color: rgba(255, 255, 255, 0.2);
+      border-color: var(--fill-4);
     }
 
     &:focus,
     &:focus-visible {
       outline: none;
-      border-color: var(--main-color);
-      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
     }
 
     &:disabled {
@@ -2032,7 +2035,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   .ignis-datepicker__icon {
-    color: var(--main-color);
+    color: var(--accent);
     font-size: 0.9em;
     flex-shrink: 0;
   }
@@ -2044,7 +2047,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     white-space: nowrap;
 
     &.is-placeholder {
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
     }
   }
 
@@ -2069,8 +2072,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
   width: 280px;
   z-index: 1500;
   padding: 0.75rem;
-  background: var(--body-bg-lighter, #161616);
-  border: 1px solid var(--darkgray, #2a2a2a);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
   opacity: 0;
@@ -2116,19 +2119,19 @@ body:has(.ignis-dialog-backdrop.is-open) {
     height: 28px;
     border: 0;
     background: transparent;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     border-radius: var(--radius-sm, 4px);
     cursor: pointer;
     font-size: 0.75rem;
     transition: color 0.12s ease, background 0.12s ease;
 
     &:hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.06);
+      color: var(--white);
+      background: var(--fill-2);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--main-color);
+      outline: 2px solid var(--accent);
       outline-offset: 1px;
     }
   }
@@ -2138,7 +2141,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     text-align: center;
     font-size: 0.88rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--white);
     padding: 0.2rem 0.5rem;
     border: 0;
     background: transparent;
@@ -2149,8 +2152,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
       font-family: inherit;
       transition: background 0.12s ease;
 
-      &:hover { background: rgba(255, 255, 255, 0.05); }
-      &:focus-visible { outline: 2px solid var(--main-color); outline-offset: 1px; }
+      &:hover { background: var(--fill-2); }
+      &:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
     }
   }
 
@@ -2164,7 +2167,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
       text-align: center;
       font-size: 0.66rem;
       font-weight: 600;
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
       letter-spacing: 0.4px;
       padding: 0.2rem 0;
     }
@@ -2182,7 +2185,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     border: 0;
     border-radius: var(--radius-sm, 4px);
     background: transparent;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     font-size: 0.82rem;
     font-family: inherit;
     cursor: pointer;
@@ -2195,17 +2198,17 @@ body:has(.ignis-dialog-backdrop.is-open) {
     &--blank { cursor: default; }
 
     &:hover:not(.is-disabled):not(.is-selected) {
-      background: rgba(255, 255, 255, 0.06);
-      color: #fff;
+      background: var(--fill-2);
+      color: var(--white);
     }
 
     &:focus-visible {
-      outline: 2px solid var(--main-color);
+      outline: 2px solid var(--accent);
       outline-offset: -2px;
     }
 
     &.is-today:not(.is-selected) {
-      color: var(--main-color);
+      color: var(--accent);
       font-weight: 600;
 
       &::after {
@@ -2217,13 +2220,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
         width: 4px;
         height: 4px;
         border-radius: 50%;
-        background: var(--main-color);
+        background: var(--accent);
       }
     }
 
     &.is-selected {
-      background: var(--main-color);
-      color: #fff;
+      background: var(--accent);
+      color: var(--white);
       font-weight: 600;
     }
 
@@ -2246,25 +2249,25 @@ body:has(.ignis-dialog-backdrop.is-open) {
     background: transparent;
     border: 0;
     border-radius: var(--radius-sm, 4px);
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     font-size: 0.85rem;
     cursor: pointer;
     font-family: inherit;
     transition: background 0.1s ease;
 
     &:hover:not(.is-selected) {
-      background: rgba(255, 255, 255, 0.06);
-      color: #fff;
+      background: var(--fill-2);
+      color: var(--white);
     }
 
     &.is-selected {
-      background: var(--main-color);
-      color: #fff;
+      background: var(--accent);
+      color: var(--white);
       font-weight: 600;
     }
 
     &:focus-visible {
-      outline: 2px solid var(--main-color);
+      outline: 2px solid var(--accent);
       outline-offset: -2px;
     }
   }
@@ -2275,7 +2278,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     gap: 0.4rem;
     margin-top: 0.6rem;
     padding-top: 0.6rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid var(--fill-2);
   }
 
   .ignis-datepicker__footer-btn {
@@ -2283,8 +2286,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
     padding: 0.4rem 0.6rem;
     border: 0;
     border-radius: var(--radius-sm, 4px);
-    background: var(--main-color);
-    color: #fff;
+    background: var(--accent);
+    color: var(--white);
     font-size: 0.78rem;
     font-weight: 500;
     cursor: pointer;
@@ -2295,17 +2298,17 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     &--ghost {
       background: transparent;
-      color: var(--text-dimmed, #818189);
-      border: 1px solid var(--darkgray, #2a2a2a);
+      color: var(--text-3);
+      border: 1px solid var(--border);
 
       &:hover {
-        background: rgba(255, 255, 255, 0.04);
-        color: #fff;
+        background: var(--fill-1);
+        color: var(--white);
       }
     }
 
     &:focus-visible {
-      outline: 2px solid var(--main-color);
+      outline: 2px solid var(--accent);
       outline-offset: 1px;
     }
   }
@@ -2332,10 +2335,10 @@ body:has(.ignis-dialog-backdrop.is-open) {
     gap: 0.6rem;
     width: 100%;
     padding: 0.375rem 0.75rem;
-    background: var(--input-bg, #161616);
-    border: 1px solid var(--darkgray, #2a2a2a);
+    background: var(--input-bg);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md, 6px);
-    color: #fff;
+    color: var(--white);
     font-size: var(--fs-sm, 0.88rem);
     text-align: left;
     cursor: pointer;
@@ -2343,14 +2346,14 @@ body:has(.ignis-dialog-backdrop.is-open) {
     transition: border-color 0.12s ease, box-shadow 0.12s ease;
 
     &:hover:not(:disabled) {
-      border-color: rgba(255, 255, 255, 0.2);
+      border-color: var(--fill-4);
     }
 
     &:focus,
     &:focus-visible {
       outline: none;
-      border-color: var(--main-color);
-      box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
     }
 
     &:disabled {
@@ -2359,7 +2362,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     }
 
     > i {
-      color: var(--main-color);
+      color: var(--accent);
       font-size: 0.9em;
       flex-shrink: 0;
     }
@@ -2372,7 +2375,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     white-space: nowrap;
 
     &.is-placeholder {
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
     }
   }
 }
@@ -2383,8 +2386,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
   position: absolute;
   z-index: 2100;
   width: 300px;
-  background: var(--body-bg-lighter, #161616);
-  border: 1px solid var(--darkgray, #2a2a2a);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
   opacity: 0;
@@ -2405,7 +2408,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 .ignis-datetimepicker__tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--fill-2);
 }
 
 .ignis-datetimepicker__tab {
@@ -2414,22 +2417,22 @@ body:has(.ignis-dialog-backdrop.is-open) {
   padding: 0.55rem 0.75rem;
   font: inherit;
   font-size: 0.82rem;
-  color: var(--text-dimmed, #818189);
+  color: var(--text-3);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: color 0.12s, border-color 0.12s;
   font-family: inherit;
 
-  &:hover { color: #fff; }
+  &:hover { color: var(--white); }
 
   &:focus-visible {
-    outline: 2px solid var(--main-color);
+    outline: 2px solid var(--accent);
     outline-offset: -2px;
   }
 
   &.is-active {
-    color: #fff;
-    border-bottom-color: var(--main-color);
+    color: var(--white);
+    border-bottom-color: var(--accent);
     font-weight: 600;
   }
 }
@@ -2452,7 +2455,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   text-align: center;
   font-size: 0.88rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--white);
   padding: 0.2rem 0.5rem;
 }
 
@@ -2461,7 +2464,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   height: 28px;
   border: 0;
   background: transparent;
-  color: var(--text-dimmed, #818189);
+  color: var(--text-3);
   border-radius: var(--radius-sm, 4px);
   cursor: pointer;
   font-size: 0.75rem;
@@ -2472,12 +2475,12 @@ body:has(.ignis-dialog-backdrop.is-open) {
   justify-content: center;
 
   &:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.06);
+    color: var(--white);
+    background: var(--fill-2);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--main-color);
+    outline: 2px solid var(--accent);
     outline-offset: 1px;
   }
 }
@@ -2492,7 +2495,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     text-align: center;
     font-size: 0.66rem;
     font-weight: 600;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     letter-spacing: 0.4px;
     padding: 0.2rem 0;
   }
@@ -2515,7 +2518,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   border: 0;
   border-radius: var(--radius-sm, 4px);
   background: transparent;
-  color: var(--text-normal, #bbbac1);
+  color: var(--text-2);
   font-size: 0.82rem;
   font-family: inherit;
   cursor: pointer;
@@ -2526,17 +2529,17 @@ body:has(.ignis-dialog-backdrop.is-open) {
   position: relative;
 
   &:hover:not(.is-selected) {
-    background: rgba(255, 255, 255, 0.06);
-    color: #fff;
+    background: var(--fill-2);
+    color: var(--white);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--main-color);
+    outline: 2px solid var(--accent);
     outline-offset: -2px;
   }
 
   &.is-today:not(.is-selected) {
-    color: var(--main-color);
+    color: var(--accent);
     font-weight: 600;
 
     &::after {
@@ -2548,13 +2551,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
       width: 4px;
       height: 4px;
       border-radius: 50%;
-      background: var(--main-color);
+      background: var(--accent);
     }
   }
 
   &.is-selected {
-    background: var(--main-color);
-    color: #fff;
+    background: var(--accent);
+    color: var(--white);
     font-weight: 600;
   }
 }
@@ -2571,32 +2574,32 @@ body:has(.ignis-dialog-backdrop.is-open) {
 .ignis-datetimepicker__time-col {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--darkgray, #2a2a2a);
+  border: 1px solid var(--border);
   border-radius: var(--radius-sm, 4px);
   overflow: hidden;
 }
 
 .ignis-datetimepicker__time-col-label {
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-dimmed, #818189);
+  background: var(--fill-1);
+  color: var(--text-3);
   font-size: 0.66rem;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   text-align: center;
   padding: 0.3rem 0;
   font-weight: 600;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--fill-2);
 }
 
 .ignis-datetimepicker__time-list {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--darkgray, #2a2a2a) transparent;
+  scrollbar-color: var(--border) transparent;
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-thumb {
-    background: var(--darkgray, #2a2a2a);
+    background: var(--border);
     border-radius: 2px;
   }
 }
@@ -2609,20 +2612,20 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-family: inherit;
   font-size: 0.82rem;
   font-variant-numeric: tabular-nums;
-  color: var(--text-normal, #bbbac1);
+  color: var(--text-2);
   padding: 0.4rem 0;
   text-align: center;
   cursor: pointer;
   transition: background 0.1s ease, color 0.1s ease;
 
   &:hover:not(.is-selected) {
-    background: rgba(255, 255, 255, 0.06);
-    color: #fff;
+    background: var(--fill-2);
+    color: var(--white);
   }
 
   &.is-selected {
-    background: var(--main-color);
-    color: #fff;
+    background: var(--accent);
+    color: var(--white);
     font-weight: 600;
   }
 }
@@ -2632,7 +2635,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   margin-top: 0.6rem;
   font-size: 0.92rem;
   font-weight: 600;
-  color: #fff;
+  color: var(--white);
   font-variant-numeric: tabular-nums;
 }
 
@@ -2643,7 +2646,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   justify-content: space-between;
   gap: 0.4rem;
   padding: 0.6rem 0.75rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--fill-2);
 }
 
 .ignis-datetimepicker__footer-btn {
@@ -2651,8 +2654,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
   padding: 0.4rem 0.6rem;
   border: 0;
   border-radius: var(--radius-sm, 4px);
-  background: var(--main-color);
-  color: #fff;
+  background: var(--accent);
+  color: var(--white);
   font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
@@ -2664,13 +2667,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
   // Ghost-Variante fuer Abbrechen — transparent, dimmed
   &--ghost {
     background: transparent;
-    color: var(--text-dimmed, #818189);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-3);
+    border: 1px solid var(--fill-2);
 
     &:hover {
       filter: none;
-      background: rgba(255, 255, 255, 0.05);
-      color: #fff;
+      background: var(--fill-2);
+      color: var(--white);
     }
   }
 }
@@ -2699,15 +2702,15 @@ body:has(.ignis-dialog-backdrop.is-open) {
   width: 100%;
   min-height: 2.25rem;
   padding: 0.3rem 0.5rem;
-  background: var(--input-bg, #161616);
-  border: 1px solid var(--darkgray, #2a2a2a);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
   cursor: text;
   transition: border-color 0.12s ease, box-shadow 0.12s ease;
 
   &:focus-within {
-    border-color: var(--main-color);
-    box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15);
   }
 
   &.is-disabled {
@@ -2725,14 +2728,14 @@ body:has(.ignis-dialog-backdrop.is-open) {
   min-width: 8rem;
   border: 0;
   background: transparent;
-  color: #fff;
+  color: var(--white);
   font-family: inherit;
   font-size: var(--fs-sm, 0.88rem);
   padding: 0.15rem 0.2rem;
   outline: none;
 
   &::placeholder {
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
   }
 }
 
@@ -2747,16 +2750,16 @@ body:has(.ignis-dialog-backdrop.is-open) {
   margin: 0;
   padding: 0.25rem;
   list-style: none;
-  background: var(--body-bg-lighter, #161616);
-  border: 1px solid var(--darkgray, #2a2a2a);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
   scrollbar-width: thin;
-  scrollbar-color: var(--darkgray, #2a2a2a) transparent;
+  scrollbar-color: var(--border) transparent;
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-thumb {
-    background: var(--darkgray, #2a2a2a);
+    background: var(--border);
     border-radius: 2px;
   }
 }
@@ -2764,19 +2767,19 @@ body:has(.ignis-dialog-backdrop.is-open) {
 .ignis-multi-select__option {
   padding: 0.4rem 0.6rem;
   border-radius: var(--radius-sm, 4px);
-  color: var(--text-normal, #bbbac1);
+  color: var(--text-2);
   font-size: var(--fs-sm, 0.88rem);
   cursor: pointer;
   transition: background 0.1s ease, color 0.1s ease;
 
   &:hover,
   &.is-active {
-    background: rgba(255, 255, 255, 0.06);
-    color: #fff;
+    background: var(--fill-2);
+    color: var(--white);
   }
 
   &.is-selected {
-    color: var(--main-color);
+    color: var(--accent);
     font-weight: 500;
 
     &::before {
@@ -2791,27 +2794,27 @@ body:has(.ignis-dialog-backdrop.is-open) {
 .ignis-multi-select__empty {
   padding: 0.6rem;
   text-align: center;
-  color: var(--text-dimmed, #818189);
+  color: var(--text-3);
   font-size: 0.78rem;
 }
 
 // Tag-Variante fuer ausgewaehlte Werte im MultiSelect — neutral grau,
 // damit eine Liste mit 5+ ausgewaehlten Mitarbeitern nicht ueberladen wirkt.
 .ignis-chip.ignis-multi-select__tag {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-normal, #bbbac1);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--fill-2);
+  color: var(--text-2);
+  border: 1px solid var(--fill-2);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.09);
-    color: #fff;
+    background: var(--fill-3);
+    color: var(--white);
   }
 
   .ignis-chip__remove {
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     opacity: 0.7;
 
-    &:hover { opacity: 1; color: #fff; }
+    &:hover { opacity: 1; color: var(--white); }
   }
 }
 
@@ -2829,8 +2832,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
   justify-content: center;
   gap: 0.45rem;
   padding: 0.45rem 0.9rem;
-  background: var(--btn-secondary-bg, #1f1f1f);
-  color: var(--text-normal, #bbbac1);
+  background: var(--btn-secondary-bg);
+  color: var(--text-2);
   font-size: var(--fs-base, 0.82rem);
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -2845,7 +2848,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
               transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 
   &:hover:not(:disabled):not(.is-loading) {
-    background: #2a2a2a;
+    background: var(--border);
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   }
@@ -2853,12 +2856,12 @@ body:has(.ignis-dialog-backdrop.is-open) {
   &:active:not(:disabled):not(.is-loading) {
     transform: translateY(0);
     box-shadow: none;
-    background: #161616;
+    background: var(--surface);
   }
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.4);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.4);
   }
 
   &:disabled,
@@ -2927,79 +2930,79 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   // ── Filled-Variants ──────────────────────────────────────────────
   &--primary {
-    background: var(--btn-primary-bg, #4a6fa5);
-    color: #fff;
+    background: var(--btn-primary-bg);
+    color: var(--white);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: var(--btn-primary-hover, #5680b8);
+      background: var(--btn-primary-hover);
     }
 
     &:active:not(:disabled):not(.is-loading) {
-      background: var(--btn-primary-active, #3f6094);
+      background: var(--btn-primary-active);
     }
   }
 
   &--success {
-    background: var(--btn-success-bg, #3a7d44);
-    color: #fff;
+    background: var(--btn-success-bg);
+    color: var(--white);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: var(--btn-success-hover, #449951);
+      background: var(--btn-success-hover);
     }
 
     &:active:not(:disabled):not(.is-loading) {
-      background: var(--btn-success-active, #326e3b);
+      background: var(--btn-success-active);
     }
   }
 
   &--danger {
-    background: var(--btn-danger-bg, #b03a3a);
-    color: #fff;
+    background: var(--btn-danger-bg);
+    color: var(--white);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: var(--btn-danger-hover, #c44545);
+      background: var(--btn-danger-hover);
     }
 
     &:active:not(:disabled):not(.is-loading) {
-      background: var(--btn-danger-active, #9c3232);
+      background: var(--btn-danger-active);
     }
   }
 
   &--warning {
-    background: var(--btn-warning-bg, #c49a2a);
-    color: #fff;
+    background: var(--btn-warning-bg);
+    color: var(--white);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: var(--btn-warning-hover, #d4a832);
+      background: var(--btn-warning-hover);
     }
 
     &:active:not(:disabled):not(.is-loading) {
-      background: var(--btn-warning-active, #b08a24);
+      background: var(--btn-warning-active);
     }
   }
 
   &--accent {
-    background: var(--main-color, #ff4d00);
-    color: #fff;
+    background: var(--accent);
+    color: var(--white);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: var(--main-color-dimmed, #cc3d00);
+      background: var(--accent-hover);
     }
 
     &:active:not(:disabled):not(.is-loading) {
-      background: var(--main-color-dimmed, #cc3d00);
+      background: var(--accent-hover);
       filter: brightness(0.92);
     }
   }
 
   &--dark {
-    background: #0e0e0e;
-    color: var(--text-normal, #bbbac1);
-    border-color: #1f1f1f;
+    background: var(--bg-2);
+    color: var(--text-2);
+    border-color: var(--surface-2);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: #161616;
-      border-color: #2a2a2a;
+      background: var(--surface);
+      border-color: var(--border);
     }
   }
 
@@ -3014,79 +3017,79 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   &--outline-primary {
-    border-color: var(--btn-primary-bg, #4a6fa5);
-    color: #7ba3d4;
+    border-color: var(--btn-primary-bg);
+    color: var(--accent);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: var(--btn-primary-bg, #4a6fa5);
-      color: #fff;
+      background: var(--btn-primary-bg);
+      color: var(--white);
     }
   }
 
   &--outline-success {
-    border-color: var(--btn-success-bg, #3a7d44);
-    color: #6abf76;
+    border-color: var(--btn-success-bg);
+    color: var(--ok);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: var(--btn-success-bg, #3a7d44);
-      color: #fff;
+      background: var(--btn-success-bg);
+      color: var(--white);
     }
   }
 
   &--outline-danger {
-    border-color: var(--btn-danger-bg, #b03a3a);
-    color: #d46b6b;
+    border-color: var(--btn-danger-bg);
+    color: var(--danger);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: var(--btn-danger-bg, #b03a3a);
-      color: #fff;
+      background: var(--btn-danger-bg);
+      color: var(--white);
     }
   }
 
   &--outline-warning {
-    border-color: var(--btn-warning-bg, #c49a2a);
-    color: #ddb84a;
+    border-color: var(--btn-warning-bg);
+    color: var(--warn);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: var(--btn-warning-bg, #c49a2a);
-      color: #fff;
+      background: var(--btn-warning-bg);
+      color: var(--white);
     }
   }
 
   &--outline-secondary {
-    border-color: var(--darkgray, #2a2a2a);
-    color: var(--text-normal, #bbbac1);
+    border-color: var(--border);
+    color: var(--text-2);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(255, 255, 255, 0.2);
+      background: var(--fill-2);
+      border-color: var(--fill-4);
     }
   }
 
   // ── Ghost: Hover-Surface, sonst transparent ──────────────────────
   &--ghost {
     background: transparent;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(255, 255, 255, 0.06);
-      color: #fff;
+      background: var(--fill-2);
+      color: var(--white);
       transform: none;
       box-shadow: none;
     }
 
     &:active:not(:disabled):not(.is-loading) {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--fill-3);
     }
   }
 
   &--ghost-danger {
     background: transparent;
-    color: #c44545;
+    color: var(--danger);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(196, 69, 69, 0.12);
-      color: #e05555;
+      background: rgba(var(--danger-rgb), 0.12);
+      color: var(--danger);
       transform: none;
       box-shadow: none;
     }
@@ -3094,44 +3097,44 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   // ── Soft: dezent gefüllt mit Akzent-Farbe ────────────────────────
   &--soft-primary {
-    background: rgba(74, 111, 165, 0.15);
-    color: #7ba3d4;
+    background: rgba(var(--info-rgb), 0.15);
+    color: var(--info);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(74, 111, 165, 0.25);
+      background: rgba(var(--info-rgb), 0.25);
       transform: none;
       box-shadow: none;
     }
   }
 
   &--soft-success {
-    background: rgba(58, 125, 68, 0.15);
-    color: #6abf76;
+    background: rgba(var(--ok-rgb), 0.15);
+    color: var(--ok);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(58, 125, 68, 0.25);
+      background: rgba(var(--ok-rgb), 0.25);
       transform: none;
       box-shadow: none;
     }
   }
 
   &--soft-danger {
-    background: rgba(176, 58, 58, 0.15);
-    color: #d46b6b;
+    background: rgba(var(--danger-rgb), 0.15);
+    color: var(--danger);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(176, 58, 58, 0.25);
+      background: rgba(var(--danger-rgb), 0.25);
       transform: none;
       box-shadow: none;
     }
   }
 
   &--soft-warning {
-    background: rgba(196, 154, 42, 0.15);
-    color: #ddb84a;
+    background: rgba(var(--warn-rgb), 0.15);
+    color: var(--warn);
 
     &:hover:not(:disabled):not(.is-loading) {
-      background: rgba(196, 154, 42, 0.25);
+      background: rgba(var(--warn-rgb), 0.25);
       transform: none;
       box-shadow: none;
     }
@@ -3158,7 +3161,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
       border: 2px solid currentColor;
       border-top-color: transparent;
       border-radius: 50%;
-      color: var(--text-normal, #bbbac1);
+      color: var(--text-2);
       animation: ignis-btn-spin 0.7s linear infinite;
     }
 
@@ -3167,7 +3170,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     &.ignis-btn--danger::after,
     &.ignis-btn--warning::after,
     &.ignis-btn--accent::after {
-      color: #fff;
+      color: var(--white);
     }
   }
 }
@@ -3216,8 +3219,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
   gap: 0.35em;
   padding: 0.25em 0.55em;
   border-radius: var(--radius-sm, 4px);
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text-dimmed, #818189);
+  background: var(--fill-2);
+  color: var(--text-3);
   font-size: 0.72em;
   font-weight: 500;
   line-height: 1.4;
@@ -3244,39 +3247,39 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   // ── Variants — Farb-Stack matcht admin.scss:382+ ──────────────────
   &--primary {
-    background: rgba(74, 111, 165, 0.2);
-    color: #7ba3d4;
+    background: rgba(var(--info-rgb), 0.2);
+    color: var(--info);
   }
 
   &--success {
-    background: rgba(58, 125, 68, 0.2);
-    color: #6abf76;
+    background: rgba(var(--ok-rgb), 0.2);
+    color: var(--ok);
   }
 
   &--warning {
-    background: rgba(196, 154, 42, 0.2);
-    color: #ddb84a;
+    background: rgba(var(--warn-rgb), 0.2);
+    color: var(--warn);
   }
 
   &--danger {
-    background: rgba(176, 58, 58, 0.2);
-    color: #d46b6b;
+    background: rgba(var(--danger-rgb), 0.2);
+    color: var(--danger);
   }
 
   &--info {
-    background: rgba(42, 127, 143, 0.2);
-    color: #5bb8cc;
+    background: rgba(var(--info-rgb), 0.2);
+    color: var(--info);
   }
 
   &--accent {
-    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.18);
-    color: var(--main-color, #ff4d00);
+    background: rgba(var(--accent-rgb), 0.18);
+    color: var(--accent);
   }
 
   &--dark {
-    background: rgba(255, 255, 255, 0.04);
-    color: var(--text-dimmed, #818189);
-    border: 1px solid var(--darkgray, #2a2a2a);
+    background: var(--fill-1);
+    color: var(--text-3);
+    border: 1px solid var(--border);
   }
 
   // ── Status-Modifier: Dot-Prefix für Ja/Nein/online/offline ────────
@@ -3295,40 +3298,40 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     &.ignis-chip--success::before,
     &.ignis-chip--online::before {
-      background: #3a7d44;
-      box-shadow: 0 0 4px #3a7d44;
+      background: var(--ok);
+      box-shadow: 0 0 4px var(--ok);
     }
 
     &.ignis-chip--danger::before,
     &.ignis-chip--offline::before {
-      background: #b03a3a;
+      background: var(--danger);
       box-shadow: none;
     }
 
     &.ignis-chip--warning::before,
     &.ignis-chip--away::before {
-      background: #c49a2a;
+      background: var(--warn);
     }
 
     &.ignis-chip--info::before {
-      background: #2a7f8f;
+      background: var(--info);
     }
   }
 
   // online/offline/away als eigenständige Status-Aliase
   &--online {
-    background: rgba(58, 125, 68, 0.2);
-    color: #6abf76;
+    background: rgba(var(--ok-rgb), 0.2);
+    color: var(--ok);
   }
 
   &--offline {
-    background: rgba(176, 58, 58, 0.2);
-    color: #d46b6b;
+    background: rgba(var(--danger-rgb), 0.2);
+    color: var(--danger);
   }
 
   &--away {
-    background: rgba(196, 154, 42, 0.2);
-    color: #ddb84a;
+    background: rgba(var(--warn-rgb), 0.2);
+    color: var(--warn);
   }
 
   // ── Removable: ×-Knopf mit Hover-Hervorhebung ─────────────────────
@@ -3358,7 +3361,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     &:hover,
     &:focus-visible {
       opacity: 1;
-      background: rgba(255, 255, 255, 0.12);
+      background: var(--fill-3);
       outline: none;
     }
   }
@@ -3372,21 +3375,21 @@ body:has(.ignis-dialog-backdrop.is-open) {
   gap: 0.35rem;
   min-height: 2.25rem;
   padding: 0.28rem 0.5rem;
-  background: var(--input-bg, #161616);
-  color: var(--text-normal, #bbbac1);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--input-bg);
+  color: var(--text-2);
+  border: 1px solid var(--fill-2);
   border-radius: var(--radius-md, 6px);
   font-size: var(--fs-sm, 0.88rem);
   cursor: text;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
   &:hover:not(.is-disabled) {
-    border-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--fill-4);
   }
 
   &:focus-within {
-    border-color: var(--main-color);
-    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
   }
 
   &.is-disabled {
@@ -3409,7 +3412,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     padding: 0.15rem 0.2rem;
 
     &::placeholder {
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
     }
 
     &:disabled {
@@ -3443,9 +3446,9 @@ body:has(.ignis-dialog-backdrop.is-open) {
   position: fixed;
   display: flex;
   flex-direction: column;
-  background: var(--body-bg-lighter, #161616);
-  color: var(--text-normal, #bbbac1);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface);
+  color: var(--text-2);
+  border: 1px solid var(--fill-2);
   z-index: 1085;
   transition: transform 0.3s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
   box-shadow: 0 0 32px rgba(0, 0, 0, 0.5);
@@ -3455,7 +3458,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     top: 0; right: 0; bottom: 0;
     width: min(420px, 100vw);
     transform: translateX(100%);
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 1px solid var(--fill-2);
     border-right: 0;
   }
 
@@ -3463,7 +3466,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     top: 0; left: 0; bottom: 0;
     width: min(420px, 100vw);
     transform: translateX(-100%);
-    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    border-right: 1px solid var(--fill-2);
     border-left: 0;
   }
 
@@ -3471,7 +3474,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     top: 0; left: 0; right: 0;
     height: min(360px, 80vh);
     transform: translateY(-100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid var(--fill-2);
     border-top: 0;
   }
 
@@ -3479,7 +3482,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     bottom: 0; left: 0; right: 0;
     height: min(360px, 80vh);
     transform: translateY(100%);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid var(--fill-2);
     border-bottom: 0;
   }
 
@@ -3494,7 +3497,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.85rem 1rem;
-    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+    border-bottom: 1px solid var(--border);
     flex-shrink: 0;
   }
 
@@ -3502,14 +3505,14 @@ body:has(.ignis-dialog-backdrop.is-open) {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-title, #e8e6f3);
+    color: var(--text);
   }
 
   &__close {
     appearance: none;
     background: transparent;
     border: 0;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     cursor: pointer;
     width: 1.8rem;
     height: 1.8rem;
@@ -3521,8 +3524,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
     transition: background 0.15s ease, color 0.15s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.06);
-      color: #fff;
+      background: var(--fill-2);
+      color: var(--white);
     }
   }
 
@@ -3538,7 +3541,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     justify-content: flex-end;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    border-top: 1px solid var(--darkgray, #2a2a2a);
+    border-top: 1px solid var(--border);
     flex-shrink: 0;
   }
 }
@@ -3559,7 +3562,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   &__item {
     appearance: none;
     background: transparent;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     border: 1px solid transparent;
     border-radius: var(--radius-sm, 4px);
     padding: 0.3rem 0.6rem;
@@ -3570,13 +3573,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
     transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 
     &:hover:not(:disabled):not(.is-active) {
-      background: rgba(255, 255, 255, 0.06);
-      color: #fff;
+      background: var(--fill-2);
+      color: var(--white);
     }
 
     &.is-active {
-      background: var(--main-color, #ff4d00);
-      color: #fff;
+      background: var(--accent);
+      color: var(--white);
       font-weight: 500;
     }
 
@@ -3588,7 +3591,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     &--ellipsis {
       cursor: default;
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
 
       &:hover { background: transparent; }
     }
@@ -3609,8 +3612,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
 .ignis-list-group {
   display: flex;
   flex-direction: column;
-  background: var(--body-bg-lighter, #161616);
-  border: 1px solid var(--darkgray, #2a2a2a);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius-md, 6px);
   overflow: hidden;
   list-style: none;
@@ -3622,10 +3625,10 @@ body:has(.ignis-dialog-backdrop.is-open) {
     align-items: center;
     gap: 0.65rem;
     padding: 0.65rem 0.85rem;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     font-size: var(--fs-sm, 0.88rem);
     text-decoration: none;
-    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+    border-bottom: 1px solid var(--border);
     transition: background 0.12s ease;
 
     &:last-child { border-bottom: 0; }
@@ -3634,14 +3637,14 @@ body:has(.ignis-dialog-backdrop.is-open) {
       cursor: pointer;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.04);
-        color: #fff;
+        background: var(--fill-1);
+        color: var(--white);
       }
     }
 
     &.is-active {
-      background: rgba(var(--main-color-rgb, 255, 77, 0), 0.12);
-      color: var(--main-color, #ff4d00);
+      background: rgba(var(--accent-rgb), 0.12);
+      color: var(--accent);
     }
 
     &.is-disabled {
@@ -3652,7 +3655,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   &__icon {
     flex-shrink: 0;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     font-size: 1rem;
   }
 
@@ -3663,18 +3666,18 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   &__title {
     font-weight: 500;
-    color: var(--text-title, #e8e6f3);
+    color: var(--text);
   }
 
   &__meta {
     font-size: 0.72rem;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     margin-top: 0.1rem;
   }
 
   &__trailing {
     flex-shrink: 0;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
   }
 
   // Flush-Variant: keine Borders, für eingebettete Listen
@@ -3702,20 +3705,20 @@ body:has(.ignis-dialog-backdrop.is-open) {
   font-size: 0.78rem;
 
   &__item {
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
 
     a {
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
       text-decoration: none;
       transition: color 0.15s ease;
 
       &:hover {
-        color: var(--main-color, #ff4d00);
+        color: var(--accent);
       }
     }
 
     &.is-active {
-      color: var(--text-normal, #bbbac1);
+      color: var(--text-2);
       font-weight: 500;
     }
 
@@ -3725,7 +3728,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
       font-weight: 900;
       font-size: 0.6rem;
       margin-left: 0.4rem;
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
       opacity: 0.5;
     }
   }
@@ -3742,17 +3745,17 @@ body:has(.ignis-dialog-backdrop.is-open) {
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0.8rem;
-  background: var(--input-bg, #161616);
-  color: var(--text-normal, #bbbac1);
-  border: 1px dashed rgba(255, 255, 255, 0.15);
+  background: var(--input-bg);
+  color: var(--text-2);
+  border: 1px dashed var(--fill-4);
   border-radius: var(--radius-md, 6px);
   font-size: var(--fs-sm, 0.88rem);
   cursor: pointer;
   transition: border-color 0.15s ease, background 0.15s ease;
 
   &:hover {
-    border-color: var(--main-color, #ff4d00);
-    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.04);
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.04);
   }
 
   &.is-disabled {
@@ -3770,17 +3773,17 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   &__icon {
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     font-size: 0.95rem;
   }
 
   &__label {
     flex: 1;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
   }
 
   &.has-file .ignis-file__label {
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
   }
 
   // Drop-Zone-Variant (wider, mit zentriertem Inhalt)
@@ -3804,7 +3807,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   -webkit-appearance: none;
   width: 100%;
   height: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--fill-2);
   border-radius: 999px;
   outline: none;
   cursor: pointer;
@@ -3814,8 +3817,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: var(--main-color, #ff4d00);
-    border: 2px solid var(--body-bg, #0a0a0a);
+    background: var(--accent);
+    border: 2px solid var(--bg);
     cursor: pointer;
     transition: transform 0.15s ease;
   }
@@ -3824,8 +3827,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
     width: 16px;
     height: 16px;
     border-radius: 50%;
-    background: var(--main-color, #ff4d00);
-    border: 2px solid var(--body-bg, #0a0a0a);
+    background: var(--accent);
+    border: 2px solid var(--bg);
     cursor: pointer;
   }
 
@@ -3835,7 +3838,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 
   &:focus-visible {
-    box-shadow: 0 0 0 3px rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25);
   }
 
   &:disabled {
@@ -3853,9 +3856,9 @@ body:has(.ignis-dialog-backdrop.is-open) {
   display: inline-block;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.04) 100%
+    var(--fill-1) 0%,
+    var(--fill-2) 50%,
+    var(--fill-1) 100%
   );
   background-size: 200% 100%;
   animation: ignis-skeleton-shimmer 1.4s ease-in-out infinite;
@@ -3904,10 +3907,10 @@ body:has(.ignis-dialog-backdrop.is-open) {
   align-items: flex-start;
   gap: 0.65rem;
   padding: 0.7rem 0.9rem;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-normal, #bbbac1);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-left: 3px solid var(--text-dimmed, #818189);
+  background: var(--fill-1);
+  color: var(--text-2);
+  border: 1px solid var(--fill-2);
+  border-left: 3px solid var(--text-3);
   border-radius: var(--radius-md, 6px);
   font-size: var(--fs-sm, 0.88rem);
   line-height: 1.5;
@@ -3926,7 +3929,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   &__title {
     font-weight: 600;
-    color: var(--text-title, #e8e6f3);
+    color: var(--text);
     margin-bottom: 0.15rem;
   }
 
@@ -3951,43 +3954,43 @@ body:has(.ignis-dialog-backdrop.is-open) {
   // der Fließtext bleibt neutral hell, sonst ist er auf dunklem
   // Grund kaum lesbar (getönte Farbe auf getönter Fläche).
   &--success {
-    background: rgba(58, 125, 68, 0.1);
-    border-left-color: var(--btn-success-bg, #3a7d44);
-    color: var(--text-normal, #c6c5cc);
+    background: rgba(var(--ok-rgb), 0.1);
+    border-left-color: var(--btn-success-bg);
+    color: var(--text-2);
 
-    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: #6abf76; }
+    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--ok); }
   }
 
   &--danger {
-    background: rgba(176, 58, 58, 0.1);
-    border-left-color: var(--btn-danger-bg, #b03a3a);
-    color: var(--text-normal, #c6c5cc);
+    background: rgba(var(--danger-rgb), 0.1);
+    border-left-color: var(--btn-danger-bg);
+    color: var(--text-2);
 
-    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: #d46b6b; }
+    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--danger); }
   }
 
   &--warning {
-    background: rgba(196, 154, 42, 0.1);
-    border-left-color: var(--btn-warning-bg, #c49a2a);
-    color: var(--text-normal, #c6c5cc);
+    background: rgba(var(--warn-rgb), 0.1);
+    border-left-color: var(--btn-warning-bg);
+    color: var(--text-2);
 
-    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: #ddb84a; }
+    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--warn); }
   }
 
   &--info {
-    background: rgba(74, 111, 165, 0.1);
-    border-left-color: var(--btn-primary-bg, #4a6fa5);
-    color: var(--text-normal, #c6c5cc);
+    background: rgba(var(--info-rgb), 0.1);
+    border-left-color: var(--info);
+    color: var(--text-2);
 
-    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: #7ba3d4; }
+    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--info); }
   }
 
   &--accent {
-    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.1);
-    border-left-color: var(--main-color, #ff4d00);
-    color: var(--text-normal, #c6c5cc);
+    background: rgba(var(--accent-rgb), 0.1);
+    border-left-color: var(--accent);
+    color: var(--text-2);
 
-    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--main-color, #ff4d00); }
+    .ignis-alert__title, .ignis-alert__icon, strong, > i { color: var(--accent); }
   }
 }
 
@@ -4005,16 +4008,16 @@ body:has(.ignis-dialog-backdrop.is-open) {
   border-top-color: transparent;
   border-radius: 50%;
   animation: ignis-spinner-spin 0.7s linear infinite;
-  color: var(--text-dimmed, #818189);
+  color: var(--text-3);
   vertical-align: middle;
 
   &--sm { width: 0.85rem; height: 0.85rem; border-width: 1.5px; }
   &--lg { width: 2rem; height: 2rem; border-width: 3px; }
 
-  &--accent  { color: var(--main-color, #ff4d00); }
-  &--success { color: #6abf76; }
-  &--danger  { color: #d46b6b; }
-  &--info    { color: #7ba3d4; }
+  &--accent  { color: var(--accent); }
+  &--success { color: var(--ok); }
+  &--danger  { color: var(--danger); }
+  &--info    { color: var(--info); }
 }
 
 // Vollflächiger Overlay-Spinner für Page/Block-Loading
@@ -4038,7 +4041,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   .ignis-spinner-overlay__label {
     font-size: var(--fs-sm, 0.88rem);
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
   }
 }
 
@@ -4056,7 +4059,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
   position: relative;
   width: 100%;
   height: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--fill-2);
   border-radius: 999px;
   overflow: hidden;
 
@@ -4065,16 +4068,16 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   &__bar {
     height: 100%;
-    background: var(--main-color, #ff4d00);
+    background: var(--accent);
     border-radius: inherit;
     transition: width 0.3s var(--ease-out-quint, cubic-bezier(0.22, 1, 0.36, 1));
     position: relative;
   }
 
-  &--success .ignis-progress__bar { background: var(--btn-success-bg, #3a7d44); }
-  &--danger  .ignis-progress__bar { background: var(--btn-danger-bg, #b03a3a); }
-  &--warning .ignis-progress__bar { background: var(--btn-warning-bg, #c49a2a); }
-  &--info    .ignis-progress__bar { background: var(--btn-primary-bg, #4a6fa5); }
+  &--success .ignis-progress__bar { background: var(--btn-success-bg); }
+  &--danger  .ignis-progress__bar { background: var(--btn-danger-bg); }
+  &--warning .ignis-progress__bar { background: var(--btn-warning-bg); }
+  &--info    .ignis-progress__bar { background: var(--info); }
 
   // Indeterminate: Sweep-Animation, ignoriert width
   &--indeterminate .ignis-progress__bar {
@@ -4086,11 +4089,11 @@ body:has(.ignis-dialog-backdrop.is-open) {
   &--striped .ignis-progress__bar {
     background-image: linear-gradient(
       45deg,
-      rgba(255, 255, 255, 0.15) 25%,
+      var(--fill-4) 25%,
       transparent 25%,
       transparent 50%,
-      rgba(255, 255, 255, 0.15) 50%,
-      rgba(255, 255, 255, 0.15) 75%,
+      var(--fill-4) 50%,
+      var(--fill-4) 75%,
       transparent 75%,
       transparent
     );
@@ -4106,7 +4109,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     .ignis-progress__track {
       width: 100%;
       height: 8px;
-      background: rgba(255, 255, 255, 0.06);
+      background: var(--fill-2);
       border-radius: 999px;
       overflow: hidden;
       margin-top: 0.3rem;
@@ -4116,10 +4119,10 @@ body:has(.ignis-dialog-backdrop.is-open) {
       display: flex;
       justify-content: space-between;
       font-size: 0.75rem;
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
 
       strong {
-        color: var(--text-normal, #bbbac1);
+        color: var(--text-2);
         font-weight: 500;
       }
     }
@@ -4156,10 +4159,10 @@ body:has(.ignis-dialog-backdrop.is-open) {
     align-items: flex-start;
     gap: 0.65rem;
     padding: 0.7rem 0.85rem;
-    background: var(--body-bg-lighter, #161616);
-    color: var(--text-normal, #bbbac1);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-left: 3px solid var(--text-dimmed, #818189);
+    background: var(--surface);
+    color: var(--text-2);
+    border: 1px solid var(--fill-2);
+    border-left: 3px solid var(--text-3);
     border-radius: var(--radius-md, 6px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
     font-size: 0.85rem;
@@ -4192,7 +4195,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     &__title {
         font-weight: 600;
-        color: var(--text-title, #e8e6f3);
+        color: var(--text);
         margin-bottom: 0.15rem;
     }
 
@@ -4203,7 +4206,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     &__progress {
         margin-top: 0.45rem;
         height: 4px;
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--fill-2);
         border-radius: 999px;
         overflow: hidden;
     }
@@ -4235,7 +4238,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
         &:hover, &:focus-visible {
             opacity: 1;
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--fill-2);
             outline: none;
         }
     }
@@ -4262,38 +4265,38 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     // ── Variants ────────────────────────────────────────────────
     &--success {
-        border-left-color: var(--btn-success-bg, #3a7d44);
-        color: #6abf76;
+        border-left-color: var(--btn-success-bg);
+        color: var(--ok);
 
-        .ignis-snack__title { color: #6abf76; }
+        .ignis-snack__title { color: var(--ok); }
     }
 
     &--warning {
-        border-left-color: var(--btn-warning-bg, #c49a2a);
-        color: #ddb84a;
+        border-left-color: var(--btn-warning-bg);
+        color: var(--warn);
 
-        .ignis-snack__title { color: #ddb84a; }
+        .ignis-snack__title { color: var(--warn); }
     }
 
     &--error {
-        border-left-color: var(--btn-danger-bg, #b03a3a);
-        color: #d46b6b;
+        border-left-color: var(--btn-danger-bg);
+        color: var(--danger);
 
-        .ignis-snack__title { color: #d46b6b; }
+        .ignis-snack__title { color: var(--danger); }
     }
 
     &--info {
-        border-left-color: var(--btn-primary-bg, #4a6fa5);
-        color: #7ba3d4;
+        border-left-color: var(--info);
+        color: var(--info);
 
-        .ignis-snack__title { color: #7ba3d4; }
+        .ignis-snack__title { color: var(--info); }
     }
 
     &--progress {
-        border-left-color: var(--main-color, #ff4d00);
-        color: var(--main-color, #ff4d00);
+        border-left-color: var(--accent);
+        color: var(--accent);
 
-        .ignis-snack__title { color: var(--main-color, #ff4d00); }
+        .ignis-snack__title { color: var(--accent); }
     }
 }
 
@@ -4372,13 +4375,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
 // ── Tooltip: kompakter Text-Only-Hint ────────────────────────────
 .ignis-tooltip {
   background: rgba(15, 15, 15, 0.96);
-  color: #fff;
+  color: var(--white);
   font-size: 0.72rem;
   font-weight: 500;
   line-height: 1.4;
   padding: 0.35rem 0.6rem;
   border-radius: var(--radius-sm, 4px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--fill-2);
   max-width: 240px;
   text-align: center;
   white-space: normal;
@@ -4387,9 +4390,9 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
 // ── Popover: Title + reicher Body, klick-aktiv ───────────────────
 .ignis-popover {
-  background: var(--body-bg-lighter, #161616);
-  color: var(--text-normal, #bbbac1);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface);
+  color: var(--text-2);
+  border: 1px solid var(--fill-2);
   border-radius: var(--radius-md, 6px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   width: 280px;
@@ -4401,23 +4404,23 @@ body:has(.ignis-dialog-backdrop.is-open) {
     justify-content: space-between;
     gap: 0.5rem;
     padding: 0.55rem 0.75rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--fill-2);
     font-size: 0.82rem;
     font-weight: 600;
-    color: var(--text-title, #e8e6f3);
+    color: var(--text);
   }
 
   &__close {
     appearance: none;
     background: transparent;
     border: 0;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     cursor: pointer;
     padding: 0;
     font-size: 1rem;
     line-height: 1;
 
-    &:hover { color: #d46b6b; }
+    &:hover { color: var(--danger); }
   }
 
   &__body {
@@ -4437,9 +4440,9 @@ body:has(.ignis-dialog-backdrop.is-open) {
 .ignis-card {
   display: flex;
   flex-direction: column;
-  background: var(--body-bg-lighter, #161616);
-  color: var(--text-normal, #bbbac1);
-  border: 1px solid var(--darkgray, #2a2a2a);
+  background: var(--surface);
+  color: var(--text-2);
+  border: 1px solid var(--border);
   border-radius: var(--radius-xl, 10px);
   overflow: hidden;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -4450,15 +4453,15 @@ body:has(.ignis-dialog-backdrop.is-open) {
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    background: rgba(255, 255, 255, 0.02);
-    border-bottom: 1px solid var(--darkgray, #2a2a2a);
+    background: var(--fill-1);
+    border-bottom: 1px solid var(--border);
   }
 
   &__title {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
-    color: var(--text-title, #e8e6f3);
+    color: var(--text);
     letter-spacing: -0.005em;
 
     .ignis-card__subtitle {
@@ -4466,7 +4469,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
       margin-top: 0.15rem;
       font-size: 0.75rem;
       font-weight: 400;
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
     }
   }
 
@@ -4486,7 +4489,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     margin: 0 0 0.5rem;
     font-size: var(--fs-sm, 0.88rem);
     line-height: 1.55;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
 
     &:last-child { margin-bottom: 0; }
   }
@@ -4497,8 +4500,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
     justify-content: flex-end;
     gap: 0.5rem;
     padding: 0.65rem 1rem;
-    background: rgba(255, 255, 255, 0.02);
-    border-top: 1px solid var(--darkgray, #2a2a2a);
+    background: var(--fill-1);
+    border-top: 1px solid var(--border);
   }
 
   // ── Sizes ───────────────────────────────────────────────────────
@@ -4523,31 +4526,31 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   &--ghost {
     background: transparent;
-    border-color: rgba(255, 255, 255, 0.06);
+    border-color: var(--fill-2);
   }
 
   &--accent {
-    border-left: 3px solid var(--main-color, #ff4d00);
+    border-left: 3px solid var(--accent);
   }
 
-  &--success { border-left: 3px solid var(--btn-success-bg, #3a7d44); }
-  &--danger  { border-left: 3px solid var(--btn-danger-bg, #b03a3a); }
-  &--warning { border-left: 3px solid var(--btn-warning-bg, #c49a2a); }
-  &--info    { border-left: 3px solid var(--btn-primary-bg, #4a6fa5); }
+  &--success { border-left: 3px solid var(--btn-success-bg); }
+  &--danger  { border-left: 3px solid var(--btn-danger-bg); }
+  &--warning { border-left: 3px solid var(--btn-warning-bg); }
+  &--info    { border-left: 3px solid var(--info); }
 
   // ── Interactive (clickable card) ────────────────────────────────
   &--interactive {
     cursor: pointer;
 
     &:hover {
-      border-color: rgba(255, 255, 255, 0.15);
+      border-color: var(--fill-4);
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
 
     &:focus-visible {
       outline: none;
-      border-color: var(--main-color, #ff4d00);
-      box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
     }
   }
 }
@@ -4568,41 +4571,41 @@ body:has(.ignis-dialog-backdrop.is-open) {
     align-items: center;
     gap: 0.5rem;
     padding: 0.3rem 0.65rem 0.3rem 0.3rem;
-    background: var(--input-bg, #161616);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--input-bg);
+    border: 1px solid var(--fill-2);
     border-radius: var(--radius-md, 6px);
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     font-size: var(--fs-sm, 0.88rem);
     cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
     &:hover:not(:disabled) {
-      border-color: rgba(255, 255, 255, 0.18);
+      border-color: var(--fill-4);
     }
 
     &:focus-visible {
       outline: none;
-      border-color: var(--main-color);
-      box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
     }
   }
 
   &.is-open .ignis-colorpicker__trigger {
-    border-color: var(--main-color);
-    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
   }
 
   &__swatch {
     width: 1.6rem;
     height: 1.6rem;
     border-radius: var(--radius-sm, 4px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--fill-3);
     flex-shrink: 0;
     background-image:
-      linear-gradient(45deg, #2a2a2a 25%, transparent 25%),
-      linear-gradient(-45deg, #2a2a2a 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #2a2a2a 75%),
-      linear-gradient(-45deg, transparent 75%, #2a2a2a 75%);
+      linear-gradient(45deg, var(--border) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--border) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--border) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--border) 75%);
     background-size: 8px 8px;
     background-position: 0 0, 0 4px, 4px -4px, -4px 0;
     position: relative;
@@ -4612,7 +4615,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
       content: '';
       position: absolute;
       inset: 0;
-      background: var(--ignis-cp-color, #000);
+      background: var(--ignis-cp-color);
     }
   }
 
@@ -4620,7 +4623,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
   }
 
   &__panel {
@@ -4630,8 +4633,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
     z-index: 1050;
     width: 240px;
     padding: 0.75rem;
-    background: var(--body-bg-lighter, #161616);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--surface);
+    border: 1px solid var(--fill-2);
     border-radius: var(--radius-md, 6px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
     opacity: 0;
@@ -4655,15 +4658,15 @@ body:has(.ignis-dialog-backdrop.is-open) {
     cursor: crosshair;
     overflow: hidden;
     background-image:
-      linear-gradient(to top, #000, transparent),
-      linear-gradient(to right, #fff, var(--ignis-cp-hue, #ff0000));
+      linear-gradient(to top, var(--black), transparent),
+      linear-gradient(to right, var(--white), var(--ignis-cp-hue, hsl(0 100% 50%)));
   }
 
   &__sv-pointer {
     position: absolute;
     width: 12px;
     height: 12px;
-    border: 2px solid #fff;
+    border: 2px solid var(--white);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
@@ -4680,8 +4683,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
     cursor: ew-resize;
     background: linear-gradient(
       to right,
-      #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%,
-      #00f 67%, #f0f 83%, #f00 100%
+      hsl(0 100% 50%) 0%, hsl(60 100% 50%) 17%, hsl(120 100% 50%) 33%, hsl(180 100% 50%) 50%,
+      hsl(240 100% 50%) 67%, hsl(300 100% 50%) 83%, hsl(360 100% 50%) 100%
     );
   }
 
@@ -4690,11 +4693,11 @@ body:has(.ignis-dialog-backdrop.is-open) {
     top: 50%;
     width: 14px;
     height: 14px;
-    border: 2px solid #fff;
+    border: 2px solid var(--white);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    background: var(--ignis-cp-hue, #f00);
+    background: var(--ignis-cp-hue, hsl(0 100% 50%));
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
   }
 
@@ -4707,17 +4710,17 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
     label {
       font-size: 0.7rem;
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
 
     input {
       flex: 1;
-      background: var(--input-bg, #161616);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: var(--input-bg);
+      border: 1px solid var(--fill-2);
       border-radius: var(--radius-sm, 4px);
-      color: var(--text-normal, #bbbac1);
+      color: var(--text-2);
       font-family: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.85rem;
       letter-spacing: 0.02em;
@@ -4726,7 +4729,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
       outline: none;
 
       &:focus {
-        border-color: var(--main-color);
+        border-color: var(--accent);
       }
     }
   }
@@ -4743,18 +4746,18 @@ body:has(.ignis-dialog-backdrop.is-open) {
     width: 100%;
     aspect-ratio: 1;
     border-radius: var(--radius-sm, 4px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--fill-2);
     cursor: pointer;
     transition: transform 0.1s ease, border-color 0.15s ease;
 
     &:hover {
       transform: scale(1.1);
-      border-color: rgba(255, 255, 255, 0.3);
+      border-color: var(--fill-5);
     }
 
     &.is-active {
-      border-color: var(--main-color);
-      box-shadow: 0 0 0 1px var(--main-color);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
     }
   }
 }
@@ -4776,21 +4779,21 @@ body:has(.ignis-dialog-backdrop.is-open) {
     position: relative;
     display: flex;
     align-items: center;
-    background: var(--input-bg, #161616);
-    color: var(--text-normal, #bbbac1);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--input-bg);
+    color: var(--text-2);
+    border: 1px solid var(--fill-2);
     border-radius: var(--radius-md, 6px);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
     &:hover:not(.is-disabled) {
-      border-color: rgba(255, 255, 255, 0.15);
+      border-color: var(--fill-4);
     }
   }
 
   &.is-open .ignis-combobox__field,
   .ignis-combobox__field:focus-within {
-    border-color: var(--main-color);
-    box-shadow: 0 0 0 2px rgba(var(--main-color-rgb, 255, 77, 0), 0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
   }
 
   &__input {
@@ -4805,7 +4808,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     padding: 0.375rem 0.75rem;
 
     &::placeholder {
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
     }
 
     &:disabled {
@@ -4817,7 +4820,7 @@ body:has(.ignis-dialog-backdrop.is-open) {
     appearance: none;
     background: transparent;
     border: 0;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     cursor: pointer;
     padding: 0.375rem 0.6rem;
     display: inline-flex;
@@ -4825,32 +4828,32 @@ body:has(.ignis-dialog-backdrop.is-open) {
     transition: color 0.15s ease, transform 0.2s ease;
 
     &:hover {
-      color: var(--text-normal, #bbbac1);
+      color: var(--text-2);
     }
 
     &:focus-visible {
       outline: none;
-      color: var(--main-color);
+      color: var(--accent);
     }
   }
 
   &.is-open .ignis-combobox__toggle {
     transform: rotate(180deg);
-    color: var(--main-color);
+    color: var(--accent);
   }
 
   &__clear {
     appearance: none;
     background: transparent;
     border: 0;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     cursor: pointer;
     padding: 0.2rem 0.4rem;
     font-size: 0.9em;
     line-height: 1;
 
     &:hover {
-      color: #d46b6b;
+      color: var(--danger);
     }
   }
 
@@ -4863,8 +4866,8 @@ body:has(.ignis-dialog-backdrop.is-open) {
     margin: 0;
     padding: 0.25rem 0;
     list-style: none;
-    background: var(--body-bg-lighter, #161616);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--surface);
+    border: 1px solid var(--fill-2);
     border-radius: var(--radius-md, 6px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
     max-height: 16rem;
@@ -4885,21 +4888,21 @@ body:has(.ignis-dialog-backdrop.is-open) {
     padding: 0.4rem 0.75rem;
     font-size: var(--fs-sm, 0.88rem);
     cursor: pointer;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     transition: background 0.1s ease;
 
     &:hover,
     &.is-active {
-      background: rgba(255, 255, 255, 0.06);
+      background: var(--fill-2);
     }
 
     &.is-selected {
-      background: rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
-      color: var(--main-color);
+      background: rgba(var(--accent-rgb), 0.15);
+      color: var(--accent);
     }
 
     &--empty {
-      color: var(--text-dimmed, #818189);
+      color: var(--text-3);
       font-style: italic;
       cursor: default;
 
@@ -4909,523 +4912,13 @@ body:has(.ignis-dialog-backdrop.is-open) {
 
   // Match-Highlight innerhalb der Option-Labels
   &__option mark {
-    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.25);
+    background: rgba(var(--accent-rgb), 0.25);
     color: inherit;
     border-radius: 2px;
     padding: 0 1px;
   }
 }
 
-// =====================================================
-// eNOTF-Scope-Overrides
-// Das eNOTF-Theme ist kein Admin-Theme — es nutzt mittelgraue Box-Farben
-// (#333333), blaue Fokus-Akzente (#5783cf) und größere Typo. Die Dropdown-
-// und Dialog-Komponenten passen sich hier an, damit sie sich nicht wie
-// Fremdkörper anfühlen.
-// =====================================================
-
-#edivi__container {
-  // eNOTF-Komponenten sind durchgehend eckig (Dispatch-Terminal-Look) —
-  // Radio + Switch behalten ihre natural-round Form.
-  .ignis-input,
-  .ignis-textarea,
-  .ignis-stepper,
-  .ignis-checkbox input[type="checkbox"],
-  .ignis-dropdown__trigger,
-  .ignis-dropdown__panel,
-  .ignis-dropdown__options li {
-    border-radius: 0;
-  }
-
-  // ── Dropdown ─────────────────────────────────────────────────────
-  .ignis-dropdown {
-    .ignis-dropdown__trigger {
-      background: #2a2a2a;
-      border-color: #4a4a4a;
-      color: #fff;
-      font-size: 1rem;
-      padding: 0.6rem 0.85rem;
-
-      &:hover:not(:disabled) {
-        border-color: #5783cf;
-      }
-
-      &:focus-visible,
-      &:focus {
-        border-color: #5783cf;
-        box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
-      }
-    }
-
-    .ignis-dropdown__label-icon {
-      color: #5783cf;
-    }
-
-    .ignis-dropdown__panel {
-      background: #2a2a2a;
-      border-color: #4a4a4a;
-    }
-
-    .ignis-dropdown__search {
-      background: #1e1e1e;
-      border-bottom-color: #4a4a4a;
-
-      &:focus {
-        background: rgba(87, 131, 207, 0.08);
-      }
-    }
-
-    .ignis-dropdown__options li {
-      font-size: 1rem;
-      padding: 0.5rem 0.75rem;
-
-      &:hover,
-      &:focus {
-        background: rgba(255, 255, 255, 0.08);
-      }
-
-      &.is-selected {
-        background: rgba(87, 131, 207, 0.18);
-        color: #fff;
-      }
-    }
-
-    .ignis-dropdown__option-icon {
-      color: #5783cf;
-    }
-  }
-
-  // ── Input / Textarea ────────────────────────────────────────────
-  .ignis-input,
-  .ignis-textarea {
-    background: #2a2a2a;
-    border-color: #4a4a4a;
-    font-size: 1rem;
-    padding: 0.6rem 0.85rem;
-
-    &:hover:not(:disabled):not([readonly]) {
-      border-color: #5783cf;
-    }
-
-    &:focus,
-    &:focus-visible {
-      border-color: #5783cf;
-      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
-    }
-
-    &.is-invalid,
-    &:invalid:not(:focus):not(:placeholder-shown) {
-      border-color: #d1484a;
-
-      &:focus {
-        box-shadow: 0 0 0 2px rgba(209, 72, 74, 0.25);
-      }
-    }
-  }
-
-  .ignis-input-group:focus-within .ignis-input-group__icon {
-    color: #5783cf;
-  }
-
-  .ignis-field__required {
-    color: #5783cf;
-  }
-
-  // ── Checkbox / Radio — blaue Checked-Farbe ──────────────────────
-  .ignis-checkbox input[type="checkbox"],
-  .ignis-radio input[type="radio"] {
-    border-color: #4a4a4a;
-    background: #2a2a2a;
-    width: 1.25rem;
-    height: 1.25rem;
-
-    &:hover:not(:disabled) {
-      border-color: rgba(87, 131, 207, 0.6);
-    }
-
-    &:checked {
-      background: #5783cf;
-      border-color: #5783cf;
-    }
-
-    &:focus-visible {
-      box-shadow: 0 0 0 3px rgba(87, 131, 207, 0.3);
-    }
-  }
-
-  .ignis-checkbox input[type="checkbox"]:indeterminate {
-    background: #5783cf;
-    border-color: #5783cf;
-  }
-
-  // ── Switch — blaue On-Farbe ─────────────────────────────────────
-  .ignis-switch {
-    input[type="checkbox"] {
-      background: #4a4a4a;
-
-      &:checked {
-        background: #5783cf;
-      }
-
-      &:focus-visible {
-        box-shadow: 0 0 0 3px rgba(87, 131, 207, 0.3);
-      }
-    }
-  }
-
-  // ── Number-Stepper — blauer Focus-Ring ──────────────────────────
-  .ignis-stepper {
-    background: #2a2a2a;
-    border-color: #4a4a4a;
-
-    &:focus-within {
-      border-color: #5783cf;
-      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
-    }
-
-    input[type="number"] {
-      font-size: 1rem;
-    }
-
-    button:active {
-      background: rgba(87, 131, 207, 0.2);
-    }
-  }
-
-  // ── Tabs — blauer Underline ─────────────────────────────────────
-  .ignis-tabs {
-    .ignis-tabs__headers {
-      border-bottom-color: #4a4a4a;
-    }
-
-    .ignis-tabs__header {
-      font-size: 1rem;
-
-      &.is-active {
-        border-bottom-color: #5783cf;
-      }
-    }
-
-    &--pills .ignis-tabs__header {
-      border-radius: 0;
-
-      &.is-active {
-        background: #5783cf;
-      }
-    }
-  }
-
-  // ── Accordion — eckig, blauer Active-Rand ──────────────────────
-  .ignis-accordion {
-    .ignis-accordion__item {
-      background: #2a2a2a;
-      border-color: #4a4a4a;
-      border-radius: 0;
-
-      &.is-open {
-        border-color: rgba(87, 131, 207, 0.5);
-      }
-    }
-
-    .ignis-accordion__header {
-      font-size: 1rem;
-    }
-  }
-
-  // ── Drawer — eckig, blauer Akzent ───────────────────────────────
-  .ignis-drawer {
-    background: #2a2a2a;
-    border-color: #4a4a4a;
-    border-radius: 0;
-    font-size: 1rem;
-
-    .ignis-drawer__header,
-    .ignis-drawer__footer {
-      border-color: #4a4a4a;
-    }
-  }
-
-  // ── Pagination — eckig, blau-aktiv ──────────────────────────────
-  .ignis-pagination .ignis-pagination__item {
-    border-radius: 0;
-    font-size: 0.95rem;
-
-    &.is-active {
-      background: #5783cf;
-    }
-  }
-
-  // ── List Group — eckig ──────────────────────────────────────────
-  .ignis-list-group {
-    background: #2a2a2a;
-    border-color: #4a4a4a;
-    border-radius: 0;
-    font-size: 1rem;
-
-    .ignis-list-group__item {
-      border-color: #4a4a4a;
-
-      &.is-active {
-        background: rgba(87, 131, 207, 0.18);
-        color: #7ea3d9;
-      }
-    }
-  }
-
-  // ── Alert — eckig, blau-info ────────────────────────────────────
-  .ignis-alert {
-    border-radius: 0;
-    font-size: 1rem;
-
-    &--info {
-      border-left-color: #5783cf;
-      color: #7ea3d9;
-
-      .ignis-alert__title { color: #7ea3d9; }
-    }
-  }
-
-  // ── Progress — eckig ────────────────────────────────────────────
-  .ignis-progress {
-    background: #1e1e1e;
-    border-radius: 0;
-
-    .ignis-progress__bar {
-      border-radius: 0;
-      background: #5783cf;
-    }
-  }
-
-  // ── File-Input — eckig ──────────────────────────────────────────
-  .ignis-file {
-    background: #2a2a2a;
-    border-color: #4a4a4a;
-    border-radius: 0;
-    font-size: 1rem;
-  }
-
-  // ── Skeleton — eckig ────────────────────────────────────────────
-  .ignis-skeleton { border-radius: 0; }
-
-  // ── Card — eckig, mittelgrau ────────────────────────────────────
-  .ignis-card {
-    background: #2a2a2a;
-    border-color: #4a4a4a;
-    border-radius: 0;
-    font-size: 1rem;
-
-    .ignis-card__header,
-    .ignis-card__footer {
-      border-color: #4a4a4a;
-    }
-
-    &--accent { border-left-color: #5783cf; }
-    &--info   { border-left-color: #5783cf; }
-
-    &--interactive:focus-visible {
-      border-color: #5783cf;
-      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
-    }
-  }
-
-  // ── Color-Picker — eckig, blau-Akzent ───────────────────────────
-  .ignis-colorpicker {
-    .ignis-colorpicker__trigger {
-      background: #2a2a2a;
-      border-color: #4a4a4a;
-      border-radius: 0;
-      font-size: 1rem;
-    }
-
-    &.is-open .ignis-colorpicker__trigger {
-      border-color: #5783cf;
-      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
-    }
-
-    .ignis-colorpicker__swatch {
-      border-radius: 0;
-    }
-
-    .ignis-colorpicker__panel {
-      background: #2a2a2a;
-      border-color: #4a4a4a;
-      border-radius: 0;
-    }
-
-    .ignis-colorpicker__sv,
-    .ignis-colorpicker__hex input,
-    .ignis-colorpicker__preset {
-      border-radius: 0;
-    }
-
-    .ignis-colorpicker__preset.is-active {
-      border-color: #5783cf;
-      box-shadow: 0 0 0 1px #5783cf;
-    }
-
-    .ignis-colorpicker__hex input:focus {
-      border-color: #5783cf;
-    }
-  }
-
-  // ── Combobox — eckig, blau-Akzent ───────────────────────────────
-  .ignis-combobox {
-    .ignis-combobox__field {
-      background: #2a2a2a;
-      border-color: #4a4a4a;
-      border-radius: 0;
-      font-size: 1rem;
-
-      &:hover:not(.is-disabled) {
-        border-color: #5783cf;
-      }
-    }
-
-    &.is-open .ignis-combobox__field,
-    .ignis-combobox__field:focus-within {
-      border-color: #5783cf;
-      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
-    }
-
-    .ignis-combobox__panel {
-      background: #2a2a2a;
-      border-color: #4a4a4a;
-      border-radius: 0;
-    }
-
-    .ignis-combobox__option {
-      font-size: 1rem;
-      padding: 0.5rem 0.75rem;
-
-      &.is-selected {
-        background: rgba(87, 131, 207, 0.18);
-        color: #fff;
-      }
-
-      mark {
-        background: rgba(87, 131, 207, 0.3);
-      }
-    }
-  }
-
-  // ── Button — eckig, blauer Primary-Akzent ───────────────────────
-  .ignis-btn {
-    border-radius: 0;
-    font-size: 1rem;
-
-    &--sm { font-size: 0.85rem; }
-    &--lg { font-size: 1.1rem; }
-
-    &--primary,
-    &--accent {
-      background: #5783cf;
-
-      &:hover:not(:disabled):not(.is-loading) {
-        background: #6c92d8;
-      }
-
-      &:active:not(:disabled):not(.is-loading) {
-        background: #4974c0;
-      }
-    }
-
-    &--outline-primary {
-      border-color: #5783cf;
-      color: #7ea3d9;
-
-      &:hover:not(:disabled):not(.is-loading) {
-        background: #5783cf;
-      }
-    }
-
-    &:focus-visible {
-      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.4);
-    }
-  }
-
-  .ignis-btn-group .ignis-btn {
-    border-radius: 0 !important;
-  }
-
-  // ── Chip / Tag — eckig, blau-Akzent ─────────────────────────────
-  .ignis-chip {
-    border-radius: 0;
-    font-size: 0.85rem;
-
-    &--sm { font-size: 0.75rem; }
-    &--lg { font-size: 1rem; }
-
-    &--primary {
-      background: rgba(87, 131, 207, 0.18);
-      color: #7ea3d9;
-      border-color: rgba(87, 131, 207, 0.35);
-    }
-  }
-
-  .ignis-tag-input {
-    background: #2a2a2a;
-    border-color: #4a4a4a;
-    border-radius: 0;
-    font-size: 1rem;
-
-    &:hover:not(.is-disabled) {
-      border-color: #5783cf;
-    }
-
-    &:focus-within {
-      border-color: #5783cf;
-      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
-    }
-  }
-
-  // ── DatePicker — blauer Accent, eckig ───────────────────────────
-  .ignis-datepicker {
-    .ignis-datepicker__trigger {
-      background: #2a2a2a;
-      border-color: #4a4a4a;
-      border-radius: 0;
-      font-size: 1rem;
-      padding: 0.6rem 0.85rem;
-
-      &:hover:not(:disabled) {
-        border-color: #5783cf;
-      }
-
-      &:focus,
-      &:focus-visible {
-        border-color: #5783cf;
-        box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
-      }
-    }
-
-    .ignis-datepicker__icon { color: #5783cf; }
-
-    .ignis-datepicker__panel {
-      background: #2a2a2a;
-      border-color: #4a4a4a;
-      border-radius: 0;
-    }
-
-    .ignis-datepicker__day.is-selected,
-    .ignis-datepicker__month.is-selected,
-    .ignis-datepicker__year.is-selected {
-      background: #5783cf;
-    }
-
-    .ignis-datepicker__day.is-today:not(.is-selected) {
-      color: #5783cf;
-
-      &::after { background: #5783cf; }
-    }
-
-    .ignis-datepicker__footer-btn {
-      background: #5783cf;
-      border-radius: 0;
-
-      &--ghost {
-        background: transparent;
-        border-color: #4a4a4a;
-      }
-    }
-  }
-}
+// eNOTF-Skin der Komponenten: eigene Datei, wird an dieser Stelle geladen,
+// damit die Reihenfolge im gebauten CSS gleich bleibt.
+@include meta.load-css('enotf-skin');

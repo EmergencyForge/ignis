@@ -1,72 +1,8 @@
-:root {
-  --secondary-color: #011e4a;
-  --secondary-color-dimmed: #0a2e5a;
-  --main-color: #ff4d00;
-  --main-color-dimmed: #cc3d00;
-  --main-color-rgb: 255, 77, 0;
-  --fw-red: #d10000;
-  --gray: #f0f2f4;
-  --darkgray: #2a2a2a;
-  --tag-color: #a4a6a7;
-  --alt-white: #f9fafb;
-
-  --white: #fff;
-  --black: #000;
-
-  --selection-bg: #308dfd;
-  --selection-color: var(--white);
-
-  --success-gradient-start: #28a745;
-  --success-gradient-end: #20c997;
-  --warning-gradient-start: #ffc107;
-  --warning-gradient-end: #e0a800;
-  --info-gradient-start: #17a2b8;
-  --info-gradient-end: #138496;
-  --secondary-gradient-start: #6c757d;
-  --secondary-gradient-end: #5a6268;
-
-  --chat-bg-light: #f8f9fa;
-  --chat-border-light: #ddd;
-  --message-shadow: rgba(0, 0, 0, 0.1);
-
-  --message-border-radius: 10px;
-  --section-border-radius: 8px;
-  --header-border-radius: 10px;
-  --button-border-radius: 6px;
-
-  --box-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --box-shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.15);
-  --box-shadow-strong: 0 6px 20px rgba(0, 0, 0, 0.2);
-
-  --body-bg: #0a0a0a;
-  --body-bg-darker: #050505;
-  --body-bg-lighter: #161616;
-
-  --sidebar-width: 260px;
-  --sidebar-bg: #050505;
-  --sidebar-hover-bg: #141414;
-  --sidebar-avatar-bg: #161616;
-  --sidebar-icon-color: #c8c6cf;
-  --sidebar-link-color: #fff;
-  --sidebar-role-text: #c8c6cf;
-
-  --text-title: #fff;
-  --text-normal: #bbbac1;
-  --text-dimmed: #818189;
-
-  --input-bg: #121212;
-  --input-placeholder: #818189;
-  --input-text: #fff;
-}
-
-[data-theme="dark"] {
-  --chat-bg-light: rgba(255, 255, 255, 0.05);
-  --chat-border-light: #192231;
-  --message-shadow: rgba(0, 0, 0, 0.3);
-  --box-shadow-light: 0 2px 8px rgba(0, 0, 0, 0.2);
-  --box-shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.3);
-  --box-shadow-strong: 0 6px 20px rgba(0, 0, 0, 0.4);
-}
+// style.scss — Basis: Tokens, Body, Typografie, Login-Hintergrund.
+// Farben kommen aus _tokens.scss (siehe dort); die alten Token-Namen
+// bleiben über _tokens-legacy.scss erreichbar.
+@use 'tokens';
+@use 'tokens-legacy';
 
 * {
   -webkit-hyphens: auto;
@@ -89,8 +25,8 @@ body {
     "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
   font-family: var(--bs-body-font-family);
-  background-color: var(--body-bg);
-  color: var(--text-normal);
+  background-color: var(--bg);
+  color: var(--text-2);
   font-size: 0.82rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -108,7 +44,7 @@ h1, h2, h3, h4, h5, h6,
   font-family: "Geist", var(--bs-body-font-family);
   font-weight: 700;
   line-height: 1.2;
-  color: var(--text-title);
+  color: var(--text);
 }
 
 h1, .h1 { font-size: 2rem; }
@@ -132,12 +68,12 @@ html, body {
 }
 
 body:not(#antrag) {
-  --bs-body-bg: var(--body-bg) !important;
+  --bs-body-bg: var(--bg) !important;
 }
 
 body:has(.intra-sidebar) {
   padding-left: var(--sidebar-width);
-  color: var(--text-normal);
+  color: var(--text-2);
 }
 
 body:has(.intra-sidebar) h1,
@@ -146,11 +82,11 @@ body:has(.intra-sidebar) h3,
 body:has(.intra-sidebar) h4,
 body:has(.intra-sidebar) h5,
 body:has(.intra-sidebar) h6 {
-  color: var(--text-title);
+  color: var(--text);
 }
 
 body:has(.intra-sidebar) .text-muted {
-  color: var(--text-dimmed) !important;
+  color: var(--text-3) !important;
 }
 
 body:has(.intra-sidebar) {
@@ -189,27 +125,27 @@ body:has(.intra-sidebar) {
 }
 
 .bg-main-color {
-  background-color: var(--main-color) !important;
+  background-color: var(--accent) !important;
 }
 
 .bg-gray-color {
-  background-color: var(--gray) !important;
+  background-color: var(--surface-3) !important;
 }
 
 .bg-semigray {
-  background-color: var(--tag-color) !important;
+  background-color: var(--text-3) !important;
 }
 
 .bg-darkgray {
-  background-color: var(--darkgray) !important;
+  background-color: var(--border) !important;
 }
 
 .bg-white-color {
-  background-color: var(--alt-white) !important;
+  background-color: var(--surface) !important;
 }
 
 .border-main-color {
-  --bs-border-color: var(--main-color) !important;
+  --bs-border-color: var(--accent) !important;
 }
 
 .border-secondary-color {
@@ -217,23 +153,23 @@ body:has(.intra-sidebar) {
 }
 
 .border-gray-color {
-  --bs-border-color: var(--gray) !important;
+  --bs-border-color: var(--border) !important;
 }
 
 .border-semigray {
-  --bs-border-color: var(--tag-color) !important;
+  --bs-border-color: var(--text-3) !important;
 }
 
 .text-gray-color {
-  color: var(--gray) !important;
+  color: var(--text) !important;
 }
 
 .text-main-color {
-  color: var(--main-color) !important;
+  color: var(--accent) !important;
 }
 
 a.text-main-color:hover {
-  color: var(--main-color-dimmed) !important;
+  color: var(--accent-hover) !important;
 }
 
 .text-secondary-color {
@@ -241,14 +177,14 @@ a.text-main-color:hover {
 }
 
 .btn-outline-main-color {
-  --bs-btn-border-color: var(--main-color) !important;
-  --bs-btn-color: var(--main-color) !important;
-  --bs-btn-hover-bg: var(--main-color) !important;
+  --bs-btn-border-color: var(--accent) !important;
+  --bs-btn-color: var(--accent) !important;
+  --bs-btn-hover-bg: var(--accent) !important;
   --bs-btn-hover-color: var(--white) !important;
-  --bs-btn-active-bg: var(--main-color) !important;
-  --bs-btn-active-border-color: var(--main-color) !important;
-  --bs-btn-disabled-color: var(--main-color) !important;
-  --bs-btn-disabled-border-color: var(--gray) !important;
+  --bs-btn-active-bg: var(--accent) !important;
+  --bs-btn-active-border-color: var(--accent) !important;
+  --bs-btn-disabled-color: var(--accent) !important;
+  --bs-btn-disabled-border-color: var(--text) !important;
 }
 
 .btn-outline-secondary-color {
@@ -259,18 +195,18 @@ a.text-main-color:hover {
   --bs-btn-active-bg: var(--secondary-color) !important;
   --bs-btn-active-border-color: var(--secondary-color) !important;
   --bs-btn-disabled-color: var(--secondary-color) !important;
-  --bs-btn-disabled-border-color: var(--gray) !important;
+  --bs-btn-disabled-border-color: var(--text) !important;
 }
 
 .btn-main-color {
-  --bs-btn-bg: var(--main-color) !important;
+  --bs-btn-bg: var(--accent) !important;
   --bs-btn-color: var(--white) !important;
   --bs-btn-hover-bg: var(--bs-btn-bg) !important;
   --bs-btn-hover-color: var(--white) !important;
   --bs-btn-active-bg: var(--bs-btn-bg) !important;
   --bs-btn-active-color: var(--white) !important;
   --bs-btn-active-border-color: var(--bs-btn-bg) !important;
-  --bs-btn-disabled-bg: var(--main-color) !important;
+  --bs-btn-disabled-bg: var(--accent) !important;
   --bs-btn-disabled-color: var(--white) !important;
 }
 
@@ -290,7 +226,7 @@ body#dashboard {
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;
-  background-color: var(--body-bg-darker, #050505);
+  background-color: var(--bg-2);
   position: relative;
 }
 
@@ -298,7 +234,7 @@ body#alogin {
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;
-  background-color: var(--body-bg-darker, #050505);
+  background-color: var(--bg-2);
   position: relative;
 }
 
@@ -311,9 +247,9 @@ body#alogin {
   height: 100%;
   z-index: -1;
   overflow: hidden;
-  background: radial-gradient(ellipse at 50% 120%, rgba(var(--accent-rgb, 209, 0, 0), 0.08) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 20%, rgba(var(--accent-rgb, 209, 0, 0), 0.04) 0%, transparent 50%),
-              linear-gradient(180deg, #1a1720 0%, #12101a 50%, #0e0c14 100%);
+  background: radial-gradient(ellipse at 50% 120%, rgba(var(--accent-rgb), 0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(var(--accent-rgb), 0.04) 0%, transparent 50%),
+              linear-gradient(180deg, var(--surface) 0%, var(--surface) 50%, var(--bg-2) 100%);
   animation: bgPulse 8s ease-in-out infinite;
 }
 
@@ -327,8 +263,8 @@ body#alogin {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(var(--fill-1) 1px, transparent 1px),
+    linear-gradient(90deg, var(--fill-1) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 75%);
   -webkit-mask-image: radial-gradient(ellipse at 50% 50%, black 30%, transparent 75%);
@@ -348,7 +284,7 @@ body#alogin {
   --rotate: 0deg;
   --peak-opacity: 0.08;
   position: absolute;
-  color: #fff;
+  color: var(--white);
   opacity: 0;
 }
 
@@ -385,7 +321,7 @@ body#alogin {
   height: 400px;
   bottom: -100px;
   left: 20%;
-  background: rgba(var(--accent-rgb, 209, 0, 0), 0.12);
+  background: rgba(var(--accent-rgb), 0.12);
   animation-delay: 0s;
 }
 
@@ -394,7 +330,7 @@ body#alogin {
   height: 300px;
   top: 10%;
   right: 15%;
-  background: rgba(var(--accent-rgb, 209, 0, 0), 0.06);
+  background: rgba(var(--accent-rgb), 0.06);
   animation-delay: 5s;
 }
 
@@ -404,8 +340,8 @@ body#alogin {
 }
 
 body#alogin .card {
-  background: var(--body-bg-darker, #050505) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: var(--bg-2) !important;
+  border: 1px solid var(--fill-2) !important;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
@@ -446,7 +382,7 @@ body#dashboard::before {
   border: 1px solid transparent;
 
   &:hover {
-    border: 1px solid var(--main-color);
+    border: 1px solid var(--accent);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     transform: translateY(-2px);
   }
@@ -487,12 +423,8 @@ body {
 
 .footer {
   margin-top: auto;
-  background-color: var(--body-bg) !important;
-  border-top: 1px solid var(--darkgray);
-}
-
-[data-theme="dark"] .footer {
-  background-color: var(--body-bg) !important;
+  background-color: var(--bg) !important;
+  border-top: 1px solid var(--border);
 }
 
 .footer a {
@@ -522,7 +454,7 @@ body {
 // GLOBAL FOCUS-VISIBLE FALLBACK
 // ========================================
 :focus-visible {
-  outline: 2px solid var(--main-color, #d10000);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 

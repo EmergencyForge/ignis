@@ -2,10 +2,10 @@
 .ma-comments,
 .ma-logs,
 .ma-documents {
-  background-color: var(--body-bg-lighter);
+  background-color: var(--surface);
   box-shadow: var(--bs-box-shadow) !important;
   border-radius: 12px;
-  border: 1px solid var(--darkgray) !important;
+  border: 1px solid var(--border) !important;
   position: relative;
 }
 
@@ -34,45 +34,7 @@
   width: 95%;
 }
 
-// Comment type colors (light/dark adaptive)
-:root {
-  --comment-bg: #dee0e3;
-  --comment-text: var(--black);
-  --comment-note-bg: #acadb0;
-  --comment-note-stripe: #acadb0;
-  --comment-positive-bg: #b7d0b3;
-  --comment-positive-stripe: #7fb257;
-  --comment-negative-bg: #e2a2a7;
-  --comment-negative-stripe: #ce646d;
-  --comment-rank-bg: #b4ddf9;
-  --comment-rank-stripe: #55b3f1;
-  --comment-modify-bg: #fed69a;
-  --comment-modify-stripe: #fdad35;
-  --comment-document-bg: #feafea;
-  --comment-document-stripe: #fd49d0;
-  --comment-created-bg: #a4f4f3;
-  --comment-created-stripe: #14a3a1;
-}
-
-// Dark theme overrides — muted versions for dark backgrounds
-body:has(.intra-sidebar) {
-  --comment-bg: rgba(255, 255, 255, 0.06);
-  --comment-text: var(--text-normal, #bbbac1);
-  --comment-note-bg: rgba(172, 173, 176, 0.1);
-  --comment-note-stripe: #7a7b7e;
-  --comment-positive-bg: rgba(127, 178, 87, 0.1);
-  --comment-positive-stripe: #7fb257;
-  --comment-negative-bg: rgba(206, 100, 109, 0.1);
-  --comment-negative-stripe: #ce646d;
-  --comment-rank-bg: rgba(85, 179, 241, 0.1);
-  --comment-rank-stripe: #55b3f1;
-  --comment-modify-bg: rgba(253, 173, 53, 0.1);
-  --comment-modify-stripe: #fdad35;
-  --comment-document-bg: rgba(253, 73, 208, 0.1);
-  --comment-document-stripe: #fd49d0;
-  --comment-created-bg: rgba(20, 163, 161, 0.1);
-  --comment-created-stripe: #14a3a1;
-}
+// Farben der Kommentararten: --comment-* in _tokens.scss (dunkel und hell).
 
 // Legacy comment styles (kept for log entries)
 .comment {
@@ -104,7 +66,7 @@ body:has(.intra-sidebar) {
   top: 0;
   right: 0;
   padding: 5px 15px;
-  background-color: var(--main-color);
+  background-color: var(--accent);
   color: var(--white);
   border-radius: 0;
   font-weight: 900;
@@ -151,7 +113,7 @@ body:has(.intra-sidebar) {
 .comment-item {
   display: flex;
   align-items: stretch;
-  background: var(--comment-bg, rgba(255, 255, 255, 0.03));
+  background: var(--comment-bg, var(--fill-1));
   border-radius: var(--radius-sm);
   margin-bottom: 8px;
   position: relative;
@@ -159,7 +121,7 @@ body:has(.intra-sidebar) {
   transition: background 0.15s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--fill-2);
 
     .comment-item__delete {
       opacity: 1;
@@ -170,16 +132,16 @@ body:has(.intra-sidebar) {
 .comment-item__indicator {
   width: 3px;
   flex-shrink: 0;
-  background: var(--text-dimmed, #555);
+  background: var(--text-3);
 }
 
-.comment-item--note .comment-item__indicator { background: var(--comment-note-stripe, #6c757d); }
-.comment-item--positive .comment-item__indicator { background: var(--comment-positive-stripe, #28a745); }
-.comment-item--negative .comment-item__indicator { background: var(--comment-negative-stripe, #dc3545); }
-.comment-item--rank .comment-item__indicator { background: var(--comment-rank-stripe, #ffc107); }
-.comment-item--modify .comment-item__indicator { background: var(--comment-modify-stripe, #6f42c1); }
-.comment-item--document .comment-item__indicator { background: var(--comment-document-stripe, #17a2b8); }
-.comment-item--created .comment-item__indicator { background: var(--comment-created-stripe, #20c997); }
+.comment-item--note .comment-item__indicator { background: var(--comment-note-stripe); }
+.comment-item--positive .comment-item__indicator { background: var(--comment-positive-stripe); }
+.comment-item--negative .comment-item__indicator { background: var(--comment-negative-stripe); }
+.comment-item--rank .comment-item__indicator { background: var(--comment-rank-stripe); }
+.comment-item--modify .comment-item__indicator { background: var(--comment-modify-stripe); }
+.comment-item--document .comment-item__indicator { background: var(--comment-document-stripe); }
+.comment-item--created .comment-item__indicator { background: var(--comment-created-stripe); }
 
 .comment-item__body {
   flex: 1;
@@ -216,7 +178,7 @@ body:has(.intra-sidebar) {
   transition: opacity 0.15s;
   background: none;
   border: none;
-  color: var(--text-dimmed, #818189);
+  color: var(--text-3);
   padding: 0 12px;
   cursor: pointer;
   font-size: 0.75rem;
@@ -224,7 +186,7 @@ body:has(.intra-sidebar) {
   align-items: center;
 
   &:hover {
-    color: #dc3545;
+    color: var(--danger);
   }
 }
 
@@ -257,5 +219,5 @@ body:has(.intra-sidebar) {
 
 #inhalt,
 .ck-editor {
-  color: #000;
+  color: var(--black);
 }

@@ -102,7 +102,7 @@ try {
     // BASIS DATEN - Fallback defaults
     if (!defined('API_KEY')) define('API_KEY', 'CHANGE_ME');
     if (!defined('SYSTEM_NAME')) define('SYSTEM_NAME', 'ıgnıs');
-    if (!defined('SYSTEM_COLOR')) define('SYSTEM_COLOR', '#FF4D00');
+    if (!defined('SYSTEM_COLOR')) define('SYSTEM_COLOR', \App\Helpers\Theme::DEFAULT_ACCENT);
     if (!defined('SYSTEM_URL')) define('SYSTEM_URL', 'CHANGE_ME');
     if (!defined('SYSTEM_LOGO')) define('SYSTEM_LOGO', '/assets/img/ignis-wordmark.svg');
     if (!defined('META_IMAGE_URL')) define('META_IMAGE_URL', '');

@@ -2447,6 +2447,9 @@ if (Permissions::check(['admin'])) {
         s.setProperty('--main-color-dimmed', dc);
         s.setProperty('--main-color-rgb', rgb);
         s.setProperty('--fw-red', mc);
+        s.setProperty('--accent', mc);
+        s.setProperty('--accent-hover', dc);
+        s.setProperty('--accent-rgb', rgb);
     })();
 </script>
 <script>

@@ -6,6 +6,8 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?php echo $SITE_TITLE; ?> &rsaquo; <?php echo SYSTEM_NAME ?></title>
+<?php // Akzentfarbe der Installation (SYSTEM_COLOR) über die Tokens legen, vor dem ersten Stylesheet.
+echo \App\Helpers\Theme::accentStyleTag(); ?>
 <!-- Preload critical fonts: Geist Sans (UI/Headings) + Geist Mono (Code/Numbers) -->
 <link rel="preload" href="<?= BASE_PATH ?>assets/fonts/geist/fonts/geist-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="<?= BASE_PATH ?>assets/fonts/geist-mono/fonts/geist-mono-v4-latin-regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -25,7 +27,7 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 <?php endforeach; ?>
 <script>
 // Akzentfarbe sofort aus localStorage anwenden (kein Flackern)
-(function(){var a=localStorage.getItem('intra_theme_accent');if(!a)return;var p={red:{m:'#d10000',d:'#660000'},blue:{m:'#2563eb',d:'#1e40af'},green:{m:'#16a34a',d:'#15803d'},purple:{m:'#7c3aed',d:'#6d28d9'},orange:{m:'#ea580c',d:'#c2410c'},teal:{m:'#0d9488',d:'#0f766e'},pink:{m:'#db2777',d:'#be185d'},amber:{m:'#d97706',d:'#b45309'}};var mc,dc;if(p[a]){mc=p[a].m;dc=p[a].d;}else if(/^#[0-9a-fA-F]{6}$/.test(a)){mc=a;var r=parseInt(a.slice(1,3),16),g=parseInt(a.slice(3,5),16),b=parseInt(a.slice(5,7),16);dc='#'+[r,g,b].map(function(c){return Math.max(0,Math.round(c*0.65)).toString(16).padStart(2,'0');}).join('');}else return;var rgb=parseInt(mc.slice(1,3),16)+', '+parseInt(mc.slice(3,5),16)+', '+parseInt(mc.slice(5,7),16);var s=document.documentElement.style;s.setProperty('--main-color',mc);s.setProperty('--main-color-dimmed',dc);s.setProperty('--main-color-rgb',rgb);s.setProperty('--fw-red',mc);})();
+(function(){var a=localStorage.getItem('intra_theme_accent');if(!a)return;var p={red:{m:'#d10000',d:'#660000'},blue:{m:'#2563eb',d:'#1e40af'},green:{m:'#16a34a',d:'#15803d'},purple:{m:'#7c3aed',d:'#6d28d9'},orange:{m:'#ea580c',d:'#c2410c'},teal:{m:'#0d9488',d:'#0f766e'},pink:{m:'#db2777',d:'#be185d'},amber:{m:'#d97706',d:'#b45309'}};var mc,dc;if(p[a]){mc=p[a].m;dc=p[a].d;}else if(/^#[0-9a-fA-F]{6}$/.test(a)){mc=a;var r=parseInt(a.slice(1,3),16),g=parseInt(a.slice(3,5),16),b=parseInt(a.slice(5,7),16);dc='#'+[r,g,b].map(function(c){return Math.max(0,Math.round(c*0.65)).toString(16).padStart(2,'0');}).join('');}else return;var rgb=parseInt(mc.slice(1,3),16)+', '+parseInt(mc.slice(3,5),16)+', '+parseInt(mc.slice(5,7),16);var s=document.documentElement.style;s.setProperty('--main-color',mc);s.setProperty('--main-color-dimmed',dc);s.setProperty('--main-color-rgb',rgb);s.setProperty('--fw-red',mc);s.setProperty('--accent',mc);s.setProperty('--accent-hover',dc);s.setProperty('--accent-rgb',rgb);})();
 </script>
 <!-- Core-Bundle: jQuery + DataTables (synchron, weil Inline-Scripts auf window.$ angewiesen sind) -->
 <script src="<?= asset('public/assets/dist/vendor.js') ?>"></script>

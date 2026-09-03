@@ -24,7 +24,7 @@ $cssUrl    = function_exists('asset')
     <?php if ($cssExists): ?>
         <link rel="stylesheet" href="<?= htmlspecialchars($cssUrl) ?>">
     <?php else: ?>
-        <style>body{font-family:system-ui;background:#222;color:#fff;padding:2rem;} .err{color:#ff4d00;}</style>
+        <style>body{font-family:system-ui;background:#222;color:#fff;padding:2rem;} .err{color:var(--accent, #f0500a);}</style>
     <?php endif; ?>
 </head>
 <body class="bg-surface-deep text-white font-sans min-h-screen p-8">
@@ -41,9 +41,9 @@ $cssUrl    = function_exists('asset')
         <section class="bg-surface rounded-lg p-6 shadow-medium">
             <h2 class="font-heading font-semibold text-xl mb-4">Brand-Farben</h2>
             <div class="grid grid-cols-3 gap-3">
-                <div class="bg-brand rounded-md p-4 text-center">#FF4D00 <br><span class="text-xs opacity-75">brand</span></div>
-                <div class="bg-brand-light rounded-md p-4 text-center">#FF6A33 <br><span class="text-xs opacity-75">brand-light</span></div>
-                <div class="bg-brand-dark rounded-md p-4 text-center">#CC3D00 <br><span class="text-xs opacity-75">brand-dark</span></div>
+                <div class="bg-brand rounded-md p-4 text-center">var(--accent) <br><span class="text-xs opacity-75">brand</span></div>
+                <div class="bg-brand-light rounded-md p-4 text-center">var(--accent) <br><span class="text-xs opacity-75">brand-light</span></div>
+                <div class="bg-brand-dark rounded-md p-4 text-center">var(--accent-hover) <br><span class="text-xs opacity-75">brand-dark</span></div>
             </div>
         </section>
 

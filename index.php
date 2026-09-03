@@ -12,7 +12,7 @@ use App\Helpers\Flash;
 ?>
 
 <!DOCTYPE html>
-<html lang="de" data-theme="light">
+<html lang="de">
 
 <head>
     <?php include __DIR__ . '/assets/components/_base/admin/head.php'; ?>
