@@ -147,8 +147,11 @@ final class Navigation
 
     private static function normalize(string $path): string
     {
-        // constant() statt BASE_PATH: der Wert kommt zur Laufzeit aus der DB, PHPStan kennt nur den Fallback '/'.
-        $base = rtrim(defined('BASE_PATH') ? (string) constant('BASE_PATH') : '/', '/');
+        // Der Name der Konstante steht in einer Variablen: BASE_PATH kommt zur
+        // Laufzeit aus der Datenbank, PHPStan kennt nur den Fallback '/' aus
+        // config.php und hielte den Vergleich unten sonst für immer falsch.
+        $constant = 'BASE_PATH';
+        $base = rtrim(defined($constant) ? (string) constant($constant) : '/', '/');
         if ($base !== '' && str_starts_with($path, $base)) {
             $path = substr($path, strlen($base));
         }
