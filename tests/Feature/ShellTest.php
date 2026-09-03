@@ -63,7 +63,7 @@ final class ShellTest extends FeatureTestCase
         $this->assertBodyContains('<title>Benutzer &rsaquo;', $response);
         $this->assertMatchesRegularExpression('~href="/users/list"[^>]*aria-current="page"~', $response->body);
         $this->assertSame(1, substr_count($response->body, 'aria-current="page"'), 'Genau ein Eintrag ist aktiv.');
-        $this->assertBodyContains('data-quick-action-target="mitarbeiter-create"', $response);
+        $this->assertMatchesRegularExpression('~href="/personnel/create"[^>]*data-ignis-drawer~', $response->body);
         $this->assertBodyContains('data-quick-action-target="role-create"', $response);
         $this->assertBodyContains('ignis-topbar__new', $response);
     }
@@ -79,22 +79,22 @@ final class ShellTest extends FeatureTestCase
         $this->assertSame(1, substr_count($response->body, '<!DOCTYPE html>'));
         $this->assertBodyContains('class="ignis-app"', $response);
         $this->assertMatchesRegularExpression('~href="/lexicon/index"[^>]*aria-current="page"~', $response->body);
-        $this->assertBodyContains('data-quick-action-parent="/lexicon/index"', $response);
+        $this->assertMatchesRegularExpression('~href="/lexicon/create"\s+class="ignis-sidebar__quick"~', $response->body);
     }
 
     #[Test]
     public function rechte_bestimmen_gruppen_und_neu_menue(): void
     {
-        $this->login(['calendar.view']);
+        $this->login(['calendar.view', 'calendar.create']);
 
         $response = $this->get('/index');
 
         $this->assertOk($response);
         $this->assertBodyContains('href="/calendar"', $response);
-        $this->assertBodyContains('data-quick-action-target="calendar-event-create"', $response);
+        $this->assertMatchesRegularExpression('~href="/calendar/create"[^>]*data-ignis-drawer~', $response->body);
         $this->assertBodyNotContains('class="ignis-sidebar__group">Personal<', $response);
         $this->assertBodyNotContains('href="/users/list"', $response);
-        $this->assertBodyNotContains('data-quick-action-target="mitarbeiter-create"', $response);
+        $this->assertBodyNotContains('href="/personnel/create"', $response);
     }
 
     #[Test]

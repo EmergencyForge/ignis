@@ -48,9 +48,13 @@ abstract class Controller
     }
 
     /**
-     * HTTP-Redirect relativ zum BASE_PATH und harter exit.
-     * `never`-Return signalisiert dem Type-Checker, dass nach diesem Aufruf
-     * nichts mehr läuft.
+     * HTTP-Redirect relativ zum BASE_PATH. Wirft eine RedirectException,
+     * die der Router direkt am Handler zu Response::redirect() macht
+     * (Router::buildHandlerCallable()); nach dem Aufruf läuft im Controller
+     * nichts mehr, wie vorher mit `header()` + `exit`. So sehen die Haken
+     * des Routers die Weiterleitung (Fragment-Aufrufer bekommen sie als
+     * X-Ignis-Location, siehe RouterFactory) und Feature-Tests prüfen
+     * sie als Antwort.
      *
      * Auto-Translation: Legacy-deutsche Pfade (`'kalender'`, `'manv/board'`,
      * etc.) werden via `UrlMap::translateRelative()` transparent auf die
@@ -61,8 +65,16 @@ abstract class Controller
     protected function redirect(string $relativePath): never
     {
         $translated = \App\Http\UrlMap::translateRelative($relativePath);
-        header('Location: ' . BASE_PATH . ($translated ?? $relativePath));
-        exit;
+        throw new \App\Http\RedirectException(BASE_PATH . ($translated ?? $relativePath));
+    }
+
+    /**
+     * Will der Aufrufer nur den Inhalt einer Ansicht (Drawer, Vorschau)?
+     * assets/js/ui/drawer-form.js schickt `X-Requested-With: fragment`.
+     */
+    public static function wantsFragment(): bool
+    {
+        return Layout::wantsFragment();
     }
 
     /**
@@ -89,6 +101,10 @@ abstract class Controller
      * gibt dazu `$bodyId` und `$SITE_TITLE` mit, optional `$bodyPage` und
      * `$layoutHead`. Ohne `$layout` bleibt alles wie bisher — eNOTF und die
      * Seiten mit eigener Hülle bauen ihr <html> weiter selbst.
+     *
+     * Fragment statt Seite: mit `X-Requested-With: fragment` (Drawer,
+     * assets/js/ui/drawer-form.js) lässt Layout::render() die Hülle weg und
+     * liefert nur den Inhalt in <div class="ignis-fragment" data-title>.
      *
      * @param array<string,mixed> $data
      */

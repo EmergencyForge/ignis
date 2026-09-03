@@ -8,8 +8,10 @@ declare(strict_types=1);
  * Gruppen und Einträge aus App\Helpers\Navigation (config/navigation.php
  * plus Plugin-Fragmente, nach Rechten gefiltert, aktiver Eintrag per
  * Pfadvergleich). Ein Eintrag mit Schnellaktion bekommt ein Plus an der
- * Zeile, sichtbar beim Überfahren oder per Tastatur; shell.js führt die
- * Aktion aus (Link, oder CustomEvent `quick-action:<target>` für Modals).
+ * Zeile, sichtbar beim Überfahren oder per Tastatur: für `drawer` und
+ * `link` ein Link auf das Formular (drawer-form.js öffnet es im Drawer),
+ * für `modal` ein Knopf, den shell.js als CustomEvent `quick-action:<target>`
+ * ausführt.
  *
  * 240 px breit, eingeklappt 56 px: dann bleiben die Symbole mit Tooltip
  * (title), Labels und Gruppen verschwinden (CSS über html.is-collapsed,
@@ -54,17 +56,30 @@ $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? 
                         <?php endif; ?>
                     </a>
                     <?php if ($navQuick !== null && isset($navQuick['type'], $navQuick['target'], $navQuick['label'])): ?>
-                        <button
-                            type="button"
-                            class="ignis-sidebar__quick"
-                            data-quick-action-type="<?= htmlspecialchars((string) $navQuick['type'], ENT_QUOTES) ?>"
-                            data-quick-action-target="<?= htmlspecialchars((string) $navQuick['target'], ENT_QUOTES) ?>"
-                            data-quick-action-parent="<?= htmlspecialchars((string) $navItem['href'], ENT_QUOTES) ?>"
-                            aria-label="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
-                            title="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
-                        >
-                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-                        </button>
+                        <?php if ($navQuick['type'] === 'drawer' || $navQuick['type'] === 'link'): ?>
+                            <?php // Ein Link: mit JS öffnet drawer-form.js das Formular im Drawer, ohne JS die Seite. ?>
+                            <a
+                                href="<?= htmlspecialchars((string) $navQuick['target'], ENT_QUOTES) ?>"
+                                class="ignis-sidebar__quick"
+                                <?= $navQuick['type'] === 'drawer' ? 'data-ignis-drawer' : '' ?>
+                                aria-label="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
+                                title="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
+                            >
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                            </a>
+                        <?php else: ?>
+                            <button
+                                type="button"
+                                class="ignis-sidebar__quick"
+                                data-quick-action-type="<?= htmlspecialchars((string) $navQuick['type'], ENT_QUOTES) ?>"
+                                data-quick-action-target="<?= htmlspecialchars((string) $navQuick['target'], ENT_QUOTES) ?>"
+                                data-quick-action-parent="<?= htmlspecialchars((string) $navItem['href'], ENT_QUOTES) ?>"
+                                aria-label="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
+                                title="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
+                            >
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                            </button>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>

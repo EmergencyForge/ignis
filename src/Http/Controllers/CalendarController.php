@@ -29,6 +29,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  * URL-Mapping:
  *   GET  /kalender                 → index()         (Page mit FullCalendar-Mount)
  *   GET  /kalender/view?id=X       → show()          (Detail-Modal-HTML-Fragment)
+ *   GET  /kalender/create          → create()        (Formular, Seite oder Drawer)
  *   POST /kalender/create          → store()
  *   POST /kalender/update?id=X     → update()
  *   POST /kalender/delete?id=X     → destroy()
@@ -51,12 +52,7 @@ class CalendarController extends Controller
             ->get(['id', 'fullname', 'dienstnr']);
 
         // Rollen fuer Visibility=role-Auswahl
-        $roles = Capsule::table('intra_users_roles')
-            ->orderBy('priority')
-            ->orderBy('name')
-            ->get(['id', 'name', 'color'])
-            ->map(fn ($r) => (array) $r)
-            ->all();
+        $roles = $this->roleOptions();
 
         // Heute-abwesend-Strip — Liste der Mitarbeiter, deren Absence-Event
         // den heutigen Tag ueberlappt. Wird im Template nur gerendert wenn
@@ -381,6 +377,45 @@ class CalendarController extends Controller
     /**
      * POST /kalender/create — neuen Termin anlegen.
      */
+    /**
+     * GET /calendar/create[?date=YYYY-MM-DD] — das Anlage-Formular, als
+     * Seite oder als Fragment im Drawer (assets/js/ui/drawer-form.js).
+     * `date` kommt vom Klick auf einen Tag im Kalender und füllt Start
+     * (9 Uhr) und Ende (10 Uhr) vor.
+     */
+    public function create(): void
+    {
+        $this->requireAuth();
+        $this->ensure('calendar.create', redirectTo: 'kalender');
+
+        $date = (string) ($_GET['date'] ?? '');
+        $prefill = preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1 ? $date : null;
+
+        $this->renderView('calendar/create', [
+            'mitarbeiter'    => Personnel::query()->orderBy('fullname')->get(['id', 'fullname', 'dienstnr']),
+            'roles'          => $this->roleOptions(),
+            'categories'     => CalendarEvent::CATEGORIES,
+            'colors'         => CalendarEvent::COLORS,
+            'eventFormStart' => $prefill !== null ? $prefill . 'T09:00' : null,
+            'eventFormEnd'   => $prefill !== null ? $prefill . 'T10:00' : null,
+        ]);
+    }
+
+    /**
+     * Rollen für die Sichtbarkeit „Bestimmte Rolle", für Seite und Formular.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function roleOptions(): array
+    {
+        return Capsule::table('intra_users_roles')
+            ->orderBy('priority')
+            ->orderBy('name')
+            ->get(['id', 'name', 'color'])
+            ->map(fn ($r) => (array) $r)
+            ->all();
+    }
+
     public function store(): void
     {
         $this->requireAuth();
@@ -389,8 +424,10 @@ class CalendarController extends Controller
         try {
             $data = CreateEventRequest::validate($_POST);
         } catch (ValidationException $e) {
+            // Zurück aufs Formular: die Eingabe liegt im Old-Input-Bag
+            // (FormRequest::validate), die Meldung kommt als Toast.
             Flash::error($e->firstError() ?? 'Ungültige Eingabe.');
-            $this->redirect('kalender');
+            $this->redirect('calendar/create');
         }
 
         $event = $this->buildFromValidated(new CalendarEvent(), $data);

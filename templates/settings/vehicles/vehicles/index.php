@@ -37,9 +37,9 @@ $SITE_TITLE = 'Fahrzeuge';
                                     <i class="fa-solid fa-satellite-dish"></i> EMD-Import
                                     <span class="ignis-chip ignis-chip--danger ml-1 hidden" id="importBadge">0</span>
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateFahrzeugModal()">
+                                <a href="<?= BASE_PATH ?>settings/vehicles/vehicles/create" class="ignis-btn ignis-btn--primary" data-ignis-drawer>
                                     <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
-                                </button>
+                                </a>
                             <?php endif; ?>
                         </div>
                     </div>

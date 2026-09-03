@@ -8,6 +8,7 @@ use App\Http\Pipeline;
 use App\Http\Request;
 use App\Http\Response;
 use App\Http\Router;
+use App\Http\RouterFactory;
 
 /**
  * Base für Feature-Tests, die den echten Router + Middleware-Pipeline
@@ -67,11 +68,12 @@ abstract class FeatureTestCase extends IntegrationTestCase
 
         // Frischer Router pro Test — kein File-Cache, sodass Test-Routen-
         // Änderungen sofort greifen und keine Live-Cache-Files die Tests
-        // verfälschen.
-        $this->router = new Router(
+        // verfälschen. Über die Factory, damit die Haken dieselben sind
+        // wie in Produktion.
+        $this->router = RouterFactory::create(
             $this->container,
             $this->container->get(Pipeline::class),
-            enableCache: false,
+            cache: false,
         );
 
         $this->loadRoutes();
@@ -164,18 +166,30 @@ abstract class FeatureTestCase extends IntegrationTestCase
         ];
         $_SERVER['REQUEST_URI'] = $path . (($opts['query'] ?? []) !== [] ? '?' . http_build_query($opts['query']) : '');
         $_SERVER['REQUEST_METHOD'] = strtoupper($method);
+        // Header auch in die Superglobale, weil Controller::wantsFragment()
+        // sie dort liest (die Templates kennen den Request nicht).
+        foreach ($server as $key => $value) {
+            if (str_starts_with($key, 'HTTP_')) {
+                $serverBefore[$key] = $_SERVER[$key] ?? null;
+                $_SERVER[$key] = $value;
+            }
+        }
 
         // Die Listen-Controller lesen ihre Query (q, sort, page, Filter)
-        // aus $_GET, wie es der Webserver füllt.
-        $getBefore = $_GET;
-        $_GET = $opts['query'] ?? [];
+        // aus $_GET, die Formular-Controller ihre Felder aus $_POST, wie es
+        // der Webserver füllt.
+        $getBefore  = $_GET;
+        $postBefore = $_POST;
+        $_GET  = $opts['query'] ?? [];
+        $_POST = $opts['post'] ?? [];
 
         ob_start();
         try {
             $response = $this->router->dispatch($request);
         } finally {
             $captured = ob_get_clean() ?: '';
-            $_GET = $getBefore;
+            $_GET  = $getBefore;
+            $_POST = $postBefore;
             foreach ($serverBefore as $key => $value) {
                 if ($value === null) {
                     unset($_SERVER[$key]);

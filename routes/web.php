@@ -267,6 +267,8 @@ $calendarCreateAuth = [new AuthMiddleware(), new PolicyMiddleware('calendar.crea
 $router->get('/calendar',          [CalendarController::class, 'index'],         $calendarViewAuth);
 $router->get('/calendar/',         [CalendarController::class, 'index'],         $calendarViewAuth);
 $router->get('/calendar/view',     [CalendarController::class, 'show'],          $calendarViewAuth);
+// Anlage-Formular: Seite oder Fragment im Drawer (drawer-form.js)
+$router->get('/calendar/create',   [CalendarController::class, 'create'],        $calendarCreateAuth);
 $router->post('/calendar/create',  [CalendarController::class, 'store'],         $calendarCreateAuth);
 $router->post('/calendar/update',  [CalendarController::class, 'update'],        $calendarViewAuth);
 $router->post('/calendar/delete',  [CalendarController::class, 'destroy'],       $calendarViewAuth);
@@ -337,7 +339,9 @@ $mitarbeiterProfileDispatch = function (\App\Http\Request $request) {
 
 $router->post('/personnel/profile',     $mitarbeiterProfileDispatch, [new AuthMiddleware()]);
 
-// store() ist ein AJAX-JSON-Endpoint (gibt JSON zurück, nicht Redirect)
+// Anlage-Formular: Seite oder Fragment im Drawer (drawer-form.js); store()
+// ist ein normaler Formular-Post mit Redirect.
+$router->get('/personnel/create',      [PersonnelController::class, 'create'], $mitarbeiterCreateAuth);
 $router->post('/personnel/create',     [PersonnelController::class, 'store'], $mitarbeiterCreateAuth);
 
 // destroy() läuft per GET (Legacy — könnte später auf DELETE umgestellt werden,
@@ -399,7 +403,11 @@ $router->get('/settings/documents/visual-editor',     [\App\Http\Controllers\Set
 
 // Fahrzeuge-Settings (Fahrzeuge + Beladelisten + Defekte)
 $router->get('/settings/vehicles/vehicles/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'index'],   $settingsAuth);
+// Anlage-Formulare (Fahrzeug, Mangel): Seite oder Fragment im Drawer (drawer-form.js)
+$router->get('/settings/vehicles/vehicles/create',      [\App\Http\Controllers\Settings\FahrzeugeController::class, 'create'],  $settingsAuth);
 $router->post('/settings/vehicles/vehicles/create',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'store'],   $settingsAuth);
+$router->get('/settings/vehicles/defects/create',       [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defektCreate'], $settingsAuth);
+$router->post('/settings/vehicles/defects/create',      [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defektStore'],  $settingsAuth);
 $router->post('/settings/vehicles/vehicles/update',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'update'],  $settingsAuth);
 $router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'], $settingsAuth);
 $router->get('/settings/vehicles/vehload/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladelistenIndex'], $settingsAuth);

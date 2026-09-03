@@ -346,3 +346,52 @@ table.ignis-table {
   color: var(--text-3);
   font-size: 0.78rem;
 }
+
+// =====================================================
+// Formulare im Drawer (assets/js/ui/drawer-form.js): breiter als der
+// Standard-Drawer (Konzept: 520 px), der Seitenkopf der geladenen Ansicht
+// wird zum Drawer-Titel, die Karte darin verliert Rahmen und Ränder.
+// Als Seite ist .ignis-form-card eine Karte mit Fußzeile für die Knöpfe.
+// =====================================================
+
+.ignis-form-card {
+  max-width: 44rem;
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+}
+
+.ignis-drawer--form {
+  width: min(520px, 100vw);
+
+  .ignis-drawer__body {
+    padding: 1rem 1.25rem 2rem;
+    overflow-y: auto;
+  }
+
+  .ignis-fragment {
+    .ignis-breadcrumb,
+    .twplus-page-header { display: none; }
+    .twplus-page { padding: 0; }
+    .ignis-form-card { max-width: none; border: 0; background: transparent; box-shadow: none; }
+    .ignis-card__body { padding: 0; }
+    .ignis-form-card__footer { padding: 1rem 0 0; background: transparent; }
+  }
+}
+
+// Pflichtstern und Fehlertext auch ohne .ignis-field-Hülle (die Anlage-
+// Formulare setzen die Labels direkt).
+.ignis-field__required {
+  margin-left: 0.15rem;
+  color: var(--accent);
+}
+
+.ignis-field__error {
+  margin-top: 0.25rem;
+  color: var(--danger);
+  font-size: 0.78rem;
+}

@@ -141,9 +141,9 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                             <p class="twplus-page-header__description">Einsatzfähigkeit, Bearbeitungsstand und Lösungen aller Fahrzeugmängel.</p>
                         </div>
                         <div class="header-actions twplus-page-header__actions">
-                            <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateDefectModal()">
-                                <i class="fa-solid fa-plus"></i> Defekt melden
-                            </button>
+                            <a href="<?= BASE_PATH ?>settings/vehicles/defects/create<?= $filterVehicle > 0 ? '?vehicle=' . $filterVehicle : '' ?>" class="ignis-btn ignis-btn--primary" data-ignis-drawer>
+                                <i class="fa-solid fa-plus"></i> Mangel melden
+                            </a>
                         </div>
                     </div>
 
@@ -321,46 +321,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
         </div>
     </div>
 
-    <!-- Form-Bodies als <template>; Dialoge werden in JS programmatisch erstellt. -->
-    <template id="createDefectFormTemplate">
-        <div class="mb-3">
-            <label class="ignis-field__label">Fahrzeug</label>
-            <select name="vehicle_id" class="ignis-input" required>
-                <option value="">Bitte wählen...</option>
-                <?php foreach ($vehicles as $v): ?>
-                    <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($v['name']) ?> — <?= htmlspecialchars($v['kennzeichen'] ?: $v['identifier']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="ignis-field__label">Titel</label>
-            <input type="text" name="title" class="ignis-input" placeholder="Kurze Beschreibung des Defekts" required>
-        </div>
-        <div class="mb-3">
-            <label class="ignis-field__label">Beschreibung</label>
-            <textarea name="description" class="ignis-input" rows="3" placeholder="Detaillierte Beschreibung..."></textarea>
-        </div>
-        <div class="mb-3">
-            <label class="ignis-field__label">Kategorie</label>
-            <select name="category" class="ignis-input" required>
-                <option value="" disabled selected>Bitte auswählen...</option>
-                <?php foreach ($categoryLabels as $key => $label): ?>
-                    <option value="<?= $key ?>"><?= htmlspecialchars($label) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="ignis-field__label">Fahrzeug noch einsatzfähig?</label>
-            <div class="flex gap-3">
-                <label class="ignis-radio"><input type="radio" name="vehicle_operable" value="1" checked><span>Ja</span></label>
-                <label class="ignis-radio"><input type="radio" name="vehicle_operable" value="0"><span>Nein</span></label>
-            </div>
-            <small class="text-gray-400">Bei "Nein" wird das Fahrzeug automatisch als nicht einsatzfähig markiert.</small>
-        </div>
-    </template>
-
+    <!-- Form-Bodies als <template>; Dialoge werden in JS programmatisch erstellt. Melden laeuft ueber /settings/vehicles/defects/create im Drawer. -->
     <template id="resolveDefectFormTemplate">
         <p class="mb-3">Defekt <strong class="resolve-defect-title-display"></strong> als gelöst markieren?</p>
         <div class="mb-3">
@@ -561,22 +522,6 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
         else alert(data.error || 'Fehler');
     }
 
-    function openCreateDefectModal() {
-        Dialog.form({
-            title:        'Defekt melden',
-            template:     'createDefectFormTemplate',
-            submitLabel:  'Melden',
-            submitIcon:   'fa-solid fa-paper-plane',
-            submitVariant:'success',
-            onSubmit: function (body, dlg) {
-                var data = {};
-                body.querySelectorAll('input[name], select[name], textarea[name]').forEach(function (el) {
-                    if (el.type === 'radio' && !el.checked) return;
-                    data[el.name] = el.value;
-                });
-                postDefectAction('create', data).then(reloadOnSuccess);
-            },
-        });
     }
 
     document.addEventListener('DOMContentLoaded', function() {

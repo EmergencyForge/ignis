@@ -124,3 +124,20 @@ if (!function_exists('ignis_like_prefix')) {
         return addcslashes($value, '%_\\');
     }
 }
+
+if (!function_exists('old')) {
+    /**
+     * Die Eingabe aus dem letzten gescheiterten Formular-Post, damit das
+     * Formular nach dem Redirect wieder gefüllt ist:
+     *
+     *     <input name="title" value="<?= htmlspecialchars((string) old('title')) ?>">
+     *
+     * Liest den Bag, den FormRequest::validate() bzw. rememberInput() in
+     * die Session gelegt hat, einmalig pro Request (One-Shot). Ohne Bag
+     * oder ohne das Feld kommt $default.
+     */
+    function old(string $field, mixed $default = ''): mixed
+    {
+        return \App\Http\Requests\FormRequest::pullOldInput($field, $default);
+    }
+}
