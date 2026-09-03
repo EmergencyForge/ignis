@@ -16,7 +16,6 @@
  *   @var string                       $accountStatus 'none'|'pending'|'active'|'inactive'
  *   @var array|null                   $panelakte     Verlinkter User oder null
  *   @var array|null                   $pendingInvite Pending Registration-Code oder null
- *   @var \PDO                         $pdo
  *
  * Bindet folgende Legacy-Partials ein, die unverändert bleiben:
  *   - assets/components/profiles/checks.php
@@ -29,7 +28,7 @@
  *   - assets/components/profiles/dienstgradselector_rd.php
  *   - assets/components/profiles/qualiselector.php
  *
- * Diese Partials erwarten $row, $pdo und einige der oben definierten Variablen
+ * Diese Partials erwarten $row und einige der oben definierten Variablen
  * im lokalen Scope. extract() im Controller-renderView() erledigt das.
  */
 

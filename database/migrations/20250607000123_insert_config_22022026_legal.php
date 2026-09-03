@@ -5,22 +5,54 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/insert_config_22022026_legal.php
- * Spiegelung:     database/legacy/insert_config_22022026_legal.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Config-Kategorie "Rechtliches" mit URL-Optionen für Impressum und
+ * Datenschutzerklärung. Leere URL blendet den jeweiligen Link im Footer aus.
  */
 class InsertConfig22022026Legal extends AbstractMigration
 {
-    public function change(): void
+    private const KEYS = ['LEGAL_IMPRESSUM_URL', 'LEGAL_DATENSCHUTZ_URL'];
+
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/insert_config_22022026_legal.php';
+        $configs = [
+            [
+                'config_key'    => 'LEGAL_IMPRESSUM_URL',
+                'config_value'  => '',
+                'config_type'   => 'url',
+                'category'      => 'rechtliches',
+                'description'   => 'URL zum Impressum (leer lassen um Link auszublenden)',
+                'is_editable'   => 1,
+                'display_order' => 50,
+            ],
+            [
+                'config_key'    => 'LEGAL_DATENSCHUTZ_URL',
+                'config_value'  => '',
+                'config_type'   => 'url',
+                'category'      => 'rechtliches',
+                'description'   => 'URL zur Datenschutzerklärung (leer lassen um Link auszublenden)',
+                'is_editable'   => 1,
+                'display_order' => 51,
+            ],
+        ];
+
+        // Bestehende Keys nicht anfassen (Nutzer kann die URLs bereits gesetzt haben)
+        $rows = array_filter($configs, function (array $cfg): bool {
+            $found = $this->fetchRow(sprintf(
+                "SELECT config_key FROM intra_config WHERE config_key = '%s'",
+                $cfg['config_key']
+            ));
+            return $found === false || $found === null;
+        });
+
+        if ($rows !== []) {
+            $this->table('intra_config')->insert(array_values($rows))->saveData();
+        }
+    }
+
+    public function down(): void
+    {
+        $this->execute(
+            "DELETE FROM intra_config WHERE config_key IN ('" . implode("','", self::KEYS) . "')"
+        );
     }
 }

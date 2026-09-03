@@ -7,9 +7,12 @@ namespace Plugin\KnowledgeBase\Controllers;
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
-use Plugin\KnowledgeBase\KBHelper;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
+use Plugin\KnowledgeBase\KBHelper;
+use Plugin\KnowledgeBase\Models\KbCategory;
+use Plugin\KnowledgeBase\Models\KbEntry;
+use Plugin\KnowledgeBase\Models\KbEntryRelation;
 
 /**
  * LexiconController — frueher als Legacy-Folder `wissensdb/` am Webroot,
@@ -47,55 +50,57 @@ class LexiconController extends Controller
         $showArchived   = isset($_GET['archived']) && $_GET['archived'] === '1'
             && $isLoggedIn && Permissions::check(['admin', 'kb.archive']);
 
-        $allCategories = $this->pdo->query(
-            "SELECT id, parent_id, name, icon FROM intra_kb_categories
-             ORDER BY sort_order ASC, name ASC"
-        )->fetchAll(PDO::FETCH_ASSOC);
+        $allCategories = Capsule::table('intra_kb_categories')
+            ->select(['id', 'parent_id', 'name', 'icon'])
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('name', 'asc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
-        $allTags = $this->pdo->query(
-            "SELECT t.id, t.name, t.color, COUNT(et.entry_id) as cnt
-             FROM intra_kb_tags t
-             LEFT JOIN intra_kb_entry_tags et ON t.id = et.tag_id
-             GROUP BY t.id ORDER BY t.name ASC"
-        )->fetchAll(PDO::FETCH_ASSOC);
+        $allTags = Capsule::table('intra_kb_tags as t')
+            ->leftJoin('intra_kb_entry_tags as et', 't.id', '=', 'et.tag_id')
+            ->selectRaw('t.id, t.name, t.color, COUNT(et.entry_id) as cnt')
+            ->groupBy('t.id')
+            ->orderBy('t.name', 'asc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
-        // Eintraege via dynamic SQL aufbauen (deckt alle Filter-Kombinationen)
-        $sql = "SELECT kb.*,
+        // Eintraege via Query Builder aufbauen (deckt alle Filter-Kombinationen)
+        $query = Capsule::table('intra_kb_entries as kb')
+            ->leftJoin('intra_kb_categories as kc', 'kb.category_id', '=', 'kc.id')
+            ->leftJoin('intra_users as creator', 'kb.created_by', '=', 'creator.id')
+            ->leftJoin('intra_mitarbeiter as creator_m', 'creator.discord_id', '=', 'creator_m.discordtag')
+            ->leftJoin('intra_users as updater', 'kb.updated_by', '=', 'updater.id')
+            ->leftJoin('intra_mitarbeiter as updater_m', 'updater.discord_id', '=', 'updater_m.discordtag')
+            ->selectRaw('kb.*,
                 kc.name as category_name, kc.icon as category_icon,
                 COALESCE(creator_m.fullname, creator.fullname) as creator_name,
-                COALESCE(updater_m.fullname, updater.fullname) as updater_name
-                FROM intra_kb_entries kb
-                LEFT JOIN intra_kb_categories kc ON kb.category_id = kc.id
-                LEFT JOIN intra_users creator ON kb.created_by = creator.id
-                LEFT JOIN intra_mitarbeiter creator_m ON creator.discord_id = creator_m.discordtag
-                LEFT JOIN intra_users updater ON kb.updated_by = updater.id
-                LEFT JOIN intra_mitarbeiter updater_m ON updater.discord_id = updater_m.discordtag
-                WHERE 1=1";
-        $params = [];
+                COALESCE(updater_m.fullname, updater.fullname) as updater_name');
 
         if (!$showArchived) {
-            $sql .= " AND kb.is_archived = 0";
+            $query->where('kb.is_archived', 0);
         }
         if ($typeFilter !== 'all') {
-            $sql .= " AND kb.type = :type";
-            $params['type'] = $typeFilter;
+            $query->where('kb.type', $typeFilter);
         }
         if ($categoryFilter > 0) {
             $childIds = [$categoryFilter];
-            $childStmt = $this->pdo->prepare("SELECT id FROM intra_kb_categories WHERE parent_id = :pid");
-            $childStmt->execute(['pid' => $categoryFilter]);
-            while ($childId = $childStmt->fetchColumn()) {
+            $children = Capsule::table('intra_kb_categories')
+                ->where('parent_id', $categoryFilter)
+                ->pluck('id');
+            foreach ($children as $childId) {
                 $childIds[] = (int) $childId;
             }
-            $placeholders = implode(',', array_fill(0, count($childIds), '?'));
-            $sql .= " AND kb.category_id IN ($placeholders)";
-            foreach ($childIds as $cid) {
-                $params[] = $cid;
-            }
+            $query->whereIn('kb.category_id', $childIds);
         }
         if ($tagFilter > 0) {
-            $sql .= " AND kb.id IN (SELECT entry_id FROM intra_kb_entry_tags WHERE tag_id = :tag_id)";
-            $params['tag_id'] = $tagFilter;
+            $query->whereIn('kb.id', function ($sub) use ($tagFilter) {
+                $sub->select('entry_id')
+                    ->from('intra_kb_entry_tags')
+                    ->where('tag_id', $tagFilter);
+            });
         }
         if (!empty($searchQuery)) {
             $ftQuery = '';
@@ -110,40 +115,50 @@ class LexiconController extends Controller
             }
             $ftQuery = trim($ftQuery);
             if ($ftQuery !== '') {
-                $sql .= " AND (
-                    MATCH(kb.title, kb.subtitle, kb.content) AGAINST(:ft_main IN BOOLEAN MODE)
-                    OR MATCH(kb.med_wirkstoff, kb.med_wirkstoffgruppe, kb.med_indikationen, kb.med_kontraindikationen, kb.med_dosierung, kb.med_besonderheiten) AGAINST(:ft_med IN BOOLEAN MODE)
-                    OR MATCH(kb.mass_indikationen, kb.mass_kontraindikationen, kb.mass_durchfuehrung, kb.mass_risiken) AGAINST(:ft_mass IN BOOLEAN MODE)
-                    OR kb.id IN (SELECT et.entry_id FROM intra_kb_entry_tags et JOIN intra_kb_tags t ON et.tag_id = t.id WHERE t.name LIKE :ft_tag)
-                )";
-                $params['ft_main'] = $ftQuery;
-                $params['ft_med']  = $ftQuery;
-                $params['ft_mass'] = $ftQuery;
-                $params['ft_tag']  = '%' . $searchQuery . '%';
+                $query->where(function ($q) use ($ftQuery, $searchQuery) {
+                    $q->whereRaw(
+                        'MATCH(kb.title, kb.subtitle, kb.content) AGAINST(? IN BOOLEAN MODE)',
+                        [$ftQuery]
+                    )->orWhereRaw(
+                        'MATCH(kb.med_wirkstoff, kb.med_wirkstoffgruppe, kb.med_indikationen, kb.med_kontraindikationen, kb.med_dosierung, kb.med_besonderheiten) AGAINST(? IN BOOLEAN MODE)',
+                        [$ftQuery]
+                    )->orWhereRaw(
+                        'MATCH(kb.mass_indikationen, kb.mass_kontraindikationen, kb.mass_durchfuehrung, kb.mass_risiken) AGAINST(? IN BOOLEAN MODE)',
+                        [$ftQuery]
+                    )->orWhereIn('kb.id', function ($sub) use ($searchQuery) {
+                        $sub->select('et.entry_id')
+                            ->from('intra_kb_entry_tags as et')
+                            ->join('intra_kb_tags as t', 'et.tag_id', '=', 't.id')
+                            ->where('t.name', 'LIKE', '%' . $searchQuery . '%');
+                    });
+                });
             } else {
-                $sql .= " AND (kb.title LIKE :search1 OR kb.subtitle LIKE :search2)";
-                $params['search1'] = '%' . $searchQuery . '%';
-                $params['search2'] = '%' . $searchQuery . '%';
+                $query->where(function ($q) use ($searchQuery) {
+                    $q->where('kb.title', 'LIKE', '%' . $searchQuery . '%')
+                        ->orWhere('kb.subtitle', 'LIKE', '%' . $searchQuery . '%');
+                });
             }
         }
-        $sql .= " ORDER BY kb.is_pinned DESC, kb.updated_at DESC, kb.created_at DESC";
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $entries = $query
+            ->orderBy('kb.is_pinned', 'desc')
+            ->orderBy('kb.updated_at', 'desc')
+            ->orderBy('kb.created_at', 'desc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         $entryTagsMap = [];
         $entryIds = array_column($entries, 'id');
         if ($entryIds !== []) {
-            $placeholders = implode(',', array_fill(0, count($entryIds), '?'));
-            $tagMapStmt = $this->pdo->prepare(
-                "SELECT et.entry_id, t.name, t.color
-                 FROM intra_kb_entry_tags et
-                 JOIN intra_kb_tags t ON et.tag_id = t.id
-                 WHERE et.entry_id IN ($placeholders)"
-            );
-            $tagMapStmt->execute($entryIds);
-            foreach ($tagMapStmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $tagRows = Capsule::table('intra_kb_entry_tags as et')
+                ->join('intra_kb_tags as t', 'et.tag_id', '=', 't.id')
+                ->whereIn('et.entry_id', $entryIds)
+                ->select(['et.entry_id', 't.name', 't.color'])
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
+            foreach ($tagRows as $row) {
                 $entryTagsMap[$row['entry_id']][] = $row;
             }
         }
@@ -179,23 +194,21 @@ class LexiconController extends Controller
             $this->redirect('lexicon/index');
         }
 
-        $stmt = $this->pdo->prepare("
-            SELECT kb.*,
+        $entry = Capsule::table('intra_kb_entries as kb')
+            ->leftJoin('intra_kb_categories as kc', 'kb.category_id', '=', 'kc.id')
+            ->leftJoin('intra_kb_categories as kc_parent', 'kc.parent_id', '=', 'kc_parent.id')
+            ->leftJoin('intra_users as creator', 'kb.created_by', '=', 'creator.id')
+            ->leftJoin('intra_mitarbeiter as creator_m', 'creator.discord_id', '=', 'creator_m.discordtag')
+            ->leftJoin('intra_users as updater', 'kb.updated_by', '=', 'updater.id')
+            ->leftJoin('intra_mitarbeiter as updater_m', 'updater.discord_id', '=', 'updater_m.discordtag')
+            ->where('kb.id', $id)
+            ->selectRaw('kb.*,
                    kc.name as category_name, kc.icon as category_icon,
                    kc_parent.name as parent_category_name, kc_parent.icon as parent_category_icon,
                    COALESCE(creator_m.fullname, creator.fullname) as creator_name,
-                   COALESCE(updater_m.fullname, updater.fullname) as updater_name
-            FROM intra_kb_entries kb
-            LEFT JOIN intra_kb_categories kc ON kb.category_id = kc.id
-            LEFT JOIN intra_kb_categories kc_parent ON kc.parent_id = kc_parent.id
-            LEFT JOIN intra_users creator ON kb.created_by = creator.id
-            LEFT JOIN intra_mitarbeiter creator_m ON creator.discord_id = creator_m.discordtag
-            LEFT JOIN intra_users updater ON kb.updated_by = updater.id
-            LEFT JOIN intra_mitarbeiter updater_m ON updater.discord_id = updater_m.discordtag
-            WHERE kb.id = :id
-        ");
-        $stmt->execute(['id' => $id]);
-        $entry = $stmt->fetch(PDO::FETCH_ASSOC);
+                   COALESCE(updater_m.fullname, updater.fullname) as updater_name')
+            ->first();
+        $entry = $entry ? (array) $entry : null;
 
         if (!$entry) {
             Flash::error('Eintrag nicht gefunden');
@@ -207,26 +220,28 @@ class LexiconController extends Controller
             $this->redirect('lexicon/index');
         }
 
-        $tagStmt = $this->pdo->prepare(
-            "SELECT t.id, t.name, t.color FROM intra_kb_entry_tags et
-             JOIN intra_kb_tags t ON et.tag_id = t.id
-             WHERE et.entry_id = :id ORDER BY t.name"
-        );
-        $tagStmt->execute(['id' => $id]);
-        $entryTags = $tagStmt->fetchAll(PDO::FETCH_ASSOC);
+        $entryTags = Capsule::table('intra_kb_entry_tags as et')
+            ->join('intra_kb_tags as t', 'et.tag_id', '=', 't.id')
+            ->where('et.entry_id', $id)
+            ->select(['t.id', 't.name', 't.color'])
+            ->orderBy('t.name')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
-        $relStmt = $this->pdo->prepare("
-            SELECT kb.id, kb.title, kb.subtitle, kb.type, kb.competency_level,
-                   kc.name as category_name, kc.icon as category_icon
-            FROM intra_kb_entry_relations r
-            JOIN intra_kb_entries kb ON kb.id = CASE WHEN r.entry_id = :id1 THEN r.related_entry_id ELSE r.entry_id END
-            LEFT JOIN intra_kb_categories kc ON kb.category_id = kc.id
-            WHERE (r.entry_id = :id2 OR r.related_entry_id = :id3)
-            AND kb.is_archived = 0
-            ORDER BY kb.title ASC
-        ");
-        $relStmt->execute(['id1' => $id, 'id2' => $id, 'id3' => $id]);
-        $relatedEntries = $relStmt->fetchAll(PDO::FETCH_ASSOC);
+        $relatedEntries = array_map(
+            fn ($row) => (array) $row,
+            Capsule::connection()->select("
+                SELECT kb.id, kb.title, kb.subtitle, kb.type, kb.competency_level,
+                       kc.name as category_name, kc.icon as category_icon
+                FROM intra_kb_entry_relations r
+                JOIN intra_kb_entries kb ON kb.id = CASE WHEN r.entry_id = ? THEN r.related_entry_id ELSE r.entry_id END
+                LEFT JOIN intra_kb_categories kc ON kb.category_id = kc.id
+                WHERE (r.entry_id = ? OR r.related_entry_id = ?)
+                AND kb.is_archived = 0
+                ORDER BY kb.title ASC
+            ", [$id, $id, $id])
+        );
 
         $competency = KBHelper::getCompetencyInfo($entry['competency_level']);
 
@@ -267,12 +282,19 @@ class LexiconController extends Controller
             $this->redirect('lexicon/index');
         }
 
-        $allCategories = $this->pdo->query(
-            "SELECT id, parent_id, name, icon FROM intra_kb_categories ORDER BY sort_order ASC, name ASC"
-        )->fetchAll(PDO::FETCH_ASSOC);
-        $allTags = $this->pdo->query(
-            "SELECT id, name, color FROM intra_kb_tags ORDER BY name ASC"
-        )->fetchAll(PDO::FETCH_ASSOC);
+        $allCategories = Capsule::table('intra_kb_categories')
+            ->select(['id', 'parent_id', 'name', 'icon'])
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('name', 'asc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
+        $allTags = Capsule::table('intra_kb_tags')
+            ->select(['id', 'name', 'color'])
+            ->orderBy('name', 'asc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         $editId         = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
         $entry          = null;
@@ -281,33 +303,33 @@ class LexiconController extends Controller
         $entryRelations = [];
 
         if ($isEdit && $editId) {
-            $stmt = $this->pdo->prepare("
-                SELECT kb.*, u.fullname as updater_name
-                FROM intra_kb_entries kb
-                LEFT JOIN intra_users u ON kb.updated_by = u.id
-                WHERE kb.id = :id
-            ");
-            $stmt->execute(['id' => $editId]);
-            $entry = $stmt->fetch(PDO::FETCH_ASSOC);
+            $entry = Capsule::table('intra_kb_entries as kb')
+                ->leftJoin('intra_users as u', 'kb.updated_by', '=', 'u.id')
+                ->where('kb.id', $editId)
+                ->selectRaw('kb.*, u.fullname as updater_name')
+                ->first();
+            $entry = $entry ? (array) $entry : null;
             if (!$entry) {
                 Flash::error('Eintrag nicht gefunden');
                 $this->redirect('lexicon/index');
             }
             $updaterName = $entry['updater_name'] ?? null;
 
-            $tagStmt = $this->pdo->prepare("SELECT tag_id FROM intra_kb_entry_tags WHERE entry_id = :id");
-            $tagStmt->execute(['id' => $editId]);
-            $entryTags = $tagStmt->fetchAll(PDO::FETCH_COLUMN);
+            $entryTags = Capsule::table('intra_kb_entry_tags')
+                ->where('entry_id', $editId)
+                ->pluck('tag_id')
+                ->all();
 
-            $relStmt = $this->pdo->prepare("
-                SELECT kb.id, kb.title, kb.type
-                FROM intra_kb_entry_relations r
-                JOIN intra_kb_entries kb ON kb.id = CASE WHEN r.entry_id = :id1 THEN r.related_entry_id ELSE r.entry_id END
-                WHERE (r.entry_id = :id2 OR r.related_entry_id = :id3)
-                ORDER BY kb.title ASC
-            ");
-            $relStmt->execute(['id1' => $editId, 'id2' => $editId, 'id3' => $editId]);
-            $entryRelations = $relStmt->fetchAll(PDO::FETCH_ASSOC);
+            $entryRelations = array_map(
+                fn ($row) => (array) $row,
+                Capsule::connection()->select("
+                    SELECT kb.id, kb.title, kb.type
+                    FROM intra_kb_entry_relations r
+                    JOIN intra_kb_entries kb ON kb.id = CASE WHEN r.entry_id = ? THEN r.related_entry_id ELSE r.entry_id END
+                    WHERE (r.entry_id = ? OR r.related_entry_id = ?)
+                    ORDER BY kb.title ASC
+                ", [$editId, $editId, $editId])
+            );
         }
 
         $errors = [];
@@ -400,58 +422,39 @@ class LexiconController extends Controller
 
         try {
             if ($isEdit && $editId) {
-                $sql = "UPDATE intra_kb_entries SET
-                        type = :type, category_id = :category_id, title = :title, subtitle = :subtitle,
-                        competency_level = :competency_level, content = :content,
-                        med_wirkstoff = :med_wirkstoff, med_wirkstoffgruppe = :med_wirkstoffgruppe,
-                        med_wirkmechanismus = :med_wirkmechanismus, med_indikationen = :med_indikationen,
-                        med_kontraindikationen = :med_kontraindikationen, med_uaw = :med_uaw,
-                        med_dosierung = :med_dosierung, med_besonderheiten = :med_besonderheiten,
-                        mass_wirkprinzip = :mass_wirkprinzip, mass_indikationen = :mass_indikationen,
-                        mass_kontraindikationen = :mass_kontraindikationen, mass_risiken = :mass_risiken,
-                        mass_alternativen = :mass_alternativen, mass_durchfuehrung = :mass_durchfuehrung,
-                        is_pinned = :is_pinned, hide_editor = :hide_editor,
-                        updated_by = :user_id, updated_at = NOW()
-                        WHERE id = :id";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute(array_merge($detail, [
-                    'type' => $type, 'category_id' => $category_id, 'title' => $title,
-                    'subtitle' => $subtitle, 'competency_level' => $competency_level, 'content' => $content,
-                    'is_pinned' => $is_pinned, 'hide_editor' => $hide_editor,
-                    'user_id' => $_SESSION['userid'], 'id' => $editId,
+                KbEntry::where('id', $editId)->update(array_merge($detail, [
+                    'type'             => $type,
+                    'category_id'      => $category_id,
+                    'title'            => $title,
+                    'subtitle'         => $subtitle,
+                    'competency_level' => $competency_level,
+                    'content'          => $content,
+                    'is_pinned'        => $is_pinned,
+                    'hide_editor'      => $hide_editor,
+                    'updated_by'       => $_SESSION['userid'],
+                    'updated_at'       => Capsule::raw('NOW()'),
                 ]));
 
-                $this->pdo->prepare("DELETE FROM intra_kb_entry_tags WHERE entry_id = :id")->execute(['id' => $editId]);
+                Capsule::table('intra_kb_entry_tags')->where('entry_id', $editId)->delete();
                 $this->insertTags($editId, $selectedTags);
-                $this->pdo->prepare("DELETE FROM intra_kb_entry_relations WHERE entry_id = :id1 OR related_entry_id = :id2")
-                    ->execute(['id1' => $editId, 'id2' => $editId]);
+                KbEntryRelation::where('entry_id', $editId)
+                    ->orWhere('related_entry_id', $editId)
+                    ->delete();
                 $this->insertRelations($editId, $selectedRels);
 
                 return [[], $editId];
             }
 
-            $sql = "INSERT INTO intra_kb_entries (
-                    type, category_id, title, subtitle, competency_level, content,
-                    med_wirkstoff, med_wirkstoffgruppe, med_wirkmechanismus,
-                    med_indikationen, med_kontraindikationen, med_uaw, med_dosierung, med_besonderheiten,
-                    mass_wirkprinzip, mass_indikationen, mass_kontraindikationen,
-                    mass_risiken, mass_alternativen, mass_durchfuehrung,
-                    created_by
-                ) VALUES (
-                    :type, :category_id, :title, :subtitle, :competency_level, :content,
-                    :med_wirkstoff, :med_wirkstoffgruppe, :med_wirkmechanismus,
-                    :med_indikationen, :med_kontraindikationen, :med_uaw, :med_dosierung, :med_besonderheiten,
-                    :mass_wirkprinzip, :mass_indikationen, :mass_kontraindikationen,
-                    :mass_risiken, :mass_alternativen, :mass_durchfuehrung,
-                    :user_id
-                )";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute(array_merge($detail, [
-                'type' => $type, 'category_id' => $category_id, 'title' => $title,
-                'subtitle' => $subtitle, 'competency_level' => $competency_level, 'content' => $content,
-                'user_id' => $_SESSION['userid'],
+            $newEntry = KbEntry::create(array_merge($detail, [
+                'type'             => $type,
+                'category_id'      => $category_id,
+                'title'            => $title,
+                'subtitle'         => $subtitle,
+                'competency_level' => $competency_level,
+                'content'          => $content,
+                'created_by'       => $_SESSION['userid'],
             ]));
-            $newId = (int) $this->pdo->lastInsertId();
+            $newId = (int) $newEntry->id;
             $this->insertTags($newId, $selectedTags);
             $this->insertRelations($newId, $selectedRels);
 
@@ -467,10 +470,11 @@ class LexiconController extends Controller
         if ($tagIds === []) {
             return;
         }
-        $stmt = $this->pdo->prepare("INSERT IGNORE INTO intra_kb_entry_tags (entry_id, tag_id) VALUES (:entry_id, :tag_id)");
+        $rows = [];
         foreach ($tagIds as $tagId) {
-            $stmt->execute(['entry_id' => $entryId, 'tag_id' => (int) $tagId]);
+            $rows[] = ['entry_id' => $entryId, 'tag_id' => (int) $tagId];
         }
+        Capsule::table('intra_kb_entry_tags')->insertOrIgnore($rows);
     }
 
     /** @param array<int,int|string> $relIds */
@@ -479,15 +483,19 @@ class LexiconController extends Controller
         if ($relIds === []) {
             return;
         }
-        $stmt = $this->pdo->prepare("INSERT IGNORE INTO intra_kb_entry_relations (entry_id, related_entry_id) VALUES (:eid, :rid)");
+        $rows = [];
         foreach ($relIds as $relId) {
             $relId = (int) $relId;
             if ($relId === $entryId || $relId <= 0) {
                 continue;
             }
-            $a = min($entryId, $relId);
-            $b = max($entryId, $relId);
-            $stmt->execute(['eid' => $a, 'rid' => $b]);
+            $rows[] = [
+                'entry_id'         => min($entryId, $relId),
+                'related_entry_id' => max($entryId, $relId),
+            ];
+        }
+        if ($rows !== []) {
+            Capsule::table('intra_kb_entry_relations')->insertOrIgnore($rows);
         }
     }
 
@@ -514,12 +522,12 @@ class LexiconController extends Controller
 
         try {
             $isArchived = $action === 'archive' ? 1 : 0;
-            $stmt = $this->pdo->prepare(
-                "UPDATE intra_kb_entries SET is_archived = :archived, updated_by = :user_id, updated_at = NOW()
-                 WHERE id = :id"
-            );
-            $stmt->execute(['archived' => $isArchived, 'user_id' => $_SESSION['userid'], 'id' => $id]);
-            if ($stmt->rowCount() > 0) {
+            $affected = KbEntry::where('id', $id)->update([
+                'is_archived' => $isArchived,
+                'updated_by'  => $_SESSION['userid'],
+                'updated_at'  => Capsule::raw('NOW()'),
+            ]);
+            if ($affected > 0) {
                 Flash::success($action === 'archive' ? 'Eintrag archiviert' : 'Eintrag wiederhergestellt');
             } else {
                 Flash::error('Eintrag nicht gefunden');
@@ -553,12 +561,12 @@ class LexiconController extends Controller
 
         try {
             $isPinned = $action === 'pin' ? 1 : 0;
-            $stmt = $this->pdo->prepare(
-                "UPDATE intra_kb_entries SET is_pinned = :pinned, updated_by = :user_id, updated_at = NOW()
-                 WHERE id = :id"
-            );
-            $stmt->execute(['pinned' => $isPinned, 'user_id' => $_SESSION['userid'], 'id' => $id]);
-            if ($stmt->rowCount() > 0) {
+            $affected = KbEntry::where('id', $id)->update([
+                'is_pinned'  => $isPinned,
+                'updated_by' => $_SESSION['userid'],
+                'updated_at' => Capsule::raw('NOW()'),
+            ]);
+            if ($affected > 0) {
                 Flash::success($action === 'pin' ? 'Eintrag angepinnt' : 'Eintrag gelöst');
             } else {
                 Flash::error('Eintrag nicht gefunden');
@@ -592,12 +600,11 @@ class LexiconController extends Controller
         }
 
         try {
-            $this->pdo->prepare("UPDATE intra_kb_entries SET hide_editor = NOT hide_editor WHERE id = :id")
-                ->execute(['id' => $id]);
-            $row = $this->pdo->prepare("SELECT hide_editor FROM intra_kb_entries WHERE id = :id");
-            $row->execute(['id' => $id]);
-            $entry = $row->fetch(PDO::FETCH_ASSOC);
-            Flash::success(!empty($entry['hide_editor'])
+            KbEntry::where('id', $id)->update([
+                'hide_editor' => Capsule::raw('NOT hide_editor'),
+            ]);
+            $hideEditor = Capsule::table('intra_kb_entries')->where('id', $id)->value('hide_editor');
+            Flash::success(!empty($hideEditor)
                 ? 'Bearbeiternamen werden für diesen Eintrag ausgeblendet'
                 : 'Bearbeiternamen werden für diesen Eintrag angezeigt');
         } catch (PDOException $e) {
@@ -617,19 +624,22 @@ class LexiconController extends Controller
             $this->redirect('lexicon/index');
         }
 
-        $categories = $this->pdo->query(
-            "SELECT kc.*, kc_parent.name as parent_name,
-                    (SELECT COUNT(*) FROM intra_kb_entries WHERE category_id = kc.id) as entry_count
-             FROM intra_kb_categories kc
-             LEFT JOIN intra_kb_categories kc_parent ON kc.parent_id = kc_parent.id
-             ORDER BY kc.sort_order ASC, kc.name ASC"
-        )->fetchAll(PDO::FETCH_ASSOC);
+        $categories = Capsule::table('intra_kb_categories as kc')
+            ->leftJoin('intra_kb_categories as kc_parent', 'kc.parent_id', '=', 'kc_parent.id')
+            ->selectRaw('kc.*, kc_parent.name as parent_name,
+                    (SELECT COUNT(*) FROM intra_kb_entries WHERE category_id = kc.id) as entry_count')
+            ->orderBy('kc.sort_order', 'asc')
+            ->orderBy('kc.name', 'asc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
-        $tags = $this->pdo->query(
-            "SELECT t.*, (SELECT COUNT(*) FROM intra_kb_entry_tags WHERE tag_id = t.id) as usage_count
-             FROM intra_kb_tags t
-             ORDER BY t.name ASC"
-        )->fetchAll(PDO::FETCH_ASSOC);
+        $tags = Capsule::table('intra_kb_tags as t')
+            ->selectRaw('t.*, (SELECT COUNT(*) FROM intra_kb_entry_tags WHERE tag_id = t.id) as usage_count')
+            ->orderBy('t.name', 'asc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         $this->renderView('lexicon/manage-taxonomy', [
             'categories' => $categories,

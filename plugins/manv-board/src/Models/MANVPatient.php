@@ -2,35 +2,22 @@
 
 namespace Plugin\ManvBoard\Models;
 
-use PDO;
-use PDOException;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
+/**
+ * Repository für `intra_manv_patienten` — Patienten einer MANV-Lage.
+ *
+ * Läuft über die Eloquent-Capsule (Query Builder); die Rückgabeformate
+ * (Assoc-Arrays bzw. null) bleiben für alle Konsumenten unverändert.
+ */
 class MANVPatient
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
-
     /**
      * Erstellt einen neuen Patienten
      */
     public function create(array $data): int
     {
-        $sql = "INSERT INTO intra_manv_patienten 
-                (manv_lage_id, patienten_nummer, name, vorname, geburtsdatum, geschlecht, 
-                 sichtungskategorie, sichtungskategorie_zeit, sichtungskategorie_geaendert_von,
-                 transportmittel, transportmittel_rufname, fahrzeug_lokalisation, transportziel,
-                 verletzungen, massnahmen, notizen, erstellt_von)
-                VALUES (:manv_lage_id, :patienten_nummer, :name, :vorname, :geburtsdatum, :geschlecht,
-                        :sichtungskategorie, :sichtungskategorie_zeit, :sichtungskategorie_geaendert_von,
-                        :transportmittel, :transportmittel_rufname, :fahrzeug_lokalisation, :transportziel,
-                        :verletzungen, :massnahmen, :notizen, :erstellt_von)";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
+        return (int) Capsule::table('intra_manv_patienten')->insertGetId([
             'manv_lage_id' => $data['manv_lage_id'],
             'patienten_nummer' => $data['patienten_nummer'],
             'name' => $data['name'] ?? null,
@@ -47,10 +34,8 @@ class MANVPatient
             'verletzungen' => $data['verletzungen'] ?? null,
             'massnahmen' => $data['massnahmen'] ?? null,
             'notizen' => $data['notizen'] ?? null,
-            'erstellt_von' => $data['erstellt_von'] ?? null
+            'erstellt_von' => $data['erstellt_von'] ?? null,
         ]);
-
-        return (int)$this->pdo->lastInsertId();
     }
 
     /**
@@ -58,9 +43,6 @@ class MANVPatient
      */
     public function update(int $id, array $data): bool
     {
-        $fields = [];
-        $params = ['id' => $id];
-
         $allowedFields = [
             'name',
             'vorname',
@@ -81,10 +63,10 @@ class MANVPatient
             'geaendert_von'
         ];
 
+        $fields = [];
         foreach ($data as $key => $value) {
             if (in_array($key, $allowedFields)) {
-                $fields[] = "$key = :$key";
-                $params[$key] = $value;
+                $fields[$key] = $value;
             }
         }
 
@@ -92,9 +74,9 @@ class MANVPatient
             return false;
         }
 
-        $sql = "UPDATE intra_manv_patienten SET " . implode(', ', $fields) . " WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute($params);
+        Capsule::table('intra_manv_patienten')->where('id', $id)->update($fields);
+
+        return true;
     }
 
     /**
@@ -102,19 +84,15 @@ class MANVPatient
      */
     public function updateSichtung(int $id, string $kategorie, ?int $userId = null): bool
     {
-        $sql = "UPDATE intra_manv_patienten 
-                SET sichtungskategorie = :kategorie, 
-                    sichtungskategorie_zeit = :zeit,
-                    sichtungskategorie_geaendert_von = :user_id
-                WHERE id = :id";
+        Capsule::table('intra_manv_patienten')
+            ->where('id', $id)
+            ->update([
+                'sichtungskategorie' => $kategorie,
+                'sichtungskategorie_zeit' => date('Y-m-d H:i:s'),
+                'sichtungskategorie_geaendert_von' => $userId,
+            ]);
 
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
-            'id' => $id,
-            'kategorie' => $kategorie,
-            'zeit' => date('Y-m-d H:i:s'),
-            'user_id' => $userId
-        ]);
+        return true;
     }
 
     /**
@@ -122,10 +100,8 @@ class MANVPatient
      */
     public function getById(int $id): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM intra_manv_patienten WHERE id = ?");
-        $stmt->execute([$id]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ?: null;
+        $row = Capsule::table('intra_manv_patienten')->where('id', $id)->first();
+        return $row ? (array) $row : null;
     }
 
     /**
@@ -133,20 +109,20 @@ class MANVPatient
      */
     public function getByLage(int $lageId, ?string $kategorie = null): array
     {
-        $sql = "SELECT * FROM intra_manv_patienten WHERE manv_lage_id = ? AND transport_abfahrt IS NULL";
-        $params = [$lageId];
+        $query = Capsule::table('intra_manv_patienten')
+            ->where('manv_lage_id', $lageId)
+            ->whereNull('transport_abfahrt');
 
         if ($kategorie) {
-            $sql .= " AND sichtungskategorie = ?";
-            $params[] = $kategorie;
+            $query->where('sichtungskategorie', $kategorie);
         }
 
-        $sql .= " ORDER BY sichtungskategorie_zeit DESC, patienten_nummer ASC";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $query
+            ->orderBy('sichtungskategorie_zeit', 'desc')
+            ->orderBy('patienten_nummer', 'asc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
     }
 
     /**
@@ -154,8 +130,8 @@ class MANVPatient
      */
     public function delete(int $id): bool
     {
-        $stmt = $this->pdo->prepare("DELETE FROM intra_manv_patienten WHERE id = ?");
-        return $stmt->execute([$id]);
+        Capsule::table('intra_manv_patienten')->where('id', $id)->delete();
+        return true;
     }
 
     /**
@@ -163,12 +139,9 @@ class MANVPatient
      */
     public function generateNextPatientNumber(int $lageId): string
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT COUNT(*) as count FROM intra_manv_patienten WHERE manv_lage_id = ?"
-        );
-        $stmt->execute([$lageId]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        $count = (int)$result['count'] + 1;
+        $count = Capsule::table('intra_manv_patienten')
+            ->where('manv_lage_id', $lageId)
+            ->count() + 1;
 
         return sprintf('MANV-%03d', $count);
     }
@@ -178,15 +151,19 @@ class MANVPatient
      */
     public function search(int $lageId, string $searchTerm): array
     {
-        $sql = "SELECT * FROM intra_manv_patienten 
-                WHERE manv_lage_id = ? 
-                AND (patienten_nummer LIKE ? OR name LIKE ? OR vorname LIKE ? OR notizen LIKE ?)
-                ORDER BY sichtungskategorie_zeit DESC";
-
-        $stmt = $this->pdo->prepare($sql);
         $searchPattern = "%$searchTerm%";
-        $stmt->execute([$lageId, $searchPattern, $searchPattern, $searchPattern, $searchPattern]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return Capsule::table('intra_manv_patienten')
+            ->where('manv_lage_id', $lageId)
+            ->where(function ($query) use ($searchPattern) {
+                $query->where('patienten_nummer', 'LIKE', $searchPattern)
+                    ->orWhere('name', 'LIKE', $searchPattern)
+                    ->orWhere('vorname', 'LIKE', $searchPattern)
+                    ->orWhere('notizen', 'LIKE', $searchPattern);
+            })
+            ->orderBy('sichtungskategorie_zeit', 'desc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
     }
 }

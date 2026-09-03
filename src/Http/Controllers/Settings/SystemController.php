@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 
 /**
  * SystemController — System-Einstellungen, Config-Editor, Performance,
- * Telemetrie. Templates enthalten weiterhin inline-Datenladung gegen $pdo
+ * Telemetrie. Templates enthalten weiterhin inline-Datenladung (Eloquent)
  * und nutzen die existierenden Manager-Klassen (ConfigManager, SystemUpdater,
  * TelemetryManager, GlobalAnnouncementManager).
  */
@@ -64,7 +64,7 @@ class SystemController extends Controller
         // Installations-UUID an das Template reichen, damit sie als Support-
         // Banner angezeigt werden kann. Wird lazy erzeugt, falls noch keine
         // existiert — das ist idempotent, kein Risiko bei Mehrfach-Aufruf.
-        $telemetry      = new \App\Telemetry\TelemetryManager($this->pdo);
+        $telemetry      = new \App\Telemetry\TelemetryManager();
         $installationId = $telemetry->getInstallationId();
 
         $this->renderView('settings/system/telemetry', [

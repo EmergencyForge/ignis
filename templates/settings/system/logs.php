@@ -6,7 +6,6 @@
  * @var array<int,array<string,mixed>> $recent
  * @var array<int,array<string,mixed>> $groups
  * @var array<string,mixed>            $stats
- * @var \PDO                           $pdo
  */
 
 use App\Helpers\Flash;

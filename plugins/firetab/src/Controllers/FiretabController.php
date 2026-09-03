@@ -17,7 +17,6 @@ use App\Utils\AuditLogger;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use PDO;
 use PDOException;
 
 /**
@@ -295,7 +294,7 @@ class FiretabController extends Controller
 
         // Federation leader fallback
         if (empty($incident['leader_name']) && !empty($incident['leader_id'])) {
-            $incident['leader_name'] = FederatedPersonnel::resolveName($this->pdo, $incident['leader_id']);
+            $incident['leader_name'] = FederatedPersonnel::resolveName($incident['leader_id']);
         }
 
         // Check vehicle assignment (skip for admin/QM)
@@ -381,7 +380,7 @@ class FiretabController extends Controller
         // Clear all einsatz_viewed session variables
         \App\Session\SessionManager::forgetByPrefix('einsatz_viewed_');
 
-        $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
+        $leaders = FederatedPersonnel::getLeaderOptions();
 
         $this->renderView('firetab/create', [
             'leaders' => $leaders,
@@ -436,7 +435,7 @@ class FiretabController extends Controller
         }
 
         if (!empty($errors)) {
-            $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
+            $leaders = FederatedPersonnel::getLeaderOptions();
             $this->renderView('firetab/create', [
                 'leaders' => $leaders,
                 'errors'  => $errors,
@@ -482,7 +481,7 @@ class FiretabController extends Controller
             $this->redirect('einsatz/view?id=' . $incidentId);
         } catch (PDOException $e) {
             Capsule::connection()->getPdo()->rollBack();
-            $leaders = FederatedPersonnel::getLeaderOptions($this->pdo);
+            $leaders = FederatedPersonnel::getLeaderOptions();
             $this->renderView('firetab/create', [
                 'leaders' => $leaders,
                 'errors'  => ['Fehler beim Speichern: ' . $e->getMessage()],
@@ -691,7 +690,7 @@ class FiretabController extends Controller
             ->first();
 
         try {
-            $notificationManager = new NotificationManager($this->pdo);
+            $notificationManager = new NotificationManager();
             $notificationManager->notifyFireProtocolFinalized($incidentData);
         } catch (\Exception $e) {
             error_log('Fehler beim Senden der Benachrichtigung (Fire Protokoll Freigabe): ' . $e->getMessage());
@@ -727,7 +726,7 @@ class FiretabController extends Controller
         $this->logAction($id, 'status_changed', "QM-Status geändert zu '" . (FireIncident::STATUS_LABELS[$status] ?? 'Unbekannt') . "'");
 
         if (isset($_SESSION['userid'])) {
-            $auditLogger = new AuditLogger($this->pdo);
+            $auditLogger = new AuditLogger();
             $auditLogger->log($_SESSION['userid'], 'QM-Status geändert [ID: ' . $id . '] → ' . (FireIncident::STATUS_LABELS[$status] ?? '?'), null, 'Feuerwehr', 1);
         }
 
@@ -738,8 +737,8 @@ class FiretabController extends Controller
                 ->select('i.*', 'm.fullname as leader_name')
                 ->first();
 
-            $notificationManager = new NotificationManager($this->pdo);
-            $userHelper = new UserHelper($this->pdo);
+            $notificationManager = new NotificationManager();
+            $userHelper = new UserHelper();
             $qmUsername = $userHelper->getCurrentUserFullnameForAction();
             $notificationManager->notifyFireProtocolStatusChanged($incidentData, $qmUsername);
         } catch (\Exception $e) {
@@ -960,7 +959,7 @@ class FiretabController extends Controller
         $this->logAction($id, 'archived', 'Einsatz archiviert');
 
         if (isset($_SESSION['userid'])) {
-            $auditLogger = new AuditLogger($this->pdo);
+            $auditLogger = new AuditLogger();
             $auditLogger->log($_SESSION['userid'], 'Einsatz archiviert [ID: ' . $id . ']', null, 'Feuerwehr', 1);
         }
 
@@ -984,7 +983,7 @@ class FiretabController extends Controller
         $this->logAction($id, 'unarchived', 'Einsatz wiederhergestellt');
 
         if (isset($_SESSION['userid'])) {
-            $auditLogger = new AuditLogger($this->pdo);
+            $auditLogger = new AuditLogger();
             $auditLogger->log($_SESSION['userid'], 'Einsatz wiederhergestellt [ID: ' . $id . ']', null, 'Feuerwehr', 1);
         }
 
@@ -1197,7 +1196,7 @@ class FiretabController extends Controller
         // Resolve federation leader names
         foreach ($incidents as &$inc) {
             if (empty($inc['leader_name']) && !empty($inc['leader_id'])) {
-                $inc['leader_name'] = FederatedPersonnel::resolveName($this->pdo, $inc['leader_id']);
+                $inc['leader_name'] = FederatedPersonnel::resolveName($inc['leader_id']);
             }
         }
         unset($inc);

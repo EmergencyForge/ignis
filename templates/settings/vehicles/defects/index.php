@@ -1,20 +1,29 @@
 <?php
 /**
  * View: Defekt-Meldungen-Verwaltung
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 $canManage = Permissions::check(['admin', 'vehicles.manage']);
 
 // Fahrzeuge laden für Dropdown
-$vehicles = $pdo->query("SELECT id, name, identifier, kennzeichen, veh_type FROM intra_fahrzeuge ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
+$vehicles = Capsule::table('intra_fahrzeuge')
+    ->orderBy('name')
+    ->get(['id', 'name', 'identifier', 'kennzeichen', 'veh_type'])
+    ->map(fn ($row) => (array) $row)
+    ->all();
 
 // Benutzer laden für Zuweisungs-Dropdown
-$users = $pdo->query("SELECT u.id, COALESCE(m.fullname, u.username) AS fullname FROM intra_users u LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag WHERE u.is_active = 1 ORDER BY fullname ASC")->fetchAll(PDO::FETCH_ASSOC);
+$users = Capsule::table('intra_users as u')
+    ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+    ->where('u.is_active', 1)
+    ->orderBy('fullname')
+    ->get(['u.id', Capsule::raw('COALESCE(m.fullname, u.username) AS fullname')])
+    ->map(fn ($row) => (array) $row)
+    ->all();
 
 // Kategorien
 $categoryLabels = [
@@ -42,60 +51,72 @@ $filterVehicle = isset($_GET['vehicle']) ? (int)$_GET['vehicle'] : 0;
 $filterStatus = $_GET['status'] ?? '';
 
 try {
-    $stats = $pdo->query("SELECT
+    $stats = (array) Capsule::table('intra_fahrzeuge_defects')
+        ->selectRaw("
         COUNT(*) AS total,
         SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) AS open_count,
         SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) AS in_progress_count,
         SUM(CASE WHEN status = 'deferred' THEN 1 ELSE 0 END) AS deferred_count,
         SUM(CASE WHEN status = 'resolved' THEN 1 ELSE 0 END) AS resolved_count,
-        SUM(CASE WHEN vehicle_operable = 0 AND status != 'resolved' THEN 1 ELSE 0 END) AS not_operable_open
-    FROM intra_fahrzeuge_defects")->fetch(PDO::FETCH_ASSOC);
+        SUM(CASE WHEN vehicle_operable = 0 AND status != 'resolved' THEN 1 ELSE 0 END) AS not_operable_open")
+        ->first();
 } catch (PDOException $e) {
     $tableExists = false;
 }
 
 if ($tableExists) {
-    $sql = "SELECT d.*, f.name AS vehicle_name, f.identifier AS vehicle_identifier, f.kennzeichen, f.veh_type,
-                   COALESCE(m1.fullname, u1.username) AS reporter_name,
-                   COALESCE(m2.fullname, u2.username) AS assigned_name,
-                   COALESCE(m3.fullname, u3.username) AS resolver_name,
-                   last_log.last_status_user, last_log.last_status_details, last_log.last_status_at
-            FROM intra_fahrzeuge_defects d
-            JOIN intra_fahrzeuge f ON d.vehicle_id = f.id
-            LEFT JOIN intra_users u1 ON d.reported_by = u1.id
-            LEFT JOIN intra_mitarbeiter m1 ON u1.discord_id = m1.discordtag
-            LEFT JOIN intra_users u2 ON d.assigned_to = u2.id
-            LEFT JOIN intra_mitarbeiter m2 ON u2.discord_id = m2.discordtag
-            LEFT JOIN intra_users u3 ON d.resolved_by = u3.id
-            LEFT JOIN intra_mitarbeiter m3 ON u3.discord_id = m3.discordtag
-            LEFT JOIN (
-                SELECT l.defect_id, COALESCE(m.fullname, u.username) AS last_status_user, l.details AS last_status_details, l.created_at AS last_status_at
-                FROM intra_fahrzeuge_defect_log l
-                LEFT JOIN intra_users u ON l.user_id = u.id
-                LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
-                WHERE l.id = (
+    $lastLogSub = Capsule::table('intra_fahrzeuge_defect_log as l')
+        ->leftJoin('intra_users as u', 'l.user_id', '=', 'u.id')
+        ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+        ->whereRaw("l.id = (
                     SELECT l2.id FROM intra_fahrzeuge_defect_log l2
                     WHERE l2.defect_id = l.defect_id AND l2.action IN ('updated', 'resolved')
                     ORDER BY l2.created_at DESC LIMIT 1
-                )
-            ) last_log ON last_log.defect_id = d.id
-            WHERE 1=1";
-    $params = [];
+                )")
+        ->select([
+            'l.defect_id',
+            Capsule::raw('COALESCE(m.fullname, u.username) AS last_status_user'),
+            'l.details as last_status_details',
+            'l.created_at as last_status_at',
+        ]);
+
+    $query = Capsule::table('intra_fahrzeuge_defects as d')
+        ->join('intra_fahrzeuge as f', 'd.vehicle_id', '=', 'f.id')
+        ->leftJoin('intra_users as u1', 'd.reported_by', '=', 'u1.id')
+        ->leftJoin('intra_mitarbeiter as m1', 'u1.discord_id', '=', 'm1.discordtag')
+        ->leftJoin('intra_users as u2', 'd.assigned_to', '=', 'u2.id')
+        ->leftJoin('intra_mitarbeiter as m2', 'u2.discord_id', '=', 'm2.discordtag')
+        ->leftJoin('intra_users as u3', 'd.resolved_by', '=', 'u3.id')
+        ->leftJoin('intra_mitarbeiter as m3', 'u3.discord_id', '=', 'm3.discordtag')
+        ->leftJoinSub($lastLogSub, 'last_log', 'last_log.defect_id', '=', 'd.id')
+        ->select([
+            'd.*',
+            'f.name as vehicle_name',
+            'f.identifier as vehicle_identifier',
+            'f.kennzeichen',
+            'f.veh_type',
+            Capsule::raw('COALESCE(m1.fullname, u1.username) AS reporter_name'),
+            Capsule::raw('COALESCE(m2.fullname, u2.username) AS assigned_name'),
+            Capsule::raw('COALESCE(m3.fullname, u3.username) AS resolver_name'),
+            'last_log.last_status_user',
+            'last_log.last_status_details',
+            'last_log.last_status_at',
+        ]);
 
     if ($filterVehicle) {
-        $sql .= " AND d.vehicle_id = :vid";
-        $params['vid'] = $filterVehicle;
+        $query->where('d.vehicle_id', $filterVehicle);
     }
     if ($filterStatus && in_array($filterStatus, ['open', 'in_progress', 'deferred', 'resolved'])) {
-        $sql .= " AND d.status = :status";
-        $params['status'] = $filterStatus;
+        $query->where('d.status', $filterStatus);
     }
 
-    $sql .= " ORDER BY FIELD(d.status, 'open', 'in_progress', 'deferred', 'resolved'), CASE WHEN d.status != 'resolved' THEN d.vehicle_operable END ASC, d.created_at DESC";
-
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute($params);
-    $defects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $defects = $query
+        ->orderByRaw("FIELD(d.status, 'open', 'in_progress', 'deferred', 'resolved')")
+        ->orderByRaw("CASE WHEN d.status != 'resolved' THEN d.vehicle_operable END ASC")
+        ->orderByDesc('d.created_at')
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->all();
 }
 
 $statusLabels = [
@@ -171,7 +192,7 @@ $statusLabels = [
                         <form method="GET" class="flex flex-wrap items-end gap-2">
                             <div>
                                 <label class="ignis-field__label mb-1">Fahrzeug</label>
-                                <select name="vehicle" class="form-select form-select-sm" data-custom-dropdown="true">
+                                <select name="vehicle" class="ignis-input ignis-input--sm" data-custom-dropdown="true">
                                     <option value="">Alle</option>
                                     <?php foreach ($vehicles as $v): ?>
                                         <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
@@ -182,7 +203,7 @@ $statusLabels = [
                             </div>
                             <div>
                                 <label class="ignis-field__label mb-1">Status</label>
-                                <select name="status" class="form-select form-select-sm" data-custom-dropdown="true">
+                                <select name="status" class="ignis-input ignis-input--sm" data-custom-dropdown="true">
                                     <option value="">Alle</option>
                                     <option value="open" <?= $filterStatus === 'open' ? 'selected' : '' ?>>Offen</option>
                                     <option value="in_progress" <?= $filterStatus === 'in_progress' ? 'selected' : '' ?>>In Bearbeitung</option>
@@ -201,9 +222,9 @@ $statusLabels = [
                     <div class="twplus-stacked-list">
                         <?php if (!empty($defects)): ?>
                             <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
-                                <div class="input-group input-group-sm">
-                                    <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
-                                    <input type="text" id="defectLocalSearch" class="ignis-input" placeholder="Defekte durchsuchen (Titel, Fahrzeug, Kategorie, Melder...)">
+                                <div class="ignis-input-group">
+                                    <i class="fa-solid fa-search ignis-input-group__icon" aria-hidden="true"></i>
+                                    <input type="text" id="defectLocalSearch" class="ignis-input ignis-input--sm" placeholder="Defekte durchsuchen (Titel, Fahrzeug, Kategorie, Melder...)">
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -312,7 +333,7 @@ $statusLabels = [
     <template id="createDefectFormTemplate">
         <div class="mb-3">
             <label class="ignis-field__label">Fahrzeug</label>
-            <select name="vehicle_id" class="form-select" required>
+            <select name="vehicle_id" class="ignis-input" required>
                 <option value="">Bitte wählen...</option>
                 <?php foreach ($vehicles as $v): ?>
                     <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
@@ -331,7 +352,7 @@ $statusLabels = [
         </div>
         <div class="mb-3">
             <label class="ignis-field__label">Kategorie</label>
-            <select name="category" class="form-select" required>
+            <select name="category" class="ignis-input" required>
                 <option value="" disabled selected>Bitte auswählen...</option>
                 <?php foreach ($categoryLabels as $key => $label): ?>
                     <option value="<?= $key ?>"><?= htmlspecialchars($label) ?></option>
@@ -412,7 +433,7 @@ $statusLabels = [
         <?php if ($canManage): ?>
             <hr>
             <div class="flex gap-2">
-                <select class="detail-assign-select form-select form-select-sm" data-custom-dropdown="true" style="width:auto;">
+                <select class="detail-assign-select ignis-input ignis-input--sm" data-custom-dropdown="true" style="width:auto;">
                     <option value="">Zuweisen an...</option>
                     <?php foreach ($users as $u): ?>
                         <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['fullname']) ?></option>

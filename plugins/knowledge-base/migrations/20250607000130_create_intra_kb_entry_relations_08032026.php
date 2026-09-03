@@ -5,22 +5,46 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
+ * Verknüpfte KB-Einträge (Querverweise).
  *
- * Original-Datei: assets/database/create_intra_kb_entry_relations_08032026.php
- * Spiegelung:     database/legacy/create_intra_kb_entry_relations_08032026.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Bidirektionale Verknüpfung: Wenn A mit B verknüpft ist, ist B auch mit A
+ * verknüpft. Nur eine Richtung wird gespeichert (entry_id < related_entry_id).
  */
 class CreateIntraKbEntryRelations08032026 extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_kb_entry_relations_08032026.php';
+        if ($this->hasTable('intra_kb_entry_relations')) {
+            return;
+        }
+
+        $this->table('intra_kb_entry_relations', [
+            'id'          => false,
+            'primary_key' => ['entry_id', 'related_entry_id'],
+            'engine'      => 'InnoDB',
+            'encoding'    => 'utf8mb4',
+            'collation'   => 'utf8mb4_unicode_ci',
+        ])
+            ->addColumn('entry_id',         'integer')
+            ->addColumn('related_entry_id', 'integer')
+            ->addColumn('created_at',       'timestamp', ['default' => 'CURRENT_TIMESTAMP'])
+            ->addForeignKey('entry_id', 'intra_kb_entries', 'id', [
+                'delete'     => 'CASCADE',
+                'constraint' => 'fk_kb_rel_entry',
+            ])
+            ->addForeignKey('related_entry_id', 'intra_kb_entries', 'id', [
+                'delete'     => 'CASCADE',
+                'constraint' => 'fk_kb_rel_related',
+            ])
+            ->create();
+
+        // CHECK-Constraints kennt die Phinx-Tabellen-API nicht — der unbenannte
+        // Constraint bekommt so denselben Auto-Namen wie beim Inline-CHECK.
+        $this->execute('ALTER TABLE `intra_kb_entry_relations` ADD CHECK (`entry_id` < `related_entry_id`)');
+    }
+
+    public function down(): void
+    {
+        $this->table('intra_kb_entry_relations')->drop()->save();
     }
 }

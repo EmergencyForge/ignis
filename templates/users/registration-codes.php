@@ -5,7 +5,6 @@
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\RegistrationCode> $codes
  * @var string                                                                       $registrationMode
  * @var string                                                                       $systemUrl
- * @var \PDO                                                                         $pdo
  */
 
 use App\Helpers\Flash;

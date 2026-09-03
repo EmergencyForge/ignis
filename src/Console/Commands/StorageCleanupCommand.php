@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,7 +28,7 @@ final class StorageCleanupCommand extends Command
     private const DB_RETENTION_DAYS    = 30;
     private const CRON_MIN_RUNS_KEEP   = 10;
 
-    public function __construct(private readonly PDO $pdo)
+    public function __construct()
     {
         parent::__construct();
     }
@@ -88,10 +88,9 @@ final class StorageCleanupCommand extends Command
 
     private function cleanFailedJobs(): int
     {
-        $sql = "DELETE FROM intra_failed_jobs WHERE failed_at < DATE_SUB(UTC_TIMESTAMP(), INTERVAL :days DAY)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':days' => self::DB_RETENTION_DAYS]);
-        return $stmt->rowCount();
+        return Capsule::table('intra_failed_jobs')
+            ->whereRaw('failed_at < DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY)', [self::DB_RETENTION_DAYS])
+            ->delete();
     }
 
     private function cleanCronRuns(): int
@@ -100,26 +99,20 @@ final class StorageCleanupCommand extends Command
         // damit das Admin-UI zumindest für inaktive Jobs Historie anzeigt.
         $total = 0;
 
-        $jobStmt = $this->pdo->query("SELECT id FROM intra_cron_jobs");
-        $jobs = $jobStmt !== false ? $jobStmt->fetchAll(PDO::FETCH_COLUMN) : [];
-
-        $select = $this->pdo->prepare(
-            "SELECT id FROM intra_cron_runs
-              WHERE job_id = :jid
-                AND started_at < DATE_SUB(UTC_TIMESTAMP(), INTERVAL :days DAY)
-              ORDER BY started_at DESC
-              LIMIT 100000 OFFSET :keep"
-        );
-        $delete = $this->pdo->prepare("DELETE FROM intra_cron_runs WHERE id = :id");
+        $jobs = Capsule::table('intra_cron_jobs')->pluck('id')->all();
 
         foreach ($jobs as $jobId) {
-            $select->bindValue(':jid',  (int) $jobId, PDO::PARAM_INT);
-            $select->bindValue(':days', self::DB_RETENTION_DAYS, PDO::PARAM_INT);
-            $select->bindValue(':keep', self::CRON_MIN_RUNS_KEEP, PDO::PARAM_INT);
-            $select->execute();
-            foreach ($select->fetchAll(PDO::FETCH_COLUMN) as $runId) {
-                $delete->execute([':id' => (int) $runId]);
-                $total++;
+            $runIds = Capsule::table('intra_cron_runs')
+                ->where('job_id', (int) $jobId)
+                ->whereRaw('started_at < DATE_SUB(UTC_TIMESTAMP(), INTERVAL ? DAY)', [self::DB_RETENTION_DAYS])
+                ->orderByDesc('started_at')
+                ->offset(self::CRON_MIN_RUNS_KEEP)
+                ->limit(100000)
+                ->pluck('id')
+                ->all();
+
+            foreach ($runIds as $runId) {
+                $total += Capsule::table('intra_cron_runs')->where('id', (int) $runId)->delete();
             }
         }
         return $total;

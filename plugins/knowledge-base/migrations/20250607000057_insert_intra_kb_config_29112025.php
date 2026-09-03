@@ -5,22 +5,35 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/insert_intra_kb_config_29112025.php
- * Spiegelung:     database/legacy/insert_intra_kb_config_29112025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Default-Konfiguration für die Sichtbarkeit der Wissensdatenbank:
+ * `KB_PUBLIC_ACCESS` steuert, ob die KB ohne Login einsehbar ist.
  */
 class InsertIntraKbConfig29112025 extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/insert_intra_kb_config_29112025.php';
+        // Idempotent wie das ursprüngliche ON DUPLICATE KEY UPDATE:
+        // vorhandener Eintrag bleibt unangetastet.
+        $exists = $this->fetchRow("SELECT 1 FROM intra_config WHERE config_key = 'KB_PUBLIC_ACCESS'");
+        if ($exists !== false && $exists !== null) {
+            return;
+        }
+
+        $this->table('intra_config')->insert([
+            [
+                'config_key'    => 'KB_PUBLIC_ACCESS',
+                'config_value'  => 'false',
+                'config_type'   => 'boolean',
+                'category'      => 'funktionen',
+                'description'   => 'Soll die Wissensdatenbank ohne Login einsehbar sein?',
+                'is_editable'   => 1,
+                'display_order' => 60,
+            ],
+        ])->saveData();
+    }
+
+    public function down(): void
+    {
+        $this->execute("DELETE FROM intra_config WHERE config_key = 'KB_PUBLIC_ACCESS'");
     }
 }

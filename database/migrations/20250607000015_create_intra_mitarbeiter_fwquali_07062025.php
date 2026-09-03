@@ -5,22 +5,36 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_mitarbeiter_fwquali_07062025.php
- * Spiegelung:     database/legacy/create_intra_mitarbeiter_fwquali_07062025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Feuerwehr-Qualifikationen (B1-B6): Kurzname und geschlechtsspezifische
+ * Anzeigenamen, none-Flag markiert den "Keine"-Platzhalter.
  */
 class CreateIntraMitarbeiterFwquali07062025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_mitarbeiter_fwquali_07062025.php';
+        if ($this->hasTable('intra_mitarbeiter_fwquali')) {
+            return;
+        }
+
+        $this->table('intra_mitarbeiter_fwquali', [
+            'signed'     => true,
+            'engine'     => 'InnoDB',
+            'encoding'   => 'utf8mb4',
+            'collation'  => 'utf8mb4_general_ci',
+            'row_format' => 'DYNAMIC',
+        ])
+            ->addColumn('priority',   'integer', ['null' => false])
+            ->addColumn('shortname',  'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('name',       'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('name_m',     'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('name_w',     'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('none',       'boolean',   ['default' => 0, 'null' => false])
+            ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'null' => false])
+            ->create();
+
+        // Der Primärschlüssel trägt im Originalschema ein explizites USING BTREE.
+        $this->execute(
+            'ALTER TABLE `intra_mitarbeiter_fwquali` DROP PRIMARY KEY, ADD PRIMARY KEY (`id`) USING BTREE'
+        );
     }
 }

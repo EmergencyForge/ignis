@@ -5,22 +5,32 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_users_07062025.php
- * Spiegelung:     database/legacy/create_intra_users_07062025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Panel-Benutzer: Discord-basierter Login (discord_id), optionale Verknüpfung
+ * zur Personalakte (aktenid) und Rollen-Zuordnung. Der FK auf
+ * intra_users_roles kommt separat in add_foreign_keys_07062025.
  */
 class CreateIntraUsers07062025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_users_07062025.php';
+        if ($this->hasTable('intra_users')) {
+            return;
+        }
+
+        $this->table('intra_users', [
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+        ])
+            ->addColumn('username',   'string',   ['limit' => 255, 'null' => false])
+            ->addColumn('fullname',   'string',   ['limit' => 255, 'null' => true])
+            ->addColumn('created_at', 'datetime', ['default' => 'CURRENT_TIMESTAMP', 'null' => false])
+            ->addColumn('discord_id', 'string',   ['limit' => 255, 'null' => false])
+            ->addColumn('aktenid',    'integer',  ['null' => true])
+            ->addColumn('role',       'integer',  ['default' => 0, 'null' => false])
+            ->addColumn('full_admin', 'boolean',  ['default' => 0, 'null' => false])
+            ->addIndex(['role'], ['name' => 'FK_intra_users_intra_users_roles'])
+            ->create();
     }
 }

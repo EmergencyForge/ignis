@@ -13,15 +13,15 @@
             Noch keine Lagemeldungen vorhanden
         </div>
     <?php else: ?>
-        <ul class="list-group">
+        <ul class="ignis-list-group">
             <?php foreach ($sitreps as $sr): ?>
-                <li class="list-group-item">
+                <li class="ignis-list-group__item">
                     <div class="flex items-start justify-between">
                         <div class="flex-1">
                             <div class="mb-2">
                                 <strong><i class="fa-solid fa-clock mr-1"></i><?= fmt_dt($sr['report_time']) ?></strong>
                                 <?php if ($sr['vehicle_radio_name']): ?>
-                                    <?php $badgeClass = (isset($sr['source']) && $sr['source'] === 'leitstelle') ? 'bg-warning text-dark' : 'bg-primary'; ?>
+                                    <?php $badgeClass = (isset($sr['source']) && $sr['source'] === 'leitstelle') ? 'ignis-chip--warning' : 'ignis-chip--primary'; ?>
                                     <span class="ignis-chip <?= $badgeClass ?> ml-2"><?= htmlspecialchars($sr['vehicle_radio_name']) ?></span>
                                 <?php endif; ?>
                                 <?php if ($sr['sys_name']): ?>
@@ -55,7 +55,7 @@
                 </div>
                 <div class="md:col-span-6">
                     <label class="ignis-field__label">Gemeldet durch (Fahrzeug) *</label>
-                    <select name="sitrep_attached_vehicle_id" class="form-select" required>
+                    <select name="sitrep_attached_vehicle_id" class="ignis-input" required>
                         <option value="">– auswählen –</option>
                         <?php foreach ($attachedVehicles as $av): ?>
                             <?php

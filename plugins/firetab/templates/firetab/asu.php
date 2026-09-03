@@ -7,7 +7,6 @@
  * @var string|null $prefillIncidentId
  * @var string|null $asuId
  * @var array|null  $existingProtocol
- * @var \PDO        $pdo
  */
 ?>
 <!DOCTYPE html>

@@ -7,7 +7,7 @@ use App\Security\CsrfProtection;
 
 <!-- Dokument-Viewer Modal (Akte-Stil) -->
 <div data-dialog-source class="modal twplus-dialog-surface" id="documentViewerModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <!-- Akte-Header: Metadaten als kompakte Zeile -->
             <div class="modal-header flex-col items-stretch p-0 border-0">
@@ -144,8 +144,11 @@ async function toggleArchiveFromViewer(docid, archive) {
 
 <?php if (Permissions::check(['admin', 'personnel.edit'])) {
     $fdqualis = json_decode($row['fachdienste'], true) ?? [];
-    $stmtfdc = $pdo->query("SELECT sgnr, sgname FROM intra_mitarbeiter_fdquali ORDER BY sgnr ASC");
-    $fachdienste = $stmtfdc->fetchAll(PDO::FETCH_ASSOC);
+    $fachdienste = \Illuminate\Database\Capsule\Manager::table('intra_mitarbeiter_fdquali')
+        ->orderBy('sgnr')
+        ->get(['sgnr', 'sgname'])
+        ->map(fn ($fd) => (array) $fd)
+        ->all();
 ?>
 <template id="fdqualiFormTemplate">
     <table class="table table-striped twplus-table">
@@ -173,7 +176,7 @@ async function toggleArchiveFromViewer(docid, archive) {
 
 <?php if (Permissions::check(['admin', 'personnel.view'])): ?>
 <template id="newCommentFormTemplate">
-    <select class="form-select mb-2" name="noteType">
+    <select class="ignis-input mb-2" name="noteType">
         <option value="0">Allgemein</option>
         <option value="1">Positiv</option>
         <option value="2">Negativ</option>
@@ -184,11 +187,9 @@ async function toggleArchiveFromViewer(docid, archive) {
 
 <script>
     // Profile-Action-Modals: drei kleine Server-Form-Submits (FDQuali,
-    // Notiz, Mitarbeiter loeschen) auf Dialog.form/Dialog.confirm migriert.
-    // Die zwei komplexen Modals (documentViewerModal mit dynamischem
-    // Content-Fetch und modalDokuCreate mit CKEditor + Template-Form)
-    // bleiben Bootstrap, weil deren Lifecycle eng an die Modal-API
-    // gekoppelt ist.
+    // Notiz, Mitarbeiter loeschen) laufen ueber Dialog.form/Dialog.confirm.
+    // documentViewerModal und modalDokuCreate haengen als [data-dialog-source]
+    // am Dialog-System (Dialog.openElement/closeElement, hidden.ignis.dialog).
 
     function openFDQualiModal() {
         Dialog.form({
@@ -231,11 +232,11 @@ async function toggleArchiveFromViewer(docid, archive) {
 
 <?php
 if (Permissions::check(['admin', 'personnel.documents.manage'])) {
-    $templateManager = new DocumentTemplateManager($pdo);
+    $templateManager = new DocumentTemplateManager();
     $customTemplates = $templateManager->listTemplates();
 ?>
     <div data-dialog-source class="modal twplus-dialog-surface" id="modalDokuCreate" tabindex="-1" aria-labelledby="modalDokuCreateLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modalDokuCreateLabel">Dokument anlegen</h5>
@@ -257,7 +258,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
 
                         <div class="mb-3">
                             <label for="templateSelect" class="ignis-field__label">Dokumenten-Template wählen <span class="text-[#d46b6b]">*</span></label>
-                            <select class="form-select" id="templateSelect" name="template_id" required>
+                            <select class="ignis-input" id="templateSelect" name="template_id" required>
                                 <option value="" disabled selected>Bitte wählen</option>
                                 <?php
                                 foreach ($customTemplates as $template) {
@@ -399,7 +400,7 @@ if (Permissions::check(['admin', 'personnel.documents.manage'])) {
                 case 'select':
                 case 'db_dg':
                 case 'db_rdq':
-                    html += `<select class="form-select" id="field_${fieldName}" name="${fieldName}" ${required}>
+                    html += `<select class="ignis-input" id="field_${fieldName}" name="${fieldName}" ${required}>
                         <option value="">Bitte wählen</option>`;
                     if (field.field_options) {
                         field.field_options.forEach(opt => {

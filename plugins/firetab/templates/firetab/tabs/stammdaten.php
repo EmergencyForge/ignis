@@ -1,6 +1,6 @@
 <?php
 // This file should be included in view.php
-// Expects: $incident, $id, $pdo variables to be available
+// Expects: $incident, $id variables to be available
 
 $dtStart = $incident['started_at'] ? new DateTime($incident['started_at'], new DateTimeZone('UTC')) : null;
 if ($dtStart) {
@@ -42,7 +42,7 @@ $startTime = $dtStart ? $dtStart->format('H:i') : '';
                 <select class="form-select" name="edit_leader_id" data-custom-dropdown="true" data-search-threshold="5" <?= $incident['finalized'] ? 'disabled' : '' ?> required>
                     <option value="">– auswählen –</option>
                     <?php
-                    $leaders = \App\Federation\FederatedPersonnel::getLeaderOptions($pdo);
+                    $leaders = \App\Federation\FederatedPersonnel::getLeaderOptions();
                     foreach ($leaders as $l):
                         $val = is_int($l['id']) ? $l['id'] : $l['id'];
                         $isSelected = ($incident['leader_id'] == $val);

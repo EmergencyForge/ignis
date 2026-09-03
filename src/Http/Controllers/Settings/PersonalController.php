@@ -501,7 +501,7 @@ class PersonalController extends Controller
         if (!isset($_SESSION['userid'])) {
             return;
         }
-        $logger = new AuditLogger($this->pdo);
+        $logger = new AuditLogger();
         $logger->log($_SESSION['userid'], $action, $details, $category, 1);
     }
 }

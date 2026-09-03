@@ -13,7 +13,7 @@ use App\Policies\VehiclePolicy;
 use App\Policies\DocumentPolicy;
 use App\Utils\AuditLogger;
 use App\Utils\SystemUpdater;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
@@ -26,10 +26,6 @@ use PDOException;
  */
 final class SystemController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     // ── Composer-Status ───────────────────────────────────────────────
 
     /**
@@ -96,16 +92,15 @@ final class SystemController
             $data = [];
 
             // Datenbank-Größe
-            $stmt = $this->pdo->query("
-                SELECT table_schema AS db_name,
-                    ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb,
-                    SUM(table_rows) AS total_rows,
-                    COUNT(*) AS table_count
-                FROM information_schema.tables
-                WHERE table_schema = DATABASE()
-                GROUP BY table_schema
-            ");
-            $dbInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+            $dbInfo = Capsule::table('information_schema.tables')
+                ->selectRaw('table_schema AS db_name')
+                ->selectRaw('ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size_mb')
+                ->selectRaw('SUM(table_rows) AS total_rows')
+                ->selectRaw('COUNT(*) AS table_count')
+                ->whereRaw('table_schema = DATABASE()')
+                ->groupBy('table_schema')
+                ->first();
+            $dbInfo = $dbInfo !== null ? (array) $dbInfo : [];
             $data['database'] = [
                 'name'        => $dbInfo['db_name'] ?? '',
                 'size_mb'     => (float) ($dbInfo['size_mb'] ?? 0),
@@ -114,27 +109,24 @@ final class SystemController
             ];
 
             // Tabellen (Top 10)
-            $stmt = $this->pdo->query("
-                SELECT table_name, table_rows AS row_count,
-                    ROUND((data_length + index_length) / 1024 / 1024, 2) AS size_mb,
-                    ROUND(index_length / 1024 / 1024, 2) AS index_size_mb
-                FROM information_schema.tables
-                WHERE table_schema = DATABASE()
-                ORDER BY (data_length + index_length) DESC
-                LIMIT 10
-            ");
-            $data['tables'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $data['tables'] = Capsule::table('information_schema.tables')
+                ->selectRaw('table_name, table_rows AS row_count')
+                ->selectRaw('ROUND((data_length + index_length) / 1024 / 1024, 2) AS size_mb')
+                ->selectRaw('ROUND(index_length / 1024 / 1024, 2) AS index_size_mb')
+                ->whereRaw('table_schema = DATABASE()')
+                ->orderByRaw('(data_length + index_length) DESC')
+                ->limit(10)
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
 
             // Aktive Benutzer
-            $stmt = $this->pdo->query("
-                SELECT
-                    COUNT(DISTINCT CASE WHEN a.timestamp >= NOW() - INTERVAL 24 HOUR THEN a.user END) AS active_24h,
-                    COUNT(DISTINCT CASE WHEN a.timestamp >= NOW() - INTERVAL 7 DAY THEN a.user END) AS active_7d,
-                    COUNT(DISTINCT CASE WHEN a.timestamp >= NOW() - INTERVAL 30 DAY THEN a.user END) AS active_30d,
-                    (SELECT COUNT(*) FROM intra_users WHERE is_active = 1) AS total
-                FROM intra_audit_log a
-            ");
-            $users = $stmt->fetch(PDO::FETCH_ASSOC);
+            $users = (array) Capsule::table('intra_audit_log as a')
+                ->selectRaw('COUNT(DISTINCT CASE WHEN a.timestamp >= NOW() - INTERVAL 24 HOUR THEN a.user END) AS active_24h')
+                ->selectRaw('COUNT(DISTINCT CASE WHEN a.timestamp >= NOW() - INTERVAL 7 DAY THEN a.user END) AS active_7d')
+                ->selectRaw('COUNT(DISTINCT CASE WHEN a.timestamp >= NOW() - INTERVAL 30 DAY THEN a.user END) AS active_30d')
+                ->selectRaw('(SELECT COUNT(*) FROM intra_users WHERE is_active = 1) AS total')
+                ->first();
             foreach ($users as &$val) {
                 $val = (int) $val;
             }
@@ -144,38 +136,39 @@ final class SystemController
             // existieren nur bei installiertem Plugin, deshalb einzeln
             // abgesichert.
             $contentStats = [
-                'mitarbeiter' => (int) $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter")->fetchColumn(),
-                'dokumente'   => (int) $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter_dokumente")->fetchColumn(),
+                'mitarbeiter' => Capsule::table('intra_mitarbeiter')->count(),
+                'dokumente'   => Capsule::table('intra_mitarbeiter_dokumente')->count(),
             ];
             try {
-                $contentStats['enotf_protokolle'] = (int) $this->pdo->query("SELECT COUNT(*) FROM intra_edivi")->fetchColumn();
+                $contentStats['enotf_protokolle'] = Capsule::table('intra_edivi')->count();
             } catch (PDOException) {
                 $contentStats['enotf_protokolle'] = 0;
             }
             try {
-                $contentStats['kb_eintraege'] = (int) $this->pdo->query("SELECT COUNT(*) FROM intra_kb_entries WHERE is_archived = 0")->fetchColumn();
+                $contentStats['kb_eintraege'] = Capsule::table('intra_kb_entries')->where('is_archived', 0)->count();
             } catch (PDOException) {
                 $contentStats['kb_eintraege'] = 0;
             }
             try {
-                $contentStats['brandeinsaetze'] = (int) $this->pdo->query("SELECT COUNT(*) FROM intra_fire_incidents")->fetchColumn();
+                $contentStats['brandeinsaetze'] = Capsule::table('intra_fire_incidents')->count();
             } catch (PDOException) {
                 $contentStats['brandeinsaetze'] = 0;
             }
             $data['content'] = $contentStats;
 
             // Server / MySQL
+            $connection = Capsule::connection();
             $data['server'] = [
-                'db_version' => $this->pdo->query("SELECT VERSION()")->fetchColumn(),
+                'db_version' => $connection->selectOne('SELECT VERSION() AS version')->version,
             ];
-            $row = $this->pdo->query("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'")->fetch(PDO::FETCH_ASSOC);
-            $data['server']['buffer_pool_mb'] = $row ? round((int) $row['Value'] / 1024 / 1024) : null;
-            $row = $this->pdo->query("SHOW VARIABLES LIKE 'max_connections'")->fetch(PDO::FETCH_ASSOC);
-            $data['server']['max_connections'] = $row ? (int) $row['Value'] : null;
-            $row = $this->pdo->query("SHOW STATUS LIKE 'Threads_connected'")->fetch(PDO::FETCH_ASSOC);
-            $data['server']['threads_connected'] = $row ? (int) $row['Value'] : null;
-            $row = $this->pdo->query("SHOW STATUS LIKE 'Uptime'")->fetch(PDO::FETCH_ASSOC);
-            $data['server']['uptime_seconds'] = $row ? (int) $row['Value'] : null;
+            $row = $connection->selectOne("SHOW VARIABLES LIKE 'innodb_buffer_pool_size'");
+            $data['server']['buffer_pool_mb'] = $row ? round((int) $row->Value / 1024 / 1024) : null;
+            $row = $connection->selectOne("SHOW VARIABLES LIKE 'max_connections'");
+            $data['server']['max_connections'] = $row ? (int) $row->Value : null;
+            $row = $connection->selectOne("SHOW STATUS LIKE 'Threads_connected'");
+            $data['server']['threads_connected'] = $row ? (int) $row->Value : null;
+            $row = $connection->selectOne("SHOW STATUS LIKE 'Uptime'");
+            $data['server']['uptime_seconds'] = $row ? (int) $row->Value : null;
 
             // PHP-Info
             $data['php'] = [
@@ -187,8 +180,8 @@ final class SystemController
             ];
 
             try {
-                $row = $this->pdo->query("SHOW STATUS LIKE 'Slow_queries'")->fetch(PDO::FETCH_ASSOC);
-                $data['server']['slow_queries'] = $row ? (int) $row['Value'] : null;
+                $row = $connection->selectOne("SHOW STATUS LIKE 'Slow_queries'");
+                $data['server']['slow_queries'] = $row ? (int) $row->Value : null;
             } catch (PDOException) {
                 $data['server']['slow_queries'] = null;
             }
@@ -202,7 +195,7 @@ final class SystemController
             // Migrations
             try {
                 $data['migrations'] = [
-                    'executed' => (int) $this->pdo->query("SELECT COUNT(*) FROM intra_migrations")->fetchColumn(),
+                    'executed' => Capsule::table('intra_migrations')->count(),
                 ];
             } catch (PDOException) {
                 $data['migrations'] = ['executed' => 0];
@@ -225,21 +218,22 @@ final class SystemController
         try {
             $newApiKey = bin2hex(random_bytes(32));
 
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_config
-                SET config_value = ?, updated_by = ?, updated_at = NOW()
-                WHERE config_key = 'API_KEY'
-            ");
-            $success = $stmt->execute([$newApiKey, $_SESSION['userid'] ?? null]);
+            $affected = Capsule::table('intra_config')
+                ->where('config_key', 'API_KEY')
+                ->update([
+                    'config_value' => $newApiKey,
+                    'updated_by'   => $_SESSION['userid'] ?? null,
+                    'updated_at'   => Capsule::raw('NOW()'),
+                ]);
 
-            if (!$success || $stmt->rowCount() === 0) {
+            if ($affected === 0) {
                 return Response::json([
                     'success' => false,
                     'message' => 'API_KEY wurde nicht in der Datenbank gefunden oder konnte nicht aktualisiert werden',
                 ], 500);
             }
 
-            $auditLogger = new AuditLogger($this->pdo);
+            $auditLogger = new AuditLogger();
             $auditLogger->log(
                 $_SESSION['userid'] ?? 0,
                 'API-Schlüssel neu generiert',
@@ -271,13 +265,11 @@ final class SystemController
         $userId = (int) ($_SESSION['userid'] ?? 0);
 
         try {
-            $stmt = $this->pdo->prepare("SELECT theme_config FROM intra_users WHERE id = :id");
-            $stmt->execute(['id' => $userId]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $themeConfig = Capsule::table('intra_users')->where('id', $userId)->value('theme_config');
 
             $config = null;
-            if ($row && $row['theme_config']) {
-                $config = json_decode($row['theme_config'], true);
+            if ($themeConfig) {
+                $config = json_decode($themeConfig, true);
             }
             return Response::json(['config' => $config]);
         } catch (PDOException $e) {
@@ -311,8 +303,7 @@ final class SystemController
         ]);
 
         try {
-            $this->pdo->prepare("UPDATE intra_users SET theme_config = :config WHERE id = :id")
-                ->execute(['config' => $config, 'id' => $userId]);
+            Capsule::table('intra_users')->where('id', $userId)->update(['theme_config' => $config]);
 
             return Response::json(['success' => true, 'config' => json_decode($config, true)]);
         } catch (PDOException $e) {
@@ -426,28 +417,28 @@ final class SystemController
         $ftQuery = trim($ftQuery);
 
         if ($ftQuery !== '') {
-            $sql = "SELECT kb.id, kb.title, kb.subtitle, kb.content
-                    FROM intra_kb_entries kb
-                    WHERE kb.is_archived = 0
-                    AND (
-                        MATCH(kb.title, kb.subtitle, kb.content) AGAINST(:ft_main IN BOOLEAN MODE)
-                        OR kb.title LIKE :search
-                    )
-                    ORDER BY MATCH(kb.title, kb.subtitle, kb.content) AGAINST(:ft_rel IN BOOLEAN MODE) DESC, kb.title ASC
-                    LIMIT 5";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute(['ft_main' => $ftQuery, 'ft_rel' => $ftQuery, 'search' => $searchParam]);
+            $rows = Capsule::table('intra_kb_entries as kb')
+                ->select('kb.id', 'kb.title', 'kb.subtitle', 'kb.content')
+                ->where('kb.is_archived', 0)
+                ->where(function ($q) use ($ftQuery, $searchParam) {
+                    $q->whereRaw('MATCH(kb.title, kb.subtitle, kb.content) AGAINST(? IN BOOLEAN MODE)', [$ftQuery])
+                        ->orWhere('kb.title', 'LIKE', $searchParam);
+                })
+                ->orderByRaw('MATCH(kb.title, kb.subtitle, kb.content) AGAINST(? IN BOOLEAN MODE) DESC, kb.title ASC', [$ftQuery])
+                ->limit(5)
+                ->get();
         } else {
-            $sql = "SELECT kb.id, kb.title, kb.subtitle, kb.content
-                    FROM intra_kb_entries kb
-                    WHERE kb.is_archived = 0 AND kb.title LIKE :search
-                    ORDER BY kb.title ASC LIMIT 5";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute(['search' => $searchParam]);
+            $rows = Capsule::table('intra_kb_entries as kb')
+                ->select('kb.id', 'kb.title', 'kb.subtitle', 'kb.content')
+                ->where('kb.is_archived', 0)
+                ->where('kb.title', 'LIKE', $searchParam)
+                ->orderBy('kb.title')
+                ->limit(5)
+                ->get();
         }
 
         $items = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: [] as $row) {
+        foreach ($rows->map(fn ($row) => (array) $row)->all() as $row) {
             $snippet = \Plugin\KnowledgeBase\KBHelper::createSearchSnippet($row['content'], $query, 100);
             $items[] = [
                 'title'    => $row['title'],
@@ -463,13 +454,15 @@ final class SystemController
      */
     private function searchMitarbeiter(string $searchParam): array
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT id, fullname, dienstnr FROM intra_mitarbeiter
-             WHERE fullname LIKE :s1 OR dienstnr LIKE :s2 ORDER BY fullname ASC LIMIT 5"
-        );
-        $stmt->execute(['s1' => $searchParam, 's2' => $searchParam]);
+        $rows = Capsule::table('intra_mitarbeiter')
+            ->select(['id', 'fullname', 'dienstnr'])
+            ->where('fullname', 'LIKE', $searchParam)
+            ->orWhere('dienstnr', 'LIKE', $searchParam)
+            ->orderBy('fullname')
+            ->limit(5)
+            ->get();
         $items = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: [] as $row) {
+        foreach ($rows->map(fn ($row) => (array) $row)->all() as $row) {
             $items[] = [
                 'title'    => $row['fullname'],
                 'subtitle' => $row['dienstnr'] ? 'DNr: ' . $row['dienstnr'] : '',
@@ -485,14 +478,16 @@ final class SystemController
     private function searchFireIncidents(string $searchParam): array
     {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT id, incident_number, location, keyword, started_at
-                FROM intra_fire_incidents
-                WHERE incident_number LIKE :s1 OR location LIKE :s2 OR keyword LIKE :s3
-                ORDER BY started_at DESC LIMIT 5
-            ");
-            $stmt->execute(['s1' => $searchParam, 's2' => $searchParam, 's3' => $searchParam]);
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $rows = Capsule::table('intra_fire_incidents')
+                ->select(['id', 'incident_number', 'location', 'keyword', 'started_at'])
+                ->where('incident_number', 'LIKE', $searchParam)
+                ->orWhere('location', 'LIKE', $searchParam)
+                ->orWhere('keyword', 'LIKE', $searchParam)
+                ->orderByDesc('started_at')
+                ->limit(5)
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
         } catch (PDOException) {
             return [];
         }
@@ -517,15 +512,17 @@ final class SystemController
      */
     private function searchEnotf(string $searchParam): array
     {
-        $stmt = $this->pdo->prepare("
-            SELECT id, enr, patname, diagnose, edatum FROM intra_edivi
-            WHERE enr LIKE :s1 OR patname LIKE :s2 OR diagnose LIKE :s3
-            ORDER BY edatum DESC LIMIT 5
-        ");
-        $stmt->execute(['s1' => $searchParam, 's2' => $searchParam, 's3' => $searchParam]);
+        $rows = Capsule::table('intra_edivi')
+            ->select(['id', 'enr', 'patname', 'diagnose', 'edatum'])
+            ->where('enr', 'LIKE', $searchParam)
+            ->orWhere('patname', 'LIKE', $searchParam)
+            ->orWhere('diagnose', 'LIKE', $searchParam)
+            ->orderByDesc('edatum')
+            ->limit(5)
+            ->get();
 
         $items = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: [] as $row) {
+        foreach ($rows->map(fn ($row) => (array) $row)->all() as $row) {
             $subtitle = $row['patname'] ?: '';
             if ($row['edatum']) {
                 $subtitle .= ($subtitle ? ' — ' : '') . date('d.m.Y', strtotime($row['edatum']));
@@ -544,31 +541,30 @@ final class SystemController
      */
     private function searchDocuments(string $searchParam): array
     {
+        $documentQuery = fn (bool $withArchiveFilter) => Capsule::table('intra_mitarbeiter_dokumente as d')
+            ->leftJoin('intra_dokument_templates as t', 'd.template_id', '=', 't.id')
+            ->select(
+                'd.id', 'd.docid', 'd.erhalter', 'd.ausstellungsdatum', 'd.profileid',
+                'd.aussteller_name', 't.name as template_name'
+            )
+            ->where(function ($q) use ($searchParam) {
+                $q->where('d.erhalter', 'LIKE', $searchParam)
+                    ->orWhere('d.docid', 'LIKE', $searchParam)
+                    ->orWhere('t.name', 'LIKE', $searchParam)
+                    ->orWhere('d.aussteller_name', 'LIKE', $searchParam);
+            })
+            ->when($withArchiveFilter, fn ($q) => $q->whereRaw('IFNULL(d.is_archived, 0) = 0'))
+            ->orderByDesc('d.timestamp')
+            ->limit(8);
+
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT d.id, d.docid, d.erhalter, d.ausstellungsdatum, d.profileid,
-                    d.aussteller_name, t.name AS template_name
-                FROM intra_mitarbeiter_dokumente d
-                LEFT JOIN intra_dokument_templates t ON d.template_id = t.id
-                WHERE (d.erhalter LIKE :s1 OR d.docid LIKE :s2 OR t.name LIKE :s3 OR d.aussteller_name LIKE :s4)
-                    AND IFNULL(d.is_archived, 0) = 0
-                ORDER BY d.timestamp DESC LIMIT 8
-            ");
-            $stmt->execute(['s1' => $searchParam, 's2' => $searchParam, 's3' => $searchParam, 's4' => $searchParam]);
+            $rows = $documentQuery(true)->get();
         } catch (PDOException) {
-            $stmt = $this->pdo->prepare("
-                SELECT d.id, d.docid, d.erhalter, d.ausstellungsdatum, d.profileid,
-                    d.aussteller_name, t.name AS template_name
-                FROM intra_mitarbeiter_dokumente d
-                LEFT JOIN intra_dokument_templates t ON d.template_id = t.id
-                WHERE (d.erhalter LIKE :s1 OR d.docid LIKE :s2 OR t.name LIKE :s3 OR d.aussteller_name LIKE :s4)
-                ORDER BY d.timestamp DESC LIMIT 8
-            ");
-            $stmt->execute(['s1' => $searchParam, 's2' => $searchParam, 's3' => $searchParam, 's4' => $searchParam]);
+            $rows = $documentQuery(false)->get();
         }
 
         $items = [];
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) ?: [] as $row) {
+        foreach ($rows->map(fn ($row) => (array) $row)->all() as $row) {
             $title    = $row['erhalter'] ?: 'Dokument #' . $row['docid'];
             $subtitle = $row['template_name'] ?: '';
             if ($row['ausstellungsdatum']) {
@@ -589,12 +585,15 @@ final class SystemController
     private function searchTemplates(string $searchParam): array
     {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT id, name, category, description FROM intra_dokument_templates
-                WHERE name LIKE :s1 OR description LIKE :s2 ORDER BY name ASC LIMIT 5
-            ");
-            $stmt->execute(['s1' => $searchParam, 's2' => $searchParam]);
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $rows = Capsule::table('intra_dokument_templates')
+                ->select(['id', 'name', 'category', 'description'])
+                ->where('name', 'LIKE', $searchParam)
+                ->orWhere('description', 'LIKE', $searchParam)
+                ->orderBy('name')
+                ->limit(5)
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
         } catch (PDOException) {
             return [];
         }
@@ -627,13 +626,16 @@ final class SystemController
     private function searchVehicles(string $searchParam): array
     {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT id, identifier, name, kennzeichen FROM intra_fahrzeuge
-                WHERE identifier LIKE :s1 OR name LIKE :s2 OR kennzeichen LIKE :s3
-                ORDER BY identifier ASC LIMIT 5
-            ");
-            $stmt->execute(['s1' => $searchParam, 's2' => $searchParam, 's3' => $searchParam]);
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $rows = Capsule::table('intra_fahrzeuge')
+                ->select(['id', 'identifier', 'name', 'kennzeichen'])
+                ->where('identifier', 'LIKE', $searchParam)
+                ->orWhere('name', 'LIKE', $searchParam)
+                ->orWhere('kennzeichen', 'LIKE', $searchParam)
+                ->orderBy('identifier')
+                ->limit(5)
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
         } catch (PDOException) {
             return [];
         }
@@ -666,17 +668,21 @@ final class SystemController
         ];
 
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT d.id, d.title, d.description, d.status, d.created_at,
-                    f.name AS vehicle_name, f.identifier AS vehicle_identifier
-                FROM intra_fahrzeuge_defects d
-                JOIN intra_fahrzeuge f ON d.vehicle_id = f.id
-                WHERE d.title LIKE :s1 OR d.description LIKE :s2
-                    OR f.name LIKE :s3 OR f.identifier LIKE :s4
-                ORDER BY d.created_at DESC LIMIT 5
-            ");
-            $stmt->execute(['s1' => $searchParam, 's2' => $searchParam, 's3' => $searchParam, 's4' => $searchParam]);
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $rows = Capsule::table('intra_fahrzeuge_defects as d')
+                ->join('intra_fahrzeuge as f', 'd.vehicle_id', '=', 'f.id')
+                ->select(
+                    'd.id', 'd.title', 'd.description', 'd.status', 'd.created_at',
+                    'f.name as vehicle_name', 'f.identifier as vehicle_identifier'
+                )
+                ->where('d.title', 'LIKE', $searchParam)
+                ->orWhere('d.description', 'LIKE', $searchParam)
+                ->orWhere('f.name', 'LIKE', $searchParam)
+                ->orWhere('f.identifier', 'LIKE', $searchParam)
+                ->orderByDesc('d.created_at')
+                ->limit(5)
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
         } catch (PDOException) {
             return [];
         }

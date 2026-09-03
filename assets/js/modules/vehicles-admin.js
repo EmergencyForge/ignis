@@ -461,7 +461,7 @@
 
         function renderVehicleRow(v, delay, hasExisting) {
             const e        = v.existing;
-            const rdBadge  = `<span class="badge text-bg-${rdTypeBadges[v.rd_type] || 'dark'}" style="font-size:var(--fs-xs);">${rdTypeLabels[v.rd_type] || 'Andere'}</span>`;
+            const rdBadge  = `<span class="ignis-chip ignis-chip--${rdTypeBadges[v.rd_type] || 'dark'}" style="font-size:var(--fs-xs);">${rdTypeLabels[v.rd_type] || 'Andere'}</span>`;
             const deptInfo = v.department ? `<span style="font-size:var(--fs-xs);color:var(--text-dimmed);"><i class="fa-solid fa-building mr-1"></i>${escHtml(v.department)}</span>` : '';
 
             let existingInfo = '';
@@ -471,7 +471,7 @@
                         <span class="text-[var(--text-dimmed,#818189)]">Bestehendes Fahrzeug:</span>
                         <strong>${escHtml(e.name)}</strong> (${escHtml(e.veh_type || '-')})
                         — ${escHtml(e.identifier || '-')}
-                        <span class="badge text-bg-${rdTypeBadges[e.rd_type] || 'dark'}" style="font-size:0.6rem;">${rdTypeLabels[e.rd_type] || '?'}</span>
+                        <span class="ignis-chip ignis-chip--${rdTypeBadges[e.rd_type] || 'dark'}" style="font-size:0.6rem;">${rdTypeLabels[e.rd_type] || '?'}</span>
                     </div>
                 `;
             }
@@ -532,7 +532,7 @@
                             </div>
                             <div class="w-4/12 px-3">
                                 <label class="ignis-field__label mb-0 text-[var(--text-dimmed,#818189)]">RD-Typ</label>
-                                <select class="form-select form-select-sm" data-custom-dropdown="true" id="imp-rd_type-${v.id}">
+                                <select class="ignis-input ignis-input--sm" data-custom-dropdown="true" id="imp-rd_type-${v.id}">
                                     <option value="0" ${v.rd_type==0?'selected':''}>Andere</option>
                                     <option value="1" ${v.rd_type==1?'selected':''}>RD - Mit NA</option>
                                     <option value="2" ${v.rd_type==2?'selected':''}>RD - Ohne NA</option>

@@ -5,22 +5,25 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/update_intra_mitarbeiter_dokumente_23062025.php
- * Spiegelung:     database/legacy/update_intra_mitarbeiter_dokumente_23062025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Ändert intra_mitarbeiter_dokumente.ausstellerid von int(11) NOT NULL zu
+ * VARCHAR(255) NULL — Aussteller können seither auch als freie Kennung
+ * (z. B. Discord-ID) hinterlegt werden.
  */
 class UpdateIntraMitarbeiterDokumente23062025 extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/update_intra_mitarbeiter_dokumente_23062025.php';
+        $this->table('intra_mitarbeiter_dokumente')
+            ->changeColumn('ausstellerid', 'string', ['limit' => 255, 'null' => true, 'default' => null])
+            ->update();
+    }
+
+    public function down(): void
+    {
+        // Ursprüngliche Definition aus create_intra_mitarbeiter_dokumente_07062025:
+        // int(11) NOT NULL
+        $this->table('intra_mitarbeiter_dokumente')
+            ->changeColumn('ausstellerid', 'integer', ['null' => false])
+            ->update();
     }
 }

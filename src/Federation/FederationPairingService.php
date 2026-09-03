@@ -2,21 +2,15 @@
 
 namespace App\Federation;
 
-use PDO;
-use PDOException;
+use App\Models\FederationLink;
+use App\Models\FederationSyncLog;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * Handles instance pairing: key generation, handshake, and link management.
  */
 class FederationPairingService
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
-
     /**
      * Ensure this instance has a UUID. Generates one on first call.
      */
@@ -30,10 +24,9 @@ class FederationPairingService
 
         $uuid = self::generateUuid();
 
-        $stmt = $this->pdo->prepare("
-            UPDATE intra_config SET config_value = ? WHERE config_key = 'FEDERATION_INSTANCE_ID'
-        ");
-        $stmt->execute([$uuid]);
+        Capsule::table('intra_config')
+            ->where('config_key', 'FEDERATION_INSTANCE_ID')
+            ->update(['config_value' => $uuid]);
 
         if (!defined('FEDERATION_INSTANCE_ID')) {
             define('FEDERATION_INSTANCE_ID', $uuid);
@@ -105,29 +98,20 @@ class FederationPairingService
     public function createLink(array $remoteInfo, string $apiKeyOutgoing, string $apiKeyIncoming): int
     {
         // Check if already linked
-        $stmt = $this->pdo->prepare("
-            SELECT id FROM intra_federation_links WHERE instance_id = ?
-        ");
-        $stmt->execute([$remoteInfo['instance_id']]);
-
-        if ($stmt->fetch()) {
+        if (FederationLink::where('instance_id', $remoteInfo['instance_id'])->exists()) {
             throw new \RuntimeException('Diese Instanz ist bereits verbunden');
         }
 
-        $stmt = $this->pdo->prepare("
-            INSERT INTO intra_federation_links
-            (instance_id, instance_name, instance_url, api_key_outgoing, api_key_incoming, is_active)
-            VALUES (?, ?, ?, ?, ?, 1)
-        ");
-        $stmt->execute([
-            $remoteInfo['instance_id'],
-            $remoteInfo['instance_name'],
-            rtrim($remoteInfo['url'], '/'),
-            $apiKeyOutgoing,
-            $apiKeyIncoming,
+        $link = FederationLink::create([
+            'instance_id' => $remoteInfo['instance_id'],
+            'instance_name' => $remoteInfo['instance_name'],
+            'instance_url' => rtrim($remoteInfo['url'], '/'),
+            'api_key_outgoing' => $apiKeyOutgoing,
+            'api_key_incoming' => $apiKeyIncoming,
+            'is_active' => 1,
         ]);
 
-        return (int) $this->pdo->lastInsertId();
+        return (int) $link->id;
     }
 
     /**
@@ -146,12 +130,10 @@ class FederationPairingService
         ];
 
         $sets = [];
-        $params = [];
 
         foreach ($settings as $key => $value) {
             if (in_array($key, $allowed, true)) {
-                $sets[] = "`{$key}` = ?";
-                $params[] = $value;
+                $sets[$key] = $value;
             }
         }
 
@@ -159,13 +141,9 @@ class FederationPairingService
             return false;
         }
 
-        $params[] = $linkId;
+        FederationLink::where('id', $linkId)->update($sets);
 
-        $stmt = $this->pdo->prepare("
-            UPDATE intra_federation_links SET " . implode(', ', $sets) . " WHERE id = ?
-        ");
-
-        return $stmt->execute($params);
+        return true;
     }
 
     /**
@@ -174,18 +152,15 @@ class FederationPairingService
     public function deleteLink(int $linkId): bool
     {
         // Get instance_id for cache cleanup
-        $stmt = $this->pdo->prepare("SELECT instance_id FROM intra_federation_links WHERE id = ?");
-        $stmt->execute([$linkId]);
-        $link = $stmt->fetch(PDO::FETCH_ASSOC);
+        $link = FederationLink::find($linkId);
 
         if (!$link) {
             return false;
         }
 
-        $instanceId = $link['instance_id'];
+        $instanceId = $link->instance_id;
 
-        $this->pdo->beginTransaction();
-        try {
+        Capsule::connection()->transaction(function () use ($linkId, $instanceId): void {
             // Delete cached data
             $tables = [
                 'intra_federation_cache_personnel',
@@ -193,24 +168,17 @@ class FederationPairingService
                 'intra_federation_cache_fire',
             ];
             foreach ($tables as $table) {
-                $this->pdo->prepare("DELETE FROM `{$table}` WHERE source_instance_id = ?")
-                    ->execute([$instanceId]);
+                Capsule::table($table)->where('source_instance_id', $instanceId)->delete();
             }
 
             // Delete sync log
-            $this->pdo->prepare("DELETE FROM intra_federation_sync_log WHERE link_id = ?")
-                ->execute([$linkId]);
+            FederationSyncLog::where('link_id', $linkId)->delete();
 
             // Delete the link itself
-            $this->pdo->prepare("DELETE FROM intra_federation_links WHERE id = ?")
-                ->execute([$linkId]);
+            FederationLink::where('id', $linkId)->delete();
+        });
 
-            $this->pdo->commit();
-            return true;
-        } catch (PDOException $e) {
-            $this->pdo->rollBack();
-            throw $e;
-        }
+        return true;
     }
 
     /**
@@ -220,10 +188,9 @@ class FederationPairingService
      */
     public function getAllLinks(): array
     {
-        $stmt = $this->pdo->query("
-            SELECT * FROM intra_federation_links ORDER BY instance_name ASC
-        ");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return FederationLink::orderBy('instance_name', 'asc')
+            ->get()
+            ->toArray();
     }
 
     /**
@@ -231,10 +198,8 @@ class FederationPairingService
      */
     public function getLink(int $linkId): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM intra_federation_links WHERE id = ?");
-        $stmt->execute([$linkId]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $result ?: null;
+        $link = FederationLink::find($linkId);
+        return $link ? $link->toArray() : null;
     }
 
     /**

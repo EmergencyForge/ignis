@@ -11,8 +11,9 @@
  *       bulkDeleteApi:'<?= BASE_PATH ?>api/enotf/bulk-delete-empty',
  *   });
  *
- * Modals (qmActionsModal, qmLogModal, bulkDeleteModal) bleiben Bootstrap;
- * deren Migration laeuft in einem spaeteren A20.1-eNOTF-Block.
+ * Modals (qmActionsModal, qmLogModal, bulkDeleteModal) laufen ueber das
+ * Ignis-Dialog-System: Markup liegt als [data-dialog-source] im Template,
+ * geoeffnet/geschlossen wird via Dialog.openElement/closeElement.
  */
 (function (global) {
     'use strict';
@@ -23,6 +24,13 @@
         const QM_ACTIONS_API   = cfg.qmActionsApi   || (cfg.basePath + 'enotf/admin/qm-actions-modal');
         const QM_LOG_API       = cfg.qmLogApi       || (cfg.basePath + 'enotf/admin/qm-log-modal');
         const BULK_DELETE_API  = cfg.bulkDeleteApi  || (cfg.basePath + 'api/enotf/bulk-delete-empty');
+
+        const loadingSkeleton = (label) => `
+            <div class="twplus-skeleton" role="status" aria-label="${label}">
+                <div class="twplus-skeleton__line twplus-skeleton__line--short"></div>
+                <div class="twplus-skeleton__line"></div>
+                <div class="twplus-skeleton__line"></div>
+            </div>`;
 
         $(document).ready(function () {
             const table = $('#table-protokoll').DataTable({
@@ -37,15 +45,9 @@
 
             // ── QM-Actions-Modal ─────────────────────────────────────
             global.openQMActions = function (id, enr, patname) {
-                const modal = new global.bootstrap.Modal(document.getElementById('qmActionsModal'));
                 document.getElementById('qmActionsModalLabel').textContent = `QM-Funktionen [#${enr}] ${patname}`;
-                document.getElementById('qmActionsContent').innerHTML = `
-                    <div class="flex justify-center">
-                        <div class="spinner-border" role="status">
-                            <span class="sr-only">Laden...</span>
-                        </div>
-                    </div>`;
-                modal.show();
+                document.getElementById('qmActionsContent').innerHTML = loadingSkeleton('QM-Aktionen werden geladen');
+                global.Dialog.openElement('#qmActionsModal');
 
                 fetch(`${QM_ACTIONS_API}?id=${id}`)
                     .then((r) => r.text())
@@ -60,15 +62,9 @@
 
             // ── QM-Log-Modal ─────────────────────────────────────────
             global.openQMLog = function (id, enr, patname) {
-                const modal = new global.bootstrap.Modal(document.getElementById('qmLogModal'));
                 document.getElementById('qmLogModalLabel').textContent = `QM-Log [#${enr}] ${patname}`;
-                document.getElementById('qmLogContent').innerHTML = `
-                    <div class="flex justify-center">
-                        <div class="spinner-border" role="status">
-                            <span class="sr-only">Laden...</span>
-                        </div>
-                    </div>`;
-                modal.show();
+                document.getElementById('qmLogContent').innerHTML = loadingSkeleton('QM-Log wird geladen');
+                global.Dialog.openElement('#qmLogModal');
 
                 fetch(`${QM_LOG_API}?id=${id}`)
                     .then((r) => r.text())
@@ -95,7 +91,7 @@
                     .then((r) => r.json())
                     .then((data) => {
                         if (data.success) {
-                            global.bootstrap.Modal.getInstance(document.getElementById('qmActionsModal')).hide();
+                            global.Dialog.closeElement('#qmActionsModal');
                             location.reload();
                         } else {
                             global.showAlert('Fehler beim Speichern: ' + (data.message || 'Unbekannter Fehler'), {
@@ -116,17 +112,10 @@
         // ── Bulk-Delete-Modal (Mehrstufiger Flow) ────────────────────
 
         global.showBulkDeleteModal = function () {
-            const modal = new global.bootstrap.Modal(document.getElementById('bulkDeleteModal'));
-
-            document.getElementById('bulkDeleteContent').innerHTML = `
-                <div class="flex justify-center">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Laden...</span>
-                    </div>
-                </div>`;
+            document.getElementById('bulkDeleteContent').innerHTML = loadingSkeleton('Felder werden geladen');
             document.getElementById('bulkDeleteFooter').style.display = 'none';
 
-            modal.show();
+            global.Dialog.openElement('#bulkDeleteModal');
 
             fetch(BULK_DELETE_API)
                 .then((r) => r.json())
@@ -150,8 +139,8 @@
                             </div>
                             <form id="bulkDeleteFieldsForm">
                                 <div class="mb-3">
-                                    <label class="ignis-field__label fw-bold">Zeitraum:</label>
-                                    <select class="form-select" id="timePeriod">
+                                    <label class="ignis-field__label font-bold">Zeitraum:</label>
+                                    <select class="ignis-input" id="timePeriod">
                                         <option value="7">Letzte 7 Tage</option>
                                         <option value="30" selected>Letzte 30 Tage</option>
                                         <option value="90">Letzte 90 Tage</option>
@@ -160,7 +149,7 @@
                                     </select>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="ignis-field__label fw-bold">Leere Felder (ALLE müssen leer sein):</label>
+                                    <label class="ignis-field__label font-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
                                 <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
@@ -194,12 +183,7 @@
                 return;
             }
 
-            document.getElementById('bulkDeleteContent').innerHTML = `
-                <div class="flex justify-center">
-                    <div class="spinner-border" role="status">
-                        <span class="sr-only">Lade Vorschau...</span>
-                    </div>
-                </div>`;
+            document.getElementById('bulkDeleteContent').innerHTML = loadingSkeleton('Vorschau wird geladen');
 
             const formData = new FormData();
             selectedFields.forEach((field) => formData.append('fields[]', field));
@@ -254,9 +238,9 @@
                             <p class="mb-0 mt-2">Es wurden <strong>${data.count} leere Protokolle</strong> gefunden.</p>
                             <p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p>
                         </div>
-                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                            <table class="table table-sm table-striped">
-                                <thead class="sticky-top bg-[rgba(0,0,0,0.3)]">
+                        <div style="max-height: 400px; overflow: auto;">
+                            <table class="table table-striped">
+                                <thead style="position: sticky; top: 0; background: rgba(0,0,0,0.3);">
                                     <tr>
                                         <th>Einsatznummer</th>
                                         <th>Patient</th>
@@ -292,7 +276,7 @@
                 return;
             }
 
-            deleteButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Lösche...';
+            deleteButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1" aria-hidden="true"></i> Lösche...';
             deleteButton.disabled  = true;
 
             const formData = new FormData();

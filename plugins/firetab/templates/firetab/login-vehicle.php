@@ -6,7 +6,6 @@
  * @var array<int,array<string,mixed>> $personnel
  * @var bool                            $charLocked
  * @var array<string,mixed>|null        $lockedOperator
- * @var \PDO                            $pdo
  */
 
 use App\Helpers\Flash;
@@ -110,7 +109,7 @@ use App\Helpers\Flash;
                                         <i class="fa-solid fa-truck mr-1"></i>
                                         Fahrzeug auswählen *
                                     </label>
-                                    <select name="vehicle_id" id="vehicleSelect" class="form-select form-select-lg" required data-custom-dropdown="true" data-search-threshold="5">
+                                    <select name="vehicle_id" id="vehicleSelect" class="form-select" required data-custom-dropdown="true" data-search-threshold="5">
                                         <option value="">-- Bitte Fahrzeug wählen --</option>
                                         <?php foreach ($vehicles as $v): ?>
                                             <option value="<?= (int) $v['id'] ?>">
@@ -130,10 +129,10 @@ use App\Helpers\Flash;
                                     </label>
                                     <?php if ($charLocked && $lockedOperator): ?>
                                         <input type="hidden" name="operator_id" value="<?= (int) $lockedOperator['id'] ?>">
-                                        <input type="text" class="form-select form-select-lg" value="<?= htmlspecialchars($lockedOperator['fullname']) ?>" readonly>
+                                        <input type="text" class="ignis-input" value="<?= htmlspecialchars($lockedOperator['fullname']) ?>" readonly>
                                         <small class="text-gray-400"><i class="fa-solid fa-lock mr-1"></i>Charakter-Sperre aktiv</small>
                                     <?php else: ?>
-                                        <select name="operator_id" id="operatorSelect" class="form-select form-select-lg" required data-custom-dropdown="true" data-search-threshold="5">
+                                        <select name="operator_id" id="operatorSelect" class="form-select" required data-custom-dropdown="true" data-search-threshold="5">
                                             <option value="">-- Bitte Mitarbeiter wählen --</option>
                                             <?php foreach ($personnel as $p): ?>
                                                 <option value="<?= (int) $p['id'] ?>">

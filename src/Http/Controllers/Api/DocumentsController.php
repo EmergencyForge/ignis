@@ -18,11 +18,17 @@ use App\Helpers\UserHelper;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
+use App\Models\AmbSkill;
+use App\Models\DocumentCategory;
+use App\Models\DocumentTemplate;
+use App\Models\DocumentTemplateField;
+use App\Models\Personnel;
+use App\Models\Rank;
 use App\Notifications\NotificationManager;
 use App\Personnel\PersonalLogManager;
 use App\Security\CsrfProtection;
 use App\Utils\AuditLogger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
@@ -35,10 +41,6 @@ use PDOException;
  */
 final class DocumentsController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     // ── Templates ─────────────────────────────────────────────────────
 
     /**
@@ -47,7 +49,7 @@ final class DocumentsController
     public function listTemplates(Request $request): Response
     {
         try {
-            $manager  = new DocumentTemplateManager($this->pdo);
+            $manager  = new DocumentTemplateManager();
             $category = $request->query['category'] ?? null;
             return Response::json($manager->listTemplates($category) ?: [])->withHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
         } catch (\Throwable $e) {
@@ -67,7 +69,7 @@ final class DocumentsController
                 throw new \Exception('Template-ID fehlt');
             }
 
-            $manager  = new DocumentTemplateManager($this->pdo);
+            $manager  = new DocumentTemplateManager();
             $template = $manager->getTemplate($id);
             if (!$template) {
                 throw new \Exception('Template nicht gefunden');
@@ -76,28 +78,31 @@ final class DocumentsController
             // DB-backed Feld-Optionen auflösen (Dienstgrade, RD-Qualis)
             foreach ($template['fields'] as &$field) {
                 if ($field['field_type'] === 'db_dg') {
-                    $stmt = $this->pdo->query("SELECT id, name, name_m, name_w FROM intra_mitarbeiter_dienstgrade WHERE archive = 0 ORDER BY priority ASC");
-                    $field['field_options'] = array_map(
-                        fn ($item) => [
-                            'value'   => $item['id'],
-                            'label'   => $item['name'],
-                            'label_m' => $item['name_m'],
-                            'label_w' => $item['name_w'],
-                        ],
-                        $stmt->fetchAll(PDO::FETCH_ASSOC) ?: []
-                    );
+                    $field['field_options'] = Rank::query()
+                        ->where('archive', 0)
+                        ->orderBy('priority')
+                        ->get(['id', 'name', 'name_m', 'name_w'])
+                        ->map(fn (Rank $item) => [
+                            'value'   => $item->id,
+                            'label'   => $item->name,
+                            'label_m' => $item->name_m,
+                            'label_w' => $item->name_w,
+                        ])
+                        ->all();
                 }
                 if ($field['field_type'] === 'db_rdq') {
-                    $stmt = $this->pdo->query("SELECT id, name, name_m, name_w FROM intra_mitarbeiter_rdquali WHERE trainable = 1 AND none = 0 ORDER BY priority ASC");
-                    $field['field_options'] = array_map(
-                        fn ($item) => [
-                            'value'   => $item['id'],
-                            'label'   => $item['name'],
-                            'label_m' => $item['name_m'],
-                            'label_w' => $item['name_w'],
-                        ],
-                        $stmt->fetchAll(PDO::FETCH_ASSOC) ?: []
-                    );
+                    $field['field_options'] = AmbSkill::query()
+                        ->where('trainable', 1)
+                        ->where('none', 0)
+                        ->orderBy('priority')
+                        ->get(['id', 'name', 'name_m', 'name_w'])
+                        ->map(fn (AmbSkill $item) => [
+                            'value'   => $item->id,
+                            'label'   => $item->name,
+                            'label_m' => $item->name_m,
+                            'label_w' => $item->name_w,
+                        ])
+                        ->all();
                 }
             }
             unset($field);
@@ -124,14 +129,14 @@ final class DocumentsController
                 throw new \Exception('Keine Daten empfangen');
             }
 
-            $manager       = new DocumentTemplateManager($this->pdo);
+            $manager       = new DocumentTemplateManager();
             $isUpdate      = isset($input['id']) && $input['id'];
             $fieldsChanged = false;
 
             if ($isUpdate) {
-                $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM intra_dokument_template_fields WHERE template_id = ?");
-                $stmt->execute([$input['id']]);
-                $oldFieldCount = (int) $stmt->fetchColumn();
+                $oldFieldCount = DocumentTemplateField::query()
+                    ->where('template_id', $input['id'])
+                    ->count();
                 $newFieldCount = count($input['fields'] ?? []);
                 $fieldsChanged = ($newFieldCount !== $oldFieldCount);
 
@@ -144,8 +149,7 @@ final class DocumentsController
                     'editor_type'   => $input['editor_type']   ?? 'visual',
                 ]);
 
-                $this->pdo->prepare("DELETE FROM intra_dokument_template_fields WHERE template_id = :id")
-                    ->execute(['id' => $input['id']]);
+                DocumentTemplateField::query()->where('template_id', $input['id'])->delete();
 
                 $templateId = $input['id'];
             } else {
@@ -169,8 +173,9 @@ final class DocumentsController
 
             // Config mit Gender-spezifischen Labels
             $config = $this->buildTemplateConfig($input['fields'] ?? []);
-            $this->pdo->prepare("UPDATE intra_dokument_templates SET config = ? WHERE id = ?")
-                ->execute([json_encode($config), $templateId]);
+            DocumentTemplate::query()
+                ->where('id', $templateId)
+                ->update(['config' => json_encode($config)]);
 
             // Template-Datei erstellen (nur wenn sie noch nicht existiert)
             $templateFile    = $input['template_file']
@@ -225,10 +230,9 @@ final class DocumentsController
                 throw new \Exception('Template-ID fehlt');
             }
 
-            $this->pdo->prepare("DELETE FROM intra_dokument_template_fields WHERE template_id = :id")
-                ->execute(['id' => $id]);
+            DocumentTemplateField::query()->where('template_id', $id)->delete();
 
-            $manager = new DocumentTemplateManager($this->pdo);
+            $manager = new DocumentTemplateManager();
             $success = $manager->deleteTemplate($id);
 
             return Response::json(['success' => $success]);
@@ -256,7 +260,7 @@ final class DocumentsController
                 throw new \Exception('template_id ist erforderlich');
             }
 
-            $manager = new DocumentTemplateManager($this->pdo);
+            $manager = new DocumentTemplateManager();
             $newId   = $manager->duplicateTemplate($sourceId);
 
             return Response::json([
@@ -288,7 +292,7 @@ final class DocumentsController
                 throw new \Exception('Template-ID fehlt');
             }
 
-            $manager  = new DocumentTemplateManager($this->pdo);
+            $manager  = new DocumentTemplateManager();
             $template = $manager->getTemplate($templateId);
             if (!$template) {
                 throw new \Exception('Template nicht gefunden');
@@ -340,12 +344,12 @@ final class DocumentsController
                 }
             }
 
-            $documentId        = DocumentIdGenerator::generate($this->pdo);
+            $documentId        = DocumentIdGenerator::generate();
             $ausstellungsdatum = $input['fields']['ausstellungsdatum']
                 ?? $input['ausstellungsdatum']
                 ?? date('Y-m-d');
 
-            $manager = new DocumentTemplateManager($this->pdo);
+            $manager = new DocumentTemplateManager();
             $dbId = $manager->createDocument(
                 $input['template_id'],
                 $input['profileid'],
@@ -361,8 +365,8 @@ final class DocumentsController
 
             // PDF generieren — nicht-kritisch, Fehler loggen aber Flow nicht abbrechen
             try {
-                $renderer     = new DocumentRenderer($this->pdo);
-                $pdfGenerator = new DocumentPDFGenerator($this->pdo, $renderer);
+                $renderer     = new DocumentRenderer();
+                $pdfGenerator = new DocumentPDFGenerator($renderer);
                 $pdfGenerator->generateAndStore($dbId);
             } catch (\Throwable $e) {
                 Logger::warning('Documents: create-custom PDF-Gen fehlgeschlagen', [
@@ -372,10 +376,10 @@ final class DocumentsController
             }
 
             $template   = $manager->getTemplate($input['template_id']);
-            $userHelper = new UserHelper($this->pdo);
+            $userHelper = new UserHelper();
 
             // Personal-Log
-            $logManager = new PersonalLogManager($this->pdo);
+            $logManager = new PersonalLogManager();
             $base       = defined('BASE_PATH') ? (string) BASE_PATH : '/';
             $pdfLink    = $base . 'storage/documents/' . $documentId . '.pdf';
             $logContent = "Dokument erstellt: <a href='{$pdfLink}' target='_blank'>"
@@ -397,7 +401,7 @@ final class DocumentsController
 
             // Audit-Log
             try {
-                (new AuditLogger($this->pdo))->log(
+                (new AuditLogger())->log(
                     (int) ($_SESSION['userid'] ?? 0),
                     'Dokument erstellt [' . $documentId . ']',
                     'Für Profil: ' . $input['profileid'],
@@ -410,13 +414,11 @@ final class DocumentsController
 
             // Notification an Mitarbeiter (falls User-Account existiert)
             try {
-                $profileStmt = $this->pdo->prepare("SELECT discordtag FROM intra_mitarbeiter WHERE id = ?");
-                $profileStmt->execute([$input['profileid']]);
-                $profile = $profileStmt->fetch(PDO::FETCH_ASSOC);
+                $discordtag = Personnel::query()->where('id', $input['profileid'])->value('discordtag');
 
-                if ($profile && !empty($profile['discordtag'])) {
-                    $notificationManager = new NotificationManager($this->pdo);
-                    $recipientUserId     = $notificationManager->getUserIdByDiscordTag($profile['discordtag']);
+                if (!empty($discordtag)) {
+                    $notificationManager = new NotificationManager();
+                    $recipientUserId     = $notificationManager->getUserIdByDiscordTag($discordtag);
                     if ($recipientUserId) {
                         $notificationManager->create(
                             $recipientUserId,
@@ -459,29 +461,29 @@ final class DocumentsController
                 throw new \Exception('docid ist erforderlich');
             }
 
-            $stmt = $this->pdo->prepare("
-                SELECT
-                    pd.id, pd.docid, pd.type, pd.anrede, pd.erhalter, pd.ausstellungsdatum,
-                    pd.ausstellerid, pd.aussteller_name, pd.profileid, pd.pdf_path, pd.template_id,
-                    pd.custom_data, pd.timestamp, IFNULL(pd.is_archived, 0) as is_archived,
-                    t.name as template_name, t.category as template_category, t.editor_type,
-                    dk.name as category_name, dk.color as category_color, dk.icon as category_icon,
-                    COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name,
-                    emp.fullname as empfaenger_fullname
-                FROM intra_mitarbeiter_dokumente pd
-                LEFT JOIN intra_dokument_templates t ON pd.template_id = t.id
-                LEFT JOIN intra_dokument_kategorien dk ON t.category_id = dk.id
-                LEFT JOIN intra_users u ON pd.ausstellerid = u.discord_id
-                LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
-                LEFT JOIN intra_mitarbeiter emp ON pd.profileid = emp.id
-                WHERE pd.docid = :docid
-            ");
-            $stmt->execute(['docid' => $docid]);
-            $doc = $stmt->fetch(PDO::FETCH_ASSOC);
+            $docRow = Capsule::table('intra_mitarbeiter_dokumente as pd')
+                ->leftJoin('intra_dokument_templates as t', 'pd.template_id', '=', 't.id')
+                ->leftJoin('intra_dokument_kategorien as dk', 't.category_id', '=', 'dk.id')
+                ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
+                ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+                ->leftJoin('intra_mitarbeiter as emp', 'pd.profileid', '=', 'emp.id')
+                ->select(
+                    'pd.id', 'pd.docid', 'pd.type', 'pd.anrede', 'pd.erhalter', 'pd.ausstellungsdatum',
+                    'pd.ausstellerid', 'pd.aussteller_name', 'pd.profileid', 'pd.pdf_path', 'pd.template_id',
+                    'pd.custom_data', 'pd.timestamp',
+                    't.name as template_name', 't.category as template_category', 't.editor_type',
+                    'dk.name as category_name', 'dk.color as category_color', 'dk.icon as category_icon',
+                    'emp.fullname as empfaenger_fullname'
+                )
+                ->selectRaw('IFNULL(pd.is_archived, 0) as is_archived')
+                ->selectRaw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name")
+                ->where('pd.docid', $docid)
+                ->first();
 
-            if (!$doc) {
+            if (!$docRow) {
                 throw new \Exception('Dokument nicht gefunden');
             }
+            $doc = (array) $docRow;
 
             // Zugriffsprüfung: Admin, Personal-Verwalter oder Eigenersteller
             $isOwnDoc = ($doc['ausstellerid'] == ($_SESSION['discord_id'] ?? ''));
@@ -546,17 +548,16 @@ final class DocumentsController
                 throw new \Exception('docid ist erforderlich');
             }
 
-            $stmt = $this->pdo->prepare(
-                "UPDATE intra_mitarbeiter_dokumente SET is_archived = :archived WHERE docid = :docid"
-            );
-            $stmt->execute(['archived' => $archived ? 1 : 0, 'docid' => $docid]);
+            $affected = Capsule::table('intra_mitarbeiter_dokumente')
+                ->where('docid', $docid)
+                ->update(['is_archived' => $archived ? 1 : 0]);
 
-            if ($stmt->rowCount() === 0) {
+            if ($affected === 0) {
                 throw new \Exception('Dokument nicht gefunden');
             }
 
             $action = $archived ? 'archiviert' : 'wiederhergestellt';
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 (int) ($_SESSION['userid'] ?? 0),
                 "Dokument {$action} [ID: {$docid}]",
                 null,
@@ -588,7 +589,7 @@ final class DocumentsController
 
         try {
             $templateId = isset($request->query['template_id']) ? (int) $request->query['template_id'] : null;
-            $manager    = new TemplateAssetManager($this->pdo);
+            $manager    = new TemplateAssetManager();
             return Response::json(['success' => true, 'assets' => $manager->listAssets($templateId)]);
         } catch (\Throwable $e) {
             Logger::error('Documents: asset-list Fehler', ['error' => $e->getMessage()]);
@@ -615,7 +616,7 @@ final class DocumentsController
             $templateId = isset($request->post['template_id']) ? (int) $request->post['template_id'] : null;
             $assetType  = (string) ($request->post['asset_type'] ?? 'image');
 
-            $manager = new TemplateAssetManager($this->pdo);
+            $manager = new TemplateAssetManager();
             $result  = $manager->upload($request->files['file'], $templateId, $assetType);
 
             return Response::json([
@@ -647,7 +648,7 @@ final class DocumentsController
                 throw new \Exception('Asset-ID ist erforderlich');
             }
 
-            $manager = new TemplateAssetManager($this->pdo);
+            $manager = new TemplateAssetManager();
             if (!$manager->delete($assetId)) {
                 throw new \Exception('Asset nicht gefunden');
             }
@@ -676,7 +677,7 @@ final class DocumentsController
                 throw new \Exception('template_id ist erforderlich');
             }
 
-            $manager = new TemplateLayoutManager($this->pdo);
+            $manager = new TemplateLayoutManager();
             $layout  = $manager->getLayout($templateId);
 
             if (!$layout) {
@@ -717,7 +718,7 @@ final class DocumentsController
                 throw new \Exception('template_id und canvas_json sind erforderlich');
             }
 
-            $manager = new TemplateLayoutManager($this->pdo);
+            $manager = new TemplateLayoutManager();
 
             $canvasJson = is_string($input['canvas_json'])
                 ? $input['canvas_json']
@@ -734,12 +735,12 @@ final class DocumentsController
             // is_draft-Flag im Template-Config setzen
             if (isset($input['set_draft'])) {
                 $templateId = (int) $input['template_id'];
-                $stmtCfg = $this->pdo->prepare("SELECT config FROM intra_dokument_templates WHERE id = ?");
-                $stmtCfg->execute([$templateId]);
-                $config = json_decode($stmtCfg->fetchColumn() ?: '{}', true) ?: [];
+                $rawConfig  = DocumentTemplate::query()->where('id', $templateId)->value('config');
+                $config = json_decode($rawConfig ?: '{}', true) ?: [];
                 $config['is_draft'] = (bool) $input['set_draft'];
-                $this->pdo->prepare("UPDATE intra_dokument_templates SET config = :config WHERE id = :id")
-                    ->execute(['config' => json_encode($config), 'id' => $templateId]);
+                DocumentTemplate::query()
+                    ->where('id', $templateId)
+                    ->update(['config' => json_encode($config)]);
             }
 
             return Response::json([
@@ -765,7 +766,7 @@ final class DocumentsController
             return Response::json(['success' => false, 'error' => 'Keine Berechtigung'], 403);
         }
 
-        $manager = new TemplateLayoutManager($this->pdo);
+        $manager = new TemplateLayoutManager();
 
         try {
             if (strtoupper($request->method) === 'GET') {
@@ -821,7 +822,7 @@ final class DocumentsController
                 throw new \Exception('template_id ist erforderlich');
             }
 
-            $renderer   = new VisualTemplateRenderer($this->pdo);
+            $renderer   = new VisualTemplateRenderer();
             $sampleData = $input['sample_data'] ?? [];
 
             $html = $renderer->renderPreview(
@@ -900,7 +901,7 @@ final class DocumentsController
             return new Response(400, 'Template-ID fehlt');
         }
 
-        $manager  = new DocumentTemplateManager($this->pdo);
+        $manager  = new DocumentTemplateManager();
         $template = $manager->getTemplate($templateId);
         if (!$template || empty($template['template_file'])) {
             return new Response(404, 'Template nicht gefunden');
@@ -954,8 +955,8 @@ final class DocumentsController
             $templateId = (int) ($input['template_id'] ?? 0);
             $convertAll = !empty($input['convert_all']);
 
-            $manager       = new DocumentTemplateManager($this->pdo);
-            $layoutManager = new TemplateLayoutManager($this->pdo);
+            $manager       = new DocumentTemplateManager();
+            $layoutManager = new TemplateLayoutManager();
             $converter     = new TwigToCanvasConverter();
 
             if ($convertAll) {
@@ -1031,10 +1032,13 @@ final class DocumentsController
         $method = strtoupper($request->method);
 
         if ($method === 'GET') {
-            $stmt = $this->pdo->query(
-                "SELECT * FROM intra_dokument_kategorien ORDER BY sort_order ASC, name ASC"
-            );
-            return Response::json($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
+            $categories = Capsule::table('intra_dokument_kategorien')
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
+            return Response::json($categories);
         }
 
         // Ab hier nur Admins
@@ -1066,27 +1070,24 @@ final class DocumentsController
         $sortOrder = (int) ($input['sort_order'] ?? 0);
 
         if (!empty($input['id'])) {
-            $this->pdo->prepare(
-                "UPDATE intra_dokument_kategorien SET name = :name, color = :color, icon = :icon, sort_order = :sort_order WHERE id = :id"
-            )->execute([
-                'id'         => (int) $input['id'],
-                'name'       => $name,
-                'color'      => $color,
-                'icon'       => $icon,
-                'sort_order' => $sortOrder,
-            ]);
+            DocumentCategory::query()
+                ->where('id', (int) $input['id'])
+                ->update([
+                    'name'       => $name,
+                    'color'      => $color,
+                    'icon'       => $icon,
+                    'sort_order' => $sortOrder,
+                ]);
             return Response::json(['success' => true, 'id' => (int) $input['id']]);
         }
 
-        $this->pdo->prepare(
-            "INSERT INTO intra_dokument_kategorien (name, color, icon, sort_order) VALUES (:name, :color, :icon, :sort_order)"
-        )->execute([
+        $category = DocumentCategory::create([
             'name'       => $name,
             'color'      => $color,
             'icon'       => $icon,
             'sort_order' => $sortOrder,
         ]);
-        return Response::json(['success' => true, 'id' => (int) $this->pdo->lastInsertId()]);
+        return Response::json(['success' => true, 'id' => (int) $category->id]);
     }
 
     private function deleteCategory(Request $request): Response
@@ -1096,17 +1097,14 @@ final class DocumentsController
             return Response::json(['error' => 'Keine ID angegeben'], 400);
         }
 
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM intra_dokument_templates WHERE category_id = :id");
-        $stmt->execute(['id' => $id]);
-        $count = (int) $stmt->fetchColumn();
+        $count = DocumentTemplate::query()->where('category_id', $id)->count();
         if ($count > 0) {
             return Response::json([
                 'error' => "Kategorie wird von $count Template(s) verwendet und kann nicht gelöscht werden.",
             ], 409);
         }
 
-        $this->pdo->prepare("DELETE FROM intra_dokument_kategorien WHERE id = :id")
-            ->execute(['id' => $id]);
+        DocumentCategory::query()->where('id', $id)->delete();
 
         return Response::json(['success' => true]);
     }

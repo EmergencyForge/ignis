@@ -13,8 +13,8 @@
             Noch keine Fahrzeuge hinzugefügt
         </div>
     <?php else: ?>
-        <div class="table-responsive">
-            <table class="table table-striped">
+        <div class="twplus-table-card">
+            <table class="table table-striped twplus-table">
                 <thead>
                     <tr>
                         <th>Art</th>

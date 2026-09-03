@@ -26,6 +26,17 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
     private const TIMEOUT_SECONDS       = 300;
     private const KLINIK_WINDOW_SECONDS = 7200;
 
+    /**
+     * @param string|null $lockscreenPath Redirect-Ziel bei Sperre, als Pfad
+     *        relativ zu BASE_PATH (z. B. 'enotf-v2/lockscreen'). null =
+     *        bisheriges Verhalten, Redirect auf den v1-Lockscreen. So können
+     *        die v2-Routen ihren eigenen Lockscreen ansteuern, ohne dass
+     *        sich für bestehende Nutzer der Middleware etwas ändert.
+     */
+    public function __construct(private readonly ?string $lockscreenPath = null)
+    {
+    }
+
     public function process(Request $request, callable $next): Response
     {
         if (!defined('ENOTF_USE_PIN') || ENOTF_USE_PIN !== true) {
@@ -57,15 +68,19 @@ final class PinLockscreenMiddleware implements MiddlewareInterface
             // Aktuelle URL merken, damit der User nach PIN-Eingabe
             // dort wieder rauskommt. Lockscreen selbst nicht als Ziel speichern.
             $currentUri = $request->server['REQUEST_URI'] ?? $request->path;
-            if (!str_contains($currentUri, 'lockscreen.php')) {
+            if (!str_contains($currentUri, 'lockscreen')) {
                 \App\Session\SessionManager::setPinReturnUrl($currentUri);
             }
 
             \App\Session\SessionManager::setPinVerified(false);
 
-            $target = class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)
-                ? \Plugin\Enotf\Helpers\EnotfUrl::page('lockscreen')
-                : ((defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'enotf/lockscreen.php');
+            if ($this->lockscreenPath !== null) {
+                $target = (defined('BASE_PATH') ? (string) BASE_PATH : '/') . ltrim($this->lockscreenPath, '/');
+            } else {
+                $target = class_exists(\Plugin\Enotf\Helpers\EnotfUrl::class)
+                    ? \Plugin\Enotf\Helpers\EnotfUrl::page('lockscreen')
+                    : ((defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'enotf/lockscreen.php');
+            }
 
             return Response::redirect($target);
         }

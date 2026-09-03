@@ -2,24 +2,22 @@
 
 namespace App\Documents;
 
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class VisualTemplateRenderer
 {
     use DocumentRenderingTrait;
 
-    private PDO $pdo;
     private TemplateAssetManager $assetManager;
     private TemplateLayoutManager $layoutManager;
 
     /** Pixel-to-mm conversion factor (96dpi) */
     private const PX_PER_MM = 3.7795;
 
-    public function __construct(PDO $pdo)
+    public function __construct()
     {
-        $this->pdo = $pdo;
-        $this->assetManager = new TemplateAssetManager($pdo);
-        $this->layoutManager = new TemplateLayoutManager($pdo);
+        $this->assetManager = new TemplateAssetManager();
+        $this->layoutManager = new TemplateLayoutManager();
     }
 
     /**
@@ -602,15 +600,13 @@ HTML;
         $templateFields = [];
         $templateConfig = [];
         if (!empty($doc['template_id'])) {
-            $stmt = $this->pdo->prepare("
-                SELECT tf.*, t.config
-                FROM intra_dokument_template_fields tf
-                JOIN intra_dokument_templates t ON tf.template_id = t.id
-                WHERE tf.template_id = ?
-                ORDER BY tf.sort_order
-            ");
-            $stmt->execute([$doc['template_id']]);
-            $templateFields = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $templateFields = Capsule::table('intra_dokument_template_fields as tf')
+                ->join('intra_dokument_templates as t', 'tf.template_id', '=', 't.id')
+                ->where('tf.template_id', $doc['template_id'])
+                ->orderBy('tf.sort_order')
+                ->get(['tf.*', 't.config'])
+                ->map(fn ($row) => (array) $row)
+                ->all();
             if (!empty($templateFields[0]['config'])) {
                 $templateConfig = json_decode($templateFields[0]['config'] ?? '{}', true) ?: [];
             }
@@ -717,15 +713,13 @@ HTML;
         // Template-Felder laden fuer Wert-Aufloesung
         $templateFields = [];
         $templateConfig = [];
-        $stmt = $this->pdo->prepare("
-            SELECT tf.*, t.config
-            FROM intra_dokument_template_fields tf
-            JOIN intra_dokument_templates t ON tf.template_id = t.id
-            WHERE tf.template_id = ?
-            ORDER BY tf.sort_order
-        ");
-        $stmt->execute([$templateId]);
-        $templateFields = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $templateFields = Capsule::table('intra_dokument_template_fields as tf')
+            ->join('intra_dokument_templates as t', 'tf.template_id', '=', 't.id')
+            ->where('tf.template_id', $templateId)
+            ->orderBy('tf.sort_order')
+            ->get(['tf.*', 't.config'])
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         // Rich-Text Felder sammeln
         $this->rawFields = ['inhalt'];
@@ -853,9 +847,9 @@ HTML;
      */
     private function isTemplateDraft(int $templateId): bool
     {
-        $stmt = $this->pdo->prepare("SELECT config FROM intra_dokument_templates WHERE id = :id");
-        $stmt->execute(['id' => $templateId]);
-        $config = $stmt->fetchColumn();
+        $config = Capsule::table('intra_dokument_templates')
+            ->where('id', $templateId)
+            ->value('config');
         if (!$config) return false;
 
         $configData = json_decode($config, true);

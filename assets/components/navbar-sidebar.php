@@ -7,8 +7,6 @@
  * User-Dropdown und globale Modals bleiben in navbar.php.
  *
  * Datenquelle: config/navigation.php
- *
- * @var \PDO $pdo  Vom Aufrufer (navbar.php) gesetzt.
  */
 
 use App\Auth\Permissions;

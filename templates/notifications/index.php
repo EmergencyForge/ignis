@@ -9,7 +9,6 @@
  * @var int          $offset
  * @var int          $pageSize
  * @var bool         $hasMore
- * @var \PDO         $pdo
  */
 
 use App\Helpers\Flash;

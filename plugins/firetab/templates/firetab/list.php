@@ -3,7 +3,6 @@
  * View: Einsatzliste für eingeloggtes Fahrzeug (FireTab)
  *
  * @var array<int,array<string,mixed>> $incidents
- * @var \PDO                            $pdo
  */
 
 use App\Helpers\Flash;
@@ -63,18 +62,18 @@ function einsatz_fmt_dt(?string $ts): string
                             // Status badge — bei nicht-finalisierten immer "In Bearbeitung",
                             // sonst der QM-Status aus Map
                             if (empty($inc['finalized'])) {
-                                $statusBadge = 'bg-warning';
+                                $statusBadge = 'ignis-chip--warning';
                                 $statusText  = 'In Bearbeitung';
                             } else {
                                 $statusMap = [
-                                    0 => ['bg-secondary', 'Ungesehen'],
-                                    1 => ['bg-warning', 'In Prüfung'],
-                                    2 => ['bg-success', 'Freigegeben'],
-                                    3 => ['bg-danger', 'Ungenügend'],
-                                    4 => ['bg-dark', 'Ausgeblendet'],
+                                    0 => ['ignis-chip--secondary', 'Ungesehen'],
+                                    1 => ['ignis-chip--warning', 'In Prüfung'],
+                                    2 => ['ignis-chip--success', 'Freigegeben'],
+                                    3 => ['ignis-chip--danger', 'Ungenügend'],
+                                    4 => ['ignis-chip--dark', 'Ausgeblendet'],
                                 ];
                                 $s = (int) $inc['status'];
-                                [$statusBadge, $statusText] = $statusMap[$s] ?? ['bg-secondary', 'Unbekannt'];
+                                [$statusBadge, $statusText] = $statusMap[$s] ?? ['ignis-chip--secondary', 'Unbekannt'];
                             }
                             ?>
                             <div class="ignis-card incident-card h-full">

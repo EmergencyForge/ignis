@@ -10,7 +10,6 @@ use App\Http\Response;
 use App\Logging\Logger;
 use App\Telemetry\GlobalAnnouncementManager;
 use App\Telemetry\TelemetryManager;
-use PDO;
 
 /**
  * Telemetrie-Endpoints — Heartbeat (API-Key-gated) und Background-AJAX
@@ -23,10 +22,6 @@ use PDO;
  */
 final class TelemetryApiController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * POST /api/telemetry/heartbeat
      *
@@ -36,7 +31,7 @@ final class TelemetryApiController
     public function heartbeat(Request $request): Response
     {
         try {
-            $telemetry = new TelemetryManager($this->pdo);
+            $telemetry = new TelemetryManager();
 
             if (!$telemetry->isEnabled()) {
                 return Response::json([
@@ -91,7 +86,7 @@ final class TelemetryApiController
         }
 
         try {
-            $telemetry = new TelemetryManager($this->pdo);
+            $telemetry = new TelemetryManager();
             if ($telemetry->isEnabled() && $telemetry->shouldSendHeartbeat()) {
                 return Response::json($telemetry->sendHeartbeat());
             }
@@ -105,7 +100,7 @@ final class TelemetryApiController
     private function backgroundRefreshAnnouncements(): Response
     {
         try {
-            $manager = new GlobalAnnouncementManager($this->pdo);
+            $manager = new GlobalAnnouncementManager();
             return Response::json($manager->refreshCache());
         } catch (\Throwable $e) {
             Logger::error('Telemetry: refresh-announcements Fehler', ['error' => $e->getMessage()]);

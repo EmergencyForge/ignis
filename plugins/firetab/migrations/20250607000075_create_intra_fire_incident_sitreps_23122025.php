@@ -5,22 +5,35 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_fire_incident_sitreps_23122025.php
- * Spiegelung:     database/legacy/create_intra_fire_incident_sitreps_23122025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Lagemeldungen (Sitreps) zu einem Einsatz — Freitext mit Meldezeitpunkt,
+ * optional zugeordnet zu einem meldenden Fahrzeug.
  */
 class CreateIntraFireIncidentSitreps23122025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_fire_incident_sitreps_23122025.php';
+        if ($this->hasTable('intra_fire_incident_sitreps')) {
+            return;
+        }
+
+        $this->table('intra_fire_incident_sitreps', [
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ])
+            ->addColumn('incident_id', 'integer', ['null' => false])
+            ->addColumn('report_time', 'datetime', ['null' => false])
+            ->addColumn('text', 'text', ['null' => false])
+            ->addColumn('vehicle_radio_name', 'string', ['limit' => 255, 'null' => true])
+            ->addColumn('vehicle_id', 'integer', ['null' => true])
+            ->addColumn('created_at', 'timestamp', ['null' => true, 'default' => 'CURRENT_TIMESTAMP'])
+            ->addColumn('created_by', 'integer', ['null' => true])
+            ->addIndex(['incident_id'], ['name' => 'idx_incident'])
+            ->addIndex(['report_time'], ['name' => 'idx_report_time'])
+            ->addForeignKey('incident_id', 'intra_fire_incidents', 'id', ['delete' => 'CASCADE'])
+            ->addForeignKey('vehicle_id', 'intra_fahrzeuge', 'id', ['delete' => 'SET_NULL'])
+            ->addForeignKey('created_by', 'intra_users', 'id', ['delete' => 'SET_NULL'])
+            ->create();
     }
 }

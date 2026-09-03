@@ -6,12 +6,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "vite:build": "vite build --mode tailwind && vite build --mode vendor && vite build --mode vendor-enotf && vite build --mode styles",
+    "vite:build": "vite build --mode tailwind && vite build --mode vendor && vite build --mode vendor-enotf && vite build --mode vendor-chart && vite build --mode styles",
     "build": "npm run vite:build",
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@popperjs/core": "^2.11.8",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.3",
@@ -24,6 +23,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.2.0",
+    "chart.js": "^4.5.1",
     "datatables.net": "^2.3.7",
     "jquery": "3.7"
   }

@@ -10,14 +10,14 @@ use App\Federation\FederationPairingService;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * Federation-Endpoints — Server-to-Server-API für verlinkte intraRP-
  * Instanzen.
  *
  * Auth läuft NICHT über die Router-Middleware, sondern über
- * `FederationMiddleware::authenticate($pdo)` intern in den Methoden.
+ * `FederationMiddleware::authenticate()` intern in den Methoden.
  * Der Grund: Federation nutzt X-Federation-Key-Header mit DB-gespeicherten
  * pro-Instanz-Keys (nicht den globalen `API_KEY`), und die Authentifizierung
  * liefert gleichzeitig das `$link`-Objekt mit den Capabilities der
@@ -30,10 +30,6 @@ use PDO;
  */
 final class FederationController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * GET /api/federation/handshake
      *
@@ -41,7 +37,7 @@ final class FederationController
      */
     public function handshake(Request $request): Response
     {
-        $link = FederationMiddleware::authenticate($this->pdo);
+        $link = FederationMiddleware::authenticate();
 
         $instanceId   = FederationMiddleware::config('FEDERATION_INSTANCE_ID');
         $instanceName = FederationMiddleware::config('FEDERATION_INSTANCE_NAME')
@@ -90,7 +86,7 @@ final class FederationController
             }
         }
 
-        $service = new FederationPairingService($this->pdo);
+        $service = new FederationPairingService();
 
         try {
             // Generiere den Key, den der Initiator für Calls an UNS nutzen muss
@@ -135,7 +131,7 @@ final class FederationController
      */
     public function personnel(Request $request): Response
     {
-        $link = FederationMiddleware::authenticate($this->pdo);
+        $link = FederationMiddleware::authenticate();
         FederationMiddleware::requireProvidePermission($link, 'personnel');
 
         $page    = max(1, (int) ($request->query['page'] ?? 1));
@@ -143,28 +139,29 @@ final class FederationController
         $offset  = ($page - 1) * $perPage;
 
         try {
-            $total = (int) $this->pdo->query("SELECT COUNT(*) FROM intra_mitarbeiter")->fetchColumn();
+            $total = Capsule::table('intra_mitarbeiter')->count();
 
-            $stmt = $this->pdo->prepare("
-                SELECT
-                    m.id,
-                    m.fullname,
-                    m.dienstnr,
-                    d.name AS dienstgrad_name,
-                    d.badge AS dienstgrad_badge,
-                    rd.name AS quali_rd,
-                    rd.abkuerzung AS quali_rd_short,
-                    fw.name AS quali_fw,
-                    m.fachdienste AS quali_fd_json
-                FROM intra_mitarbeiter m
-                LEFT JOIN intra_mitarbeiter_dienstgrade d ON m.dienstgrad = d.id
-                LEFT JOIN intra_mitarbeiter_rdquali rd ON m.qualird = rd.id
-                LEFT JOIN intra_mitarbeiter_fwquali fw ON m.qualifw2 = fw.id
-                ORDER BY m.fullname ASC
-                LIMIT ? OFFSET ?
-            ");
-            $stmt->execute([$perPage, $offset]);
-            $personnel = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $personnel = Capsule::table('intra_mitarbeiter as m')
+                ->leftJoin('intra_mitarbeiter_dienstgrade as d', 'm.dienstgrad', '=', 'd.id')
+                ->leftJoin('intra_mitarbeiter_rdquali as rd', 'm.qualird', '=', 'rd.id')
+                ->leftJoin('intra_mitarbeiter_fwquali as fw', 'm.qualifw2', '=', 'fw.id')
+                ->select(
+                    'm.id',
+                    'm.fullname',
+                    'm.dienstnr',
+                    'd.name as dienstgrad_name',
+                    'd.badge as dienstgrad_badge',
+                    'rd.name as quali_rd',
+                    'rd.abkuerzung as quali_rd_short',
+                    'fw.name as quali_fw',
+                    'm.fachdienste as quali_fd_json'
+                )
+                ->orderBy('m.fullname')
+                ->limit($perPage)
+                ->offset($offset)
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
 
             ApiResponse::success([
                 'instance_id' => FederationMiddleware::config('FEDERATION_INSTANCE_ID'),
@@ -195,7 +192,7 @@ final class FederationController
             ApiResponse::error('eNOTF-Plugin ist auf dieser Instanz nicht aktiv', 404);
         }
 
-        $link = FederationMiddleware::authenticate($this->pdo);
+        $link = FederationMiddleware::authenticate();
         FederationMiddleware::requireProvidePermission($link, 'enotf');
 
         $since   = $request->query['since'] ?? null;
@@ -204,36 +201,35 @@ final class FederationController
         $offset  = ($page - 1) * $perPage;
 
         try {
-            $where  = "WHERE freigegeben = 1 AND hidden = 0 AND hidden_user = 0";
-            $params = [];
+            $baseQuery = Capsule::table('intra_edivi')
+                ->where('freigegeben', 1)
+                ->where('hidden', 0)
+                ->where('hidden_user', 0);
             if ($since) {
-                $where .= " AND updated_at > ?";
-                $params[] = $since;
+                $baseQuery->where('updated_at', '>', $since);
             }
 
-            $countStmt = $this->pdo->prepare("SELECT COUNT(*) FROM intra_edivi {$where}");
-            $countStmt->execute($params);
-            $total = (int) $countStmt->fetchColumn();
+            $total = (clone $baseQuery)->count();
 
-            $stmt = $this->pdo->prepare("
-                SELECT
-                    id, enr, edatum, ezeit,
-                    patname, pat_vorname, pat_nachname, pfname, patgebdat, patsex,
-                    einsatzort, elokation,
-                    fzg_transp, fzg_na,
-                    ziel_poi, ziel_adresse,
-                    naca,
-                    sendezeit, updated_at,
-                    fahrername, fahrerquali,
-                    beifahrername, beifahrerquali,
-                    praktikantname, praktikantquali
-                FROM intra_edivi
-                {$where}
-                ORDER BY updated_at ASC
-                LIMIT ? OFFSET ?
-            ");
-            $stmt->execute(array_merge($params, [$perPage, $offset]));
-            $protocols = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $protocols = (clone $baseQuery)
+                ->select([
+                    'id', 'enr', 'edatum', 'ezeit',
+                    'patname', 'pat_vorname', 'pat_nachname', 'pfname', 'patgebdat', 'patsex',
+                    'einsatzort', 'elokation',
+                    'fzg_transp', 'fzg_na',
+                    'ziel_poi', 'ziel_adresse',
+                    'naca',
+                    'sendezeit', 'updated_at',
+                    'fahrername', 'fahrerquali',
+                    'beifahrername', 'beifahrerquali',
+                    'praktikantname', 'praktikantquali',
+                ])
+                ->orderBy('updated_at')
+                ->limit($perPage)
+                ->offset($offset)
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
 
             $syncCursor = null;
             if (!empty($protocols)) {
@@ -270,7 +266,7 @@ final class FederationController
             ApiResponse::error('fireTab-Plugin ist auf dieser Instanz nicht aktiv', 404);
         }
 
-        $link = FederationMiddleware::authenticate($this->pdo);
+        $link = FederationMiddleware::authenticate();
         FederationMiddleware::requireProvidePermission($link, 'fire');
 
         $since   = $request->query['since'] ?? null;
@@ -279,33 +275,30 @@ final class FederationController
         $offset  = ($page - 1) * $perPage;
 
         try {
-            $where  = "WHERE i.archived = 0";
-            $params = [];
+            $baseQuery = Capsule::table('intra_fire_incidents as i')
+                ->where('i.archived', 0);
             if ($since) {
-                $where .= " AND i.updated_at > ?";
-                $params[] = $since;
+                $baseQuery->where('i.updated_at', '>', $since);
             }
 
-            $countStmt = $this->pdo->prepare("SELECT COUNT(*) FROM intra_fire_incidents i {$where}");
-            $countStmt->execute($params);
-            $total = (int) $countStmt->fetchColumn();
+            $total = (clone $baseQuery)->count();
 
-            $stmt = $this->pdo->prepare("
-                SELECT
-                    i.id, i.incident_number, i.keyword, i.location,
-                    i.location_x, i.location_y,
-                    i.status, i.finalized,
-                    i.leader_id, m.fullname AS leader_name,
-                    i.owner_type, i.owner_name, i.owner_contact,
-                    i.created_at, i.updated_at
-                FROM intra_fire_incidents i
-                LEFT JOIN intra_mitarbeiter m ON i.leader_id = m.id
-                {$where}
-                ORDER BY i.updated_at ASC
-                LIMIT ? OFFSET ?
-            ");
-            $stmt->execute(array_merge($params, [$perPage, $offset]));
-            $incidents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $incidents = (clone $baseQuery)
+                ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
+                ->select(
+                    'i.id', 'i.incident_number', 'i.keyword', 'i.location',
+                    'i.location_x', 'i.location_y',
+                    'i.status', 'i.finalized',
+                    'i.leader_id', 'm.fullname as leader_name',
+                    'i.owner_type', 'i.owner_name', 'i.owner_contact',
+                    'i.created_at', 'i.updated_at'
+                )
+                ->orderBy('i.updated_at')
+                ->limit($perPage)
+                ->offset($offset)
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
 
             $syncCursor = null;
             if (!empty($incidents)) {

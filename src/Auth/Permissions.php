@@ -3,43 +3,40 @@
 namespace App\Auth;
 
 use App\Session\SessionManager;
-use PDO;
-use PDOException;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class Permissions
 {
-    public static function retrieveFromDatabase(PDO $pdo, int $userId): array
+    public static function retrieveFromDatabase(int $userId): array
     {
         try {
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            $userStmt = $pdo->prepare("SELECT role, full_admin FROM intra_users WHERE id = :userId");
-            $userStmt->execute(['userId' => $userId]);
-            $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+            $user = Capsule::table('intra_users')
+                ->where('id', $userId)
+                ->first(['role', 'full_admin']);
 
             if ($user) {
-                if (!empty($user['full_admin'])) {
+                if (!empty($user->full_admin)) {
                     SessionManager::setRoleDetails(99, 'Admin+', 'danger', 0);
                     return ['full_admin'];
                 }
 
-                $roleStmt = $pdo->prepare("SELECT permissions, name, color, priority FROM intra_users_roles WHERE id = :roleId");
-                $roleStmt->execute(['roleId' => $user['role']]);
-                $role = $roleStmt->fetch(PDO::FETCH_ASSOC);
+                $role = Capsule::table('intra_users_roles')
+                    ->where('id', $user->role)
+                    ->first(['permissions', 'name', 'color', 'priority']);
 
                 if ($role) {
                     SessionManager::setRoleDetails(
-                        (int) $user['role'],
-                        $role['name'] ?? null,
-                        $role['color'] ?? null,
-                        isset($role['priority']) ? (int) $role['priority'] : null,
+                        (int) $user->role,
+                        $role->name ?? null,
+                        $role->color ?? null,
+                        isset($role->priority) ? (int) $role->priority : null,
                     );
 
-                    $permissions = json_decode($role['permissions'] ?? '[]', true);
+                    $permissions = json_decode($role->permissions ?? '[]', true);
                     return is_array($permissions) ? $permissions : [];
                 }
             }
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             \App\Logging\Logger::error("Permission DB error: " . $e->getMessage());
         }
 

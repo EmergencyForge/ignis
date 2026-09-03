@@ -10,18 +10,18 @@ use App\Logging\Logger;
 use DateTime;
 use DateTimeZone;
 use Exception;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
  * EMD-Sync-Controller — der zentrale FiveM-Server-Endpoint.
  *
- * Business-Logik ist 1:1 übernommen, nur strukturell umgebaut:
+ * Nachfolger des früheren Standalone-Endpoints `api/emd/` — Unterschiede:
  *
  *   - Alle `logSync(...)` → `Logger::*(...)` (landet im zentralen
  *     Monolog-Logfile statt in `api/emd/logs/emd_sync.log`)
  *   - Alle `echo json_encode(...); exit;` → `return Response::json(...)`
- *   - `$pdo` → `$this->pdo` (via Constructor-Injection)
+ *   - Datenbankzugriffe laufen über die Eloquent-Capsule (Query Builder)
  *   - Hilfsfunktionen → private Methoden auf dem Controller
  *
  * Auth läuft jetzt ausschließlich via `ApiKeyMiddleware` am Router-
@@ -36,10 +36,6 @@ use PDOException;
  */
 final class EmdSyncController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     // ── Public Entry ─────────────────────────────────────────────────
 
     /**
@@ -88,9 +84,7 @@ final class EmdSyncController
             // ── V2: Unified Request ──
             return $this->handleUnifiedSync($receivedData);
         } catch (PDOException $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
+            $this->rollBackIfOpen();
             Logger::error('EmdSync: Datenbankfehler', ['error' => $e->getMessage()]);
             return Response::json([
                 'success' => false,
@@ -98,9 +92,7 @@ final class EmdSyncController
                 'message' => $e->getMessage(),
             ], 500);
         } catch (Exception $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
-            }
+            $this->rollBackIfOpen();
             Logger::error('EmdSync: Interner Fehler', ['error' => $e->getMessage()]);
             return Response::json([
                 'success' => false,
@@ -121,14 +113,7 @@ final class EmdSyncController
         Logger::info('EmdSync: Vehicle Registry empfangen', ['count' => count($vehicles)]);
 
         // Alte pending-Einträge entfernen (neuer Import ersetzt alten)
-        $this->pdo->exec("DELETE FROM intra_fahrzeuge_import_queue WHERE status = 'pending'");
-
-        $insertStmt = $this->pdo->prepare("
-            INSERT INTO intra_fahrzeuge_import_queue
-                (emd_vehicle_id, name, identifier, veh_type, rd_type, department, valuelong, job, image, funkkanal, raw_data)
-            VALUES
-                (:emd_id, :name, :identifier, :veh_type, :rd_type, :department, :valuelong, :job, :image, :funkkanal, :raw_data)
-        ");
+        Capsule::table('intra_fahrzeuge_import_queue')->where('status', 'pending')->delete();
 
         $imported = 0;
         foreach ($vehicles as $v) {
@@ -149,18 +134,18 @@ final class EmdSyncController
             // Identifier aus value generieren (lowercase, Leerzeichen → Unterstrich)
             $identifier = strtolower((string) preg_replace('/[^a-zA-Z0-9_-]/', '_', (string) $vName));
 
-            $insertStmt->execute([
-                ':emd_id'     => $v['id'] ?? null,
-                ':name'       => $vName,
-                ':identifier' => $identifier,
-                ':veh_type'   => $v['type'] ?? '',
-                ':rd_type'    => $rdType,
-                ':department' => $v['department'] ?? null,
-                ':valuelong'  => $v['valuelong'] ?? null,
-                ':job'        => $v['job'] ?? null,
-                ':image'      => $v['image'] ?? null,
-                ':funkkanal'  => $v['funkkanal'] ?? null,
-                ':raw_data'   => json_encode($v),
+            Capsule::table('intra_fahrzeuge_import_queue')->insert([
+                'emd_vehicle_id' => $v['id'] ?? null,
+                'name'           => $vName,
+                'identifier'     => $identifier,
+                'veh_type'       => $v['type'] ?? '',
+                'rd_type'        => $rdType,
+                'department'     => $v['department'] ?? null,
+                'valuelong'      => $v['valuelong'] ?? null,
+                'job'            => $v['job'] ?? null,
+                'image'          => $v['image'] ?? null,
+                'funkkanal'      => $v['funkkanal'] ?? null,
+                'raw_data'       => json_encode($v),
             ]);
             $imported++;
         }
@@ -271,27 +256,24 @@ final class EmdSyncController
             $updatedAt = date('Y-m-d H:i:s');
         }
 
-        $findVehicleStmt = $this->pdo->prepare("SELECT id, name FROM intra_fahrzeuge WHERE name = :name LIMIT 1");
-        $findVehicleStmt->execute([':name' => $vehicleName]);
-        $vehicle = $findVehicleStmt->fetch(PDO::FETCH_ASSOC);
+        $vehicle = Capsule::table('intra_fahrzeuge')
+            ->where('name', $vehicleName)
+            ->first(['id', 'name']);
 
         if (!$vehicle) {
             Logger::warning('EmdSync: status_no_dispatch Fahrzeug nicht gefunden', ['vehicle_name' => $vehicleName]);
             return Response::json(['success' => false, 'error' => 'Fahrzeug nicht gefunden'], 404);
         }
 
-        $vehicleId = (int) $vehicle['id'];
+        $vehicleId = (int) $vehicle->id;
 
-        $updateStmt = $this->pdo->prepare("
-            UPDATE intra_fahrzeuge
-            SET current_status = :status, status_updated_at = :updated_at, status_source = 'no_dispatch'
-            WHERE id = :id
-        ");
-        $updateStmt->execute([
-            ':status'     => (string) $newStatus,
-            ':updated_at' => $updatedAt,
-            ':id'         => $vehicleId,
-        ]);
+        Capsule::table('intra_fahrzeuge')
+            ->where('id', $vehicleId)
+            ->update([
+                'current_status'    => (string) $newStatus,
+                'status_updated_at' => $updatedAt,
+                'status_source'     => 'no_dispatch',
+            ]);
 
         Logger::info('EmdSync: status_no_dispatch Update', [
             'vehicle_name' => $vehicleName,
@@ -341,14 +323,9 @@ final class EmdSyncController
 
             $statusColumn = 's' . $statusValue;
 
-            $findVehicleStmt = $this->pdo->prepare("
-                SELECT identifier, rd_type
-                FROM intra_fahrzeuge
-                WHERE name = :name
-                LIMIT 1
-            ");
-            $findVehicleStmt->execute([':name' => $sender]);
-            $vehicleRow = $findVehicleStmt->fetch(PDO::FETCH_ASSOC);
+            $vehicleRow = Capsule::table('intra_fahrzeuge')
+                ->where('name', $sender)
+                ->first(['identifier', 'rd_type']);
 
             if (!$vehicleRow) {
                 $notFound++;
@@ -356,8 +333,8 @@ final class EmdSyncController
                 continue;
             }
 
-            $vehicleIdentifier = $vehicleRow['identifier'];
-            $rdType            = (int) ($vehicleRow['rd_type'] ?? 0);
+            $vehicleIdentifier = $vehicleRow->identifier;
+            $rdType            = (int) ($vehicleRow->rd_type ?? 0);
 
             // Status-Zuordnung läuft über intra_edivi (eNOTF-Plugin) — ohne
             // aktives Plugin gibt es keine Protokolle, denen der Status
@@ -367,22 +344,18 @@ final class EmdSyncController
                 continue;
             }
 
-            $findEnrStmt = $this->pdo->prepare("
-                SELECT enr
-                FROM intra_edivi
-                WHERE (enr = :mission OR enr LIKE :mission_pattern)
-                  AND (fzg_na = :vehicle_id1 OR fzg_transp = :vehicle_id2)
-                LIMIT 1
-            ");
-            $findEnrStmt->execute([
-                ':mission'         => $missionNumber,
-                ':mission_pattern' => $missionNumber . '_%',
-                ':vehicle_id1'     => $vehicleIdentifier,
-                ':vehicle_id2'     => $vehicleIdentifier,
-            ]);
-            $enrRow = $findEnrStmt->fetch(PDO::FETCH_ASSOC);
+            $enrValue = Capsule::table('intra_edivi')
+                ->where(function ($q) use ($missionNumber) {
+                    $q->where('enr', $missionNumber)
+                        ->orWhere('enr', 'LIKE', $missionNumber . '_%');
+                })
+                ->where(function ($q) use ($vehicleIdentifier) {
+                    $q->where('fzg_na', $vehicleIdentifier)
+                        ->orWhere('fzg_transp', $vehicleIdentifier);
+                })
+                ->value('enr');
 
-            if (!$enrRow) {
+            if ($enrValue === null) {
                 $notFound++;
                 Logger::warning('EmdSync: Einsatz nicht gefunden', [
                     'identifier' => $vehicleIdentifier,
@@ -392,13 +365,13 @@ final class EmdSyncController
                 continue;
             }
 
-            $enr           = $enrRow['enr'];
+            $enr           = $enrValue;
             $formattedTime = $statusTime->format('Y-m-d H:i:s');
 
             if (strtoupper(trim((string) $statusValue)) === 'C') {
-                $sql        = "UPDATE intra_edivi SET salarm = :salarm WHERE enr = :enr";
-                $updateStmt = $this->pdo->prepare($sql);
-                $updateStmt->execute([':salarm' => $formattedTime, ':enr' => $enr]);
+                $affectedRows = Capsule::table('intra_edivi')
+                    ->where('enr', $enr)
+                    ->update(['salarm' => $formattedTime]);
                 Logger::info('EmdSync: Status C (Alarm)', ['sender' => $sender, 'enr' => $enr, 'time' => $formattedTime]);
             } else {
                 $allowedColumns = ['s1', 's2', 's3', 's4', 's7', 's8'];
@@ -406,9 +379,9 @@ final class EmdSyncController
                     Logger::warning('EmdSync: Ungültige Status-Spalte', ['column' => $statusColumn, 'status_id' => $statusId]);
                     continue;
                 }
-                $sql        = "UPDATE intra_edivi SET $statusColumn = :status_time WHERE enr = :enr";
-                $updateStmt = $this->pdo->prepare($sql);
-                $updateStmt->execute([':status_time' => $formattedTime, ':enr' => $enr]);
+                $affectedRows = Capsule::table('intra_edivi')
+                    ->where('enr', $enr)
+                    ->update([$statusColumn => $formattedTime]);
                 Logger::info('EmdSync: Status-Update', [
                     'status' => $statusValue,
                     'sender' => $sender,
@@ -418,40 +391,33 @@ final class EmdSyncController
             }
 
             $updatedThisStatus = false;
-            if ($updateStmt->rowCount() > 0) {
+            if ($affectedRows > 0) {
                 $updated++;
                 $updatedThisStatus = true;
             }
 
             // Fire Incident Status für Feuerwehr-Fahrzeuge (rd_type = 3)
             if ($rdType === 3 && $this->firetabActive()) {
-                $findFireIncidentStmt = $this->pdo->prepare(
-                    "SELECT id FROM intra_fire_incidents WHERE incident_number = :incident_number LIMIT 1"
-                );
-                $findFireIncidentStmt->execute([':incident_number' => (string) $missionNumber]);
-                $fireIncidentRow = $findFireIncidentStmt->fetch(PDO::FETCH_ASSOC);
+                $fireIncidentId = Capsule::table('intra_fire_incidents')
+                    ->where('incident_number', (string) $missionNumber)
+                    ->value('id');
 
-                if ($fireIncidentRow) {
-                    $fireIncidentId = (int) $fireIncidentRow['id'];
-                    $getVehicleIdStmt = $this->pdo->prepare(
-                        "SELECT id FROM intra_fahrzeuge WHERE identifier = :identifier LIMIT 1"
-                    );
-                    $getVehicleIdStmt->execute([':identifier' => $vehicleIdentifier]);
-                    $vehicleIdRow = $getVehicleIdStmt->fetch(PDO::FETCH_ASSOC);
+                if ($fireIncidentId !== null) {
+                    $fireIncidentId = (int) $fireIncidentId;
+                    $vehicleId = Capsule::table('intra_fahrzeuge')
+                        ->where('identifier', $vehicleIdentifier)
+                        ->value('id');
 
-                    if ($vehicleIdRow) {
-                        $vehicleId            = (int) $vehicleIdRow['id'];
-                        $updateFireStatusStmt = $this->pdo->prepare("
-                            UPDATE intra_fire_incident_vehicles
-                            SET current_status = :status, status_updated_at = NOW()
-                            WHERE incident_id = :incident_id AND vehicle_id = :vehicle_id
-                        ");
-                        $updateFireStatusStmt->execute([
-                            ':status'      => (string) $statusValue,
-                            ':incident_id' => $fireIncidentId,
-                            ':vehicle_id'  => $vehicleId,
-                        ]);
-                        if ($updateFireStatusStmt->rowCount() > 0) {
+                    if ($vehicleId !== null) {
+                        $vehicleId = (int) $vehicleId;
+                        $fireStatusAffected = Capsule::table('intra_fire_incident_vehicles')
+                            ->where('incident_id', $fireIncidentId)
+                            ->where('vehicle_id', $vehicleId)
+                            ->update([
+                                'current_status'    => (string) $statusValue,
+                                'status_updated_at' => Capsule::raw('NOW()'),
+                            ]);
+                        if ($fireStatusAffected > 0) {
                             Logger::info('EmdSync: Fire Incident Status aktualisiert', [
                                 'vehicle_id'  => $vehicleId,
                                 'incident_id' => $fireIncidentId,
@@ -520,21 +486,21 @@ final class EmdSyncController
                         }
                     }
 
-                    $fbStmt = $this->pdo->prepare("SELECT id FROM intra_fahrzeuge WHERE name = :name LIMIT 1");
-                    $fbStmt->execute([':name' => $fbVehicleName]);
-                    $fbVehicle = $fbStmt->fetch(PDO::FETCH_ASSOC);
-                    if (!$fbVehicle) {
+                    $fbVehicleId = Capsule::table('intra_fahrzeuge')
+                        ->where('name', $fbVehicleName)
+                        ->value('id');
+                    if ($fbVehicleId === null) {
                         Logger::warning('EmdSync V2 Fallback: Fahrzeug nicht gefunden', ['vehicle_name' => $fbVehicleName]);
                         continue;
                     }
 
-                    $this->pdo->prepare(
-                        "UPDATE intra_fahrzeuge SET current_status = :status, status_updated_at = :updated_at, status_source = 'no_dispatch' WHERE id = :id"
-                    )->execute([
-                        ':status'     => (string) $fbStatus,
-                        ':updated_at' => $fbUpdatedAt,
-                        ':id'         => (int) $fbVehicle['id'],
-                    ]);
+                    Capsule::table('intra_fahrzeuge')
+                        ->where('id', (int) $fbVehicleId)
+                        ->update([
+                            'current_status'    => (string) $fbStatus,
+                            'status_updated_at' => $fbUpdatedAt,
+                            'status_source'     => 'no_dispatch',
+                        ]);
                     Logger::info('EmdSync V2 Fallback: Status-Update', [
                         'vehicle_name' => $fbVehicleName,
                         'status'       => $fbStatus,
@@ -593,7 +559,7 @@ final class EmdSyncController
         $newSitrepsFromDispatch  = 0;
         $fireIncidentsByDispatch = [];
 
-        $this->pdo->beginTransaction();
+        Capsule::connection()->beginTransaction();
 
         foreach ($vehiclesByDispatch as $dispatchId => $dispatchVehicles) {
             $result = $this->processDispatch(
@@ -630,7 +596,7 @@ final class EmdSyncController
         // Status-Queue (ersetzt separaten emd-status-poll.php)
         $statusChanges = $this->collectPendingStatusQueue();
 
-        $this->pdo->commit();
+        Capsule::connection()->commit();
 
         Logger::info('EmdSync: Synchronisation abgeschlossen', [
             'processed_dispatches'     => $processedDispatches,
@@ -716,28 +682,23 @@ final class EmdSyncController
         foreach ($dispatchVehicles as $vehicle) {
             $valueName = $vehicle['value'] ?? null;
 
-            $stmt = $this->pdo->prepare("
-                SELECT id, name, identifier, veh_type, rd_type
-                FROM intra_fahrzeuge
-                WHERE name = :name
-                LIMIT 1
-            ");
-            $stmt->execute([':name' => $valueName]);
-            $dbVehicle = $stmt->fetch(PDO::FETCH_ASSOC);
+            $dbVehicle = Capsule::table('intra_fahrzeuge')
+                ->where('name', $valueName)
+                ->first(['id', 'name', 'identifier', 'veh_type', 'rd_type']);
 
             if (!$dbVehicle) {
                 Logger::warning('EmdSync: Fahrzeug in DB nicht gefunden', ['name' => $valueName]);
                 continue;
             }
 
-            $rdType = (int) ($dbVehicle['rd_type'] ?? 0);
+            $rdType = (int) ($dbVehicle->rd_type ?? 0);
             if ($rdType === 0) {
                 continue;
             }
 
             $vehicleRecord = [
                 'name'         => $valueName,
-                'identifier'   => $dbVehicle['identifier'],
+                'identifier'   => $dbVehicle->identifier,
                 'rd_type'      => $rdType,
                 'is_notarzt'   => ($rdType === 1),
                 'is_transport' => ($rdType === 2),
@@ -813,13 +774,11 @@ final class EmdSyncController
             'fw_count'    => count($fireVehicles),
         ]);
 
-        $checkFireIncidentStmt = $this->pdo->prepare(
-            "SELECT id FROM intra_fire_incidents WHERE incident_number = :incident_number LIMIT 1"
-        );
-        $checkFireIncidentStmt->execute([':incident_number' => (string) $dispatchId]);
-        $existingFireIncident = $checkFireIncidentStmt->fetch(PDO::FETCH_ASSOC);
+        $existingFireIncidentId = Capsule::table('intra_fire_incidents')
+            ->where('incident_number', (string) $dispatchId)
+            ->value('id');
 
-        if (!$existingFireIncident) {
+        if ($existingFireIncidentId === null) {
             // Neuer Fire Incident
             $currentDateTime = (new DateTime('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:s');
 
@@ -862,25 +821,21 @@ final class EmdSyncController
             }
             $notes .= 'Automatisch erstellt durch Synchronisation';
 
-            $insertFireIncidentStmt = $this->pdo->prepare("
-                INSERT INTO intra_fire_incidents
-                (incident_number, location, keyword, caller_name, caller_contact, started_at, status, notes, created_by, created_at, location_x, location_y)
-                VALUES (:incident_number, :location, :keyword, :caller_name, :caller_contact, :started_at, 0, :notes, NULL, :created_at, :location_x, :location_y)
-            ");
-            $insertFireIncidentStmt->execute([
-                ':incident_number' => (string) $dispatchId,
-                ':location'        => $location,
-                ':keyword'         => $keyword,
-                ':caller_name'     => $callerName ?: null,
-                ':caller_contact'  => $callerContact ?: null,
-                ':started_at'      => $currentDateTime,
-                ':notes'           => $notes,
-                ':created_at'      => $currentDateTime,
-                ':location_x'      => $locationX,
-                ':location_y'      => $locationY,
+            $fireIncidentId = (int) Capsule::table('intra_fire_incidents')->insertGetId([
+                'incident_number' => (string) $dispatchId,
+                'location'        => $location,
+                'keyword'         => $keyword,
+                'caller_name'     => $callerName ?: null,
+                'caller_contact'  => $callerContact ?: null,
+                'started_at'      => $currentDateTime,
+                'status'          => 0,
+                'notes'           => $notes,
+                'created_by'      => null,
+                'created_at'      => $currentDateTime,
+                'location_x'      => $locationX,
+                'location_y'      => $locationY,
             ]);
 
-            $fireIncidentId = (int) $this->pdo->lastInsertId();
             Logger::info('EmdSync: Fire Incident erstellt', [
                 'fire_incident_id' => $fireIncidentId,
                 'dispatch_id'      => $dispatchId,
@@ -892,21 +847,21 @@ final class EmdSyncController
             $this->attachFireVehicles($fireIncidentId, $fireVehicles, true);
 
             // Log-Eintrag
-            $insertLogStmt = $this->pdo->prepare("
-                INSERT INTO intra_fire_incident_log
-                (incident_id, action_type, action_description, vehicle_id, operator_id, created_by, created_at)
-                VALUES (:incident_id, 'created', :action_description, NULL, NULL, NULL, NOW())
-            ");
-            $insertLogStmt->execute([
-                ':incident_id'        => $fireIncidentId,
-                ':action_description' => 'Einsatz automatisch durch Sync erstellt',
+            Capsule::table('intra_fire_incident_log')->insert([
+                'incident_id'        => $fireIncidentId,
+                'action_type'        => 'created',
+                'action_description' => 'Einsatz automatisch durch Sync erstellt',
+                'vehicle_id'         => null,
+                'operator_id'        => null,
+                'created_by'         => null,
+                'created_at'         => Capsule::raw('NOW()'),
             ]);
 
             $createdFireIncidents++;
             $fireIncidentsByDispatch[$dispatchId] = $fireIncidentId;
         } else {
-            $fireIncidentId                         = (int) $existingFireIncident['id'];
-            $fireIncidentsByDispatch[$dispatchId]   = $fireIncidentId;
+            $fireIncidentId                       = (int) $existingFireIncidentId;
+            $fireIncidentsByDispatch[$dispatchId] = $fireIncidentId;
             Logger::info('EmdSync: Fire Incident existiert bereits', [
                 'fire_incident_id' => $fireIncidentId,
                 'dispatch_id'      => $dispatchId,
@@ -923,53 +878,43 @@ final class EmdSyncController
     private function attachFireVehicles(int $fireIncidentId, array $fireVehicles, bool $initialCreate): void
     {
         foreach ($fireVehicles as $fireVehicle) {
-            $getVehicleIdStmt = $this->pdo->prepare(
-                "SELECT id FROM intra_fahrzeuge WHERE identifier = :identifier LIMIT 1"
-            );
-            $getVehicleIdStmt->execute([':identifier' => $fireVehicle['identifier']]);
-            $vehicleIdRow = $getVehicleIdStmt->fetch(PDO::FETCH_ASSOC);
+            $vehicleIdValue = Capsule::table('intra_fahrzeuge')
+                ->where('identifier', $fireVehicle['identifier'])
+                ->value('id');
 
-            if (!$vehicleIdRow) {
+            if ($vehicleIdValue === null) {
                 continue;
             }
 
-            $vehicleId = (int) $vehicleIdRow['id'];
+            $vehicleId = (int) $vehicleIdValue;
 
-            $checkVehicleAssignmentStmt = $this->pdo->prepare("
-                SELECT id FROM intra_fire_incident_vehicles
-                WHERE incident_id = :incident_id AND vehicle_id = :vehicle_id
-                LIMIT 1
-            ");
-            $checkVehicleAssignmentStmt->execute([
-                ':incident_id' => $fireIncidentId,
-                ':vehicle_id'  => $vehicleId,
-            ]);
+            $alreadyAssigned = Capsule::table('intra_fire_incident_vehicles')
+                ->where('incident_id', $fireIncidentId)
+                ->where('vehicle_id', $vehicleId)
+                ->exists();
 
-            if ($checkVehicleAssignmentStmt->fetch()) {
+            if ($alreadyAssigned) {
                 continue;
             }
 
-            $insertVehicleStmt = $this->pdo->prepare("
-                INSERT INTO intra_fire_incident_vehicles
-                (incident_id, vehicle_id, from_other_org, created_by, created_at)
-                VALUES (:incident_id, :vehicle_id, 0, NULL, NOW())
-            ");
-            $insertVehicleStmt->execute([
-                ':incident_id' => $fireIncidentId,
-                ':vehicle_id'  => $vehicleId,
+            Capsule::table('intra_fire_incident_vehicles')->insert([
+                'incident_id'    => $fireIncidentId,
+                'vehicle_id'     => $vehicleId,
+                'from_other_org' => 0,
+                'created_by'     => null,
+                'created_at'     => Capsule::raw('NOW()'),
             ]);
 
             // Bei bestehendem Incident zusätzlich Log-Eintrag
             if (!$initialCreate) {
-                $insertLogStmt = $this->pdo->prepare("
-                    INSERT INTO intra_fire_incident_log
-                    (incident_id, action_type, action_description, vehicle_id, operator_id, created_by, created_at)
-                    VALUES (:incident_id, 'vehicle_added', :action_description, :vehicle_id, NULL, NULL, NOW())
-                ");
-                $insertLogStmt->execute([
-                    ':incident_id'        => $fireIncidentId,
-                    ':vehicle_id'         => $vehicleId,
-                    ':action_description' => "Fahrzeug {$fireVehicle['name']} durch Sync hinzugefügt",
+                Capsule::table('intra_fire_incident_log')->insert([
+                    'incident_id'        => $fireIncidentId,
+                    'action_type'        => 'vehicle_added',
+                    'action_description' => "Fahrzeug {$fireVehicle['name']} durch Sync hinzugefügt",
+                    'vehicle_id'         => $vehicleId,
+                    'operator_id'        => null,
+                    'created_by'         => null,
+                    'created_at'         => Capsule::raw('NOW()'),
                 ]);
             }
 
@@ -1019,32 +964,25 @@ final class EmdSyncController
             $reportTimeFormatted = $reportTime->format('Y-m-d H:i:s');
 
             // Deduplizierung: gleicher Text im ±15-Min-Fenster
-            $checkDuplicateStmt = $this->pdo->prepare("
-                SELECT id FROM intra_fire_incident_sitreps
-                WHERE incident_id = :incident_id
-                AND text = :text
-                AND ABS(TIMESTAMPDIFF(SECOND, report_time, :report_time)) <= 900
-                LIMIT 1
-            ");
-            $checkDuplicateStmt->execute([
-                ':incident_id' => $fireIncidentId,
-                ':text'        => $sitrepText,
-                ':report_time' => $reportTimeFormatted,
-            ]);
+            $isDuplicate = Capsule::table('intra_fire_incident_sitreps')
+                ->where('incident_id', $fireIncidentId)
+                ->where('text', $sitrepText)
+                ->whereRaw('ABS(TIMESTAMPDIFF(SECOND, report_time, ?)) <= 900', [$reportTimeFormatted])
+                ->exists();
 
-            if ($checkDuplicateStmt->fetch()) {
+            if ($isDuplicate) {
                 continue;
             }
 
-            $insertSitrepStmt = $this->pdo->prepare("
-                INSERT INTO intra_fire_incident_sitreps
-                (incident_id, report_time, text, vehicle_radio_name, vehicle_id, created_by, source, synced)
-                VALUES (:incident_id, :report_time, :text, 'Leitstelle', NULL, NULL, 'leitstelle', 1)
-            ");
-            $insertSitrepStmt->execute([
-                ':incident_id' => $fireIncidentId,
-                ':report_time' => $reportTimeFormatted,
-                ':text'        => $sitrepText,
+            Capsule::table('intra_fire_incident_sitreps')->insert([
+                'incident_id'        => $fireIncidentId,
+                'report_time'        => $reportTimeFormatted,
+                'text'               => $sitrepText,
+                'vehicle_radio_name' => 'Leitstelle',
+                'vehicle_id'         => null,
+                'created_by'         => null,
+                'source'             => 'leitstelle',
+                'synced'             => 1,
             ]);
 
             $newSitrepsFromDispatch++;
@@ -1082,34 +1020,25 @@ final class EmdSyncController
             return;
         }
 
-        $checkExistingStmt = $this->pdo->prepare("
-            SELECT enr
-            FROM intra_edivi
-            WHERE enr = :enr OR enr LIKE :enr_pattern
-        ");
-        $checkExistingStmt->execute([
-            ':enr'         => $dispatchId,
-            ':enr_pattern' => $dispatchId . '_%',
-        ]);
-        $existingEnrs = $checkExistingStmt->fetchAll(PDO::FETCH_COLUMN);
+        $existingEnrs = Capsule::table('intra_edivi')
+            ->where(function ($q) use ($dispatchId) {
+                $q->where('enr', $dispatchId)
+                    ->orWhere('enr', 'LIKE', $dispatchId . '_%');
+            })
+            ->pluck('enr')
+            ->all();
 
         foreach ($validVehicles as $vehicle) {
             $vehicleIdentifier = $vehicle['identifier'];
             $fieldToCheck      = $vehicle['is_notarzt'] ? 'fzg_na' : 'fzg_transp';
 
-            $checkVehicleStmt = $this->pdo->prepare("
-                SELECT enr
-                FROM intra_edivi
-                WHERE (enr = :enr OR enr LIKE :enr_pattern)
-                AND $fieldToCheck = :vehicle_id
-                LIMIT 1
-            ");
-            $checkVehicleStmt->execute([
-                ':enr'         => $dispatchId,
-                ':enr_pattern' => $dispatchId . '_%',
-                ':vehicle_id'  => $vehicleIdentifier,
-            ]);
-            $existingEntry = $checkVehicleStmt->fetch(PDO::FETCH_ASSOC);
+            $existingEntry = Capsule::table('intra_edivi')
+                ->where(function ($q) use ($dispatchId) {
+                    $q->where('enr', $dispatchId)
+                        ->orWhere('enr', 'LIKE', $dispatchId . '_%');
+                })
+                ->where($fieldToCheck, $vehicleIdentifier)
+                ->first(['enr']);
 
             if ($existingEntry) {
                 continue;
@@ -1144,21 +1073,19 @@ final class EmdSyncController
             $currentTime = date('H:i');
 
             if ($vehicle['is_notarzt']) {
-                $insertStmt = $this->pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_na, edatum, ezeit, prot_by, patname, pat_vorname, pat_nachname, patgebdat, sonderrechte_anfahrt, created_at, createdby)
-                    VALUES (:enr, :fzg_na, :edatum, :ezeit, :prot_by, :patname, :pat_vorname, :pat_nachname, :patgebdat, :sonderrechte_anfahrt, NOW(), 1)
-                ");
-                $insertStmt->execute([
-                    ':enr'                  => $enrToUse,
-                    ':fzg_na'               => $vehicle['identifier'],
-                    ':edatum'               => $currentDate,
-                    ':ezeit'                => $currentTime,
-                    ':prot_by'              => 1,
-                    ':patname'              => $patientData['name'],
-                    ':pat_vorname'          => $patientData['vorname'],
-                    ':pat_nachname'         => $patientData['nachname'],
-                    ':patgebdat'            => $patientData['birthdate'],
-                    ':sonderrechte_anfahrt' => $sonderrechteAnfahrt,
+                Capsule::table('intra_edivi')->insert([
+                    'enr'                  => $enrToUse,
+                    'fzg_na'               => $vehicle['identifier'],
+                    'edatum'               => $currentDate,
+                    'ezeit'                => $currentTime,
+                    'prot_by'              => 1,
+                    'patname'              => $patientData['name'],
+                    'pat_vorname'          => $patientData['vorname'],
+                    'pat_nachname'         => $patientData['nachname'],
+                    'patgebdat'            => $patientData['birthdate'],
+                    'sonderrechte_anfahrt' => $sonderrechteAnfahrt,
+                    'created_at'           => Capsule::raw('NOW()'),
+                    'createdby'            => 1,
                 ]);
 
                 Logger::info('EmdSync: Notarzt-Eintrag erstellt', [
@@ -1166,21 +1093,19 @@ final class EmdSyncController
                     'identifier' => $vehicle['identifier'],
                 ]);
             } else {
-                $insertStmt = $this->pdo->prepare("
-                    INSERT INTO intra_edivi (enr, fzg_transp, edatum, ezeit, prot_by, patname, pat_vorname, pat_nachname, patgebdat, sonderrechte_anfahrt, created_at, createdby)
-                    VALUES (:enr, :fzg_transp, :edatum, :ezeit, :prot_by, :patname, :pat_vorname, :pat_nachname, :patgebdat, :sonderrechte_anfahrt, NOW(), 1)
-                ");
-                $insertStmt->execute([
-                    ':enr'                  => $enrToUse,
-                    ':fzg_transp'           => $vehicle['identifier'],
-                    ':edatum'               => $currentDate,
-                    ':ezeit'                => $currentTime,
-                    ':prot_by'              => 0,
-                    ':patname'              => $patientData['name'],
-                    ':pat_vorname'          => $patientData['vorname'],
-                    ':pat_nachname'         => $patientData['nachname'],
-                    ':patgebdat'            => $patientData['birthdate'],
-                    ':sonderrechte_anfahrt' => $sonderrechteAnfahrt,
+                Capsule::table('intra_edivi')->insert([
+                    'enr'                  => $enrToUse,
+                    'fzg_transp'           => $vehicle['identifier'],
+                    'edatum'               => $currentDate,
+                    'ezeit'                => $currentTime,
+                    'prot_by'              => 0,
+                    'patname'              => $patientData['name'],
+                    'pat_vorname'          => $patientData['vorname'],
+                    'pat_nachname'         => $patientData['nachname'],
+                    'patgebdat'            => $patientData['birthdate'],
+                    'sonderrechte_anfahrt' => $sonderrechteAnfahrt,
+                    'created_at'           => Capsule::raw('NOW()'),
+                    'createdby'            => 1,
                 ]);
 
                 Logger::info('EmdSync: Transport-Eintrag erstellt', [
@@ -1254,17 +1179,19 @@ final class EmdSyncController
         $sitrepIdsToMarkSynced = [];
 
         foreach ($fireIncidentsByDispatch as $dId => $fIncidentId) {
-            $localSitrepsStmt = $this->pdo->prepare("
-                SELECT s.id, s.report_time, s.text, s.vehicle_radio_name, f.name AS sys_name
-                FROM intra_fire_incident_sitreps s
-                LEFT JOIN intra_fahrzeuge f ON s.vehicle_id = f.id
-                WHERE s.incident_id = :incident_id
-                AND (s.source IS NULL OR s.source != 'leitstelle')
-                AND s.synced = 0
-                ORDER BY s.report_time ASC
-            ");
-            $localSitrepsStmt->execute([':incident_id' => $fIncidentId]);
-            $localSitreps = $localSitrepsStmt->fetchAll(PDO::FETCH_ASSOC);
+            $localSitreps = Capsule::table('intra_fire_incident_sitreps as s')
+                ->leftJoin('intra_fahrzeuge as f', 's.vehicle_id', '=', 'f.id')
+                ->select('s.id', 's.report_time', 's.text', 's.vehicle_radio_name', 'f.name as sys_name')
+                ->where('s.incident_id', $fIncidentId)
+                ->where(function ($q) {
+                    $q->whereNull('s.source')
+                        ->orWhere('s.source', '!=', 'leitstelle');
+                })
+                ->where('s.synced', 0)
+                ->orderBy('s.report_time')
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
 
             if (empty($localSitreps)) {
                 continue;
@@ -1287,9 +1214,9 @@ final class EmdSyncController
         }
 
         if (!empty($sitrepIdsToMarkSynced)) {
-            $placeholders = implode(',', array_fill(0, count($sitrepIdsToMarkSynced), '?'));
-            $this->pdo->prepare("UPDATE intra_fire_incident_sitreps SET synced = 1 WHERE id IN ($placeholders)")
-                ->execute($sitrepIdsToMarkSynced);
+            Capsule::table('intra_fire_incident_sitreps')
+                ->whereIn('id', $sitrepIdsToMarkSynced)
+                ->update(['synced' => 1]);
         }
 
         return $situationReports;
@@ -1304,13 +1231,12 @@ final class EmdSyncController
             return [];
         }
 
-        $patSyncStmt = $this->pdo->prepare("
-            SELECT enr, pat_vorname, pat_nachname, patgebdat, prot_by, fzg_na, fzg_transp, ziel_poi
-            FROM intra_edivi
-            WHERE pat_synced = 2
-        ");
-        $patSyncStmt->execute();
-        $pendingPatients = $patSyncStmt->fetchAll(PDO::FETCH_ASSOC);
+        $pendingPatients = Capsule::table('intra_edivi')
+            ->select(['enr', 'pat_vorname', 'pat_nachname', 'patgebdat', 'prot_by', 'fzg_na', 'fzg_transp', 'ziel_poi'])
+            ->where('pat_synced', 2)
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         $patientUpdates           = [];
         $patientEnrsToMarkSynced = [];
@@ -1327,9 +1253,9 @@ final class EmdSyncController
             $funkrufname       = null;
             $vehicleIdentifier = !empty($pp['fzg_transp']) ? $pp['fzg_transp'] : ($pp['fzg_na'] ?? null);
             if (!empty($vehicleIdentifier)) {
-                $vehNameStmt = $this->pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE identifier = :identifier LIMIT 1");
-                $vehNameStmt->execute([':identifier' => $vehicleIdentifier]);
-                $funkrufname = $vehNameStmt->fetchColumn() ?: null;
+                $funkrufname = Capsule::table('intra_fahrzeuge')
+                    ->where('identifier', $vehicleIdentifier)
+                    ->value('name') ?: null;
             }
 
             $patientUpdates[(string) $pp['enr']] = [
@@ -1343,9 +1269,9 @@ final class EmdSyncController
         }
 
         if (!empty($patientEnrsToMarkSynced)) {
-            $placeholders = implode(',', array_fill(0, count($patientEnrsToMarkSynced), '?'));
-            $this->pdo->prepare("UPDATE intra_edivi SET pat_synced = 1 WHERE enr IN ($placeholders)")
-                ->execute($patientEnrsToMarkSynced);
+            Capsule::table('intra_edivi')
+                ->whereIn('enr', $patientEnrsToMarkSynced)
+                ->update(['pat_synced' => 1]);
         }
 
         return $patientUpdates;
@@ -1360,14 +1286,13 @@ final class EmdSyncController
             return [];
         }
 
-        $statusQueueStmt = $this->pdo->prepare("
-            SELECT id, vehicle_name, new_status, incident_number, created_at
-            FROM intra_fire_status_queue
-            WHERE delivered = 0
-            ORDER BY created_at ASC
-        ");
-        $statusQueueStmt->execute();
-        $pendingStatuses = $statusQueueStmt->fetchAll(PDO::FETCH_ASSOC);
+        $pendingStatuses = Capsule::table('intra_fire_status_queue')
+            ->select(['id', 'vehicle_name', 'new_status', 'incident_number', 'created_at'])
+            ->where('delivered', 0)
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         if (empty($pendingStatuses)) {
             return [];
@@ -1386,11 +1311,23 @@ final class EmdSyncController
             $statusIdsToDeliver[] = (int) $sq['id'];
         }
 
-        $placeholders = implode(',', array_fill(0, count($statusIdsToDeliver), '?'));
-        $this->pdo->prepare("UPDATE intra_fire_status_queue SET delivered = 1 WHERE id IN ($placeholders)")
-            ->execute($statusIdsToDeliver);
+        Capsule::table('intra_fire_status_queue')
+            ->whereIn('id', $statusIdsToDeliver)
+            ->update(['delivered' => 1]);
 
         return $statusChanges;
+    }
+
+    /**
+     * Rollt eine noch offene Capsule-Transaktion zurück — Aufräum-Helper
+     * für die catch-Blöcke in sync().
+     */
+    private function rollBackIfOpen(): void
+    {
+        $connection = Capsule::connection();
+        if ($connection->transactionLevel() > 0) {
+            $connection->rollBack();
+        }
     }
 
     /**

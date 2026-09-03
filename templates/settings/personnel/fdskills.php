@@ -3,7 +3,6 @@
  * View: FW Qualifikationen verwalten
  *
  * @var array<int,array<string,mixed>> $qualis
- * @var \PDO                           $pdo
  */
 
 use App\Auth\Permissions;

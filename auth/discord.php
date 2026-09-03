@@ -1,7 +1,6 @@
 <?php
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../assets/config/config.php';
-require __DIR__ . '/../assets/config/database.php';
 
 use App\Helpers\DiscordOAuth;
 use App\Session\SessionManager;

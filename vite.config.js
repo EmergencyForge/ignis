@@ -26,6 +26,7 @@ const scriptEntries = {
     tailwind:       'assets/js/tailwind.js',
     vendor:         'assets/js/vendor.js',
     'vendor-enotf': 'assets/js/vendor-enotf.js',
+    'vendor-chart': 'assets/js/vendor-chart.js',
 };
 
 // Jede .scss-Datei wird zu public/assets/dist/<name>.css. Die

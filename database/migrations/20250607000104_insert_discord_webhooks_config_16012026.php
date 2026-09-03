@@ -5,22 +5,62 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/insert_discord_webhooks_config_16012026.php
- * Spiegelung:     database/legacy/insert_discord_webhooks_config_16012026.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Legt drei Config-Einträge für Discord-Webhooks an: freigegebene
+ * eNOTF-Protokolle, freigegebene Feuerwehr-Protokolle (fireTab) und neue
+ * eNOTF-Voranmeldungen. Die URLs sind initial leer und werden vom Admin in
+ * den Einstellungen gepflegt.
  */
 class InsertDiscordWebhooksConfig16012026 extends AbstractMigration
 {
-    public function change(): void
+    private const CONFIGS = [
+        [
+            'config_key'    => 'DISCORD_WEBHOOK_ENOTF_PROTOCOL',
+            'config_value'  => '',
+            'config_type'   => 'string',
+            'category'      => 'integrationen',
+            'description'   => 'Discord Webhook URL für freigegebene eNOTF Protokolle',
+            'is_editable'   => 1,
+            'display_order' => 100,
+        ],
+        [
+            'config_key'    => 'DISCORD_WEBHOOK_FIRE_PROTOCOL',
+            'config_value'  => '',
+            'config_type'   => 'string',
+            'category'      => 'integrationen',
+            'description'   => 'Discord Webhook URL für freigegebene Feuerwehr (fireTab) Protokolle',
+            'is_editable'   => 1,
+            'display_order' => 101,
+        ],
+        [
+            'config_key'    => 'DISCORD_WEBHOOK_ENOTF_PREREG',
+            'config_value'  => '',
+            'config_type'   => 'string',
+            'category'      => 'integrationen',
+            'description'   => 'Discord Webhook URL für neue Voranmeldungen im eNOTF',
+            'is_editable'   => 1,
+            'display_order' => 102,
+        ],
+    ];
+
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/insert_discord_webhooks_config_16012026.php';
+        $rows = array_filter(self::CONFIGS, function (array $row): bool {
+            return $this->fetchRow(
+                "SELECT id FROM intra_config WHERE config_key = '{$row['config_key']}'"
+            ) === false;
+        });
+
+        if ($rows !== []) {
+            $this->table('intra_config')->insert(array_values($rows))->saveData();
+        }
+    }
+
+    public function down(): void
+    {
+        $keys = array_map(
+            static fn(array $row): string => "'" . $row['config_key'] . "'",
+            self::CONFIGS
+        );
+        $this->execute('DELETE FROM intra_config WHERE config_key IN (' . implode(', ', $keys) . ')');
     }
 }

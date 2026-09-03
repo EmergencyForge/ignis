@@ -6,7 +6,7 @@
  */
 ?>
 <div data-dialog-source class="modal" id="composer-modal" data-dialog-static tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -17,7 +17,7 @@
             <div class="modal-body">
                 <div id="composer-status-content">
                     <div class="text-center mb-3">
-                        <div class="spinner-border text-[#7ba3d4]" role="status">
+                        <div class="ignis-spinner ignis-spinner--lg ignis-spinner--info" role="status">
                             <span class="sr-only">Wird geladen...</span>
                         </div>
                     </div>

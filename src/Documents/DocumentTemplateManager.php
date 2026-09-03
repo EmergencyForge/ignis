@@ -2,17 +2,13 @@
 
 namespace App\Documents;
 
-use PDO;
+use App\Models\DocumentCategory;
+use App\Models\DocumentTemplate;
+use App\Models\DocumentTemplateField;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class DocumentTemplateManager
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
-
     /**
      * Zentrale Typ-Map fuer Legacy-Dokumenttypen (0-13).
      * Typ 99 = Template-basiertes Dokument (Name kommt aus template_name).
@@ -42,30 +38,22 @@ class DocumentTemplateManager
         $categoryId = $data['category_id'] ?? null;
         $category = $data['category'] ?? $this->resolveCategoryEnum($categoryId);
 
-        $params = [
+        $attributes = [
             'name' => $data['name'],
             'category' => $category,
             'category_id' => $categoryId,
             'description' => $data['description'] ?? null,
             'template_file' => $data['template_file'] ?? null,
-            'created_by' => $_SESSION['user_id'] ?? null
+            'created_by' => $_SESSION['user_id'] ?? null,
         ];
 
         if ($this->hasEditorTypeColumn()) {
-            $sql = "INSERT INTO intra_dokument_templates
-                (name, category, category_id, description, template_file, editor_type, created_by)
-                VALUES (:name, :category, :category_id, :description, :template_file, :editor_type, :created_by)";
-            $params['editor_type'] = $data['editor_type'] ?? 'visual';
-        } else {
-            $sql = "INSERT INTO intra_dokument_templates
-                (name, category, category_id, description, template_file, created_by)
-                VALUES (:name, :category, :category_id, :description, :template_file, :created_by)";
+            $attributes['editor_type'] = $data['editor_type'] ?? 'visual';
         }
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        $template = DocumentTemplate::create($attributes);
 
-        return (int) $this->pdo->lastInsertId();
+        return (int) $template->id;
     }
 
     /**
@@ -77,14 +65,7 @@ class DocumentTemplateManager
         if ($hasColumn !== null) return $hasColumn;
 
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE()
-                AND TABLE_NAME = 'intra_dokument_templates'
-                AND COLUMN_NAME = 'editor_type'
-            ");
-            $stmt->execute();
-            $hasColumn = (bool) $stmt->fetchColumn();
+            $hasColumn = Capsule::schema()->hasColumn('intra_dokument_templates', 'editor_type');
         } catch (\PDOException $e) {
             $hasColumn = false;
         }
@@ -97,9 +78,7 @@ class DocumentTemplateManager
             return 'sonstiges';
         }
 
-        $stmt = $this->pdo->prepare("SELECT name FROM intra_dokument_kategorien WHERE id = :id");
-        $stmt->execute(['id' => $categoryId]);
-        $name = $stmt->fetchColumn();
+        $name = DocumentCategory::where('id', $categoryId)->value('name');
 
         // Mappe auf bestehende ENUM-Werte für Abwärtskompatibilität
         $enumMap = [
@@ -116,15 +95,7 @@ class DocumentTemplateManager
      */
     public function addField(int $templateId, array $fieldData): int
     {
-        $stmt = $this->pdo->prepare("
-        INSERT INTO intra_dokument_template_fields 
-        (template_id, field_name, field_label, field_type, field_options, 
-         is_required, gender_specific, sort_order, validation_rules)
-        VALUES (:template_id, :field_name, :field_label, :field_type, 
-                :field_options, :is_required, :gender_specific, :sort_order, :validation_rules)
-    ");
-
-        $stmt->execute([
+        $field = DocumentTemplateField::create([
             'template_id' => $templateId,
             'field_name' => $fieldData['field_name'],
             'field_label' => $fieldData['field_label'],
@@ -137,10 +108,10 @@ class DocumentTemplateManager
             'sort_order' => $fieldData['sort_order'] ?? 0,
             'validation_rules' => isset($fieldData['validation_rules'])
                 ? json_encode($fieldData['validation_rules'])
-                : null
+                : null,
         ]);
 
-        return (int) $this->pdo->lastInsertId();
+        return (int) $field->id;
     }
 
     /**
@@ -148,24 +119,20 @@ class DocumentTemplateManager
      */
     public function getTemplate(int $templateId): ?array
     {
-        $stmt = $this->pdo->prepare("
-            SELECT * FROM intra_dokument_templates WHERE id = :id
-        ");
-        $stmt->execute(['id' => $templateId]);
-        $template = $stmt->fetch(PDO::FETCH_ASSOC);
+        $templateModel = DocumentTemplate::find($templateId);
 
-        if (!$template) {
+        if (!$templateModel) {
             return null;
         }
 
+        $template = $templateModel->getAttributes();
+
         // Lade zugehörige Felder
-        $stmt = $this->pdo->prepare("
-            SELECT * FROM intra_dokument_template_fields 
-            WHERE template_id = :template_id 
-            ORDER BY sort_order ASC
-        ");
-        $stmt->execute(['template_id' => $templateId]);
-        $template['fields'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $template['fields'] = DocumentTemplateField::where('template_id', $templateId)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn (DocumentTemplateField $field) => $field->getAttributes())
+            ->all();
 
         // Dekodiere JSON-Felder
         foreach ($template['fields'] as &$field) {
@@ -185,29 +152,22 @@ class DocumentTemplateManager
      */
     public function listTemplates(?string $category = null, ?int $categoryId = null): array
     {
-        $sql = "SELECT t.*, dk.name as category_name, dk.color as category_color, dk.icon as category_icon
-                FROM intra_dokument_templates t
-                LEFT JOIN intra_dokument_kategorien dk ON t.category_id = dk.id";
-        $params = [];
-        $where = [];
+        $query = Capsule::table('intra_dokument_templates as t')
+            ->leftJoin('intra_dokument_kategorien as dk', 't.category_id', '=', 'dk.id')
+            ->select('t.*', 'dk.name as category_name', 'dk.color as category_color', 'dk.icon as category_icon');
 
         if ($categoryId) {
-            $where[] = "t.category_id = :category_id";
-            $params['category_id'] = $categoryId;
+            $query->where('t.category_id', $categoryId);
         } elseif ($category) {
-            $where[] = "t.category = :category";
-            $params['category'] = $category;
+            $query->where('t.category', $category);
         }
 
-        if (!empty($where)) {
-            $sql .= " WHERE " . implode(' AND ', $where);
-        }
-
-        $sql .= " ORDER BY dk.sort_order ASC, t.name ASC";
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $query
+            ->orderBy('dk.sort_order')
+            ->orderBy('t.name')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
     }
 
     public function createDocument(int $templateId, int $profileId, array $formData, ?string $docId = null): int
@@ -223,31 +183,23 @@ class DocumentTemplateManager
 
         // Generiere docid falls nicht übergeben
         if ($docId === null) {
-            $docId = DocumentIdGenerator::generate($this->pdo);
+            $docId = DocumentIdGenerator::generate();
         }
 
-        $stmt = $this->pdo->prepare("
-        INSERT INTO intra_mitarbeiter_dokumente 
-        (docid, profileid, template_id, type, custom_data, ausstellerid, 
-         ausstellungsdatum, erhalter, erhalter_gebdat, anrede)
-        VALUES (:docid, :profileid, :template_id, 99, :custom_data, 
-                :ausstellerid, :ausstellungsdatum, :erhalter, 
-                :erhalter_gebdat, :anrede)
-    ");
-
-        $stmt->execute([
+        // Insert bewusst über den Query-Builder: das PersonnelDocument-Model
+        // castet `docid` als Integer, hier ist die docid aber alphanumerisch.
+        return (int) Capsule::table('intra_mitarbeiter_dokumente')->insertGetId([
             'docid' => $docId,
             'profileid' => $profileId,
             'template_id' => $templateId,
+            'type' => 99,
             'custom_data' => json_encode($formData),
             'ausstellerid' => $_SESSION['discordtag'] ?? null,
             'ausstellungsdatum' => $formData['ausstellungsdatum'] ?? date('Y-m-d'),
             'erhalter' => $formData['erhalter'] ?? null,
             'erhalter_gebdat' => $formData['erhalter_gebdat'] ?? null,
-            'anrede' => $formData['anrede'] ?? null
+            'anrede' => $formData['anrede'] ?? null,
         ]);
-
-        return (int) $this->pdo->lastInsertId();
     }
 
     /**
@@ -280,16 +232,20 @@ class DocumentTemplateManager
                         break;
 
                     case 'db_dg':
-                        $stmt = $this->pdo->query("SELECT id FROM intra_mitarbeiter_dienstgrade WHERE archive = 0");
-                        $validIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                        $validIds = Capsule::table('intra_mitarbeiter_dienstgrade')
+                            ->where('archive', 0)
+                            ->pluck('id')
+                            ->all();
                         if (!in_array($value, $validIds)) {
                             throw new \Exception("Ungültiger Wert für '{$field['field_label']}'");
                         }
                         break;
 
                     case 'db_rdq':
-                        $stmt = $this->pdo->query("SELECT id FROM intra_mitarbeiter_rdquali WHERE none = 0");
-                        $validIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+                        $validIds = Capsule::table('intra_mitarbeiter_rdquali')
+                            ->where('none', 0)
+                            ->pluck('id')
+                            ->all();
                         if (!in_array($value, $validIds)) {
                             throw new \Exception("Ungültiger Wert für '{$field['field_label']}'");
                         }
@@ -341,7 +297,7 @@ class DocumentTemplateManager
         $template = $this->getTemplate($templateId);
 
         if (!$template) {
-            return '<div class="alert alert-danger">Template nicht gefunden</div>';
+            return '<div class="ignis-alert ignis-alert--danger">Template nicht gefunden</div>';
         }
 
         $html = '<input type="hidden" name="template_id" value="' . $templateId . '">';
@@ -363,33 +319,33 @@ class DocumentTemplateManager
         $name = htmlspecialchars($field['field_name']);
 
         $html = '<div class="mb-3">';
-        $html .= "<label for='{$name}' class='form-label'>{$label}";
+        $html .= "<label for='{$name}' class='ignis-field__label'>{$label}";
 
         if ($field['is_required']) {
-            $html .= ' <span class="text-danger">*</span>';
+            $html .= ' <span class="text-[#d46b6b]">*</span>';
         }
 
         $html .= '</label>';
 
         switch ($field['field_type']) {
             case 'text':
-                $html .= "<input type='text' class='form-control' id='{$name}' name='{$name}' {$required}>";
+                $html .= "<input type='text' class='ignis-input' id='{$name}' name='{$name}' {$required}>";
                 break;
 
             case 'textarea':
-                $html .= "<textarea class='form-control' id='{$name}' name='{$name}' rows='4' {$required}></textarea>";
+                $html .= "<textarea class='ignis-input' id='{$name}' name='{$name}' rows='4' {$required}></textarea>";
                 break;
 
             case 'date':
-                $html .= "<input type='date' class='form-control' id='{$name}' name='{$name}' {$required}>";
+                $html .= "<input type='date' class='ignis-input' id='{$name}' name='{$name}' {$required}>";
                 break;
 
             case 'number':
-                $html .= "<input type='number' class='form-control' id='{$name}' name='{$name}' {$required}>";
+                $html .= "<input type='number' class='ignis-input' id='{$name}' name='{$name}' {$required}>";
                 break;
 
             case 'select':
-                $html .= "<select class='form-select' id='{$name}' name='{$name}' {$required}>";
+                $html .= "<select class='ignis-input' id='{$name}' name='{$name}' {$required}>";
                 $html .= "<option value='' disabled selected>Bitte wählen</option>";
 
                 if (isset($field['field_options'])) {
@@ -404,7 +360,7 @@ class DocumentTemplateManager
                 break;
 
             case 'richtext':
-                $html .= "<textarea class='form-control ckeditor' id='{$name}' name='{$name}' {$required}></textarea>";
+                $html .= "<textarea class='ignis-input ckeditor' id='{$name}' name='{$name}' {$required}></textarea>";
                 break;
         }
 
@@ -421,32 +377,22 @@ class DocumentTemplateManager
         $categoryId = $data['category_id'] ?? null;
         $category = $data['category'] ?? $this->resolveCategoryEnum($categoryId);
 
-        $params = [
-            'id' => $templateId,
+        $attributes = [
             'name' => $data['name'],
             'category' => $category,
             'category_id' => $categoryId,
             'description' => $data['description'] ?? null,
             'template_file' => $data['template_file'] ?? null,
+            'updated_at' => Capsule::raw('CURRENT_TIMESTAMP'),
         ];
 
         if ($this->hasEditorTypeColumn()) {
-            $sql = "UPDATE intra_dokument_templates
-                SET name = :name, category = :category, category_id = :category_id,
-                    description = :description, template_file = :template_file,
-                    editor_type = :editor_type, updated_at = CURRENT_TIMESTAMP
-                WHERE id = :id";
-            $params['editor_type'] = $data['editor_type'] ?? 'visual';
-        } else {
-            $sql = "UPDATE intra_dokument_templates
-                SET name = :name, category = :category, category_id = :category_id,
-                    description = :description, template_file = :template_file,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE id = :id";
+            $attributes['editor_type'] = $data['editor_type'] ?? 'visual';
         }
 
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute($params);
+        DocumentTemplate::where('id', $templateId)->update($attributes);
+
+        return true;
     }
 
     /**
@@ -454,12 +400,11 @@ class DocumentTemplateManager
      */
     public function deleteTemplate(int $templateId): bool
     {
-        $stmt = $this->pdo->prepare("
-            DELETE FROM intra_dokument_templates
-            WHERE id = :id AND is_system = 0
-        ");
+        DocumentTemplate::where('id', $templateId)
+            ->where('is_system', 0)
+            ->delete();
 
-        return $stmt->execute(['id' => $templateId]);
+        return true;
     }
 
     /**
@@ -500,7 +445,7 @@ class DocumentTemplateManager
         }
 
         // 3. Aktives Layout kopieren (falls vorhanden)
-        $layoutManager = new TemplateLayoutManager($this->pdo);
+        $layoutManager = new TemplateLayoutManager();
         $sourceLayout = $layoutManager->getLayout($sourceTemplateId);
         if ($sourceLayout) {
             $layoutManager->saveLayout(
@@ -513,12 +458,8 @@ class DocumentTemplateManager
 
         // 4. Config kopieren (falls vorhanden)
         if (!empty($source['config'])) {
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_dokument_templates SET config = :config WHERE id = :id
-            ");
-            $stmt->execute([
+            DocumentTemplate::where('id', $newId)->update([
                 'config' => is_string($source['config']) ? $source['config'] : json_encode($source['config']),
-                'id' => $newId,
             ]);
         }
 

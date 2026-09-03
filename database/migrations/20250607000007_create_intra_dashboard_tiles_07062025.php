@@ -5,22 +5,35 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_dashboard_tiles_07062025.php
- * Spiegelung:     database/legacy/create_intra_dashboard_tiles_07062025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Dashboard-Kacheln: Links mit Icon und Priorität, je einer Kategorie
+ * zugeordnet (FK mit CASCADE — Kategorie löschen räumt die Kacheln mit ab).
  */
 class CreateIntraDashboardTiles07062025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_dashboard_tiles_07062025.php';
+        if ($this->hasTable('intra_dashboard_tiles')) {
+            return;
+        }
+
+        $this->table('intra_dashboard_tiles', [
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+        ])
+            ->addColumn('category',   'integer',   ['default' => 0, 'null' => false])
+            ->addColumn('title',      'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('url',        'string',    ['limit' => 255, 'default' => '#', 'null' => false])
+            ->addColumn('icon',       'string',    ['limit' => 255, 'default' => 'fa-solid fa-up-right-from-square', 'null' => false])
+            ->addColumn('priority',   'integer',   ['default' => 0, 'null' => false])
+            ->addColumn('created_at', 'timestamp', ['default' => 'CURRENT_TIMESTAMP', 'null' => false])
+            ->addIndex(['category'], ['name' => 'FK_intra_dashboard_tiles_intra_dashboard_categories'])
+            ->addForeignKey('category', 'intra_dashboard_categories', 'id', [
+                'constraint' => 'FK_intra_dashboard_tiles_intra_dashboard_categories',
+                'delete'     => 'CASCADE',
+                'update'     => 'CASCADE',
+            ])
+            ->create();
     }
 }

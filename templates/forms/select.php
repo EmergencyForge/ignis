@@ -3,7 +3,6 @@
  * View: Antragstyp-Auswahl
  *
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\FormType> $typen
- * @var \PDO                                                                  $pdo
  */
 
 use App\Helpers\Flash;

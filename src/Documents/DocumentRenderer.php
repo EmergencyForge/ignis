@@ -2,7 +2,7 @@
 
 namespace App\Documents;
 
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 use App\Helpers\ProtocolDetection;
@@ -11,13 +11,11 @@ class DocumentRenderer
 {
     use DocumentRenderingTrait;
 
-    private PDO $pdo;
     private Environment $twig;
     private string $templatePath;
 
-    public function __construct(PDO $pdo, string $templatePath = __DIR__ . '/../../documents/templates')
+    public function __construct(string $templatePath = __DIR__ . '/../../documents/templates')
     {
-        $this->pdo = $pdo;
         $this->templatePath = $templatePath;
 
         // Initialisiere Twig Template Engine
@@ -36,19 +34,17 @@ class DocumentRenderer
         // Prüfe ob die Visual-Editor-Spalten existieren
         $hasVisualColumns = $this->hasVisualEditorColumns();
 
-        $selectCols = 'd.*, t.template_file, t.is_system';
+        $selectCols = ['d.*', 't.template_file', 't.is_system'];
         if ($hasVisualColumns) {
-            $selectCols .= ', t.editor_type, t.layout_id';
+            $selectCols[] = 't.editor_type';
+            $selectCols[] = 't.layout_id';
         }
 
-        $stmt = $this->pdo->prepare("
-            SELECT {$selectCols}
-            FROM intra_mitarbeiter_dokumente d
-            LEFT JOIN intra_dokument_templates t ON d.template_id = t.id
-            WHERE d.id = :docid
-        ");
-        $stmt->execute(['docid' => $docId]);
-        $doc = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = Capsule::table('intra_mitarbeiter_dokumente as d')
+            ->leftJoin('intra_dokument_templates as t', 'd.template_id', '=', 't.id')
+            ->where('d.id', $docId)
+            ->first($selectCols);
+        $doc = $row !== null ? (array) $row : null;
 
         if (!$doc || !$doc['template_id']) {
             throw new \Exception("Dokument oder Template nicht gefunden");
@@ -56,7 +52,7 @@ class DocumentRenderer
 
         // Visuelles Template → VisualTemplateRenderer
         if (($doc['editor_type'] ?? 'twig') === 'visual' && !empty($doc['layout_id'])) {
-            $visualRenderer = new VisualTemplateRenderer($this->pdo);
+            $visualRenderer = new VisualTemplateRenderer();
             return $visualRenderer->renderDocument($doc);
         }
 
@@ -73,14 +69,7 @@ class DocumentRenderer
         if ($hasColumns !== null) return $hasColumns;
 
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE()
-                AND TABLE_NAME = 'intra_dokument_templates'
-                AND COLUMN_NAME = 'editor_type'
-            ");
-            $stmt->execute();
-            $hasColumns = (bool) $stmt->fetchColumn();
+            $hasColumns = Capsule::schema()->hasColumn('intra_dokument_templates', 'editor_type');
         } catch (\PDOException $e) {
             $hasColumns = false;
         }
@@ -96,15 +85,13 @@ class DocumentRenderer
         $issuer = $this->getIssuerData($doc['ausstellerid']);
 
         // Lade Template-Felder und Config
-        $stmt = $this->pdo->prepare("
-            SELECT tf.*, t.config 
-            FROM intra_dokument_template_fields tf
-            JOIN intra_dokument_templates t ON tf.template_id = t.id
-            WHERE tf.template_id = ?
-            ORDER BY tf.sort_order
-        ");
-        $stmt->execute([$doc['template_id']]);
-        $templateFields = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $templateFields = Capsule::table('intra_dokument_template_fields as tf')
+            ->join('intra_dokument_templates as t', 'tf.template_id', '=', 't.id')
+            ->where('tf.template_id', $doc['template_id'])
+            ->orderBy('tf.sort_order')
+            ->get(['tf.*', 't.config'])
+            ->map(fn ($fieldRow) => (array) $fieldRow)
+            ->all();
 
         $templateConfig = json_decode($templateFields[0]['config'] ?? '{}', true);
 

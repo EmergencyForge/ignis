@@ -5,7 +5,6 @@
  * @var array<int,array<string,mixed>> $lagen
  * @var array<int,array<string,int>>   $statistiken  Lage-ID → ['total_patienten', 'sk1', ..., 'transportiert', 'wartend']
  * @var string                          $statusFilter
- * @var \PDO                            $pdo
  */
 
 $SITE_TITLE = 'MANV-Übersicht';
@@ -95,13 +94,13 @@ $SITE_TITLE = 'MANV-Übersicht';
                             'transportiert' => 0, 'wartend' => 0,
                         ];
 
-                        $statusClass = 'bg-success';
+                        $statusClass = 'ignis-chip--success';
                         $statusText  = 'Aktiv';
                         if ($lage['status'] === 'abgeschlossen') {
-                            $statusClass = 'bg-warning';
+                            $statusClass = 'ignis-chip--warning';
                             $statusText  = 'Abgeschlossen';
                         } elseif ($lage['status'] === 'archiviert') {
-                            $statusClass = 'bg-secondary';
+                            $statusClass = 'ignis-chip--secondary';
                             $statusText  = 'Archiviert';
                         }
                     ?>

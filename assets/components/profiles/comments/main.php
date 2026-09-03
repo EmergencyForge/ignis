@@ -1,5 +1,4 @@
 <?php
-require __DIR__ . '/../../../../assets/config/database.php';
 
 use App\Auth\Permissions;
 use App\Personnel\PersonalLogManager;
@@ -7,7 +6,7 @@ use App\Personnel\PersonalLogManager;
 $commentsPerPage = 6;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 
-$logManager = new PersonalLogManager($pdo);
+$logManager = new PersonalLogManager();
 $result = $logManager->getComments($_GET['id'], $page, $commentsPerPage);
 $comments = $result['entries'];
 $totalComments = $result['total'];

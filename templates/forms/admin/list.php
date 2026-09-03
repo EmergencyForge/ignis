@@ -4,7 +4,6 @@
  *
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Antrag>     $antraege
  * @var array<int,array{class:string,text:string,icon:string}>                $statusDisplay
- * @var \PDO                                                                   $pdo
  */
 
 use App\Auth\Gate;

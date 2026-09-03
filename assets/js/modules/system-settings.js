@@ -142,8 +142,11 @@
   }
 
   function showFailure(modalElement, progressBar, statusText, title, message) {
-    progressBar.classList.remove('progress-bar-animated');
-    progressBar.classList.add('bg-danger');
+    const progressWrap = progressBar.closest('.ignis-progress');
+    if (progressWrap) {
+      progressWrap.classList.remove('ignis-progress--info', 'ignis-progress--striped');
+      progressWrap.classList.add('ignis-progress--danger');
+    }
 
     statusText.innerHTML = '<small class="text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle"></i> </small>';
     statusText.querySelector('small').appendChild(document.createTextNode(message));
@@ -152,7 +155,7 @@
       modalElement.querySelector('.modal-header').innerHTML =
         '<h5 class="modal-title text-[#d46b6b]"><i class="fa-solid fa-exclamation-triangle mr-2"></i>' + title + '</h5>' +
         '<button type="button" class="btn-close" data-dialog-dismiss></button>';
-      const alertInfo = modalElement.querySelector('.modal-body .alert-info');
+      const alertInfo = modalElement.querySelector('.modal-body .ignis-alert--info');
       if (alertInfo) alertInfo.classList.add('hidden');
     }, 1000);
   }

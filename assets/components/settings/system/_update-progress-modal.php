@@ -9,7 +9,7 @@
  */
 ?>
 <div data-dialog-source class="modal" id="update-progress-modal" data-dialog-static tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
@@ -19,16 +19,17 @@
             </div>
             <div class="modal-body">
                 <div class="text-center mb-3">
-                    <div class="spinner-border text-[#7ba3d4]" role="status">
+                    <div class="ignis-spinner ignis-spinner--lg ignis-spinner--info" role="status">
                         <span class="sr-only">Wird geladen...</span>
                     </div>
                 </div>
-                <div class="progress mb-3" style="height: 25px;">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated"
-                         role="progressbar"
-                         id="update-progress-bar"
-                         style="width: 0%">
-                        <span id="update-progress-text">0%</span>
+                <div class="ignis-progress ignis-progress--labeled ignis-progress--striped ignis-progress--info mb-3">
+                    <div class="ignis-progress__label"><strong id="update-progress-text">0%</strong></div>
+                    <div class="ignis-progress__track">
+                        <div class="ignis-progress__bar"
+                             role="progressbar"
+                             id="update-progress-bar"
+                             style="width: 0%"></div>
                     </div>
                 </div>
                 <div id="update-status-text" class="text-center">

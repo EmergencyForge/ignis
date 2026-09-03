@@ -3,22 +3,22 @@
 
 // Load all log entries for this incident
 try {
-    $logStmt = $pdo->prepare("
-        SELECT 
-            l.*,
-            m.fullname as operator_name,
-            u.fullname as created_by_name,
-            f.name as vehicle_name,
-            f.identifier as vehicle_identifier
-        FROM intra_fire_incident_log l
-        LEFT JOIN intra_mitarbeiter m ON l.operator_id = m.id
-        LEFT JOIN intra_mitarbeiter u ON l.created_by = u.id
-        LEFT JOIN intra_fahrzeuge f ON l.vehicle_id = f.id
-        WHERE l.incident_id = ?
-        ORDER BY l.created_at DESC
-    ");
-    $logStmt->execute([$id]);
-    $logEntries = $logStmt->fetchAll(PDO::FETCH_ASSOC);
+    $logEntries = \Illuminate\Database\Capsule\Manager::table('intra_fire_incident_log as l')
+        ->leftJoin('intra_mitarbeiter as m', 'l.operator_id', '=', 'm.id')
+        ->leftJoin('intra_mitarbeiter as u', 'l.created_by', '=', 'u.id')
+        ->leftJoin('intra_fahrzeuge as f', 'l.vehicle_id', '=', 'f.id')
+        ->where('l.incident_id', $id)
+        ->select([
+            'l.*',
+            'm.fullname as operator_name',
+            'u.fullname as created_by_name',
+            'f.name as vehicle_name',
+            'f.identifier as vehicle_identifier',
+        ])
+        ->orderBy('l.created_at', 'desc')
+        ->get()
+        ->map(fn ($row) => (array) $row)
+        ->all();
 } catch (PDOException $e) {
     $logEntries = [];
 }
@@ -52,8 +52,8 @@ $actionTypeLabels = [
                 Noch keine Einträge vorhanden.
             </div>
         <?php else: ?>
-            <div class="table-responsive">
-                <table class="table table-hover table-sm">
+            <div class="twplus-table-card">
+                <table class="table table-hover table-sm twplus-table">
                     <thead>
                         <tr>
                             <th style="width: 180px;">Zeitpunkt</th>
@@ -122,15 +122,6 @@ $actionTypeLabels = [
 </div>
 
 <style>
-    .table-dark tbody tr:hover {
-        background-color: rgba(255, 255, 255, 0.05);
-    }
-
-    .badge {
-        font-weight: 500;
-        padding: 0.4em 0.6em;
-    }
-
     .system-badge {
         background: rgba(255, 0, 0, .3);
         color: #ff0000;

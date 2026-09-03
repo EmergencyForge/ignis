@@ -1,24 +1,24 @@
 <?php
+
+use Illuminate\Database\Capsule\Manager as Capsule;
+
 // Optimiert: Eine UNION-Query statt separater Queries. Die eNOTF-Zahl
 // läuft getrennt — intra_edivi gehört zum Plugin, und eine fehlende
 // Tabelle würde sonst die komplette UNION (alle vier Werte) reißen.
-$statsQuery = "
-    SELECT 'users' as stat_type, COUNT(*) as stat_count FROM intra_users
-    UNION ALL
-    SELECT 'mitarbeiter', COUNT(*) FROM intra_mitarbeiter
-    UNION ALL
-    SELECT 'dokumente', COUNT(*) FROM intra_mitarbeiter_dokumente
-";
-$statsStmt = $pdo->query($statsQuery);
+$statsRows = Capsule::table('intra_users')
+    ->selectRaw("'users' as stat_type, COUNT(*) as stat_count")
+    ->unionAll(Capsule::table('intra_mitarbeiter')->selectRaw("'mitarbeiter', COUNT(*)"))
+    ->unionAll(Capsule::table('intra_mitarbeiter_dokumente')->selectRaw("'dokumente', COUNT(*)"))
+    ->get();
 $statsData = [];
-while ($row = $statsStmt->fetch(PDO::FETCH_ASSOC)) {
-    $statsData[$row['stat_type']] = (int)$row['stat_count'];
+foreach ($statsRows as $row) {
+    $statsData[$row->stat_type] = (int)$row->stat_count;
 }
 
 $statsEnotfActive = function_exists('app') && app(\App\Plugins\PluginLoader::class)->isActive('enotf');
 if ($statsEnotfActive) {
     try {
-        $statsData['enotf'] = (int)$pdo->query("SELECT COUNT(*) FROM intra_edivi")->fetchColumn();
+        $statsData['enotf'] = (int)Capsule::table('intra_edivi')->count();
     } catch (Exception) {
         $statsEnotfActive = false;
     }

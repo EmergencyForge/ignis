@@ -8,8 +8,8 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
 use DateTime;
-use PDO;
 use PDOException;
+use Plugin\Firetab\Models\FireStatusQueueEntry;
 
 /**
  * FiveM Fire-Status-Polling-Endpoint.
@@ -23,42 +23,29 @@ use PDOException;
  */
 final class FireStatusPollController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     public function poll(Request $request): Response
     {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT id, vehicle_name, new_status, incident_number, created_at
-                FROM intra_fire_status_queue
-                WHERE delivered = 0
-                ORDER BY created_at ASC
-            ");
-            $stmt->execute();
-            $pending = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $pending = FireStatusQueueEntry::where('delivered', 0)
+                ->orderBy('created_at', 'asc')
+                ->get(['id', 'vehicle_name', 'new_status', 'incident_number', 'created_at']);
 
             $statusChanges = [];
             $idsToMark     = [];
 
             foreach ($pending as $row) {
-                $createdAt = new DateTime($row['created_at']);
+                $createdAt = new DateTime($row->created_at);
                 $statusChanges[] = [
-                    'vehicle_name'    => $row['vehicle_name'],
-                    'status'          => $row['new_status'],
-                    'incident_number' => $row['incident_number'],
+                    'vehicle_name'    => $row->vehicle_name,
+                    'status'          => $row->new_status,
+                    'incident_number' => $row->incident_number,
                     'timestamp'       => $createdAt->format('d.m.Y H:i'),
                 ];
-                $idsToMark[] = (int) $row['id'];
+                $idsToMark[] = (int) $row->id;
             }
 
             if (!empty($idsToMark)) {
-                $placeholders = implode(',', array_fill(0, count($idsToMark), '?'));
-                $updateStmt = $this->pdo->prepare(
-                    "UPDATE intra_fire_status_queue SET delivered = 1 WHERE id IN ($placeholders)"
-                );
-                $updateStmt->execute($idsToMark);
+                FireStatusQueueEntry::whereIn('id', $idsToMark)->update(['delivered' => 1]);
             }
 
             return Response::json([

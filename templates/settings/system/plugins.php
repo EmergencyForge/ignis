@@ -3,7 +3,6 @@
 /**
  * View: Plugin-Verwaltung
  *
- * @var \PDO                                $pdo
  * @var list<array{id: string, manifest: \App\Plugins\PluginManifest, enabled: bool, active: bool, skipReason: ?string, requiredBy: list<string>}> $rows
  * @var string                              $message
  * @var string                              $messageType

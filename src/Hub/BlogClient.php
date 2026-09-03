@@ -6,7 +6,7 @@ namespace App\Hub;
 
 use App\Config\ConfigManager;
 use App\Logging\Logger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * BlogClient — Bridge zur public Blog-API von emergencyforge.de.
@@ -31,7 +31,6 @@ final class BlogClient
     private const HARD_CAP        = 25;
 
     public function __construct(
-        private readonly PDO $pdo,
         private readonly ConfigManager $config,
     ) {}
 
@@ -52,33 +51,28 @@ final class BlogClient
     public function get(int $limit = 5, ?string $category = null, ?string $tag = null): array
     {
         $limit = max(1, min(self::HARD_CAP, $limit));
-        $where  = [];
-        $params = [];
-
-        if ($category !== null && $category !== '') {
-            $where[]            = 'category = :cat';
-            $params[':cat']     = $category;
-        }
-        if ($tag !== null && $tag !== '') {
-            $where[]            = 'tags LIKE :tag';
-            $params[':tag']     = '%"' . strtolower($tag) . '"%';
-        }
-        $whereSql = $where === [] ? '' : ' WHERE ' . implode(' AND ', $where);
 
         try {
-            $stmt = $this->pdo->prepare(
-                'SELECT id, slug, title, subtitle, preview, cover_image,
-                        author_name, author_avatar, category, category_label,
-                        tags, reading_minutes, pinned, url, published_at
-                 FROM intra_blog_cache' . $whereSql . '
-                 ORDER BY pinned DESC, published_at DESC
-                 LIMIT ' . $limit
-            );
-            foreach ($params as $k => $v) {
-                $stmt->bindValue($k, $v);
+            $query = Capsule::table('intra_blog_cache');
+
+            if ($category !== null && $category !== '') {
+                $query->where('category', $category);
             }
-            $stmt->execute();
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            if ($tag !== null && $tag !== '') {
+                $query->where('tags', 'like', '%"' . strtolower($tag) . '"%');
+            }
+
+            $rows = $query
+                ->orderByDesc('pinned')
+                ->orderByDesc('published_at')
+                ->limit($limit)
+                ->get([
+                    'id', 'slug', 'title', 'subtitle', 'preview', 'cover_image',
+                    'author_name', 'author_avatar', 'category', 'category_label',
+                    'tags', 'reading_minutes', 'pinned', 'url', 'published_at',
+                ])
+                ->map(fn ($row) => (array) $row)
+                ->all();
         } catch (\PDOException $e) {
             Logger::warning('BlogClient: cache read failed: ' . $e->getMessage());
             return [];
@@ -219,20 +213,10 @@ final class BlogClient
     /** @param array<int, array<string,mixed>> $items */
     private function persist(array $items): int
     {
-        $this->pdo->beginTransaction();
+        $connection = Capsule::connection();
+        $connection->beginTransaction();
         try {
-            $this->pdo->exec('DELETE FROM intra_blog_cache');
-
-            $stmt = $this->pdo->prepare(
-                'INSERT INTO intra_blog_cache
-                    (id, slug, title, subtitle, preview, cover_image,
-                     author_name, author_avatar, category, category_label,
-                     tags, reading_minutes, pinned, url, published_at, fetched_at)
-                 VALUES
-                    (:id, :slug, :title, :subtitle, :preview, :cover_image,
-                     :author_name, :author_avatar, :category, :category_label,
-                     :tags, :reading_minutes, :pinned, :url, :published_at, NOW())'
-            );
+            $connection->table('intra_blog_cache')->delete();
 
             $written = 0;
             foreach ($items as $item) {
@@ -251,30 +235,31 @@ final class BlogClient
                     $tags = array_values(array_filter($item['tags'], 'is_string'));
                 }
 
-                $stmt->execute([
-                    ':id'              => $id,
-                    ':slug'            => $slug !== '' ? $slug : $id,
-                    ':title'           => $title,
-                    ':subtitle'        => $this->stringField($item, 'subtitle') !== '' ? $this->stringField($item, 'subtitle') : null,
-                    ':preview'         => $this->stringField($item, 'preview')  !== '' ? $this->stringField($item, 'preview')  : null,
-                    ':cover_image'     => $this->stringField($item, 'cover_image') !== '' ? $this->stringField($item, 'cover_image') : null,
-                    ':author_name'     => $this->stringField($author, 'name'),
-                    ':author_avatar'   => $this->stringField($author, 'avatar') !== '' ? $this->stringField($author, 'avatar') : null,
-                    ':category'        => $this->stringField($item, 'category'),
-                    ':category_label'  => $this->stringField($item, 'category_label'),
-                    ':tags'            => $tags === [] ? null : json_encode($tags, JSON_UNESCAPED_UNICODE),
-                    ':reading_minutes' => isset($item['reading_minutes']) && is_numeric($item['reading_minutes'])
+                $connection->table('intra_blog_cache')->insert([
+                    'id'              => $id,
+                    'slug'            => $slug !== '' ? $slug : $id,
+                    'title'           => $title,
+                    'subtitle'        => $this->stringField($item, 'subtitle') !== '' ? $this->stringField($item, 'subtitle') : null,
+                    'preview'         => $this->stringField($item, 'preview')  !== '' ? $this->stringField($item, 'preview')  : null,
+                    'cover_image'     => $this->stringField($item, 'cover_image') !== '' ? $this->stringField($item, 'cover_image') : null,
+                    'author_name'     => $this->stringField($author, 'name'),
+                    'author_avatar'   => $this->stringField($author, 'avatar') !== '' ? $this->stringField($author, 'avatar') : null,
+                    'category'        => $this->stringField($item, 'category'),
+                    'category_label'  => $this->stringField($item, 'category_label'),
+                    'tags'            => $tags === [] ? null : json_encode($tags, JSON_UNESCAPED_UNICODE),
+                    'reading_minutes' => isset($item['reading_minutes']) && is_numeric($item['reading_minutes'])
                         ? (int) $item['reading_minutes'] : null,
-                    ':pinned'          => !empty($item['pinned']) ? 1 : 0,
-                    ':url'             => $url,
-                    ':published_at'    => $this->normalizeDate($pubAt),
+                    'pinned'          => !empty($item['pinned']) ? 1 : 0,
+                    'url'             => $url,
+                    'published_at'    => $this->normalizeDate($pubAt),
+                    'fetched_at'      => Capsule::raw('NOW()'),
                 ]);
                 $written++;
             }
-            $this->pdo->commit();
+            $connection->commit();
             return $written;
         } catch (\Throwable $e) {
-            $this->pdo->rollBack();
+            $connection->rollBack();
             Logger::warning('BlogClient: persist failed: ' . $e->getMessage());
             return 0;
         }
@@ -284,11 +269,10 @@ final class BlogClient
     private function loadMeta(): array
     {
         try {
-            $stmt = $this->pdo->prepare(
-                'SELECT key_name, value FROM intra_blog_meta WHERE key_name IN (:k1, :k2)'
-            );
-            $stmt->execute([':k1' => 'etag', ':k2' => 'last_modified']);
-            $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
+            $rows = Capsule::table('intra_blog_meta')
+                ->whereIn('key_name', ['etag', 'last_modified'])
+                ->pluck('value', 'key_name')
+                ->all();
         } catch (\PDOException) {
             return ['etag' => '', 'last_modified' => ''];
         }
@@ -302,11 +286,11 @@ final class BlogClient
     private function saveMeta(array $values): void
     {
         try {
-            $stmt = $this->pdo->prepare(
-                'REPLACE INTO intra_blog_meta (key_name, value) VALUES (:k, :v)'
-            );
             foreach ($values as $key => $value) {
-                $stmt->execute([':k' => $key, ':v' => $value]);
+                Capsule::table('intra_blog_meta')->updateOrInsert(
+                    ['key_name' => $key],
+                    ['value' => $value]
+                );
             }
         } catch (\PDOException $e) {
             Logger::warning('BlogClient: saveMeta failed: ' . $e->getMessage());

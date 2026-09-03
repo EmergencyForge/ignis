@@ -2,20 +2,15 @@
 
 namespace App\Notifications;
 
-use PDO;
+use App\Models\Notification;
+use App\Models\User;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class NotificationManager
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
-
     /**
      * Create a new notification for a user
-     * 
+     *
      * @param int $userId User ID to notify
      * @param string $type Type of notification (antrag, protokoll, dokument, system, fire_protocol)
      * @param string $title Notification title
@@ -33,12 +28,15 @@ class NotificationManager
         }
 
         try {
-            $stmt = $this->pdo->prepare("
-                INSERT INTO intra_notifications (user_id, type, title, message, link)
-                VALUES (?, ?, ?, ?, ?)
-            ");
+            Notification::create([
+                'user_id' => $userId,
+                'type' => $type,
+                'title' => $title,
+                'message' => $message,
+                'link' => $link,
+            ]);
 
-            return $stmt->execute([$userId, $type, $title, $message, $link]);
+            return true;
         } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to create notification: " . $e->getMessage());
             return false;
@@ -47,17 +45,15 @@ class NotificationManager
 
     /**
      * Get user ID by discord tag
-     * 
+     *
      * @param string $discordTag Discord tag
      * @return int|null User ID or null if not found
      */
     public function getUserIdByDiscordTag(string $discordTag): ?int
     {
         try {
-            $stmt = $this->pdo->prepare("SELECT id FROM intra_users WHERE discord_id = ?");
-            $stmt->execute([$discordTag]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $result ? (int)$result['id'] : null;
+            $id = User::where('discord_id', $discordTag)->value('id');
+            return $id !== null ? (int) $id : null;
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to get user ID: " . $e->getMessage());
             return null;
@@ -67,7 +63,7 @@ class NotificationManager
     /**
      * Get user ID by full name
      * Searches in Mitarbeiter profile first, then falls back to intra_users
-     * 
+     *
      * @param string $fullname Full name of user
      * @return int|null User ID or null if not found
      */
@@ -75,24 +71,18 @@ class NotificationManager
     {
         try {
             // First try to find by Mitarbeiter fullname
-            $stmt = $this->pdo->prepare("
-                SELECT u.id 
-                FROM intra_mitarbeiter m 
-                JOIN intra_users u ON m.discordtag = u.discord_id 
-                WHERE m.fullname = ?
-            ");
-            $stmt->execute([$fullname]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $id = Capsule::table('intra_mitarbeiter as m')
+                ->join('intra_users as u', 'm.discordtag', '=', 'u.discord_id')
+                ->where('m.fullname', $fullname)
+                ->value('u.id');
 
-            if ($result) {
-                return (int)$result['id'];
+            if ($id !== null) {
+                return (int) $id;
             }
 
             // Fallback to intra_users fullname
-            $stmt = $this->pdo->prepare("SELECT id FROM intra_users WHERE fullname = ?");
-            $stmt->execute([$fullname]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $result ? (int)$result['id'] : null;
+            $id = User::where('fullname', $fullname)->value('id');
+            return $id !== null ? (int) $id : null;
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to get user ID by fullname: " . $e->getMessage());
             return null;
@@ -101,7 +91,7 @@ class NotificationManager
 
     /**
      * Get unread notifications for a user
-     * 
+     *
      * @param int $userId User ID
      * @param int $limit Maximum number of notifications to retrieve
      * @return array Array of notifications
@@ -109,19 +99,18 @@ class NotificationManager
     public function getUnread(int $userId, int $limit = 50, ?string $type = null, int $offset = 0): array
     {
         try {
-            $sql = "SELECT * FROM intra_notifications WHERE user_id = ? AND is_read = 0";
-            $params = [$userId];
+            $query = Notification::where('user_id', $userId)->where('is_read', 0);
             if ($type) {
-                $sql .= " AND type = ?";
-                $params[] = $type;
+                $query->where('type', $type);
             }
-            $sql .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
-            $params[] = $limit;
-            $params[] = $offset;
 
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($params);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $query
+                ->orderByDesc('created_at')
+                ->limit($limit)
+                ->offset($offset)
+                ->get()
+                ->map(fn (Notification $n) => $n->getAttributes())
+                ->all();
         } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to get unread notifications: " . $e->getMessage());
             return [];
@@ -130,20 +119,14 @@ class NotificationManager
 
     /**
      * Get unread notification count for a user
-     * 
+     *
      * @param int $userId User ID
      * @return int Count of unread notifications
      */
     public function getUnreadCount(int $userId): int
     {
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT COUNT(*) as count FROM intra_notifications
-                WHERE user_id = ? AND is_read = 0
-            ");
-            $stmt->execute([$userId]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return (int)($result['count'] ?? 0);
+            return Notification::where('user_id', $userId)->where('is_read', 0)->count();
         } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to get unread count: " . $e->getMessage());
             return 0;
@@ -152,7 +135,7 @@ class NotificationManager
 
     /**
      * Get all notifications for a user (read and unread)
-     * 
+     *
      * @param int $userId User ID
      * @param int $limit Maximum number of notifications to retrieve
      * @param int $offset Offset for pagination
@@ -161,19 +144,18 @@ class NotificationManager
     public function getAll(int $userId, int $limit = 50, int $offset = 0, ?string $type = null): array
     {
         try {
-            $sql = "SELECT * FROM intra_notifications WHERE user_id = ?";
-            $params = [$userId];
+            $query = Notification::where('user_id', $userId);
             if ($type) {
-                $sql .= " AND type = ?";
-                $params[] = $type;
+                $query->where('type', $type);
             }
-            $sql .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
-            $params[] = $limit;
-            $params[] = $offset;
 
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($params);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $query
+                ->orderByDesc('created_at')
+                ->limit($limit)
+                ->offset($offset)
+                ->get()
+                ->map(fn (Notification $n) => $n->getAttributes())
+                ->all();
         } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to get notifications: " . $e->getMessage());
             return [];
@@ -182,7 +164,7 @@ class NotificationManager
 
     /**
      * Mark a notification as read
-     * 
+     *
      * @param int $notificationId Notification ID
      * @param int $userId User ID (for security check)
      * @return bool Success status
@@ -190,12 +172,13 @@ class NotificationManager
     public function markAsRead(int $notificationId, int $userId): bool
     {
         try {
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_notifications
-                SET is_read = 1, read_at = NOW()
-                WHERE id = ? AND user_id = ?
-            ");
-            return $stmt->execute([$notificationId, $userId]);
+            Notification::where('id', $notificationId)
+                ->where('user_id', $userId)
+                ->update([
+                    'is_read' => 1,
+                    'read_at' => Capsule::raw('NOW()'),
+                ]);
+            return true;
         } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to mark notification as read: " . $e->getMessage());
             return false;
@@ -204,19 +187,20 @@ class NotificationManager
 
     /**
      * Mark all notifications as read for a user
-     * 
+     *
      * @param int $userId User ID
      * @return bool Success status
      */
     public function markAllAsRead(int $userId): bool
     {
         try {
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_notifications
-                SET is_read = 1, read_at = NOW()
-                WHERE user_id = ? AND is_read = 0
-            ");
-            return $stmt->execute([$userId]);
+            Notification::where('user_id', $userId)
+                ->where('is_read', 0)
+                ->update([
+                    'is_read' => 1,
+                    'read_at' => Capsule::raw('NOW()'),
+                ]);
+            return true;
         } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to mark all as read: " . $e->getMessage());
             return false;
@@ -225,7 +209,7 @@ class NotificationManager
 
     /**
      * Delete a notification
-     * 
+     *
      * @param int $notificationId Notification ID
      * @param int $userId User ID (for security check)
      * @return bool Success status
@@ -233,11 +217,10 @@ class NotificationManager
     public function delete(int $notificationId, int $userId): bool
     {
         try {
-            $stmt = $this->pdo->prepare("
-                DELETE FROM intra_notifications
-                WHERE id = ? AND user_id = ?
-            ");
-            return $stmt->execute([$notificationId, $userId]);
+            Notification::where('id', $notificationId)
+                ->where('user_id', $userId)
+                ->delete();
+            return true;
         } catch (\PDOException $e) {
             \App\Logging\Logger::error("Failed to delete notification: " . $e->getMessage());
             return false;
@@ -255,21 +238,16 @@ class NotificationManager
     public function getNewSince(int $userId, string $since): array
     {
         try {
-            $countStmt = $this->pdo->prepare("
-                SELECT COUNT(*) as count FROM intra_notifications
-                WHERE user_id = ? AND is_read = 0
-            ");
-            $countStmt->execute([$userId]);
-            $unreadCount = (int)($countStmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0);
+            $unreadCount = Notification::where('user_id', $userId)->where('is_read', 0)->count();
 
-            $newStmt = $this->pdo->prepare("
-                SELECT id, type, title, message, link, created_at FROM intra_notifications
-                WHERE user_id = ? AND created_at > ? AND is_read = 0
-                ORDER BY created_at DESC
-                LIMIT 5
-            ");
-            $newStmt->execute([$userId, $since]);
-            $newNotifications = $newStmt->fetchAll(PDO::FETCH_ASSOC);
+            $newNotifications = Notification::where('user_id', $userId)
+                ->where('created_at', '>', $since)
+                ->where('is_read', 0)
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get(['id', 'type', 'title', 'message', 'link', 'created_at'])
+                ->map(fn (Notification $n) => $n->getAttributes())
+                ->all();
 
             return [
                 'unreadCount' => $unreadCount,
@@ -283,19 +261,16 @@ class NotificationManager
 
     /**
      * Delete old read notifications (older than specified days)
-     * 
+     *
      * @param int $days Number of days to keep notifications
      * @return int Number of deleted notifications
      */
     public function deleteOldRead(int $days = 30): int
     {
         try {
-            $stmt = $this->pdo->prepare("
-                DELETE FROM intra_notifications
-                WHERE is_read = 1 AND read_at < DATE_SUB(NOW(), INTERVAL ? DAY)
-            ");
-            $stmt->execute([$days]);
-            return $stmt->rowCount();
+            return Notification::where('is_read', 1)
+                ->whereRaw('read_at < DATE_SUB(NOW(), INTERVAL ? DAY)', [$days])
+                ->delete();
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to delete old notifications: " . $e->getMessage());
             return 0;
@@ -305,7 +280,7 @@ class NotificationManager
     /**
      * Create notification for fireTab protocol finalization
      * Notifies the incident leader that their protocol has been finalized
-     * 
+     *
      * @param array $incidentData Incident data (id, incident_number, location, leader_id, leader_name)
      * @return bool Success status
      */
@@ -318,20 +293,16 @@ class NotificationManager
 
         // Get user_id from leader_id (mitarbeiter id)
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT u.id 
-                FROM intra_mitarbeiter m 
-                JOIN intra_users u ON m.discordtag = u.discord_id 
-                WHERE m.id = ?
-            ");
-            $stmt->execute([$leaderId]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $id = Capsule::table('intra_mitarbeiter as m')
+                ->join('intra_users as u', 'm.discordtag', '=', 'u.discord_id')
+                ->where('m.id', $leaderId)
+                ->value('u.id');
 
-            if (!$result) {
+            if ($id === null) {
                 return false;
             }
 
-            $userId = (int)$result['id'];
+            $userId = (int) $id;
             $incidentNumber = $incidentData['incident_number'] ?? 'Unbekannt';
             $location = $incidentData['location'] ?? 'Unbekannt';
             $incidentId = $incidentData['id'] ?? null;
@@ -350,7 +321,7 @@ class NotificationManager
     /**
      * Create notification for fireTab protocol status change
      * Notifies the incident leader when QM changes the protocol status
-     * 
+     *
      * @param array $incidentData Incident data (id, incident_number, location, leader_id, status)
      * @param string $qmUsername Name of QM user who changed the status
      * @return bool Success status
@@ -364,20 +335,16 @@ class NotificationManager
 
         // Get user_id from leader_id (mitarbeiter id)
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT u.id 
-                FROM intra_mitarbeiter m 
-                JOIN intra_users u ON m.discordtag = u.discord_id 
-                WHERE m.id = ?
-            ");
-            $stmt->execute([$leaderId]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $id = Capsule::table('intra_mitarbeiter as m')
+                ->join('intra_users as u', 'm.discordtag', '=', 'u.discord_id')
+                ->where('m.id', $leaderId)
+                ->value('u.id');
 
-            if (!$result) {
+            if ($id === null) {
                 return false;
             }
 
-            $userId = (int)$result['id'];
+            $userId = (int) $id;
             $incidentNumber = $incidentData['incident_number'] ?? 'Unbekannt';
             $location = $incidentData['location'] ?? 'Unbekannt';
             $status = $incidentData['status'] ?? 'unbekannt';

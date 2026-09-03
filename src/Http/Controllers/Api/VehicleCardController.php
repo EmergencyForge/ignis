@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Request;
 use App\Http\Response;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use PDO;
 
 /**
  * GET /api/vehicles/{id}/card — Hover-Card-Fragment für ein Fahrzeug.

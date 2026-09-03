@@ -1,12 +1,11 @@
 <?php
 /**
  * View: Fahrzeugverwaltung
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use Illuminate\Database\Capsule\Manager as Capsule;
 ?>
 
 <!DOCTYPE html>
@@ -66,19 +65,23 @@ use App\Helpers\Flash;
                             </thead>
                             <tbody>
                                 <?php
-                                require __DIR__ . '/../../../../assets/config/database.php';
                                 try {
-                                    $stmt = $pdo->prepare("SELECT f.*,
-                                        (SELECT COUNT(*) FROM intra_fahrzeuge_defects d WHERE d.vehicle_id = f.id AND d.status != 'resolved') AS open_defects,
-                                        (SELECT MIN(d.vehicle_operable) FROM intra_fahrzeuge_defects d WHERE d.vehicle_id = f.id AND d.status != 'resolved') AS min_operable
-                                        FROM intra_fahrzeuge f");
-                                    $stmt->execute();
+                                    $result = Capsule::table('intra_fahrzeuge as f')
+                                        ->get([
+                                            'f.*',
+                                            Capsule::raw("(SELECT COUNT(*) FROM intra_fahrzeuge_defects d WHERE d.vehicle_id = f.id AND d.status != 'resolved') AS open_defects"),
+                                            Capsule::raw("(SELECT MIN(d.vehicle_operable) FROM intra_fahrzeuge_defects d WHERE d.vehicle_id = f.id AND d.status != 'resolved') AS min_operable"),
+                                        ]);
                                 } catch (PDOException $e) {
                                     // Fallback: Tabelle existiert noch nicht
-                                    $stmt = $pdo->prepare("SELECT *, 0 AS open_defects, NULL AS min_operable FROM intra_fahrzeuge");
-                                    $stmt->execute();
+                                    $result = Capsule::table('intra_fahrzeuge')
+                                        ->get([
+                                            '*',
+                                            Capsule::raw('0 AS open_defects'),
+                                            Capsule::raw('NULL AS min_operable'),
+                                        ]);
                                 }
-                                $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                $result = $result->map(fn ($r) => (array) $r)->all();
                                 foreach ($result as $row) {
                                     switch ($row['rd_type']) {
                                         case 1:
@@ -148,7 +151,7 @@ use App\Helpers\Flash;
                                         $badgeColor = ($minOperable !== null && (int)$minOperable === 0) ? 'danger' : 'warning';
                                         $defectBadge = "<a href='" . BASE_PATH . "settings/vehicles/defects/index?vehicle=" . $row['id'] . "' class='ignis-chip ignis-chip--{$badgeColor}' title='Offene Defekte anzeigen'>{$openDefects}</a>";
                                     } else {
-                                        $defectBadge = "<span class='text-muted'>—</span>";
+                                        $defectBadge = "<span class='text-gray-400'>—</span>";
                                     }
 
                                     echo "<tr>";

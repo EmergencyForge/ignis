@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/assets/config/config.php';
-require_once __DIR__ . '/assets/config/database.php';
 
 use App\Helpers\EnotfUrl;
+use App\Models\RegistrationCode;
 
 // Session wird bereits durch config.php gestartet (SessionManager)
 
@@ -32,13 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['registration_code']))
 
     if (!empty($code)) {
         // Verify the code exists, is not used, and not expired
-        $codeStmt = $pdo->prepare("SELECT expires_at FROM intra_registration_codes WHERE code = :code AND is_used = 0");
-        $codeStmt->execute(['code' => $code]);
-        $codeRecord = $codeStmt->fetch();
+        $codeRecord = RegistrationCode::query()
+            ->where('code', $code)
+            ->where('is_used', 0)
+            ->first(['expires_at']);
 
         if ($codeRecord) {
             // Ablaufdatum prüfen
-            if (!empty($codeRecord['expires_at']) && strtotime($codeRecord['expires_at']) < time()) {
+            if ($codeRecord->expires_at !== null && $codeRecord->expires_at->isPast()) {
                 $error = 'Dieser Einladungscode ist abgelaufen.';
             } else {
                 \App\Session\SessionManager::setRegistrationCode($code);

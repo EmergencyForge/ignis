@@ -1,7 +1,8 @@
 <?php
-$stmt = $pdo->prepare("SELECT id,name,priority FROM intra_mitarbeiter_dienstgrade ORDER BY priority ASC");
-$stmt->execute();
-$dgsel = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$dgsel = \App\Models\Rank::query()
+    ->orderBy('priority')
+    ->get(['id', 'name', 'priority'])
+    ->toArray();
 ?>
 
 <div class="twplus-form-section">
@@ -10,7 +11,7 @@ $dgsel = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="twplus-form-section__hint">Legt Dienstgrad und Darstellung im Profil fest.</div>
     </div>
     <div>
-    <select class="form-select" name="dienstgrad" id="dienstgrad">
+    <select class="ignis-input" name="dienstgrad" id="dienstgrad">
         <?php foreach ($dgsel as $data) {
             if ($dg == $data['id']) {
                 echo "<option value='{$data['id']}' selected='selected'>{$data['name']}</option>";

@@ -5,22 +5,22 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_intra_fire_incidents_27122025_add_gta_coordinates.php
- * Spiegelung:     database/legacy/alter_intra_fire_incidents_27122025_add_gta_coordinates.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * GTA-Koordinaten des Einsatzortes (X/Y) inkl. kombiniertem Index für
+ * Umkreis-Abfragen.
  */
 class AlterIntraFireIncidents27122025AddGtaCoordinates extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_fire_incidents_27122025_add_gta_coordinates.php';
+        $table = $this->table('intra_fire_incidents');
+        if ($table->hasColumn('location_x')) {
+            return;
+        }
+
+        $table
+            ->addColumn('location_x', 'decimal', ['precision' => 14, 'scale' => 9, 'null' => true, 'comment' => 'GTA X coordinate of incident location', 'after' => 'location'])
+            ->addColumn('location_y', 'decimal', ['precision' => 14, 'scale' => 9, 'null' => true, 'comment' => 'GTA Y coordinate of incident location', 'after' => 'location_x'])
+            ->addIndex(['location_x', 'location_y'], ['name' => 'idx_location_coords'])
+            ->update();
     }
 }

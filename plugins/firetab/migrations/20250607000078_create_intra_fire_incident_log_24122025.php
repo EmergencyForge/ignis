@@ -5,22 +5,35 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_fire_incident_log_24122025.php
- * Spiegelung:     database/legacy/create_intra_fire_incident_log_24122025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Aktivitätslog eines Einsatzes: wer hat wann was gemacht (Fahrzeug
+ * angemeldet, Status geändert, Sitrep erfasst, ...), optional mit Bezug
+ * auf Fahrzeug und Bediener.
  */
 class CreateIntraFireIncidentLog24122025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_fire_incident_log_24122025.php';
+        if ($this->hasTable('intra_fire_incident_log')) {
+            return;
+        }
+
+        $this->table('intra_fire_incident_log', [
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ])
+            ->addColumn('incident_id', 'integer', ['null' => false])
+            ->addColumn('action_type', 'string', ['limit' => 50, 'null' => false])
+            ->addColumn('action_description', 'text', ['null' => false])
+            ->addColumn('vehicle_id', 'integer', ['null' => true])
+            ->addColumn('operator_id', 'integer', ['null' => true])
+            ->addColumn('created_by', 'integer', ['null' => false])
+            ->addColumn('created_at', 'timestamp', ['null' => true, 'default' => 'CURRENT_TIMESTAMP'])
+            ->addIndex(['incident_id'], ['name' => 'idx_incident'])
+            ->addIndex(['vehicle_id'], ['name' => 'idx_vehicle'])
+            ->addIndex(['operator_id'], ['name' => 'idx_operator'])
+            ->addForeignKey('incident_id', 'intra_fire_incidents', 'id', ['delete' => 'CASCADE'])
+            ->create();
     }
 }

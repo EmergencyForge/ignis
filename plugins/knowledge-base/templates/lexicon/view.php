@@ -286,19 +286,17 @@ use App\KnowledgeBase\KBHelper;
     <?php if ($isLoggedIn): ?>
         <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
     <?php else: ?>
-        <nav class="navbar navbar-expand-lg bg-body-tertiary mb-4">
-            <div class="container">
-                <a class="navbar-brand" href="<?= BASE_PATH ?>">
+        <nav class="mb-4">
+            <div class="mx-auto flex items-center justify-between px-4 py-3">
+                <a href="<?= BASE_PATH ?>">
                     <img src="<?php echo SYSTEM_LOGO ?>" alt="<?php echo SYSTEM_NAME ?>" style="height:48px;width:auto">
                 </a>
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="<?= BASE_PATH ?>login.php">Anmelden</a>
-                </div>
+                <a class="ignis-btn ignis-btn--ghost" href="<?= BASE_PATH ?>login.php">Anmelden</a>
             </div>
         </nav>
     <?php endif; ?>
 
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-5">
                     
@@ -308,7 +306,7 @@ use App\KnowledgeBase\KBHelper;
                     </a>
 
                     <?php if (!empty($entry['is_pinned'])): ?>
-                        <div class="alert mt-3" style="background-color: <?= SYSTEM_COLOR ?>20; border-color: <?= SYSTEM_COLOR ?>; color: #e0e0e0;">
+                        <div class="ignis-alert mt-3" style="background-color: <?= SYSTEM_COLOR ?>20; border-color: <?= SYSTEM_COLOR ?>; color: #e0e0e0;">
                             <i class="fa-solid fa-thumbtack" style="color: <?= SYSTEM_COLOR ?>;"></i> Dieser Eintrag ist angepinnt und wird oben in der Liste angezeigt.
                         </div>
                     <?php endif; ?>
@@ -320,21 +318,21 @@ use App\KnowledgeBase\KBHelper;
                     <?php endif; ?>
 
                     <?php if (!empty($entry['category_name']) || !empty($entryTags)): ?>
-                        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                        <div class="flex flex-wrap items-center gap-2 mb-3">
                             <?php if (!empty($entry['category_name'])): ?>
-                                <span class="text-muted small">
+                                <span class="text-gray-500 text-sm">
                                     <i class="fa-solid fa-folder"></i>
                                     <?php if (!empty($entry['parent_category_name'])): ?>
                                         <?php if (!empty($entry['parent_category_icon'])): ?><i class="<?= htmlspecialchars($entry['parent_category_icon']) ?>"></i> <?php endif; ?>
-                                        <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-muted"><?= htmlspecialchars($entry['parent_category_name']) ?></a>
+                                        <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-gray-500"><?= htmlspecialchars($entry['parent_category_name']) ?></a>
                                         <i class="fa-solid fa-chevron-right" style="font-size: 0.6rem;"></i>
                                     <?php endif; ?>
                                     <?php if (!empty($entry['category_icon'])): ?><i class="<?= htmlspecialchars($entry['category_icon']) ?>"></i> <?php endif; ?>
-                                    <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-muted"><?= htmlspecialchars($entry['category_name']) ?></a>
+                                    <a href="<?= BASE_PATH ?>lexicon/index?category=<?= (int)$entry['category_id'] ?>" class="text-gray-500"><?= htmlspecialchars($entry['category_name']) ?></a>
                                 </span>
                             <?php endif; ?>
                             <?php foreach ($entryTags as $etag): ?>
-                                <a href="<?= BASE_PATH ?>lexicon/index?tag=<?= (int)$etag['id'] ?>" class="badge text-decoration-none" style="background-color: <?= htmlspecialchars($etag['color']) ?>; color: #fff;"><?= htmlspecialchars($etag['name']) ?></a>
+                                <a href="<?= BASE_PATH ?>lexicon/index?tag=<?= (int)$etag['id'] ?>" class="ignis-chip no-underline" style="background-color: <?= htmlspecialchars($etag['color']) ?>; color: #fff;"><?= htmlspecialchars($etag['name']) ?></a>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
@@ -343,19 +341,19 @@ use App\KnowledgeBase\KBHelper;
                     <article class="twplus-section-card p-4">
                         <!-- Header with Title and Competency -->
                         <?php if ($competency): ?>
-                            <div class="kb-header twplus-detail-hero position-relative" style="background-color: <?= $competency['bg'] ?>;">
+                            <div class="kb-header twplus-detail-hero relative" style="background-color: <?= $competency['bg'] ?>;">
                                 <!-- Category badge positioned in top right -->
-                                <span class="kb-category-badge bg-dark" style="color: #ffffff;">
+                                <span class="kb-category-badge" style="background-color: #212529; color: #ffffff;">
                                     <?= KBHelper::getTypeLabel($entry['type']) ?>
                                 </span>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="kb-header-content flex-grow-1 me-3">
+                                <div class="flex justify-between items-center">
+                                    <div class="kb-header-content grow mr-3">
                                         <h2><?= htmlspecialchars($entry['title']) ?></h2>
                                         <?php if (!empty($entry['subtitle'])): ?>
                                             <p class="subtitle"><?= htmlspecialchars($entry['subtitle']) ?></p>
                                         <?php endif; ?>
                                     </div>
-                                    <div class="text-end">
+                                    <div class="text-right">
                                         <div class="kb-freigabe-badge" style="background-color: <?= $competency['color'] ?>; color: <?= KBHelper::competencyNeedsDarkText($entry['competency_level']) ? '#000' : '#fff' ?>;">
                                             Freigabe: <?= $competency['label'] ?>
                                         </div>
@@ -363,8 +361,8 @@ use App\KnowledgeBase\KBHelper;
                                 </div>
                             </div>
                         <?php else: ?>
-                            <div class="kb-header-content twplus-detail-hero mb-4 position-relative">
-                                <span class="kb-category-badge bg-dark" style="color: #ffffff; top: 0; right: 0;">
+                            <div class="kb-header-content twplus-detail-hero mb-4 relative">
+                                <span class="kb-category-badge" style="background-color: #212529; color: #ffffff; top: 0; right: 0;">
                                     <?= KBHelper::getTypeLabel($entry['type']) ?>
                                 </span>
                                 <h2><?= htmlspecialchars($entry['title']) ?></h2>
@@ -377,8 +375,8 @@ use App\KnowledgeBase\KBHelper;
                         <div class="kb-content-wrapper">
                         <?php if ($entry['type'] === 'medication'): ?>
                             <!-- Medication Layout -->
-                            <div class="row">
-                                <div class="col-12">
+                            <div>
+                                <div>
                                     <!-- Basic Info Table -->
                                     <table class="kb-entry-table twplus-description-table mb-4">
                                         <tbody>
@@ -442,8 +440,8 @@ use App\KnowledgeBase\KBHelper;
 
                         <?php elseif ($entry['type'] === 'measure'): ?>
                             <!-- Measure Layout - Same table style as Medication -->
-                            <div class="row">
-                                <div class="col-12">
+                            <div>
+                                <div>
                                     <!-- Basic Info Table -->
                                     <table class="kb-entry-table twplus-description-table mb-4">
                                         <tbody>
@@ -522,13 +520,13 @@ use App\KnowledgeBase\KBHelper;
                                                 <div class="twplus-link-card__body">
                                                     <div class="twplus-link-card__title"><?= htmlspecialchars($rel['title']) ?></div>
                                                     <?php if (!empty($rel['subtitle'])): ?>
-                                                        <small class="text-muted"><?= htmlspecialchars(mb_strimwidth($rel['subtitle'], 0, 80, '...')) ?></small>
+                                                        <small class="text-gray-500"><?= htmlspecialchars(mb_strimwidth($rel['subtitle'], 0, 80, '...')) ?></small>
                                                     <?php endif; ?>
                                                 </div>
-                                                <div class="ms-2 d-flex flex-column gap-1 align-items-end">
-                                                    <span class="badge" style="background-color: <?= KBHelper::getTypeColor($rel['type']) ?>; font-size: 0.65rem;"><?= KBHelper::getTypeLabel($rel['type']) ?></span>
+                                                <div class="ml-2 flex flex-col gap-1 items-end">
+                                                    <span class="ignis-chip" style="background-color: <?= KBHelper::getTypeColor($rel['type']) ?>; color: #fff; font-size: 0.65rem;"><?= KBHelper::getTypeLabel($rel['type']) ?></span>
                                                     <?php if ($relComp): ?>
-                                                        <span class="badge" style="background-color: <?= $relComp['bg'] ?>; color: <?= $relComp['text'] ?? '#fff' ?>; font-size: 0.65rem;"><?= $relComp['label'] ?></span>
+                                                        <span class="ignis-chip" style="background-color: <?= $relComp['bg'] ?>; color: <?= $relComp['text'] ?? '#fff' ?>; font-size: 0.65rem;"><?= $relComp['label'] ?></span>
                                                     <?php endif; ?>
                                                 </div>
                                         </a>

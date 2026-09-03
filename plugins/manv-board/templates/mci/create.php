@@ -4,7 +4,6 @@
  *
  * @var array<int,array<string,mixed>> $users
  * @var string|null                     $error
- * @var \PDO                            $pdo
  */
 
 use App\Helpers\Flash;

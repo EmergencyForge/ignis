@@ -8,8 +8,11 @@ use App\Auth\Gate;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
+use App\Models\Vehicle;
+use App\Models\VehicleDefect;
+use App\Models\VehicleDefectLog;
 use App\Notifications\NotificationManager;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
@@ -41,10 +44,6 @@ final class VehicleDefectsController
         'deferred'    => 'Aufgeschoben',
         'resolved'    => 'Gelöst',
     ];
-
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
 
     /**
      * GET|POST /api/vehicles/defects-handler?action=...
@@ -92,13 +91,10 @@ final class VehicleDefectsController
                 return Response::json(['error' => 'Nicht authentifiziert'], 401);
             }
             $reporterName = trim($_POST['reported_by_name'] ?? '') ?: (string) ($_SESSION['fahrername'] ?? '');
-            $stmt = $this->pdo->prepare(
-                "SELECT u.id FROM intra_users u
-                 JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
-                 WHERE m.fullname = :name LIMIT 1"
-            );
-            $stmt->execute([':name' => $reporterName]);
-            $userId = (int) ($stmt->fetchColumn() ?: 0);
+            $userId = (int) (Capsule::table('intra_users as u')
+                ->join('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+                ->where('m.fullname', $reporterName)
+                ->value('u.id') ?: 0);
             return [$userId, $reporterName ?: 'Unbekannt', true];
         }
 
@@ -123,41 +119,26 @@ final class VehicleDefectsController
         $vehicleId    = isset($request->query['vehicle_id']) ? (int) $request->query['vehicle_id'] : null;
         $statusFilter = $request->query['status'] ?? '';
 
-        $sql = "
-            SELECT d.*, f.name AS vehicle_name, f.identifier AS vehicle_identifier,
-                   f.kennzeichen, f.veh_type,
-                   COALESCE(m1.fullname, u1.username) AS reporter_name,
-                   COALESCE(m2.fullname, u2.username) AS assigned_name,
-                   COALESCE(m3.fullname, u3.username) AS resolver_name
-            FROM intra_fahrzeuge_defects d
-            JOIN intra_fahrzeuge f ON d.vehicle_id = f.id
-            LEFT JOIN intra_users u1 ON d.reported_by = u1.id
-            LEFT JOIN intra_mitarbeiter m1 ON u1.discord_id = m1.discordtag
-            LEFT JOIN intra_users u2 ON d.assigned_to = u2.id
-            LEFT JOIN intra_mitarbeiter m2 ON u2.discord_id = m2.discordtag
-            LEFT JOIN intra_users u3 ON d.resolved_by = u3.id
-            LEFT JOIN intra_mitarbeiter m3 ON u3.discord_id = m3.discordtag
-            WHERE 1=1
-        ";
-        $params = [];
+        $query = $this->defectBaseQuery(['f.kennzeichen', 'f.veh_type']);
 
         if ($vehicleId) {
-            $sql .= " AND d.vehicle_id = :vid";
-            $params['vid'] = $vehicleId;
+            $query->where('d.vehicle_id', $vehicleId);
         }
         if ($statusFilter && in_array($statusFilter, self::ALLOWED_STATUSES, true)) {
-            $sql .= " AND d.status = :status";
-            $params['status'] = $statusFilter;
+            $query->where('d.status', $statusFilter);
         }
 
-        $sql .= " ORDER BY FIELD(d.status, 'open', 'in_progress', 'deferred', 'resolved'),
-                           CASE WHEN d.status != 'resolved' THEN d.vehicle_operable END ASC,
-                           d.created_at DESC";
+        $defects = $query
+            ->orderByRaw(
+                "FIELD(d.status, 'open', 'in_progress', 'deferred', 'resolved'),
+                 CASE WHEN d.status != 'resolved' THEN d.vehicle_operable END ASC,
+                 d.created_at DESC"
+            )
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-
-        return Response::json(['success' => true, 'defects' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+        return Response::json(['success' => true, 'defects' => $defects]);
     }
 
     private function get(Request $request): Response
@@ -167,28 +148,15 @@ final class VehicleDefectsController
             return Response::json(['error' => 'Keine ID']);
         }
 
-        $stmt = $this->pdo->prepare(
-            "SELECT d.*, f.name AS vehicle_name, f.identifier AS vehicle_identifier,
-                    COALESCE(m1.fullname, u1.username) AS reporter_name,
-                    COALESCE(m2.fullname, u2.username) AS assigned_name,
-                    COALESCE(m3.fullname, u3.username) AS resolver_name
-             FROM intra_fahrzeuge_defects d
-             JOIN intra_fahrzeuge f ON d.vehicle_id = f.id
-             LEFT JOIN intra_users u1 ON d.reported_by = u1.id
-             LEFT JOIN intra_mitarbeiter m1 ON u1.discord_id = m1.discordtag
-             LEFT JOIN intra_users u2 ON d.assigned_to = u2.id
-             LEFT JOIN intra_mitarbeiter m2 ON u2.discord_id = m2.discordtag
-             LEFT JOIN intra_users u3 ON d.resolved_by = u3.id
-             LEFT JOIN intra_mitarbeiter m3 ON u3.discord_id = m3.discordtag
-             WHERE d.id = :id"
-        );
-        $stmt->execute([':id' => $id]);
-        $defect = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $this->defectBaseQuery()
+            ->where('d.id', $id)
+            ->first();
 
-        if (!$defect) {
+        if (!$row) {
             return Response::json(['error' => 'Defekt nicht gefunden'], 404);
         }
 
+        $defect        = (array) $row;
         $defect['log'] = $this->loadLog($id);
 
         return Response::json(['success' => true, 'defect' => $defect]);
@@ -207,20 +175,16 @@ final class VehicleDefectsController
         // die JsonExceptionMiddleware wandelt das in 422 JSON um.
         $data = \App\Http\Requests\Vehicles\CreateDefectRequest::validate($request->post);
 
-        $this->pdo->prepare(
-            "INSERT INTO intra_fahrzeuge_defects
-                 (vehicle_id, title, description, category, vehicle_operable, reported_by)
-             VALUES (:vid, :title, :desc, :cat, :op, :uid)"
-        )->execute([
-            ':vid'   => $data['vehicle_id'],
-            ':title' => $data['title'],
-            ':desc'  => $data['description'],
-            ':cat'   => $data['category'],
-            ':op'    => $data['vehicle_operable'],
-            ':uid'   => $userId,
+        $defect = VehicleDefect::create([
+            'vehicle_id'       => $data['vehicle_id'],
+            'title'            => $data['title'],
+            'description'      => $data['description'],
+            'category'         => $data['category'],
+            'vehicle_operable' => $data['vehicle_operable'],
+            'reported_by'      => $userId,
         ]);
 
-        $defectId = (int) $this->pdo->lastInsertId();
+        $defectId = (int) $defect->id;
 
         $logDetails = 'Defekt gemeldet: ' . $data['title'];
         if ($isEnotfUser && !$userId) {
@@ -229,8 +193,7 @@ final class VehicleDefectsController
         $this->writeLog($defectId, $userId, 'created', $logDetails);
 
         if (!$data['vehicle_operable']) {
-            $this->pdo->prepare("UPDATE intra_fahrzeuge SET active = 0 WHERE id = :id")
-                ->execute([':id' => $data['vehicle_id']]);
+            Vehicle::query()->where('id', $data['vehicle_id'])->update(['active' => 0]);
             $this->writeLog($defectId, $userId, 'vehicle_disabled', 'Fahrzeug als nicht einsatzfähig markiert');
         }
 
@@ -257,17 +220,16 @@ final class VehicleDefectsController
             return Response::json(['error' => 'Keine ID']);
         }
 
-        $oldStmt = $this->pdo->prepare("SELECT status, assigned_to FROM intra_fahrzeuge_defects WHERE id = :id");
-        $oldStmt->execute([':id' => $id]);
-        $old = $oldStmt->fetch(PDO::FETCH_ASSOC);
+        $oldRow = Capsule::table('intra_fahrzeuge_defects')
+            ->where('id', $id)
+            ->first(['status', 'assigned_to']);
+        $old = $oldRow !== null ? (array) $oldRow : false;
 
         $fields      = [];
-        $params      = [':id' => $id];
         $logMessages = [];
 
         if ($status !== '' && in_array($status, self::ALLOWED_STATUSES, true) && $status !== ($old['status'] ?? '')) {
-            $fields[]           = 'status = :status';
-            $params[':status']  = $status;
+            $fields['status'] = $status;
             $oldLabel = self::STATUS_LABELS[$old['status'] ?? 'open'] ?? '?';
             $newLabel = self::STATUS_LABELS[$status] ?? '?';
             $msg = "Status geändert: {$oldLabel} → {$newLabel}";
@@ -278,17 +240,15 @@ final class VehicleDefectsController
         }
 
         if ($hasAssignedKey) {
-            $fields[]            = 'assigned_to = :assigned';
-            $params[':assigned'] = $assignedTo;
+            $fields['assigned_to'] = $assignedTo;
 
             if ($assignedTo) {
-                $nameStmt = $this->pdo->prepare(
-                    "SELECT COALESCE(m.fullname, u.username) FROM intra_users u
-                     LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
-                     WHERE u.id = :id"
-                );
-                $nameStmt->execute([':id' => $assignedTo]);
-                $logMessages[] = 'Zugewiesen an: ' . ($nameStmt->fetchColumn() ?: 'Unbekannt');
+                $assignedName = Capsule::table('intra_users as u')
+                    ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+                    ->where('u.id', $assignedTo)
+                    ->selectRaw('COALESCE(m.fullname, u.username) AS name')
+                    ->value('name');
+                $logMessages[] = 'Zugewiesen an: ' . ($assignedName ?: 'Unbekannt');
             } else {
                 $logMessages[] = 'Zuweisung entfernt';
             }
@@ -298,8 +258,7 @@ final class VehicleDefectsController
             return Response::json(['error' => 'Keine Änderungen']);
         }
 
-        $this->pdo->prepare("UPDATE intra_fahrzeuge_defects SET " . implode(', ', $fields) . " WHERE id = :id")
-            ->execute($params);
+        VehicleDefect::query()->where('id', $id)->update($fields);
 
         foreach ($logMessages as $msg) {
             $this->writeLog($id, $userId, 'updated', $msg);
@@ -320,11 +279,14 @@ final class VehicleDefectsController
             return Response::json(['error' => 'Keine ID']);
         }
 
-        $this->pdo->prepare(
-            "UPDATE intra_fahrzeuge_defects
-             SET status = 'resolved', resolved_by = :uid, resolved_at = NOW(), resolution_note = :note
-             WHERE id = :id"
-        )->execute([':uid' => $userId, ':note' => $note, ':id' => $id]);
+        VehicleDefect::query()
+            ->where('id', $id)
+            ->update([
+                'status'          => 'resolved',
+                'resolved_by'     => $userId,
+                'resolved_at'     => Capsule::raw('NOW()'),
+                'resolution_note' => $note,
+            ]);
 
         $logDetail = 'Als gelöst markiert';
         if ($note !== '') {
@@ -333,19 +295,18 @@ final class VehicleDefectsController
         $this->writeLog($id, $userId, 'resolved', $logDetail);
 
         // Prüfen ob das Fahrzeug wieder einsatzfähig ist
-        $defStmt = $this->pdo->prepare("SELECT vehicle_id FROM intra_fahrzeuge_defects WHERE id = :id");
-        $defStmt->execute([':id' => $id]);
-        $defect = $defStmt->fetch(PDO::FETCH_ASSOC);
+        $vehicleId = Capsule::table('intra_fahrzeuge_defects')
+            ->where('id', $id)
+            ->value('vehicle_id');
 
-        if ($defect) {
-            $cntStmt = $this->pdo->prepare(
-                "SELECT COUNT(*) FROM intra_fahrzeuge_defects
-                 WHERE vehicle_id = :vid AND vehicle_operable = 0 AND status != 'resolved'"
-            );
-            $cntStmt->execute([':vid' => $defect['vehicle_id']]);
-            if ((int) $cntStmt->fetchColumn() === 0) {
-                $this->pdo->prepare("UPDATE intra_fahrzeuge SET active = 1 WHERE id = :id")
-                    ->execute([':id' => $defect['vehicle_id']]);
+        if ($vehicleId !== null) {
+            $blockingCount = Capsule::table('intra_fahrzeuge_defects')
+                ->where('vehicle_id', $vehicleId)
+                ->where('vehicle_operable', 0)
+                ->where('status', '!=', 'resolved')
+                ->count();
+            if ($blockingCount === 0) {
+                Vehicle::query()->where('id', $vehicleId)->update(['active' => 1]);
                 $this->writeLog($id, $userId, 'vehicle_enabled', 'Fahrzeug wieder einsatzfähig — keine offenen Sperrungen');
             }
         }
@@ -364,7 +325,7 @@ final class VehicleDefectsController
             return Response::json(['error' => 'Keine ID']);
         }
 
-        $this->pdo->prepare("DELETE FROM intra_fahrzeuge_defects WHERE id = :id")->execute([':id' => $id]);
+        VehicleDefect::query()->where('id', $id)->delete();
 
         return Response::json(['success' => true, 'message' => 'Defekt gelöscht']);
     }
@@ -382,55 +343,74 @@ final class VehicleDefectsController
     {
         $vehicleId = (int) ($request->query['vehicle_id'] ?? 0);
 
-        $sql = "
-            SELECT
+        $query = Capsule::table('intra_fahrzeuge_defects')
+            ->selectRaw("
                 COUNT(*) AS total,
                 SUM(CASE WHEN status = 'open'        THEN 1 ELSE 0 END) AS open_count,
                 SUM(CASE WHEN status = 'in_progress' THEN 1 ELSE 0 END) AS in_progress_count,
                 SUM(CASE WHEN status = 'deferred'    THEN 1 ELSE 0 END) AS deferred_count,
                 SUM(CASE WHEN status = 'resolved'    THEN 1 ELSE 0 END) AS resolved_count,
                 SUM(CASE WHEN vehicle_operable = 0 AND status != 'resolved' THEN 1 ELSE 0 END) AS not_operable_open
-            FROM intra_fahrzeuge_defects
-        ";
-        $params = [];
+            ");
         if ($vehicleId) {
-            $sql .= ' WHERE vehicle_id = :vid';
-            $params['vid'] = $vehicleId;
+            $query->where('vehicle_id', $vehicleId);
         }
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-
-        return Response::json(['success' => true, 'stats' => $stmt->fetch(PDO::FETCH_ASSOC)]);
+        return Response::json(['success' => true, 'stats' => (array) $query->first()]);
     }
 
     // ── Helper ────────────────────────────────────────────────────────
 
+    /**
+     * Basis-Query für Defekt-Listen/-Details: Defekt + Fahrzeug + die
+     * per Discord-Tag aufgelösten Anzeigenamen von Melder, Bearbeiter
+     * und Löser. Zusätzliche Fahrzeug-Spalten landen — wie im alten
+     * SQL — zwischen den Fahrzeug-Basisfeldern und den Namens-Spalten,
+     * damit die Feld-Reihenfolge in der JSON-Antwort identisch bleibt.
+     *
+     * @param array<int, string> $extraVehicleColumns
+     */
+    private function defectBaseQuery(array $extraVehicleColumns = []): \Illuminate\Database\Query\Builder
+    {
+        return Capsule::table('intra_fahrzeuge_defects as d')
+            ->join('intra_fahrzeuge as f', 'd.vehicle_id', '=', 'f.id')
+            ->leftJoin('intra_users as u1', 'd.reported_by', '=', 'u1.id')
+            ->leftJoin('intra_mitarbeiter as m1', 'u1.discord_id', '=', 'm1.discordtag')
+            ->leftJoin('intra_users as u2', 'd.assigned_to', '=', 'u2.id')
+            ->leftJoin('intra_mitarbeiter as m2', 'u2.discord_id', '=', 'm2.discordtag')
+            ->leftJoin('intra_users as u3', 'd.resolved_by', '=', 'u3.id')
+            ->leftJoin('intra_mitarbeiter as m3', 'u3.discord_id', '=', 'm3.discordtag')
+            ->select(array_merge(
+                ['d.*', 'f.name as vehicle_name', 'f.identifier as vehicle_identifier'],
+                $extraVehicleColumns
+            ))
+            ->selectRaw('COALESCE(m1.fullname, u1.username) AS reporter_name')
+            ->selectRaw('COALESCE(m2.fullname, u2.username) AS assigned_name')
+            ->selectRaw('COALESCE(m3.fullname, u3.username) AS resolver_name');
+    }
+
     /** @return list<array<string, mixed>> */
     private function loadLog(int $defectId): array
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT l.*, COALESCE(m.fullname, u.username) AS user_name
-             FROM intra_fahrzeuge_defect_log l
-             LEFT JOIN intra_users u ON l.user_id = u.id
-             LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
-             WHERE l.defect_id = :did
-             ORDER BY l.created_at ASC"
-        );
-        $stmt->execute([':did' => $defectId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return Capsule::table('intra_fahrzeuge_defect_log as l')
+            ->leftJoin('intra_users as u', 'l.user_id', '=', 'u.id')
+            ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+            ->select('l.*')
+            ->selectRaw('COALESCE(m.fullname, u.username) AS user_name')
+            ->where('l.defect_id', $defectId)
+            ->orderBy('l.created_at')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
     }
 
     private function writeLog(int $defectId, int $userId, string $action, ?string $details = null): void
     {
-        $this->pdo->prepare(
-            "INSERT INTO intra_fahrzeuge_defect_log (defect_id, user_id, action, details)
-             VALUES (:did, :uid, :action, :details)"
-        )->execute([
-            ':did'     => $defectId,
-            ':uid'     => $userId,
-            ':action'  => $action,
-            ':details' => $details,
+        VehicleDefectLog::create([
+            'defect_id' => $defectId,
+            'user_id'   => $userId,
+            'action'    => $action,
+            'details'   => $details,
         ]);
     }
 
@@ -438,18 +418,16 @@ final class VehicleDefectsController
     private function notifyStaff(int $defectId, int $vehicleId, string $title, bool $operable, int $reporterId): void
     {
         try {
-            $vnStmt = $this->pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE id = :id");
-            $vnStmt->execute([':id' => $vehicleId]);
-            $vehName = (string) ($vnStmt->fetchColumn() ?: 'Unbekannt');
+            $vehName = (string) (Capsule::table('intra_fahrzeuge')->where('id', $vehicleId)->value('name') ?: 'Unbekannt');
 
-            $notificationManager = new NotificationManager($this->pdo);
+            $notificationManager = new NotificationManager();
 
-            $users = $this->pdo->query(
-                "SELECT u.id, u.full_admin, r.permissions
-                 FROM intra_users u
-                 LEFT JOIN intra_users_roles r ON u.role = r.id
-                 WHERE u.is_active = 1"
-            )->fetchAll(PDO::FETCH_ASSOC);
+            $users = Capsule::table('intra_users as u')
+                ->leftJoin('intra_users_roles as r', 'u.role', '=', 'r.id')
+                ->where('u.is_active', 1)
+                ->get(['u.id', 'u.full_admin', 'r.permissions'])
+                ->map(fn ($row) => (array) $row)
+                ->all();
 
             foreach ($users as $u) {
                 if ((int) $u['id'] === $reporterId) continue;

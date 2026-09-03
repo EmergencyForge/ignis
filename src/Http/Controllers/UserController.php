@@ -28,7 +28,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
  *   - View-Rendering via templates/users/*.php oder Redirect
  *
  * Diese Klasse läuft unter PSR-4 Autoloading und wird via DI-Container
- * instanziiert (PDO + AuditLogger Constructor-Injection).
+ * instanziiert.
  */
 class UserController extends Controller
 {
@@ -158,7 +158,7 @@ class UserController extends Controller
             $target->save();
 
             Flash::success('Benutzer wurde erfolgreich aktualisiert.');
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 (int) $_SESSION['userid'],
                 'Benutzer aktualisiert [ID: ' . $target->id . ']',
                 null,
@@ -174,7 +174,7 @@ class UserController extends Controller
      * GET /benutzer/auditlog — Globale Audit-Log-Tabelle.
      *
      * Zeigt alle Einträge mit `global = 1`. Joint sich die Usernamen via
-     * Capsule (kein eigener AuditLog-Model in dieser Phase).
+     * Capsule (es gibt kein eigenes AuditLog-Model).
      */
     public function auditlog(): void
     {
@@ -323,7 +323,7 @@ class UserController extends Controller
         $target->delete();
 
         Flash::set('user', 'deleted');
-        (new AuditLogger($this->pdo))->log(
+        (new AuditLogger())->log(
             $currentUserId,
             'Benutzer endgültig gelöscht [ID: ' . $targetId . ']',
             null,
@@ -378,7 +378,7 @@ class UserController extends Controller
             $target->save();
 
             Flash::success('Benutzer wurde deaktiviert.');
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 $currentUserId,
                 'Benutzer deaktiviert [ID: ' . $targetId . ']',
                 null,
@@ -392,7 +392,7 @@ class UserController extends Controller
             $target->save();
 
             Flash::success('Benutzer wurde reaktiviert.');
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 $currentUserId,
                 'Benutzer reaktiviert [ID: ' . $targetId . ']',
                 null,

@@ -4,7 +4,6 @@
  *
  * @var array<int,array<string,mixed>>           $categories
  * @var array<int,array<int,array<string,mixed>>> $tilesByCategory
- * @var \PDO                                     $pdo
  */
 
 use App\Helpers\Flash;

@@ -4,7 +4,6 @@
  *
  * @var \Illuminate\Support\Collection                                        $entries     stdClass-Rows aus Capsule
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\User>       $usersById
- * @var \PDO                                                                  $pdo
  */
 
 use App\Helpers\Flash;

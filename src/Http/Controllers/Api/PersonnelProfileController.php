@@ -6,7 +6,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Request;
 use App\Http\Response;
-use PDO;
 
 /**
  * Personnel-Profile-API für das Admin-Panel. Liefert HTML-Fragmente für
@@ -15,16 +14,10 @@ use PDO;
  *
  * Besonderheit: Die Responses sind HTML-Fragmente (text/html), nicht JSON.
  * Sie werden vom Frontend via fetch() geholt und per `innerHTML` in die
- * Seite gepatcht. Die Partials selbst rendern per `$_GET['id']` und `$pdo`
- * direkt — wir reichen diese Variablen via `extract()` in den Include-
- * Scope durch.
+ * Seite gepatcht. Die Partials selbst rendern per `$_GET['id']` direkt.
  */
 final class PersonnelProfileController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * GET /api/personnel/profile-comments?id={user_id}
      */
@@ -58,17 +51,14 @@ final class PersonnelProfileController
     }
 
     /**
-     * Rendert ein Legacy-Partial, das `$pdo` und `$_GET` im lokalen Scope
-     * erwartet. Output-Buffer fängt alles ab und gibt es als HTML-Response
-     * zurück.
+     * Rendert ein Legacy-Partial, das `$_GET` im lokalen Scope erwartet.
+     * Output-Buffer fängt alles ab und gibt es als HTML-Response zurück.
      */
     private function renderPartial(string $partialPath): Response
     {
         if (!is_file($partialPath)) {
             return new Response(404, 'Partial not found');
         }
-
-        $pdo = $this->pdo;
 
         ob_start();
         include $partialPath;

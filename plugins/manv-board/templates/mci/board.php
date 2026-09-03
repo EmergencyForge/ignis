@@ -7,7 +7,6 @@
  * @var array<string,int>              $stats
  * @var array<int,array<string,mixed>> $patienten   (mit fahrzeug_rd_type + fahrzeug_rufname angereichert)
  * @var array<int,array<string,mixed>> $ressourcen
- * @var \PDO                           $pdo
  */
 
 $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);

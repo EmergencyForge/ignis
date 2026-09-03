@@ -2,6 +2,130 @@ body {
   --bs-body-bg: gray;
 }
 
+// =====================================================
+// Standalone-Grundlagen + Utility-Subset
+//
+// Die Druckseite lädt bewusst kein Framework-CSS (weder Bootstrap noch
+// Tailwind) — nur dist/print.css und die Font-Sheets. Das Template
+// (plugins/enotf/templates/enotf/print/index.php) ist aber mit
+// Bootstrap-5-Vokabular aufgebaut (row/col-Grid, border-Utilities,
+// w-100 usw.). Deshalb liegt hier ein kleines, festes Subset dieser
+// Klassen mit den Bootstrap-5-Werten. Es gilt für Bildschirm UND
+// Druck; der @media-print-Block unten passt nur Farben/Umbrüche an.
+//
+// Wenn das Template neue Utility-Klassen bekommt, hier ergänzen.
+// =====================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bs-body-bg);
+  font-family: "Geist", system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+// ── Grid ───────────────────────────────────────────────
+.container-fluid {
+  width: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
+}
+
+.row {
+  --bs-gutter-x: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: calc(var(--bs-gutter-x) * -0.5);
+  margin-left: calc(var(--bs-gutter-x) * -0.5);
+}
+
+.row > * {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 100%;
+  padding-right: calc(var(--bs-gutter-x) * 0.5);
+  padding-left: calc(var(--bs-gutter-x) * 0.5);
+}
+
+.col {
+  flex: 1 0 0%;
+}
+
+.col-3 {
+  flex: 0 0 auto;
+  width: 25%;
+}
+
+.col-5 {
+  flex: 0 0 auto;
+  width: 41.6666666667%;
+}
+
+.col-8 {
+  flex: 0 0 auto;
+  width: 66.6666666667%;
+}
+
+// ── Rahmen ─────────────────────────────────────────────
+.border {
+  border: 1px solid #dee2e6 !important;
+}
+
+.border-dark {
+  border-color: #212529 !important;
+}
+
+.border-top-0 {
+  border-top: 0 !important;
+}
+
+.border-start {
+  border-left: 1px solid #dee2e6 !important;
+}
+
+.border-start-0 {
+  border-left: 0 !important;
+}
+
+// ── Sizing + Spacing ───────────────────────────────────
+.w-100 {
+  width: 100% !important;
+}
+
+.p-3 {
+  padding: 1rem !important;
+}
+
+.px-3 {
+  padding-right: 1rem !important;
+  padding-left: 1rem !important;
+}
+
+// ── Text ───────────────────────────────────────────────
+.text-end {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.fw-bold {
+  font-weight: bold;
+}
+
 .print__paper {
   height: 297mm;
   width: 210mm;

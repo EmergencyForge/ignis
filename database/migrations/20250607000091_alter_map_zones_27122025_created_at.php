@@ -5,22 +5,27 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_map_zones_27122025_created_at.php
- * Spiegelung:     database/legacy/alter_map_zones_27122025_created_at.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Stellt intra_fire_incident_map_zones.created_at von DATETIME auf TIMESTAMP
+ * mit DEFAULT CURRENT_TIMESTAMP um, damit der Erstellzeitpunkt automatisch
+ * gesetzt wird.
  */
 class AlterMapZones27122025CreatedAt extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_map_zones_27122025_created_at.php';
+        $this->table('intra_fire_incident_map_zones')
+            ->changeColumn('created_at', 'timestamp', [
+                'null'    => false,
+                'default' => 'CURRENT_TIMESTAMP',
+                'comment' => 'Timestamp when the zone was created',
+            ])
+            ->update();
+    }
+
+    public function down(): void
+    {
+        $this->table('intra_fire_incident_map_zones')
+            ->changeColumn('created_at', 'datetime', ['null' => false])
+            ->update();
     }
 }

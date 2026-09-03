@@ -14,7 +14,7 @@ use PDOException;
 /**
  * FahrzeugeController — Fahrzeugverwaltung, Beladelisten, Defekt-Meldungen.
  *
- * Die View-Templates enthalten weiterhin inline-Datenladung gegen $pdo, da
+ * Die View-Templates enthalten weiterhin inline-Datenladung (Eloquent), da
  * sie sehr umfangreiches HTML mit eingebetteten SQL-Queries haben. Der
  * Controller kümmert sich um Auth + die schreibenden CRUD-Endpunkte.
  */
@@ -327,7 +327,7 @@ class FahrzeugeController extends Controller
         if (!isset($_SESSION['userid'])) {
             return;
         }
-        $logger = new AuditLogger($this->pdo);
+        $logger = new AuditLogger();
         $logger->log($_SESSION['userid'], $action, $details, 'Fahrzeuge', 1);
     }
 }

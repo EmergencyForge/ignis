@@ -144,7 +144,7 @@ use App\Helpers\Flash;
 <body data-theme="dark" data-page="lexicon">
     <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
 
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-5">
                     
@@ -187,19 +187,19 @@ use App\Helpers\Flash;
                         <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3">Grunddaten</h4>
                             
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="type" class="form-label">Kategorie <span class="text-danger">*</span></label>
-                                    <select name="type" id="type" class="form-select" required>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <label for="type" class="ignis-field__label">Kategorie <span class="ignis-field__required">*</span></label>
+                                    <select name="type" id="type" class="ignis-input" required>
                                         <option value="general" <?= $formData['type'] === 'general' ? 'selected' : '' ?>>Allgemein</option>
                                         <option value="medication" <?= $formData['type'] === 'medication' ? 'selected' : '' ?>>Medikament</option>
                                         <option value="measure" <?= $formData['type'] === 'measure' ? 'selected' : '' ?>>Maßnahme</option>
                                     </select>
                                 </div>
                                 
-                                <div class="col-md-6 mb-3">
-                                    <label for="competency_level" class="form-label">Freigabestufe</label>
-                                    <select name="competency_level" id="competency_level" class="form-select">
+                                <div>
+                                    <label for="competency_level" class="ignis-field__label">Freigabestufe</label>
+                                    <select name="competency_level" id="competency_level" class="ignis-input">
                                         <option value="" <?= empty($formData['competency_level']) ? 'selected' : '' ?>>Keine Angabe</option>
                                         <option value="basis" <?= $formData['competency_level'] === 'basis' ? 'selected' : '' ?>>Basis - Basismaßnahmen</option>
                                         <option value="rettsan" <?= $formData['competency_level'] === 'rettsan' ? 'selected' : '' ?>>RettSan - Rettungssanitäter</option>
@@ -211,23 +211,23 @@ use App\Helpers\Flash;
                             </div>
                             
                             <div class="mb-3">
-                                <label for="title" class="form-label">Titel <span class="text-danger">*</span></label>
-                                <input type="text" name="title" id="title" class="form-control" required
+                                <label for="title" class="ignis-field__label">Titel <span class="ignis-field__required">*</span></label>
+                                <input type="text" name="title" id="title" class="ignis-input" required
                                        value="<?= htmlspecialchars($formData['title']) ?>" 
                                        placeholder="z.B. Dimetinden (Fenistil)">
                             </div>
                             
                             <div class="mb-3">
-                                <label for="subtitle" class="form-label">Untertitel / Beschreibung</label>
-                                <input type="text" name="subtitle" id="subtitle" class="form-control"
+                                <label for="subtitle" class="ignis-field__label">Untertitel / Beschreibung</label>
+                                <input type="text" name="subtitle" id="subtitle" class="ignis-input"
                                        value="<?= htmlspecialchars($formData['subtitle']) ?>"
                                        placeholder="z.B. Ruhigstellung, Extremitäten-Immobilisation, SAM-Splint">
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="category_id" class="form-label">Kategorie</label>
-                                    <select name="category_id" id="category_id" class="form-select">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <label for="category_id" class="ignis-field__label">Kategorie</label>
+                                    <select name="category_id" id="category_id" class="ignis-input">
                                         <option value="">Keine Kategorie</option>
                                         <?php
                                         // Hierarchische Anzeige mit Einrückung
@@ -253,21 +253,19 @@ use App\Helpers\Flash;
                                         ?>
                                     </select>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Tags</label>
-                                    <div class="d-flex flex-wrap gap-2" style="min-height: 38px;">
+                                <div>
+                                    <label class="ignis-field__label">Tags</label>
+                                    <div class="flex flex-wrap gap-2" style="min-height: 38px;">
                                         <?php foreach ($allTags as $tag):
                                             $checked = in_array($tag['id'], $entryTags) ? 'checked' : '';
                                         ?>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" name="tags[]" value="<?= $tag['id'] ?>" id="tag_<?= $tag['id'] ?>" <?= $checked ?>>
-                                                <label class="form-check-label" for="tag_<?= $tag['id'] ?>">
-                                                    <span class="badge" style="background-color: <?= htmlspecialchars($tag['color']) ?>; color: #fff;"><?= htmlspecialchars($tag['name']) ?></span>
-                                                </label>
-                                            </div>
+                                            <label class="ignis-checkbox" for="tag_<?= $tag['id'] ?>">
+                                                <input type="checkbox" name="tags[]" value="<?= $tag['id'] ?>" id="tag_<?= $tag['id'] ?>" <?= $checked ?>>
+                                                <span class="ignis-chip" style="background-color: <?= htmlspecialchars($tag['color']) ?>; color: #fff;"><?= htmlspecialchars($tag['name']) ?></span>
+                                            </label>
                                         <?php endforeach; ?>
                                         <?php if (empty($allTags)): ?>
-                                            <small class="text-muted">Noch keine Tags vorhanden.</small>
+                                            <small class="text-gray-500">Noch keine Tags vorhanden.</small>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -278,55 +276,55 @@ use App\Helpers\Flash;
                         <div id="medication-fields" class="type-fields twplus-section-card p-4 mb-4">
                             <h4 class="mb-3"><i class="fa-solid fa-pills"></i> Medikament-Informationen</h4>
                             
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="med_wirkstoff" class="form-label">Wirkstoff</label>
-                                    <input type="text" name="med_wirkstoff" id="med_wirkstoff" class="form-control"
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <label for="med_wirkstoff" class="ignis-field__label">Wirkstoff</label>
+                                    <input type="text" name="med_wirkstoff" id="med_wirkstoff" class="ignis-input"
                                            value="<?= htmlspecialchars($formData['med_wirkstoff']) ?>"
                                            placeholder="z.B. Dimetinden (Fenistil)">
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="med_wirkstoffgruppe" class="form-label">Wirkstoffgruppe</label>
-                                    <input type="text" name="med_wirkstoffgruppe" id="med_wirkstoffgruppe" class="form-control"
+                                <div>
+                                    <label for="med_wirkstoffgruppe" class="ignis-field__label">Wirkstoffgruppe</label>
+                                    <input type="text" name="med_wirkstoffgruppe" id="med_wirkstoffgruppe" class="ignis-input"
                                            value="<?= htmlspecialchars($formData['med_wirkstoffgruppe']) ?>"
                                            placeholder="z.B. Antihistaminikum">
                                 </div>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="med_wirkmechanismus" class="form-label">Wirkmechanismus</label>
-                                <textarea name="med_wirkmechanismus" id="med_wirkmechanismus" class="form-control" rows="2"
+                                <label for="med_wirkmechanismus" class="ignis-field__label">Wirkmechanismus</label>
+                                <textarea name="med_wirkmechanismus" id="med_wirkmechanismus" class="ignis-textarea" rows="2"
                                           placeholder="z.B. Blockade von Histamin am H1-Rezeptor → antiallergische Wirkung, Sedierung"><?= htmlspecialchars($formData['med_wirkmechanismus']) ?></textarea>
                             </div>
                             
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="med_indikationen" class="form-label">Indikationen</label>
-                                    <textarea name="med_indikationen" id="med_indikationen" class="form-control" rows="3"
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <label for="med_indikationen" class="ignis-field__label">Indikationen</label>
+                                    <textarea name="med_indikationen" id="med_indikationen" class="ignis-textarea" rows="3"
                                               placeholder="• Anaphylaxie"><?= htmlspecialchars($formData['med_indikationen']) ?></textarea>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="med_kontraindikationen" class="form-label">Kontraindikationen</label>
-                                    <textarea name="med_kontraindikationen" id="med_kontraindikationen" class="form-control" rows="3"
+                                <div>
+                                    <label for="med_kontraindikationen" class="ignis-field__label">Kontraindikationen</label>
+                                    <textarea name="med_kontraindikationen" id="med_kontraindikationen" class="ignis-textarea" rows="3"
                                               placeholder="• Unverträglichkeit"><?= htmlspecialchars($formData['med_kontraindikationen']) ?></textarea>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="med_uaw" class="form-label">Unerwünschte Arzneimittelwirkungen (UAW)</label>
-                                <textarea name="med_uaw" id="med_uaw" class="form-control" rows="3"
+                                <label for="med_uaw" class="ignis-field__label">Unerwünschte Arzneimittelwirkungen (UAW)</label>
+                                <textarea name="med_uaw" id="med_uaw" class="ignis-textarea" rows="3"
                                           placeholder="• Müdigkeit&#10;• Mundtrockenheit&#10;• Kopfschmerzen"><?= htmlspecialchars($formData['med_uaw']) ?></textarea>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="med_dosierung" class="form-label">Dosierung</label>
-                                <textarea name="med_dosierung" id="med_dosierung" class="form-control" rows="2"
+                                <label for="med_dosierung" class="ignis-field__label">Dosierung</label>
+                                <textarea name="med_dosierung" id="med_dosierung" class="ignis-textarea" rows="2"
                                           placeholder="• 4 mg i.v."><?= htmlspecialchars($formData['med_dosierung']) ?></textarea>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="med_besonderheiten" class="form-label">Besonderheiten / CAVE</label>
-                                <textarea name="med_besonderheiten" id="med_besonderheiten" class="form-control" rows="3"
+                                <label for="med_besonderheiten" class="ignis-field__label">Besonderheiten / CAVE</label>
+                                <textarea name="med_besonderheiten" id="med_besonderheiten" class="ignis-textarea" rows="3"
                                           placeholder="• Wirkt nur lindernd auf Juckreiz → Verabreichung nur, wenn Basismaßnahmen nicht verzögert werden"><?= htmlspecialchars($formData['med_besonderheiten']) ?></textarea>
                             </div>
                         </div>
@@ -336,40 +334,40 @@ use App\Helpers\Flash;
                             <h4 class="mb-3"><i class="fa-solid fa-hand-holding-medical"></i> Maßnahmen-Informationen</h4>
                             
                             <div class="mb-3">
-                                <label for="mass_wirkprinzip" class="form-label">Wirkprinzip</label>
-                                <textarea name="mass_wirkprinzip" id="mass_wirkprinzip" class="form-control" rows="2"
+                                <label for="mass_wirkprinzip" class="ignis-field__label">Wirkprinzip</label>
+                                <textarea name="mass_wirkprinzip" id="mass_wirkprinzip" class="ignis-textarea" rows="2"
                                           placeholder="Ruhigstellung eines Körperteils und Verhindern von Bewegung → Vermeidung von weiteren Verletzungen durch Bewegung"><?= htmlspecialchars($formData['mass_wirkprinzip']) ?></textarea>
                             </div>
                             
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="mass_indikationen" class="form-label">Indikationen</label>
-                                    <textarea name="mass_indikationen" id="mass_indikationen" class="form-control" rows="3"
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <label for="mass_indikationen" class="ignis-field__label">Indikationen</label>
+                                    <textarea name="mass_indikationen" id="mass_indikationen" class="ignis-textarea" rows="3"
                                               placeholder="V.a. Fraktur einer Extremität mit intakter pDMS"><?= htmlspecialchars($formData['mass_indikationen']) ?></textarea>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="mass_kontraindikationen" class="form-label">Kontraindikationen</label>
-                                    <textarea name="mass_kontraindikationen" id="mass_kontraindikationen" class="form-control" rows="3"
+                                <div>
+                                    <label for="mass_kontraindikationen" class="ignis-field__label">Kontraindikationen</label>
+                                    <textarea name="mass_kontraindikationen" id="mass_kontraindikationen" class="ignis-textarea" rows="3"
                                               placeholder="Unmöglichkeit, schmerzbedingte Intoleranz"><?= htmlspecialchars($formData['mass_kontraindikationen']) ?></textarea>
                                 </div>
                             </div>
                             
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="mass_risiken" class="form-label">Risiken</label>
-                                    <textarea name="mass_risiken" id="mass_risiken" class="form-control" rows="2"
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                                <div>
+                                    <label for="mass_risiken" class="ignis-field__label">Risiken</label>
+                                    <textarea name="mass_risiken" id="mass_risiken" class="ignis-textarea" rows="2"
                                               placeholder="Schmerzen"><?= htmlspecialchars($formData['mass_risiken']) ?></textarea>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="mass_alternativen" class="form-label">Alternativen</label>
-                                    <textarea name="mass_alternativen" id="mass_alternativen" class="form-control" rows="2"
+                                <div>
+                                    <label for="mass_alternativen" class="ignis-field__label">Alternativen</label>
+                                    <textarea name="mass_alternativen" id="mass_alternativen" class="ignis-textarea" rows="2"
                                               placeholder="Kühlung, manuelle Stabilisierung, Vakuumschiene"><?= htmlspecialchars($formData['mass_alternativen']) ?></textarea>
                                 </div>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="mass_durchfuehrung" class="form-label">Durchführung</label>
-                                <textarea name="mass_durchfuehrung" id="mass_durchfuehrung" class="form-control" rows="4"
+                                <label for="mass_durchfuehrung" class="ignis-field__label">Durchführung</label>
+                                <textarea name="mass_durchfuehrung" id="mass_durchfuehrung" class="ignis-textarea" rows="4"
                                           placeholder="» SAM-Splint an gesunder Extremität anpassen&#10;» Extremität vorsichtig hineinlegen&#10;» Fixierung mittels eng gewickelter Mullbinde&#10;» ggf. Kühlpack mit einwickeln"><?= htmlspecialchars($formData['mass_durchfuehrung']) ?></textarea>
                             </div>
                         </div>
@@ -377,24 +375,24 @@ use App\Helpers\Flash;
                         <!-- General Content (CKEditor) -->
                         <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3">Zusätzlicher Inhalt</h4>
-                            <p class="text-muted small">Optionaler Freitext für weitere Informationen (mit Formatierung)</p>
-                            
-                            <textarea name="content" id="content" class="form-control" rows="2"><?= htmlspecialchars($formData['content']) ?></textarea>
+                            <p class="text-gray-500 text-sm">Optionaler Freitext für weitere Informationen (mit Formatierung)</p>
+
+                            <textarea name="content" id="content" class="ignis-textarea" rows="2"><?= htmlspecialchars($formData['content']) ?></textarea>
                         </div>
 
                         <!-- Verknüpfte Einträge -->
                         <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3"><i class="fa-solid fa-link"></i> Verknüpfte Einträge</h4>
-                            <p class="text-muted small">Querverweise zu zusammenhängenden Einträgen hinzufügen</p>
+                            <p class="text-gray-500 text-sm">Querverweise zu zusammenhängenden Einträgen hinzufügen</p>
 
-                            <div class="position-relative mb-3">
-                                <input type="text" class="form-control" id="relationSearch" placeholder="Eintrag suchen..." autocomplete="off">
-                                <div id="relationSuggestions" class="list-group position-absolute w-100" style="z-index: 1000; display: none; max-height: 250px; overflow-y: auto;"></div>
+                            <div class="relative mb-3">
+                                <input type="text" class="ignis-input" id="relationSearch" placeholder="Eintrag suchen..." autocomplete="off">
+                                <div id="relationSuggestions" class="ignis-list-group absolute w-full" style="z-index: 1000; display: none; max-height: 250px; overflow-y: auto;"></div>
                             </div>
 
-                            <div id="relationsList" class="d-flex flex-wrap gap-2">
+                            <div id="relationsList" class="flex flex-wrap gap-2">
                                 <?php foreach ($entryRelations as $rel): ?>
-                                    <div class="badge bg-secondary d-flex align-items-center gap-2 p-2 relation-item" data-id="<?= $rel['id'] ?>">
+                                    <div class="ignis-chip ignis-chip--lg relation-item" data-id="<?= $rel['id'] ?>">
                                         <input type="hidden" name="relations[]" value="<?= $rel['id'] ?>">
                                         <i class="fa-solid fa-<?= $rel['type'] === 'medication' ? 'pills' : ($rel['type'] === 'measure' ? 'hand-holding-medical' : 'file-lines') ?>"></i>
                                         <span><?= htmlspecialchars($rel['title']) ?></span>
@@ -409,30 +407,26 @@ use App\Helpers\Flash;
                         <div class="twplus-section-card p-4 mb-4">
                             <h4 class="mb-3"><i class="fa-solid fa-cog"></i> Optionen</h4>
                             
-                            <div class="row">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <?php if (Permissions::check(['admin', 'kb.edit'])): ?>
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" role="switch" name="is_pinned" id="is_pinned" value="1"
+                                <div>
+                                    <label class="ignis-switch" for="is_pinned">
+                                        <input type="checkbox" role="switch" name="is_pinned" id="is_pinned" value="1"
                                                <?= !empty($entry['is_pinned']) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="is_pinned">
-                                            <i class="fa-solid fa-thumbtack"></i> Eintrag anpinnen
-                                            <small class="text-muted d-block">Angepinnte Einträge werden oben in der Liste angezeigt</small>
-                                        </label>
-                                    </div>
+                                        <span><i class="fa-solid fa-thumbtack"></i> Eintrag anpinnen</span>
+                                    </label>
+                                    <div class="ignis-field__hint mt-1">Angepinnte Einträge werden oben in der Liste angezeigt</div>
                                 </div>
                                 <?php endif; ?>
-                                
+
                                 <?php if (Permissions::check(['admin'])): ?>
-                                <div class="col-md-6 mb-3">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" role="switch" name="hide_editor" id="hide_editor" value="1"
+                                <div>
+                                    <label class="ignis-switch" for="hide_editor">
+                                        <input type="checkbox" role="switch" name="hide_editor" id="hide_editor" value="1"
                                                <?= !empty($entry['hide_editor']) ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="hide_editor">
-                                            <i class="fa-solid fa-eye-slash"></i> Bearbeiter ausblenden
-                                            <small class="text-muted d-block">Name des Erstellers/Bearbeiters wird nicht angezeigt</small>
-                                        </label>
-                                    </div>
+                                        <span><i class="fa-solid fa-eye-slash"></i> Bearbeiter ausblenden</span>
+                                    </label>
+                                    <div class="ignis-field__hint mt-1">Name des Erstellers/Bearbeiters wird nicht angezeigt</div>
                                 </div>
                                 <?php endif; ?>
                             </div>
@@ -440,7 +434,7 @@ use App\Helpers\Flash;
                         <?php endif; ?>
 
                         <!-- Submit Buttons -->
-                        <div class="twplus-sticky-actions justify-content-between">
+                        <div class="twplus-sticky-actions justify-between">
                             <a href="<?= BASE_PATH ?>lexicon/index" class="ignis-btn ignis-btn--ghost">
                                 <i class="fa-solid fa-arrow-left"></i> Abbrechen
                             </a>
@@ -629,10 +623,10 @@ use App\Helpers\Flash;
                         data.results.forEach(function(item) {
                             if (existing.includes(String(item.id)) || String(item.id) === currentId) return;
                             const icon = item.type === 'medication' ? 'pills' : (item.type === 'measure' ? 'hand-holding-medical' : 'file-lines');
-                            html += '<button type="button" class="list-group-item list-group-item-action d-flex align-items-center gap-2" onclick="addRelation(' + item.id + ', \'' + icon + '\', this)" data-title="' + item.title.replace(/"/g, '&quot;') + '">';
+                            html += '<button type="button" class="ignis-list-group__item ignis-list-group__item--interactive" onclick="addRelation(' + item.id + ', \'' + icon + '\', this)" data-title="' + item.title.replace(/"/g, '&quot;') + '">';
                             html += '<i class="fa-solid fa-' + icon + '" style="color:' + item.type_color + '"></i>';
                             html += '<span>' + item.title + '</span>';
-                            html += '<span class="badge ms-auto" style="background-color:' + item.type_color + ';font-size:0.65rem;">' + item.type_label + '</span>';
+                            html += '<span class="ignis-chip ml-auto" style="background-color:' + item.type_color + ';color:#fff;font-size:0.65rem;">' + item.type_label + '</span>';
                             html += '</button>';
                         });
 
@@ -655,7 +649,7 @@ use App\Helpers\Flash;
         window.addRelation = function(id, icon, btn) {
             const title = btn.dataset.title;
             const badge = document.createElement('div');
-            badge.className = 'badge bg-secondary d-flex align-items-center gap-2 p-2 relation-item';
+            badge.className = 'ignis-chip ignis-chip--lg relation-item';
             badge.dataset.id = id;
             badge.innerHTML = '<input type="hidden" name="relations[]" value="' + id + '">'
                 + '<i class="fa-solid fa-' + icon + '"></i>'

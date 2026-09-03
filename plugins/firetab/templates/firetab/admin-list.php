@@ -4,7 +4,6 @@
  *
  * @var array<int,array<string,mixed>> $incidents
  * @var bool                           $showArchived
- * @var \PDO                           $pdo
  */
 
 use App\Helpers\Flash;
@@ -44,8 +43,8 @@ use App\Helpers\Flash;
             </div>
         <?php endif; ?>
 
-        <div class="intra__tile p-3">
-            <table class="table table-striped" id="table-incidents">
+        <div class="twplus-table-card">
+            <table class="table table-striped twplus-table" id="table-incidents">
                 <thead>
                     <tr>
                         <th>Einsatznummer</th>
@@ -157,7 +156,7 @@ use App\Helpers\Flash;
             const initialContent = document.createElement('div');
             initialContent.innerHTML = `
                 <div class="flex justify-center">
-                    <div class="spinner-border" role="status"><span class="sr-only">Laden...</span></div>
+                    <div class="ignis-spinner ignis-spinner--lg" role="status"><span class="sr-only">Laden...</span></div>
                 </div>`;
 
             // Wenn Dialog schon offen: nur Body zuruecksetzen, nicht neu instanziieren.
@@ -198,7 +197,7 @@ use App\Helpers\Flash;
                                 <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
                                     <div>
                                         <label class="ignis-field__label font-bold">Zeitraum:</label>
-                                        <select class="form-select" id="timePeriod">
+                                        <select class="ignis-input" id="timePeriod">
                                             <option value="7">Letzte 7 Tage</option>
                                             <option value="30" selected>Letzte 30 Tage</option>
                                             <option value="90">Letzte 90 Tage</option>
@@ -208,7 +207,7 @@ use App\Helpers\Flash;
                                     </div>
                                     <div>
                                         <label class="ignis-field__label font-bold">Status:</label>
-                                        <select class="form-select" id="statusFilter">
+                                        <select class="ignis-input" id="statusFilter">
                                             <option value="all" selected>Alle</option>
                                             <option value="unfinalized">Nur unfertige</option>
                                             <option value="finalized">Nur abgeschlossene</option>
@@ -243,7 +242,7 @@ use App\Helpers\Flash;
                 return;
             }
 
-            setBulkDeleteContent(`<div class="flex justify-center"><div class="spinner-border" role="status"><span class="sr-only">Lade Vorschau...</span></div></div>`);
+            setBulkDeleteContent(`<div class="flex justify-center"><div class="ignis-spinner ignis-spinner--lg" role="status"><span class="sr-only">Lade Vorschau...</span></div></div>`);
 
             const formData = new FormData();
             selectedFields.forEach(field => formData.append('fields[]', field));
@@ -272,8 +271,8 @@ use App\Helpers\Flash;
                             // unterstuetzt — er ist nur im Preview-State sichtbar.
                             setBulkDeleteContent(`
                                 <div class="ignis-alert ignis-alert--warning"><i class="fa-solid fa-exclamation-triangle"></i> <strong>Achtung!</strong><p class="mb-0 mt-2">Es wurden <strong>${data.count} Protokoll(e)</strong> gefunden, die archiviert werden.</p><p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p></div>
-                                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                                    <table class="table table-sm table-striped"><thead class="sticky-top bg-[rgba(0,0,0,0.3)]"><tr><th>Einsatznummer</th><th>Ort</th><th>Stichwort</th><th>Leiter</th><th>Angelegt am</th><th>Status</th></tr></thead><tbody>${protocolsList}</tbody></table>
+                                <div class="overflow-x-auto" style="max-height: 400px; overflow-y: auto;">
+                                    <table class="table table-sm table-striped twplus-table"><thead class="sticky top-0 bg-[rgba(0,0,0,0.3)]"><tr><th>Einsatznummer</th><th>Ort</th><th>Stichwort</th><th>Leiter</th><th>Angelegt am</th><th>Status</th></tr></thead><tbody>${protocolsList}</tbody></table>
                                 </div>
                                 <div class="text-right mt-3">
                                     <button type="button" class="ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete(this)">
@@ -303,7 +302,7 @@ use App\Helpers\Flash;
                 return;
             }
 
-            deleteButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Lösche...';
+            deleteButton.innerHTML = '<span class="ignis-spinner ignis-spinner--sm" role="status" aria-hidden="true"></span> Lösche...';
             deleteButton.disabled = true;
 
             const formData = new FormData();

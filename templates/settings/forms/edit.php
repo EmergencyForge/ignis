@@ -5,7 +5,6 @@
  * @var int                            $id
  * @var array<string,mixed>            $typ
  * @var array<int,array<string,mixed>> $felder
- * @var \PDO                           $pdo
  */
 
 use App\Helpers\Flash;

@@ -5,22 +5,28 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/add_foreign_keys_07062025.php
- * Spiegelung:     database/legacy/add_foreign_keys_07062025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Verkettet die Kern-Tabellen: intra_users.role zeigt auf intra_users_roles,
+ * intra_audit_log.user auf intra_users. Kommt nachträglich, weil die Tabellen
+ * in den vorherigen Migrationen ohne FKs angelegt wurden.
  */
 class AddForeignKeys07062025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/add_foreign_keys_07062025.php';
+        $this->table('intra_users')
+            ->addForeignKey('role', 'intra_users_roles', 'id', [
+                'constraint' => 'FK_intra_users_intra_users_roles',
+                'delete'     => 'NO_ACTION',
+                'update'     => 'CASCADE',
+            ])
+            ->update();
+
+        $this->table('intra_audit_log')
+            ->addForeignKey('user', 'intra_users', 'id', [
+                'constraint' => 'FK_intra_audit_log_intra_users',
+                'delete'     => 'CASCADE',
+                'update'     => 'CASCADE',
+            ])
+            ->update();
     }
 }
