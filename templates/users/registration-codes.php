@@ -63,7 +63,7 @@ $bodyId = 'benutzer';
                     <div class="twplus-table-card">
                         <div class="twplus-table-card__toolbar"><h2 class="twplus-section-card__title">Alle Einladungen</h2></div>
                         <div class="twplus-table-card__scroll">
-                        <table class="table table-striped twplus-table" id="inviteTable">
+                        <table class="ignis-table" id="inviteTable">
                             <thead>
                                 <tr>
                                     <th scope="col">Bezeichnung</th>
@@ -191,15 +191,4 @@ $bodyId = 'benutzer';
             });
         }
 
-        $(document).ready(function() {
-            $('#inviteTable').DataTable({
-                stateSave: true,
-                paging: true,
-                lengthMenu: [10, 20, 50],
-                pageLength: 10,
-                order: [[2, 'desc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Einladungen')
-            });
-        });
     </script>

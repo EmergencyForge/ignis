@@ -165,11 +165,17 @@ abstract class FeatureTestCase extends IntegrationTestCase
         $_SERVER['REQUEST_URI'] = $path . (($opts['query'] ?? []) !== [] ? '?' . http_build_query($opts['query']) : '');
         $_SERVER['REQUEST_METHOD'] = strtoupper($method);
 
+        // Die Listen-Controller lesen ihre Query (q, sort, page, Filter)
+        // aus $_GET, wie es der Webserver füllt.
+        $getBefore = $_GET;
+        $_GET = $opts['query'] ?? [];
+
         ob_start();
         try {
             $response = $this->router->dispatch($request);
         } finally {
             $captured = ob_get_clean() ?: '';
+            $_GET = $getBefore;
             foreach ($serverBefore as $key => $value) {
                 if ($value === null) {
                     unset($_SERVER[$key]);

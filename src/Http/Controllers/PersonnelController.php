@@ -10,6 +10,7 @@ use App\Helpers\UserHelper;
 use App\Http\Requests\Mitarbeiter\CreateDocumentRequest;
 use App\Http\Requests\Mitarbeiter\CreateMitarbeiterRequest;
 use App\Http\Requests\Mitarbeiter\UpdateMitarbeiterRequest;
+use App\Http\Response;
 use App\Models\Rank;
 use App\Models\FdSkill;
 use App\Models\Personnel;
@@ -17,6 +18,7 @@ use App\Models\PersonnelDocument;
 use App\Models\AmbSkill;
 use App\Notifications\NotificationManager;
 use App\Personnel\PersonalLogManager;
+use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -34,9 +36,8 @@ class PersonnelController extends Controller
      *   - ?archiv → zeige nur Archivierte
      *   - ohne ?archiv → zeige alle aktiven (nicht im Archiv-Rank)
      */
-    public function index(): void
+    public function index(): ?Response
     {
-
         $showArchive = isset($_GET['archiv']);
 
         $archiveDienstgradIds = Rank::query()
@@ -44,13 +45,49 @@ class PersonnelController extends Controller
             ->pluck('id')
             ->all();
 
+        // Sortieren, Suchen, Filtern und Blättern auf dem Server (ListQuery).
+        // Dienstgrad und Qualifikationen sortieren nach ihrer Priorität, dafür
+        // hängen die drei Tabellen per JOIN dran; die Filter nehmen die IDs.
+        $list = ListQuery::fromQuery($_GET, [
+            'dienstnr'   => 'intra_mitarbeiter.dienstnr',
+            'name'       => 'intra_mitarbeiter.fullname',
+            'dienstgrad' => 'dg.priority',
+            'rd'         => 'rd.priority',
+            'fw'         => 'fw.priority',
+            'einstdatum' => 'intra_mitarbeiter.einstdatum',
+        ], 'einstdatum', 'asc', 25, ['dg', 'rd', 'fw', 'archiv']);
+
         $query = Personnel::query()->with(['dienstgradModel', 'rdQualiModel', 'fwQualiModel']);
         if ($showArchive) {
             $query->archived($archiveDienstgradIds);
         } else {
             $query->active($archiveDienstgradIds);
         }
-        $mitarbeiter = $query->orderBy('einstdatum')->get();
+        $query
+            ->leftJoin('intra_mitarbeiter_dienstgrade as dg', 'intra_mitarbeiter.dienstgrad', '=', 'dg.id')
+            ->leftJoin('intra_mitarbeiter_rdquali as rd', 'intra_mitarbeiter.qualird', '=', 'rd.id')
+            ->leftJoin('intra_mitarbeiter_fwquali as fw', 'intra_mitarbeiter.qualifw2', '=', 'fw.id')
+            ->select('intra_mitarbeiter.*');
+        if ($list->q !== '') {
+            $query->where(function ($q) use ($list) {
+                $q->where('intra_mitarbeiter.fullname', 'LIKE', $list->like())
+                    ->orWhere('intra_mitarbeiter.dienstnr', 'LIKE', $list->like());
+            });
+        }
+        foreach (['dg' => 'intra_mitarbeiter.dienstgrad', 'rd' => 'intra_mitarbeiter.qualird', 'fw' => 'intra_mitarbeiter.qualifw2'] as $key => $column) {
+            if ($list->filter($key) !== '') {
+                $query->where($column, (int) $list->filter($key));
+            }
+        }
+
+        if (($_GET['export'] ?? '') === 'csv') {
+            /** @var \Illuminate\Support\Collection<int, Personnel> $rows */
+            $rows = $list->order($query)->get();
+
+            return $this->exportCsv($rows);
+        }
+
+        $mitarbeiter = $list->paginate($query);
 
         $dienstgrade = Rank::active()->get();
         $rdQualis    = AmbSkill::query()->orderBy('priority')->get();
@@ -62,7 +99,45 @@ class PersonnelController extends Controller
             'rdQualis'    => $rdQualis,
             'fwQualis'    => $fwQualis,
             'showArchive' => $showArchive,
+            'list'        => $list,
         ]);
+
+        return null;
+    }
+
+    /**
+     * GET /personnel/list?export=csv — die gefilterte Liste als CSV, dieselben
+     * Spalten wie die Tabelle. Vorher baute der Browser die Datei aus den
+     * sichtbaren DataTables-Zeilen; seit die Liste seitenweise kommt, muss
+     * der Export den ganzen Filterstand nehmen.
+     *
+     * @param \Illuminate\Support\Collection<int, Personnel> $rows
+     */
+    private function exportCsv(\Illuminate\Support\Collection $rows): Response
+    {
+        $cell = static fn (string $value): string => '"' . str_replace('"', '""', $value) . '"';
+        $lines = ['Dienstnummer;Name;Dienstgrad;RD-Qualifikation;FW-Qualifikation;Einstellungsdatum'];
+        foreach ($rows as $m) {
+            $rd = $m->rdQualiModel;
+            $fw = $m->fwQualiModel;
+            $lines[] = implode(';', array_map($cell, [
+                (string) $m->dienstnr,
+                (string) $m->fullname,
+                $m->dienstgradLabel(),
+                ($rd === null || $rd->none) ? '-' : $m->rdQualiLabel(),
+                ($fw === null || $fw->none) ? '-' : (string) $fw->shortname,
+                $m->einstdatum->format('d.m.Y'),
+            ]));
+        }
+
+        return new Response(
+            status: 200,
+            body: "\xEF\xBB\xBF" . implode("\n", $lines) . "\n",
+            headers: [
+                'Content-Type'        => 'text/csv; charset=utf-8',
+                'Content-Disposition' => 'attachment; filename="mitarbeiter_export_' . date('Y-m-d') . '.csv"',
+            ],
+        );
     }
 
     /**

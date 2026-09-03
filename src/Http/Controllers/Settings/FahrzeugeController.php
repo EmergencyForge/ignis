@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Settings;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
@@ -22,12 +23,62 @@ class FahrzeugeController extends Controller
 {
     // ── Vehicles CRUD ──────────────────────────────────────
 
+    /**
+     * GET /settings/vehicles/vehicles/index — Fahrzeugliste, sortiert,
+     * gesucht und geblättert auf dem Server (ListQuery). Die offenen
+     * Defekte kommen als Unterabfrage mit, damit sich danach sortieren lässt;
+     * fehlt die Defekt-Tabelle noch (ältere Installation vor der Migration),
+     * läuft die Liste ohne diese Spalte weiter.
+     */
     public function index(): void
     {
         $this->requireAuth();
         $this->ensureView('index.php');
 
-        $this->renderView('settings/vehicles/vehicles/index', []);
+        $list = ListQuery::fromQuery($_GET, [
+            'priority'    => 'f.priority',
+            'name'        => 'f.name',
+            'kennzeichen' => 'f.kennzeichen',
+            'rd'          => 'f.rd_type',
+            'defects'     => 'open_defects',
+            'active'      => 'f.active',
+        ], 'priority', 'asc', 25, ['active']);
+
+        $build = function (bool $withDefects) use ($list): \Illuminate\Database\Query\Builder {
+            $query = Capsule::table('intra_fahrzeuge as f')->select(
+                $withDefects
+                    ? [
+                        'f.*',
+                        Capsule::connection()->raw("(SELECT COUNT(*) FROM intra_fahrzeuge_defects d WHERE d.vehicle_id = f.id AND d.status != 'resolved') AS open_defects"),
+                        Capsule::connection()->raw("(SELECT MIN(d.vehicle_operable) FROM intra_fahrzeuge_defects d WHERE d.vehicle_id = f.id AND d.status != 'resolved') AS min_operable"),
+                    ]
+                    : ['f.*', Capsule::connection()->raw('0 AS open_defects'), Capsule::connection()->raw('NULL AS min_operable')]
+            );
+            if ($list->q !== '') {
+                $query->where(function ($q) use ($list) {
+                    $q->where('f.name', 'LIKE', $list->like())
+                        ->orWhere('f.kennzeichen', 'LIKE', $list->like())
+                        ->orWhere('f.identifier', 'LIKE', $list->like())
+                        ->orWhere('f.veh_type', 'LIKE', $list->like());
+                });
+            }
+            if (in_array($list->filter('active'), ['0', '1'], true)) {
+                $query->where('f.active', (int) $list->filter('active'));
+            }
+
+            return $query;
+        };
+
+        try {
+            $vehicles = $list->paginate($build(true));
+        } catch (PDOException) {
+            $vehicles = $list->paginate($build(false));
+        }
+
+        $this->renderView('settings/vehicles/vehicles/index', [
+            'vehicles' => $vehicles->map(static fn ($row) => (array) $row),
+            'list'     => $list,
+        ]);
     }
 
     public function store(): void

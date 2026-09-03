@@ -11,6 +11,7 @@ use App\Http\Requests\Users\GenerateRegistrationCodeRequest;
 use App\Models\RegistrationCode;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -69,38 +70,64 @@ class UserController extends Controller
     }
 
     /**
-     * GET /benutzer — Benutzer-Liste mit DataTable.
+     * GET /users/list — Benutzer-Liste, sortiert, gefiltert und geblättert
+     * auf dem Server (ListQuery): `?q=` sucht in Benutzername und
+     * Mitarbeiter-Namen, `?status=active|inactive` filtert, `?sort=` kennt
+     * die Spalten der Whitelist unten.
      *
      * Schließt einen LEFT JOIN auf intra_mitarbeiter ein, um den Mitarbeiter-
      * Namen anzuzeigen falls verlinkt. Ohne Verlinkung wird "Kein Profil
-     * verbunden" angezeigt.
+     * verbunden" angezeigt. Der Rollenname kommt per JOIN mit, damit sich
+     * danach sortieren lässt.
      */
     public function index(): void
     {
         $this->requireAuth();
         $this->ensure('user.viewList', redirectTo: 'index');
 
-        $users = User::query()
+        $list = ListQuery::fromQuery($_GET, [
+            'id'      => 'intra_users.id',
+            'name'    => 'intra_users.username',
+            'role'    => 'role_name',
+            'status'  => 'intra_users.is_active',
+            'created' => 'intra_users.created_at',
+        ], 'name', 'asc', 25, ['status']);
+
+        $query = User::query()
             ->leftJoin(
                 'intra_mitarbeiter',
                 'intra_users.discord_id',
                 '=',
                 'intra_mitarbeiter.discordtag'
             )
+            ->leftJoin('intra_users_roles', 'intra_users.role', '=', 'intra_users_roles.id')
             ->select(
                 'intra_users.*',
                 Capsule::raw(
                     "COALESCE(intra_mitarbeiter.fullname, 'Kein Profil verbunden') as mitarbeiter_fullname"
-                )
-            )
-            ->orderBy('intra_users.username')
-            ->get();
+                ),
+                'intra_users_roles.name as role_name'
+            );
 
+        if ($list->q !== '') {
+            $query->where(function ($q) use ($list) {
+                $q->where('intra_users.username', 'LIKE', $list->like())
+                    ->orWhere('intra_mitarbeiter.fullname', 'LIKE', $list->like());
+            });
+        }
+        if ($list->filter('status') === 'active') {
+            $query->where('intra_users.is_active', 1);
+        } elseif ($list->filter('status') === 'inactive') {
+            $query->where('intra_users.is_active', 0);
+        }
+
+        $users = $list->paginate($query);
         $roles = Role::all()->keyBy('id');
 
         $this->renderView('users/list', [
             'users' => $users,
             'roles' => $roles,
+            'list'  => $list,
         ]);
     }
 
@@ -124,11 +151,14 @@ class UserController extends Controller
             ->orderBy('priority')
             ->get();
 
+        // Die letzten 100 Einträge des Kontos; die vollständige Historie
+        // steht sortier- und durchsuchbar unter /users/auditlog.
         $auditEntries = [];
         if (Gate::allows('user.viewAuditLog')) {
             $auditEntries = Capsule::table('intra_audit_log')
                 ->where('user', $target->id)
                 ->orderBy('timestamp', 'desc')
+                ->limit(100)
                 ->get();
         }
 
@@ -181,19 +211,43 @@ class UserController extends Controller
         $this->requireAuth();
         $this->ensure('user.viewAuditLog', redirectTo: 'index');
 
-        $entries = Capsule::table('intra_audit_log')
-            ->where('global', 1)
-            ->orderBy('timestamp', 'desc')
-            ->get();
+        // Sortiert, gesucht und geblättert auf dem Server (ListQuery); das
+        // Log wächst mit jeder Änderung, deshalb 50 je Seite, neueste zuerst.
+        $list = ListQuery::fromQuery($_GET, [
+            'zeit'   => 'intra_audit_log.timestamp',
+            'modul'  => 'intra_audit_log.module',
+            'aktion' => 'intra_audit_log.action',
+            'user'   => 'username',
+        ], 'zeit', 'desc', 50, ['modul']);
 
-        $usersById = User::query()
-            ->select(['id', 'username'])
-            ->get()
-            ->keyBy('id');
+        $query = Capsule::table('intra_audit_log')
+            ->leftJoin('intra_users', 'intra_audit_log.user', '=', 'intra_users.id')
+            ->select('intra_audit_log.*', 'intra_users.username')
+            ->where('intra_audit_log.global', 1);
+
+        if ($list->q !== '') {
+            $query->where(function ($q) use ($list) {
+                $q->where('intra_audit_log.action', 'LIKE', $list->like())
+                    ->orWhere('intra_audit_log.details', 'LIKE', $list->like())
+                    ->orWhere('intra_users.username', 'LIKE', $list->like());
+            });
+        }
+        if ($list->filter('modul') !== '') {
+            $query->where('intra_audit_log.module', $list->filter('modul'));
+        }
+
+        $modules = Capsule::table('intra_audit_log')
+            ->where('global', 1)
+            ->whereNotNull('module')
+            ->distinct()
+            ->orderBy('module')
+            ->pluck('module')
+            ->all();
 
         $this->renderView('users/auditlog', [
-            'entries'   => $entries,
-            'usersById' => $usersById,
+            'entries' => $list->paginate($query),
+            'modules' => $modules,
+            'list'    => $list,
         ]);
     }
 

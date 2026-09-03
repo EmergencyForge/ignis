@@ -2,8 +2,9 @@
  * vehicles-admin.js — Inline-Logik für settings/fahrzeuge/fahrzeuge/index.php.
  *
  * Bündelt:
- *   - DataTable-Init für die Fahrzeug-Tabelle
- *   - Edit-/Copy-Button-Handler (Modal-Befüllung aus Daten-Attributen)
+ *   - Edit-/Copy-Button-Handler (Modal-Befüllung aus Daten-Attributen);
+ *     Sortierung, Suche und Seiten der Tabelle laufen seit dem Redesign
+ *     auf dem Server (Settings\FahrzeugeController::index)
  *   - TZ-Template-Manager (Modal-CRUD für taktische Zeichen)
  *   - Vehicle-Import-Flow (EMD-Sync-Queue mit Polling, Status-States und
  *     pro-Fahrzeug-Aktionen import/merge/overwrite/ignore)
@@ -35,23 +36,7 @@
             .replace(/</g, '&lt;');
     }
 
-    // ── DataTable + Edit/Copy-Buttons ────────────────────────────────
-
-    function bindDataTable() {
-        const table = global.$ ? global.$('#table-fahrzeuge') : null;
-        if (!table || !table.length) return;
-        table.DataTable({
-            stateSave:    true,
-            paging:       true,
-            lengthMenu:   [10, 20, 50],
-            pageLength:   20,
-            order:        [[0, 'asc']],
-            columnDefs:   [{ orderable: false, targets: -1 }],
-            language:     global.IgnisDataTableLang
-                ? global.IgnisDataTableLang('Fahrzeuge')
-                : undefined,
-        });
-    }
+    // ── Edit/Copy-Buttons ────────────────────────────────────────────
 
     // Fahrzeug-Dialog (geteilt zwischen Edit, Create und Copy-as-Create).
     // Templates teilen sich Prefix `fahrzeug-`, weil pro Open immer nur eine
@@ -703,7 +688,6 @@
     // ── Public Entry-Point ───────────────────────────────────────────
 
     global.initVehiclesAdminPage = function (config) {
-        bindDataTable();
         bindEditButtons(config);
         bindTzTemplateManager(config);
         bindVehicleImport(config);
