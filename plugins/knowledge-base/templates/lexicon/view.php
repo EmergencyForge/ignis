@@ -2,15 +2,12 @@
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\KnowledgeBase\KBHelper;
-?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
 
-<head>
-    <?php
-    $SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
-    include dirname(__DIR__, 4) . "/assets/components/_base/admin/head.php";
-    ?>
+$layout = 'admin';
+$bodyId = 'lexicon';
+$SITE_TITLE = htmlspecialchars($entry['title']) . ' - Wissensdatenbank';
+?>
+<?php ob_start(); ?>
     <style>
         .competency-header {
             padding: 15px;
@@ -280,11 +277,8 @@ use App\KnowledgeBase\KBHelper;
             color: #6ea8fe;
         }
     </style>
-</head>
-
-<body data-theme="dark" data-page="lexicon">
+<?php $layoutHead = ob_get_clean(); ?>
     <?php if ($isLoggedIn): ?>
-        <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
     <?php else: ?>
         <nav class="mb-4">
             <div class="mx-auto flex items-center justify-between px-4 py-3">
@@ -601,8 +595,3 @@ use App\KnowledgeBase\KBHelper;
                 </div>
         </div>
     </div>
-
-    <?php include dirname(__DIR__, 4) . "/assets/components/footer.php"; ?>
-</body>
-
-</html>

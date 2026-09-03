@@ -1,16 +1,10 @@
 <?php
 require_once __DIR__ . '/assets/config/config.php';
+
+// Die Seite rendert durch die Hülle (templates/layouts/admin.php):
+// Inhalt puffern, App\Helpers\Layout legt Topbar und Sidebar drumherum.
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="de">
-
-<head>
-  <?php
-  $SITE_TITLE = 'Dashboard';
-  include __DIR__ . '/assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" id="dashboard" class="container-full position-relative">
   <div class="twplus-page">
     <div
       id="hosting-self-test"
@@ -103,8 +97,6 @@ require_once __DIR__ . '/assets/config/config.php';
     </div>
 
   </div>
-  <?php include __DIR__ . "/assets/components/footer.php"; ?>
   <script type="module" src="<?= BASE_PATH ?>assets/js/modules/hosting-self-test.js"></script>
-</body>
-
-</html>
+<?php
+echo \App\Helpers\Layout::render('admin', (string) ob_get_clean(), ['SITE_TITLE' => 'Dashboard', 'bodyId' => 'dashboard']);

@@ -17,19 +17,11 @@ $kategorien = Capsule::table('intra_dokument_kategorien as dk')
     ])
     ->map(fn ($row) => (array) $row)
     ->all();
+
+$layout = 'admin';
+$bodyId = 'settings';
+$SITE_TITLE = 'Dokumenten-Kategorien';
 ?>
-<!DOCTYPE html>
-<html lang="de">
-
-<head>
-    <?php
-    $SITE_TITLE = 'Dokumenten-Kategorien';
-    include __DIR__ . '/../../../assets/components/_base/admin/head.php';
-    ?>
-</head>
-
-<body data-theme="dark" data-page="settings">
-    <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page my-6">
             <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/">Einstellungen</a></span> <span class="ignis-breadcrumb__item is-active">Dokumenten-Kategorien</span></nav>
@@ -272,7 +264,3 @@ $kategorien = Capsule::table('intra_dokument_kategorien as dk')
             }
         }
     </script>
-    <?php include __DIR__ . "/../../../assets/components/footer.php"; ?>
-</body>
-
-</html>

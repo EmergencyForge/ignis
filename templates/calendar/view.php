@@ -21,17 +21,13 @@
 use App\Helpers\Flash;
 
 $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
+
+$layout = 'admin';
+$bodyId = 'kalender';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+<?php ob_start(); ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/pages/calendar.css">
-</head>
-
-<body data-theme="dark" data-page="kalender">
-    <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
+<?php $layoutHead = ob_get_clean(); ?>
 
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page" data-calendar-event-detail>
@@ -198,8 +194,3 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
             <?php endif; ?>
         </div>
     </div>
-
-    <?php include __DIR__ . '/../../assets/components/footer.php'; ?>
-</body>
-
-</html>

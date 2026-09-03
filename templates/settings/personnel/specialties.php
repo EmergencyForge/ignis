@@ -7,16 +7,11 @@
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+
+$layout = 'admin';
+$bodyId = 'settings';
+$SITE_TITLE = 'Fachdienste';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" data-page="settings">
-    <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="flex flex-wrap -mx-3">
@@ -145,8 +140,3 @@ use App\Helpers\Flash;
             });
         }
     </script>
-
-    <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
-</body>
-
-</html>

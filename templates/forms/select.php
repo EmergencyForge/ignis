@@ -8,17 +8,10 @@
 use App\Helpers\Flash;
 
 $SITE_TITLE = "Antrag einreichen";
+
+$layout = 'admin';
+$bodyId = 'antrag-select';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
-</head>
-
-<body data-theme="dark" data-page="antrag-select">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
-
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <header class="twplus-page-header mb-6">
@@ -74,8 +67,3 @@ $SITE_TITLE = "Antrag einreichen";
             </div>
         </div>
     </div>
-
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
-</body>
-
-</html>

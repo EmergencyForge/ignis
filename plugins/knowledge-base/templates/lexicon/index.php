@@ -2,15 +2,12 @@
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use App\KnowledgeBase\KBHelper;
-?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
 
-<head>
-    <?php
-    $SITE_TITLE = 'Wissensdatenbank';
-    include dirname(__DIR__, 4) . "/assets/components/_base/admin/head.php";
-    ?>
+$layout = 'admin';
+$bodyId = 'lexicon';
+$SITE_TITLE = 'Wissensdatenbank';
+?>
+<?php ob_start(); ?>
     <style>
         .competency-badge {
             display: inline-block;
@@ -158,11 +155,8 @@ use App\KnowledgeBase\KBHelper;
             border-radius: 2px;
         }
     </style>
-</head>
-
-<body data-theme="dark" data-page="lexicon">
+<?php $layoutHead = ob_get_clean(); ?>
     <?php if ($isLoggedIn): ?>
-        <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
     <?php else: ?>
         <nav class="mb-4">
             <div class="mx-auto flex items-center justify-between px-4 py-3">
@@ -382,7 +376,6 @@ use App\KnowledgeBase\KBHelper;
         </div>
     </div>
 
-    <?php include dirname(__DIR__, 4) . "/assets/components/footer.php"; ?>
     
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -468,6 +461,3 @@ use App\KnowledgeBase\KBHelper;
         }
     });
     </script>
-</body>
-
-</html>

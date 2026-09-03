@@ -29,14 +29,12 @@ $kategorien = DocumentCategory::query()
     ->orderBy('name')
     ->get(['id', 'name', 'color', 'icon'])
     ->toArray();
-?>
-<!DOCTYPE html>
-<html lang="de">
 
-<head>
-    <?php
-    include __DIR__ . '/../../../assets/components/_base/admin/head.php';
-    ?>
+$layout = 'admin';
+$bodyId = 'settings';
+$SITE_TITLE = 'Dokumentvorlagen';
+?>
+<?php ob_start(); ?>
     <script src="<?= BASE_PATH ?>assets/_ext/sortablejs/Sortable.min.js"></script>
     <style>
         .template-card:hover {
@@ -175,10 +173,7 @@ $kategorien = DocumentCategory::query()
             border-top: 1px solid #495057;
         }
     </style>
-</head>
-
-<body data-theme="dark" data-page="settings">
-    <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
+<?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page my-5">
             <?php Flash::render(); ?>
@@ -366,7 +361,3 @@ $kategorien = DocumentCategory::query()
         };
     </script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/modules/templates-app.js"></script>
-    <?php include __DIR__ . "/../../../assets/components/footer.php"; ?>
-</body>
-
-</html>

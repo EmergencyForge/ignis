@@ -7,16 +7,11 @@
  */
 
 use App\Helpers\Flash;
+
+$layout = 'admin';
+$bodyId = 'benutzer';
+$SITE_TITLE = 'Audit-Log';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
-</head>
-
-<body data-theme="dark" data-page="benutzer">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -85,7 +80,3 @@ use App\Helpers\Flash;
             });
         });
     </script>
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
-</body>
-
-</html>

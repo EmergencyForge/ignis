@@ -10,12 +10,12 @@
  */
 
 $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
-?>
-<!DOCTYPE html>
-<html lang="de">
 
-<head>
-    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
+$layout = 'admin';
+$bodyId = 'manv-board';
+$bodyPage = 'edivi';
+?>
+<?php ob_start(); ?>
     <style>
         .stats-bar {
             background: rgba(0, 0, 0, 0.2);
@@ -32,10 +32,7 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
         .badge-sk6 { background-color: #9b59b6 !important; color: #fff !important; }
         .badge-tot { background-color: #000 !important; color: #fff !important; }
     </style>
-</head>
-
-<body data-theme="dark" id="manv-board" data-page="edivi">
-    <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
+<?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <header class="twplus-page-header mb-6">
@@ -207,7 +204,6 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
         </div>
     </div>
 
-    <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
 
     <script>
         $(document).ready(function() {
@@ -257,6 +253,3 @@ $SITE_TITLE = 'MANV-Board - ' . htmlspecialchars($lage['einsatznummer']);
             });
         });
     </script>
-</body>
-
-</html>

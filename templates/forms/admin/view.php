@@ -14,12 +14,11 @@ use App\Models\Form;
 $caseId     = $antrag->uniqueid;
 $createDate = $antrag->time_added;
 $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspecialchars($caseId) . ']';
-?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
 
-<head>
-    <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
+$layout = 'admin';
+$bodyId = 'antrag-admin-view';
+?>
+<?php ob_start(); ?>
     <style>
         .field-label {
             font-weight: 600;
@@ -35,10 +34,7 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
             min-height: 2.5rem;
         }
     </style>
-</head>
-
-<body data-theme="dark" data-page="antrag-admin-view">
-    <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
+<?php $layoutHead = ob_get_clean(); ?>
 
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -201,8 +197,3 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
             </form>
         </div>
     </div>
-
-    <?php include __DIR__ . "/../../../assets/components/footer.php"; ?>
-</body>
-
-</html>

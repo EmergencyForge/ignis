@@ -99,20 +99,11 @@ $installationId = $telemetry->getInstallationId();
 $lastHeartbeat = $telemetry->getLastHeartbeat();
 $previewData = $telemetryEnabled ? $telemetry->collectData() : null;
 $cacheInfo = $announcements->getCacheInfo();
+
+$layout = 'admin';
+$bodyId = 'settings';
+$SITE_TITLE = 'Telemetrie & Ankündigungen';
 ?>
-
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php
-    $SITE_TITLE = 'Telemetrie & Ankündigungen';
-    include __DIR__ . '/../../../assets/components/_base/admin/head.php';
-    ?>
-</head>
-
-<body data-theme="dark" data-page="settings">
-    <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
@@ -465,8 +456,3 @@ $cacheInfo = $announcements->getCacheInfo();
             }).open();
         }
     </script>
-
-    <?php include __DIR__ . "/../../../assets/components/footer.php"; ?>
-</body>
-
-</html>

@@ -11,7 +11,9 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 if (!Permissions::check(['admin'])) return;
 
-// Safe count helper — returns 0 if table doesn't exist or not whitelisted
+// Safe count helper — returns 0 if table doesn't exist or not whitelisted.
+// Guarded, weil die Seite in einem Prozess mehrmals rendern kann (Feature-Tests).
+if (!function_exists('_setupCount')) {
 function _setupCount(string $table): int
 {
     static $whitelist = [
@@ -28,6 +30,7 @@ function _setupCount(string $table): int
     } catch (Exception) {
         return 0;
     }
+}
 }
 
 // Check what's configured

@@ -8,16 +8,11 @@
  */
 
 use App\Helpers\Flash;
+
+$layout = 'admin';
+$bodyId = 'antragstyp-edit';
+$SITE_TITLE = 'Antragstyp bearbeiten';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" data-page="antragstyp-edit">
-    <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <header class="twplus-page-header mb-4"><div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Formularbaukasten</p><h1><?= htmlspecialchars($typ['name']) ?> bearbeiten</h1><p class="twplus-page-header__description">Grundeinstellungen und Formularfelder des Antragstyps verwalten.</p></div></header>
@@ -249,8 +244,3 @@ use App\Helpers\Flash;
             });
         }
     </script>
-
-    <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
-</body>
-
-</html>

@@ -89,12 +89,11 @@ foreach ($notifications as $n) {
     }
     $groups[] = ['type' => $n['type'], 'items' => [$n]];
 }
-?>
-<!DOCTYPE html>
-<html lang="de" data-theme="dark">
 
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
+$layout = 'admin';
+$bodyId = 'benachrichtigungen';
+?>
+<?php ob_start(); ?>
     <style>
         .notification-item {
             border-left: 3px solid transparent;
@@ -135,10 +134,7 @@ foreach ($notifications as $n) {
             opacity: 1;
         }
     </style>
-</head>
-
-<body data-theme="dark" data-page="benachrichtigungen">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
+<?php $layoutHead = ob_get_clean(); ?>
 
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -311,7 +307,6 @@ foreach ($notifications as $n) {
         </div>
     </div>
 
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
     <script>
     document.querySelectorAll('.notification-open-link[data-notification-id]').forEach(function(link) {
@@ -329,6 +324,3 @@ foreach ($notifications as $n) {
         });
     });
     </script>
-</body>
-
-</html>

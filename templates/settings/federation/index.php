@@ -245,19 +245,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $federationEnabled = $configManager->get('FEDERATION_ENABLED', false);
 $instanceId = $configManager->get('FEDERATION_INSTANCE_ID', '');
 $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
+
+$layout = 'admin';
+$bodyId = 'settings';
+$SITE_TITLE = 'Instanzvernetzung';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php
-    $SITE_TITLE = 'Instanzvernetzung';
-    include __DIR__ . '/../../../assets/components/_base/admin/head.php';
-    ?>
-</head>
-
-<body data-theme="dark" data-page="settings">
-    <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
@@ -509,7 +501,3 @@ $instanceName = $configManager->get('FEDERATION_INSTANCE_NAME', '');
             </div>
         </div>
     </div>
-
-    <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
-</body>
-</html>
