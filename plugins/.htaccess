@@ -1,12 +1,23 @@
-# Plugins sind Anwendungscode und liegen außerhalb des Docroots (public/).
-# Ihre statischen Dateien liefert die Route /plugins/<id>/assets/... aus,
-# der Webserver hat hier nichts mehr zu suchen. Diese Datei greift nur,
-# wenn eine Installation das Docroot nicht auf public/ umstellen kann und
-# der Ordner deshalb noch im Webserver-Pfad liegt: dann ist er komplett zu.
+# Plugins sind Anwendungscode und liegen außerhalb des Docroots (public/);
+# ihre statischen Dateien liefert die Route /plugins/<id>/assets/... aus.
+# Zeigt das Docroot auf public/, liest Apache diese Datei nie.
+#
+# Sie gilt für Installationen, deren Docroot noch das Projektverzeichnis
+# ist. Dort prüft Apache den Zugriff, BEVOR die Root-.htaccess die Anfrage
+# nach public/ durchreicht — ein pauschales Verbot würde also auch die
+# Asset-Anfragen abfangen, die die Route bedienen soll. Deshalb dürfen nur
+# Anfragen auf statische Dateien unter assets/ passieren (dieselbe
+# Endungs-Allowlist wie in der Route); alles andere bleibt gesperrt, auch
+# wenn mod_rewrite einmal fehlen sollte.
+SetEnvIf Request_URI "/plugins/[a-z0-9_-]+/assets/(?:.+/)?[^/]+\.(css|js|map|woff2|png|svg|webp)$" plugin_static_asset=1
+
 <IfModule mod_authz_core.c>
-    Require all denied
+    <RequireAny>
+        Require env plugin_static_asset
+    </RequireAny>
 </IfModule>
 <IfModule !mod_authz_core.c>
     Order deny,allow
     Deny from all
+    Allow from env=plugin_static_asset
 </IfModule>

@@ -46,6 +46,7 @@ final class HealthController
             'outbound_http'   => $this->checkOutboundHttp(),
             'process_control' => $this->checkProcessControl(),
             'php_extensions'  => $this->checkPhpExtensions(),
+            'rewrite'         => $this->checkRewrite($request),
         ];
 
         $overall = $this->aggregateStatus($checks);
@@ -211,6 +212,39 @@ final class HealthController
             'status' => $missing === [] ? 'ok' : 'degraded',
             'required' => $required,
             'missing' => $missing,
+        ];
+    }
+
+    /**
+     * Kam die Anfrage über den Front-Controller, und zeigt das Docroot auf
+     * public/? Erreicht diese Methode überhaupt eine HTTP-Anfrage, hat das
+     * Rewrite funktioniert; der Wert steckt im Detail: Läuft die
+     * Installation noch über die Root-.htaccess (Docroot = Projektordner),
+     * steht in `document_root` "fallback", und das Dashboard weist darauf
+     * hin. Der Status bleibt dann trotzdem ok — die Durchreichung ist
+     * eine unterstützte, nur nicht die empfohlene Konfiguration.
+     *
+     * @return array<string,mixed>
+     */
+    private function checkRewrite(Request $request): array
+    {
+        $script          = str_replace('\\', '/', (string) ($request->server['SCRIPT_FILENAME'] ?? ''));
+        $frontController = str_ends_with($script, '/public/index.php');
+
+        // realpath('') wäre das Arbeitsverzeichnis — ein fehlender
+        // DOCUMENT_ROOT (CLI, Tests) darf nicht als Docroot durchgehen.
+        $docRootRaw = (string) ($request->server['DOCUMENT_ROOT'] ?? '');
+        $publicDir  = realpath(dirname(__DIR__, 4) . '/public');
+        $docRoot    = $docRootRaw !== '' ? realpath($docRootRaw) : false;
+        $mode       = 'unknown';
+        if ($publicDir !== false && $docRoot !== false) {
+            $mode = $docRoot === $publicDir ? 'public' : 'fallback';
+        }
+
+        return [
+            'status'           => $frontController ? 'ok' : 'degraded',
+            'front_controller' => $frontController,
+            'document_root'    => $mode,
         ];
     }
 
