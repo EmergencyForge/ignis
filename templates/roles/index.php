@@ -38,7 +38,7 @@ $SITE_TITLE = 'Rollen';
                         </div>
                     </div>
                     <div class="twplus-table-card">
-                        <table class="table table-striped twplus-table" id="table-rollen">
+                        <table class="ignis-table" id="table-rollen">
                             <thead>
                                 <tr>
                                     <th scope="col">ID</th>
@@ -139,18 +139,6 @@ $SITE_TITLE = 'Rollen';
     <?php endif; ?>
 
     <script>
-        $(document).ready(function() {
-            $('#table-rollen').DataTable({
-                stateSave: true,
-                paging: true,
-                lengthMenu: [5, 10, 20],
-                pageLength: 10,
-                order: [[1, 'asc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Rollen')
-            });
-        });
-
         // Edit + Create teilen sich das gleiche <template>; Body wird pro Open
         // frisch geklont, deshalb gibt es keine Reset-Logik mehr — der Create-
         // Open faengt mit leeren Feldern an, ein Edit-Open setzt sie via onOpen.

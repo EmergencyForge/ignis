@@ -26,7 +26,7 @@ $SITE_TITLE = 'FW-Qualifikationen';
                         </div>
                     </div>
                     <div class="twplus-table-card">
-                        <table class="table table-striped twplus-table" id="table-dienstgrade">
+                        <table class="ignis-table" id="table-dienstgrade">
                             <thead>
                                 <tr>
                                     <th scope="col">Priorität</th>
@@ -98,18 +98,6 @@ $SITE_TITLE = 'FW-Qualifikationen';
     <?php endif; ?>
 
     <script>
-        $(document).ready(function() {
-            $('#table-dienstgrade').DataTable({
-                stateSave: true,
-                paging: true,
-                lengthMenu: [5, 10, 20],
-                pageLength: 10,
-                order: [[0, 'asc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Qualifikationen')
-            });
-        });
-
         function openCreateQualifwModal() {
             Dialog.form({
                 title:        'FW Qualifikation anlegen',

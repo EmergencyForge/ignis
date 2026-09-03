@@ -1,10 +1,15 @@
 <?php
 /**
  * View: Fahrzeugverwaltung
+ *
+ * Sortierung, Suche und Seiten laufen über den Server (App\Support\ListQuery,
+ * Settings\FahrzeugeController::index).
+ *
+ * @var \Illuminate\Support\Collection<int, array<string,mixed>> $vehicles  Zeilen der aktuellen Seite
+ * @var \App\Support\ListQuery                                    $list
  */
 
 use App\Auth\Permissions;
-use Illuminate\Database\Capsule\Manager as Capsule;
 
 $layout = 'admin';
 $bodyId = 'fahrzeuge';
@@ -21,88 +26,83 @@ $SITE_TITLE = 'Fahrzeuge';
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Fuhrpark</p><h1>Fahrzeugverwaltung</h1><p class="twplus-page-header__description">Fahrzeuge, Kennungen und Stammdaten verwalten.</p></div>
                         <div class="header-actions twplus-page-header__actions">
-                            <a href="<?= BASE_PATH ?>settings/vehicles/defects/index" class="ignis-btn ignis-btn--outline-warning">
+                            <a href="<?= BASE_PATH ?>settings/vehicles/defects/index" class="ignis-btn ignis-btn--secondary">
                                 <i class="fa-solid fa-triangle-exclamation"></i> Defekt-Meldungen
                             </a>
                             <?php if (Permissions::check(['admin', 'vehicles.manage'])) : ?>
                                 <button type="button" class="ignis-btn ignis-btn--ghost" onclick="openTzTemplateManager()">
                                     <i class="fa-solid fa-shapes"></i> TZ-Vorlagen
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="openVehicleImport()">
+                                <button type="button" class="ignis-btn ignis-btn--secondary" onclick="openVehicleImport()">
                                     <i class="fa-solid fa-satellite-dish"></i> EMD-Import
                                     <span class="ignis-chip ignis-chip--danger ml-1 hidden" id="importBadge">0</span>
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateFahrzeugModal()">
+                                <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateFahrzeugModal()">
                                     <i class="fa-solid fa-plus"></i> Fahrzeug erstellen
                                 </button>
                             <?php endif; ?>
                         </div>
                     </div>
+                    <?php
+                    $pgPath  = 'settings/vehicles/vehicles/index';
+                    $pgLabel = 'Fahrzeuge';
+                    $canManage = Permissions::check(['admin', 'vehicles.manage']);
+                    $rdTypes = [
+                        1 => ['warn', 'RD - Mit NA'],
+                        2 => ['ok', 'RD - Ohne NA'],
+                        3 => ['danger', 'Feuerwehr'],
+                    ];
+                    ?>
+                    <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" role="search">
+                        <?php if ($list->sort !== 'priority' || $list->dir !== 'asc'): ?>
+                            <input type="hidden" name="sort" value="<?= htmlspecialchars($list->sort) ?>">
+                            <input type="hidden" name="dir" value="<?= htmlspecialchars($list->dir) ?>">
+                        <?php endif; ?>
+                        <?php if ($list->filter('active') !== ''): ?>
+                            <input type="hidden" name="active" value="<?= htmlspecialchars($list->filter('active')) ?>">
+                        <?php endif; ?>
+                        <label class="ignis-list-toolbar__search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Bezeichnung, Kennzeichen oder Typ" aria-label="Fahrzeuge suchen">
+                        </label>
+                        <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm">Suchen</button>
+                        <?php if ($list->q !== ''): ?>
+                            <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'page' => null])) ?>">Zurücksetzen</a>
+                        <?php endif; ?>
+                        <span class="ignis-list-toolbar__spacer"></span>
+                        <nav class="ignis-filter-links" aria-label="Aktiv">
+                            <?php foreach (['' => 'Alle', '1' => 'Aktiv', '0' => 'Inaktiv'] as $activeKey => $activeLabel): ?>
+                                <a href="<?= htmlspecialchars($list->url($pgPath, ['active' => $activeKey === '' ? null : $activeKey, 'page' => null])) ?>"<?= $list->filter('active') === $activeKey ? ' class="is-active" aria-current="true"' : '' ?>><?= $activeLabel ?></a>
+                            <?php endforeach; ?>
+                        </nav>
+                    </form>
                     <div class="twplus-table-card">
-                        <table class="table table-striped twplus-table" id="table-fahrzeuge">
+                        <div class="twplus-table-card__scroll">
+                        <table class="ignis-table" id="table-fahrzeuge">
                             <thead>
                                 <tr>
-                                    <th scope="col">Priorität</th>
-                                    <th scope="col">Bezeichnung (Typ)</th>
-                                    <th scope="col">Kennzeichen</th>
-                                    <th scope="col">Fahrzeugtyp</th>
-                                    <th scope="col">Defekte</th>
-                                    <th scope="col">Aktiv?</th>
-                                    <th scope="col"></th>
+                                    <?= $list->th('priority', 'Priorität', $pgPath, 'ignis-table__num') ?>
+                                    <?= $list->th('name', 'Bezeichnung (Typ)', $pgPath) ?>
+                                    <?= $list->th('kennzeichen', 'Kennzeichen', $pgPath) ?>
+                                    <?= $list->th('rd', 'Fahrzeugtyp', $pgPath) ?>
+                                    <?= $list->th('defects', 'Defekte', $pgPath, 'ignis-table__num') ?>
+                                    <?= $list->th('active', 'Aktiv?', $pgPath) ?>
+                                    <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php
-                                try {
-                                    $result = Capsule::table('intra_fahrzeuge as f')
-                                        ->get([
-                                            'f.*',
-                                            Capsule::raw("(SELECT COUNT(*) FROM intra_fahrzeuge_defects d WHERE d.vehicle_id = f.id AND d.status != 'resolved') AS open_defects"),
-                                            Capsule::raw("(SELECT MIN(d.vehicle_operable) FROM intra_fahrzeuge_defects d WHERE d.vehicle_id = f.id AND d.status != 'resolved') AS min_operable"),
-                                        ]);
-                                } catch (PDOException $e) {
-                                    // Fallback: Tabelle existiert noch nicht
-                                    $result = Capsule::table('intra_fahrzeuge')
-                                        ->get([
-                                            '*',
-                                            Capsule::raw('0 AS open_defects'),
-                                            Capsule::raw('NULL AS min_operable'),
-                                        ]);
-                                }
-                                $result = $result->map(fn ($r) => (array) $r)->all();
-                                foreach ($result as $row) {
-                                    switch ($row['rd_type']) {
-                                        case 1:
-                                            $docYes = "<span class='ignis-chip ignis-chip--warning'>RD - Mit NA</span>";
-                                            break;
-                                        case 2:
-                                            $docYes = "<span class='ignis-chip ignis-chip--success'>RD - Ohne NA</span>";
-                                            break;
-                                        case 3:
-                                            $docYes = "<span class='ignis-chip ignis-chip--danger'>Feuerwehr</span>";
-                                            break;
-                                        default:
-                                            $docYes = "<span class='ignis-chip ignis-chip--dark'>Andere</span>";
-                                            break;
-                                    }
+                                <?php if ($vehicles->isEmpty()): ?>
+                                    <tr><td colspan="7" class="ignis-table-empty">Keine Fahrzeuge gefunden.</td></tr>
+                                <?php endif; ?>
+                                <?php foreach ($vehicles as $row):
+                                    [$rdChip, $rdLabel] = $rdTypes[(int) $row['rd_type']] ?? ['secondary', 'Andere'];
+                                    $isActive    = (int) $row['active'] !== 0;
+                                    $openDefects = (int) ($row['open_defects'] ?? 0);
+                                    $minOperable = $row['min_operable'];
+                                    $defectChip  = ($minOperable !== null && (int) $minOperable === 0) ? 'danger' : 'warn';
 
-                                    $dimmed = '';
-
-                                    switch ($row['active']) {
-                                        case 0:
-                                            $vehActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Nein</span>";
-                                            $dimmed = "style='color:var(--tag-color)'";
-                                            break;
-                                        default:
-                                            $vehActive = "<span class='badge-status status-success'><span class='status-dot'></span>Ja</span>";
-                                            break;
-                                    }
-
-                                    $kennzeichen = $row['kennzeichen'] ?? '';
-                                    $kennzeichenDisplay = $kennzeichen ?: '-';
-
-                                    $actions = "";
-                                    if (Permissions::check(['admin', 'vehicles.manage'])) {
+                                    $dataStr = '';
+                                    if ($canManage) {
                                         $dataAttrs = [
                                             'id' => $row['id'],
                                             'name' => $row['name'],
@@ -122,39 +122,44 @@ $SITE_TITLE = 'Fahrzeuge';
                                             'tz-text' => $row['text'] ?? '',
                                             'tz-name' => $row['tz_name'] ?? ''
                                         ];
-
-                                        $dataStr = '';
                                         foreach ($dataAttrs as $key => $val) {
-                                            $dataStr .= " data-{$key}='" . htmlspecialchars($val, ENT_QUOTES) . "'";
+                                            $dataStr .= ' data-' . $key . '="' . htmlspecialchars((string) $val, ENT_QUOTES) . '"';
                                         }
-
-                                        $actions .= "<button type='button' title='Fahrzeug bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon edit-btn' onclick='openEditFahrzeugModal(this)'{$dataStr}><i class='fa-solid fa-pen'></i></button> ";
-                                        $actions .= "<a title='Fahrzeug kopieren' href='#' class='ignis-btn ignis-btn--sm ignis-btn--soft-success ignis-btn--icon copy-btn'{$dataStr}><i class='fa-solid fa-copy'></i></a>";
                                     }
-
-                                    $openDefects = (int)($row['open_defects'] ?? 0);
-                                    $minOperable = $row['min_operable'];
-                                    $defectBadge = '';
-                                    if ($openDefects > 0) {
-                                        $badgeColor = ($minOperable !== null && (int)$minOperable === 0) ? 'danger' : 'warning';
-                                        $defectBadge = "<a href='" . BASE_PATH . "settings/vehicles/defects/index?vehicle=" . $row['id'] . "' class='ignis-chip ignis-chip--{$badgeColor}' title='Offene Defekte anzeigen'>{$openDefects}</a>";
-                                    } else {
-                                        $defectBadge = "<span class='text-gray-400'>—</span>";
-                                    }
-
-                                    echo "<tr>";
-                                    echo "<td " . $dimmed . ">" . $row['priority'] . "</td>";
-                                    echo "<td " . $dimmed . "><span data-vehicle-card='" . (int) $row['id'] . "' style='cursor:help;'>" . htmlspecialchars($row['name']) . " (" . htmlspecialchars($row['veh_type']) . ")</span></td>";
-                                    echo "<td " . $dimmed . ">" . $kennzeichenDisplay . "</td>";
-                                    echo "<td>" . $docYes . "</td>";
-                                    echo "<td>" . $defectBadge . "</td>";
-                                    echo "<td>" . $vehActive . "</td>";
-                                    echo "<td>{$actions}</td>";
-                                    echo "</tr>";
-                                }
                                 ?>
+                                    <tr<?= $isActive ? '' : ' class="is-muted"' ?>>
+                                        <td class="ignis-table__num"><?= (int) $row['priority'] ?></td>
+                                        <td><span data-vehicle-card="<?= (int) $row['id'] ?>" style="cursor:help;"><?= htmlspecialchars($row['name']) ?> (<?= htmlspecialchars($row['veh_type']) ?>)</span></td>
+                                        <td><?= ($row['kennzeichen'] ?? '') !== '' ? '<span class="ignis-mono">' . htmlspecialchars($row['kennzeichen']) . '</span>' : '-' ?></td>
+                                        <td><span class="ignis-chip ignis-chip--<?= $rdChip ?>"><?= $rdLabel ?></span></td>
+                                        <td class="ignis-table__num">
+                                            <?php if ($openDefects > 0): ?>
+                                                <a href="<?= BASE_PATH ?>settings/vehicles/defects/index?vehicle=<?= (int) $row['id'] ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" title="Offene Defekte anzeigen"><?= $openDefects ?></a>
+                                            <?php else: ?>
+                                                <span class="text-[var(--text-3)]">—</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <?php if ($isActive): ?>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--ok">Ja</span>
+                                            <?php else: ?>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--danger">Nein</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="ignis-table__actions">
+                                            <?php if ($canManage): ?>
+                                                <div class="ignis-row-actions">
+                                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon edit-btn" data-ignis-tooltip="Fahrzeug bearbeiten" aria-label="Fahrzeug bearbeiten" onclick="openEditFahrzeugModal(this)"<?= $dataStr ?>><i class="fa-solid fa-pen"></i></button>
+                                                    <a href="#" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon copy-btn" data-ignis-tooltip="Fahrzeug kopieren" aria-label="Fahrzeug kopieren"<?= $dataStr ?>><i class="fa-solid fa-copy"></i></a>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
                             </tbody>
                         </table>
+                        </div>
+                        <?php require dirname(__DIR__, 3) . '/partials/pagination.php'; ?>
                     </div>
                 </div>
             </div>

@@ -2,11 +2,16 @@
 /**
  * View: Mitarbeiter-Übersicht
  *
- * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mitarbeiter> $mitarbeiter
- * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Rank>  $dienstgrade  (aktive, sortiert)
- * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AmbSkill>     $rdQualis
- * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\FdSkill>     $fwQualis
- * @var bool                                                                    $showArchive
+ * Sortierung, Suche, Filter und Seiten laufen über den Server
+ * (App\Support\ListQuery); der CSV-Export nimmt denselben Filterstand
+ * (`?export=csv`).
+ *
+ * @var \Illuminate\Support\Collection<int, \App\Models\Personnel>            $mitarbeiter  Zeilen der aktuellen Seite
+ * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Rank>      $dienstgrade  (aktive, sortiert)
+ * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AmbSkill>  $rdQualis
+ * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\FdSkill>   $fwQualis
+ * @var bool                                                                 $showArchive
+ * @var \App\Support\ListQuery                                               $list
  */
 
 use App\Auth\Gate;
@@ -14,6 +19,9 @@ use App\Auth\Gate;
 $layout = 'admin';
 $bodyId = 'mitarbeiter';
 $SITE_TITLE = 'Mitarbeiter';
+
+$pgPath  = 'personnel/list';
+$pgLabel = 'Mitarbeiter';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
@@ -26,99 +34,111 @@ $SITE_TITLE = 'Mitarbeiter';
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy">
                             <p class="twplus-page-header__eyebrow">Personal</p>
-                            <h1>Mitarbeiterübersicht</h1>
+                            <h1><?= $showArchive ? 'Archivierte Mitarbeiter' : 'Mitarbeiterübersicht' ?></h1>
                             <p class="twplus-page-header__description">Mitarbeiter, Dienstgrade und Qualifikationen zentral verwalten.</p>
                         </div>
                         <div class="header-actions twplus-page-header__actions">
+                            <?php if ($showArchive): ?>
+                                <a href="<?= BASE_PATH ?>personnel/list" class="ignis-btn ignis-btn--secondary">Aktive Mitarbeiter</a>
+                            <?php else: ?>
+                                <a href="<?= BASE_PATH ?>personnel/list?archiv=1" class="ignis-btn ignis-btn--secondary">Archiv</a>
+                            <?php endif; ?>
                             <?php if (Gate::allows('personnel.create') && !$showArchive): ?>
-                                <button type="button" class="ignis-btn ignis-btn--success ignis-btn--sm" onclick="openCreateMitarbeiterModal()">
+                                <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateMitarbeiterModal()">
                                     <i class="fa-solid fa-plus mr-1"></i>Neuer Mitarbeiter
                                 </button>
                             <?php endif; ?>
-                            <?php if ($showArchive): ?>
-                                <a href="<?= BASE_PATH ?>personnel/list" class="ignis-btn ignis-btn--outline-success">Aktive Mitarbeiter</a>
-                            <?php else: ?>
-                                <a href="<?= BASE_PATH ?>personnel/list?archiv" class="ignis-btn ignis-btn--outline-secondary">Archiv</a>
-                            <?php endif; ?>
                         </div>
                     </div>
 
-                    <!-- Filter-Leiste -->
-                    <div class="twplus-table-card__toolbar mb-3 rounded-lg border border-[var(--border-color)]">
-                        <div class="flex flex-wrap -mx-3 g-2 items-end">
-                            <div class="px-3">
-                                <label for="filterDienstgrad" class="ignis-field__label text-sm mb-1">Dienstgrad</label>
-                                <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterDienstgrad" style="min-width: 180px;">
-                                    <option value="">Alle</option>
-                                    <?php foreach ($dienstgrade as $dg): ?>
-                                        <option value="<?= htmlspecialchars($dg->name) ?>"><?= htmlspecialchars($dg->name) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="px-3">
-                                <label for="filterRDQuali" class="ignis-field__label text-sm mb-1">RD-Qualifikation</label>
-                                <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterRDQuali" style="min-width: 200px;">
-                                    <option value="">Alle</option>
-                                    <?php foreach ($rdQualis as $rd): ?>
-                                        <?php if (!$rd->none): ?>
-                                            <option value="<?= htmlspecialchars($rd->name) ?>"><?= htmlspecialchars($rd->name) ?></option>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="px-3">
-                                <label for="filterFWQuali" class="ignis-field__label text-sm mb-1">FW-Qualifikation</label>
-                                <select class="form-select form-select-sm" data-custom-dropdown="true" id="filterFWQuali" style="min-width: 180px;">
-                                    <option value="">Alle</option>
-                                    <?php foreach ($fwQualis as $fw): ?>
-                                        <?php if (!$fw->none): ?>
-                                            <option value="<?= htmlspecialchars($fw->shortname) ?>"><?= htmlspecialchars($fw->name) ?></option>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="px-3">
-                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-secondary" id="resetFilters">
-                                    <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
-                                </button>
-                            </div>
-                            <div class="ml-auto px-3">
-                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--outline-success" id="exportCSV" data-ignis-tooltip="Gefilterte Liste als CSV exportieren">
-                                    <i class="fa-solid fa-file-csv"></i> CSV-Export
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" id="mitarbeiterFilter" role="search">
+                        <?php if ($showArchive): ?>
+                            <input type="hidden" name="archiv" value="1">
+                        <?php endif; ?>
+                        <?php if ($list->sort !== 'einstdatum' || $list->dir !== 'asc'): ?>
+                            <input type="hidden" name="sort" value="<?= htmlspecialchars($list->sort) ?>">
+                            <input type="hidden" name="dir" value="<?= htmlspecialchars($list->dir) ?>">
+                        <?php endif; ?>
+                        <label class="ignis-list-toolbar__search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Name oder Dienstnummer" aria-label="Mitarbeiter suchen">
+                        </label>
+                        <label class="ignis-field" for="filterDienstgrad">
+                            <span class="ignis-field__label text-sm">Dienstgrad</span>
+                            <select class="ignis-input" name="dg" id="filterDienstgrad">
+                                <option value="">Alle</option>
+                                <?php foreach ($dienstgrade as $dg): ?>
+                                    <option value="<?= (int) $dg->id ?>"<?= $list->filter('dg') === (string) $dg->id ? ' selected' : '' ?>><?= htmlspecialchars($dg->name) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <label class="ignis-field" for="filterRDQuali">
+                            <span class="ignis-field__label text-sm">RD-Qualifikation</span>
+                            <select class="ignis-input" name="rd" id="filterRDQuali">
+                                <option value="">Alle</option>
+                                <?php foreach ($rdQualis as $rd): ?>
+                                    <?php if (!$rd->none): ?>
+                                        <option value="<?= (int) $rd->id ?>"<?= $list->filter('rd') === (string) $rd->id ? ' selected' : '' ?>><?= htmlspecialchars($rd->name) ?></option>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <label class="ignis-field" for="filterFWQuali">
+                            <span class="ignis-field__label text-sm">FW-Qualifikation</span>
+                            <select class="ignis-input" name="fw" id="filterFWQuali">
+                                <option value="">Alle</option>
+                                <?php foreach ($fwQualis as $fw): ?>
+                                    <?php if (!$fw->none): ?>
+                                        <option value="<?= (int) $fw->id ?>"<?= $list->filter('fw') === (string) $fw->id ? ' selected' : '' ?>><?= htmlspecialchars($fw->name) ?></option>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm">Filtern</button>
+                        <?php if ($list->q !== '' || $list->filter('dg') !== '' || $list->filter('rd') !== '' || $list->filter('fw') !== ''): ?>
+                            <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'dg' => null, 'rd' => null, 'fw' => null, 'page' => null])) ?>">
+                                <i class="fa-solid fa-rotate-left"></i> Zurücksetzen
+                            </a>
+                        <?php endif; ?>
+                        <span class="ignis-list-toolbar__spacer"></span>
+                        <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['export' => 'csv', 'page' => null])) ?>" data-ignis-tooltip="Gefilterte Liste als CSV exportieren">
+                            <i class="fa-solid fa-file-csv"></i> CSV-Export
+                        </a>
+                    </form>
 
                     <div class="twplus-table-card">
                         <div class="twplus-table-card__scroll">
-                        <table class="table table-striped twplus-table" id="mitarbeiterTable">
+                        <table class="ignis-table" id="mitarbeiterTable">
                             <thead>
-                                <th scope="col" data-tw-priority="medium">Dienstnummer</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Dienstgrad</th>
-                                <th scope="col" data-tw-priority="low">RD-Quali</th>
-                                <th scope="col" data-tw-priority="low">FW-Quali</th>
-                                <th scope="col" data-tw-priority="medium">Einstellungsdatum</th>
-                                <th scope="col"></th>
+                                <tr>
+                                    <?= $list->th('dienstnr', 'Dienstnummer', $pgPath) ?>
+                                    <?= $list->th('name', 'Name', $pgPath) ?>
+                                    <?= $list->th('dienstgrad', 'Dienstgrad', $pgPath) ?>
+                                    <?= $list->th('rd', 'RD-Quali', $pgPath) ?>
+                                    <?= $list->th('fw', 'FW-Quali', $pgPath) ?>
+                                    <?= $list->th('einstdatum', 'Einstellungsdatum', $pgPath) ?>
+                                    <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
+                                </tr>
                             </thead>
                             <tbody>
+                                <?php if ($mitarbeiter->isEmpty()): ?>
+                                    <tr><td colspan="7" class="ignis-table-empty">Keine Mitarbeiter gefunden.</td></tr>
+                                <?php endif; ?>
                                 <?php foreach ($mitarbeiter as $m):
-                                    $einstellungsdatum = $m->einstdatum?->format('d.m.Y') ?? '';
-                                    $dgNeutral = $m->dienstgradModel?->name ?? '';
-                                    $rdNeutral = $m->rdQualiModel?->name ?? '';
-                                    $fwShort   = $m->fwQualiModel?->shortname ?? '-';
-                                    $fwName    = $m->fwQualiModel?->name ?? '';
-                                    $isRdNone  = $m->rdQualiModel?->none ?? true;
-                                    $isFwNone  = $m->fwQualiModel?->none ?? true;
+                                    $einstellungsdatum = $m->einstdatum->format('d.m.Y');
+                                    $rd        = $m->rdQualiModel;
+                                    $fw        = $m->fwQualiModel;
+                                    $fwShort   = $fw !== null ? $fw->shortname : '-';
+                                    $fwName    = $fw !== null ? $fw->name : '';
+                                    $isRdNone  = $rd === null || $rd->none;
+                                    $isFwNone  = $fw === null || $fw->none;
                                     $badgeImg  = $m->dienstgradModel?->badge;
+                                    $profileUrl = BASE_PATH . 'personnel/profile?id=' . (int) $m->id;
                                 ?>
-                                    <tr data-dg="<?= htmlspecialchars($dgNeutral) ?>" data-rd="<?= htmlspecialchars($rdNeutral) ?>" data-fw="<?= htmlspecialchars($fwShort) ?>">
-                                        <td data-tw-priority="medium"><?= htmlspecialchars($m->dienstnr) ?></td>
+                                    <tr>
+                                        <td><span class="ignis-mono"><?= htmlspecialchars($m->dienstnr) ?></span></td>
                                         <td>
-                                            <a href="<?= BASE_PATH ?>personnel/profile?id=<?= (int) $m->id ?>"
-                                               data-mitarbeiter-card="<?= (int) $m->id ?>"
-                                               class="text-reset no-underline">
+                                            <a href="<?= $profileUrl ?>" data-mitarbeiter-card="<?= (int) $m->id ?>" class="no-underline">
                                                 <?= htmlspecialchars($m->fullname) ?>
                                             </a>
                                         </td>
@@ -130,25 +150,22 @@ $SITE_TITLE = 'Mitarbeiter';
                                         </td>
                                         <td>
                                             <?php if (!$isRdNone): ?>
-                                                <span class="ignis-chip ignis-chip--warning"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
+                                                <span class="ignis-chip ignis-chip--warn"><?= htmlspecialchars($m->rdQualiLabel()) ?></span>
                                             <?php else: ?>
-                                                <span class="text-[var(--text-dimmed,#818189)]">-</span>
+                                                <span class="text-[var(--text-3)]">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php if (!$isFwNone): ?>
                                                 <span class="ignis-chip ignis-chip--danger"><?= htmlspecialchars($fwShort) ?></span> <small><?= htmlspecialchars($fwName) ?></small>
                                             <?php else: ?>
-                                                <span class="text-[var(--text-dimmed,#818189)]">-</span>
+                                                <span class="text-[var(--text-3)]">-</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td>
-                                            <span style="display:none"><?= $m->einstdatum?->format('Y-m-d') ?? '' ?></span>
-                                            <?= htmlspecialchars($einstellungsdatum) ?>
-                                        </td>
-                                        <td>
-                                            <div class="col-actions">
-                                                <a href="<?= BASE_PATH ?>personnel/profile?id=<?= (int) $m->id ?>" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-ignis-tooltip="Profil ansehen">
+                                        <td><?= htmlspecialchars($einstellungsdatum) ?></td>
+                                        <td class="ignis-table__actions">
+                                            <div class="ignis-row-actions">
+                                                <a href="<?= $profileUrl ?>" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Profil ansehen" aria-label="Profil ansehen">
                                                     <i class="fa-solid fa-eye"></i>
                                                 </a>
                                             </div>
@@ -158,11 +175,19 @@ $SITE_TITLE = 'Mitarbeiter';
                             </tbody>
                         </table>
                         </div>
+                        <?php require dirname(__DIR__) . '/partials/pagination.php'; ?>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // Die Auswahl in den Filtern schickt das Formular ab; ohne JS bleibt der Knopf.
+        document.querySelectorAll('#mitarbeiterFilter select').forEach(function (select) {
+            select.addEventListener('change', function () { select.form.requestSubmit(); });
+        });
+    </script>
 
     <?php if (Gate::allows('personnel.create')): ?>
     <!-- Form-Body als <template>; Dialog wird in JS programmatisch geoeffnet. -->
@@ -248,71 +273,6 @@ $SITE_TITLE = 'Mitarbeiter';
                         </div>
     </template>
     <?php endif; ?>
-
-    <script>
-        $(document).ready(function() {
-            // Custom filter functions for dropdowns
-            $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                if (settings.nTable.id !== 'mitarbeiterTable') return true;
-
-                var row = settings.aoData[dataIndex].nTr;
-                var dgFilter = $('#filterDienstgrad').val();
-                var rdFilter = $('#filterRDQuali').val();
-                var fwFilter = $('#filterFWQuali').val();
-
-                if (dgFilter && $(row).data('dg') !== dgFilter) return false;
-                if (rdFilter && $(row).data('rd') !== rdFilter) return false;
-                if (fwFilter && $(row).data('fw') !== fwFilter) return false;
-
-                return true;
-            });
-
-            var table = $('#mitarbeiterTable').DataTable({
-                stateSave: true,
-                paging: true,
-                lengthMenu: [10, 20, 50, 100],
-                pageLength: 20,
-                order: [[5, 'asc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Mitarbeiter')
-            });
-
-            // Filter change handlers
-            $('#filterDienstgrad, #filterRDQuali, #filterFWQuali').on('change', function() {
-                table.draw();
-            });
-
-            // Reset filters
-            $('#resetFilters').on('click', function() {
-                $('#filterDienstgrad, #filterRDQuali, #filterFWQuali').val('');
-                table.search('').draw();
-            });
-
-            // CSV Export
-            $('#exportCSV').on('click', function() {
-                var csvContent = "Dienstnummer;Name;Dienstgrad;RD-Qualifikation;FW-Qualifikation;Einstellungsdatum\n";
-                var rows = table.rows({filter: 'applied'}).nodes();
-
-                $(rows).each(function() {
-                    var cols = $(this).find('td');
-                    var dienstnr = $(cols[0]).text().trim();
-                    var name = $(cols[1]).text().trim();
-                    var dg = $(cols[2]).text().trim();
-                    var rd = $(cols[3]).text().trim();
-                    var fw = $(cols[4]).text().trim();
-                    var datum = $(cols[5]).text().trim();
-                    csvContent += '"' + dienstnr + '";"' + name + '";"' + dg + '";"' + rd + '";"' + fw + '";"' + datum + '"\n';
-                });
-
-                var blob = new Blob(["\uFEFF" + csvContent], {type: 'text/csv;charset=utf-8;'});
-                var link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'mitarbeiter_export_' + new Date().toISOString().slice(0,10) + '.csv';
-                link.click();
-                showToast('CSV-Export wurde heruntergeladen.', 'success');
-            });
-        });
-    </script>
     <?php if (Gate::allows('personnel.create')): ?>
     <script src="<?= BASE_PATH ?>assets/js/dienstnr-check.js"></script>
     <script>

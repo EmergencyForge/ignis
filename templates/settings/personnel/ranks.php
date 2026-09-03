@@ -27,7 +27,7 @@ $SITE_TITLE = 'Dienstgrade';
                         </div>
                     </div>
                     <div class="twplus-table-card">
-                        <table class="table table-striped twplus-table" id="table-dienstgrade">
+                        <table class="ignis-table" id="table-dienstgrade">
                             <thead>
                                 <tr>
                                     <th scope="col">Priorität</th>
@@ -121,18 +121,6 @@ $SITE_TITLE = 'Dienstgrade';
     <?php endif; ?>
 
     <script>
-        $(document).ready(function() {
-            $('#table-dienstgrade').DataTable({
-                stateSave: true,
-                paging: true,
-                lengthMenu: [10, 20, 50],
-                pageLength: 20,
-                order: [[0, 'asc']],
-                columnDefs: [{ orderable: false, targets: -1 }],
-                language: window.IgnisDataTableLang('Dienstgrade')
-            });
-        });
-
         // Helpers fuer den Badge-Preview im Dialog. Wird pro Open neu
         // gebunden, weil Body bei jedem Open frisch geklont wird.
         function bindBadgePreview(dlgEl) {
