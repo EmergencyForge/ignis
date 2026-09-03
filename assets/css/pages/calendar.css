@@ -13,23 +13,23 @@
 }
 
 .fc {
-    --fc-border-color: var(--darkgray, #2a2a2a);
+    --fc-border-color: var(--border);
     --fc-page-bg-color: transparent;
-    --fc-neutral-bg-color: var(--body-bg-lighter, #161616);
-    --fc-neutral-text-color: var(--text-normal, #bbbac1);
-    --fc-list-event-hover-bg-color: var(--sidebar-hover-bg, #141414);
-    --fc-today-bg-color: rgba(var(--main-color-rgb, 255, 77, 0), 0.08);
-    --fc-event-bg-color: var(--main-color, #ff4d00);
-    --fc-event-border-color: var(--main-color, #ff4d00);
-    --fc-event-text-color: #fff;
-    --fc-now-indicator-color: var(--main-color, #ff4d00);
-    color: var(--text-normal, #bbbac1);
+    --fc-neutral-bg-color: var(--surface);
+    --fc-neutral-text-color: var(--text-2);
+    --fc-list-event-hover-bg-color: var(--surface);
+    --fc-today-bg-color: rgba(var(--accent-rgb), 0.08);
+    --fc-event-bg-color: var(--accent);
+    --fc-event-border-color: var(--accent);
+    --fc-event-text-color: var(--white);
+    --fc-now-indicator-color: var(--accent);
+    color: var(--text-2);
     font-family: inherit;
 }
 
 /* Header-Toolbar (Vor/Zurueck/Heute/View-Switcher) im ignis-btn-Look */
 .fc .fc-toolbar-title {
-    color: var(--text-title, #fff);
+    color: var(--text);
     font-size: 1.05rem;
     font-weight: 600;
 }
@@ -37,8 +37,8 @@
 .fc .fc-button-primary,
 .fc .fc-button {
     background: transparent;
-    border: 1px solid var(--darkgray, #2a2a2a);
-    color: var(--text-normal, #bbbac1);
+    border: 1px solid var(--border);
+    color: var(--text-2);
     font-family: inherit;
     font-size: 0.78rem;
     padding: 0.35rem 0.75rem;
@@ -49,28 +49,28 @@
 
 .fc .fc-button-primary:hover,
 .fc .fc-button:hover:not(:disabled) {
-    background: var(--sidebar-hover-bg, #141414);
-    border-color: var(--main-color, #ff4d00);
-    color: #fff;
+    background: var(--surface);
+    border-color: var(--accent);
+    color: var(--white);
 }
 
 .fc .fc-button-primary:disabled,
 .fc .fc-button:disabled {
     opacity: 0.45;
     background: transparent;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
 }
 
 .fc .fc-button-primary:not(:disabled).fc-button-active,
 .fc .fc-button-active {
-    background: var(--main-color, #ff4d00);
-    border-color: var(--main-color, #ff4d00);
-    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--white);
 }
 
 /* Wochentag-Header */
 .fc .fc-col-header-cell-cushion {
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     font-weight: 600;
     font-size: 0.72rem;
     text-transform: uppercase;
@@ -81,7 +81,7 @@
 
 /* Tagesnummer */
 .fc .fc-daygrid-day-number {
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     font-size: 0.78rem;
     text-decoration: none;
     padding: 0.35rem 0.5rem;
@@ -92,7 +92,7 @@
 }
 
 .fc .fc-day-today .fc-daygrid-day-number {
-    color: var(--main-color, #ff4d00);
+    color: var(--accent);
     font-weight: 700;
 }
 
@@ -126,8 +126,8 @@
 .fc-event[data-my-response="tentative"] {
     background-image: repeating-linear-gradient(
         135deg,
-        rgba(255, 255, 255, 0.32) 0,
-        rgba(255, 255, 255, 0.32) 5px,
+        var(--fill-5) 0,
+        var(--fill-5) 5px,
         transparent 5px,
         transparent 11px
     ) !important;
@@ -157,7 +157,7 @@
     /* Text in Original-Event-Farbe (=ehemalige Brand-/Kategorie-bg-Farbe),
        durchgestrichen — visuell sofort klar "ich bin nicht dabei", aber
        die Farb-Identitaet bleibt erhalten. */
-    color: var(--event-color, var(--text-dimmed, #818189)) !important;
+    color: var(--event-color, var(--text-3)) !important;
     text-decoration: line-through;
 }
 
@@ -165,22 +165,22 @@
 
 /* List-View */
 .fc-list-event:hover td {
-    background: var(--sidebar-hover-bg, #141414);
+    background: var(--surface);
 }
 
 .fc-list-day-cushion {
-    background: var(--body-bg-darker, #050505);
-    color: var(--text-title, #fff);
+    background: var(--bg-2);
+    color: var(--text);
 }
 
 /* Now-Indicator (TimeGrid-View) */
 .fc .fc-timegrid-now-indicator-line {
-    border-color: var(--main-color, #ff4d00);
+    border-color: var(--accent);
     border-width: 2px;
 }
 
 .fc .fc-timegrid-now-indicator-arrow {
-    border-color: var(--main-color, #ff4d00);
+    border-color: var(--accent);
 }
 
 /* "Heute abwesend"-Strip — kompakter Info-Banner oberhalb der Toolbar.
@@ -190,26 +190,26 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-left: 3px solid var(--text-dimmed, #818189);
+    background: var(--fill-1);
+    border: 1px solid var(--fill-2);
+    border-left: 3px solid var(--text-3);
     border-radius: var(--radius-sm, 4px);
     font-size: 0.8rem;
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
 }
 
 .calendar-absence-strip > i {
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     font-size: 0.85rem;
 }
 
 .calendar-absence-strip__label {
     font-weight: 600;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
 }
 
 .calendar-absence-strip__list {
-    color: #fff;
+    color: var(--white);
 }
 
 /* Calendar-Toolbar — Filter-Chips + Action-Button auf einer Linie */
@@ -230,7 +230,7 @@
 
 .calendar-toolbar__label {
     font-size: 0.72rem;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
@@ -251,9 +251,9 @@
     align-items: center;
     padding: 0.35rem 0.75rem;
     border-radius: var(--button-border-radius, 6px);
-    border: 1px solid var(--darkgray, #2a2a2a);
+    border: 1px solid var(--border);
     background: transparent;
-    color: var(--text-dimmed, #818189);
+    color: var(--text-3);
     font-size: 0.78rem;
     font-weight: 500;
     cursor: pointer;
@@ -262,19 +262,19 @@
 }
 
 .calendar-filter-chip:hover {
-    background: var(--sidebar-hover-bg, #141414);
-    border-color: var(--main-color, #ff4d00);
-    color: #fff;
+    background: var(--surface);
+    border-color: var(--accent);
+    color: var(--white);
 }
 
 .calendar-filter-chip.is-active {
-    background: var(--main-color, #ff4d00);
-    border-color: var(--main-color, #ff4d00);
-    color: #fff;
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--white);
 }
 
 .calendar-filter-chip.is-active:hover {
-    background: var(--main-color, #ff4d00);
+    background: var(--accent);
 }
 
 /* Toggle-Chip (nur Wochentag-Auswahl im Recurrence-Form) */
@@ -287,9 +287,9 @@
 
 .ignis-chip--toggle.is-active {
     opacity: 1;
-    background: rgba(var(--main-color-rgb, 255, 77, 0), 0.15);
-    border-color: var(--main-color, #ff4d00);
-    color: var(--main-color, #ff4d00);
+    background: rgba(var(--accent-rgb), 0.15);
+    border-color: var(--accent);
+    color: var(--accent);
 }
 
 .ignis-chip--toggle:hover {
@@ -322,13 +322,13 @@
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.4rem 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--fill-1);
 }
 
 .attendee-list__row:last-child { border-bottom: 0; }
 
 .attendee-list__name {
-    color: var(--text-normal, #bbbac1);
+    color: var(--text-2);
     font-size: 0.85rem;
     display: inline-flex;
     align-items: center;
@@ -336,7 +336,7 @@
 }
 
 .attendee-list__organizer {
-    color: var(--main-color, #ff4d00);
+    color: var(--accent);
     font-size: 0.7rem;
     opacity: 0.85;
 }
@@ -349,17 +349,17 @@
     border-radius: 999px;
     font-size: 0.7rem;
     font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--fill-2);
+    background: var(--fill-1);
 }
 
 .attendee-status i { font-size: 0.78rem; }
 
-.attendee-status--accepted  { color: #16a34a; }
-.attendee-status--accepted i { color: #16a34a; }
-.attendee-status--tentative { color: #eab308; }
-.attendee-status--tentative i { color: #eab308; }
-.attendee-status--declined  { color: #dc2626; opacity: 0.75; }
-.attendee-status--declined i { color: #dc2626; }
-.attendee-status--pending   { color: var(--text-dimmed, #818189); }
-.attendee-status--pending i { color: var(--text-dimmed, #818189); }
+.attendee-status--accepted  { color: var(--ok); }
+.attendee-status--accepted i { color: var(--ok); }
+.attendee-status--tentative { color: var(--warn); }
+.attendee-status--tentative i { color: var(--warn); }
+.attendee-status--declined  { color: var(--danger); opacity: 0.75; }
+.attendee-status--declined i { color: var(--danger); }
+.attendee-status--pending   { color: var(--text-3); }
+.attendee-status--pending i { color: var(--text-3); }

@@ -49,7 +49,7 @@ if (!defined('BASE_PATH')) {
             text-align: center;
             padding: 2rem 1.5rem;
             gap: 1.25rem;
-            background: radial-gradient(circle at 50% 60%, rgba(var(--main-color-rgb, 255, 77, 0), 0.08), transparent 65%);
+            background: radial-gradient(circle at 50% 60%, rgba(var(--accent-rgb), 0.08), transparent 65%);
         }
 
         .err404__signal {
@@ -65,7 +65,7 @@ if (!defined('BASE_PATH')) {
         .err404__ring {
             position: absolute;
             inset: 0;
-            border: 2px solid var(--main-color, #ff4d00);
+            border: 2px solid var(--accent);
             border-radius: 50%;
             opacity: 0;
             animation: err404-pulse 2.4s ease-out infinite;
@@ -84,13 +84,13 @@ if (!defined('BASE_PATH')) {
             z-index: 2;
             width: 60px;
             height: 60px;
-            background: rgba(var(--main-color-rgb, 255, 77, 0), 0.12);
-            border: 1px solid var(--main-color, #ff4d00);
+            background: rgba(var(--accent-rgb), 0.12);
+            border: 1px solid var(--accent);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--main-color, #ff4d00);
+            color: var(--accent);
         }
 
         .err404__core svg {
@@ -155,15 +155,15 @@ if (!defined('BASE_PATH')) {
         }
 
         .err404__btn:hover {
-            border-color: var(--main-color, #ff4d00);
+            border-color: var(--accent);
             color: #fff;
-            background: rgba(var(--main-color-rgb, 255, 77, 0), 0.08);
+            background: rgba(var(--accent-rgb), 0.08);
             text-decoration: none;
         }
 
         .err404__btn--primary {
-            background: var(--main-color, #ff4d00);
-            border-color: var(--main-color, #ff4d00);
+            background: var(--accent);
+            border-color: var(--accent);
             color: #fff;
         }
 

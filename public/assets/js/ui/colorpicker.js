@@ -3,10 +3,10 @@
  *
  * Drop-in für `<input type="color">`. Auto-Init via `data-ignis-colorpicker`:
  *
- *   <input type="text" data-ignis-colorpicker name="role_color" value="#ff4d00">
+ *   <input type="text" data-ignis-colorpicker name="role_color" value="#f0500a">
  *
  * Optionale Attribute:
- *   data-presets='["#ff4d00","#5783cf",...]'  → Preset-Swatch-Reihe
+ *   data-presets='["#f0500a","#5783cf",...]'  → Preset-Swatch-Reihe
  *   data-allow-clear="true"                   → ×-Knopf zum Löschen
  *   data-format="hex"                          → derzeit nur HEX (Default)
  *
@@ -16,12 +16,35 @@
 
 const INSTANCES = new WeakMap();
 
-const DEFAULT_PRESETS = [
-  '#FF4D00', '#FF6A33', '#CC3D00',  // Brand-Orange + Tints
-  '#4A6FA5', '#3A7D44', '#B03A3A',  // Bootstrap-Equivalents
-  '#C49A2A', '#5BB8CC', '#7C3AED',
-  '#0F0F0F', '#2A2A2A', '#FFFFFF',
-];
+// Akzent der Installation (SYSTEM_COLOR bzw. --accent aus den Tokens) zur
+// Laufzeit lesen; die ersten drei Presets sind Akzent, Aufhellung, Abdunklung.
+const FALLBACK_ACCENT = '#F0500A';
+
+function brandAccent() {
+  try {
+    const value = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    const rgb = hexToRgb(value);
+    if (rgb) return rgbToHex(rgb);
+  } catch (e) { /* kein DOM, kein Akzent */ }
+  return FALLBACK_ACCENT;
+}
+
+// factor > 1 mischt Richtung Weiß, < 1 dunkelt ab.
+function tint(hex, factor) {
+  const { r, g, b } = hexToRgb(hex);
+  const mix = (c) => (factor >= 1 ? c + (255 - c) * (factor - 1) : c * factor);
+  return rgbToHex({ r: mix(r), g: mix(g), b: mix(b) });
+}
+
+function defaultPresets() {
+  const accent = brandAccent();
+  return [
+    accent, tint(accent, 1.2), tint(accent, 0.8),
+    '#4A6FA5', '#3A7D44', '#B03A3A',  // Bootstrap-Equivalents
+    '#C49A2A', '#5BB8CC', '#7C3AED',
+    '#0F0F0F', '#2A2A2A', '#FFFFFF',
+  ];
+}
 
 // ── HSV ↔ RGB ↔ HEX ─────────────────────────────────────────────
 
@@ -86,14 +109,14 @@ class Colorpicker {
     this.name = input.name || '';
     this.allowClear = input.dataset.allowClear === 'true';
 
-    let presets = DEFAULT_PRESETS;
+    let presets = defaultPresets();
     if (input.dataset.presets) {
       try { presets = JSON.parse(input.dataset.presets); } catch (e) {}
     }
     this.presets = presets;
 
-    const initial = (input.value || '#FF4D00').trim();
-    const rgb = hexToRgb(initial) || { r: 255, g: 77, b: 0 };
+    const initial = (input.value || brandAccent()).trim();
+    const rgb = hexToRgb(initial) || hexToRgb(brandAccent());
     this.hsv = rgbToHsv(rgb);
     this.hex = rgbToHex(rgb);
 

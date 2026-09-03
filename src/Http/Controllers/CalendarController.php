@@ -658,14 +658,14 @@ class CalendarController extends Controller
     private function toFullCalendarEvent(CalendarEvent $event, bool $isRecurring, ?int $seriesId, ?string $myResponse = null): array
     {
         $colors = [
-            'orange' => '#ff4d00',
+            'orange' => \App\Helpers\Theme::accentHex(),
             'blue'   => '#3b82f6',
             'green'  => '#16a34a',
             'red'    => '#dc2626',
             'purple' => '#a855f7',
             'gray'   => '#6b7280',
         ];
-        $hex = $colors[$event->color] ?? '#ff4d00';
+        $hex = $colors[$event->color] ?? $colors['orange'];
 
         return [
             'id'              => $isRecurring ? "{$seriesId}-" . substr((string) $event->starts_at, 0, 10) : (string) $event->id,

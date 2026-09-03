@@ -88,9 +88,10 @@ function updateTruppDisplay(truppNum) {
   } else if (timer.elapsedSeconds >= 2400) {
     tierStroke = "#ffc107"; // warning
   } else {
-    const cssMain = getComputedStyle(document.documentElement)
-      .getPropertyValue("--main-color").trim();
-    tierStroke = cssMain || "#ff4d00";
+    const rootStyle = getComputedStyle(document.documentElement);
+    const cssMain = rootStyle.getPropertyValue("--accent").trim()
+      || rootStyle.getPropertyValue("--main-color").trim();
+    tierStroke = cssMain || "#f0500a";
   }
 
   // Update SVG circle progress

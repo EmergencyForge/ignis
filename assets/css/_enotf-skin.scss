@@ -1,0 +1,534 @@
+// _enotf-skin.scss — ignis-Komponenten im eNOTF-Kontext
+//
+// Unverändert aus ui.scss herausgelöst (Redesign I2). Gehört zu eNOTF und
+// steht deshalb auf der Ausnahmeliste von ThemeTokensTest: hier dürfen
+// Hex-Farben stehen, weil eNOTF v1/v2 nicht Teil des Redesigns sind.
+//
+// Token-Brücke: eNOTF definiert seine Farben weiter in divi.scss unter den
+// alten Namen (--main-color, --darkgray). Die ignis-Komponenten lesen die
+// neuen Tokens; innerhalb von #edivi__container zeigen diese auf die
+// eNOTF-Werte, damit dort nichts die Farbe wechselt.
+
+#edivi__container {
+  --accent: var(--main-color, #ff4d00);
+  --accent-hover: var(--main-color-dimmed, #cc3d00);
+  --accent-rgb: 255, 77, 0;
+  --border: var(--darkgray, #4a4a4a);
+  --text-3: #9b99a1;
+  --text-2: #bbbac1;
+  --text: #e8e6f3;
+}
+
+// =====================================================
+// eNOTF-Scope-Overrides
+// Das eNOTF-Theme ist kein Admin-Theme — es nutzt mittelgraue Box-Farben
+// (#333333), blaue Fokus-Akzente (#5783cf) und größere Typo. Die Dropdown-
+// und Dialog-Komponenten passen sich hier an, damit sie sich nicht wie
+// Fremdkörper anfühlen.
+// =====================================================
+
+#edivi__container {
+  // eNOTF-Komponenten sind durchgehend eckig (Dispatch-Terminal-Look) —
+  // Radio + Switch behalten ihre natural-round Form.
+  .ignis-input,
+  .ignis-textarea,
+  .ignis-stepper,
+  .ignis-checkbox input[type="checkbox"],
+  .ignis-dropdown__trigger,
+  .ignis-dropdown__panel,
+  .ignis-dropdown__options li {
+    border-radius: 0;
+  }
+
+  // ── Dropdown ─────────────────────────────────────────────────────
+  .ignis-dropdown {
+    .ignis-dropdown__trigger {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      color: #fff;
+      font-size: 1rem;
+      padding: 0.6rem 0.85rem;
+
+      &:hover:not(:disabled) {
+        border-color: #5783cf;
+      }
+
+      &:focus-visible,
+      &:focus {
+        border-color: #5783cf;
+        box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+      }
+    }
+
+    .ignis-dropdown__label-icon {
+      color: #5783cf;
+    }
+
+    .ignis-dropdown__panel {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+    }
+
+    .ignis-dropdown__search {
+      background: #1e1e1e;
+      border-bottom-color: #4a4a4a;
+
+      &:focus {
+        background: rgba(87, 131, 207, 0.08);
+      }
+    }
+
+    .ignis-dropdown__options li {
+      font-size: 1rem;
+      padding: 0.5rem 0.75rem;
+
+      &:hover,
+      &:focus {
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      &.is-selected {
+        background: rgba(87, 131, 207, 0.18);
+        color: #fff;
+      }
+    }
+
+    .ignis-dropdown__option-icon {
+      color: #5783cf;
+    }
+  }
+
+  // ── Input / Textarea ────────────────────────────────────────────
+  .ignis-input,
+  .ignis-textarea {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    font-size: 1rem;
+    padding: 0.6rem 0.85rem;
+
+    &:hover:not(:disabled):not([readonly]) {
+      border-color: #5783cf;
+    }
+
+    &:focus,
+    &:focus-visible {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+
+    &.is-invalid,
+    &:invalid:not(:focus):not(:placeholder-shown) {
+      border-color: #d1484a;
+
+      &:focus {
+        box-shadow: 0 0 0 2px rgba(209, 72, 74, 0.25);
+      }
+    }
+  }
+
+  .ignis-input-group:focus-within .ignis-input-group__icon {
+    color: #5783cf;
+  }
+
+  .ignis-field__required {
+    color: #5783cf;
+  }
+
+  // ── Checkbox / Radio — blaue Checked-Farbe ──────────────────────
+  .ignis-checkbox input[type="checkbox"],
+  .ignis-radio input[type="radio"] {
+    border-color: #4a4a4a;
+    background: #2a2a2a;
+    width: 1.25rem;
+    height: 1.25rem;
+
+    &:hover:not(:disabled) {
+      border-color: rgba(87, 131, 207, 0.6);
+    }
+
+    &:checked {
+      background: #5783cf;
+      border-color: #5783cf;
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 0 3px rgba(87, 131, 207, 0.3);
+    }
+  }
+
+  .ignis-checkbox input[type="checkbox"]:indeterminate {
+    background: #5783cf;
+    border-color: #5783cf;
+  }
+
+  // ── Switch — blaue On-Farbe ─────────────────────────────────────
+  .ignis-switch {
+    input[type="checkbox"] {
+      background: #4a4a4a;
+
+      &:checked {
+        background: #5783cf;
+      }
+
+      &:focus-visible {
+        box-shadow: 0 0 0 3px rgba(87, 131, 207, 0.3);
+      }
+    }
+  }
+
+  // ── Number-Stepper — blauer Focus-Ring ──────────────────────────
+  .ignis-stepper {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+
+    &:focus-within {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+
+    input[type="number"] {
+      font-size: 1rem;
+    }
+
+    button:active {
+      background: rgba(87, 131, 207, 0.2);
+    }
+  }
+
+  // ── Tabs — blauer Underline ─────────────────────────────────────
+  .ignis-tabs {
+    .ignis-tabs__headers {
+      border-bottom-color: #4a4a4a;
+    }
+
+    .ignis-tabs__header {
+      font-size: 1rem;
+
+      &.is-active {
+        border-bottom-color: #5783cf;
+      }
+    }
+
+    &--pills .ignis-tabs__header {
+      border-radius: 0;
+
+      &.is-active {
+        background: #5783cf;
+      }
+    }
+  }
+
+  // ── Accordion — eckig, blauer Active-Rand ──────────────────────
+  .ignis-accordion {
+    .ignis-accordion__item {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+
+      &.is-open {
+        border-color: rgba(87, 131, 207, 0.5);
+      }
+    }
+
+    .ignis-accordion__header {
+      font-size: 1rem;
+    }
+  }
+
+  // ── Drawer — eckig, blauer Akzent ───────────────────────────────
+  .ignis-drawer {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    border-radius: 0;
+    font-size: 1rem;
+
+    .ignis-drawer__header,
+    .ignis-drawer__footer {
+      border-color: #4a4a4a;
+    }
+  }
+
+  // ── Pagination — eckig, blau-aktiv ──────────────────────────────
+  .ignis-pagination .ignis-pagination__item {
+    border-radius: 0;
+    font-size: 0.95rem;
+
+    &.is-active {
+      background: #5783cf;
+    }
+  }
+
+  // ── List Group — eckig ──────────────────────────────────────────
+  .ignis-list-group {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    border-radius: 0;
+    font-size: 1rem;
+
+    .ignis-list-group__item {
+      border-color: #4a4a4a;
+
+      &.is-active {
+        background: rgba(87, 131, 207, 0.18);
+        color: #7ea3d9;
+      }
+    }
+  }
+
+  // ── Alert — eckig, blau-info ────────────────────────────────────
+  .ignis-alert {
+    border-radius: 0;
+    font-size: 1rem;
+
+    &--info {
+      border-left-color: #5783cf;
+      color: #7ea3d9;
+
+      .ignis-alert__title { color: #7ea3d9; }
+    }
+  }
+
+  // ── Progress — eckig ────────────────────────────────────────────
+  .ignis-progress {
+    background: #1e1e1e;
+    border-radius: 0;
+
+    .ignis-progress__bar {
+      border-radius: 0;
+      background: #5783cf;
+    }
+  }
+
+  // ── File-Input — eckig ──────────────────────────────────────────
+  .ignis-file {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    border-radius: 0;
+    font-size: 1rem;
+  }
+
+  // ── Skeleton — eckig ────────────────────────────────────────────
+  .ignis-skeleton { border-radius: 0; }
+
+  // ── Card — eckig, mittelgrau ────────────────────────────────────
+  .ignis-card {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    border-radius: 0;
+    font-size: 1rem;
+
+    .ignis-card__header,
+    .ignis-card__footer {
+      border-color: #4a4a4a;
+    }
+
+    &--accent { border-left-color: #5783cf; }
+    &--info   { border-left-color: #5783cf; }
+
+    &--interactive:focus-visible {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+  }
+
+  // ── Color-Picker — eckig, blau-Akzent ───────────────────────────
+  .ignis-colorpicker {
+    .ignis-colorpicker__trigger {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+      font-size: 1rem;
+    }
+
+    &.is-open .ignis-colorpicker__trigger {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+
+    .ignis-colorpicker__swatch {
+      border-radius: 0;
+    }
+
+    .ignis-colorpicker__panel {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+    }
+
+    .ignis-colorpicker__sv,
+    .ignis-colorpicker__hex input,
+    .ignis-colorpicker__preset {
+      border-radius: 0;
+    }
+
+    .ignis-colorpicker__preset.is-active {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 1px #5783cf;
+    }
+
+    .ignis-colorpicker__hex input:focus {
+      border-color: #5783cf;
+    }
+  }
+
+  // ── Combobox — eckig, blau-Akzent ───────────────────────────────
+  .ignis-combobox {
+    .ignis-combobox__field {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+      font-size: 1rem;
+
+      &:hover:not(.is-disabled) {
+        border-color: #5783cf;
+      }
+    }
+
+    &.is-open .ignis-combobox__field,
+    .ignis-combobox__field:focus-within {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+
+    .ignis-combobox__panel {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+    }
+
+    .ignis-combobox__option {
+      font-size: 1rem;
+      padding: 0.5rem 0.75rem;
+
+      &.is-selected {
+        background: rgba(87, 131, 207, 0.18);
+        color: #fff;
+      }
+
+      mark {
+        background: rgba(87, 131, 207, 0.3);
+      }
+    }
+  }
+
+  // ── Button — eckig, blauer Primary-Akzent ───────────────────────
+  .ignis-btn {
+    border-radius: 0;
+    font-size: 1rem;
+
+    &--sm { font-size: 0.85rem; }
+    &--lg { font-size: 1.1rem; }
+
+    &--primary,
+    &--accent {
+      background: #5783cf;
+
+      &:hover:not(:disabled):not(.is-loading) {
+        background: #6c92d8;
+      }
+
+      &:active:not(:disabled):not(.is-loading) {
+        background: #4974c0;
+      }
+    }
+
+    &--outline-primary {
+      border-color: #5783cf;
+      color: #7ea3d9;
+
+      &:hover:not(:disabled):not(.is-loading) {
+        background: #5783cf;
+      }
+    }
+
+    &:focus-visible {
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.4);
+    }
+  }
+
+  .ignis-btn-group .ignis-btn {
+    border-radius: 0 !important;
+  }
+
+  // ── Chip / Tag — eckig, blau-Akzent ─────────────────────────────
+  .ignis-chip {
+    border-radius: 0;
+    font-size: 0.85rem;
+
+    &--sm { font-size: 0.75rem; }
+    &--lg { font-size: 1rem; }
+
+    &--primary {
+      background: rgba(87, 131, 207, 0.18);
+      color: #7ea3d9;
+      border-color: rgba(87, 131, 207, 0.35);
+    }
+  }
+
+  .ignis-tag-input {
+    background: #2a2a2a;
+    border-color: #4a4a4a;
+    border-radius: 0;
+    font-size: 1rem;
+
+    &:hover:not(.is-disabled) {
+      border-color: #5783cf;
+    }
+
+    &:focus-within {
+      border-color: #5783cf;
+      box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+    }
+  }
+
+  // ── DatePicker — blauer Accent, eckig ───────────────────────────
+  .ignis-datepicker {
+    .ignis-datepicker__trigger {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+      font-size: 1rem;
+      padding: 0.6rem 0.85rem;
+
+      &:hover:not(:disabled) {
+        border-color: #5783cf;
+      }
+
+      &:focus,
+      &:focus-visible {
+        border-color: #5783cf;
+        box-shadow: 0 0 0 2px rgba(87, 131, 207, 0.25);
+      }
+    }
+
+    .ignis-datepicker__icon { color: #5783cf; }
+
+    .ignis-datepicker__panel {
+      background: #2a2a2a;
+      border-color: #4a4a4a;
+      border-radius: 0;
+    }
+
+    .ignis-datepicker__day.is-selected,
+    .ignis-datepicker__month.is-selected,
+    .ignis-datepicker__year.is-selected {
+      background: #5783cf;
+    }
+
+    .ignis-datepicker__day.is-today:not(.is-selected) {
+      color: #5783cf;
+
+      &::after { background: #5783cf; }
+    }
+
+    .ignis-datepicker__footer-btn {
+      background: #5783cf;
+      border-radius: 0;
+
+      &--ghost {
+        background: transparent;
+        border-color: #4a4a4a;
+      }
+    }
+  }
+}

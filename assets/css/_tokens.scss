@@ -1,0 +1,194 @@
+// _tokens.scss — Design-Tokens für ignis
+//
+// Quelle: docs/design/2026-09-03-redesign-ignis.html im Lex-Repo (abgenommenes
+// Konzept). Der dunkle Satz liegt auf :root und ist der Standard, der helle
+// Satz gilt, sobald head.php `data-theme="light"` am <html> setzt (Einstellung
+// pro Konto, siehe App\Support\Theme und ProfileController::theme()).
+//
+// Das ist die einzige Datei unter assets/css mit Hex-Farben. Alle anderen
+// Stylesheets greifen über var(--…) auf diese Werte zu; tests/Unit/Assets/
+// ThemeTokensTest.php prüft das, ebenso, dass jeder Farbwert von hier unten
+// einen hellen Gegenwert hat. Die Akzentfarbe kommt aus SYSTEM_COLOR und wird
+// in head.php als <style> über --accent gelegt, wenn der Betreiber sie
+// geändert hat; sonst gelten die Werte hier.
+//
+// Alte Namen (--main-color, --body-bg, --text-dimmed, …) leben als Aliase in
+// _tokens-legacy.scss, das nur style.scss lädt.
+
+:root {
+  color-scheme: dark;
+
+  --font: "Geist", "Geist Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  // Flächen: bg ist die Seite, bg-2 Topbar, Sidebar und Eingabefelder,
+  // surface die Karte, surface-2/-3 Hover und Kopfzeilen darauf.
+  --bg: #0b0b0b;
+  --bg-2: #101010;
+  --surface: #151515;
+  --surface-2: #1b1b1b;
+  --surface-3: #222222;
+  --border: #272727;
+  --border-strong: #363636;
+
+  // Füllungen über Flächen. Im hellen Satz werden sie dunkel, damit Hover,
+  // Trennlinien und Chips sichtbar bleiben.
+  --fill-1: rgba(255, 255, 255, 0.03);
+  --fill-2: rgba(255, 255, 255, 0.06);
+  --fill-3: rgba(255, 255, 255, 0.1);
+  --fill-4: rgba(255, 255, 255, 0.18);
+  --fill-5: rgba(255, 255, 255, 0.35);
+
+  // Text in drei Stufen, dazu Weiß und Schwarz als feste Werte
+  // (Text auf Akzent, Druck, Farbregler).
+  --text: #ebe9e6;
+  --text-2: #b7b4b0;
+  --text-3: #817d78;
+  --white: #fff;
+  --black: #000;
+
+  // Akzent: die Systemfarbe. --accent-rgb trägt dasselbe als Tripel, damit
+  // rgba(var(--accent-rgb), a) für weiche Flächen funktioniert.
+  --accent: #f0500a;
+  --accent-hover: #d84507;
+  --accent-rgb: 240, 80, 10;
+  --accent-soft: rgba(var(--accent-rgb), 0.16);
+  --on-accent: #fff7f2;
+
+  // Bedeutungsfarben. Farbe nur für Bedeutung; die weiche Fläche für Chips,
+  // Hinweise und Zeilenmarkierungen.
+  --ok: #3fb950;
+  --ok-rgb: 63, 185, 80;
+  --ok-soft: rgba(var(--ok-rgb), 0.14);
+  --warn: #d29922;
+  --warn-rgb: 210, 153, 34;
+  --warn-soft: rgba(var(--warn-rgb), 0.16);
+  --danger: #e5534b;
+  --danger-rgb: 229, 83, 75;
+  --danger-soft: rgba(var(--danger-rgb), 0.14);
+  --info: #58a6ff;
+  --info-rgb: 88, 166, 255;
+  --info-soft: rgba(var(--info-rgb), 0.14);
+
+  --link: var(--accent);
+  --link-hover: var(--accent-hover);
+
+  --input-bg: var(--bg-2);
+  --input-text: var(--text);
+  --input-placeholder: var(--text-3);
+
+  --scrollbar-thumb: var(--fill-3);
+  --scrollbar-thumb-hover: var(--fill-4);
+
+  // Buttonstufen der Komponentenbibliothek (ignis-btn--primary usw.).
+  --btn-primary-bg: var(--accent);
+  --btn-primary-hover: var(--accent-hover);
+  --btn-primary-active: var(--accent-hover);
+  --btn-success-bg: var(--ok);
+  --btn-success-hover: color-mix(in srgb, var(--ok) 88%, white);
+  --btn-success-active: color-mix(in srgb, var(--ok) 85%, black);
+  --btn-danger-bg: var(--danger);
+  --btn-danger-hover: color-mix(in srgb, var(--danger) 88%, white);
+  --btn-danger-active: color-mix(in srgb, var(--danger) 85%, black);
+  --btn-warning-bg: var(--warn);
+  --btn-warning-hover: color-mix(in srgb, var(--warn) 88%, white);
+  --btn-warning-active: color-mix(in srgb, var(--warn) 85%, black);
+
+  // Kommentararten der Mitarbeiterakte (personal.scss). Dokument und
+  // Anlage haben keine Bedeutungsfarbe, deshalb eigene Werte.
+  --comment-bg: var(--fill-2);
+  --comment-text: var(--text-2);
+  --comment-note-bg: var(--fill-3);
+  --comment-note-stripe: var(--text-3);
+  --comment-positive-bg: rgba(var(--ok-rgb), 0.1);
+  --comment-positive-stripe: var(--ok);
+  --comment-negative-bg: rgba(var(--danger-rgb), 0.1);
+  --comment-negative-stripe: var(--danger);
+  --comment-rank-bg: rgba(var(--info-rgb), 0.1);
+  --comment-rank-stripe: var(--info);
+  --comment-modify-bg: rgba(var(--warn-rgb), 0.1);
+  --comment-modify-stripe: var(--warn);
+  --comment-document-bg: rgba(253, 73, 208, 0.1);
+  --comment-document-stripe: #fd49d0;
+  --comment-created-bg: rgba(20, 163, 161, 0.1);
+  --comment-created-stripe: #14a3a1;
+
+  // Radien, Schatten, Bewegung, Schrift, Abstände
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-md: var(--radius);
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --spring-gentle: cubic-bezier(0.22, 1.2, 0.36, 1);
+  --fs-xs: 0.72rem;
+  --fs-sm: 0.78rem;
+  --fs-base: 0.82rem;
+  --fs-md: 0.88rem;
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+
+  // Maße der Hülle (die Hülle selbst kommt mit I4)
+  --sidebar-w: 240px;
+  --sidebar-w-collapsed: 56px;
+  --topbar-h: 48px;
+}
+
+// Heller Satz. Jeder Token von oben mit einem Farbwert (Hex oder rgb) hat
+// hier einen Gegenwert; Tokens, die nur auf andere zeigen, folgen von selbst.
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #f5f4f2;
+  --bg-2: #edecea;
+  --surface: #ffffff;
+  --surface-2: #f8f7f5;
+  --surface-3: #efeeeb;
+  --border: #dedcd8;
+  --border-strong: #cbc8c3;
+
+  --fill-1: rgba(20, 20, 20, 0.03);
+  --fill-2: rgba(20, 20, 20, 0.05);
+  --fill-3: rgba(20, 20, 20, 0.08);
+  --fill-4: rgba(20, 20, 20, 0.14);
+  --fill-5: rgba(20, 20, 20, 0.28);
+
+  --text: #1a1917;
+  --text-2: #4a4845;
+  --text-3: #7d7a75;
+
+  --accent: #cc3f00;
+  --accent-hover: #b03600;
+  --accent-rgb: 204, 63, 0;
+  --accent-soft: rgba(var(--accent-rgb), 0.1);
+  --on-accent: #ffffff;
+
+  --ok: #1f8a3b;
+  --ok-rgb: 31, 138, 59;
+  --ok-soft: rgba(var(--ok-rgb), 0.12);
+  --warn: #9a6a00;
+  --warn-rgb: 154, 106, 0;
+  --warn-soft: rgba(var(--warn-rgb), 0.12);
+  --danger: #c93a32;
+  --danger-rgb: 201, 58, 50;
+  --danger-soft: rgba(var(--danger-rgb), 0.1);
+  --info: #1f6fd0;
+  --info-rgb: 31, 111, 208;
+  --info-soft: rgba(var(--info-rgb), 0.1);
+
+  --comment-document-bg: rgba(192, 38, 211, 0.1);
+  --comment-document-stripe: #c026d3;
+  --comment-created-bg: rgba(15, 118, 110, 0.1);
+  --comment-created-stripe: #0f766e;
+
+  --shadow: 0 2px 8px rgba(20, 20, 20, 0.1);
+  --shadow-lg: 0 8px 24px rgba(20, 20, 20, 0.16);
+}
