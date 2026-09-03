@@ -1,15 +1,12 @@
 <?php
 use App\Auth\Permissions;
 use App\Helpers\Flash;
-?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
 
-<head>
-    <?php
-    $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
-    include dirname(__DIR__, 4) . "/assets/components/_base/admin/head.php";
-    ?>
+$layout = 'admin';
+$bodyId = 'lexicon';
+$SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
+?>
+<?php ob_start(); ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/ckeditor5/ckeditor5.css">
     <style>
         .type-fields {
@@ -139,10 +136,7 @@ use App\Helpers\Flash;
             min-height: 80px;
         }
     </style>
-</head>
-
-<body data-theme="dark" data-page="lexicon">
-    <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
+<?php $layoutHead = ob_get_clean(); ?>
 
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -447,7 +441,6 @@ use App\Helpers\Flash;
         </div>
     </div>
 
-    <?php include dirname(__DIR__, 4) . "/assets/components/footer.php"; ?>
 
     <script type="importmap">
     {
@@ -660,6 +653,3 @@ use App\Helpers\Flash;
             relSuggestions.style.display = 'none';
         };
     </script>
-</body>
-
-</html>

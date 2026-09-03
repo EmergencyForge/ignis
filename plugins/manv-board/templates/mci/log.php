@@ -8,16 +8,11 @@
 
 $lageId     = (int) $lage['id'];
 $SITE_TITLE = 'Aktionslog - ' . htmlspecialchars($lage['einsatznummer']);
+
+$layout = 'admin';
+$bodyId = 'manv-log';
+$bodyPage = 'edivi';
 ?>
-<!DOCTYPE html>
-<html lang="de">
-
-<head>
-    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" id="manv-log" data-page="edivi">
-    <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <header class="twplus-page-header mb-6">
@@ -61,8 +56,3 @@ $SITE_TITLE = 'Aktionslog - ' . htmlspecialchars($lage['einsatznummer']);
             </div>
         </div>
     </div>
-
-    <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
-</body>
-
-</html>

@@ -26,12 +26,12 @@ $skColor = $skColors[$patient['sichtungskategorie'] ?? ''] ?? 'secondary';
 
 $canTransport = !in_array($patient['sichtungskategorie'] ?? '', ['SK4', 'SK5', 'SK6', 'tot'], true);
 $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
-?>
-<!DOCTYPE html>
-<html lang="de">
 
-<head>
-    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
+$layout = 'admin';
+$bodyId = 'patient-view';
+$bodyPage = 'edivi';
+?>
+<?php ob_start(); ?>
     <style>
         .quick-action-btn { margin: 0.25rem; }
         .bg-sk5 { background-color: #000 !important; color: #fff !important; }
@@ -49,10 +49,7 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
             margin-bottom: 1rem;
         }
     </style>
-</head>
-
-<body data-theme="dark" id="patient-view" data-page="edivi">
-    <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
+<?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <?php Flash::render(); ?>
@@ -266,7 +263,6 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
         </div>
     </div>
 
-    <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
 
     <script>
         document.getElementById('transportmittel_id').addEventListener('change', function() {
@@ -305,6 +301,3 @@ $SITE_TITLE   = 'Patient ' . htmlspecialchars($patient['patienten_nummer']);
             }
         });
     </script>
-</body>
-
-</html>

@@ -1,16 +1,10 @@
 <?php
 use App\Helpers\Flash;
+
+$layout = 'admin';
+$bodyId = 'lexicon';
+$SITE_TITLE = 'KB Kategorien & Tags';
 ?>
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <?php
-    $SITE_TITLE = 'KB Kategorien & Tags';
-    include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php';
-    ?>
-</head>
-<body data-theme="dark" data-page="lexicon">
-    <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page my-5">
             <nav class="admin-breadcrumb">
@@ -311,6 +305,3 @@ use App\Helpers\Flash;
             else showToast('Fehler: ' + result.error, 'error');
         }
     </script>
-    <?php include dirname(__DIR__, 4) . "/assets/components/footer.php"; ?>
-</body>
-</html>

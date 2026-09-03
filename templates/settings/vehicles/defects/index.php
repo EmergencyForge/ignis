@@ -125,17 +125,11 @@ $statusLabels = [
     'deferred' => ['Aufgeschoben', 'primary'],
     'resolved' => ['Gelöst', 'success']
 ];
+
+$layout = 'admin';
+$bodyId = 'fahrzeuge';
+$SITE_TITLE = 'Fahrzeug-Defekte';
 ?>
-
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php $SITE_TITLE = 'Fahrzeug-Defekte'; include __DIR__ . '/../../../../assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" data-page="fahrzeuge">
-    <?php include __DIR__ . "/../../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
@@ -737,7 +731,3 @@ $statusLabels = [
         }
     });
     </script>
-
-    <?php include __DIR__ . "/../../../../assets/components/footer.php"; ?>
-</body>
-</html>

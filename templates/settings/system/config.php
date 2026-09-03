@@ -81,16 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {
 }
 
 $configByCategory = $configManager->getConfigByCategory();
+
+$layout = 'admin';
+$bodyId = 'settings';
+$SITE_TITLE = 'System-Konfiguration';
 ?>
-
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php
-    $SITE_TITLE = 'System-Konfiguration';
-    include __DIR__ . '/../../../assets/components/_base/admin/head.php';
-    ?>
+<?php ob_start(); ?>
     <style>
         .config-preview {
             padding: 1rem;
@@ -136,10 +132,7 @@ $configByCategory = $configManager->getConfigByCategory();
             margin-bottom: 2rem;
         }
     </style>
-</head>
-
-<body data-theme="dark" data-page="settings">
-    <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
+<?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
@@ -329,7 +322,6 @@ $configByCategory = $configManager->getConfigByCategory();
             </div>
         </div>
     </div>
-    <?php include __DIR__ . "/../../../assets/components/footer.php"; ?>
 
     <script>
         // Category segmented control filtering
@@ -458,6 +450,3 @@ $configByCategory = $configManager->getConfigByCategory();
                 });
         }
     </script>
-</body>
-
-</html>

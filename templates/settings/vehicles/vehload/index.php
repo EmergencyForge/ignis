@@ -27,15 +27,12 @@ $categories = Capsule::table('intra_fahrzeuge_beladung_categories as c')
     ])
     ->map(fn ($row) => (array) $row)
     ->all();
+
+$layout = 'admin';
+$bodyId = 'fahrzeuge';
+$SITE_TITLE = 'Beladelisten';
 ?>
-
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php
-    include __DIR__ . '/../../../../assets/components/_base/admin/head.php';
-    ?>
+<?php ob_start(); ?>
     <script src="<?= BASE_PATH ?>assets/_ext/sortablejs/Sortable.min.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/modules/beladung-edit.js"></script>
     <style>
@@ -80,10 +77,7 @@ $categories = Capsule::table('intra_fahrzeuge_beladung_categories as c')
             width: 100%;
         }
     </style>
-</head>
-
-<body data-theme="dark" data-page="fahrzeuge">
-    <?php include __DIR__ . "/../../../../assets/components/navbar.php"; ?>
+<?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -552,7 +546,3 @@ $categories = Capsule::table('intra_fahrzeuge_beladung_categories as c')
                 });
         }
     </script>
-    <?php include __DIR__ . "/../../../../assets/components/footer.php"; ?>
-</body>
-
-</html>

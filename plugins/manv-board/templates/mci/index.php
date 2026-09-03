@@ -8,12 +8,12 @@
  */
 
 $SITE_TITLE = 'MANV-Übersicht';
-?>
-<!DOCTYPE html>
-<html lang="de">
 
-<head>
-    <?php include dirname(__DIR__, 4) . '/assets/components/_base/admin/head.php'; ?>
+$layout = 'admin';
+$bodyId = 'manv-overview';
+$bodyPage = 'edivi';
+?>
+<?php ob_start(); ?>
     <style>
         .manv-card {
             transition: transform 0.2s;
@@ -37,10 +37,7 @@ $SITE_TITLE = 'MANV-Übersicht';
             margin-bottom: 0.5rem;
         }
     </style>
-</head>
-
-<body data-theme="dark" id="manv-overview" data-page="edivi">
-    <?php include dirname(__DIR__, 4) . '/assets/components/navbar.php'; ?>
+<?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <header class="twplus-page-header mb-6">
@@ -177,7 +174,6 @@ $SITE_TITLE = 'MANV-Übersicht';
         </div>
     </div>
 
-    <?php include dirname(__DIR__, 4) . '/assets/components/footer.php'; ?>
 
     <script>
         // Auto-Refresh alle 30 Sekunden
@@ -185,6 +181,3 @@ $SITE_TITLE = 'MANV-Übersicht';
             location.reload();
         }, 30000);
     </script>
-</body>
-
-</html>

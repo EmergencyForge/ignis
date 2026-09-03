@@ -12,17 +12,13 @@
 use App\Helpers\Flash;
 
 $SITE_TITLE = 'Kalender';
+
+$layout = 'admin';
+$bodyId = 'kalender';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . '/../../assets/components/_base/admin/head.php'; ?>
+<?php ob_start(); ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/pages/calendar.css">
-</head>
-
-<body data-theme="dark" data-page="kalender">
-    <?php include __DIR__ . '/../../assets/components/navbar.php'; ?>
+<?php $layoutHead = ob_get_clean(); ?>
 
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -259,8 +255,3 @@ $SITE_TITLE = 'Kalender';
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/multi-select.js"></script>
     <!-- Page-Logic -->
     <script type="module" src="<?= BASE_PATH ?>assets/js/pages/calendar.js"></script>
-
-    <?php include __DIR__ . '/../../assets/components/footer.php'; ?>
-</body>
-
-</html>

@@ -7,26 +7,11 @@
  */
 
 use App\Helpers\Flash;
+
+$layout = 'admin';
+$bodyId = 'antragstyp-create';
+$SITE_TITLE = 'Neuer Antragstyp';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Neuer Antragstyp &rsaquo; <?= SYSTEM_NAME ?></title>
-    <link rel="stylesheet" href="<?= asset('public/assets/dist/style.css') ?>" />
-    <link rel="stylesheet" href="<?= asset('public/assets/dist/admin.css') ?>" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/_ext/lineawesome/css/line-awesome.min.css" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist/css/all.min.css" />
-    <link rel="stylesheet" href="<?= BASE_PATH ?>assets/fonts/geist-mono/css/all.min.css" />
-    <link rel="icon" type="image/png" href="<?= BASE_PATH ?>assets/favicon/favicon-96x96.png" sizes="96x96" />
-    <meta name="theme-color" content="<?= SYSTEM_COLOR ?>" />
-</head>
-
-<body data-theme="dark" data-page="antragstyp-create">
-    <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="max-w-4xl mx-auto">
@@ -132,8 +117,3 @@ use App\Helpers\Flash;
             $('#icon-preview').attr('class', iconClass + ' fs-4');
         });
     </script>
-
-    <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
-</body>
-
-</html>

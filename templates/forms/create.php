@@ -25,17 +25,10 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
         default             => '',
     };
 };
+
+$layout = 'admin';
+$bodyId = 'antrag-create';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
-</head>
-
-<body data-theme="dark" data-page="antrag-create">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
-
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <header class="twplus-page-header mb-4"><div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Neuer Antrag</p><h1><?= htmlspecialchars($typ->name) ?> stellen</h1><p class="twplus-page-header__description">Fülle die erforderlichen Angaben aus und prüfe sie vor dem Absenden.</p></div></header>
@@ -141,8 +134,3 @@ $autoFill = function (string $key, \stdClass $mitarbeiter): string {
             </div>
         </div>
     </div>
-
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
-</body>
-
-</html>

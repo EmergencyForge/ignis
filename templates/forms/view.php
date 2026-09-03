@@ -13,12 +13,11 @@ use App\Helpers\Flash;
 $caseId    = $antrag->uniqueid;
 $createDate = $antrag->time_added;
 $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
-?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
 
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
+$layout = 'admin';
+$bodyId = 'antrag-view';
+?>
+<?php ob_start(); ?>
     <style>
         .field-label {
             font-weight: 600;
@@ -40,10 +39,7 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
             min-height: calc(1.5em + 0.75rem + 2px);
         }
     </style>
-</head>
-
-<body data-theme="dark" data-page="antrag-view">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
+<?php $layoutHead = ob_get_clean(); ?>
 
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -214,8 +210,3 @@ $SITE_TITLE = "Antrag [#" . htmlspecialchars($caseId) . "] anzeigen";
             </div>
         </div>
     </div>
-
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
-</body>
-
-</html>

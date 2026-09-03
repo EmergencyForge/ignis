@@ -6,16 +6,11 @@
  */
 
 use App\Helpers\Flash;
+
+$layout = 'admin';
+$bodyId = 'antragstypen';
+$SITE_TITLE = 'Antragstypen';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
-</head>
-
-<body data-theme="dark" data-page="antragstypen">
-    <?php include __DIR__ . '/../../../assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="twplus-page-header mb-4">
@@ -125,8 +120,3 @@ use App\Helpers\Flash;
             </div>
         </div>
     </div>
-
-    <?php include __DIR__ . '/../../../assets/components/footer.php'; ?>
-</body>
-
-</html>

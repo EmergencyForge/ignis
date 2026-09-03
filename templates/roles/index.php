@@ -11,16 +11,11 @@ use App\Helpers\Flash;
 
 $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
 $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
+
+$layout = 'admin';
+$bodyId = 'benutzer';
+$SITE_TITLE = 'Rollen';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
-</head>
-
-<body data-theme="dark" data-page="benutzer">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -215,6 +210,3 @@ $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
             });
         }
     </script>
-</body>
-
-</html>

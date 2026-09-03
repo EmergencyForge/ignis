@@ -6,12 +6,12 @@
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
-?>
-<!DOCTYPE html>
-<html lang="de">
 
-<head>
-    <?php include __DIR__ . '/../../../assets/components/_base/admin/head.php'; ?>
+$layout = 'admin';
+$bodyId = 'settings';
+$SITE_TITLE = 'Performance';
+?>
+<?php ob_start(); ?>
     <style>
         .perf-card {
             background-color: var(--body-bg-lighter);
@@ -115,10 +115,7 @@ use App\Helpers\Flash;
             font-size: 0.95rem;
         }
     </style>
-</head>
-
-<body data-theme="dark" data-page="settings">
-    <?php include __DIR__ . "/../../../assets/components/navbar.php"; ?>
+<?php $layoutHead = ob_get_clean(); ?>
     <div class="twplus-page mt-4 mb-5">
 
         <nav class="ignis-breadcrumb mb-3" aria-label="breadcrumb">
@@ -464,7 +461,3 @@ use App\Helpers\Flash;
 
         loadData();
     </script>
-    <?php include __DIR__ . "/../../../assets/components/footer.php"; ?>
-</body>
-
-</html>

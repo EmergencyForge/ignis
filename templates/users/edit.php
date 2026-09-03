@@ -12,16 +12,10 @@ use App\Auth\Gate;
 use App\Helpers\Flash;
 
 $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; " . SYSTEM_NAME;
+
+$layout = 'admin';
+$bodyId = 'benutzer';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
-</head>
-
-<body data-theme="dark" data-page="benutzer">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -134,7 +128,6 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
         </div>
     </div>
 
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
     <script>
         $(document).ready(function() {
@@ -192,6 +185,3 @@ $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; 
         });
     </script>
     <?php endif; ?>
-</body>
-
-</html>

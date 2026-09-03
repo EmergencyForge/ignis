@@ -13,8 +13,8 @@ use Tests\FixtureFactory;
 
 /**
  * Darstellungsmodus pro Konto: POST /profile/theme wirkt sofort auf die
- * Session und dauerhaft auf intra_users.theme, head.php setzt den Wert vor
- * dem ersten Stylesheet am <html>. Unbekannte Werte und fehlende
+ * Session und dauerhaft auf intra_users.theme, die Hülle schreibt den Wert
+ * als data-theme ans <html>, bevor ein Stylesheet lädt. Unbekannte Werte und fehlende
  * CSRF-Tokens ändern nichts; „system" überlässt die Wahl dem Browser.
  */
 final class ThemeTest extends FeatureTestCase
@@ -40,7 +40,7 @@ final class ThemeTest extends FeatureTestCase
     {
         $this->login();
 
-        $this->assertBodyContains('documentElement.dataset.theme = "dark"', $this->get('/dashboard'));
+        $this->assertBodyContains('<html lang="de" data-theme="dark">', $this->get('/dashboard'));
     }
 
     #[Test]
@@ -55,7 +55,7 @@ final class ThemeTest extends FeatureTestCase
         $this->assertRedirect($response, '/personnel/list');
         $this->assertSame('light', User::query()->findOrFail($user->id)->theme);
         $this->assertSame('light', $_SESSION['theme']);
-        $this->assertBodyContains('documentElement.dataset.theme = "light"', $this->get('/dashboard'));
+        $this->assertBodyContains('<html lang="de" data-theme="light">', $this->get('/dashboard'));
     }
 
     #[Test]
@@ -118,7 +118,7 @@ final class ThemeTest extends FeatureTestCase
         $user->theme = 'light';
         $user->save();
 
-        $this->assertBodyContains('documentElement.dataset.theme = "light"', $this->get('/dashboard'));
+        $this->assertBodyContains('<html lang="de" data-theme="light">', $this->get('/dashboard'));
         $this->assertSame('light', $_SESSION['theme']);
     }
 

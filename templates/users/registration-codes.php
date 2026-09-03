@@ -10,16 +10,10 @@
 use App\Helpers\Flash;
 
 $SITE_TITLE = 'Einladungen verwalten';
+
+$layout = 'admin';
+$bodyId = 'benutzer';
 ?>
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php include __DIR__ . "/../../assets/components/_base/admin/head.php"; ?>
-</head>
-
-<body data-theme="dark" data-page="benutzer">
-    <?php include __DIR__ . "/../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -172,7 +166,6 @@ $SITE_TITLE = 'Einladungen verwalten';
         </div>
     </template>
 
-    <?php include __DIR__ . "/../../assets/components/footer.php"; ?>
 
     <script>
         function openCreateInviteModal() {
@@ -212,6 +205,3 @@ $SITE_TITLE = 'Einladungen verwalten';
             });
         });
     </script>
-</body>
-
-</html>

@@ -6,19 +6,11 @@
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 use Illuminate\Database\Capsule\Manager as Capsule;
+
+$layout = 'admin';
+$bodyId = 'fahrzeuge';
+$SITE_TITLE = 'Fahrzeuge';
 ?>
-
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-
-<head>
-    <?php
-    include __DIR__ . '/../../../../assets/components/_base/admin/head.php';
-    ?>
-</head>
-
-<body data-theme="dark" data-page="fahrzeuge">
-    <?php include __DIR__ . "/../../../../assets/components/navbar.php"; ?>
     <div class="container-full relative" id="mainpageContainer">
         <!-- ------------ -->
         <!-- PAGE CONTENT -->
@@ -284,7 +276,3 @@ use Illuminate\Database\Capsule\Manager as Capsule;
         importApi: '<?= BASE_PATH ?>api/vehicles/import-handler',
     });
     </script>
-    <?php include __DIR__ . "/../../../../assets/components/footer.php"; ?>
-</body>
-
-</html>
