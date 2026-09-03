@@ -14,7 +14,7 @@ $cssExists = is_file($distPath);
 // filemtime als Fallback falls BASE_PATH nicht definiert ist.
 $cssUrl    = function_exists('asset')
     ? asset('public/assets/dist/tailwind.css')
-    : '/public/assets/dist/tailwind.css?v=' . ($cssExists ? (int) filemtime($distPath) : 0);
+    : '/assets/dist/tailwind.css?v=' . ($cssExists ? (int) filemtime($distPath) : 0);
 ?><!DOCTYPE html>
 <html lang="de">
 <head>

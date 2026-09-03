@@ -328,14 +328,14 @@ jobs:
         id: diff
         run: |
           set +e
-          CHANGED=$(git status --porcelain -- 'public/assets/dist' 'assets/css/*.css' 'assets/css/*.min.css')
+          CHANGED=$(git status --porcelain -- 'public/assets' 'assets/css/*.css' 'assets/css/*.min.css')
           if [ -n "$CHANGED" ]; then
             echo "::error::Built assets differ from committed files. Run 'npm run build' locally and commit the changes."
             echo "## Changed files" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
             echo "$CHANGED" >> "$GITHUB_STEP_SUMMARY"
             echo '```' >> "$GITHUB_STEP_SUMMARY"
-            git diff --stat -- 'public/assets/dist' 'assets/css/*.css' 'assets/css/*.min.css' | tee frontend-build-diff.txt
+            git diff --stat -- 'public/assets' 'assets/css/*.css' 'assets/css/*.min.css' | tee frontend-build-diff.txt
             exit 1
           fi
           echo "Assets match committed files."
@@ -343,7 +343,7 @@ jobs:
       - name: Save build diff on failure
         if: failure()
         run: |
-          git diff -- 'public/assets/dist' 'assets/css/*.css' 'assets/css/*.min.css' > frontend-build-diff.patch || true
+          git diff -- 'public/assets' 'assets/css/*.css' 'assets/css/*.min.css' > frontend-build-diff.patch || true
 
       - name: Upload build diff
         if: failure()
