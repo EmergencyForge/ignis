@@ -4920,6 +4920,11 @@ body:has(.ignis-dialog-backdrop.is-open) {
   }
 }
 
+// Bausteine des Redesigns (Button-Stufen, Chip- und Alert-Aliase, Tabellen
+// ohne DataTables): eigene Datei, nach den Grundformen geladen, damit ihre
+// Regeln bei gleicher Spezifität gewinnen.
+@include meta.load-css('components');
+
 // eNOTF-Skin der Komponenten: eigene Datei, wird an dieser Stelle geladen,
 // damit die Reihenfolge im gebauten CSS gleich bleibt.
 @include meta.load-css('enotf-skin');
