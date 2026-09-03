@@ -145,13 +145,21 @@ final class Navigation
         return self::normalize(is_string($path) ? $path : '/');
     }
 
+    /**
+     * BASE_PATH ohne Schrägstrich am Ende, also '' bei einer Installation in
+     * der Wurzel. Eigene Methode, damit PHPStan einen string sieht: es kennt
+     * nur den Fallback '/' aus config.php, der echte Wert kommt zur Laufzeit
+     * aus der Datenbank, und der Vergleich in normalize() wäre sonst „immer
+     * falsch".
+     */
+    private static function basePath(): string
+    {
+        return rtrim(defined('BASE_PATH') ? (string) BASE_PATH : '/', '/');
+    }
+
     private static function normalize(string $path): string
     {
-        // Der Name der Konstante steht in einer Variablen: BASE_PATH kommt zur
-        // Laufzeit aus der Datenbank, PHPStan kennt nur den Fallback '/' aus
-        // config.php und hielte den Vergleich unten sonst für immer falsch.
-        $constant = 'BASE_PATH';
-        $base = rtrim(defined($constant) ? (string) constant($constant) : '/', '/');
+        $base = self::basePath();
         if ($base !== '' && str_starts_with($path, $base)) {
             $path = substr($path, strlen($base));
         }
