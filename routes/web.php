@@ -37,6 +37,7 @@ use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PluginAssetController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StorageFileController;
 use App\Http\Controllers\UserController;
@@ -270,6 +271,15 @@ $router->post('/calendar/create',  [CalendarController::class, 'store'],        
 $router->post('/calendar/update',  [CalendarController::class, 'update'],        $calendarViewAuth);
 $router->post('/calendar/delete',  [CalendarController::class, 'destroy'],       $calendarViewAuth);
 $router->post('/calendar/respond', [CalendarController::class, 'respondInvite'], $calendarViewAuth);
+
+// ----------------------------------------------------------------------------
+//  Eigenes Konto
+//
+//  Darstellungsmodus (dark|light|system), gepostet aus dem Benutzermenü der
+//  Navbar. Braucht nur ein Login, keine Permission.
+// ----------------------------------------------------------------------------
+
+$router->post('/profile/theme', [ProfileController::class, 'theme'], [new AuthMiddleware()]);
 
 // ----------------------------------------------------------------------------
 //  Mitarbeiter-Modul
