@@ -24,20 +24,18 @@ if (banner) {
     banner.classList.remove('d-none');
   };
 
-  Promise.allSettled([
-    fetchJson('api/health'),
-    fetchJson('assets/functions/rewrite-probe'),
-  ]).then(([healthResult, rewriteResult]) => {
-    const healthOk = healthResult.status === 'fulfilled'
-      && healthResult.value
-      && typeof healthResult.value.checks === 'object';
-    const rewriteOk = rewriteResult.status === 'fulfilled'
-      && rewriteResult.value?.probe === 'extensionless-php-rewrite';
+  // /api/health ist eine Router-URL. Kommt sie nicht an, greift der
+  // Front-Controller nicht, und nichts außer echten Dateien funktioniert.
+  fetchJson('api/health').then((health) => {
+    if (!health || typeof health.checks !== 'object') {
+      throw new Error('unexpected payload');
+    }
 
-    if (!healthOk || !rewriteOk) {
+    const rewrite = health.checks.rewrite;
+    if (rewrite?.document_root === 'fallback') {
       showWarning(
-        'URL-Rewriting funktioniert nicht.',
-        '.htaccess, mod_rewrite und AllowOverride müssen für diese Installation aktiv sein.',
+        'Document-Root zeigt noch auf das Projektverzeichnis.',
+        'Die Root-.htaccess reicht Anfragen nach public/ durch. Sicherer ist ein Document-Root direkt auf public/.',
       );
       return;
     }
@@ -47,7 +45,7 @@ if (banner) {
       process_control: 'Prozessfunktionen für Updates/Cron',
       php_extensions: 'benötigte PHP-Erweiterungen',
     };
-    const degraded = Object.entries(healthResult.value.checks)
+    const degraded = Object.entries(health.checks)
       .filter(([key, check]) => labels[key] && check?.status !== 'ok')
       .map(([key]) => labels[key]);
 
@@ -57,5 +55,10 @@ if (banner) {
         `Bitte prüfen: ${degraded.join(', ')}.`,
       );
     }
+  }).catch(() => {
+    showWarning(
+      'URL-Rewriting funktioniert nicht.',
+      'Der Front-Controller (public/index.php) ist nicht erreichbar. Document-Root, .htaccess, mod_rewrite und AllowOverride müssen für diese Installation stimmen.',
+    );
   });
 }
