@@ -4,7 +4,6 @@
  *
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles
  * @var array<string, array<string, string>>                            $permissionGroups
- * @var \PDO                                                            $pdo
  */
 
 use App\Auth\Gate;

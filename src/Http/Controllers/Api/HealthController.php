@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Request;
 use App\Http\Response;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * `GET /healthz` — Machinen-lesbarer System-Health-Check.
@@ -36,10 +36,6 @@ use PDO;
  */
 final class HealthController
 {
-    public function __construct(private readonly PDO $pdo)
-    {
-    }
-
     public function index(Request $request): Response
     {
         $checks = [
@@ -73,7 +69,10 @@ final class HealthController
     {
         $start = microtime(true);
         try {
-            $this->pdo->query('SELECT 1');
+            // Expliziter Connectivity-Check über die Eloquent-Connection —
+            // das ist die Verbindung, über die die Anwendung ihre Queries
+            // fährt, also die, deren Erreichbarkeit hier zählt.
+            Capsule::connection()->select('SELECT 1');
             $ms = (int) round((microtime(true) - $start) * 1000);
             return ['status' => 'ok', 'ms' => $ms];
         } catch (\Throwable $e) {
@@ -87,8 +86,8 @@ final class HealthController
     private function checkQueue(): array
     {
         try {
-            $pending = (int) $this->pdo->query('SELECT COUNT(*) FROM intra_jobs')->fetchColumn();
-            $failed  = (int) $this->pdo->query('SELECT COUNT(*) FROM intra_failed_jobs')->fetchColumn();
+            $pending = Capsule::table('intra_jobs')->count();
+            $failed  = Capsule::table('intra_failed_jobs')->count();
 
             // Warnung wenn zu viele Pending-Jobs gestaut — Worker läuft nicht?
             $status = $pending > 500 ? 'degraded' : 'ok';
@@ -130,9 +129,8 @@ final class HealthController
     private function checkMigrations(): array
     {
         try {
-            $stmt = $this->pdo->query('SELECT MAX(version) FROM phinxlog');
-            $latest = $stmt !== false ? $stmt->fetchColumn() : null;
-            if ($latest === null || $latest === false) {
+            $latest = Capsule::table('phinxlog')->max('version');
+            if ($latest === null) {
                 return ['status' => 'down', 'error' => 'no-migrations-applied'];
             }
             return ['status' => 'ok', 'latest' => (string) $latest];

@@ -6,7 +6,6 @@
  *   @var \App\Models\User                                                    $target
  *   @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role>     $availableRoles
  *   @var \Illuminate\Support\Collection|array                                $auditEntries
- *   @var \PDO                                                                $pdo (legacy compat)
  */
 
 use App\Auth\Gate;

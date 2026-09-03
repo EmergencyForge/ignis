@@ -25,43 +25,39 @@ use App\Auth\Permissions;
         // Pruefe ob is_archived Spalte existiert (Abwaertskompatibilitaet)
         $hasArchived = false;
         try {
-            $colCheck = $pdo->prepare("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'intra_mitarbeiter_dokumente' AND COLUMN_NAME = 'is_archived'");
-            $colCheck->execute();
-            $hasArchived = (bool) $colCheck->fetchColumn();
+            $hasArchived = \Illuminate\Database\Capsule\Manager::schema()
+                ->hasColumn('intra_mitarbeiter_dokumente', 'is_archived');
         } catch (\PDOException $e) { /* ignore */ }
 
         $archivedCol = $hasArchived ? 'pd.is_archived' : '0 as is_archived';
 
-        $query = "
-    SELECT
-        pd.docid,
-        pd.ausstellerid,
-        pd.ausstellungsdatum,
-        pd.type,
-        pd.template_id,
-        pd.aussteller_name,
-        pd.pdf_path,
-        {$archivedCol},
-        u.discord_id AS user_id,
-        COALESCE(m.fullname, u.fullname) as fullname,
-        u.aktenid,
-        t.name as template_name,
-        t.category as template_category,
-        dk.color as category_color,
-        dk.name as category_name,
-        COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name
-    FROM intra_mitarbeiter_dokumente pd
-    LEFT JOIN intra_users u ON pd.ausstellerid = u.discord_id
-    LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
-    LEFT JOIN intra_dokument_templates t ON pd.template_id = t.id
-    LEFT JOIN intra_dokument_kategorien dk ON t.category_id = dk.id
-    WHERE pd.profileid = :profileid
-    ORDER BY pd.ausstellungsdatum DESC
-";
-
-        $stmt = $pdo->prepare($query);
-        $stmt->execute(['profileid' => $openedID]);
-        $dokuresult = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $dokuresult = \Illuminate\Database\Capsule\Manager::table('intra_mitarbeiter_dokumente as pd')
+            ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
+            ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+            ->leftJoin('intra_dokument_templates as t', 'pd.template_id', '=', 't.id')
+            ->leftJoin('intra_dokument_kategorien as dk', 't.category_id', '=', 'dk.id')
+            ->where('pd.profileid', $openedID)
+            ->orderByDesc('pd.ausstellungsdatum')
+            ->get([
+                'pd.docid',
+                'pd.ausstellerid',
+                'pd.ausstellungsdatum',
+                'pd.type',
+                'pd.template_id',
+                'pd.aussteller_name',
+                'pd.pdf_path',
+                \Illuminate\Database\Capsule\Manager::raw($archivedCol),
+                'u.discord_id AS user_id',
+                \Illuminate\Database\Capsule\Manager::raw('COALESCE(m.fullname, u.fullname) as fullname'),
+                'u.aktenid',
+                't.name as template_name',
+                't.category as template_category',
+                'dk.color as category_color',
+                'dk.name as category_name',
+                \Illuminate\Database\Capsule\Manager::raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
+            ])
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
 
         foreach ($dokuresult as $doks) {

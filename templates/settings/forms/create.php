@@ -4,7 +4,6 @@
  *
  * @var int                 $defaultSort
  * @var array<string,mixed> $old
- * @var \PDO                $pdo
  */
 
 use App\Helpers\Flash;

@@ -2,6 +2,7 @@
 
 namespace App\Documents;
 
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDO;
 
 /**
@@ -10,19 +11,24 @@ use PDO;
  * Die 10 System-Templates folgen bekannten Layout-Patterns.
  * Statt HTML-Parsing wird pro Template-Typ ein vorkonfiguriertes
  * JSON-Layout generiert, das die gleiche visuelle Struktur abbildet.
+ *
+ * Läuft in zwei Umgebungen: Die Phinx-Migration 20250607000140 übergibt
+ * ihre eigene PDO-Verbindung — dann laufen alle Queries darüber, ganz ohne
+ * gebootete Eloquent-Capsule. Ohne Argument (App-Kontext) wird stattdessen
+ * die Capsule verwendet.
  */
 class TwigToVisualMigrator
 {
-    private PDO $pdo;
+    private ?PDO $pdo;
     private TemplateLayoutManager $layoutManager;
 
     /** Pixel pro mm bei 96dpi */
     private const PX = 3.7795;
 
-    public function __construct(PDO $pdo)
+    public function __construct(?PDO $pdo = null)
     {
         $this->pdo = $pdo;
-        $this->layoutManager = new TemplateLayoutManager($pdo);
+        $this->layoutManager = new TemplateLayoutManager();
     }
 
     /**
@@ -31,11 +37,21 @@ class TwigToVisualMigrator
      */
     public function migrateAll(): array
     {
-        $stmt = $this->pdo->query("
-            SELECT * FROM intra_dokument_templates
-            WHERE editor_type = 'twig' OR editor_type IS NULL
-        ");
-        $templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->query("
+                SELECT * FROM intra_dokument_templates
+                WHERE editor_type = 'twig' OR editor_type IS NULL
+            ");
+            $templates = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $templates = Capsule::table('intra_dokument_templates')
+                ->where(function ($query) {
+                    $query->where('editor_type', 'twig')->orWhereNull('editor_type');
+                })
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
+        }
 
         $results = [];
         foreach ($templates as $template) {
@@ -56,9 +72,14 @@ class TwigToVisualMigrator
     public function migrate(int $templateId, ?array $template = null): void
     {
         if (!$template) {
-            $stmt = $this->pdo->prepare("SELECT * FROM intra_dokument_templates WHERE id = :id");
-            $stmt->execute(['id' => $templateId]);
-            $template = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($this->pdo !== null) {
+                $stmt = $this->pdo->prepare("SELECT * FROM intra_dokument_templates WHERE id = :id");
+                $stmt->execute(['id' => $templateId]);
+                $template = $stmt->fetch(PDO::FETCH_ASSOC);
+            } else {
+                $row = Capsule::table('intra_dokument_templates')->where('id', $templateId)->first();
+                $template = $row !== null ? (array) $row : null;
+            }
         }
 
         if (!$template) {
@@ -66,12 +87,21 @@ class TwigToVisualMigrator
         }
 
         // Lade Template-Felder
-        $stmt = $this->pdo->prepare("
-            SELECT * FROM intra_dokument_template_fields
-            WHERE template_id = :id ORDER BY sort_order ASC
-        ");
-        $stmt->execute(['id' => $templateId]);
-        $fields = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($this->pdo !== null) {
+            $stmt = $this->pdo->prepare("
+                SELECT * FROM intra_dokument_template_fields
+                WHERE template_id = :id ORDER BY sort_order ASC
+            ");
+            $stmt->execute(['id' => $templateId]);
+            $fields = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            $fields = Capsule::table('intra_dokument_template_fields')
+                ->where('template_id', $templateId)
+                ->orderBy('sort_order')
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
+        }
 
         // Erkenne Template-Typ und generiere passendes Layout
         $templateFile = $template['template_file'] ?? '';
@@ -84,7 +114,70 @@ class TwigToVisualMigrator
         ]);
 
         // Speichere Layout
-        $this->layoutManager->saveLayout($templateId, $canvasJson);
+        $this->saveLayout($templateId, $canvasJson);
+    }
+
+    /**
+     * Speichert das generierte Layout — über die übergebene PDO-Verbindung
+     * (Phinx-Kontext) oder den TemplateLayoutManager (App-Kontext).
+     */
+    private function saveLayout(int $templateId, string $canvasJson): void
+    {
+        if ($this->pdo === null) {
+            $this->layoutManager->saveLayout($templateId, $canvasJson);
+            return;
+        }
+
+        // Validierung ist DB-frei und kann geteilt werden
+        $this->layoutManager->validateCanvasJson($canvasJson);
+
+        $stmt = $this->pdo->prepare("
+            SELECT version FROM intra_dokument_template_layouts
+            WHERE template_id = :template_id AND is_active = 1
+            ORDER BY version DESC
+            LIMIT 1
+        ");
+        $stmt->execute(['template_id' => $templateId]);
+        $currentVersion = $stmt->fetchColumn();
+
+        if ($currentVersion !== false) {
+            $deactivate = $this->pdo->prepare("
+                UPDATE intra_dokument_template_layouts
+                SET is_active = 0
+                WHERE template_id = :template_id AND is_active = 1
+            ");
+            $deactivate->execute(['template_id' => $templateId]);
+
+            $newVersion = ((int) $currentVersion) + 1;
+        } else {
+            $newVersion = 1;
+        }
+
+        $insert = $this->pdo->prepare("
+            INSERT INTO intra_dokument_template_layouts
+            (template_id, version, canvas_json, page_width_mm, page_height_mm, is_active, created_by)
+            VALUES (:template_id, :version, :canvas_json, :page_width_mm, :page_height_mm, 1, :created_by)
+        ");
+        $insert->execute([
+            'template_id' => $templateId,
+            'version' => $newVersion,
+            'canvas_json' => $canvasJson,
+            'page_width_mm' => 210.00,
+            'page_height_mm' => 297.00,
+            'created_by' => $_SESSION['user_id'] ?? null,
+        ]);
+
+        $layoutId = (int) $this->pdo->lastInsertId();
+
+        $link = $this->pdo->prepare("
+            UPDATE intra_dokument_templates
+            SET layout_id = :layout_id, editor_type = 'visual'
+            WHERE id = :template_id
+        ");
+        $link->execute([
+            'layout_id' => $layoutId,
+            'template_id' => $templateId,
+        ]);
     }
 
     /**

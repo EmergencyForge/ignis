@@ -2,11 +2,11 @@
 
 namespace App\Personnel;
 
-use PDO;
+use App\Models\PersonnelLog;
 
 /**
  * PersonalLogManager
- * 
+ *
  * Centralized service for managing employee profile log entries.
  * Replaces hardcoded log creation with a structured, maintainable approach.
  */
@@ -21,16 +21,9 @@ class PersonalLogManager
     public const TYPE_CREATED = 6;        // Profile created
     public const TYPE_DOCUMENT = 7;       // Document created
 
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
-
     /**
      * Add a new log entry
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param int $type Log entry type (use TYPE_* constants)
      * @param string $content Log entry content
@@ -45,25 +38,20 @@ class PersonalLogManager
         string $panelUser,
         ?array $metadata = null
     ): int {
-        $stmt = $this->pdo->prepare(
-            "INSERT INTO intra_mitarbeiter_log (profilid, type, content, paneluser, metadata) 
-             VALUES (:profileId, :type, :content, :panelUser, :metadata)"
-        );
-        
-        $stmt->execute([
-            'profileId' => $profileId,
+        $entry = PersonnelLog::create([
+            'profilid' => $profileId,
             'type' => $type,
             'content' => $content,
-            'panelUser' => $panelUser,
-            'metadata' => $metadata ? json_encode($metadata) : null
+            'paneluser' => $panelUser,
+            'metadata' => $metadata ? json_encode($metadata) : null,
         ]);
 
-        return (int) $this->pdo->lastInsertId();
+        return (int) $entry->logid;
     }
 
     /**
      * Log a rank change
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param string $oldRankName Old rank name
      * @param string $newRankName New rank name
@@ -93,7 +81,7 @@ class PersonalLogManager
 
     /**
      * Log a qualification change (RD or FW)
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param string $qualificationType Type of qualification ('RD' or 'FW')
      * @param string $oldQualification Old qualification name
@@ -127,7 +115,7 @@ class PersonalLogManager
 
     /**
      * Log a profile data modification
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param string $panelUser User who made the change
      * @param array|null $changedFields Optional array of changed field names
@@ -150,7 +138,7 @@ class PersonalLogManager
 
     /**
      * Log department/Fachdienste modification
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param string $panelUser User who made the change
      * @return int Log entry ID
@@ -168,7 +156,7 @@ class PersonalLogManager
 
     /**
      * Log document creation
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param int $documentId Document ID
      * @param string $panelUser User who created the document
@@ -182,7 +170,7 @@ class PersonalLogManager
         ?string $basePath = null
     ): int {
         $basePath = $basePath ?? (defined('BASE_PATH') ? BASE_PATH : '');
-        
+
         $content = sprintf(
             'Ein neues Dokument (<a href="%smitarbeiter/dokument-view?docid=%d" target="_blank">#%d</a>) wurde erstellt.',
             $basePath,
@@ -200,7 +188,7 @@ class PersonalLogManager
 
     /**
      * Log profile creation
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param string $panelUser User who created the profile
      * @return int Log entry ID
@@ -218,7 +206,7 @@ class PersonalLogManager
 
     /**
      * Add a manual note/comment
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param int $noteType Note type (TYPE_NOTE, TYPE_POSITIVE, or TYPE_NEGATIVE)
      * @param string $content Note content
@@ -240,7 +228,7 @@ class PersonalLogManager
 
     /**
      * Get log entries for a profile with pagination
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param int $page Page number (1-indexed)
      * @param int $perPage Items per page
@@ -251,30 +239,23 @@ class PersonalLogManager
     {
         $offset = ($page - 1) * $perPage;
 
-        // Build WHERE clause for type filter
-        $whereClause = "profilid = ?";
-        $params = [$profileId];
-        
+        $query = PersonnelLog::where('profilid', $profileId);
+
         if ($typeFilter !== null && !empty($typeFilter)) {
-            $placeholders = str_repeat('?,', count($typeFilter) - 1) . '?';
-            $whereClause .= " AND type IN ($placeholders)";
-            $params = array_merge($params, $typeFilter);
+            $query->whereIn('type', $typeFilter);
         }
 
         // Get total count
-        $countStmt = $this->pdo->prepare("SELECT COUNT(*) FROM intra_mitarbeiter_log WHERE $whereClause");
-        $countStmt->execute($params);
-        $total = (int) $countStmt->fetchColumn();
+        $total = (clone $query)->count();
 
         // Get entries for current page
-        $stmt = $this->pdo->prepare(
-            "SELECT * FROM intra_mitarbeiter_log 
-             WHERE $whereClause
-             ORDER BY datetime DESC 
-             LIMIT ?, ?"
-        );
-        $stmt->execute(array_merge($params, [$offset, $perPage]));
-        $entries = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $entries = $query
+            ->orderByDesc('datetime')
+            ->offset($offset)
+            ->limit($perPage)
+            ->get()
+            ->map(fn (PersonnelLog $entry) => $entry->getAttributes())
+            ->all();
 
         // Parse metadata JSON
         foreach ($entries as &$entry) {
@@ -292,7 +273,7 @@ class PersonalLogManager
     /**
      * Get comments (manual notes) for a profile with pagination
      * Comments are types 0, 1, 2 (NOTE, POSITIVE, NEGATIVE)
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param int $page Page number (1-indexed)
      * @param int $perPage Items per page
@@ -310,7 +291,7 @@ class PersonalLogManager
     /**
      * Get system logs (auto-generated entries) for a profile with pagination
      * System logs are types 4, 5, 6, 7 (RANK_CHANGE, MODIFICATION, CREATED, DOCUMENT)
-     * 
+     *
      * @param int $profileId Employee profile ID
      * @param int $page Page number (1-indexed)
      * @param int $perPage Items per page
@@ -328,19 +309,19 @@ class PersonalLogManager
 
     /**
      * Delete a log entry
-     * 
+     *
      * @param int $logId Log entry ID
      * @return bool Success status
      */
     public function deleteEntry(int $logId): bool
     {
-        $stmt = $this->pdo->prepare("DELETE FROM intra_mitarbeiter_log WHERE logid = ?");
-        return $stmt->execute([$logId]);
+        PersonnelLog::where('logid', $logId)->delete();
+        return true;
     }
 
     /**
      * Get the type name for a log entry type
-     * 
+     *
      * @param int $type Log entry type
      * @return string Type name
      */

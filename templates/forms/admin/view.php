@@ -6,7 +6,6 @@
  * @var array<int,\stdClass>                        $felderMitWerten
  * @var array{class:string,text:string,icon:string} $currentStatus
  * @var string                                       $currentUserFullname
- * @var \PDO                                         $pdo
  */
 
 use App\Helpers\Flash;

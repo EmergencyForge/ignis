@@ -6,7 +6,6 @@ namespace App\Http\Controllers;
 
 use App\Auth\Gate;
 use App\Helpers\Flash;
-use PDO;
 
 /**
  * Base-Klasse für alle HTTP-Controller in intraRP.
@@ -19,16 +18,9 @@ use PDO;
  *
  * Middleware-Pipeline übernommen — bis dahin bleiben sie hier als Inline-
  * Helper für die Stub-basierte Routing-Welt.
- *
- * Konkrete Controller bekommen $pdo via Constructor-Injection. PHP-DI macht
- * das Autowiring automatisch, wenn sie diesen Constructor erben.
  */
 abstract class Controller
 {
-    public function __construct(
-        protected PDO $pdo,
-    ) {}
-
     /**
      * Stellt sicher, dass ein User eingeloggt ist. Sonst Redirect zu login.php
      * mit gespeichertem Redirect-Ziel.
@@ -77,10 +69,6 @@ abstract class Controller
      * in den lokalen Scope geschoben, damit das Template direkt darauf zugreifen
      * kann ($users statt $viewData['users']).
      *
-     * Stellt zusätzlich `$pdo` im Template-Scope bereit, weil die Partials
-     * (navbar.php, global-announcements.php, footer.php, ...) die Variable
-     * als lokale Referenz erwarten.
-     *
      * Views werden relativ zu viewBasePath() aufgelöst — Controller in
      * Plugins überschreiben die Methode und zeigen auf ihr eigenes
      * templates/-Verzeichnis.
@@ -102,9 +90,6 @@ abstract class Controller
         if (!is_file($templatePath)) {
             throw new \RuntimeException("View not found: $view ($templatePath)");
         }
-        // Legacy-Compat: bestehende Partials erwarten ein lokales $pdo
-        $pdo = $this->pdo;
-
         extract($data, EXTR_SKIP);
 
         // Output-Buffer um die ganze Template-Render-Phase. Wenn das Template

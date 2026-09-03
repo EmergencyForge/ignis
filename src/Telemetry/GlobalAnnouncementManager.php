@@ -2,29 +2,24 @@
 
 namespace App\Telemetry;
 
-use PDO;
-
-require_once __DIR__ . '/../Config/ConfigManager.php';
-
 use App\Config\ConfigManager;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * GlobalAnnouncementManager - Holt und verwaltet globale Announcements vom Hub
- * 
+ *
  * Announcements werden gecacht und periodisch aktualisiert.
  * Benutzer können Announcements ausblenden (dismiss).
  */
 class GlobalAnnouncementManager
 {
-    private PDO $pdo;
     private ConfigManager $config;
 
     public const CACHE_DURATION = 3600; // 1 Stunde
 
-    public function __construct(PDO $pdo)
+    public function __construct()
     {
-        $this->pdo = $pdo;
-        $this->config = new ConfigManager($pdo);
+        $this->config = new ConfigManager();
     }
 
     public function isEnabled(): bool
@@ -40,12 +35,13 @@ class GlobalAnnouncementManager
     public function enable(): bool
     {
         try {
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_config 
-                SET config_value = 'true', updated_at = NOW()
-                WHERE config_key = 'ANNOUNCEMENTS_ENABLED'
-            ");
-            return $stmt->execute();
+            Capsule::table('intra_config')
+                ->where('config_key', 'ANNOUNCEMENTS_ENABLED')
+                ->update([
+                    'config_value' => 'true',
+                    'updated_at'   => Capsule::raw('NOW()'),
+                ]);
+            return true;
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to enable announcements: " . $e->getMessage());
             return false;
@@ -55,12 +51,13 @@ class GlobalAnnouncementManager
     public function disable(): bool
     {
         try {
-            $stmt = $this->pdo->prepare("
-                UPDATE intra_config 
-                SET config_value = 'false', updated_at = NOW()
-                WHERE config_key = 'ANNOUNCEMENTS_ENABLED'
-            ");
-            return $stmt->execute();
+            Capsule::table('intra_config')
+                ->where('config_key', 'ANNOUNCEMENTS_ENABLED')
+                ->update([
+                    'config_value' => 'false',
+                    'updated_at'   => Capsule::raw('NOW()'),
+                ]);
+            return true;
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to disable announcements: " . $e->getMessage());
             return false;
@@ -87,33 +84,36 @@ class GlobalAnnouncementManager
         }
 
         try {
-            $sql = "
-                SELECT c.* FROM intra_global_announcements_cache c
-                WHERE (c.valid_from IS NULL OR c.valid_from <= NOW())
-                AND (c.valid_until IS NULL OR c.valid_until >= NOW())
-            ";
-            $params = [];
+            $query = Capsule::table('intra_global_announcements_cache')
+                ->where(function ($q) {
+                    $q->whereNull('valid_from')->orWhereRaw('valid_from <= NOW()');
+                })
+                ->where(function ($q) {
+                    $q->whereNull('valid_until')->orWhereRaw('valid_until >= NOW()');
+                });
 
             // Admin-Only Filter: Nur Admins sehen admin_only Announcements
             if (!$isAdmin) {
-                $sql .= " AND (c.admin_only IS NULL OR c.admin_only = 0)";
+                $query->where(function ($q) {
+                    $q->whereNull('admin_only')->orWhere('admin_only', 0);
+                });
             }
 
             // Ausgeblendete Announcements ausfiltern
             if ($userId !== null) {
-                $sql .= " AND c.announcement_id NOT IN (
-                    SELECT announcement_id FROM intra_global_announcements_dismissed 
-                    WHERE user_id = ?
-                )";
-                $params[] = $userId;
+                $query->whereNotIn('announcement_id', function ($q) use ($userId) {
+                    $q->select('announcement_id')
+                        ->from('intra_global_announcements_dismissed')
+                        ->where('user_id', $userId);
+                });
             }
 
-            $sql .= " ORDER BY c.priority DESC, c.valid_from DESC";
-
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute($params);
-
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $query
+                ->orderByDesc('priority')
+                ->orderByDesc('valid_from')
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to get announcements: " . $e->getMessage());
             return [];
@@ -126,12 +126,12 @@ class GlobalAnnouncementManager
     public function dismissAnnouncement(string $announcementId, int $userId): bool
     {
         try {
-            $stmt = $this->pdo->prepare("
-                INSERT IGNORE INTO intra_global_announcements_dismissed 
-                (announcement_id, user_id, dismissed_at)
-                VALUES (?, ?, NOW())
-            ");
-            return $stmt->execute([$announcementId, $userId]);
+            Capsule::table('intra_global_announcements_dismissed')->insertOrIgnore([
+                'announcement_id' => $announcementId,
+                'user_id'         => $userId,
+                'dismissed_at'    => Capsule::raw('NOW()'),
+            ]);
+            return true;
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to dismiss announcement: " . $e->getMessage());
             return false;
@@ -144,17 +144,13 @@ class GlobalAnnouncementManager
     public function isCacheStale(): bool
     {
         try {
-            $stmt = $this->pdo->query("
-                SELECT MAX(fetched_at) as last_fetch
-                FROM intra_global_announcements_cache
-            ");
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $lastFetchValue = Capsule::table('intra_global_announcements_cache')->max('fetched_at');
 
-            if (!$result || !$result['last_fetch']) {
+            if (!$lastFetchValue) {
                 return true;
             }
 
-            $lastFetch = strtotime($result['last_fetch']);
+            $lastFetch = strtotime($lastFetchValue);
             return (time() - $lastFetch) >= self::CACHE_DURATION;
         } catch (\PDOException $e) {
             return false;
@@ -167,18 +163,14 @@ class GlobalAnnouncementManager
     private function refreshCacheIfNeeded(): void
     {
         try {
-            $stmt = $this->pdo->query("
-                SELECT MAX(fetched_at) as last_fetch 
-                FROM intra_global_announcements_cache
-            ");
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $lastFetchValue = Capsule::table('intra_global_announcements_cache')->max('fetched_at');
 
-            if (!$result || !$result['last_fetch']) {
+            if (!$lastFetchValue) {
                 $this->refreshCache();
                 return;
             }
 
-            $lastFetch = strtotime($result['last_fetch']);
+            $lastFetch = strtotime($lastFetchValue);
             if ((time() - $lastFetch) >= self::CACHE_DURATION) {
                 $this->refreshCache();
             }
@@ -196,7 +188,7 @@ class GlobalAnnouncementManager
         $endpoint = rtrim($hubUrl, '/') . '/api/hub-announcements.php';
 
         // Installation-ID und Version für optionales Filtering
-        $telemetry = new TelemetryManager($this->pdo);
+        $telemetry = new TelemetryManager();
         $installationId = $telemetry->getOrCreateInstallationId();
 
         $queryParams = http_build_query([
@@ -226,34 +218,27 @@ class GlobalAnnouncementManager
             }
 
             // Cache leeren und neu befüllen
-            $this->pdo->exec("DELETE FROM intra_global_announcements_cache");
+            Capsule::table('intra_global_announcements_cache')->delete();
 
             $announcements = $data['announcements'] ?? [];
 
-            if (!empty($announcements)) {
-                $stmt = $this->pdo->prepare("
-                    INSERT INTO intra_global_announcements_cache 
-                    (announcement_id, type, title, message, link, priority, admin_only, valid_from, valid_until, fetched_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-                ");
+            foreach ($announcements as $ann) {
+                // valid_from/valid_until: leere Strings als NULL behandeln
+                $validFrom = !empty($ann['valid_from']) ? $ann['valid_from'] : null;
+                $validUntil = !empty($ann['valid_until']) ? $ann['valid_until'] : null;
 
-                foreach ($announcements as $ann) {
-                    // valid_from/valid_until: leere Strings als NULL behandeln
-                    $validFrom = !empty($ann['valid_from']) ? $ann['valid_from'] : null;
-                    $validUntil = !empty($ann['valid_until']) ? $ann['valid_until'] : null;
-
-                    $stmt->execute([
-                        $ann['id'],
-                        $ann['type'] ?? 'info',
-                        $ann['title'],
-                        $ann['message'] ?? null,
-                        $ann['link'] ?? null,
-                        $ann['priority'] ?? 0,
-                        $ann['admin_only'] ?? 0,
-                        $validFrom,
-                        $validUntil,
-                    ]);
-                }
+                Capsule::table('intra_global_announcements_cache')->insert([
+                    'announcement_id' => $ann['id'],
+                    'type'            => $ann['type'] ?? 'info',
+                    'title'           => $ann['title'],
+                    'message'         => $ann['message'] ?? null,
+                    'link'            => $ann['link'] ?? null,
+                    'priority'        => $ann['priority'] ?? 0,
+                    'admin_only'      => $ann['admin_only'] ?? 0,
+                    'valid_from'      => $validFrom,
+                    'valid_until'     => $validUntil,
+                    'fetched_at'      => Capsule::raw('NOW()'),
+                ]);
             }
 
             // Hub-seitig angeforderte Heartbeats prüfen (Admin-Aktion
@@ -290,7 +275,7 @@ class GlobalAnnouncementManager
         }
 
         try {
-            $telemetry = new TelemetryManager($this->pdo);
+            $telemetry = new TelemetryManager();
             if (!$telemetry->isEnabled()) {
                 return;
             }
@@ -312,12 +297,9 @@ class GlobalAnnouncementManager
     public function cleanupOldDismissals(int $days = 90): int
     {
         try {
-            $stmt = $this->pdo->prepare("
-                DELETE FROM intra_global_announcements_dismissed 
-                WHERE dismissed_at < DATE_SUB(NOW(), INTERVAL ? DAY)
-            ");
-            $stmt->execute([$days]);
-            return $stmt->rowCount();
+            return Capsule::table('intra_global_announcements_dismissed')
+                ->whereRaw('dismissed_at < DATE_SUB(NOW(), INTERVAL ? DAY)', [$days])
+                ->delete();
         } catch (\PDOException $e) {
             \App\Logging\Logger::warning("Failed to cleanup dismissals: " . $e->getMessage());
             return 0;
@@ -330,11 +312,12 @@ class GlobalAnnouncementManager
     public function getCacheInfo(): array
     {
         try {
-            $stmt = $this->pdo->query("SELECT COUNT(*) as count, MAX(fetched_at) as last_fetch FROM intra_global_announcements_cache");
-            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $result = Capsule::table('intra_global_announcements_cache')
+                ->selectRaw('COUNT(*) as count, MAX(fetched_at) as last_fetch')
+                ->first();
             return [
-                'count' => (int)($result['count'] ?? 0),
-                'last_fetch' => $result['last_fetch'] ?? null,
+                'count' => (int) ($result->count ?? 0),
+                'last_fetch' => $result->last_fetch ?? null,
             ];
         } catch (\PDOException $e) {
             return ['count' => 0, 'last_fetch' => null, 'error' => $e->getMessage()];
@@ -347,24 +330,27 @@ class GlobalAnnouncementManager
     public function getAllCached(): array
     {
         try {
-            $stmt = $this->pdo->query("SELECT * FROM intra_global_announcements_cache ORDER BY priority DESC");
-            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            return Capsule::table('intra_global_announcements_cache')
+                ->orderByDesc('priority')
+                ->get()
+                ->map(fn ($row) => (array) $row)
+                ->all();
         } catch (\PDOException $e) {
             return [];
         }
     }
 
     /**
-     * Gibt das Bootstrap-Alert-Klasse für einen Announcement-Typ zurück
+     * Gibt die ignis-Alert-Variantenklasse für einen Announcement-Typ zurück
      */
     public static function getAlertClass(string $type): string
     {
         return match ($type) {
-            'critical' => 'alert-danger',
-            'warning' => 'alert-warning',
-            'success' => 'alert-success',
-            'update' => 'alert-primary',
-            default => 'alert-info',
+            'critical' => 'ignis-alert--danger',
+            'warning' => 'ignis-alert--warning',
+            'success' => 'ignis-alert--success',
+            'update' => 'ignis-alert--info',
+            default => 'ignis-alert--info',
         };
     }
 
@@ -376,8 +362,8 @@ class GlobalAnnouncementManager
         return match ($type) {
             'critical' => 'fa-circle-exclamation',
             'warning' => 'fa-triangle-exclamation',
-            'success' => 'fa-circle-check',
             'update' => 'fa-arrow-up-from-bracket',
+            'success' => 'fa-circle-check',
             default => 'fa-circle-info',
         };
     }

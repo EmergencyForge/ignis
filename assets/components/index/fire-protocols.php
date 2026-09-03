@@ -9,26 +9,29 @@
     </thead>
     <tbody>
         <?php
-        $stmtFire = $pdo->prepare("
-            SELECT 
-                i.id,
-                i.incident_number,
-                i.location,
-                i.keyword,
-                i.started_at,
-                i.status,
-                i.finalized,
-                i.finalized_at,
-                i.leader_id,
-                m.fullname AS leader_name
-            FROM intra_fire_incidents i
-            LEFT JOIN intra_mitarbeiter m ON i.leader_id = m.id
-            WHERE i.leader_id = (SELECT id FROM intra_mitarbeiter WHERE discordtag = :discordtag)
-            AND i.archived = 0
-            ORDER BY i.created_at DESC
-        ");
-        $stmtFire->execute(['discordtag' => $_SESSION['discordtag']]);
-        $fireRows = $stmtFire->fetchAll(PDO::FETCH_ASSOC);
+        $fireRows = \Illuminate\Database\Capsule\Manager::table('intra_fire_incidents as i')
+            ->leftJoin('intra_mitarbeiter as m', 'i.leader_id', '=', 'm.id')
+            ->where('i.leader_id', '=', function ($q) {
+                $q->select('id')
+                    ->from('intra_mitarbeiter')
+                    ->where('discordtag', $_SESSION['discordtag']);
+            })
+            ->where('i.archived', 0)
+            ->orderByDesc('i.created_at')
+            ->get([
+                'i.id',
+                'i.incident_number',
+                'i.location',
+                'i.keyword',
+                'i.started_at',
+                'i.status',
+                'i.finalized',
+                'i.finalized_at',
+                'i.leader_id',
+                'm.fullname AS leader_name',
+            ])
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         if (empty($fireRows)) {
             echo "<tr><td colspan='6'>

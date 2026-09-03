@@ -8,10 +8,9 @@
     </thead>
     <tbody>
         <?php
-        $userQuery = "SELECT id FROM intra_mitarbeiter WHERE discordtag = :discordtag LIMIT 1";
-        $userStmt = $pdo->prepare($userQuery);
-        $userStmt->execute(['discordtag' => $_SESSION['discordtag']]);
-        $userData = $userStmt->fetch(PDO::FETCH_ASSOC);
+        $userData = \App\Models\Personnel::query()
+            ->where('discordtag', $_SESSION['discordtag'])
+            ->first(['id']);
 
         if (!$userData) {
             echo "<tr><td colspan='5'>
@@ -22,36 +21,33 @@
                 </div>
             </td></tr>";
         } else {
-            $profileid = $userData['id'];
+            $profileid = $userData->id;
 
-            $query = "
-        SELECT
-            pd.docid,
-            pd.ausstellerid,
-            pd.ausstellungsdatum,
-            pd.type,
-            pd.template_id,
-            pd.aussteller_name,
-            pd.pdf_path,
-            u.discord_id AS user_id,
-            COALESCE(m.fullname, u.fullname) as fullname,
-            u.aktenid,
-            t.name as template_name,
-            t.category as template_category,
-            dk.color as category_color,
-            COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name
-        FROM intra_mitarbeiter_dokumente pd
-        LEFT JOIN intra_users u ON pd.ausstellerid = u.discord_id
-        LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
-        LEFT JOIN intra_dokument_templates t ON pd.template_id = t.id
-        LEFT JOIN intra_dokument_kategorien dk ON t.category_id = dk.id
-        WHERE pd.profileid = :profileid
-        ORDER BY pd.ausstellungsdatum DESC
-    ";
-
-            $stmt = $pdo->prepare($query);
-            $stmt->execute(['profileid' => $profileid]);
-            $dokuresult = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $dokuresult = \Illuminate\Database\Capsule\Manager::table('intra_mitarbeiter_dokumente as pd')
+                ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
+                ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+                ->leftJoin('intra_dokument_templates as t', 'pd.template_id', '=', 't.id')
+                ->leftJoin('intra_dokument_kategorien as dk', 't.category_id', '=', 'dk.id')
+                ->where('pd.profileid', $profileid)
+                ->orderByDesc('pd.ausstellungsdatum')
+                ->get([
+                    'pd.docid',
+                    'pd.ausstellerid',
+                    'pd.ausstellungsdatum',
+                    'pd.type',
+                    'pd.template_id',
+                    'pd.aussteller_name',
+                    'pd.pdf_path',
+                    'u.discord_id AS user_id',
+                    \Illuminate\Database\Capsule\Manager::raw('COALESCE(m.fullname, u.fullname) as fullname'),
+                    'u.aktenid',
+                    't.name as template_name',
+                    't.category as template_category',
+                    'dk.color as category_color',
+                    \Illuminate\Database\Capsule\Manager::raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
+                ])
+                ->map(fn ($row) => (array) $row)
+                ->all();
 
             // Typ-Labels zentral aus DocumentTemplateManager
 

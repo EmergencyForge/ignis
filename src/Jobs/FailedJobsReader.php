@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Logging\Logger;
 use DateTime;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDO;
 use PDOException;
 
@@ -30,9 +31,13 @@ use PDOException;
  */
 final class FailedJobsReader
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
+    /**
+     * @param PDO|null $pdo Ungenutzt — Signatur bleibt für bestehende
+     *                      Aufrufer stabil.
+     */
+    public function __construct(?PDO $pdo = null)
+    {
+    }
 
     /**
      * Ist die Tabelle `intra_failed_jobs` überhaupt vorhanden? Wenn nicht,
@@ -42,8 +47,7 @@ final class FailedJobsReader
     public function tableExists(): bool
     {
         try {
-            $stmt = $this->pdo->query("SHOW TABLES LIKE 'intra_failed_jobs'");
-            return $stmt !== false && $stmt->fetch() !== false;
+            return Capsule::schema()->hasTable('intra_failed_jobs');
         } catch (PDOException $e) {
             return false;
         }
@@ -63,14 +67,13 @@ final class FailedJobsReader
         $limit = max(1, min(1000, $limit));
 
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT id, uuid, connection, queue, payload, exception, failed_at
-                FROM intra_failed_jobs
-                ORDER BY failed_at DESC, id DESC
-                LIMIT {$limit}
-            ");
-            $stmt->execute();
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $rows = Capsule::table('intra_failed_jobs')
+                ->orderByDesc('failed_at')
+                ->orderByDesc('id')
+                ->limit($limit)
+                ->get(['id', 'uuid', 'connection', 'queue', 'payload', 'exception', 'failed_at'])
+                ->map(fn ($row) => (array) $row)
+                ->all();
 
             return array_map(fn ($row) => $this->enrich($row), $rows);
         } catch (PDOException $e) {
@@ -91,13 +94,10 @@ final class FailedJobsReader
         }
 
         try {
-            $stmt = $this->pdo->prepare(
-                "SELECT id, uuid, connection, queue, payload, exception, failed_at
-                 FROM intra_failed_jobs WHERE id = :id LIMIT 1"
-            );
-            $stmt->execute([':id' => $id]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $row ? $this->enrich($row) : null;
+            $row = Capsule::table('intra_failed_jobs')
+                ->where('id', $id)
+                ->first(['id', 'uuid', 'connection', 'queue', 'payload', 'exception', 'failed_at']);
+            return $row !== null ? $this->enrich((array) $row) : null;
         } catch (PDOException $e) {
             Logger::error('FailedJobsReader: findById-Fehler', ['error' => $e->getMessage()]);
             return null;
@@ -126,27 +126,25 @@ final class FailedJobsReader
         try {
             $stats = $empty;
 
-            $totalStmt = $this->pdo->query("SELECT COUNT(*) FROM intra_failed_jobs");
-            $stats['total'] = (int) ($totalStmt ? $totalStmt->fetchColumn() : 0);
+            $stats['total'] = Capsule::table('intra_failed_jobs')->count();
 
-            $h24Stmt = $this->pdo->query(
-                "SELECT COUNT(*) FROM intra_failed_jobs WHERE failed_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)"
-            );
-            $stats['last_24h'] = (int) ($h24Stmt ? $h24Stmt->fetchColumn() : 0);
+            $stats['last_24h'] = Capsule::table('intra_failed_jobs')
+                ->whereRaw('failed_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)')
+                ->count();
 
-            $d7Stmt = $this->pdo->query(
-                "SELECT COUNT(*) FROM intra_failed_jobs WHERE failed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)"
-            );
-            $stats['last_7d'] = (int) ($d7Stmt ? $d7Stmt->fetchColumn() : 0);
+            $stats['last_7d'] = Capsule::table('intra_failed_jobs')
+                ->whereRaw('failed_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)')
+                ->count();
 
             // By queue
-            $qStmt = $this->pdo->query(
-                "SELECT queue, COUNT(*) AS c FROM intra_failed_jobs GROUP BY queue ORDER BY c DESC LIMIT 10"
-            );
-            if ($qStmt) {
-                foreach ($qStmt->fetchAll(PDO::FETCH_ASSOC) as $r) {
-                    $stats['by_queue'][(string) $r['queue']] = (int) $r['c'];
-                }
+            $queueRows = Capsule::table('intra_failed_jobs')
+                ->selectRaw('queue, COUNT(*) AS c')
+                ->groupBy('queue')
+                ->orderByDesc('c')
+                ->limit(10)
+                ->get();
+            foreach ($queueRows as $r) {
+                $stats['by_queue'][(string) $r->queue] = (int) $r->c;
             }
 
             // By job class — wird aus dem Payload extrahiert, DB hat keine eigene Spalte
@@ -181,32 +179,31 @@ final class FailedJobsReader
             return false;
         }
 
+        $connection = Capsule::connection();
+
         try {
-            $this->pdo->beginTransaction();
+            $connection->beginTransaction();
 
             $job = $this->findById($failedJobId);
             if ($job === null) {
-                $this->pdo->rollBack();
+                $connection->rollBack();
                 return false;
             }
 
             // Zurück in die Queue schieben
-            $insert = $this->pdo->prepare("
-                INSERT INTO intra_jobs (queue, payload, attempts, reserved_at, available_at, created_at)
-                VALUES (:queue, :payload, 0, NULL, :available_at, :created_at)
-            ");
-            $insert->execute([
-                ':queue'        => $job['queue'],
-                ':payload'      => $job['payload'],
-                ':available_at' => time(),
-                ':created_at'   => time(),
+            $connection->table('intra_jobs')->insert([
+                'queue'        => $job['queue'],
+                'payload'      => $job['payload'],
+                'attempts'     => 0,
+                'reserved_at'  => null,
+                'available_at' => time(),
+                'created_at'   => time(),
             ]);
 
             // Failed-Eintrag löschen
-            $delete = $this->pdo->prepare("DELETE FROM intra_failed_jobs WHERE id = :id");
-            $delete->execute([':id' => $failedJobId]);
+            $connection->table('intra_failed_jobs')->where('id', $failedJobId)->delete();
 
-            $this->pdo->commit();
+            $connection->commit();
             Logger::info('FailedJobsReader: Job re-queued', [
                 'failed_id' => $failedJobId,
                 'uuid'      => $job['uuid'],
@@ -214,8 +211,8 @@ final class FailedJobsReader
             ]);
             return true;
         } catch (PDOException $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
+            if ($connection->transactionLevel() > 0) {
+                $connection->rollBack();
             }
             Logger::error('FailedJobsReader: retry-Fehler', ['error' => $e->getMessage()]);
             return false;
@@ -229,9 +226,8 @@ final class FailedJobsReader
         }
 
         try {
-            $stmt = $this->pdo->prepare("DELETE FROM intra_failed_jobs WHERE id = :id");
-            $stmt->execute([':id' => $failedJobId]);
-            return $stmt->rowCount() > 0;
+            $deleted = Capsule::table('intra_failed_jobs')->where('id', $failedJobId)->delete();
+            return $deleted > 0;
         } catch (PDOException $e) {
             Logger::error('FailedJobsReader: delete-Fehler', ['error' => $e->getMessage()]);
             return false;
@@ -245,8 +241,7 @@ final class FailedJobsReader
         }
 
         try {
-            $stmt = $this->pdo->query("DELETE FROM intra_failed_jobs");
-            return $stmt ? $stmt->rowCount() : 0;
+            return Capsule::table('intra_failed_jobs')->delete();
         } catch (PDOException $e) {
             Logger::error('FailedJobsReader: deleteAll-Fehler', ['error' => $e->getMessage()]);
             return 0;
@@ -264,11 +259,8 @@ final class FailedJobsReader
 
         $retried = 0;
         try {
-            $stmt = $this->pdo->query("SELECT id FROM intra_failed_jobs ORDER BY id ASC");
-            if (!$stmt) {
-                return 0;
-            }
-            foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $id) {
+            $ids = Capsule::table('intra_failed_jobs')->orderBy('id')->pluck('id')->all();
+            foreach ($ids as $id) {
                 if ($this->retry((int) $id)) {
                     $retried++;
                 }

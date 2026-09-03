@@ -157,11 +157,11 @@ function addOption(value = '', label = '', label_m = '', label_w = '') {
         <div class="gender-inputs" style="display: ${isGenderSpecific ? 'block' : 'none'}">
             <div class="flex flex-wrap -mx-3">
                 <div class="w-6/12 mb-2 px-3">
-                    <label class="ignis-field__label text-sm">Label Männlich <span class="gender-badge badge bg-[#4a6fa5]">♂</span></label>
+                    <label class="ignis-field__label text-sm">Label Männlich <span class="gender-badge ignis-chip ignis-chip--primary">♂</span></label>
                     <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeister" value="${label_m}" data-option-label-m>
                 </div>
                 <div class="w-6/12 mb-2 px-3">
-                    <label class="ignis-field__label text-sm">Label Weiblich <span class="gender-badge badge bg-[#b03a3a]">♀</span></label>
+                    <label class="ignis-field__label text-sm">Label Weiblich <span class="gender-badge ignis-chip ignis-chip--danger">♀</span></label>
                     <input type="text" class="ignis-input ignis-input--sm" placeholder="z.B. Brandmeisterin" value="${label_w}" data-option-label-w>
                 </div>
             </div>
@@ -370,7 +370,7 @@ function buildFieldEditHtml(field, index) {
             </div>
             <div class="w-3/12 px-3">
                 <label class="ignis-field__label" style="font-size:0.72rem;">Typ</label>
-                <select class="form-select form-select-sm" data-custom-dropdown="true" data-edit="type">
+                <select class="ignis-input ignis-input--sm" data-custom-dropdown="true" data-edit="type">
                     <option value="text"${field.field_type === 'text' ? ' selected' : ''}>Text</option>
                     <option value="textarea"${field.field_type === 'textarea' ? ' selected' : ''}>Mehrzeilig</option>
                     <option value="richtext"${field.field_type === 'richtext' ? ' selected' : ''}>Rich-Text</option>
@@ -612,12 +612,12 @@ function renderTemplateList() {
             const isVisual = template.editor_type === 'visual';
             const col = document.createElement('div');
             col.innerHTML = `
-                <div class="card h-full template-card twplus-resource-card" style="cursor:pointer;transition:border-color 0.15s;" data-template-id="${template.id}">
+                <div class="h-full template-card twplus-resource-card" style="cursor:pointer;transition:border-color 0.15s;" data-template-id="${template.id}">
                     <div class="p-3">
                         <div class="flex justify-between items-start mb-2">
                             <div>
                                 <h6 class="mb-1" style="font-size:0.88rem;">${template.name}</h6>
-                                <span class="badge ${template.category_color || 'text-bg-secondary'}" style="font-size:0.65rem;">${category}</span>
+                                <span class="ignis-chip ${template.category_color || 'ignis-chip--secondary'}" style="font-size:0.65rem;">${category}</span>
                                 ${isVisual ? '<span class="ignis-chip ignis-chip--info ml-1" style="font-size:0.6rem;">Visual</span>' : ''}
                             </div>
                         </div>
@@ -788,7 +788,7 @@ function renderFieldPreview(field) {
         case 'select':
         case 'db_dg':
         case 'db_rdq':
-            html += `<select class="form-select" ${field.is_required ? 'required' : ''}>
+            html += `<select class="ignis-input" ${field.is_required ? 'required' : ''}>
                 <option value="">Bitte wählen</option>`;
             if (field.field_options) {
                 field.field_options.forEach(opt => {

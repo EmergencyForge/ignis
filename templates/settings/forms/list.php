@@ -3,7 +3,6 @@
  * View: Antragstypen verwalten
  *
  * @var array<int,array<string,mixed>> $typen
- * @var \PDO                           $pdo
  */
 
 use App\Helpers\Flash;

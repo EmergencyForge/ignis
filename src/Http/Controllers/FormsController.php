@@ -278,7 +278,7 @@ class FormsController extends Controller
         }
 
         $felderMitWerten = $this->loadFieldsWithValues($antrag);
-        $userHelper      = new UserHelper($this->pdo);
+        $userHelper      = new UserHelper();
 
         $this->renderView('forms/admin/view', [
             'antrag'             => $antrag,
@@ -317,10 +317,10 @@ class FormsController extends Controller
             $this->redirect('antrag/admin/view?antrag=' . $caseId);
         }
 
-        $userHelper       = new UserHelper($this->pdo);
+        $userHelper       = new UserHelper();
         $newCirsManager   = $userHelper->getCurrentUserFullnameForAction();
         $currentUserId    = (int) $_SESSION['userid'];
-        $auditLogger      = new AuditLogger($this->pdo);
+        $auditLogger      = new AuditLogger();
 
         // Diff-Audit: nur tatsächliche Änderungen loggen
         if ($antrag->cirs_manager !== $newCirsManager) {
@@ -355,7 +355,7 @@ class FormsController extends Controller
         }
 
         // Notification an den Antragsteller
-        $notificationManager = new NotificationManager($this->pdo);
+        $notificationManager = new NotificationManager();
         $statusName          = Form::STATUS_LABELS[$data['cirs_status']] ?? 'Unbekannt';
         if ($antrag->discordid !== null && $antrag->discordid !== '') {
             $userId = $notificationManager->getUserIdByDiscordTag($antrag->discordid);
@@ -382,7 +382,7 @@ class FormsController extends Controller
      * Lädt das Mitarbeiter-Profil zum aktuellen Discord-Tag aus der Session.
      * Returns null wenn keine Discord-Session, kein Profil oder archivierter Rank.
      *
-     * Bewusst via Capsule (kein Mitarbeiter-Model in dieser Phase) — der
+     * Bewusst via Capsule (es gibt kein Mitarbeiter-Model) — der
      * geschlechts-bedingte Rank-Name ist sehr Mitarbeiter-spezifisch
      * und gehört eigentlich in das Mitarbeiter-Modul, wenn das migriert wird.
      */

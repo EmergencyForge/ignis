@@ -8,8 +8,10 @@ use App\Auth\Gate;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
+use App\Models\Vehicle;
+use App\Models\VehicleImportQueueItem;
 use App\Utils\AuditLogger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
@@ -24,10 +26,6 @@ use PDOException;
  */
 final class VehicleImportController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * GET|POST /api/vehicles/import-handler?action=...
      * Action-Dispatcher für alle Import-Queue-Operationen.
@@ -64,23 +62,22 @@ final class VehicleImportController
     /** Pending-Fahrzeuge mit Match-Info gegen bestehende intra_fahrzeuge laden. */
     private function listPending(): Response
     {
-        $items = $this->pdo->query(
-            "SELECT q.* FROM intra_fahrzeuge_import_queue q
-             WHERE q.status = 'pending'
-             ORDER BY q.id ASC"
-        )->fetchAll(PDO::FETCH_ASSOC);
-
-        $matchStmt = $this->pdo->prepare(
-            "SELECT id, name, identifier, veh_type, rd_type, kennzeichen, priority, active, allowed_jobs
-             FROM intra_fahrzeuge
-             WHERE name = ? OR identifier = ?
-             LIMIT 1"
-        );
+        $items = Capsule::table('intra_fahrzeuge_import_queue')
+            ->where('status', 'pending')
+            ->orderBy('id')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         foreach ($items as &$item) {
-            $matchStmt->execute([$item['name'], $item['identifier']]);
-            $existing = $matchStmt->fetch(PDO::FETCH_ASSOC);
+            $existing = Capsule::table('intra_fahrzeuge')
+                ->select(['id', 'name', 'identifier', 'veh_type', 'rd_type', 'kennzeichen', 'priority', 'active', 'allowed_jobs'])
+                ->where('name', $item['name'])
+                ->orWhere('identifier', $item['identifier'])
+                ->first();
+
             if ($existing) {
+                $existing           = (array) $existing;
                 $item['existing']   = $existing;
                 $item['match_type'] = ($existing['name'] === $item['name']) ? 'name' : 'identifier';
             } else {
@@ -107,9 +104,11 @@ final class VehicleImportController
             return Response::json(['success' => false, 'message' => 'Eintrag nicht gefunden oder bereits verarbeitet']);
         }
 
-        $dupCheck = $this->pdo->prepare("SELECT id FROM intra_fahrzeuge WHERE name = ? OR identifier = ?");
-        $dupCheck->execute([$item['name'], $item['identifier']]);
-        if ($dupCheck->fetch()) {
+        $duplicateExists = Vehicle::query()
+            ->where('name', $item['name'])
+            ->orWhere('identifier', $item['identifier'])
+            ->exists();
+        if ($duplicateExists) {
             return Response::json(['success' => false, 'message' => 'Fahrzeug existiert bereits. Nutze Überschreiben oder Zusammenführen.']);
         }
 
@@ -117,20 +116,20 @@ final class VehicleImportController
         $rdType      = $data['rd_type']      ?? (int) $item['rd_type'];
         $allowedJobs = $data['allowed_jobs'] ?? (trim((string) ($item['job'] ?? '')) ?: null);
 
-        $this->pdo->prepare(
-            "INSERT INTO intra_fahrzeuge (name, identifier, veh_type, rd_type, allowed_jobs, priority, active, kennzeichen)
-             VALUES (:name, :identifier, :veh_type, :rd_type, :allowed_jobs, 0, 1, '')"
-        )->execute([
-            ':name'         => $item['name'],
-            ':identifier'   => $item['identifier'],
-            ':veh_type'     => $vehType,
-            ':rd_type'      => $rdType,
-            ':allowed_jobs' => $allowedJobs,
+        Vehicle::create([
+            'name'         => $item['name'],
+            'identifier'   => $item['identifier'],
+            'veh_type'     => $vehType,
+            'rd_type'      => $rdType,
+            'allowed_jobs' => $allowedJobs,
+            'priority'     => 0,
+            'active'       => 1,
+            'kennzeichen'  => '',
         ]);
 
         $this->markProcessed($data['queue_id']);
 
-        (new AuditLogger($this->pdo))->log(
+        (new AuditLogger())->log(
             (int) $_SESSION['userid'],
             'Fahrzeug per EMD-Import erstellt',
             "Name: {$item['name']} | Typ: {$vehType}",
@@ -158,23 +157,19 @@ final class VehicleImportController
         $rdType      = $data['rd_type']      ?? (int) $item['rd_type'];
         $allowedJobs = $data['allowed_jobs'] ?? (trim((string) ($item['job'] ?? '')) ?: null);
 
-        $this->pdo->prepare(
-            "UPDATE intra_fahrzeuge
-             SET name = :name, identifier = :identifier, veh_type = :veh_type,
-                 rd_type = :rd_type, allowed_jobs = :allowed_jobs
-             WHERE id = :id"
-        )->execute([
-            ':name'         => $item['name'],
-            ':identifier'   => $item['identifier'],
-            ':veh_type'     => $vehType,
-            ':rd_type'      => $rdType,
-            ':allowed_jobs' => $allowedJobs,
-            ':id'           => $data['existing_id'],
-        ]);
+        Vehicle::query()
+            ->where('id', $data['existing_id'])
+            ->update([
+                'name'         => $item['name'],
+                'identifier'   => $item['identifier'],
+                'veh_type'     => $vehType,
+                'rd_type'      => $rdType,
+                'allowed_jobs' => $allowedJobs,
+            ]);
 
         $this->markProcessed($data['queue_id']);
 
-        (new AuditLogger($this->pdo))->log(
+        (new AuditLogger())->log(
             (int) $_SESSION['userid'],
             'Fahrzeug per EMD-Import überschrieben',
             "Name: {$item['name']} | ID: {$data['existing_id']}",
@@ -198,30 +193,27 @@ final class VehicleImportController
             return Response::json(['success' => false, 'message' => 'Eintrag nicht gefunden']);
         }
 
-        $existStmt = $this->pdo->prepare("SELECT * FROM intra_fahrzeuge WHERE id = ?");
-        $existStmt->execute([$data['existing_id']]);
-        $existing = $existStmt->fetch(PDO::FETCH_ASSOC);
+        $existingRow = Capsule::table('intra_fahrzeuge')
+            ->where('id', $data['existing_id'])
+            ->first();
 
-        if (!$existing) {
+        if (!$existingRow) {
             return Response::json(['success' => false, 'message' => 'Bestehendes Fahrzeug nicht gefunden']);
         }
+        $existing = (array) $existingRow;
 
-        $this->pdo->prepare(
-            "UPDATE intra_fahrzeuge
-             SET identifier = :identifier, veh_type = :veh_type,
-                 rd_type = :rd_type, allowed_jobs = :allowed_jobs
-             WHERE id = :id"
-        )->execute([
-            ':identifier'   => !empty($existing['identifier']) ? $existing['identifier'] : $item['identifier'],
-            ':veh_type'     => !empty($existing['veh_type'])   ? $existing['veh_type']   : ($item['veh_type'] ?: ''),
-            ':rd_type'      => ((int) $existing['rd_type'] > 0) ? $existing['rd_type']    : $item['rd_type'],
-            ':allowed_jobs' => !empty($existing['allowed_jobs']) ? $existing['allowed_jobs'] : ($item['job'] ?: null),
-            ':id'           => $data['existing_id'],
-        ]);
+        Vehicle::query()
+            ->where('id', $data['existing_id'])
+            ->update([
+                'identifier'   => !empty($existing['identifier']) ? $existing['identifier'] : $item['identifier'],
+                'veh_type'     => !empty($existing['veh_type'])   ? $existing['veh_type']   : ($item['veh_type'] ?: ''),
+                'rd_type'      => ((int) $existing['rd_type'] > 0) ? $existing['rd_type']    : $item['rd_type'],
+                'allowed_jobs' => !empty($existing['allowed_jobs']) ? $existing['allowed_jobs'] : ($item['job'] ?: null),
+            ]);
 
         $this->markProcessed($data['queue_id']);
 
-        (new AuditLogger($this->pdo))->log(
+        (new AuditLogger())->log(
             (int) $_SESSION['userid'],
             'Fahrzeug per EMD-Import zusammengeführt',
             "Name: {$item['name']} | ID: {$data['existing_id']}",
@@ -236,11 +228,14 @@ final class VehicleImportController
     {
         $data = \App\Http\Requests\Vehicles\ImportQueueItemRequest::validate($request->post);
 
-        $this->pdo->prepare(
-            "UPDATE intra_fahrzeuge_import_queue
-             SET status = 'rejected', processed_at = NOW(), processed_by = ?
-             WHERE id = ? AND status = 'pending'"
-        )->execute([$_SESSION['userid'], $data['queue_id']]);
+        VehicleImportQueueItem::query()
+            ->where('id', $data['queue_id'])
+            ->where('status', 'pending')
+            ->update([
+                'status'       => 'rejected',
+                'processed_at' => Capsule::raw('NOW()'),
+                'processed_by' => $_SESSION['userid'],
+            ]);
 
         return Response::json(['success' => true, 'message' => 'Fahrzeug ignoriert']);
     }
@@ -251,7 +246,7 @@ final class VehicleImportController
         $flagPath = $this->flagPath();
         @file_put_contents($flagPath, date('Y-m-d H:i:s'));
 
-        (new AuditLogger($this->pdo))->log(
+        (new AuditLogger())->log(
             (int) $_SESSION['userid'],
             'EMD Fahrzeug-Import angefordert',
             'Flag gesetzt - wird beim nächsten Sync übermittelt',
@@ -268,9 +263,7 @@ final class VehicleImportController
     private function status(): Response
     {
         $requestPending = file_exists($this->flagPath());
-        $pendingCount   = (int) $this->pdo->query(
-            "SELECT COUNT(*) FROM intra_fahrzeuge_import_queue WHERE status = 'pending'"
-        )->fetchColumn();
+        $pendingCount   = VehicleImportQueueItem::query()->pending()->count();
 
         return Response::json([
             'success'            => true,
@@ -282,19 +275,23 @@ final class VehicleImportController
     /** @return array<string, mixed>|null */
     private function loadPendingItem(int $queueId): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM intra_fahrzeuge_import_queue WHERE id = ? AND status = 'pending'");
-        $stmt->execute([$queueId]);
-        $item = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $item ?: null;
+        $item = Capsule::table('intra_fahrzeuge_import_queue')
+            ->where('id', $queueId)
+            ->where('status', 'pending')
+            ->first();
+
+        return $item !== null ? (array) $item : null;
     }
 
     private function markProcessed(int $queueId): void
     {
-        $this->pdo->prepare(
-            "UPDATE intra_fahrzeuge_import_queue
-             SET status = 'accepted', processed_at = NOW(), processed_by = ?
-             WHERE id = ?"
-        )->execute([$_SESSION['userid'], $queueId]);
+        VehicleImportQueueItem::query()
+            ->where('id', $queueId)
+            ->update([
+                'status'       => 'accepted',
+                'processed_at' => Capsule::raw('NOW()'),
+                'processed_by' => $_SESSION['userid'],
+            ]);
     }
 
     private function flagPath(): string

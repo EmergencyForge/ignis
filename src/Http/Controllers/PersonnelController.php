@@ -72,7 +72,7 @@ class PersonnelController extends Controller
      * Die View bindet eine Reihe alter Partials ein (assets/components/profiles/*),
      * die als lokale Variablen im Scope $row, $dginfo, $rdginfo, $fwginfo,
      * $geburtstag, $einstellungsdatum, $bfqualtext, $dienstgradText, $rdqualtext,
-     * $accountStatus, $panelakte, $pendingInvite und $pdo erwarten. Wir bauen
+     * $accountStatus, $panelakte und $pendingInvite erwarten. Wir bauen
      * diesen Scope-Vertrag explizit auf, damit die Partials weiter funktionieren
      * ohne sie selbst migrieren zu müssen.
      */
@@ -289,9 +289,9 @@ class PersonnelController extends Controller
             $this->redirect('mitarbeiter/list');
         }
 
-        $userHelper = new UserHelper($this->pdo);
+        $userHelper = new UserHelper();
         $edituser   = $userHelper->getCurrentUserFullnameForAction();
-        $logManager = new PersonalLogManager($this->pdo);
+        $logManager = new PersonalLogManager();
 
         // Rang-Wechsel logging
         if ($mitarbeiter->dienstgrad !== $data['dienstgrad']) {
@@ -377,8 +377,8 @@ class PersonnelController extends Controller
             $mitarbeiter->fachdienste = $fachdiensteJson;
             $mitarbeiter->save();
 
-            $userHelper = new UserHelper($this->pdo);
-            (new PersonalLogManager($this->pdo))->logDepartmentModification(
+            $userHelper = new UserHelper();
+            (new PersonalLogManager())->logDepartmentModification(
                 $id,
                 $userHelper->getCurrentUserFullnameForAction()
             );
@@ -411,8 +411,8 @@ class PersonnelController extends Controller
         ];
 
         if ($content !== '' && in_array($type, $allowedTypes, true)) {
-            $userHelper = new UserHelper($this->pdo);
-            (new PersonalLogManager($this->pdo))->addNote(
+            $userHelper = new UserHelper();
+            (new PersonalLogManager())->addNote(
                 $id,
                 $type,
                 $content,
@@ -475,8 +475,8 @@ class PersonnelController extends Controller
             'discordid'         => $mitarbeiter->discordtag,
         ]);
 
-        $userHelper = new UserHelper($this->pdo);
-        (new PersonalLogManager($this->pdo))->logDocumentCreation(
+        $userHelper = new UserHelper();
+        (new PersonalLogManager())->logDocumentCreation(
             $profileId,
             (int) $docId,
             $userHelper->getCurrentUserFullnameForAction()
@@ -484,7 +484,7 @@ class PersonnelController extends Controller
 
         // Notification an den Empfänger (sofern verlinkter User existiert)
         if (!empty($mitarbeiter->discordtag)) {
-            $notificationManager = new NotificationManager($this->pdo);
+            $notificationManager = new NotificationManager();
             $recipientUserId     = $notificationManager->getUserIdByDiscordTag($mitarbeiter->discordtag);
 
             if ($recipientUserId) {
@@ -595,11 +595,11 @@ class PersonnelController extends Controller
         }
 
         // Personal-Log + Audit-Log
-        $userHelper = new UserHelper($this->pdo);
+        $userHelper = new UserHelper();
         $edituser   = $userHelper->getCurrentUserFullnameForAction();
 
-        (new PersonalLogManager($this->pdo))->logProfileCreation((int) $mitarbeiter->id, $edituser);
-        (new AuditLogger($this->pdo))->log(
+        (new PersonalLogManager())->logProfileCreation((int) $mitarbeiter->id, $edituser);
+        (new AuditLogger())->log(
             (int) $_SESSION['userid'],
             'Mitarbeiter erstellt',
             'Name: ' . $data['fullname'] . ', Dienstnummer: ' . $data['dienstnr'],
@@ -630,7 +630,7 @@ class PersonnelController extends Controller
 
         if ($deleted > 0) {
             Flash::set('personal', 'deleted');
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 (int) $_SESSION['userid'],
                 'Mitarbeiter gelöscht [ID: ' . $id . ']',
                 null,
@@ -654,8 +654,8 @@ class PersonnelController extends Controller
             $this->redirectBackOrIndex();
         }
 
-        (new PersonalLogManager($this->pdo))->deleteEntry($logId);
-        (new AuditLogger($this->pdo))->log(
+        (new PersonalLogManager())->deleteEntry($logId);
+        (new AuditLogger())->log(
             (int) $_SESSION['userid'],
             'Profil-Kommentar gelöscht [ID: ' . $logId . ']',
             null,
@@ -780,7 +780,7 @@ class PersonnelController extends Controller
         // DB-Eintrag löschen
         PersonnelDocument::query()->where('docid', $docid)->delete();
 
-        (new AuditLogger($this->pdo))->log(
+        (new AuditLogger())->log(
             (int) $_SESSION['userid'],
             'Dokument gelöscht [ID: ' . $docid . ']',
             $pid !== '' ? $pid : null,

@@ -5,22 +5,50 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
+ * Stellt den Einsatz-Status von ENUM auf TINYINT um, passend zum
+ * eNOTF-Protokoll-Statussystem.
  *
- * Original-Datei: assets/database/alter_intra_fire_incidents_20260306_status_tinyint.php
- * Spiegelung:     database/legacy/alter_intra_fire_incidents_20260306_status_tinyint.php
+ * Mapping der Altwerte:
+ *   'in_sichtung' => 0 (Ungesehen)
+ *   'gesichtet'   => 2 (Freigegeben)
+ *   'negativ'     => 3 (Ungenügend)
  *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Neue Statuswerte:
+ *   0 = Ungesehen
+ *   1 = In Prüfung
+ *   2 = Freigegeben
+ *   3 = Ungenügend
+ *   4 = Ausgeblendet
  */
 class AlterIntraFireIncidents20260306StatusTinyint extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_fire_incidents_20260306_status_tinyint.php';
+        $table = $this->table('intra_fire_incidents');
+
+        // Schritt 1: temporäre Spalte anlegen
+        $table
+            ->addColumn('status_new', 'tinyinteger', ['limit' => 3, 'default' => 0, 'null' => false, 'after' => 'status'])
+            ->update();
+
+        // Schritt 2: Altdaten übertragen (auf frischen Installationen gibt es
+        // zu diesem Zeitpunkt keine Zeilen)
+        $this->execute("UPDATE `intra_fire_incidents` SET `status_new` = CASE
+            WHEN `status` = 'gesichtet' THEN 2
+            WHEN `status` = 'negativ' THEN 3
+            ELSE 0
+        END");
+
+        // Schritt 3: alte Spalte entfernen, neue umbenennen
+        $table->removeColumn('status')->update();
+        $table->renameColumn('status_new', 'status')->update();
+    }
+
+    public function down(): void
+    {
+        // Die ENUM->TINYINT-Konvertierung ist nicht umkehrbar: die
+        // ursprünglichen ENUM-Werte lassen sich aus den Zahlen nicht
+        // verlustfrei rekonstruieren, und auf frischen Installationen ist
+        // status ohnehin von Anfang an TINYINT — no-op.
     }
 }

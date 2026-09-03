@@ -7,10 +7,12 @@ namespace Plugin\KnowledgeBase\Controllers\Api;
 use App\Auth\Gate;
 use App\Http\Request;
 use App\Http\Response;
-use Plugin\KnowledgeBase\KBHelper;
 use App\Logging\Logger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
+use Plugin\KnowledgeBase\KBHelper;
+use Plugin\KnowledgeBase\Models\KbCategory;
+use Plugin\KnowledgeBase\Models\KbTag;
 
 /**
  * Knowledgebase-Endpoints: Kategorien, Tags, Suche.
@@ -22,10 +24,6 @@ use PDOException;
  */
 final class KnowledgebaseController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     // ── Categories ────────────────────────────────────────────────────
 
     /**
@@ -33,8 +31,12 @@ final class KnowledgebaseController
      */
     public function listCategories(Request $request): Response
     {
-        $stmt = $this->pdo->query("SELECT * FROM intra_kb_categories ORDER BY sort_order ASC, name ASC");
-        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $categories = Capsule::table('intra_kb_categories')
+            ->orderBy('sort_order', 'asc')
+            ->orderBy('name', 'asc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         // Baum-Struktur aufbauen
         $tree = [];
@@ -78,10 +80,7 @@ final class KnowledgebaseController
         $sortOrder = (int) ($input['sort_order'] ?? 0);
 
         if (!empty($input['id'])) {
-            $this->pdo->prepare(
-                "UPDATE intra_kb_categories SET name = :name, slug = :slug, parent_id = :parent_id, icon = :icon, sort_order = :sort_order WHERE id = :id"
-            )->execute([
-                'id'         => (int) $input['id'],
+            KbCategory::where('id', (int) $input['id'])->update([
                 'name'       => $name,
                 'slug'       => $slug,
                 'parent_id'  => $parentId,
@@ -91,16 +90,14 @@ final class KnowledgebaseController
             return Response::json(['success' => true, 'id' => (int) $input['id']]);
         }
 
-        $this->pdo->prepare(
-            "INSERT INTO intra_kb_categories (name, slug, parent_id, icon, sort_order) VALUES (:name, :slug, :parent_id, :icon, :sort_order)"
-        )->execute([
+        $category = KbCategory::create([
             'name'       => $name,
             'slug'       => $slug,
             'parent_id'  => $parentId,
             'icon'       => $icon,
             'sort_order' => $sortOrder,
         ]);
-        return Response::json(['success' => true, 'id' => (int) $this->pdo->lastInsertId()]);
+        return Response::json(['success' => true, 'id' => (int) $category->id]);
     }
 
     /**
@@ -117,16 +114,13 @@ final class KnowledgebaseController
             return Response::json(['error' => 'Keine ID'], 400);
         }
 
-        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM intra_kb_entries WHERE category_id = :id");
-        $stmt->execute(['id' => $id]);
-        if ($stmt->fetchColumn() > 0) {
+        $inUse = Capsule::table('intra_kb_entries')->where('category_id', $id)->count();
+        if ($inUse > 0) {
             return Response::json(['error' => 'Kategorie wird von Einträgen verwendet.'], 409);
         }
 
-        $this->pdo->prepare("UPDATE intra_kb_categories SET parent_id = NULL WHERE parent_id = :id")
-            ->execute(['id' => $id]);
-        $this->pdo->prepare("DELETE FROM intra_kb_categories WHERE id = :id")
-            ->execute(['id' => $id]);
+        KbCategory::where('parent_id', $id)->update(['parent_id' => null]);
+        KbCategory::where('id', $id)->delete();
 
         return Response::json(['success' => true]);
     }
@@ -138,11 +132,13 @@ final class KnowledgebaseController
      */
     public function listTags(Request $request): Response
     {
-        $stmt = $this->pdo->query(
-            "SELECT t.*, (SELECT COUNT(*) FROM intra_kb_entry_tags WHERE tag_id = t.id) as usage_count
-             FROM intra_kb_tags t ORDER BY t.name ASC"
-        );
-        return Response::json($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
+        $tags = Capsule::table('intra_kb_tags as t')
+            ->selectRaw('t.*, (SELECT COUNT(*) FROM intra_kb_entry_tags WHERE tag_id = t.id) as usage_count')
+            ->orderBy('t.name', 'asc')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
+        return Response::json($tags);
     }
 
     /**
@@ -163,20 +159,16 @@ final class KnowledgebaseController
         $color = $input['color'] ?? '#6c757d';
 
         if (!empty($input['id'])) {
-            $this->pdo->prepare("UPDATE intra_kb_tags SET name = :name, color = :color WHERE id = :id")
-                ->execute(['id' => (int) $input['id'], 'name' => $name, 'color' => $color]);
+            KbTag::where('id', (int) $input['id'])->update(['name' => $name, 'color' => $color]);
             return Response::json(['success' => true, 'id' => (int) $input['id']]);
         }
 
-        $stmt = $this->pdo->prepare("SELECT id FROM intra_kb_tags WHERE name = :name");
-        $stmt->execute(['name' => $name]);
-        if ($stmt->fetch()) {
+        if (KbTag::where('name', $name)->exists()) {
             return Response::json(['error' => 'Tag existiert bereits'], 409);
         }
 
-        $this->pdo->prepare("INSERT INTO intra_kb_tags (name, color) VALUES (:name, :color)")
-            ->execute(['name' => $name, 'color' => $color]);
-        return Response::json(['success' => true, 'id' => (int) $this->pdo->lastInsertId()]);
+        $tag = KbTag::create(['name' => $name, 'color' => $color]);
+        return Response::json(['success' => true, 'id' => (int) $tag->id]);
     }
 
     /**
@@ -193,8 +185,7 @@ final class KnowledgebaseController
             return Response::json(['error' => 'Keine ID'], 400);
         }
 
-        $this->pdo->prepare("DELETE FROM intra_kb_tags WHERE id = :id")
-            ->execute(['id' => $id]);
+        KbTag::where('id', $id)->delete();
         return Response::json(['success' => true]);
     }
 
@@ -232,24 +223,19 @@ final class KnowledgebaseController
             if ($ftQuery !== '') {
                 $sql = "SELECT kb.id, kb.type, kb.title, kb.subtitle, kb.competency_level, kb.content,
                         kb.med_indikationen, kb.med_dosierung, kb.mass_indikationen, kb.mass_durchfuehrung,
-                        MATCH(kb.title, kb.subtitle, kb.content) AGAINST(:ft_rel IN BOOLEAN MODE) as relevance
+                        MATCH(kb.title, kb.subtitle, kb.content) AGAINST(? IN BOOLEAN MODE) as relevance
                     FROM intra_kb_entries kb
                     WHERE kb.is_archived = 0
                     AND (
-                        MATCH(kb.title, kb.subtitle, kb.content) AGAINST(:ft_main IN BOOLEAN MODE)
-                        OR MATCH(kb.med_wirkstoff, kb.med_wirkstoffgruppe, kb.med_indikationen, kb.med_kontraindikationen, kb.med_dosierung, kb.med_besonderheiten) AGAINST(:ft_med IN BOOLEAN MODE)
-                        OR MATCH(kb.mass_indikationen, kb.mass_kontraindikationen, kb.mass_durchfuehrung, kb.mass_risiken) AGAINST(:ft_mass IN BOOLEAN MODE)
-                        OR kb.id IN (SELECT et.entry_id FROM intra_kb_entry_tags et JOIN intra_kb_tags t ON et.tag_id = t.id WHERE t.name LIKE :ft_tag)
+                        MATCH(kb.title, kb.subtitle, kb.content) AGAINST(? IN BOOLEAN MODE)
+                        OR MATCH(kb.med_wirkstoff, kb.med_wirkstoffgruppe, kb.med_indikationen, kb.med_kontraindikationen, kb.med_dosierung, kb.med_besonderheiten) AGAINST(? IN BOOLEAN MODE)
+                        OR MATCH(kb.mass_indikationen, kb.mass_kontraindikationen, kb.mass_durchfuehrung, kb.mass_risiken) AGAINST(? IN BOOLEAN MODE)
+                        OR kb.id IN (SELECT et.entry_id FROM intra_kb_entry_tags et JOIN intra_kb_tags t ON et.tag_id = t.id WHERE t.name LIKE ?)
                     )
                     ORDER BY kb.is_pinned DESC, relevance DESC, kb.title ASC
                     LIMIT 10";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute([
-                    'ft_rel'  => $ftQuery,
-                    'ft_main' => $ftQuery,
-                    'ft_med'  => $ftQuery,
-                    'ft_mass' => $ftQuery,
-                    'ft_tag'  => $searchParam,
+                $rows = Capsule::connection()->select($sql, [
+                    $ftQuery, $ftQuery, $ftQuery, $ftQuery, $searchParam,
                 ]);
             } else {
                 $sql = "SELECT kb.id, kb.type, kb.title, kb.subtitle, kb.competency_level, kb.content,
@@ -257,14 +243,13 @@ final class KnowledgebaseController
                         0 as relevance
                     FROM intra_kb_entries kb
                     WHERE kb.is_archived = 0
-                    AND (kb.title LIKE :search1 OR kb.subtitle LIKE :search2)
+                    AND (kb.title LIKE ? OR kb.subtitle LIKE ?)
                     ORDER BY kb.is_pinned DESC, kb.title ASC
                     LIMIT 10";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute(['search1' => $searchParam, 'search2' => $searchParam]);
+                $rows = Capsule::connection()->select($sql, [$searchParam, $searchParam]);
             }
 
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            $results = array_map(fn ($row) => (array) $row, $rows);
 
             foreach ($results as &$result) {
                 $result['type_label'] = KBHelper::getTypeLabel($result['type']);

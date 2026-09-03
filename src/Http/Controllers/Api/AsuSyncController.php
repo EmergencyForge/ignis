@@ -7,7 +7,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use PDOException;
 
 /**
@@ -32,10 +32,6 @@ use PDOException;
  */
 final class AsuSyncController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * POST /api/asu/sync
      */
@@ -91,12 +87,12 @@ final class AsuSyncController
             ], 400);
         }
 
+        $connection = Capsule::connection();
+
         try {
-            $stmt = $this->pdo->prepare(
-                "SELECT id FROM intra_fire_incidents WHERE incident_number = ? LIMIT 1"
-            );
-            $stmt->execute([$missionNumber]);
-            $incident = $stmt->fetch(PDO::FETCH_ASSOC);
+            $incident = Capsule::table('intra_fire_incidents')
+                ->where('incident_number', $missionNumber)
+                ->first(['id']);
 
             if (!$incident) {
                 Logger::warning('AsuSync: Einsatz nicht gefunden', ['mission_number' => $missionNumber]);
@@ -107,54 +103,44 @@ final class AsuSyncController
                 ], 404);
             }
 
-            $incidentId = (int) $incident['id'];
+            $incidentId = (int) $incident->id;
             Logger::info('AsuSync: Einsatz gefunden', ['incident_id' => $incidentId, 'supervisor' => $supervisor]);
 
-            $this->pdo->beginTransaction();
+            $connection->beginTransaction();
 
             // Prüfe, ob bereits ein ASU-Protokoll für diesen Überwacher existiert
-            $checkStmt = $this->pdo->prepare("
-                SELECT id FROM intra_fire_incident_asu
-                WHERE incident_id = ? AND supervisor = ?
-                LIMIT 1
-            ");
-            $checkStmt->execute([$incidentId, $supervisor]);
-            $existingAsu = $checkStmt->fetch(PDO::FETCH_ASSOC);
+            $existingAsu = Capsule::table('intra_fire_incident_asu')
+                ->where('incident_id', $incidentId)
+                ->where('supervisor', $supervisor)
+                ->first(['id']);
 
             $missionLocation = $protocolData['missionLocation'] ?? null;
             $missionDate     = $this->normalizeMissionDate($protocolData['missionDate'] ?? null);
             $timestamp       = $this->normalizeTimestamp($protocolData['timestamp'] ?? null);
 
             if ($existingAsu) {
-                $this->pdo->prepare("
-                    UPDATE intra_fire_incident_asu
-                    SET mission_location = ?, mission_date = ?, timestamp = ?, data = ?
-                    WHERE id = ?
-                ")->execute([
-                    $missionLocation,
-                    $missionDate,
-                    $timestamp,
-                    json_encode($protocolData),
-                    $existingAsu['id'],
-                ]);
+                Capsule::table('intra_fire_incident_asu')
+                    ->where('id', $existingAsu->id)
+                    ->update([
+                        'mission_location' => $missionLocation,
+                        'mission_date'     => $missionDate,
+                        'timestamp'        => $timestamp,
+                        'data'             => json_encode($protocolData),
+                    ]);
                 $action = 'updated';
             } else {
-                $this->pdo->prepare("
-                    INSERT INTO intra_fire_incident_asu
-                    (incident_id, supervisor, mission_location, mission_date, timestamp, data)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                ")->execute([
-                    $incidentId,
-                    $supervisor,
-                    $missionLocation,
-                    $missionDate,
-                    $timestamp,
-                    json_encode($protocolData),
+                Capsule::table('intra_fire_incident_asu')->insert([
+                    'incident_id'      => $incidentId,
+                    'supervisor'       => $supervisor,
+                    'mission_location' => $missionLocation,
+                    'mission_date'     => $missionDate,
+                    'timestamp'        => $timestamp,
+                    'data'             => json_encode($protocolData),
                 ]);
                 $action = 'created';
             }
 
-            $this->pdo->commit();
+            $connection->commit();
 
             Logger::info('AsuSync: ASU-Protokoll verarbeitet', [
                 'action'      => $action,
@@ -171,8 +157,8 @@ final class AsuSyncController
                 'action'         => $action,
             ]);
         } catch (PDOException $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
+            if ($connection->transactionLevel() > 0) {
+                $connection->rollBack();
             }
             Logger::error('AsuSync: Datenbankfehler', ['error' => $e->getMessage()]);
             return Response::json([
@@ -181,8 +167,8 @@ final class AsuSyncController
                 'message' => $e->getMessage(),
             ], 500);
         } catch (\Throwable $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
+            if ($connection->transactionLevel() > 0) {
+                $connection->rollBack();
             }
             Logger::error('AsuSync: Verarbeitungsfehler', ['error' => $e->getMessage()]);
             return Response::json([

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Plugins;
 
 use App\Logging\Logger;
-use PDO;
 
 /**
  * Verbindet die entdeckten Plugins mit den Registern der Anwendung.
@@ -32,6 +31,7 @@ class PluginLoader
         'knowledge-base',
         'manv-board',
         'enotf',
+        'enotf-v2',
         'firetab',
     ];
 
@@ -46,10 +46,6 @@ class PluginLoader
 
     /** @var list<Plugin>|null */
     private ?array $active = null;
-
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
 
     public static function pluginsDir(): string
     {
@@ -128,7 +124,7 @@ class PluginLoader
                 return $this->active = [];
             }
 
-            $repository = new PluginRepository($this->pdo);
+            $repository = new PluginRepository();
             $repository->syncDiscovered($registry->all());
 
             // Nur installierte Plugins kommen in die Auflösung — ein bloß

@@ -8,7 +8,6 @@
  * @var string                         $vehicleIdentifier
  * @var array<string,string>           $fahrttypen
  * @var array<int,array<string,mixed>> $entries
- * @var \PDO                           $pdo
  */
 
 use App\Helpers\Flash;

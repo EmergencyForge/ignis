@@ -5,7 +5,6 @@
  * @var \App\Models\Antrag                  $antrag
  * @var array<int,\stdClass>                $felderMitWerten
  * @var array{class:string,text:string,icon:string} $currentStatus
- * @var \PDO                                $pdo
  */
 
 use App\Auth\Gate;

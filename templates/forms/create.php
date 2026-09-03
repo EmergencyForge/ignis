@@ -6,7 +6,6 @@
  * @var \App\Models\FormType                                                  $typ
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\FormField> $felder
  * @var \stdClass                                                              $mitarbeiter
- * @var \PDO                                                                   $pdo
  */
 
 use App\Helpers\Flash;

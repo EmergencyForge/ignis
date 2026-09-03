@@ -8,32 +8,33 @@
     </thead>
     <tbody>
         <?php
-        $stmtdivi = $pdo->prepare("
-    SELECT 
-        e.enr, 
-        e.sendezeit, 
-        e.protokoll_status, 
-        e.bearbeiter, 
-        e.freigegeben,
-        e.freigeber_name,
-        e.hidden_user
-    FROM intra_edivi e
-    JOIN intra_mitarbeiter m ON m.discordtag = :discordtag
-    WHERE (
-        e.pfname LIKE CONCAT('%', m.fullname, '%')
-        OR e.fzg_transp_perso LIKE CONCAT('%', m.fullname, '%')
-        OR e.fzg_transp_perso_2 LIKE CONCAT('%', m.fullname, '%')
-        OR e.fzg_transp_perso_3 LIKE CONCAT('%', m.fullname, '%')
-        OR e.fzg_na_perso LIKE CONCAT('%', m.fullname, '%')
-        OR e.fzg_na_perso_2 LIKE CONCAT('%', m.fullname, '%')
-        OR e.fzg_na_perso_3 LIKE CONCAT('%', m.fullname, '%')
-    )
-    AND e.hidden <> 1
-    AND e.hidden_user <> 1
-    ORDER BY e.sendezeit DESC
-");
-        $stmtdivi->execute(['discordtag' => $_SESSION['discordtag']]);
-        $ediviRows = $stmtdivi->fetchAll(PDO::FETCH_ASSOC);
+        $ediviRows = \Illuminate\Database\Capsule\Manager::table('intra_edivi as e')
+            ->join('intra_mitarbeiter as m', function ($join) {
+                $join->where('m.discordtag', '=', $_SESSION['discordtag']);
+            })
+            ->where(function ($q) {
+                $q->whereRaw("e.pfname LIKE CONCAT('%', m.fullname, '%')")
+                    ->orWhereRaw("e.fzg_transp_perso LIKE CONCAT('%', m.fullname, '%')")
+                    ->orWhereRaw("e.fzg_transp_perso_2 LIKE CONCAT('%', m.fullname, '%')")
+                    ->orWhereRaw("e.fzg_transp_perso_3 LIKE CONCAT('%', m.fullname, '%')")
+                    ->orWhereRaw("e.fzg_na_perso LIKE CONCAT('%', m.fullname, '%')")
+                    ->orWhereRaw("e.fzg_na_perso_2 LIKE CONCAT('%', m.fullname, '%')")
+                    ->orWhereRaw("e.fzg_na_perso_3 LIKE CONCAT('%', m.fullname, '%')");
+            })
+            ->where('e.hidden', '<>', 1)
+            ->where('e.hidden_user', '<>', 1)
+            ->orderByDesc('e.sendezeit')
+            ->get([
+                'e.enr',
+                'e.sendezeit',
+                'e.protokoll_status',
+                'e.bearbeiter',
+                'e.freigegeben',
+                'e.freigeber_name',
+                'e.hidden_user',
+            ])
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         if (empty($ediviRows)) {
             echo "<tr><td colspan='5'>

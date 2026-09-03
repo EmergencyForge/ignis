@@ -2068,8 +2068,7 @@ td.dt-empty {
   outline: none;
 }
 
-.inline-edit-cell.inline-editing .form-control,
-.inline-edit-cell.inline-editing .form-select {
+.inline-edit-cell.inline-editing .ignis-input {
   font-size: var(--font-size-sm, 0.82rem);
   padding: 4px 8px;
   height: auto;
@@ -2079,7 +2078,7 @@ td.dt-empty {
   border-color: var(--main-color, #d10000);
 }
 
-.inline-edit-cell.inline-editing .form-select {
+.inline-edit-cell.inline-editing select.ignis-input {
   padding-right: 28px;
 }
 

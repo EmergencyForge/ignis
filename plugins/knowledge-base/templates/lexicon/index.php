@@ -33,26 +33,6 @@ use App\KnowledgeBase\KBHelper;
         .kb-archived {
             opacity: 0.6;
         }
-        /* Card styling for dark theme */
-        .kb-card .card-body {
-            color: #e0e0e0;
-            background-color: transparent;
-        }
-        .kb-card .card-title {
-            color: #ffffff;
-        }
-        .kb-card .card-text {
-            color: #aaaaaa;
-        }
-        .kb-card .card-footer {
-            color: #888888;
-            background-color: rgba(255,255,255,0.03);
-            border-top: 1px solid #444;
-        }
-        .kb-card .card-header {
-            color: #ffffff;
-            border-bottom: none;
-        }
         /* Quick action buttons styling - gray background with hover tooltip */
         .kb-quick-btn {
             width: 28px;
@@ -184,19 +164,17 @@ use App\KnowledgeBase\KBHelper;
     <?php if ($isLoggedIn): ?>
         <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
     <?php else: ?>
-        <nav class="navbar navbar-expand-lg bg-body-tertiary mb-4">
-            <div class="container">
-                <a class="navbar-brand" href="<?= BASE_PATH ?>">
+        <nav class="mb-4">
+            <div class="mx-auto flex items-center justify-between px-4 py-3">
+                <a href="<?= BASE_PATH ?>">
                     <img src="<?php echo SYSTEM_LOGO ?>" alt="<?php echo SYSTEM_NAME ?>" style="height:48px;width:auto">
                 </a>
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link" href="<?= BASE_PATH ?>login.php">Anmelden</a>
-                </div>
+                <a class="ignis-btn ignis-btn--ghost" href="<?= BASE_PATH ?>login.php">Anmelden</a>
             </div>
         </nav>
     <?php endif; ?>
 
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-5">
                     <nav class="admin-breadcrumb">
@@ -227,8 +205,8 @@ use App\KnowledgeBase\KBHelper;
                     <!-- Filter Section -->
                     <form method="GET" class="twplus-filter-bar mb-4">
                             <div class="twplus-filter-bar__field">
-                                <label for="type" class="form-label">Typ</label>
-                                <select name="type" id="type" class="form-select">
+                                <label for="type" class="ignis-field__label">Typ</label>
+                                <select name="type" id="type" class="ignis-input">
                                     <option value="all" <?= $typeFilter === 'all' ? 'selected' : '' ?>>Alle Typen</option>
                                     <option value="general" <?= $typeFilter === 'general' ? 'selected' : '' ?>>Allgemein</option>
                                     <option value="medication" <?= $typeFilter === 'medication' ? 'selected' : '' ?>>Medikamente</option>
@@ -237,8 +215,8 @@ use App\KnowledgeBase\KBHelper;
                             </div>
                             <?php if (!empty($allCategories)): ?>
                             <div class="twplus-filter-bar__field">
-                                <label for="category" class="form-label">Kategorie</label>
-                                <select name="category" id="category" class="form-select">
+                                <label for="category" class="ignis-field__label">Kategorie</label>
+                                <select name="category" id="category" class="ignis-input">
                                     <option value="">Alle</option>
                                     <?php
                                     /** @param array<int, array<string, mixed>> $cats */
@@ -259,8 +237,8 @@ use App\KnowledgeBase\KBHelper;
                             <?php endif; ?>
                             <?php if (!empty($allTags)): ?>
                             <div class="twplus-filter-bar__field">
-                                <label for="tag" class="form-label">Tag</label>
-                                <select name="tag" id="tag" class="form-select">
+                                <label for="tag" class="ignis-field__label">Tag</label>
+                                <select name="tag" id="tag" class="ignis-input">
                                     <option value="">Alle</option>
                                     <?php foreach ($allTags as $t): ?>
                                         <option value="<?= $t['id'] ?>" <?= $tagFilter === (int)$t['id'] ? 'selected' : '' ?>><?= htmlspecialchars($t['name']) ?> (<?= $t['cnt'] ?>)</option>
@@ -269,9 +247,9 @@ use App\KnowledgeBase\KBHelper;
                             </div>
                             <?php endif; ?>
                             <div class="twplus-filter-bar__search">
-                                <label for="search" class="form-label">Suche</label>
-                                <div class="position-relative">
-                                    <input type="text" name="search" id="search" class="form-control"
+                                <label for="search" class="ignis-field__label">Suche</label>
+                                <div class="relative">
+                                    <input type="text" name="search" id="search" class="ignis-input"
                                            placeholder="Titel, Beschreibung..." value="<?= htmlspecialchars($searchQuery) ?>"
                                            autocomplete="off">
                                     <div id="search-suggestions" class="search-suggestions"></div>
@@ -279,11 +257,11 @@ use App\KnowledgeBase\KBHelper;
                             </div>
                             <?php if ($isLoggedIn && Permissions::check(['admin', 'kb.archive'])): ?>
                                 <div class="twplus-filter-bar__toggle">
-                                    <div class="form-check mt-4">
-                                        <input class="form-check-input" type="checkbox" name="archived" value="1"
+                                    <label class="ignis-checkbox" for="showArchived">
+                                        <input type="checkbox" name="archived" value="1"
                                                id="showArchived" <?= $showArchived ? 'checked' : '' ?>>
-                                        <label class="form-check-label" for="showArchived">Archiviert</label>
-                                    </div>
+                                        <span>Archiviert</span>
+                                    </label>
                                 </div>
                             <?php endif; ?>
                             <div class="twplus-filter-bar__actions">
@@ -314,26 +292,26 @@ use App\KnowledgeBase\KBHelper;
                                              onclick="window.location.href='<?= BASE_PATH ?>lexicon/view?id=<?= $entry['id'] ?>'"
                                              <?php if ($competency): ?>style="border-top: 3px solid <?= $competency['bg'] ?>;"<?php endif; ?>>
                                             <div class="twplus-content-card__body">
-                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div class="flex justify-between items-start mb-2">
                                                     <div>
                                                         <?php if (!empty($entry['is_pinned'])): ?>
-                                                            <span class="badge me-1" style="background-color: <?= SYSTEM_COLOR ?>; color: #ffffff;" title="Angepinnt"><i class="fa-solid fa-thumbtack"></i></span>
+                                                            <span class="ignis-chip mr-1" style="background-color: <?= SYSTEM_COLOR ?>; color: #ffffff;" title="Angepinnt"><i class="fa-solid fa-thumbtack"></i></span>
                                                         <?php endif; ?>
-                                                        <span class="badge kb-type-badge bg-dark"><?= KBHelper::getTypeLabel($entry['type']) ?></span>
+                                                        <span class="ignis-chip ignis-chip--dark kb-type-badge"><?= KBHelper::getTypeLabel($entry['type']) ?></span>
                                                         <?php if (!empty($entry['category_name'])): ?>
-                                                            <span class="badge kb-type-badge bg-secondary"><?php if (!empty($entry['category_icon'])): ?><i class="<?= htmlspecialchars($entry['category_icon']) ?>"></i> <?php endif; ?><?= htmlspecialchars($entry['category_name']) ?></span>
+                                                            <span class="ignis-chip kb-type-badge"><?php if (!empty($entry['category_icon'])): ?><i class="<?= htmlspecialchars($entry['category_icon']) ?>"></i> <?php endif; ?><?= htmlspecialchars($entry['category_name']) ?></span>
                                                         <?php endif; ?>
                                                         <?php if ($competency): ?>
-                                                            <span class="badge kb-type-badge ms-1" style="background-color: <?= $competency['bg'] ?>; color: <?= $competency['text'] ?? '#ffffff' ?>;"><?= $competency['label'] ?></span>
+                                                            <span class="ignis-chip kb-type-badge ml-1" style="background-color: <?= $competency['bg'] ?>; color: <?= $competency['text'] ?? '#ffffff' ?>;"><?= $competency['label'] ?></span>
                                                         <?php endif; ?>
                                                     </div>
                                                     <?php if ($entry['is_archived']): ?>
-                                                        <span class="badge bg-warning text-dark">Archiviert</span>
+                                                        <span class="ignis-chip ignis-chip--warning">Archiviert</span>
                                                     <?php endif; ?>
                                                 </div>
                                                 <h2 class="twplus-content-card__title"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['title']), $searchQuery) : htmlspecialchars($entry['title']) ?></h2>
                                                 <?php if (!empty($entry['subtitle'])): ?>
-                                                    <p class="card-text text-muted small"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['subtitle']), $searchQuery) : htmlspecialchars($entry['subtitle']) ?></p>
+                                                    <p class="text-gray-500 text-sm"><?= !empty($searchQuery) ? KBHelper::highlightSearchTerms(htmlspecialchars($entry['subtitle']), $searchQuery) : htmlspecialchars($entry['subtitle']) ?></p>
                                                 <?php endif; ?>
 
                                                 <?php if (!empty($searchQuery)):
@@ -347,24 +325,24 @@ use App\KnowledgeBase\KBHelper;
                                                         if ($snippet !== null) break;
                                                     }
                                                     if ($snippet !== null): ?>
-                                                    <p class="card-text small text-muted mt-1" style="font-size: 0.8rem;">
+                                                    <p class="text-gray-500 text-sm mt-1" style="font-size: 0.8rem;">
                                                         <?= KBHelper::highlightSearchTerms(htmlspecialchars($snippet), $searchQuery) ?>
                                                     </p>
                                                 <?php endif; endif; ?>
 
                                                 <?php if ($entry['type'] === 'medication' && !empty($entry['med_wirkstoffgruppe'])): ?>
-                                                    <p class="card-text small"><strong>Wirkstoffgruppe:</strong> <?= htmlspecialchars($entry['med_wirkstoffgruppe']) ?></p>
+                                                    <p class="text-sm"><strong>Wirkstoffgruppe:</strong> <?= htmlspecialchars($entry['med_wirkstoffgruppe']) ?></p>
                                                 <?php endif; ?>
                                                 <?php if (!empty($entryTagsMap[$entry['id']])): ?>
-                                                    <div class="d-flex flex-wrap gap-1 mt-2">
+                                                    <div class="flex flex-wrap gap-1 mt-2">
                                                         <?php foreach ($entryTagsMap[$entry['id']] as $etag): ?>
-                                                            <span class="badge" style="background-color: <?= htmlspecialchars($etag['color']) ?>; font-size: 0.65rem;"><?= htmlspecialchars($etag['name']) ?></span>
+                                                            <span class="ignis-chip" style="background-color: <?= htmlspecialchars($etag['color']) ?>; color: #fff; font-size: 0.65rem;"><?= htmlspecialchars($etag['name']) ?></span>
                                                         <?php endforeach; ?>
                                                     </div>
                                                 <?php endif; ?>
                                             </div>
                                             <div class="kb-card-footer twplus-content-card__footer">
-                                                <small class="text-muted kb-card-footer-text">
+                                                <small class="text-gray-500 kb-card-footer-text">
                                                     <?php if ($entry['updated_at']): ?>
                                                         Aktualisiert: <?= date('d.m.Y H:i', strtotime($entry['updated_at'])) ?>
                                                         <?php if ($entry['updater_name'] && empty($entry['hide_editor'])): ?>

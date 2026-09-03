@@ -37,26 +37,24 @@ require_once __DIR__ . '/assets/config/config.php';
     <div class="row">
       <div class="col" id="cards">
         <?php
-        require __DIR__ . '/assets/config/database.php';
-        
         // Optimiert: Eine einzige JOIN-Query statt N+1 Queries
-        $sql = "
-            SELECT 
-                c.id as category_id,
-                c.title as category_title,
-                c.priority as category_priority,
-                t.id as tile_id,
-                t.title as tile_title,
-                t.url as tile_url,
-                t.icon as tile_icon,
-                t.priority as tile_priority
-            FROM intra_dashboard_categories c
-            LEFT JOIN intra_dashboard_tiles t ON t.category = c.id
-            ORDER BY c.priority ASC, t.priority ASC
-        ";
-        $stmt = $pdo->query($sql);
-        $allData = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+        $allData = \Illuminate\Database\Capsule\Manager::table('intra_dashboard_categories as c')
+            ->leftJoin('intra_dashboard_tiles as t', 't.category', '=', 'c.id')
+            ->orderBy('c.priority')
+            ->orderBy('t.priority')
+            ->get([
+                'c.id as category_id',
+                'c.title as category_title',
+                'c.priority as category_priority',
+                't.id as tile_id',
+                't.title as tile_title',
+                't.url as tile_url',
+                't.icon as tile_icon',
+                't.priority as tile_priority',
+            ])
+            ->map(fn ($row) => (array) $row)
+            ->all();
+
         // Daten nach Kategorien gruppieren
         $categories = [];
         foreach ($allData as $row) {

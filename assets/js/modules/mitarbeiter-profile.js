@@ -140,7 +140,7 @@
         let input;
         if (type === 'select') {
           input = document.createElement('select');
-          input.className = 'form-select';
+          input.className = 'ignis-input';
           const opts = JSON.parse(cell.dataset.options);
           for (const k in opts) {
             const opt = document.createElement('option');
@@ -152,12 +152,12 @@
         } else if (type === 'date') {
           input = document.createElement('input');
           input.type = 'date';
-          input.className = 'form-control';
+          input.className = 'ignis-input';
           input.value = currentData[field] || raw;
         } else {
           input = document.createElement('input');
           input.type = 'text';
-          input.className = 'form-control';
+          input.className = 'ignis-input';
           input.value = currentData[field] !== undefined ? currentData[field] : originalText;
           if (originalText === 'Keine' || originalText === 'N. hinterlegt') {
             input.value = currentData[field] || '';

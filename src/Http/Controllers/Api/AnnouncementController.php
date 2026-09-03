@@ -8,7 +8,6 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
 use App\Telemetry\GlobalAnnouncementManager;
-use PDO;
 
 /**
  * Global-Announcements-Endpoints.
@@ -18,10 +17,6 @@ use PDO;
  */
 final class AnnouncementController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * POST /api/announcements/dismiss
      *
@@ -40,7 +35,7 @@ final class AnnouncementController
         }
 
         try {
-            $manager = new GlobalAnnouncementManager($this->pdo);
+            $manager = new GlobalAnnouncementManager();
             $success = $manager->dismissAnnouncement((string) $input['announcement_id'], $userId);
             return Response::json(['success' => $success]);
         } catch (\Throwable $e) {

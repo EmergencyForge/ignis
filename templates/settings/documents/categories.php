@@ -1,16 +1,22 @@
 <?php
 /**
  * View: Dokument-Kategorien
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 // Kategorien laden
-$stmt = $pdo->query("SELECT dk.*, (SELECT COUNT(*) FROM intra_dokument_templates WHERE category_id = dk.id) as template_count FROM intra_dokument_kategorien dk ORDER BY dk.sort_order ASC, dk.name ASC");
-$kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$kategorien = Capsule::table('intra_dokument_kategorien as dk')
+    ->orderBy('dk.sort_order')
+    ->orderBy('dk.name')
+    ->get([
+        'dk.*',
+        Capsule::raw('(SELECT COUNT(*) FROM intra_dokument_templates WHERE category_id = dk.id) as template_count'),
+    ])
+    ->map(fn ($row) => (array) $row)
+    ->all();
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -118,7 +124,7 @@ $kategorien = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="mb-3">
             <label for="catColor" class="ignis-field__label">Badge-Farbe</label>
-            <select class="form-select" id="catColor">
+            <select class="ignis-input" id="catColor">
                 <option value="ignis-chip--secondary">Grau (Standard)</option>
                 <option value="ignis-chip--primary">Blau</option>
                 <option value="ignis-chip--success">Grün</option>

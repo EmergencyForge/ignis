@@ -2,7 +2,6 @@
 /**
  * View: Performance-Diagnostik
  *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;

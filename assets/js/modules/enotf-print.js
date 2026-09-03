@@ -36,6 +36,14 @@
             const ctx = document.getElementById('vitalChart');
             if (!ctx) return;
 
+            // Chart.js kommt aus dem lokalen vendor-chart-Bundle. Fehlt
+            // window.Chart trotzdem (Bundle nicht gebaut/eingebunden),
+            // bleibt der Canvas leer, der Rest der Seite rendert weiter.
+            if (typeof global.Chart === 'undefined') {
+                console.warn('Chart.js nicht geladen — Vitalwerte-Diagramm wird übersprungen.');
+                return;
+            }
+
             const customPointStyles = {
                 id: 'customPointStyles',
                 afterDatasetsDraw(chart) {
@@ -182,13 +190,15 @@
                     scales: {
                         x: {
                             ticks: { color: 'black', font: { size: 9 } },
-                            grid:  { color: 'rgba(0, 0, 0, 0.1)', drawBorder: true, borderColor: 'black', borderWidth: 2 },
+                            grid:  { color: 'rgba(0, 0, 0, 0.1)' },
+                            border: { display: true, color: 'black', width: 2 },
                             title: { display: true, text: 'Zeit (Uhrzeit)', color: 'black', font: { size: 11, weight: 'bold' } },
                         },
                         y: {
                             type: 'linear', position: 'left', min: 0, max: 100,
                             ticks: { color: 'black', font: { size: 9, weight: 'bold' }, stepSize: 10 },
-                            grid:  { color: 'rgba(0, 0, 0, 0.1)', drawBorder: true, borderColor: 'black', borderWidth: 2 },
+                            grid:  { color: 'rgba(0, 0, 0, 0.1)' },
+                            border: { display: true, color: 'black', width: 2 },
                             title: { display: true, text: 'SpO₂ / AF / etCO₂ / Temp (0-100)', color: 'black', font: { size: 10, weight: 'bold' } },
                         },
                         y1: {

@@ -1,9 +1,10 @@
 <?php
 date_default_timezone_set('Europe/Berlin');
 require_once __DIR__ . '/../../../assets/config/config.php';
-require __DIR__ . '/../../../assets/config/database.php';
 
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Helpers\EnotfUrl;
+use Plugin\Enotf\Models\Edivi;
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $action = $_POST["action"];
@@ -12,17 +13,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $force_create = isset($_POST["force_create"]) ? (int)$_POST["force_create"] : 0;
 
     // Prüfen ob bereits ein Protokoll existiert
-    $stmt = $pdo->prepare("SELECT fzg_transp, fzg_na FROM intra_edivi WHERE enr = :enr LIMIT 1");
-    $stmt->execute(['enr' => $enr]);
-    $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+    $existing = Edivi::where('enr', $enr)->first(['fzg_transp', 'fzg_na']);
 
     // Fahrzeugtyp ermitteln
     $fahrzeugId = $_SESSION['protfzg'] ?? null;
-    $stmtFzg = $pdo->prepare("SELECT identifier, rd_type FROM intra_fahrzeuge WHERE identifier = :id");
-    $stmtFzg->execute(['id' => $fahrzeugId]);
-    $fahrzeug = $stmtFzg->fetch(PDO::FETCH_ASSOC);
+    $fahrzeug = Capsule::table('intra_fahrzeuge')
+        ->where('identifier', $fahrzeugId)
+        ->first(['identifier', 'rd_type']);
 
-    $isDoctorVehicle = ($fahrzeug && $fahrzeug['rd_type'] == 1);
+    $isDoctorVehicle = ($fahrzeug && $fahrzeug->rd_type == 1);
     $fzgField = $isDoctorVehicle ? 'fzg_na' : 'fzg_transp';
 
     // Wenn Protokoll existiert und relevantes Feld belegt ist
@@ -39,9 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         do {
             $newEnr = $originalEnr . "_" . $suffix;
-            $checkStmt = $pdo->prepare("SELECT 1 FROM intra_edivi WHERE enr = :enr");
-            $checkStmt->execute(['enr' => $newEnr]);
-            $suffixExists = $checkStmt->rowCount() > 0;
+            $suffixExists = Edivi::where('enr', $newEnr)->exists();
 
             if ($suffixExists) {
                 $suffix++;
@@ -67,30 +64,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $persoField2 = $isDoctorVehicle ? 'fzg_na_perso_2' : 'fzg_transp_perso_2';
         $persoField3 = $isDoctorVehicle ? 'fzg_na_perso_3' : 'fzg_transp_perso_3';
 
-        $updateFields = [$fzgField . ' = :fahrzeug'];
-        $params = [':fahrzeug' => $fahrzeugId];
+        $updateFields = [$fzgField => $fahrzeugId];
 
         // persoField1 (fzg_*_perso) = Fahrer, persoField2 (fzg_*_perso_2) = Beifahrer, persoField3 (fzg_*_perso_3) = Praktikant
         if ($fahrer !== null) {
-            $updateFields[] = $persoField1 . ' = :fahrer';
-            $params[':fahrer'] = $fahrer;
+            $updateFields[$persoField1] = $fahrer;
         }
 
         if ($beifahrer !== null) {
-            $updateFields[] = $persoField2 . ' = :beifahrer';
-            $params[':beifahrer'] = $beifahrer;
+            $updateFields[$persoField2] = $beifahrer;
         }
 
         if ($praktikant !== null) {
-            $updateFields[] = $persoField3 . ' = :praktikant';
-            $params[':praktikant'] = $praktikant;
+            $updateFields[$persoField3] = $praktikant;
         }
 
-        $sql = "UPDATE intra_edivi SET " . implode(", ", $updateFields) . " WHERE enr = :enr";
-        $params[':enr'] = $enr;
-
-        $update = $pdo->prepare($sql);
-        $update->execute($params);
+        Edivi::where('enr', $enr)->update($updateFields);
 
         header("Location: " . EnotfUrl::protokoll($enr));
         exit();
@@ -117,41 +106,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $currentDate = date('Y-m-d');
     $currentTime = date('H:i');
 
-    $columns = ['enr', 'prot_by', $fzgField, 'edatum', 'ezeit', 'createdby'];
-    $placeholders = [':enr', ':prot_by', ':fahrzeug', ':edatum', ':ezeit', ':createdby'];
-    $params = [
-        ':enr' => $enr,
-        ':prot_by' => $prot_by,
-        ':fahrzeug' => $fahrzeugId,
-        ':edatum' => $currentDate,
-        ':ezeit' => $currentTime,
-        ':createdby' => 2
+    $insertData = [
+        'enr' => $enr,
+        'prot_by' => $prot_by,
+        $fzgField => $fahrzeugId,
+        'edatum' => $currentDate,
+        'ezeit' => $currentTime,
+        'createdby' => 2
     ];
 
     // persoField1 (fzg_*_perso) = Fahrer, persoField2 (fzg_*_perso_2) = Beifahrer, persoField3 (fzg_*_perso_3) = Praktikant
     if ($fahrer !== null) {
-        $columns[] = $persoField1;
-        $placeholders[] = ':fahrer';
-        $params[':fahrer'] = $fahrer;
+        $insertData[$persoField1] = $fahrer;
     }
 
     if ($beifahrer !== null) {
-        $columns[] = $persoField2;
-        $placeholders[] = ':beifahrer';
-        $params[':beifahrer'] = $beifahrer;
+        $insertData[$persoField2] = $beifahrer;
     }
 
     if ($praktikant !== null) {
-        $columns[] = $persoField3;
-        $placeholders[] = ':praktikant';
-        $params[':praktikant'] = $praktikant;
+        $insertData[$persoField3] = $praktikant;
     }
 
-    $sql = "INSERT INTO intra_edivi (" . implode(", ", $columns) . ")
-            VALUES (" . implode(", ", $placeholders) . ")";
-
-    $insert = $pdo->prepare($sql);
-    $insert->execute($params);
+    Capsule::table('intra_edivi')->insert($insertData);
 
     header("Location: " . EnotfUrl::protokoll($enr));
     exit();

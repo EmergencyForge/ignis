@@ -7,7 +7,6 @@
  * @var array<string,string>                                        $categories
  * @var array<int,string>                                           $colors
  * @var \Illuminate\Support\Collection<int,\App\Models\Mitarbeiter> $absentToday
- * @var \PDO                                                        $pdo
  */
 
 use App\Helpers\Flash;

@@ -8,7 +8,6 @@
  * @var int|null    $activeIncidentId
  * @var string|null $activeIncidentNumber
  * @var array       $statusConfig
- * @var \PDO        $pdo
  */
 
 use App\Helpers\Flash;

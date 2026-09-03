@@ -5,7 +5,6 @@
  *
  * @var array<int,array<string,mixed>> $jobs
  * @var string                         $cronEndpointToken
- * @var \PDO                           $pdo
  */
 
 use App\Helpers\DateTimeHelper;

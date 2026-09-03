@@ -5,22 +5,35 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
+ * Fügt vehicle_id zu intra_fire_incident_map_zones hinzu, damit Zonen einem
+ * Fahrzeug zugeordnet werden können — inklusive Index und Foreign Key auf
+ * intra_fahrzeuge (ON DELETE SET NULL, ON UPDATE CASCADE).
  *
- * Original-Datei: assets/database/add_vehicle_id_to_zones_25122025.php
- * Spiegelung:     database/legacy/add_vehicle_id_to_zones_25122025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Auf Installationen, deren Zones-Tabelle die Spalte bereits mitbringt,
+ * passiert nichts — Index und Constraint existieren dort ebenfalls schon aus
+ * dem CREATE TABLE.
  */
 class AddVehicleIdToZones25122025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/add_vehicle_id_to_zones_25122025.php';
+        $table = $this->table('intra_fire_incident_map_zones');
+        if ($table->hasColumn('vehicle_id')) {
+            return;
+        }
+
+        $table
+            ->addColumn('vehicle_id', 'integer', [
+                'null'    => true,
+                'comment' => 'Vehicle ID that created the zone',
+                'after'   => 'created_by',
+            ])
+            ->addIndex(['vehicle_id'], ['name' => 'idx_vehicle'])
+            ->addForeignKey('vehicle_id', 'intra_fahrzeuge', 'id', [
+                'delete'     => 'SET_NULL',
+                'update'     => 'CASCADE',
+                'constraint' => 'fk_map_zone_vehicle',
+            ])
+            ->update();
     }
 }

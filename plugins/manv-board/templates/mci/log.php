@@ -4,7 +4,6 @@
  *
  * @var array<string,mixed>            $lage
  * @var array<int,array<string,mixed>> $logEntries
- * @var \PDO                           $pdo
  */
 
 $lageId     = (int) $lage['id'];

@@ -3,7 +3,6 @@
  * View: Dienstgrade verwalten
  *
  * @var array<int,array<string,mixed>> $ranks
- * @var \PDO                           $pdo
  */
 
 use App\Auth\Permissions;

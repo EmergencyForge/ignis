@@ -11,7 +11,7 @@ use App\Helpers\Flash;
 </head>
 <body data-theme="dark" data-page="lexicon">
     <?php include dirname(__DIR__, 4) . "/assets/components/navbar.php"; ?>
-    <div class="container-full position-relative" id="mainpageContainer">
+    <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page my-5">
             <nav class="admin-breadcrumb">
                 <a href="<?= BASE_PATH ?>index.php">Dashboard</a>
@@ -33,12 +33,12 @@ use App\Helpers\Flash;
             </header>
             <?php Flash::render(); ?>
 
-            <div class="row">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <!-- Kategorien -->
-                <div class="col-md-7">
+                <div class="md:col-span-7">
                     <div class="twplus-table-card mb-4">
                         <div class="p-3">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="flex justify-between items-center mb-3">
                             <h4 class="mb-0"><i class="fa-solid fa-folder-tree"></i> Kategorien</h4>
                             <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="showCatModal()"><i class="fa-solid fa-plus"></i> Neue Kategorie</button>
                         </div>
@@ -56,16 +56,16 @@ use App\Helpers\Flash;
                             </thead>
                             <tbody>
                                 <?php if (empty($categories)): ?>
-                                    <tr><td colspan="5" class="text-center text-muted">Keine Kategorien vorhanden.</td></tr>
+                                    <tr><td colspan="5" class="text-center text-gray-500">Keine Kategorien vorhanden.</td></tr>
                                 <?php else: ?>
                                     <?php foreach ($categories as $cat): ?>
                                         <tr>
                                             <td><?= htmlspecialchars($cat['name']) ?></td>
-                                            <td><?= $cat['parent_name'] ? htmlspecialchars($cat['parent_name']) : '<span class="text-muted">-</span>' ?></td>
-                                            <td><?= !empty($cat['icon']) ? '<i class="' . htmlspecialchars($cat['icon']) . '"></i>' : '<span class="text-muted">-</span>' ?></td>
+                                            <td><?= $cat['parent_name'] ? htmlspecialchars($cat['parent_name']) : '<span class="text-gray-500">-</span>' ?></td>
+                                            <td><?= !empty($cat['icon']) ? '<i class="' . htmlspecialchars($cat['icon']) . '"></i>' : '<span class="text-gray-500">-</span>' ?></td>
                                             <td><?= (int)$cat['entry_count'] ?></td>
                                             <td>
-                                                <div class="d-flex gap-1">
+                                                <div class="flex gap-1">
                                                     <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-tooltip="Bearbeiten" onclick='editCat(<?= json_encode($cat) ?>)'><i class="fa-solid fa-pen"></i></button>
                                                     <?php if ($cat['entry_count'] == 0): ?>
                                                         <button class="ignis-btn ignis-btn--sm ignis-btn--soft-danger ignis-btn--icon" data-tooltip="Löschen" onclick="deleteCat(<?= $cat['id'] ?>, '<?= htmlspecialchars($cat['name'], ENT_QUOTES) ?>')"><i class="fa-solid fa-trash"></i></button>
@@ -82,10 +82,10 @@ use App\Helpers\Flash;
                 </div>
 
                 <!-- Tags -->
-                <div class="col-md-5">
+                <div class="md:col-span-5">
                     <div class="twplus-table-card mb-4">
                         <div class="p-3">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="flex justify-between items-center mb-3">
                             <h4 class="mb-0"><i class="fa-solid fa-tags"></i> Tags</h4>
                             <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" onclick="showTagModal()"><i class="fa-solid fa-plus"></i> Neuer Tag</button>
                         </div>
@@ -101,14 +101,14 @@ use App\Helpers\Flash;
                             </thead>
                             <tbody>
                                 <?php if (empty($tags)): ?>
-                                    <tr><td colspan="3" class="text-center text-muted">Keine Tags vorhanden.</td></tr>
+                                    <tr><td colspan="3" class="text-center text-gray-500">Keine Tags vorhanden.</td></tr>
                                 <?php else: ?>
                                     <?php foreach ($tags as $tag): ?>
                                         <tr>
-                                            <td><span class="badge" style="background-color: <?= htmlspecialchars($tag['color']) ?>;"><?= htmlspecialchars($tag['name']) ?></span></td>
+                                            <td><span class="ignis-chip" style="background-color: <?= htmlspecialchars($tag['color']) ?>; color: #fff;"><?= htmlspecialchars($tag['name']) ?></span></td>
                                             <td><?= (int)$tag['usage_count'] ?>x</td>
                                             <td>
-                                                <div class="d-flex gap-1">
+                                                <div class="flex gap-1">
                                                     <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon" data-tooltip="Bearbeiten" onclick='editTag(<?= json_encode($tag) ?>)'><i class="fa-solid fa-pen"></i></button>
                                                     <button class="ignis-btn ignis-btn--sm ignis-btn--soft-danger ignis-btn--icon" data-tooltip="Löschen" onclick="deleteTag(<?= $tag['id'] ?>, '<?= htmlspecialchars($tag['name'], ENT_QUOTES) ?>')"><i class="fa-solid fa-trash"></i></button>
                                                 </div>
@@ -136,12 +136,12 @@ use App\Helpers\Flash;
                 <div class="modal-body">
                     <input type="hidden" id="catId">
                     <div class="mb-3">
-                        <label for="catName" class="form-label">Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="catName" required>
+                        <label for="catName" class="ignis-field__label">Name <span class="ignis-field__required">*</span></label>
+                        <input type="text" class="ignis-input" id="catName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="catParent" class="form-label">Übergeordnete Kategorie</label>
-                        <select class="form-select" id="catParent">
+                        <label for="catParent" class="ignis-field__label">Übergeordnete Kategorie</label>
+                        <select class="ignis-input" id="catParent">
                             <option value="">Keine (Hauptkategorie)</option>
                             <?php foreach ($categories as $cat): ?>
                                 <?php if (empty($cat['parent_id'])): ?>
@@ -151,13 +151,13 @@ use App\Helpers\Flash;
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="catIcon" class="form-label">Icon <span class="text-muted small">(optional)</span></label>
-                        <input type="text" class="form-control" id="catIcon" placeholder="z.B. fa-solid fa-heart-pulse">
-                        <div class="form-text">Font Awesome Klasse. Vorschau: <i id="catIconPreview" class="ms-1"></i></div>
+                        <label for="catIcon" class="ignis-field__label">Icon <span class="text-gray-500 text-sm">(optional)</span></label>
+                        <input type="text" class="ignis-input" id="catIcon" placeholder="z.B. fa-solid fa-heart-pulse">
+                        <div class="ignis-field__hint">Font Awesome Klasse. Vorschau: <i id="catIconPreview" class="ml-1"></i></div>
                     </div>
                     <div class="mb-3">
-                        <label for="catSort" class="form-label">Reihenfolge</label>
-                        <input type="number" class="form-control" id="catSort" value="0" min="0">
+                        <label for="catSort" class="ignis-field__label">Reihenfolge</label>
+                        <input type="number" class="ignis-input" id="catSort" value="0" min="0">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -179,13 +179,13 @@ use App\Helpers\Flash;
                 <div class="modal-body">
                     <input type="hidden" id="tagId">
                     <div class="mb-3">
-                        <label for="tagName" class="form-label">Name <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="tagName" required>
+                        <label for="tagName" class="ignis-field__label">Name <span class="ignis-field__required">*</span></label>
+                        <input type="text" class="ignis-input" id="tagName" required>
                     </div>
                     <div class="mb-3">
-                        <label for="tagColor" class="form-label">Farbe</label>
-                        <input type="color" class="form-control form-control-color" id="tagColor" value="#6c757d">
-                        <div class="form-text">Vorschau: <span class="badge" id="tagPreview" style="background-color: #6c757d;">Beispiel-Tag</span></div>
+                        <label for="tagColor" class="ignis-field__label">Farbe</label>
+                        <input type="color" class="ignis-input" id="tagColor" value="#6c757d" style="width: 4rem; height: 2.4rem; padding: 0.25rem;">
+                        <div class="ignis-field__hint">Vorschau: <span class="ignis-chip" id="tagPreview" style="background-color: #6c757d; color: #fff;">Beispiel-Tag</span></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -202,7 +202,7 @@ use App\Helpers\Flash;
         var tagModal = { show: () => Dialog.openElement('#tagModal'), hide: () => Dialog.closeElement('#tagModal') };
 
         document.getElementById('catIcon').addEventListener('input', function() {
-            document.getElementById('catIconPreview').className = this.value + ' ms-1';
+            document.getElementById('catIconPreview').className = this.value + ' ml-1';
         });
         document.getElementById('tagColor').addEventListener('input', function() {
             document.getElementById('tagPreview').style.backgroundColor = this.value;
@@ -218,7 +218,7 @@ use App\Helpers\Flash;
             document.getElementById('catParent').value = '';
             document.getElementById('catIcon').value = '';
             document.getElementById('catSort').value = '0';
-            document.getElementById('catIconPreview').className = 'ms-1';
+            document.getElementById('catIconPreview').className = 'ml-1';
             document.getElementById('catModalLabel').textContent = 'Kategorie erstellen';
             catModal.show();
         }
@@ -229,7 +229,7 @@ use App\Helpers\Flash;
             document.getElementById('catParent').value = cat.parent_id || '';
             document.getElementById('catIcon').value = cat.icon || '';
             document.getElementById('catSort').value = cat.sort_order;
-            document.getElementById('catIconPreview').className = (cat.icon || '') + ' ms-1';
+            document.getElementById('catIconPreview').className = (cat.icon || '') + ' ml-1';
             document.getElementById('catModalLabel').textContent = 'Kategorie bearbeiten';
             catModal.show();
         }

@@ -35,7 +35,7 @@ class NotificationController extends Controller
      */
     public function index(): void
     {
-        $manager = new NotificationManager($this->pdo);
+        $manager = new NotificationManager();
         $userId  = (int) $_SESSION['userid'];
 
         $filter     = (string) ($_GET['filter'] ?? 'all');
@@ -79,7 +79,7 @@ class NotificationController extends Controller
     {
         $id = (int) ($_POST['id'] ?? 0);
         if ($id > 0) {
-            (new NotificationManager($this->pdo))->markAsRead($id, (int) $_SESSION['userid']);
+            (new NotificationManager())->markAsRead($id, (int) $_SESSION['userid']);
             Flash::set('success', 'Benachrichtigung als gelesen markiert');
         }
 
@@ -92,7 +92,7 @@ class NotificationController extends Controller
      */
     public function markAllAsRead(): void
     {
-        (new NotificationManager($this->pdo))->markAllAsRead((int) $_SESSION['userid']);
+        (new NotificationManager())->markAllAsRead((int) $_SESSION['userid']);
         Flash::set('success', 'Alle Benachrichtigungen als gelesen markiert');
 
         $this->redirect('benachrichtigungen/index');
@@ -106,7 +106,7 @@ class NotificationController extends Controller
     {
         $id = (int) ($_POST['id'] ?? 0);
         if ($id > 0) {
-            (new NotificationManager($this->pdo))->delete($id, (int) $_SESSION['userid']);
+            (new NotificationManager())->delete($id, (int) $_SESSION['userid']);
             Flash::set('success', 'Benachrichtigung gelöscht');
         }
 

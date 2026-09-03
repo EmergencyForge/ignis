@@ -9,7 +9,8 @@ use App\Cron\JobHandler\ConsoleHandler;
 use App\Auth\Gate;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
-use PDO;
+use App\Models\CronJob;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * Admin-UI für das hauseigene Cron-System.
@@ -22,26 +23,26 @@ use PDO;
 final class CronController extends Controller
 {
     public function __construct(
-        PDO $pdo,
         private readonly CronScheduler $scheduler,
         private readonly ConsoleHandler $consoleHandler,
-    )
-    {
-        parent::__construct($pdo);
-    }
+    ) {}
 
     public function index(): void
     {
         $this->requireAuth();
         $this->ensureAdmin();
 
-        $jobs = $this->pdo
-            ->query("SELECT id, identifier, name, description, handler_type, handler,
-                            schedule, active, is_builtin, last_status, last_run_at,
-                            last_duration_ms, next_run_at, fail_count
-                       FROM intra_cron_jobs
-                      ORDER BY is_builtin DESC, identifier ASC")
-            ->fetchAll(PDO::FETCH_ASSOC);
+        $jobs = Capsule::table('intra_cron_jobs')
+            ->select([
+                'id', 'identifier', 'name', 'description', 'handler_type', 'handler',
+                'schedule', 'active', 'is_builtin', 'last_status', 'last_run_at',
+                'last_duration_ms', 'next_run_at', 'fail_count',
+            ])
+            ->orderByDesc('is_builtin')
+            ->orderBy('identifier')
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         foreach ($jobs as &$job) {
             $job['handler_available'] = $job['handler_type'] !== 'console'
@@ -67,15 +68,14 @@ final class CronController extends Controller
             $this->jsonError('Kein Job angegeben', 400);
         }
 
-        $stmt = $this->pdo->prepare(
-            "SELECT id, started_at, finished_at, status, duration_ms, output
-               FROM intra_cron_runs
-              WHERE job_id = :id
-              ORDER BY started_at DESC
-              LIMIT 25"
-        );
-        $stmt->execute([':id' => $jobId]);
-        $runs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $runs = Capsule::table('intra_cron_runs')
+            ->select(['id', 'started_at', 'finished_at', 'status', 'duration_ms', 'output'])
+            ->where('job_id', $jobId)
+            ->orderByDesc('started_at')
+            ->limit(25)
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(['ok' => true, 'runs' => $runs]);
@@ -93,13 +93,12 @@ final class CronController extends Controller
             $this->redirect('settings/system/cron');
         }
 
-        $stmt = $this->pdo->prepare(
-            "UPDATE intra_cron_jobs
-                SET active = 1 - active,
-                    fail_count = 0
-              WHERE id = :id"
-        );
-        $stmt->execute([':id' => $jobId]);
+        CronJob::query()
+            ->where('id', $jobId)
+            ->update([
+                'active'     => Capsule::raw('1 - active'),
+                'fail_count' => 0,
+            ]);
 
         Flash::set('success', 'saved');
         $this->redirect('settings/system/cron');
@@ -133,12 +132,12 @@ final class CronController extends Controller
             $this->redirect('settings/system/cron');
         }
 
-        $stmt = $this->pdo->prepare(
-            "DELETE FROM intra_cron_jobs WHERE id = :id AND is_builtin = 0"
-        );
-        $stmt->execute([':id' => $jobId]);
+        $deleted = CronJob::query()
+            ->where('id', $jobId)
+            ->where('is_builtin', 0)
+            ->delete();
 
-        if ($stmt->rowCount() === 1) {
+        if ($deleted === 1) {
             Flash::set('success', 'deleted');
         } else {
             Flash::set('error', 'builtin-protected');
@@ -185,23 +184,18 @@ final class CronController extends Controller
             $configJson = '{}';
         }
 
-        $stmt = $this->pdo->prepare(
-            "INSERT INTO intra_cron_jobs
-                (identifier, name, description, handler_type, handler, schedule, config,
-                 active, is_builtin, next_run_at)
-             VALUES
-                (:identifier, :name, :description, :handler_type, :handler, :schedule, :config,
-                 1, 0, UTC_TIMESTAMP())"
-        );
         try {
-            $stmt->execute([
-                ':identifier'   => $identifier,
-                ':name'         => $name,
-                ':description'  => $description,
-                ':handler_type' => $handlerType,
-                ':handler'      => $handler,
-                ':schedule'     => $schedule,
-                ':config'       => $configJson,
+            CronJob::create([
+                'identifier'   => $identifier,
+                'name'         => $name,
+                'description'  => $description,
+                'handler_type' => $handlerType,
+                'handler'      => $handler,
+                'schedule'     => $schedule,
+                'config'       => $configJson,
+                'active'       => 1,
+                'is_builtin'   => 0,
+                'next_run_at'  => Capsule::raw('UTC_TIMESTAMP()'),
             ]);
             Flash::set('success', 'created');
         } catch (\PDOException $e) {

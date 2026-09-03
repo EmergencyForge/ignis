@@ -7,7 +7,6 @@
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\AmbSkill>     $rdQualis
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\FdSkill>     $fwQualis
  * @var bool                                                                    $showArchive
- * @var \PDO                                                                    $pdo
  */
 
 use App\Auth\Gate;

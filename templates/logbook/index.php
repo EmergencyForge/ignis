@@ -13,7 +13,6 @@
  * @var string                          $filterDateTo
  * @var array<string,string>            $fahrttypen
  * @var array<string,string>            $fahrttypBadges
- * @var \PDO                            $pdo
  */
 
 use App\Helpers\Flash;

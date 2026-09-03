@@ -1,28 +1,32 @@
 <?php
 /**
  * View: Beladelisten-Verwaltung
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
-$vehTypesStmt = $pdo->prepare("SELECT DISTINCT veh_type FROM intra_fahrzeuge_beladung_categories WHERE veh_type IS NOT NULL AND veh_type != '' ORDER BY veh_type");
-$vehTypesStmt->execute();
-$vehTypes = $vehTypesStmt->fetchAll(PDO::FETCH_COLUMN);
+$vehTypes = Capsule::table('intra_fahrzeuge_beladung_categories')
+    ->whereNotNull('veh_type')
+    ->where('veh_type', '!=', '')
+    ->distinct()
+    ->orderBy('veh_type')
+    ->pluck('veh_type')
+    ->all();
 
-$stmt = $pdo->prepare("
-    SELECT c.*, 
-           COUNT(t.id) as tile_count,
-           SUM(t.amount) as total_items
-    FROM intra_fahrzeuge_beladung_categories c
-    LEFT JOIN intra_fahrzeuge_beladung_tiles t ON c.id = t.category
-    GROUP BY c.id
-    ORDER BY c.priority ASC, c.title ASC
-");
-$stmt->execute();
-$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$categories = Capsule::table('intra_fahrzeuge_beladung_categories as c')
+    ->leftJoin('intra_fahrzeuge_beladung_tiles as t', 'c.id', '=', 't.category')
+    ->groupBy('c.id')
+    ->orderBy('c.priority')
+    ->orderBy('c.title')
+    ->get([
+        'c.*',
+        Capsule::raw('COUNT(t.id) as tile_count'),
+        Capsule::raw('SUM(t.amount) as total_items'),
+    ])
+    ->map(fn ($row) => (array) $row)
+    ->all();
 ?>
 
 <!DOCTYPE html>
@@ -149,14 +153,14 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $catIds = array_column($categories, 'id');
                 $tilesByCategory = [];
                 if ($catIds) {
-                    $placeholders = implode(',', array_fill(0, count($catIds), '?'));
-                    $tilesStmt = $pdo->prepare(
-                        "SELECT * FROM intra_fahrzeuge_beladung_tiles
-                         WHERE category IN ($placeholders)
-                         ORDER BY sort_order ASC, title ASC"
-                    );
-                    $tilesStmt->execute($catIds);
-                    foreach ($tilesStmt->fetchAll(PDO::FETCH_ASSOC) as $t) {
+                    $tiles = Capsule::table('intra_fahrzeuge_beladung_tiles')
+                        ->whereIn('category', $catIds)
+                        ->orderBy('sort_order')
+                        ->orderBy('title')
+                        ->get()
+                        ->map(fn ($row) => (array) $row)
+                        ->all();
+                    foreach ($tiles as $t) {
                         $tilesByCategory[(int) $t['category']][] = $t;
                     }
                 }

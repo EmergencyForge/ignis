@@ -1,8 +1,6 @@
 <?php
 /**
  * View: Federation-Konfiguration
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
@@ -15,8 +13,8 @@ use App\Session\SessionManager;
 $csrfToken = CsrfProtection::getToken();
 $userId    = SessionManager::userId();
 
-$configManager = new ConfigManager($pdo);
-$pairingService = new FederationPairingService($pdo);
+$configManager = new ConfigManager();
+$pairingService = new FederationPairingService();
 
 $federationEnabled = \App\Federation\FederationMiddleware::isEnabled();
 $instanceId = \App\Federation\FederationMiddleware::config('FEDERATION_INSTANCE_ID');
@@ -194,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'sync_now') {
         $linkId = (int) ($_POST['link_id'] ?? 0);
         if ($linkId > 0) {
-            $syncService = new \App\Federation\FederationSyncService($pdo);
+            $syncService = new \App\Federation\FederationSyncService();
             $messages = [];
 
             // Sync all enabled data types

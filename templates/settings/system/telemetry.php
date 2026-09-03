@@ -1,16 +1,15 @@
 <?php
 /**
  * View: Telemetrie & Announcements Einstellungen
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
 use App\Telemetry\TelemetryManager;
 use App\Telemetry\GlobalAnnouncementManager;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
-$telemetry = new TelemetryManager($pdo);
-$announcements = new GlobalAnnouncementManager($pdo);
+$telemetry = new TelemetryManager();
+$announcements = new GlobalAnnouncementManager();
 
 $message = '';
 $messageType = '';
@@ -68,12 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newUrl = trim($_POST['hub_url'] ?? '');
             if (filter_var($newUrl, FILTER_VALIDATE_URL)) {
                 try {
-                    $stmt = $pdo->prepare("
-                        UPDATE intra_config 
-                        SET config_value = ?, updated_at = NOW()
-                        WHERE config_key = 'HUB_URL'
-                    ");
-                    $stmt->execute([$newUrl]);
+                    Capsule::table('intra_config')
+                        ->where('config_key', 'HUB_URL')
+                        ->update([
+                            'config_value' => $newUrl,
+                            'updated_at'   => Capsule::raw('NOW()'),
+                        ]);
                     $message = 'Hub-URL aktualisiert.';
                     $messageType = 'success';
                 } catch (\PDOException $e) {
@@ -88,8 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Objekte neu laden
-    $telemetry = new TelemetryManager($pdo);
-    $announcements = new GlobalAnnouncementManager($pdo);
+    $telemetry = new TelemetryManager();
+    $announcements = new GlobalAnnouncementManager();
 }
 
 // Aktuelle Werte laden
@@ -126,7 +125,7 @@ $cacheInfo = $announcements->getCacheInfo();
                     // Fallback für den Fall, dass das Template direkt ohne den
                     // Controller gerendert wird (z.B. alter Stub).
                     if (!isset($installationId) || !$installationId) {
-                        $installationId = (new \App\Telemetry\TelemetryManager($pdo))->getInstallationId();
+                        $installationId = (new \App\Telemetry\TelemetryManager())->getInstallationId();
                     }
                     ?>
                     <style>
@@ -281,7 +280,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <hr>
 
                                     <h6>Status</h6>
-                                    <table class="table table-sm twplus-table">
+                                    <table class="table twplus-table">
                                         <tr>
                                             <td class="text-gray-400">Installation-ID:</td>
                                             <td>
@@ -345,7 +344,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <hr>
 
                                     <h6>Cache-Status</h6>
-                                    <table class="table table-sm mb-3 twplus-table">
+                                    <table class="table mb-3 twplus-table">
                                         <tr>
                                             <td class="text-gray-400">Einträge im Cache:</td>
                                             <td><?= $cacheInfo['count'] ?></td>
@@ -360,7 +359,7 @@ $cacheInfo = $announcements->getCacheInfo();
                                     <?php
                                     // Defensiv: Sicherstellen dass $announcements ein Objekt ist
                                     if (!($announcements instanceof \App\Telemetry\GlobalAnnouncementManager)) {
-                                        $announcements = new GlobalAnnouncementManager($pdo);
+                                        $announcements = new GlobalAnnouncementManager();
                                     }
 
                                     $currentAnnouncements = [];

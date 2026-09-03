@@ -1,8 +1,6 @@
 <?php
 /**
  * View: System-Konfiguration bearbeiten
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
@@ -10,8 +8,8 @@ use App\Helpers\Flash;
 use App\Config\ConfigManager;
 use App\Utils\AuditLogger;
 
-$configManager = new ConfigManager($pdo);
-$auditLogger = new AuditLogger($pdo);
+$configManager = new ConfigManager();
+$auditLogger = new AuditLogger();
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_config'])) {

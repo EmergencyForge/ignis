@@ -5,22 +5,33 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_intra_fahrzeuge_10022026_status.php
- * Spiegelung:     database/legacy/alter_intra_fahrzeuge_10022026_status.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Fügt current_status, status_updated_at und status_source zu intra_fahrzeuge
+ * hinzu. Damit kann der Fahrzeugstatus auch ohne aktiven Einsatz
+ * (no_dispatch) gespeichert werden.
  */
 class AlterIntraFahrzeuge10022026Status extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_fahrzeuge_10022026_status.php';
+        $columns = [
+            ['current_status',    'string',   ['limit' => 10, 'after' => 'rd_type']],
+            ['status_updated_at', 'datetime', ['after' => 'current_status']],
+            ['status_source',     'string',   ['limit' => 50, 'after' => 'status_updated_at']],
+        ];
+
+        $table = $this->table('intra_fahrzeuge');
+        $changed = false;
+
+        foreach ($columns as [$name, $type, $options]) {
+            if ($table->hasColumn($name)) {
+                continue;
+            }
+            $table->addColumn($name, $type, $options + ['null' => true, 'default' => null]);
+            $changed = true;
+        }
+
+        if ($changed) {
+            $table->update();
+        }
     }
 }

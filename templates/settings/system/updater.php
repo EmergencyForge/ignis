@@ -1,8 +1,6 @@
 <?php
 /**
  * View: System-Einstellungen
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
@@ -53,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $updateInfo = $updater->checkForUpdatesCached($forceRefresh, $includePreRelease);
 
         // Log the check action
-        $auditLogger = new AuditLogger($pdo);
+        $auditLogger = new AuditLogger();
         $auditLogger->log(
             SessionManager::userId(),
             'system_update_check',
@@ -121,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Log the installation attempt
-            $auditLogger = new AuditLogger($pdo);
+            $auditLogger = new AuditLogger();
             $auditLogger->log(
                 SessionManager::userId(),
                 'system_update_install',
@@ -214,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $installResult = $updater->downloadAndApplyBranchUpdate($branch, $commitSha);
 
-        $auditLogger = new AuditLogger($pdo);
+        $auditLogger = new AuditLogger();
         $auditLogger->log(
             SessionManager::userId(),
             'system_update_dev_install',

@@ -6,7 +6,6 @@
  * @var int                            $lageId
  * @var array<int,array<string,mixed>> $fahrzeuge
  * @var array<int,array<string,mixed>> $systemFahrzeuge
- * @var \PDO                           $pdo
  */
 
 use App\Helpers\Flash;
@@ -144,15 +143,15 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
 
                             <div class="mb-3">
                                 <label for="fahrzeug_search" class="ignis-field__label">Fahrzeug suchen und auswählen *</label>
-                                <div class="input-group input-group-lg">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <div class="ignis-input-group">
+                                    <span class="ignis-input-group__icon"><i class="fas fa-search"></i></span>
                                     <input type="text" class="ignis-input" id="fahrzeug_search"
                                         placeholder="Suchen nach Funkrufname, Kennzeichen oder Fahrzeugtyp..."
                                         autocomplete="off" required>
                                 </div>
                                 <input type="hidden" id="fahrzeug_id" name="fahrzeug_id">
                                 <small class="text-gray-400">Beginnen Sie zu tippen - Vorschläge werden automatisch angezeigt</small>
-                                <div id="search_results" class="list-group mt-2" style="display: none; max-height: 350px; overflow-y: auto; overflow-x: hidden;"></div>
+                                <div id="search_results" class="ignis-list-group mt-2" style="display: none; max-height: 350px; overflow-y: auto; overflow-x: hidden;"></div>
                             </div>
 
                             <script id="fahrzeug_data" type="application/json">
@@ -261,13 +260,13 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
             const matches = fahrzeugData.filter(fzg => fzg.search.includes(searchTerm)).slice(0, 10);
 
             if (matches.length === 0) {
-                searchResults.innerHTML = '<div class="list-group-item text-center py-3" style="background-color: #2a2a2a; border-color: #444;"><i class="fas fa-info-circle mr-2"></i>Keine Fahrzeuge gefunden</div>';
+                searchResults.innerHTML = '<div class="ignis-list-group__item text-center py-3" style="background-color: #2a2a2a; border-color: #444;"><i class="fas fa-info-circle mr-2"></i>Keine Fahrzeuge gefunden</div>';
                 searchResults.style.display = 'block';
                 return;
             }
 
             searchResults.innerHTML = matches.map(fzg => `
-                <button type="button" class="list-group-item list-group-item-action"
+                <button type="button" class="ignis-list-group__item ignis-list-group__item--interactive"
                         data-id="${fzg.id}"
                         data-name="${escapeHtml(fzg.name)}"
                         data-type="${escapeHtml(fzg.veh_type)}"
@@ -285,12 +284,12 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
 
             const style = document.createElement('style');
             style.textContent = `
-                #search_results .list-group-item:hover {
+                #search_results .ignis-list-group__item:hover {
                     background-color: #343a40 !important;
                     border-color: #0d6efd !important;
                     transform: translateX(4px);
                 }
-                #search_results .list-group-item:active {
+                #search_results .ignis-list-group__item:active {
                     background-color: #495057 !important;
                 }
             `;
@@ -301,7 +300,7 @@ $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer'])
 
             searchResults.style.display = 'block';
 
-            searchResults.querySelectorAll('.list-group-item').forEach(item => {
+            searchResults.querySelectorAll('.ignis-list-group__item').forEach(item => {
                 item.addEventListener('click', function() {
                     const id = this.dataset.id;
                     const name = this.dataset.name;

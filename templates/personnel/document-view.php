@@ -10,7 +10,6 @@
  * @var string    $austdatum  Formatiertes Ausstellungsdatum (DD.MM.YYYY) oder '-'
  * @var string    $backUrl
  * @var bool      $canManage  Darf der User archivieren/löschen?
- * @var \PDO      $pdo
  */
 
 use App\Security\CsrfProtection;

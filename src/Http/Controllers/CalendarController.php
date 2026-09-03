@@ -637,7 +637,7 @@ class CalendarController extends Controller
             return;
         }
 
-        $notifier = new NotificationManager($this->pdo);
+        $notifier = new NotificationManager();
         $verb     = $isUpdate ? 'aktualisiert' : 'angelegt';
         $when     = (string) $event->starts_at;
         $msg      = "Termin am {$when}" . ($event->location ? " · {$event->location}" : '');
@@ -786,6 +786,6 @@ class CalendarController extends Controller
         if ($userId <= 0) {
             return;
         }
-        (new AuditLogger($this->pdo))->log($userId, $action, $details, 'Kalender', 1);
+        (new AuditLogger())->log($userId, $action, $details, 'Kalender', 1);
     }
 }

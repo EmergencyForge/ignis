@@ -9,23 +9,20 @@
     </thead>
     <tbody>
         <?php
-        $query = "
-    SELECT 
-        a.uniqueid,
-        at.name as typ_name,
-        at.icon as typ_icon,
-        a.cirs_status,
-        a.cirs_manager,
-        a.time_added
-    FROM intra_antraege a
-    JOIN intra_antrag_typen at ON a.antragstyp_id = at.id
-    WHERE a.discordid = ?
-    ORDER BY a.time_added DESC
-";
-
-        $stmt = $pdo->prepare($query);
-        $stmt->execute([$_SESSION['discordtag']]);
-        $appresult = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $appresult = \Illuminate\Database\Capsule\Manager::table('intra_antraege as a')
+            ->join('intra_antrag_typen as at', 'a.antragstyp_id', '=', 'at.id')
+            ->where('a.discordid', $_SESSION['discordtag'])
+            ->orderByDesc('a.time_added')
+            ->get([
+                'a.uniqueid',
+                'at.name as typ_name',
+                'at.icon as typ_icon',
+                'a.cirs_status',
+                'a.cirs_manager',
+                'a.time_added',
+            ])
+            ->map(fn ($row) => (array) $row)
+            ->all();
 
         if (empty($appresult)) {
             echo "<tr><td colspan='6'>

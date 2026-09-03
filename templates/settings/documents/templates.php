@@ -1,23 +1,34 @@
 <?php
 /**
  * View: Dokument-Templates verwalten
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use App\Models\AmbSkill;
+use App\Models\DocumentCategory;
+use App\Models\Rank;
 
 // Lade Dienstgrade und RD-Qualifikationen für Auswahlfelder
-$dienstgradeStmt = $pdo->query("SELECT id, name, name_m, name_w FROM intra_mitarbeiter_dienstgrade WHERE archive = 0 ORDER BY priority ASC");
-$dienstgrade = $dienstgradeStmt->fetchAll(PDO::FETCH_ASSOC);
+$dienstgrade = Rank::query()
+    ->where('archive', 0)
+    ->orderBy('priority')
+    ->get(['id', 'name', 'name_m', 'name_w'])
+    ->toArray();
 
-$rdQualisStmt = $pdo->query("SELECT id, name, name_m, name_w FROM intra_mitarbeiter_rdquali WHERE trainable = 1 AND none = 0 ORDER BY priority ASC");
-$rdQualis = $rdQualisStmt->fetchAll(PDO::FETCH_ASSOC);
+$rdQualis = AmbSkill::query()
+    ->where('trainable', 1)
+    ->where('none', 0)
+    ->orderBy('priority')
+    ->get(['id', 'name', 'name_m', 'name_w'])
+    ->toArray();
 
 // Lade Dokumenten-Kategorien
-$katStmt = $pdo->query("SELECT id, name, color, icon FROM intra_dokument_kategorien ORDER BY sort_order ASC, name ASC");
-$kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
+$kategorien = DocumentCategory::query()
+    ->orderBy('sort_order')
+    ->orderBy('name')
+    ->get(['id', 'name', 'color', 'icon'])
+    ->toArray();
 ?>
 <!DOCTYPE html>
 <html lang="de">
@@ -225,7 +236,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
                 <div class="md:col-span-3">
                     <div class="mb-3">
                         <label for="templateCategory" class="ignis-field__label">Kategorie <span class="text-[#d46b6b]">*</span></label>
-                        <select class="form-select" id="templateCategory" name="category_id" required>
+                        <select class="ignis-input" id="templateCategory" name="category_id" required>
                             <option value="">Bitte wählen</option>
                             <?php foreach ($kategorien as $kat): ?>
                                 <option value="<?= (int)$kat['id'] ?>"><?= htmlspecialchars($kat['name']) ?></option>
@@ -296,7 +307,7 @@ $kategorien = $katStmt->fetchAll(PDO::FETCH_ASSOC);
 
             <div class="mb-3">
                 <label for="fieldType" class="ignis-field__label">Feld-Typ <span class="text-[#d46b6b]">*</span></label>
-                <select class="form-select" id="fieldType" required>
+                <select class="ignis-input" id="fieldType" required>
                     <option value="text">Textfeld</option>
                     <option value="textarea">Mehrzeiliger Text</option>
                     <option value="richtext">Rich-Text Editor</option>

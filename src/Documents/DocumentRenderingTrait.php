@@ -2,12 +2,10 @@
 
 namespace App\Documents;
 
-use PDO;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * Gemeinsame Rendering-Logik für DocumentRenderer und VisualTemplateRenderer.
- *
- * Erwartet, dass die nutzende Klasse eine $this->pdo Property hat.
  */
 trait DocumentRenderingTrait
 {
@@ -30,22 +28,30 @@ trait DocumentRenderingTrait
     {
         switch ($fieldType) {
             case 'db_dg':
-                $stmt = $this->pdo->query("
-                    SELECT id as value, name as label, name_m as label_m, name_w as label_w
-                    FROM intra_mitarbeiter_dienstgrade
-                    WHERE archive = 0
-                    ORDER BY priority ASC
-                ");
-                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return Capsule::table('intra_mitarbeiter_dienstgrade')
+                    ->where('archive', 0)
+                    ->orderBy('priority')
+                    ->get([
+                        'id as value',
+                        'name as label',
+                        'name_m as label_m',
+                        'name_w as label_w',
+                    ])
+                    ->map(fn ($row) => (array) $row)
+                    ->all();
 
             case 'db_rdq':
-                $stmt = $this->pdo->query("
-                    SELECT id as value, name as label, name_m as label_m, name_w as label_w
-                    FROM intra_mitarbeiter_rdquali
-                    WHERE none = 0
-                    ORDER BY priority ASC
-                ");
-                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return Capsule::table('intra_mitarbeiter_rdquali')
+                    ->where('none', 0)
+                    ->orderBy('priority')
+                    ->get([
+                        'id as value',
+                        'name as label',
+                        'name_m as label_m',
+                        'name_w as label_w',
+                    ])
+                    ->map(fn ($row) => (array) $row)
+                    ->all();
 
             case 'select':
                 return $fieldOptions ? json_decode($fieldOptions, true) : [];
@@ -57,27 +63,26 @@ trait DocumentRenderingTrait
 
     protected function getIssuerData(int $discordId): array
     {
-        $stmt = $this->pdo->prepare("
-            SELECT
-                u.*,
-                COALESCE(m.fullname, u.fullname) as fullname,
-                m.dienstgrad,
-                m.zusatz,
-                m.geschlecht
-            FROM intra_users u
-            LEFT JOIN intra_mitarbeiter m ON u.discord_id = m.discordtag
-            WHERE u.discord_id = :id
-        ");
-        $stmt->execute(['id' => $discordId]);
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = Capsule::table('intra_users as u')
+            ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+            ->where('u.discord_id', $discordId)
+            ->select(
+                'u.*',
+                Capsule::raw('COALESCE(m.fullname, u.fullname) as fullname'),
+                'm.dienstgrad',
+                'm.zusatz',
+                'm.geschlecht'
+            )
+            ->first();
+
+        $data = $row !== null ? (array) $row : null;
 
         if ($data) {
             if ($data['dienstgrad']) {
-                $stmt = $this->pdo->prepare("
-                    SELECT * FROM intra_mitarbeiter_dienstgrade WHERE id = :id
-                ");
-                $stmt->execute(['id' => $data['dienstgrad']]);
-                $dginfo = $stmt->fetch(PDO::FETCH_ASSOC);
+                $dginfoRow = Capsule::table('intra_mitarbeiter_dienstgrade')
+                    ->where('id', $data['dienstgrad'])
+                    ->first();
+                $dginfo = $dginfoRow !== null ? (array) $dginfoRow : null;
 
                 if ($dginfo) {
                     if ($data['geschlecht'] == 0) {
