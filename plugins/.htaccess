@@ -1,16 +1,12 @@
-# Plugins sind Anwendungscode. Öffentlich sind nur statische Dateien aus
-# plugins/<id>/assets/ mit einer kleinen Endungs-Allowlist. PHP, Templates,
-# Manifest, Migrationen und beliebige Dateien außerhalb von assets/ bleiben
-# auch dann gesperrt, wenn sie eine vermeintlich harmlose Endung tragen.
-SetEnvIf Request_URI "/plugins/[a-z0-9_-]+/assets/(?:.+/)?[^/]+\.(css|js|map|woff2|png|svg|webp)$" plugin_static_asset=1
-
+# Plugins sind Anwendungscode und liegen außerhalb des Docroots (public/).
+# Ihre statischen Dateien liefert die Route /plugins/<id>/assets/... aus,
+# der Webserver hat hier nichts mehr zu suchen. Diese Datei greift nur,
+# wenn eine Installation das Docroot nicht auf public/ umstellen kann und
+# der Ordner deshalb noch im Webserver-Pfad liegt: dann ist er komplett zu.
 <IfModule mod_authz_core.c>
-    <RequireAny>
-        Require env plugin_static_asset
-    </RequireAny>
+    Require all denied
 </IfModule>
 <IfModule !mod_authz_core.c>
     Order deny,allow
     Deny from all
-    Allow from env=plugin_static_asset
 </IfModule>

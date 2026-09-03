@@ -39,8 +39,14 @@ führt Migrationen aus und aktiviert das Plugin.
 Plugins bringen kompiliertes `assets/plugin.css` beziehungsweise
 `assets/plugin.js` mit. Aktive Plugins werden automatisch in die Basis-Seiten
 eingebunden. Ein Tailwind-, Sass- oder JavaScript-Build auf dem Zielserver
-findet nicht statt. Öffentlich erreichbar sind ausschließlich statische
-Dateien unter `assets/` mit der serverseitigen Endungs-Allowlist.
+findet nicht statt.
+
+Das Docroot ist `public/`, der Plugin-Ordner liegt außerhalb. Dateien aus
+`assets/` erreicht der Browser über die Route
+`/plugins/<id>/assets/<pfad>`, die nur die Endungen css, js, map, woff2,
+png, svg und webp ausliefert und nur für installierte Plugins antwortet.
+Im Template `asset('plugins/<id>/assets/plugin.js')` verwenden, dann stimmt
+auch der Cache-Buster.
 
 ## Geplante Aufgaben
 
