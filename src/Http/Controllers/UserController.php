@@ -254,12 +254,7 @@ class UserController extends Controller
         $rc->save();
 
         $inviteUrl = $this->resolveSystemUrl() . BASE_PATH . 'invite?code=' . $code;
-        Flash::set(
-            'success',
-            'Einladungslink erstellt! <br><code class="user-select-all">'
-                . htmlspecialchars($inviteUrl)
-                . '</code>'
-        );
+        Flash::set('success', 'Einladungslink erstellt: ' . $inviteUrl);
 
         $this->redirect('benutzer/registration-codes');
     }

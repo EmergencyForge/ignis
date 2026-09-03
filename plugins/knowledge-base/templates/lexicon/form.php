@@ -1,6 +1,5 @@
 <?php
 use App\Auth\Permissions;
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'lexicon';
@@ -155,7 +154,6 @@ $SITE_TITLE = ($isEdit ? 'Bearbeiten' : 'Erstellen') . ' - Wissensdatenbank';
                         </div>
                     </header>
 
-                    <?php Flash::render(); ?>
 
                     <?php if (!empty($errors)): ?>
                         <div class="ignis-alert ignis-alert--danger">

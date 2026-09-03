@@ -187,13 +187,10 @@ final class DocumentsController
                 Flash::success('Template erfolgreich erstellt');
             } elseif ($fieldsChanged) {
                 Flash::warning(
-                    'Template wurde aktualisiert, aber die Felder wurden geändert.<br><br>'
-                    . '<strong>Wichtig:</strong> Die Template-Datei <code>' . htmlspecialchars($templateFile) . '</code> wurde nicht automatisch aktualisiert.<br><br>'
-                    . '<strong>Optionen:</strong><br>'
-                    . '<ul style="margin: 8px 0; padding-left: 20px;">'
-                    . '<li>Löschen Sie die Datei <code>documents/templates/' . htmlspecialchars($templateFile) . '</code> und speichern Sie erneut, um sie automatisch zu generieren</li>'
-                    . '<li>Oder passen Sie die bestehende Datei manuell an die neuen Felder an</li>'
-                    . '</ul>',
+                    'Template wurde aktualisiert, aber die Felder wurden geändert. Die Template-Datei '
+                    . $templateFile . ' wurde nicht automatisch aktualisiert: Entweder documents/templates/'
+                    . $templateFile . ' löschen und erneut speichern, damit sie neu erzeugt wird, '
+                    . 'oder die Datei von Hand an die neuen Felder anpassen.',
                     'Template aktualisiert - Aktion erforderlich!'
                 );
             } else {

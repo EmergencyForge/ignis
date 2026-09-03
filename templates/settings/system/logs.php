@@ -8,7 +8,6 @@
  * @var array<string,mixed>            $stats
  */
 
-use App\Helpers\Flash;
 use App\Security\CsrfProtection;
 
 // CSRF-Token für Failed-Jobs-POST-Aktionen generieren/holen
@@ -214,7 +213,6 @@ $SITE_TITLE = 'Fehlerprotokoll';
                             </button>
                         </div>
                     </div>
-                    <?php Flash::render(); ?>
 
                     <!-- ───────────── HERO: Error-ID Lookup (primärer Use-Case) ───────────── -->
                     <div class="twplus-toolbar logs-lookup-hero mb-3 p-3">

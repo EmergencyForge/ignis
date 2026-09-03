@@ -4,7 +4,6 @@
  */
 
 use App\Auth\Permissions;
-use App\Helpers\Flash;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 $canManage = Permissions::check(['admin', 'vehicles.manage']);
@@ -148,7 +147,6 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                         </div>
                     </div>
 
-                    <?php Flash::render(); ?>
 
                     <?php if (!$tableExists): ?>
                         <div class="ignis-alert ignis-alert--warning">

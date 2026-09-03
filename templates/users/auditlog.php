@@ -6,7 +6,6 @@
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\User>       $usersById
  */
 
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'benutzer';
@@ -27,7 +26,6 @@ $SITE_TITLE = 'Audit-Log';
                     <div class="twplus-page-header mb-5">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Sicherheit</p><h1>Audit Log</h1><p class="twplus-page-header__description">Systemweite Änderungen mit Zeitpunkt, Modul und verantwortlichem Benutzer.</p></div>
                     </div>
-                    <?php Flash::render(); ?>
                     <div class="twplus-table-card">
                         <table class="table table-striped twplus-table" id="table-audit">
                             <thead>

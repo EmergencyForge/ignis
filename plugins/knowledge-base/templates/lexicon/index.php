@@ -1,6 +1,5 @@
 <?php
 use App\Auth\Permissions;
-use App\Helpers\Flash;
 use App\KnowledgeBase\KBHelper;
 
 $layout = 'admin';
@@ -194,7 +193,6 @@ $SITE_TITLE = 'Wissensdatenbank';
                         </div>
                     </div>
 
-                    <?php Flash::render(); ?>
 
                     <!-- Filter Section -->
                     <form method="GET" class="twplus-filter-bar mb-4">

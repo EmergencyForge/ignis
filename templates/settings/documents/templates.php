@@ -4,7 +4,6 @@
  */
 
 use App\Auth\Permissions;
-use App\Helpers\Flash;
 use App\Models\AmbSkill;
 use App\Models\DocumentCategory;
 use App\Models\Rank;
@@ -176,7 +175,6 @@ $SITE_TITLE = 'Dokumentvorlagen';
 <?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page my-5">
-            <?php Flash::render(); ?>
 
             <!-- Header mit Titel + Aktionen -->
             <div class="twplus-page-header mb-4">

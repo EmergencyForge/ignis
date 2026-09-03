@@ -11,7 +11,6 @@
  * @var bool         $hasMore
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = 'Benachrichtigungen';
 
@@ -146,7 +145,6 @@ $bodyId = 'benachrichtigungen';
                 </div>
             </header>
 
-            <?php Flash::render(); ?>
 
             <div class="twplus-table-card__toolbar my-3 rounded-lg border border-[var(--border-color)]">
                 <div class="flex flex-wrap items-center gap-1">

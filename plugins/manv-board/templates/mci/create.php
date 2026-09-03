@@ -6,7 +6,6 @@
  * @var string|null                     $error
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = 'Neue MANV-Lage anlegen';
 
@@ -24,7 +23,6 @@ $bodyPage = 'edivi';
                 </div>
             </header>
 
-            <?php Flash::render(); ?>
 
             <?php if (!empty($error)): ?>
                 <div class="ignis-alert ignis-alert--danger">

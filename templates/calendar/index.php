@@ -9,7 +9,6 @@
  * @var \Illuminate\Support\Collection<int,\App\Models\Mitarbeiter> $absentToday
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = 'Kalender';
 
@@ -36,7 +35,6 @@ $bodyId = 'kalender';
                     </div>
                 </div>
 
-                <?php Flash::render(); ?>
 
                 <?php if (isset($absentToday) && $absentToday->isNotEmpty()): ?>
                     <div class="calendar-absence-strip mb-3">

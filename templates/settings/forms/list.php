@@ -5,7 +5,6 @@
  * @var array<int,array<string,mixed>> $typen
  */
 
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'antragstypen';
@@ -22,7 +21,6 @@ $SITE_TITLE = 'Antragstypen';
                 </div>
             </div>
 
-            <?php Flash::render(); ?>
 
             <?php if (empty($typen)): ?>
                 <div class="twplus-empty">

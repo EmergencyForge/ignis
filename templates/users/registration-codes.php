@@ -7,7 +7,6 @@
  * @var string                                                                       $systemUrl
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = 'Einladungen verwalten';
 
@@ -40,7 +39,6 @@ $bodyId = 'benutzer';
                             </div>
                         <?php endif; ?>
                     </div>
-                    <?php Flash::render(); ?>
 
                     <div class="ignis-alert ignis-alert--info mb-4">
                         <i class="fa-solid fa-circle-info ignis-alert__icon"></i>

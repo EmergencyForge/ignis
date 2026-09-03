@@ -8,7 +8,6 @@
  * @var \stdClass                                                              $mitarbeiter
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = htmlspecialchars($typ->name) . ' stellen';
 
@@ -37,7 +36,6 @@ $bodyId = 'antrag-create';
                 <p class="text-gray-400"><?= htmlspecialchars($typ->beschreibung) ?></p>
             <?php endif; ?>
 
-            <?php Flash::render(); ?>
 
             <?php if (strcasecmp((string) $typ->name, 'Urlaubsantrag') === 0): ?>
                 <div class="ignis-alert ignis-alert--info mb-4">

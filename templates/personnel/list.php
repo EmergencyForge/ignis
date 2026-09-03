@@ -10,7 +10,6 @@
  */
 
 use App\Auth\Gate;
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'mitarbeiter';
@@ -43,7 +42,6 @@ $SITE_TITLE = 'Mitarbeiter';
                             <?php endif; ?>
                         </div>
                     </div>
-                    <?php Flash::render(); ?>
 
                     <!-- Filter-Leiste -->
                     <div class="twplus-table-card__toolbar mb-3 rounded-lg border border-[var(--border-color)]">

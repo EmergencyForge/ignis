@@ -6,7 +6,6 @@
  */
 
 use App\Auth\Permissions;
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'settings';
@@ -26,7 +25,6 @@ $SITE_TITLE = 'Fachdienste';
                         <?php endif; ?>
                         </div>
                     </div>
-                    <?php Flash::render(); ?>
                     <div class="twplus-table-card">
                         <table class="table table-striped twplus-table" id="table-dienstgrade">
                             <thead>

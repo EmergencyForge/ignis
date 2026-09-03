@@ -88,7 +88,7 @@ $fahrttypBadges = [
                                 <?php endif; ?>
                                 <?php if ($canDelete): ?>
                                     <form method="POST" action="<?= htmlspecialchars($actionsUrl) ?>" class="inline"
-                                          onsubmit="return confirm('Eintrag wirklich löschen?');">
+                                          onsubmit="<?= confirm_attr('Eintrag wirklich löschen?') ?>">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?= $e['id'] ?>">
                                         <input type="hidden" name="return_to" value="<?= htmlspecialchars($context) ?>">

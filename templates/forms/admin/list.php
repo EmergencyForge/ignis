@@ -7,7 +7,6 @@
  */
 
 use App\Auth\Gate;
-use App\Helpers\Flash;
 
 $SITE_TITLE = 'Antragsübersicht';
 
@@ -30,7 +29,6 @@ $bodyId = 'mitarbeiter';
                     </div>
                 </div>
 
-                    <?php Flash::render(); ?>
 
                     <div class="twplus-table-card">
                         <table class="table table-striped twplus-table" id="table-antrag">

@@ -9,7 +9,6 @@
  */
 
 use App\Auth\Gate;
-use App\Helpers\Flash;
 
 $SITE_TITLE = $target->username . " bearbeiten &rsaquo; Administration &rsaquo; " . SYSTEM_NAME;
 
@@ -46,7 +45,6 @@ $bodyId = 'benutzer';
                             </div>
                         <?php endif; ?>
                     </div>
-                    <?php Flash::render(); ?>
                     <form name="form" method="post" action="">
                         <input type="hidden" name="new" value="1" />
                         <input name="id" type="hidden" value="<?= (int) $target->id ?>" />

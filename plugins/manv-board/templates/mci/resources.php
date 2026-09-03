@@ -8,7 +8,6 @@
  * @var array<int,array<string,mixed>> $systemFahrzeuge
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = 'Fahrzeugverwaltung - ' . htmlspecialchars($lage['einsatznummer']);
 
@@ -34,7 +33,6 @@ $bodyPage = 'edivi';
                 </div>
             </header>
 
-            <?php Flash::render(); ?>
 
             <div class="twplus-table-card mb-4">
                 <div class="ignis-card__header">

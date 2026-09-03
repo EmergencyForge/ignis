@@ -272,7 +272,6 @@ $SITE_TITLE = 'System Updates';
                     <div class="twplus-page-header mb-6">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Wartung</p><h1>System-Updates</h1><p class="twplus-page-header__description">Version, verfügbare Releases und Update-Kanal verwalten.</p></div>
                     </div>
-                    <?php Flash::render(); ?>
 
                     <!-- Current Version Card -->
                     <div class="ignis-card twplus-section-card mb-4">

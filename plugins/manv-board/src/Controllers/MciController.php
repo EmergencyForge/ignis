@@ -371,8 +371,8 @@ class MciController extends Controller
 
                 if ($existing) {
                     Flash::error(
-                        'Das Fahrzeug ' . htmlspecialchars($fahrzeug->bezeichnung)
-                        . ' ist bereits Patient ' . htmlspecialchars($existing->patienten_nummer)
+                        'Das Fahrzeug ' . $fahrzeug->bezeichnung
+                        . ' ist bereits Patient ' . $existing->patienten_nummer
                         . ' zugewiesen.'
                     );
                     $this->redirect('manv/patient-create?lage_id=' . $lageId);
@@ -522,8 +522,8 @@ class MciController extends Controller
 
                 if ($existing) {
                     Flash::error(
-                        'Das Fahrzeug ' . htmlspecialchars($fahrzeug->bezeichnung)
-                        . ' ist bereits Patient ' . htmlspecialchars($existing->patienten_nummer)
+                        'Das Fahrzeug ' . $fahrzeug->bezeichnung
+                        . ' ist bereits Patient ' . $existing->patienten_nummer
                         . ' zugewiesen.'
                     );
                     $this->redirect('manv/patient-view?id=' . $patientId);
@@ -669,7 +669,7 @@ class MciController extends Controller
 
         if ($existing) {
             Flash::error(
-                'Das Fahrzeug ' . htmlspecialchars($bezeichnung)
+                'Das Fahrzeug ' . $bezeichnung
                 . ' wurde bereits zu dieser MANV-Lage hinzugefügt.'
             );
             $this->redirect('mci/resources?lage_id=' . $lageId);

@@ -1,9 +1,11 @@
 /**
  * ıgnıs UI — Snackbar
  *
- * Bottom-left Toast-Stack mit max. 3 sichtbaren Snackbars (FIFO-
- * Eviction beim 4.), Slide-in von links, Hover-Pause, ESC schließt
+ * Toast-Stack unten rechts mit max. 3 sichtbaren Snackbars (FIFO-
+ * Eviction beim 4.), Slide-in von rechts, Hover-Pause, ESC schließt
  * den obersten. Variants info | success | warning | error | progress.
+ * Server-Flashes (Flash::render()) werden beim Laden übernommen, siehe
+ * showServerFlashes() unten.
  *
  *   ignis.snack.info('Gespeichert');
  *   ignis.snack.success('Fertig', { duration: 2000 });
@@ -254,9 +256,32 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+/**
+ * Flash-Meldungen des Servers: Flash::render() gibt sie als
+ * <template data-ignis-flash> aus (Variante, Titel, Text), das hier zur
+ * Snackbar wird. Der Text kommt über textContent, Markup darin bleibt
+ * Text. Fehler bleiben stehen, bis man sie schließt.
+ */
+function showServerFlashes(root = document) {
+    root.querySelectorAll('template[data-ignis-flash]').forEach((tpl) => {
+        const variant = ({ success: 'success', danger: 'error', warning: 'warning', info: 'info' })[tpl.dataset.variant] || 'info';
+        const bodyEl = tpl.content.firstElementChild;
+        const message = bodyEl ? bodyEl.textContent : '';
+        spawn(variant, message, { title: tpl.dataset.title || undefined, duration: variant === 'error' ? 0 : undefined });
+        tpl.remove();
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => showServerFlashes());
+} else {
+    showServerFlashes();
+}
+
 if (typeof window !== 'undefined') {
     window.ignis = window.ignis || {};
     window.ignis.snack = snack;
+    window.ignis.showServerFlashes = showServerFlashes;
 
     // Legacy `showToast(message, type, opts)` Shim — alle bestehenden
     // Aufruf-Sites laufen ohne Markup-Änderung weiter, geroutet auf

@@ -8,7 +8,6 @@
  */
 
 use App\Auth\Gate;
-use App\Helpers\Flash;
 
 $caseId    = $antrag->uniqueid;
 $createDate = $antrag->time_added;
@@ -51,7 +50,6 @@ $bodyId = 'antrag-view';
                 </div>
                 <span class="ignis-chip ignis-chip--<?= $currentStatus['class'] ?>"><i class="<?= $currentStatus['icon'] ?> mr-1"></i><?= $currentStatus['text'] ?></span>
             </header>
-            <?php Flash::render(); ?>
 
             <div class="twplus-form-layout">
                 <!-- Haupt-Spalte (lg: 2/3 Breite) -->

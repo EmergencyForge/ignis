@@ -7,7 +7,6 @@
  */
 
 use App\Auth\Gate;
-use App\Helpers\Flash;
 
 $badgeColors = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'];
 $chipMappable = ['primary', 'success', 'warning', 'danger', 'info'];
@@ -38,7 +37,6 @@ $SITE_TITLE = 'Rollen';
                             <?php endif; ?>
                         </div>
                     </div>
-                    <?php Flash::render(); ?>
                     <div class="twplus-table-card">
                         <table class="table table-striped twplus-table" id="table-rollen">
                             <thead>

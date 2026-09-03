@@ -347,7 +347,7 @@ final class EmdSyncController
             $enrValue = Capsule::table('intra_edivi')
                 ->where(function ($q) use ($missionNumber) {
                     $q->where('enr', $missionNumber)
-                        ->orWhere('enr', 'LIKE', $missionNumber . '_%');
+                        ->orWhere('enr', 'LIKE', ignis_like_prefix($missionNumber) . '_%');
                 })
                 ->where(function ($q) use ($vehicleIdentifier) {
                     $q->where('fzg_na', $vehicleIdentifier)
@@ -1023,7 +1023,7 @@ final class EmdSyncController
         $existingEnrs = Capsule::table('intra_edivi')
             ->where(function ($q) use ($dispatchId) {
                 $q->where('enr', $dispatchId)
-                    ->orWhere('enr', 'LIKE', $dispatchId . '_%');
+                    ->orWhere('enr', 'LIKE', ignis_like_prefix((string) $dispatchId) . '_%');
             })
             ->pluck('enr')
             ->all();
@@ -1035,7 +1035,7 @@ final class EmdSyncController
             $existingEntry = Capsule::table('intra_edivi')
                 ->where(function ($q) use ($dispatchId) {
                     $q->where('enr', $dispatchId)
-                        ->orWhere('enr', 'LIKE', $dispatchId . '_%');
+                        ->orWhere('enr', 'LIKE', ignis_like_prefix((string) $dispatchId) . '_%');
                 })
                 ->where($fieldToCheck, $vehicleIdentifier)
                 ->first(['enr']);

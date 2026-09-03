@@ -18,7 +18,6 @@
  * @var string  $categoriesLabel
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
 
@@ -38,7 +37,6 @@ $bodyId = 'kalender';
                 </nav>
             </div>
 
-            <?php Flash::render(); ?>
 
             <div class="ignis-card twplus-section-card mb-4">
                 <div class="ignis-card__header">
@@ -55,7 +53,7 @@ $bodyId = 'kalender';
                             <?php endif; ?>
                             <?php if ($canDelete): ?>
                                 <form method="post" action="<?= BASE_PATH ?>calendar/delete?id=<?= (int) $event->id ?>"
-                                      onsubmit="return confirm('Diesen Termin wirklich löschen?');" class="inline">
+                                      onsubmit="<?= confirm_attr('Diesen Termin wirklich löschen?') ?>" class="inline">
                                     <button type="submit" class="ignis-btn ignis-btn--ghost-danger ignis-btn--sm">
                                         <i class="fa-solid fa-trash"></i> Löschen
                                     </button>

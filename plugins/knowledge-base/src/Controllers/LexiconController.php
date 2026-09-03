@@ -129,13 +129,13 @@ class LexiconController extends Controller
                         $sub->select('et.entry_id')
                             ->from('intra_kb_entry_tags as et')
                             ->join('intra_kb_tags as t', 'et.tag_id', '=', 't.id')
-                            ->where('t.name', 'LIKE', '%' . $searchQuery . '%');
+                            ->where('t.name', 'LIKE', '%' . ignis_like_prefix($searchQuery) . '%');
                     });
                 });
             } else {
                 $query->where(function ($q) use ($searchQuery) {
-                    $q->where('kb.title', 'LIKE', '%' . $searchQuery . '%')
-                        ->orWhere('kb.subtitle', 'LIKE', '%' . $searchQuery . '%');
+                    $q->where('kb.title', 'LIKE', '%' . ignis_like_prefix($searchQuery) . '%')
+                        ->orWhere('kb.subtitle', 'LIKE', '%' . ignis_like_prefix($searchQuery) . '%');
                 });
             }
         }

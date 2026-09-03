@@ -7,7 +7,6 @@
  * @var array<int,array<string,mixed>> $felder
  */
 
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'antragstyp-edit';
@@ -17,7 +16,6 @@ $SITE_TITLE = 'Antragstyp bearbeiten';
         <div class="twplus-page">
             <header class="twplus-page-header mb-4"><div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Formularbaukasten</p><h1><?= htmlspecialchars($typ['name']) ?> bearbeiten</h1><p class="twplus-page-header__description">Grundeinstellungen und Formularfelder des Antragstyps verwalten.</p></div></header>
 
-            <?php Flash::render(); ?>
 
             <!-- Grundeinstellungen -->
             <div class="twplus-section-card mb-4 p-4">

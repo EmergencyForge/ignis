@@ -8,7 +8,6 @@
  */
 
 use App\Auth\Gate;
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'benutzer';
@@ -32,7 +31,6 @@ $SITE_TITLE = 'Benutzer';
                             <p class="twplus-page-header__description">Konten, Rollen und Zugriffsstatus auf einen Blick.</p>
                         </div>
                     </div>
-                    <?php Flash::render(); ?>
                     <div class="mb-3">
                         <div class="filter-group" role="group" id="statusFilter">
                             <button type="button" class="filter-btn active" data-filter="all">Alle</button>

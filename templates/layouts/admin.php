@@ -19,6 +19,10 @@
  * `ignis.sidebar` und kommt als Klasse ans <html>, bevor das erste
  * Stylesheet lädt, damit nichts springt; assets/js/ui/shell.js pflegt ihn.
  *
+ * Die Flash-Meldung der Session wird hier oben im <main> ausgegeben
+ * (App\Helpers\Flash::render(), Toast über snackbar.js); Ansichten rufen
+ * render() nicht mehr selbst (tests/Unit/Templates/FlashRenderUsageTest.php).
+ *
  * Topbar und Sidebar laufen in diesem Scope; ihre Variablen tragen die
  * Präfixe `top` und `nav` (tests/Unit/Templates/SidebarScopeTest.php).
  * head.php erkennt an $layoutTheme, dass die Hülle den Modus schon gesetzt
@@ -48,6 +52,7 @@ $layoutSystemNav = str_starts_with($layoutPath, '/settings/system/') && $layoutP
     <?php include dirname(__DIR__, 2) . '/assets/components/global-announcements.php'; ?>
 
     <main class="ignis-main">
+        <?php \App\Helpers\Flash::render(); ?>
         <?php if ($layoutSystemNav): ?>
             <div class="twplus-page" style="padding-bottom:0;">
                 <?php include dirname(__DIR__, 2) . '/assets/components/settings/system/_navigation.php'; ?>
