@@ -5,7 +5,6 @@
  * Public-Page (kein Login erforderlich, aber wenn angemeldet werden Permissions geprüft).
  *
  * @var array<int,array<string,mixed>> $hospitals
- * @var \PDO                           $pdo
  */
 
 use Plugin\Enotf\Helpers\EnotfUrl;

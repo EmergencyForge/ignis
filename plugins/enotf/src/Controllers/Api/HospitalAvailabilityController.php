@@ -7,8 +7,9 @@ namespace Plugin\Enotf\Controllers\Api;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as DB;
 use PDOException;
+use Plugin\Enotf\Models\HospitalDepartment;
 
 /**
  * Hospital-Availability-Endpoints (GET listing, POST update).
@@ -21,10 +22,6 @@ final class HospitalAvailabilityController
 {
     private const VALID_STATUSES = ['not_staffed', 'available', 'partially_available', 'full'];
 
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * GET /api/hospitals/availability-get[?poi_id=N]
      */
@@ -33,39 +30,38 @@ final class HospitalAvailabilityController
         $poiId = $request->query['poi_id'] ?? null;
 
         try {
-            $sql = "
-                SELECT
-                    p.id as poi_id,
-                    p.name as hospital_name,
-                    p.ort as city,
-                    p.ortsteil as district,
-                    p.typ as type,
-                    d.id as department_id,
-                    d.name as department_name,
-                    d.sort_order,
-                    COALESCE(a.status, 'not_staffed') as status,
-                    a.updated_at,
-                    a.updated_by
-                FROM intra_edivi_pois p
-                LEFT JOIN intra_edivi_hospital_departments d ON p.id = d.poi_id
-                LEFT JOIN intra_edivi_hospital_availability a ON d.id = a.department_id
-                WHERE p.active = 1
-                AND (p.typ = 'Krankenhaus' OR p.typ = 'Klinik')
-            ";
+            $query = DB::table('intra_edivi_pois as p')
+                ->leftJoin('intra_edivi_hospital_departments as d', 'p.id', '=', 'd.poi_id')
+                ->leftJoin('intra_edivi_hospital_availability as a', 'd.id', '=', 'a.department_id')
+                ->select(
+                    'p.id as poi_id',
+                    'p.name as hospital_name',
+                    'p.ort as city',
+                    'p.ortsteil as district',
+                    'p.typ as type',
+                    'd.id as department_id',
+                    'd.name as department_name',
+                    'd.sort_order',
+                    DB::raw("COALESCE(a.status, 'not_staffed') as status"),
+                    'a.updated_at',
+                    'a.updated_by'
+                )
+                ->where('p.active', 1)
+                ->where(function ($q) {
+                    $q->where('p.typ', 'Krankenhaus')->orWhere('p.typ', 'Klinik');
+                });
 
             if ($poiId) {
-                $sql .= " AND p.id = :poi_id";
-            }
-            $sql .= " ORDER BY p.name ASC, d.sort_order ASC, d.name ASC";
-
-            $stmt = $this->pdo->prepare($sql);
-            if ($poiId) {
-                $stmt->execute(['poi_id' => $poiId]);
-            } else {
-                $stmt->execute();
+                $query->where('p.id', $poiId);
             }
 
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $results = $query
+                ->orderBy('p.name')
+                ->orderBy('d.sort_order')
+                ->orderBy('d.name')
+                ->get()
+                ->map(fn ($r) => (array) $r)
+                ->all();
 
             // Nach Hospital gruppieren
             $hospitals = [];
@@ -129,24 +125,22 @@ final class HospitalAvailabilityController
         }
 
         try {
-            $checkStmt = $this->pdo->prepare("SELECT id FROM intra_edivi_hospital_departments WHERE id = ?");
-            $checkStmt->execute([$departmentId]);
-            if (!$checkStmt->fetch()) {
+            if (!HospitalDepartment::where('id', $departmentId)->exists()) {
                 return Response::json(['error' => 'Department not found'], 404);
             }
 
-            $this->pdo->prepare("
-                INSERT INTO intra_edivi_hospital_availability (department_id, status, updated_by)
-                VALUES (:department_id, :status, :updated_by)
-                ON DUPLICATE KEY UPDATE
-                    status = :status,
-                    updated_by = :updated_by,
-                    updated_at = CURRENT_TIMESTAMP
-            ")->execute([
-                'department_id' => $departmentId,
-                'status'        => $status,
-                'updated_by'    => $updatedBy,
-            ]);
+            // Upsert: unique key auf department_id. updated_at wird auch bei
+            // unverändertem Status aufgefrischt (wie das alte ON DUPLICATE
+            // KEY UPDATE mit explizitem CURRENT_TIMESTAMP).
+            DB::table('intra_edivi_hospital_availability')->upsert(
+                [
+                    'department_id' => $departmentId,
+                    'status'        => $status,
+                    'updated_by'    => $updatedBy,
+                ],
+                ['department_id'],
+                ['status', 'updated_by', 'updated_at' => DB::raw('CURRENT_TIMESTAMP')]
+            );
 
             return Response::json([
                 'success' => true,

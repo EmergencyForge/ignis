@@ -5,22 +5,30 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_edivi_ziele_07062025.php
- * Spiegelung:     database/legacy/create_intra_edivi_ziele_07062025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Transport- und Einsatzziele für das eDIVI-Protokoll (z. B. Kliniken oder
+ * Abschlussarten ohne Transport). `transport` markiert echte Transportziele,
+ * Sortierung über `priority`, Deaktivierung über `active`.
  */
 class CreateIntraEdiviZiele07062025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_edivi_ziele_07062025.php';
+        if ($this->hasTable('intra_edivi_ziele')) {
+            return;
+        }
+
+        $this->table('intra_edivi_ziele', [
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+        ])
+            ->addColumn('priority',   'integer',   ['null' => false])
+            ->addColumn('identifier', 'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('name',       'string',    ['limit' => 255, 'null' => false])
+            ->addColumn('transport',  'boolean',   ['null' => false, 'default' => 0])
+            ->addColumn('active',     'boolean',   ['null' => false, 'default' => 1])
+            ->addColumn('created_at', 'timestamp', ['null' => false, 'default' => 'CURRENT_TIMESTAMP'])
+            ->create();
     }
 }

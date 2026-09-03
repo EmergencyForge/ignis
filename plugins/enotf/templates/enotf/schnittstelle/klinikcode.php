@@ -1,11 +1,10 @@
 <?php
 /**
  * View: eNOTF Klinikcode-Eingabe (Public)
- *
- * @var \PDO $pdo
  */
 
 use Plugin\Enotf\Helpers\EnotfUrl;
+use Plugin\Enotf\Models\EdiviKlinikcode;
 
 $error = '';
 $success = false;
@@ -19,15 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
     } else {
         try {
             // Suche nach gültigem Code
-            $stmt = $pdo->prepare("
-                SELECT enr, expires_at 
-                FROM intra_edivi_klinikcodes 
-                WHERE code = :code
-                ORDER BY created_at DESC
-                LIMIT 1
-            ");
-            $stmt->execute(['code' => $code]);
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = EdiviKlinikcode::where('code', $code)
+                ->orderByDesc('created_at')
+                ->first(['enr', 'expires_at']);
 
             if (!$result) {
                 $error = 'Ungültiger Code.';

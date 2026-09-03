@@ -5,22 +5,15 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/update_intra_edivi_06072025.php
- * Spiegelung:     database/legacy/update_intra_edivi_06072025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Einsatznummern werden eindeutig: Unique-Key `uk_enr` auf
+ * `intra_edivi.enr`, damit kein Protokoll doppelt angelegt werden kann.
  */
 class UpdateIntraEdivi06072025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/update_intra_edivi_06072025.php';
+        $this->table('intra_edivi')
+            ->addIndex(['enr'], ['unique' => true, 'name' => 'uk_enr'])
+            ->update();
     }
 }

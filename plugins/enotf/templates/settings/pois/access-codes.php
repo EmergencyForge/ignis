@@ -3,7 +3,6 @@
  * View: Krankenhaus-Zugangscodes
  *
  * @var array<int,array<string,mixed>> $hospitals
- * @var \PDO                           $pdo
  */
 
 use App\Helpers\Flash;

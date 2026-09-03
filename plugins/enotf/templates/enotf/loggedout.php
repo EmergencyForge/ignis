@@ -5,7 +5,6 @@
  * Logout-Side-Effects (DB-Writes, Session-Cleanup) liegen im EnotfController.
  *
  * @var string $pinEnabled
- * @var \PDO   $pdo
  */
 
 $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";

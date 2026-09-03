@@ -24,33 +24,68 @@ use Phinx\Migration\AbstractMigration;
  */
 final class ConsolidateZieleIntoPois extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
+        $pois = $this->table('intra_edivi_pois');
 
-        // Legacy-Identifier-Spalte anlegen, falls noch nicht da.
-        $columns = $pdo->query("SHOW COLUMNS FROM intra_edivi_pois LIKE 'legacy_identifier'")->fetchAll();
-        if (!$columns) {
-            $pdo->exec(
-                "ALTER TABLE intra_edivi_pois
-                 ADD COLUMN legacy_identifier VARCHAR(255) NULL DEFAULT NULL AFTER name,
-                 ADD UNIQUE KEY idx_legacy_identifier (legacy_identifier)"
-            );
+        if (!$pois->hasColumn('legacy_identifier')) {
+            $pois->addColumn('legacy_identifier', 'string', [
+                'limit'   => 255,
+                'null'    => true,
+                'default' => null,
+                'after'   => 'name',
+            ])
+                ->addIndex(['legacy_identifier'], ['unique' => true, 'name' => 'idx_legacy_identifier'])
+                ->update();
         }
 
         // Falls die alte Tabelle nicht (mehr) existiert, ist der Rest no-op.
-        $tableExists = $pdo->query("SHOW TABLES LIKE 'intra_edivi_ziele'")->fetchAll();
-        if (!$tableExists) {
+        if (!$this->hasTable('intra_edivi_ziele')) {
             return;
         }
 
-        // Ziele kopieren. INSERT IGNORE über UNIQUE(legacy_identifier) sorgt
-        // dafür, dass die Migration idempotent ist.
-        $pdo->exec(
-            "INSERT IGNORE INTO intra_edivi_pois
-                (name, legacy_identifier, ort, active, created_at)
-             SELECT name, identifier, '' AS ort, active, created_at
-             FROM intra_edivi_ziele"
-        );
+        // Bereits übernommene Identifier überspringen — so bleibt die
+        // Migration idempotent (ersetzt das frühere INSERT IGNORE über den
+        // UNIQUE-Index).
+        $seen = [];
+        foreach ($this->fetchAll('SELECT legacy_identifier FROM intra_edivi_pois WHERE legacy_identifier IS NOT NULL') as $row) {
+            $seen[$row['legacy_identifier']] = true;
+        }
+
+        $rows = [];
+        foreach ($this->fetchAll('SELECT name, identifier, active, created_at FROM intra_edivi_ziele') as $row) {
+            if (isset($seen[$row['identifier']])) {
+                continue;
+            }
+            $seen[$row['identifier']] = true;
+            $rows[] = [
+                'name'              => $row['name'],
+                'legacy_identifier' => $row['identifier'],
+                'ort'               => '',
+                'active'            => $row['active'],
+                'created_at'        => $row['created_at'],
+            ];
+        }
+
+        if ($rows !== []) {
+            $this->table('intra_edivi_pois')->insert($rows)->saveData();
+        }
+    }
+
+    public function down(): void
+    {
+        $pois = $this->table('intra_edivi_pois');
+
+        if (!$pois->hasColumn('legacy_identifier')) {
+            return;
+        }
+
+        // Nur diese Migration setzt legacy_identifier — die kopierten Rows
+        // lassen sich darüber eindeutig wieder entfernen. intra_edivi_ziele
+        // wurde nie angetastet, die Quelldaten sind also vollständig da.
+        $this->execute('DELETE FROM intra_edivi_pois WHERE legacy_identifier IS NOT NULL');
+
+        // Der UNIQUE-Index idx_legacy_identifier fällt mit der Spalte weg.
+        $pois->removeColumn('legacy_identifier')->update();
     }
 }

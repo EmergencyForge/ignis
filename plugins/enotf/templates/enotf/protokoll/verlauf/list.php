@@ -1,11 +1,12 @@
 <?php
 /**
  * View: enotf/protokoll/verlauf/list.php
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Plugin\Enotf\Models\Edivi;
+use Plugin\Enotf\Models\EdiviVitalwert;
 
 $message = '';
 $messageType = '';
@@ -20,10 +21,7 @@ $enr = $_GET['enr'];
 $action = $_GET['action'] ?? 'manage';
 
 // ENR-Berechtigung prüfen
-$queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
-$stmt = $pdo->prepare($queryget);
-$stmt->execute(['enr' => $enr]);
-$daten = $stmt->fetch(PDO::FETCH_ASSOC);
+$daten = Edivi::where('enr', $enr)->first();
 
 if (!$daten) {
     header("Location: " . BASE_PATH . "enotf/");
@@ -45,35 +43,28 @@ if (!$ist_freigegeben) {
                 $id = $_GET['id'];
 
                 // Soft Delete
-                $query = "UPDATE intra_edivi_vitalparameter_einzelwerte 
-                          SET geloescht = 1, geloescht_am = NOW(), geloescht_von = :username 
-                          WHERE id = :id AND enr = :enr";
-                $stmt = $pdo->prepare($query);
-                $result = $stmt->execute([
-                    'id' => $id,
-                    'enr' => $enr,
-                    'username' => $_SESSION['username'] ?? 'Unbekannt'
-                ]);
+                EdiviVitalwert::where('id', $id)
+                    ->where('enr', $enr)
+                    ->update([
+                        'geloescht'     => 1,
+                        'geloescht_am'  => Capsule::raw('NOW()'),
+                        'geloescht_von' => $_SESSION['username'] ?? 'Unbekannt',
+                    ]);
 
-                if ($result) {
-                    $message = 'Vitalparameter erfolgreich gelöscht.';
-                    $messageType = 'success';
-                } else {
-                    $message = 'Fehler beim Löschen des Vitalparameters.';
-                    $messageType = 'danger';
-                }
+                $message = 'Vitalparameter erfolgreich gelöscht.';
+                $messageType = 'success';
             }
             break;
     }
 }
 
 // Alle Vitalparameter für diese ENR laden (nur aktive)
-$query = "SELECT * FROM intra_edivi_vitalparameter_einzelwerte 
-          WHERE enr = :enr AND geloescht = 0
-          ORDER BY zeitpunkt DESC, parameter_name ASC";
-$stmt = $pdo->prepare($query);
-$stmt->execute(['enr' => $enr]);
-$vitalparameter = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$vitalparameter = EdiviVitalwert::where('enr', $enr)
+    ->where('geloescht', 0)
+    ->orderBy('zeitpunkt', 'DESC')
+    ->orderBy('parameter_name', 'ASC')
+    ->get()
+    ->all();
 
 // Nach Zeitpunkt gruppieren
 $grouped_vitals = [];

@@ -12,8 +12,9 @@ use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
 use App\Utils\AuditLogger;
-use PDO;
+use Illuminate\Database\Capsule\Manager as DB;
 use PDOException;
+use Plugin\Enotf\Models\Edivi;
 
 /**
  * eNOTF Admin- und Session-API.
@@ -25,10 +26,6 @@ use PDOException;
  */
 final class EnotfController
 {
-    public function __construct(
-        private readonly PDO $pdo,
-    ) {}
-
     /**
      * GET /api/enotf/prereg?klinik=...
      * Aktive Voranmeldungen abfragen. Deaktiviert gleichzeitig veraltete
@@ -40,25 +37,22 @@ final class EnotfController
         $ziel = $request->query['klinik'] ?? null;
 
         try {
-            $this->pdo->prepare(
-                "UPDATE intra_edivi_prereg SET active = 0
-                 WHERE active = 1 AND arrival IS NOT NULL AND arrival < NOW() - INTERVAL 10 MINUTE"
-            )->execute();
+            DB::table('intra_edivi_prereg')
+                ->where('active', 1)
+                ->whereNotNull('arrival')
+                ->where('arrival', '<', DB::raw('NOW() - INTERVAL 10 MINUTE'))
+                ->update(['active' => 0]);
 
+            $query = DB::table('intra_edivi_prereg')
+                ->where('active', 1)
+                ->orderBy('arrival');
             if ($ziel) {
-                $stmt = $this->pdo->prepare(
-                    "SELECT * FROM intra_edivi_prereg WHERE ziel = :ziel AND active = 1 ORDER BY arrival ASC"
-                );
-                $stmt->execute([':ziel' => $ziel]);
-            } else {
-                $stmt = $this->pdo->query(
-                    "SELECT * FROM intra_edivi_prereg WHERE active = 1 ORDER BY arrival ASC"
-                );
+                $query->where('ziel', $ziel);
             }
 
             return Response::json([
                 'success' => true,
-                'data'    => $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [],
+                'data'    => $query->get()->map(fn ($r) => (array) $r)->all(),
             ]);
         } catch (PDOException $e) {
             Logger::error('Enotf: prereg Fehler', ['error' => $e->getMessage()]);
@@ -85,10 +79,10 @@ final class EnotfController
             return Response::json(['success' => false, 'error' => 'Fahrzeug fehlt'], 400);
         }
 
-        $this->pdo->prepare(
-            "UPDATE intra_enotf_sessions SET active = 0
-             WHERE vehicle_identifier = :vehicle AND active = 1"
-        )->execute([':vehicle' => $vehicle]);
+        DB::table('intra_enotf_sessions')
+            ->where('vehicle_identifier', $vehicle)
+            ->where('active', 1)
+            ->update(['active' => 0]);
 
         return Response::json(['success' => true]);
     }
@@ -113,11 +107,9 @@ final class EnotfController
         ];
 
         if ($enr) {
-            $stmt = $this->pdo->prepare("SELECT pat_synced FROM intra_edivi WHERE enr = :enr LIMIT 1");
-            $stmt->execute([':enr' => $enr]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $row = Edivi::where('enr', $enr)->first(['pat_synced']);
             if ($row) {
-                $response['pat_synced'] = (int) $row['pat_synced'];
+                $response['pat_synced'] = (int) $row->pat_synced;
             }
         }
 
@@ -148,19 +140,18 @@ final class EnotfController
             return Response::json(['success' => false, 'error' => 'Token fehlt'], 400);
         }
 
-        $stmt = $this->pdo->prepare("
-            SELECT s.*
-            FROM intra_enotf_session_members m
-            JOIN intra_enotf_sessions s ON s.id = m.session_id
-            WHERE m.session_token = :token AND s.active = 1
-            LIMIT 1
-        ");
-        $stmt->execute([':token' => $sessionToken]);
-        $session = $stmt->fetch(PDO::FETCH_ASSOC);
+        $session = DB::table('intra_enotf_session_members as m')
+            ->join('intra_enotf_sessions as s', 's.id', '=', 'm.session_id')
+            ->where('m.session_token', $sessionToken)
+            ->where('s.active', 1)
+            ->select('s.*')
+            ->first();
 
         if (!$session) {
             return Response::json(['success' => false, 'error' => 'Session nicht gefunden oder inaktiv'], 404);
         }
+
+        $session = (array) $session;
 
         // PHP-Session updaten
         \App\Session\SessionManager::updateEnotfCrew([
@@ -191,18 +182,17 @@ final class EnotfController
             return Response::json(['success' => false, 'error' => 'Fahrzeug-Kennung fehlt'], 400);
         }
 
-        $stmt = $this->pdo->prepare("
-            SELECT * FROM intra_enotf_sessions
-            WHERE vehicle_identifier = :vehicle AND active = 1
-            ORDER BY updated_at DESC
-            LIMIT 1
-        ");
-        $stmt->execute([':vehicle' => $vehicleIdentifier]);
-        $session = $stmt->fetch(PDO::FETCH_ASSOC);
+        $session = DB::table('intra_enotf_sessions')
+            ->where('vehicle_identifier', $vehicleIdentifier)
+            ->where('active', 1)
+            ->orderByDesc('updated_at')
+            ->first();
 
         if (!$session) {
             return Response::json(['success' => true, 'active' => false]);
         }
+
+        $session = (array) $session;
 
         $freePositions = [];
         if (empty($session['fahrername']))     $freePositions[] = 'fahrer';
@@ -235,15 +225,13 @@ final class EnotfController
             return Response::json(['success' => false, 'error' => 'Token fehlt'], 400);
         }
 
-        $stmt = $this->pdo->prepare("
-            SELECT s.*, m.position AS my_position
-            FROM intra_enotf_session_members m
-            JOIN intra_enotf_sessions s ON s.id = m.session_id
-            WHERE m.session_token = :token
-            LIMIT 1
-        ");
-        $stmt->execute([':token' => $sessionToken]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = DB::table('intra_enotf_session_members as m')
+            ->join('intra_enotf_sessions as s', 's.id', '=', 'm.session_id')
+            ->where('m.session_token', $sessionToken)
+            ->select('s.*', 'm.position as my_position')
+            ->first();
+
+        $result = $result ? (array) $result : null;
 
         if (!$result || (int) $result['active'] === 0) {
             return Response::json(['success' => true, 'active' => false]);
@@ -270,25 +258,21 @@ final class EnotfController
         $searchTerm = (string) ($request->query['search'] ?? '');
 
         try {
-            if ($searchTerm === '') {
-                $stmt = $this->pdo->query(
-                    "SELECT id, name, strasse, hnr, ort, ortsteil, typ
-                     FROM intra_edivi_pois
-                     WHERE active = 1
-                     ORDER BY name ASC LIMIT 50"
-                );
-                return Response::json($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
+            $query = DB::table('intra_edivi_pois')
+                ->select('id', 'name', 'strasse', 'hnr', 'ort', 'ortsteil', 'typ')
+                ->where('active', 1)
+                ->orderBy('name')
+                ->limit(50);
+
+            if ($searchTerm !== '') {
+                $searchPattern = '%' . $searchTerm . '%';
+                $query->where(function ($q) use ($searchPattern) {
+                    $q->where('name', 'LIKE', $searchPattern)
+                        ->orWhere('ort', 'LIKE', $searchPattern);
+                });
             }
 
-            $searchPattern = '%' . $searchTerm . '%';
-            $stmt = $this->pdo->prepare(
-                "SELECT id, name, strasse, hnr, ort, ortsteil, typ
-                 FROM intra_edivi_pois
-                 WHERE active = 1 AND (name LIKE ? OR ort LIKE ?)
-                 ORDER BY name ASC LIMIT 50"
-            );
-            $stmt->execute([$searchPattern, $searchPattern]);
-            return Response::json($stmt->fetchAll(PDO::FETCH_ASSOC) ?: []);
+            return Response::json($query->get()->map(fn ($r) => (array) $r)->all());
         } catch (PDOException $e) {
             Logger::error('Enotf: poi-search Fehler', ['error' => $e->getMessage()]);
             return Response::json(['error' => 'Database error'], 500);
@@ -311,19 +295,20 @@ final class EnotfController
         $currentVehicle = (string) $_SESSION['protfzg'];
 
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT identifier, name, kennzeichen, rd_type
-                FROM intra_fahrzeuge
-                WHERE identifier != :current_vehicle
-                  AND rd_type <> 0
-                  AND active = 1
-                ORDER BY name ASC, identifier ASC
-            ");
-            $stmt->execute([':current_vehicle' => $currentVehicle]);
+            $vehicles = DB::table('intra_fahrzeuge')
+                ->select('identifier', 'name', 'kennzeichen', 'rd_type')
+                ->where('identifier', '!=', $currentVehicle)
+                ->where('rd_type', '<>', 0)
+                ->where('active', 1)
+                ->orderBy('name')
+                ->orderBy('identifier')
+                ->get()
+                ->map(fn ($r) => (array) $r)
+                ->all();
 
             return Response::json([
                 'success'  => true,
-                'vehicles' => $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [],
+                'vehicles' => $vehicles,
             ]);
         } catch (PDOException $e) {
             Logger::error('Enotf: share/get-available-vehicles Fehler', ['error' => $e->getMessage()]);
@@ -352,18 +337,12 @@ final class EnotfController
         }
 
         try {
-            $stmt = $this->pdo->prepare(
-                "SELECT identifier, rd_type FROM intra_fahrzeuge WHERE identifier = :id"
-            );
-            $stmt->execute([':id' => $_SESSION['protfzg']]);
-            $fahrzeug = $stmt->fetch(PDO::FETCH_ASSOC);
-            $isDoctorVehicle = $fahrzeug && (int) $fahrzeug['rd_type'] === 1;
+            $fahrzeug = DB::table('intra_fahrzeuge')
+                ->where('identifier', $_SESSION['protfzg'])
+                ->first(['identifier', 'rd_type']);
+            $isDoctorVehicle = $fahrzeug && (int) $fahrzeug->rd_type === 1;
 
-            $stmt = $this->pdo->prepare(
-                "SELECT fzg_transp, fzg_na FROM intra_edivi WHERE enr = :enr LIMIT 1"
-            );
-            $stmt->execute([':enr' => $enr]);
-            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+            $existing = Edivi::where('enr', $enr)->first(['fzg_transp', 'fzg_na']);
 
             if (!$existing) {
                 return Response::json(['conflict' => false]);
@@ -374,10 +353,9 @@ final class EnotfController
                 return Response::json(['conflict' => false]);
             }
 
-            $stmt = $this->pdo->prepare("SELECT name FROM intra_fahrzeuge WHERE identifier = :id");
-            $stmt->execute([':id' => $existing[$currentField]]);
-            $conflict = $stmt->fetch(PDO::FETCH_ASSOC);
-            $vehicleName = $conflict['name'] ?? $existing[$currentField];
+            $vehicleName = DB::table('intra_fahrzeuge')
+                ->where('identifier', $existing[$currentField])
+                ->value('name') ?? $existing[$currentField];
             $protocolType = $isDoctorVehicle ? 'Notarzt-Protokoll' : 'Rettungsdienst-Protokoll';
 
             return Response::json([
@@ -409,12 +387,8 @@ final class EnotfController
         }
 
         try {
-            $stmt = $this->pdo->prepare(
-                "SELECT pat_vorname, pat_nachname, patgebdat, pat_synced
-                 FROM intra_edivi WHERE enr = :enr LIMIT 1"
-            );
-            $stmt->execute([':enr' => $enr]);
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $row = Edivi::where('enr', $enr)
+                ->first(['pat_vorname', 'pat_nachname', 'patgebdat', 'pat_synced']);
 
             if (!$row) {
                 return Response::json(['success' => false, 'error' => 'Protokoll nicht gefunden'], 404);
@@ -423,8 +397,7 @@ final class EnotfController
                 return Response::json(['success' => false, 'error' => 'Keine Patientendaten vorhanden'], 400);
             }
 
-            $this->pdo->prepare("UPDATE intra_edivi SET pat_synced = 2 WHERE enr = :enr")
-                ->execute([':enr' => $enr]);
+            Edivi::where('enr', $enr)->update(['pat_synced' => 2]);
 
             return Response::json([
                 'success'    => true,
@@ -478,44 +451,18 @@ final class EnotfController
         }
 
         try {
-            if ($isTransport && $isZiel) {
-                $stmt = $this->pdo->prepare(
-                    "UPDATE intra_edivi
-                     SET transp_poi = :transp_poi, transp_adresse = :transp_adresse,
-                         ziel_poi = :ziel_poi, ziel_adresse = :ziel_adresse,
-                         last_edit = NOW()
-                     WHERE enr = :enr"
-                );
-                $stmt->execute([
-                    ':transp_poi'     => $transpPoi,
-                    ':transp_adresse' => $transpAdresse,
-                    ':ziel_poi'       => $zielPoi,
-                    ':ziel_adresse'   => $zielAdresse,
-                    ':enr'            => $enr,
-                ]);
-            } elseif ($isTransport) {
-                $stmt = $this->pdo->prepare(
-                    "UPDATE intra_edivi
-                     SET transp_poi = :transp_poi, transp_adresse = :transp_adresse, last_edit = NOW()
-                     WHERE enr = :enr"
-                );
-                $stmt->execute([
-                    ':transp_poi'     => $transpPoi,
-                    ':transp_adresse' => $transpAdresse,
-                    ':enr'            => $enr,
-                ]);
-            } else {
-                $stmt = $this->pdo->prepare(
-                    "UPDATE intra_edivi
-                     SET ziel_poi = :ziel_poi, ziel_adresse = :ziel_adresse, last_edit = NOW()
-                     WHERE enr = :enr"
-                );
-                $stmt->execute([
-                    ':ziel_poi'     => $zielPoi,
-                    ':ziel_adresse' => $zielAdresse,
-                    ':enr'          => $enr,
-                ]);
+            $fields = [];
+            if ($isTransport) {
+                $fields['transp_poi']     = $transpPoi;
+                $fields['transp_adresse'] = $transpAdresse;
             }
+            if ($isZiel) {
+                $fields['ziel_poi']     = $zielPoi;
+                $fields['ziel_adresse'] = $zielAdresse;
+            }
+            $fields['last_edit'] = DB::raw('NOW()');
+
+            Edivi::where('enr', $enr)->update($fields);
 
             return Response::json(['success' => true, 'message' => 'Fields updated successfully']);
         } catch (PDOException $e) {
@@ -550,17 +497,14 @@ final class EnotfController
         $vehicle = $_SESSION['protfzg'];
 
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT enr, createdby, hidden_user
-                FROM intra_edivi
-                WHERE enr = :enr
-                  AND (fzg_transp = :fzg_transp OR fzg_na = :fzg_na)
-                  AND hidden = 0
-                  AND hidden_user = 0
-                  AND freigegeben = 0
-            ");
-            $stmt->execute([':enr' => $enr, ':fzg_transp' => $vehicle, ':fzg_na' => $vehicle]);
-            $protocol = $stmt->fetch(PDO::FETCH_ASSOC);
+            $protocol = Edivi::where('enr', $enr)
+                ->where(function ($q) use ($vehicle) {
+                    $q->where('fzg_transp', $vehicle)->orWhere('fzg_na', $vehicle);
+                })
+                ->where('hidden', 0)
+                ->where('hidden_user', 0)
+                ->where('freigegeben', 0)
+                ->first(['enr', 'createdby', 'hidden_user']);
 
             if (!$protocol) {
                 return Response::json(['success' => false, 'message' => 'Protokoll nicht gefunden oder nicht zugänglich'], 404);
@@ -579,12 +523,12 @@ final class EnotfController
                 $freigeber .= ', ' . $_SESSION['beifahrername'];
             }
 
-            $this->pdo->prepare("
-                UPDATE intra_edivi
-                SET hidden_user = 1, freigeber_name = :freigeber_name,
-                    last_edit = NOW(), freigegeben = 1
-                WHERE enr = :enr
-            ")->execute([':freigeber_name' => $freigeber, ':enr' => $enr]);
+            Edivi::where('enr', $enr)->update([
+                'hidden_user'    => 1,
+                'freigeber_name' => $freigeber,
+                'last_edit'      => DB::raw('NOW()'),
+                'freigegeben'    => 1,
+            ]);
 
             return Response::json(['success' => true, 'message' => 'Protokoll erfolgreich gelöscht']);
         } catch (PDOException $e) {
@@ -606,20 +550,19 @@ final class EnotfController
         }
 
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT sr.id, sr.source_enr, sr.source_protocol_id, sr.source_vehicle, sr.created_at,
-                       ed.enr, ed.patname, ed.prot_by, ed.edatum, ed.ezeit
-                FROM intra_edivi_share_requests sr
-                JOIN intra_edivi ed ON sr.source_protocol_id = ed.id
-                WHERE sr.target_vehicle = :vehicle AND sr.status = 'pending'
-                ORDER BY sr.created_at ASC
-                LIMIT 1
-            ");
-            $stmt->execute([':vehicle' => $_SESSION['protfzg']]);
-            $req = $stmt->fetch(PDO::FETCH_ASSOC);
+            $req = DB::table('intra_edivi_share_requests as sr')
+                ->join('intra_edivi as ed', 'sr.source_protocol_id', '=', 'ed.id')
+                ->where('sr.target_vehicle', $_SESSION['protfzg'])
+                ->where('sr.status', 'pending')
+                ->orderBy('sr.created_at')
+                ->select(
+                    'sr.id', 'sr.source_enr', 'sr.source_protocol_id', 'sr.source_vehicle', 'sr.created_at',
+                    'ed.enr', 'ed.patname', 'ed.prot_by', 'ed.edatum', 'ed.ezeit'
+                )
+                ->first();
 
             if ($req) {
-                return Response::json(['success' => true, 'has_requests' => true, 'request' => $req]);
+                return Response::json(['success' => true, 'has_requests' => true, 'request' => (array) $req]);
             }
             return Response::json(['success' => true, 'has_requests' => false]);
         } catch (PDOException $e) {
@@ -640,18 +583,26 @@ final class EnotfController
         }
 
         try {
-            $stmt = $this->pdo->prepare("
-                SELECT id, enr, patname, edatum, ezeit, prot_by
-                FROM intra_edivi
-                WHERE (fzg_transp = :v1 OR fzg_na = :v2)
-                  AND freigegeben = 0
-                  AND (hidden = 0 OR hidden IS NULL)
-                  AND (hidden_user = 0 OR hidden_user IS NULL)
-                ORDER BY edatum DESC, ezeit DESC
-                LIMIT 20
-            ");
-            $stmt->execute([':v1' => $_SESSION['protfzg'], ':v2' => $_SESSION['protfzg']]);
-            $protocols = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $vehicle = $_SESSION['protfzg'];
+
+            $protocols = DB::table('intra_edivi')
+                ->select('id', 'enr', 'patname', 'edatum', 'ezeit', 'prot_by')
+                ->where(function ($q) use ($vehicle) {
+                    $q->where('fzg_transp', $vehicle)->orWhere('fzg_na', $vehicle);
+                })
+                ->where('freigegeben', 0)
+                ->where(function ($q) {
+                    $q->where('hidden', 0)->orWhereNull('hidden');
+                })
+                ->where(function ($q) {
+                    $q->where('hidden_user', 0)->orWhereNull('hidden_user');
+                })
+                ->orderByDesc('edatum')
+                ->orderByDesc('ezeit')
+                ->limit(20)
+                ->get()
+                ->map(fn ($r) => (array) $r)
+                ->all();
 
             return Response::json([
                 'success'   => true,
@@ -684,35 +635,36 @@ final class EnotfController
             return Response::json(['success' => false, 'message' => 'Fehlende Parameter']);
         }
 
+        $conn = DB::connection();
+
         try {
-            $this->pdo->beginTransaction();
+            $conn->beginTransaction();
 
-            $check = $this->pdo->prepare("
-                SELECT id FROM intra_edivi_share_requests
-                WHERE id = :request_id AND target_vehicle = :vehicle AND status = 'pending'
-            ");
-            $check->execute([':request_id' => $requestId, ':vehicle' => $_SESSION['protfzg']]);
+            $exists = DB::table('intra_edivi_share_requests')
+                ->where('id', $requestId)
+                ->where('target_vehicle', $_SESSION['protfzg'])
+                ->where('status', 'pending')
+                ->exists();
 
-            if ($check->rowCount() === 0) {
-                $this->pdo->rollBack();
+            if (!$exists) {
+                $conn->rollBack();
                 return Response::json(['success' => false, 'message' => 'Anfrage nicht gefunden oder bereits bearbeitet']);
             }
 
-            $this->pdo->prepare("
-                UPDATE intra_edivi_share_requests
-                SET status = 'rejected', response_at = NOW(), response_by = :response_by
-                WHERE id = :request_id
-            ")->execute([
-                ':request_id'  => $requestId,
-                ':response_by' => $_SESSION['fahrername'],
-            ]);
+            DB::table('intra_edivi_share_requests')
+                ->where('id', $requestId)
+                ->update([
+                    'status'      => 'rejected',
+                    'response_at' => DB::raw('NOW()'),
+                    'response_by' => $_SESSION['fahrername'],
+                ]);
 
-            $this->pdo->commit();
+            $conn->commit();
 
             return Response::json(['success' => true, 'message' => 'Anfrage wurde abgelehnt']);
         } catch (PDOException $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
+            if ($conn->transactionLevel() > 0) {
+                $conn->rollBack();
             }
             Logger::error('Enotf: share/reject-request Fehler', ['error' => $e->getMessage()]);
             return Response::json(['success' => false, 'message' => 'Datenbankfehler']);
@@ -745,37 +697,32 @@ final class EnotfController
         }
 
         try {
-            $check = $this->pdo->prepare("
-                SELECT id FROM intra_edivi_share_requests
-                WHERE source_protocol_id = :protocol_id
-                  AND target_vehicle = :target_vehicle
-                  AND status = 'pending'
-            ");
-            $check->execute([':protocol_id' => $protocolId, ':target_vehicle' => $targetVehicle]);
+            $pending = DB::table('intra_edivi_share_requests')
+                ->where('source_protocol_id', $protocolId)
+                ->where('target_vehicle', $targetVehicle)
+                ->where('status', 'pending')
+                ->exists();
 
-            if ($check->rowCount() > 0) {
+            if ($pending) {
                 return Response::json([
                     'success' => false,
                     'message' => 'Es existiert bereits eine ausstehende Anfrage für dieses Fahrzeug',
                 ]);
             }
 
-            $this->pdo->prepare("
-                INSERT INTO intra_edivi_share_requests
-                    (source_enr, source_protocol_id, source_vehicle, target_vehicle, status, created_at)
-                VALUES
-                    (:source_enr, :protocol_id, :source_vehicle, :target_vehicle, 'pending', NOW())
-            ")->execute([
-                ':source_enr'     => $enr,
-                ':protocol_id'    => $protocolId,
-                ':source_vehicle' => $_SESSION['protfzg'],
-                ':target_vehicle' => $targetVehicle,
+            $requestId = DB::table('intra_edivi_share_requests')->insertGetId([
+                'source_enr'         => $enr,
+                'source_protocol_id' => $protocolId,
+                'source_vehicle'     => $_SESSION['protfzg'],
+                'target_vehicle'     => $targetVehicle,
+                'status'             => 'pending',
+                'created_at'         => DB::raw('NOW()'),
             ]);
 
             return Response::json([
                 'success'    => true,
                 'message'    => 'Anfrage wurde erfolgreich gesendet',
-                'request_id' => (int) $this->pdo->lastInsertId(),
+                'request_id' => (int) $requestId,
             ]);
         } catch (PDOException $e) {
             Logger::error('Enotf: share/send-request Fehler', ['error' => $e->getMessage()]);
@@ -815,20 +762,23 @@ final class EnotfController
         try {
             $date = date('Y-m-d H:i:s', (int) $timestamp);
 
-            $stmt = $this->pdo->prepare("
-                SELECT e.id, e.enr AS missionNumber, e.patname AS name, e.patgebdat AS birthdate,
-                       e.transportziel, e.prot_by, e.fzg_transp, e.fzg_na, e.created_at,
-                       COALESCE(fzg_t.name, fzg_na_tbl.name) AS vehicle_callsign
-                FROM intra_edivi e
-                LEFT JOIN intra_fahrzeuge fzg_t ON e.fzg_transp = fzg_t.identifier
-                LEFT JOIN intra_fahrzeuge fzg_na_tbl ON e.fzg_na = fzg_na_tbl.identifier
-                WHERE (e.billing_sent IS NULL OR e.billing_sent = 0)
-                  AND e.freigegeben = 1
-                  AND e.created_at <= :date
-                ORDER BY e.created_at ASC
-            ");
-            $stmt->execute([':date' => $date]);
-            $protocols = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $protocols = DB::table('intra_edivi as e')
+                ->leftJoin('intra_fahrzeuge as fzg_t', 'e.fzg_transp', '=', 'fzg_t.identifier')
+                ->leftJoin('intra_fahrzeuge as fzg_na_tbl', 'e.fzg_na', '=', 'fzg_na_tbl.identifier')
+                ->select(
+                    'e.id', 'e.enr as missionNumber', 'e.patname as name', 'e.patgebdat as birthdate',
+                    'e.transportziel', 'e.prot_by', 'e.fzg_transp', 'e.fzg_na', 'e.created_at',
+                    DB::raw('COALESCE(fzg_t.name, fzg_na_tbl.name) AS vehicle_callsign')
+                )
+                ->where(function ($q) {
+                    $q->whereNull('e.billing_sent')->orWhere('e.billing_sent', 0);
+                })
+                ->where('e.freigegeben', 1)
+                ->where('e.created_at', '<=', $date)
+                ->orderBy('e.created_at')
+                ->get()
+                ->map(fn ($r) => (array) $r)
+                ->all();
 
             if (empty($protocols)) {
                 return Response::json(['success' => true, 'count' => 0, 'protocols' => []]);
@@ -848,11 +798,9 @@ final class EnotfController
                 ];
             }
 
-            $placeholders = implode(',', array_fill(0, count($ids), '?'));
-            $this->pdo->prepare("
-                UPDATE intra_edivi SET billing_sent = 1, billing_sent_at = NOW()
-                WHERE id IN ($placeholders)
-            ")->execute($ids);
+            DB::table('intra_edivi')
+                ->whereIn('id', $ids)
+                ->update(['billing_sent' => 1, 'billing_sent_at' => DB::raw('NOW()')]);
 
             return Response::json(['success' => true, 'count' => count($result), 'protocols' => $result]);
         } catch (PDOException $e) {
@@ -914,24 +862,29 @@ final class EnotfController
         }
         $whereClause = implode(' AND ', $conditions);
 
-        $timeCondition = '';
-        if ($timePeriod !== 'all') {
-            $days = max(1, (int) $timePeriod);
-            $timeCondition = "AND sendezeit > DATE_SUB(NOW(), INTERVAL {$days} DAY)";
-        }
+        // Feld-Namen stammen aus der Whitelist, $days ist int-gecastet —
+        // die Raw-Fragmente enthalten keine User-Eingaben.
+        $makeQuery = function () use ($whereClause, $timePeriod) {
+            $query = DB::table('intra_edivi')
+                ->where('hidden', '<>', 1)
+                ->whereRaw("({$whereClause})");
+            if ($timePeriod !== 'all') {
+                $days = max(1, (int) $timePeriod);
+                $query->whereRaw("sendezeit > DATE_SUB(NOW(), INTERVAL {$days} DAY)");
+            }
+            return $query;
+        };
 
         $selectedLabel = implode(', ', array_map(fn($f) => $availableFields[$f] ?? $f, $fieldsToCheck));
 
         try {
             if ($isPreview) {
-                $stmt = $this->pdo->prepare("
-                    SELECT id, enr, patname, sendezeit, pfname
-                    FROM intra_edivi
-                    WHERE hidden <> 1 AND ({$whereClause}) {$timeCondition}
-                    ORDER BY sendezeit DESC
-                ");
-                $stmt->execute();
-                $protocols = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                $protocols = $makeQuery()
+                    ->select('id', 'enr', 'patname', 'sendezeit', 'pfname')
+                    ->orderByDesc('sendezeit')
+                    ->get()
+                    ->map(fn ($r) => (array) $r)
+                    ->all();
                 return Response::json([
                     'success'             => true,
                     'protocols'           => $protocols,
@@ -940,28 +893,22 @@ final class EnotfController
                 ]);
             }
 
-            $countStmt = $this->pdo->prepare("
-                SELECT COUNT(*) AS count FROM intra_edivi
-                WHERE hidden <> 1 AND ({$whereClause}) {$timeCondition}
-            ");
-            $countStmt->execute();
-            $count = (int) $countStmt->fetchColumn();
+            $count = (int) $makeQuery()->count();
 
             if ($count === 0) {
                 return Response::json(['success' => true, 'message' => 'Keine leeren Protokolle gefunden', 'deleted' => 0]);
             }
 
             $bearbeiter = $_SESSION['username'] ?? 'System';
-            $this->pdo->prepare("
-                UPDATE intra_edivi
-                SET hidden = 1, protokoll_status = 4, bearbeiter = :bearbeiter
-                WHERE hidden <> 1 AND ({$whereClause}) {$timeCondition}
-            ")->execute([':bearbeiter' => $bearbeiter]);
+            $affected = $makeQuery()->update([
+                'hidden'           => 1,
+                'protokoll_status' => 4,
+                'bearbeiter'       => $bearbeiter,
+            ]) ?: $count;
 
-            $affected = $this->pdo->prepare("SELECT ROW_COUNT()")->fetchColumn() ?: $count;
             $timeLabel = $timePeriod === 'all' ? 'alle' : "letzte {$timePeriod} Tage";
 
-            (new AuditLogger($this->pdo))->log(
+            (new AuditLogger())->log(
                 $_SESSION['userid'],
                 "Bulk-Delete: {$affected} leere Protokolle gelöscht",
                 "Gelöschte Protokolle mit leeren Feldern ({$selectedLabel}), Zeitraum: {$timeLabel}",
@@ -1058,14 +1005,12 @@ final class EnotfController
      */
     private function loadProtokollReleaseStatus(string $enr): string
     {
-        $stmt = $this->pdo->prepare("SELECT freigegeben FROM intra_edivi WHERE enr = :enr");
-        $stmt->execute([':enr' => $enr]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = Edivi::where('enr', $enr)->first(['freigegeben']);
 
         if (!$row) {
             return 'not_found';
         }
-        return (int) $row['freigegeben'] === 1 ? 'released' : 'editable';
+        return (int) $row->freigegeben === 1 ? 'released' : 'editable';
     }
 
     /**
@@ -1074,19 +1019,15 @@ final class EnotfController
      */
     private function writeProtokollField(string $enr, string $field, mixed $value): void
     {
-        $this->pdo->prepare("UPDATE intra_edivi SET {$field} = :value, last_edit = NOW() WHERE enr = :enr")
-            ->execute([':value' => $value, ':enr' => $enr]);
+        Edivi::where('enr', $enr)->update([$field => $value, 'last_edit' => DB::raw('NOW()')]);
 
         // Namensänderung → patname + pat_synced synchron halten (Side-Effect)
         if ($field === 'pat_vorname' || $field === 'pat_nachname') {
-            $cur = $this->pdo->prepare("SELECT pat_vorname, pat_nachname FROM intra_edivi WHERE enr = ?");
-            $cur->execute([$enr]);
-            $c = $cur->fetch(PDO::FETCH_ASSOC);
-            $vn = trim($c['pat_vorname'] ?? '');
-            $nn = trim($c['pat_nachname'] ?? '');
+            $c = Edivi::where('enr', $enr)->first(['pat_vorname', 'pat_nachname']);
+            $vn = trim($c?->pat_vorname ?? '');
+            $nn = trim($c?->pat_nachname ?? '');
             $combined = $nn . ($nn !== '' && $vn !== '' ? ', ' : '') . $vn;
-            $this->pdo->prepare("UPDATE intra_edivi SET patname = ?, pat_synced = 0 WHERE enr = ?")
-                ->execute([$combined, $enr]);
+            Edivi::where('enr', $enr)->update(['patname' => $combined, 'pat_synced' => 0]);
         }
     }
 
@@ -1134,23 +1075,28 @@ final class EnotfController
             return Response::json(['success' => false, 'message' => 'Für das Zusammenführen muss ein Zielprotokoll ausgewählt werden']);
         }
 
-        try {
-            $this->pdo->beginTransaction();
+        $conn = DB::connection();
 
-            // Lade Share-Request + Quell-Protokoll
-            $reqStmt = $this->pdo->prepare("
-                SELECT sr.*, ed.*
-                FROM intra_edivi_share_requests sr
-                JOIN intra_edivi ed ON sr.source_protocol_id = ed.id
-                WHERE sr.id = :request_id AND sr.target_vehicle = :vehicle AND sr.status = 'pending'
-            ");
-            $reqStmt->execute([':request_id' => $requestId, ':vehicle' => $_SESSION['protfzg']]);
-            $reqData = $reqStmt->fetch(PDO::FETCH_ASSOC);
+        try {
+            $conn->beginTransaction();
+
+            // Lade Share-Request + Quell-Protokoll. Bei gleichnamigen Spalten
+            // (id, created_at, ...) gewinnt wie beim alten `sr.*, ed.*`-Select
+            // die zuletzt selektierte — also die Protokoll-Spalte.
+            $reqData = DB::table('intra_edivi_share_requests as sr')
+                ->join('intra_edivi as ed', 'sr.source_protocol_id', '=', 'ed.id')
+                ->where('sr.id', $requestId)
+                ->where('sr.target_vehicle', $_SESSION['protfzg'])
+                ->where('sr.status', 'pending')
+                ->select('sr.*', 'ed.*')
+                ->first();
 
             if (!$reqData) {
-                $this->pdo->rollBack();
+                $conn->rollBack();
                 return Response::json(['success' => false, 'message' => 'Anfrage nicht gefunden oder bereits bearbeitet']);
             }
+
+            $reqData = (array) $reqData;
 
             $currentVehicle = $_SESSION['protfzg'];
             $vehicleInfo    = $this->getVehicleInfo($currentVehicle);
@@ -1175,7 +1121,7 @@ final class EnotfController
                     $fahrer, $beifahrer, $praktikant
                 );
                 if ($result['error']) {
-                    $this->pdo->rollBack();
+                    $conn->rollBack();
                     return Response::json(['success' => false, 'message' => $result['error']]);
                 }
                 $actionTaken = 'merged';
@@ -1192,19 +1138,17 @@ final class EnotfController
             }
 
             // Share-Request als akzeptiert markieren
-            $this->pdo->prepare("
-                UPDATE intra_edivi_share_requests
-                SET status = 'accepted', response_at = NOW(), response_by = :by,
-                    action_taken = :action_taken, new_enr = :new_enr
-                WHERE id = :id
-            ")->execute([
-                ':by'           => $_SESSION['fahrername'],
-                ':action_taken' => $actionTaken,
-                ':new_enr'      => $newEnr,
-                ':id'           => $requestId,
-            ]);
+            DB::table('intra_edivi_share_requests')
+                ->where('id', $requestId)
+                ->update([
+                    'status'       => 'accepted',
+                    'response_at'  => DB::raw('NOW()'),
+                    'response_by'  => $_SESSION['fahrername'],
+                    'action_taken' => $actionTaken,
+                    'new_enr'      => $newEnr,
+                ]);
 
-            $this->pdo->commit();
+            $conn->commit();
 
             return Response::json([
                 'success' => true,
@@ -1213,8 +1157,8 @@ final class EnotfController
                 'new_enr' => $newEnr,
             ]);
         } catch (PDOException $e) {
-            if ($this->pdo->inTransaction()) {
-                $this->pdo->rollBack();
+            if ($conn->transactionLevel() > 0) {
+                $conn->rollBack();
             }
             Logger::error('Enotf: share/accept-request Fehler', ['error' => $e->getMessage()]);
             return Response::json(['success' => false, 'message' => 'Datenbankfehler']);
@@ -1274,17 +1218,17 @@ final class EnotfController
             return Response::text('Freigeber darf nicht leer sein.', 400);
         }
 
-        $this->pdo->prepare(
-            "UPDATE intra_edivi SET freigeber_name = :value, freigegeben = 1, last_edit = NOW() WHERE enr = :enr"
-        )->execute([':value' => $value, ':enr' => $enr]);
+        Edivi::where('enr', $enr)->update([
+            'freigeber_name' => $value,
+            'freigegeben'    => 1,
+            'last_edit'      => DB::raw('NOW()'),
+        ]);
 
         try {
-            $stmt = $this->pdo->prepare("SELECT * FROM intra_edivi WHERE enr = :enr");
-            $stmt->execute([':enr' => $enr]);
-            $protokoll = $stmt->fetch(PDO::FETCH_ASSOC);
+            $protokoll = Edivi::where('enr', $enr)->first();
 
             if ($protokoll) {
-                app(EventDispatcher::class)->fire(new EnotfProtocolReleased($protokoll));
+                app(EventDispatcher::class)->fire(new EnotfProtocolReleased($protokoll->getAttributes()));
             }
         } catch (\Throwable $e) {
             Logger::error('EnotfProtocolReleased: Event-Fire Fehler', ['error' => $e->getMessage()]);
@@ -1357,10 +1301,10 @@ final class EnotfController
     /** @return array{isDoctorVehicle: bool} */
     private function getVehicleInfo(string $vehicleId): array
     {
-        $stmt = $this->pdo->prepare("SELECT rd_type FROM intra_fahrzeuge WHERE identifier = :id");
-        $stmt->execute([':id' => $vehicleId]);
-        $fzg = $stmt->fetch(PDO::FETCH_ASSOC);
-        return ['isDoctorVehicle' => $fzg && (int) $fzg['rd_type'] === 1];
+        $fzg = DB::table('intra_fahrzeuge')
+            ->where('identifier', $vehicleId)
+            ->first(['rd_type']);
+        return ['isDoctorVehicle' => $fzg && (int) $fzg->rd_type === 1];
     }
 
     /** Formatiert einen Session-Crew-Eintrag als "Name (Quali)" oder null. */
@@ -1377,9 +1321,7 @@ final class EnotfController
         string $fzgField, string $persoField1, string $persoField2, string $persoField3,
         ?string $fahrer, ?string $beifahrer, ?string $praktikant
     ): array {
-        $targetStmt = $this->pdo->prepare("SELECT * FROM intra_edivi WHERE enr = :enr AND freigegeben = 0");
-        $targetStmt->execute([':enr' => $targetEnr]);
-        $target = $targetStmt->fetch(PDO::FETCH_ASSOC);
+        $target = Edivi::where('enr', $targetEnr)->where('freigegeben', 0)->first();
 
         if (!$target) {
             return ['error' => 'Zielprotokoll nicht gefunden oder bereits freigegeben'];
@@ -1398,23 +1340,19 @@ final class EnotfController
         $vehFields['prot_by'] = $isDoctorVehicle ? 1 : 0;
 
         // Alle nicht-leeren Quell-Felder übernehmen (außer excluded)
-        $sets   = [];
-        $params = [':enr' => $targetEnr];
+        $updates = [];
         foreach ($reqData as $f => $v) {
             if (in_array($f, self::SHARE_EXCLUDED_FIELDS, true) || str_starts_with($f, 'sr_')) continue;
             if ($v !== null && $v !== '') {
-                $sets[]            = "{$f} = :{$f}";
-                $params[":{$f}"]   = $v;
+                $updates[$f] = $v;
             }
         }
         foreach ($vehFields as $f => $v) {
-            $sets[]          = "{$f} = :{$f}";
-            $params[":{$f}"] = $v;
+            $updates[$f] = $v;
         }
 
-        if (!empty($sets)) {
-            $this->pdo->prepare("UPDATE intra_edivi SET " . implode(', ', $sets) . " WHERE enr = :enr")
-                ->execute($params);
+        if (!empty($updates)) {
+            Edivi::where('enr', $targetEnr)->update($updates);
         }
 
         return ['error' => null];
@@ -1429,42 +1367,34 @@ final class EnotfController
         $originalEnr = $reqData['enr'];
 
         // Freie ENR finden
-        $check = $this->pdo->prepare("SELECT 1 FROM intra_edivi WHERE enr = :enr");
-        $check->execute([':enr' => $originalEnr]);
-        if ($check->rowCount() > 0) {
+        if (Edivi::where('enr', $originalEnr)->exists()) {
             $suffix = 1;
             do {
                 $newEnr = $originalEnr . '_' . $suffix++;
-                $check->execute([':enr' => $newEnr]);
-            } while ($check->rowCount() > 0);
+            } while (Edivi::where('enr', $newEnr)->exists());
         } else {
             $newEnr = $originalEnr;
         }
 
-        $fields       = ['enr', $fzgField];
-        $placeholders = [':enr', ':fahrzeug'];
-        $params       = [':enr' => $newEnr, ':fahrzeug' => $currentVehicle];
+        $insert = [
+            'enr'     => $newEnr,
+            $fzgField => $currentVehicle,
+        ];
 
-        foreach ([[$persoField1, $fahrer, ':p1'], [$persoField2, $beifahrer, ':p2'], [$persoField3, $praktikant, ':p3']] as [$pf, $pv, $ph]) {
+        foreach ([[$persoField1, $fahrer], [$persoField2, $beifahrer], [$persoField3, $praktikant]] as [$pf, $pv]) {
             if ($pv !== null) {
-                $fields[]       = $pf;
-                $placeholders[] = $ph;
-                $params[$ph]    = $pv;
+                $insert[$pf] = $pv;
             }
         }
 
         foreach ($reqData as $f => $v) {
             if (in_array($f, self::SHARE_EXCLUDED_FIELDS, true) || str_starts_with($f, 'sr_') || $f === 'enr') continue;
             if ($v !== null && $v !== '') {
-                $fields[]         = $f;
-                $placeholders[]   = ":{$f}";
-                $params[":{$f}"]  = $v;
+                $insert[$f] = $v;
             }
         }
 
-        $this->pdo->prepare(
-            "INSERT INTO intra_edivi (" . implode(', ', $fields) . ") VALUES (" . implode(', ', $placeholders) . ")"
-        )->execute($params);
+        DB::table('intra_edivi')->insert($insert);
 
         return ['new_enr' => $newEnr];
     }

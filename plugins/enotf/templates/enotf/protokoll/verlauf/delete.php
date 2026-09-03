@@ -1,12 +1,11 @@
 <?php
 /**
  * View: enotf/protokoll/verlauf/delete.php
- *
- * @var \PDO $pdo
  */
 
 
 use App\Auth\Permissions;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 // Nur POST-Requests erlauben
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -25,31 +24,26 @@ $id = intval($_POST['id']);
 
 try {
     // Prüfen ob der Eintrag existiert und zu einem nicht freigegebenen Fall gehört
-    $checkQuery = "SELECT v.id, e.freigegeben 
-                   FROM intra_edivi_vitalparameter v 
-                   JOIN intra_edivi e ON v.enr = e.enr 
-                   WHERE v.id = :id";
-
-    $checkStmt = $pdo->prepare($checkQuery);
-    $checkStmt->execute(['id' => $id]);
-    $result = $checkStmt->fetch(PDO::FETCH_ASSOC);
+    $result = Capsule::table('intra_edivi_vitalparameter as v')
+        ->join('intra_edivi as e', 'v.enr', '=', 'e.enr')
+        ->where('v.id', $id)
+        ->select('v.id', 'e.freigegeben')
+        ->first();
 
     if (!$result) {
         echo 'Eintrag nicht gefunden';
         exit();
     }
 
-    if ($result['freigegeben'] == 1) {
+    if ($result->freigegeben == 1) {
         echo 'Eintrag kann nicht gelöscht werden - Fall ist bereits freigegeben';
         exit();
     }
 
     // Löschen
-    $deleteQuery = "DELETE FROM intra_edivi_vitalparameter WHERE id = :id";
-    $deleteStmt = $pdo->prepare($deleteQuery);
-    $success = $deleteStmt->execute(['id' => $id]);
+    $deleted = Capsule::table('intra_edivi_vitalparameter')->where('id', $id)->delete();
 
-    if ($success && $deleteStmt->rowCount() > 0) {
+    if ($deleted > 0) {
         echo 'success';
     } else {
         echo 'Fehler beim Löschen';
