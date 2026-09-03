@@ -3,20 +3,19 @@
  * View: POI-Verwaltung
  *
  * @var array<int,array<string,mixed>> $pois
- * @var \PDO                           $pdo
  */
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php include dirname(__DIR__, 5) . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" data-page="settings">
+<body data-theme="dark" data-page="settings">
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="container">
@@ -114,7 +113,7 @@ use App\Helpers\Flash;
             <div class="mb-3"><label for="poi-ortsteil" class="ignis-field__label">Ortsteil</label><input type="text" class="ignis-input" name="ortsteil" id="poi-ortsteil"></div>
             <div class="mb-3">
                 <label for="poi-typ" class="ignis-field__label">Typ</label>
-                <select class="form-select" name="typ" id="poi-typ" data-custom-dropdown="true">
+                <select class="ignis-input" name="typ" id="poi-typ" data-custom-dropdown="true">
                     <option value="">--- Kein Typ ---</option>
                     <option value="Polizeiwache">Polizeiwache</option>
                     <option value="Rettungswache">Rettungswache</option>

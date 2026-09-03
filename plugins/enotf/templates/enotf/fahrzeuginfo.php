@@ -6,9 +6,9 @@
  * @var array<int,array<string,mixed>> $vehicles
  * @var array<int,array<string,mixed>> $categories
  * @var string                         $pinEnabled
- * @var \PDO                           $pdo
  */
 
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Plugin\Enotf\Helpers\EnotfUrl;
 
 $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";
@@ -186,7 +186,7 @@ $currentDate = date('d.m.Y');
                                         'signalanlage' => 'Signalanlage', 'sonstiges' => 'Sonstiges', 'windschutzscheibe' => 'Windschutzscheibe'
                                     ];
                                     try {
-                                        $defStmt = $pdo->prepare("SELECT d.*,
+                                        $defectRows = Capsule::connection()->select("SELECT d.*,
                                             COALESCE(m.fullname, u.username) AS reporter_name,
                                             last_log.last_status_user, last_log.last_status_details, last_log.last_status_at
                                             FROM intra_fahrzeuge_defects d
@@ -204,9 +204,8 @@ $currentDate = date('d.m.Y');
                                                 )
                                             ) last_log ON last_log.defect_id = d.id
                                             WHERE d.vehicle_id = :vid AND d.status != 'resolved'
-                                            ORDER BY d.created_at DESC");
-                                        $defStmt->execute(['vid' => $vehicle['id']]);
-                                        $openDefects = $defStmt->fetchAll(PDO::FETCH_ASSOC);
+                                            ORDER BY d.created_at DESC", ['vid' => $vehicle['id']]);
+                                        $openDefects = array_map(static fn ($row) => (array) $row, $defectRows);
                                     } catch (PDOException $e) {
                                         // Tabelle existiert noch nicht
                                     }
@@ -267,16 +266,15 @@ $currentDate = date('d.m.Y');
                                     <?php
                                     // Tiles in einem Query laden und nach Kategorie gruppieren (statt N+1).
                                     $catIds = array_column($categories, 'id');
-                                    $placeholders = implode(',', array_fill(0, count($catIds), '?'));
                                     $tilesByCategory = [];
                                     if ($catIds) {
-                                        $tilesStmt = $pdo->prepare(
-                                            "SELECT * FROM intra_fahrzeuge_beladung_tiles
-                                             WHERE category IN ($placeholders)
-                                             ORDER BY sort_order ASC, title ASC"
-                                        );
-                                        $tilesStmt->execute($catIds);
-                                        foreach ($tilesStmt->fetchAll(PDO::FETCH_ASSOC) as $t) {
+                                        $tileRows = Capsule::table('intra_fahrzeuge_beladung_tiles')
+                                            ->whereIn('category', $catIds)
+                                            ->orderBy('sort_order', 'ASC')
+                                            ->orderBy('title', 'ASC')
+                                            ->get()
+                                            ->map(fn ($row) => (array) $row);
+                                        foreach ($tileRows as $t) {
                                             $tilesByCategory[(int) $t['category']][] = $t;
                                         }
                                     }

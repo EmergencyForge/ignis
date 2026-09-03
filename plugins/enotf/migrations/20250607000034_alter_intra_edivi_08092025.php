@@ -2,25 +2,19 @@
 
 declare(strict_types=1);
 
+use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_intra_edivi_08092025.php
- * Spiegelung:     database/legacy/alter_intra_edivi_08092025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Zugänge werden als flexible Liste erfasst: neue Spalte `c_zugang`
+ * (LONGTEXT, JSON-Payload) hinter `c_ekg` statt der starren Dreier-Slots.
  */
 class AlterIntraEdivi08092025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_edivi_08092025.php';
+        $this->table('intra_edivi')
+            ->addColumn('c_zugang', 'text', ['limit' => MysqlAdapter::TEXT_LONG, 'null' => true, 'after' => 'c_ekg'])
+            ->update();
     }
 }

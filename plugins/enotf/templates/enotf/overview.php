@@ -6,7 +6,6 @@
  * @var array<int,array<string,mixed>>           $categories
  * @var array<string,array<int,array<string,mixed>>> $linksByCategory
  * @var string                                   $pinEnabled
- * @var \PDO                                     $pdo
  */
 
 use App\Integrations\DiscordWebhook;

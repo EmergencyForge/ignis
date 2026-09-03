@@ -1,19 +1,15 @@
 <?php
 /**
  * View: eNOTF QM-Log-Modal (AJAX)
- *
- * @var \PDO $pdo
  */
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
-$stmt = $pdo->prepare("SELECT * FROM intra_edivi WHERE id = :id");
-$stmt->bindParam(':id', $_GET['id']);
-$stmt->execute();
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
+$row = Capsule::table('intra_edivi')->where('id', $_GET['id'])->first();
 
-if (count($row) == 0) {
+if ($row === null) {
     http_response_code(404);
     exit('Protokoll nicht gefunden');
 }
@@ -22,10 +18,12 @@ if (count($row) == 0) {
 ?>
 <div class="container-fluid">
     <?php
-    $stmt = $pdo->prepare("SELECT * FROM intra_edivi_qmlog WHERE protokoll_id = :id ORDER BY id ASC");
-    $stmt->bindParam(':id', $_GET['id']);
-    $stmt->execute();
-    $log_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $log_result = Capsule::table('intra_edivi_qmlog')
+        ->where('protokoll_id', $_GET['id'])
+        ->orderBy('id')
+        ->get()
+        ->map(fn ($r) => (array) $r)
+        ->all();
 
     if (count($log_result) == 0) {
         echo "<div class='edivi__box'><p class='text-center text-muted'>Keine Einträge vorhanden.</p></div>";

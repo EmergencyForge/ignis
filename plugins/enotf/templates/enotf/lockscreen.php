@@ -4,7 +4,6 @@
  *
  * @var bool $error
  * @var int  $pinLength
- * @var \PDO $pdo
  */
 
 $prot_url = "https://" . SYSTEM_URL . "/enotf/index.php";

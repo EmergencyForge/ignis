@@ -18,9 +18,13 @@ class BloodSugarHelper
     private ConfigManager $configManager;
     private string $currentUnit;
 
-    public function __construct(\PDO $pdo)
+    /**
+     * @param \PDO|null $pdo Ungenutzt — Signatur bleibt für bestehende
+     *                       Aufrufer (Templates) stabil.
+     */
+    public function __construct(?\PDO $pdo = null)
     {
-        $this->configManager = new ConfigManager($pdo);
+        $this->configManager = new ConfigManager();
         $this->currentUnit = $this->configManager->get('ENOTF_BZ_UNIT', 'mg/dl');
     }
 

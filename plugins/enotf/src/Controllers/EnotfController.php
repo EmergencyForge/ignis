@@ -66,7 +66,7 @@ class EnotfController extends Controller
 
         // Personal-Liste (lokal + Federation)
         $fullnames = [];
-        $federatedNames = FederatedPersonnel::getAllNames($this->pdo);
+        $federatedNames = FederatedPersonnel::getAllNames();
         foreach ($federatedNames as $entry) {
             $label = $entry['fullname'];
             if ($entry['source_name']) {
@@ -140,7 +140,7 @@ class EnotfController extends Controller
         $mode    = $_POST['login_mode'] ?? 'new';
         $vehicle = $_POST['protfzg'] ?? '';
 
-        $sessionService = new EnotfSession($this->pdo);
+        $sessionService = new EnotfSession();
 
         if ($mode === 'join') {
             $joinPosition = $_POST['join_position'] ?? null;
@@ -261,7 +261,7 @@ class EnotfController extends Controller
         $position     = $_SESSION['enotf_position'] ?? null;
         $sessionToken = $_SESSION['enotf_session_token'] ?? null;
 
-        $sessionService = new EnotfSession($this->pdo);
+        $sessionService = new EnotfSession();
 
         if ($mode === 'self' && $vehicle && $position && $sessionToken) {
             $sessionService->removeMember($sessionToken, $position);

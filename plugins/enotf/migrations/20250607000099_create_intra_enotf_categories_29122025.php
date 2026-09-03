@@ -5,22 +5,31 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/create_intra_enotf_categories_29122025.php
- * Spiegelung:     database/legacy/create_intra_enotf_categories_29122025.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Kategorien für die eNOTF-Quicklinks: Name, eindeutiger Slug, Sortierung
+ * und Aktiv-Flag. Löst die fest kodierte ENUM-Kategorie der Quicklinks ab.
  */
 class CreateIntraEnotfCategories29122025 extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/create_intra_enotf_categories_29122025.php';
+        if ($this->hasTable('intra_enotf_categories')) {
+            return;
+        }
+
+        $this->table('intra_enotf_categories', [
+            'signed'    => true,
+            'engine'    => 'InnoDB',
+            'encoding'  => 'utf8mb4',
+            'collation' => 'utf8mb4_general_ci',
+        ])
+            ->addColumn('name',       'string',    ['limit' => 100, 'null' => false])
+            ->addColumn('slug',       'string',    ['limit' => 100, 'null' => false])
+            ->addColumn('sort_order', 'integer',   ['null' => false, 'default' => 0])
+            ->addColumn('active',     'boolean',   ['null' => false, 'default' => 1])
+            ->addColumn('created_at', 'timestamp', ['null' => false, 'default' => 'CURRENT_TIMESTAMP'])
+            ->addColumn('updated_at', 'timestamp', ['null' => false, 'default' => 'CURRENT_TIMESTAMP', 'update' => 'CURRENT_TIMESTAMP'])
+            ->addIndex(['slug'],                 ['unique' => true, 'name' => 'unique_slug'])
+            ->addIndex(['active', 'sort_order'], ['name' => 'idx_active_sort'])
+            ->create();
     }
 }

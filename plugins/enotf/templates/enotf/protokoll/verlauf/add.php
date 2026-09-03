@@ -1,23 +1,20 @@
 <?php
 /**
  * View: enotf/protokoll/verlauf/add.php
- *
- * @var \PDO $pdo
  */
 
 
 use App\Auth\Permissions;
 use Plugin\Enotf\Helpers\BloodSugarHelper;
+use Plugin\Enotf\Models\Edivi;
+use Plugin\Enotf\Models\EdiviVitalwert;
 
 $daten = array();
 $message = '';
 $messageType = '';
 
 if (isset($_GET['enr'])) {
-    $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
-    $stmt = $pdo->prepare($queryget);
-    $stmt->execute(['enr' => $_GET['enr']]);
-    $daten = $stmt->fetch(PDO::FETCH_ASSOC);
+    $daten = Edivi::where('enr', $_GET['enr'])->first();
 
     if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
@@ -43,7 +40,7 @@ if ($ist_freigegeben) {
 $enr = $daten['enr'];
 
 // Initialize BloodSugarHelper
-$bzHelper = new BloodSugarHelper($pdo);
+$bzHelper = new BloodSugarHelper();
 $bzUnit = $bzHelper->getCurrentUnit();
 
 // Form-Verarbeitung - GEÄNDERT: Einzelne Werte separat speichern
@@ -65,11 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_vitals'])) {
             'temp' => ['name' => 'Temperatur', 'einheit' => '°C']
         ];
 
-        // Prepare Statement für Einzelwerte
-        $query = "INSERT INTO intra_edivi_vitalparameter_einzelwerte (enr, zeitpunkt, parameter_name, parameter_wert, parameter_einheit, erstellt_von) 
-                  VALUES (:enr, :zeitpunkt, :parameter_name, :parameter_wert, :parameter_einheit, :erstellt_von)";
-        $stmt = $pdo->prepare($query);
-
         // Jeden Vitalparameter einzeln speichern (nur wenn Wert vorhanden)
         foreach ($vitalparameter as $param_key => $param_info) {
             if (!empty($_POST[$param_key])) {
@@ -80,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_vitals'])) {
                     $wert = $bzHelper->toStorageUnit($wert);
                 }
 
-                $result = $stmt->execute([
+                EdiviVitalwert::create([
                     'enr' => $enr,
                     'zeitpunkt' => $zeitpunkt,
                     'parameter_name' => $param_info['name'],
@@ -89,15 +81,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_vitals'])) {
                     'erstellt_von' => $erstellt_von
                 ]);
 
-                if ($result) {
-                    $gespeicherte_werte++;
-                }
+                $gespeicherte_werte++;
             }
         }
 
         // Bemerkung separat speichern (falls vorhanden)
         if (!empty($_POST['bemerkung'])) {
-            $result = $stmt->execute([
+            EdiviVitalwert::create([
                 'enr' => $enr,
                 'zeitpunkt' => $zeitpunkt,
                 'parameter_name' => 'Bemerkung',
@@ -106,9 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_vitals'])) {
                 'erstellt_von' => $erstellt_von
             ]);
 
-            if ($result) {
-                $gespeicherte_werte++;
-            }
+            $gespeicherte_werte++;
         }
 
         if ($gespeicherte_werte > 0) {

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Plugin\Enotf;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
-use PDO;
 
 /**
  * EnotfSession — Service für die Verwaltung der eNOTF-Crew-Sessions.
@@ -23,8 +22,6 @@ use PDO;
  */
 class EnotfSession
 {
-    public function __construct(private PDO $pdo) {}
-
     /**
      * Findet die aktive Session für ein Fahrzeug.
      *

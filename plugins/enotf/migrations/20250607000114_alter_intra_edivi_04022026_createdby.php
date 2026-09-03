@@ -5,22 +5,28 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
+ * Fügt die Spalte 'createdby' zur intra_edivi Tabelle hinzu.
  *
- * Original-Datei: assets/database/alter_intra_edivi_04022026_createdby.php
- * Spiegelung:     database/legacy/alter_intra_edivi_04022026_createdby.php
+ * Werte:
+ * - 1 = Protokoll durch EMD-Sync (Leitstelle) erstellt
+ * - 2 = Protokoll durch User manuell erstellt
  *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Default ist 1, damit bestehende Protokolle als Leitstellen-Protokolle gelten.
  */
 class AlterIntraEdivi04022026Createdby extends AbstractMigration
 {
     public function change(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_edivi_04022026_createdby.php';
+        $table = $this->table('intra_edivi');
+
+        if ($table->hasColumn('createdby')) {
+            return;
+        }
+
+        $table->addColumn('createdby', 'boolean', [
+            'null'    => false,
+            'default' => 1,
+            'after'   => 'created_at',
+        ])->update();
     }
 }

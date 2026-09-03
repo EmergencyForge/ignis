@@ -5,22 +5,20 @@ declare(strict_types=1);
 use Phinx\Migration\AbstractMigration;
 
 /**
- * Auto-generierter Wrapper für Legacy-Migration.
- *
- * Original-Datei: assets/database/alter_intra_edivi_hospital_access_codes_21012026_plaintext.php
- * Spiegelung:     database/legacy/alter_intra_edivi_hospital_access_codes_21012026_plaintext.php
- *
- * Diese Migration bindet die Legacy-Datei ein, die selbst raw SQL gegen $pdo
- * ausführt. So bleibt das ursprüngliche SQL byte-identisch erhalten und kann
- * später inkrementell auf native Phinx-API umgeschrieben werden.
+ * Umstellung der Krankenhaus-Zugangs-Codes von gehashter auf Klartext-
+ * Speicherung: bestehende (gehashte) Codes werden geleert, da sie sich
+ * nicht zurückrechnen lassen — die Codes müssen danach neu generiert
+ * werden.
  */
 class AlterIntraEdiviHospitalAccessCodes21012026Plaintext extends AbstractMigration
 {
-    public function change(): void
+    public function up(): void
     {
-        $pdo = $this->getAdapter()->getConnection();
-        $projectRoot = dirname(__DIR__, 2);
-        $__autoMigrator = true; // signalisiert: in eingebettetem Kontext
-        require __DIR__ . '/../legacy/alter_intra_edivi_hospital_access_codes_21012026_plaintext.php';
+        $this->table('intra_edivi_hospital_access_codes')->truncate();
+    }
+
+    public function down(): void
+    {
+        // Die gelöschten Hash-Codes lassen sich nicht wiederherstellen — no-op.
     }
 }

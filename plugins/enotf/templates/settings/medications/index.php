@@ -3,20 +3,19 @@
  * View: Medikamentenverwaltung
  *
  * @var array<int,array<string,mixed>> $medikamente
- * @var \PDO                           $pdo
  */
 
 use App\Auth\Permissions;
 use App\Helpers\Flash;
 ?>
 <!DOCTYPE html>
-<html lang="de" data-bs-theme="light">
+<html lang="de" data-theme="light">
 
 <head>
     <?php include dirname(__DIR__, 5) . '/assets/components/_base/admin/head.php'; ?>
 </head>
 
-<body data-bs-theme="dark" data-page="settings">
+<body data-theme="dark" data-page="settings">
     <?php include dirname(__DIR__, 5) . '/assets/components/navbar.php'; ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="container">

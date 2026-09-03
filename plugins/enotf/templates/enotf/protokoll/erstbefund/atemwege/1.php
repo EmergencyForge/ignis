@@ -1,22 +1,17 @@
 <?php
 /**
  * View: enotf/protokoll/erstbefund/atemwege/1.php
- *
- * @var \PDO $pdo
  */
 
 
 use App\Auth\Permissions;
 
 use Plugin\Enotf\Helpers\EnotfUrl;
+use Plugin\Enotf\Models\Edivi;
 $daten = array();
 
 if (isset($_GET['enr'])) {
-    $queryget = "SELECT * FROM intra_edivi WHERE enr = :enr";
-    $stmt = $pdo->prepare($queryget);
-    $stmt->execute(['enr' => $_GET['enr']]);
-
-    $daten = $stmt->fetch(PDO::FETCH_ASSOC);
+    $daten = Edivi::where('enr', $_GET['enr'])->first();
 
     if (!$daten) {
         header("Location: " . BASE_PATH . "enotf/");
