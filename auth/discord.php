@@ -1,6 +1,6 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../assets/config/config.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../assets/config/config.php';
 
 use App\Helpers\DiscordOAuth;
 use App\Session\SessionManager;
@@ -12,5 +12,4 @@ $authorizationUrl = $provider->getAuthorizationUrl([
 ]);
 SessionManager::setOAuth2State($provider->getState());
 
-header('Location: ' . $authorizationUrl);
-exit;
+return \App\Http\Response::redirect($authorizationUrl);

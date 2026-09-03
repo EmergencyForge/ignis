@@ -52,31 +52,39 @@ $router->get('/_router/ping', function ($request) {
 });
 
 // ----------------------------------------------------------------------------
-//  Top-Level public pages — Invite-Link, Login, Logout, Index.
+//  Root-Einstiegspunkte — Index, Dashboard, Login, Invite, Logout, OAuth.
 //
-//  invite.php existiert weiterhin als Datei und wird direkt von Apache
-//  serviert, wenn jemand `/invite.php?code=...` aufruft (Legacy-Link aus
-//  alten Mails). Die kanonische Form ist `/invite?code=...` — diese Route
-//  inkludiert die existierende Datei, damit beide URLs identisch wirken.
+//  Die Seiten liegen weiterhin als Skripte im Projekt-Root (index.php,
+//  login.php, auth/callback.php, ...), sind dort aber nicht mehr per URL
+//  erreichbar: Der Webserver liefert nur noch aus public/ aus. Jede Route
+//  bindet ihr Skript per require ein. Gibt das Skript eine Response zurück
+//  (Redirect, Fehlermeldung), wird sie durchgereicht; sonst hat es sein
+//  HTML schon selbst ausgegeben.
+//
+//  `.php`-Suffixe (`/login.php`, `/invite.php?code=...` aus alten Mails)
+//  streift der Front-Controller ab, bevor der Router matcht. Einzige
+//  Ausnahme ist `/index.php`, das dort bewusst unangetastet bleibt —
+//  deshalb steht es hier ausdrücklich mit drin.
 // ----------------------------------------------------------------------------
 
-$router->get('/invite', function () {
-    require __DIR__ . '/../invite.php';
-    return \App\Http\Response::empty();
-});
-
-$rootIndex = function () {
-    require __DIR__ . '/../index.php';
-    return \App\Http\Response::empty();
+$rootScript = static function (string $file): \Closure {
+    $path = dirname(__DIR__) . '/' . $file;
+    return static function () use ($path): \App\Http\Response {
+        $result = require $path;
+        return $result instanceof \App\Http\Response ? $result : \App\Http\Response::empty();
+    };
 };
-$router->get('/',      $rootIndex);
-$router->get('/index', $rootIndex);
 
-$loginPage = function () {
-    require __DIR__ . '/../login.php';
-    return \App\Http\Response::empty();
-};
-$router->match(['GET', 'POST'], '/login', $loginPage);
+$rootIndex = $rootScript('index.php');
+$router->get('/',          $rootIndex);
+$router->get('/index',     $rootIndex);
+$router->get('/index.php', $rootIndex);
+$router->get('/dashboard', $rootScript('dashboard.php'));
+$router->match(['GET', 'POST'], '/login', $rootScript('login.php'));
+$router->get('/invite',        $rootScript('invite.php'));
+$router->get('/logout',        $rootScript('logout.php'));
+$router->get('/auth/discord',  $rootScript('auth/discord.php'));
+$router->get('/auth/callback', $rootScript('auth/callback.php'));
 
 // ----------------------------------------------------------------------------
 //  Benutzer-Modul — UserController + RoleController rufen intern

@@ -4,8 +4,7 @@ require_once __DIR__ . '/assets/config/config.php';
 
 if (!\App\Session\SessionManager::isLoggedIn() || !isset($_SESSION['permissions'])) {
     \App\Session\SessionManager::setRedirectFromRequest();
-    header("Location: " . BASE_PATH . "login.php");
-    exit();
+    return \App\Http\Response::redirect(BASE_PATH . 'login');
 }
 
 use App\Helpers\Flash;

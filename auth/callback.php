@@ -1,8 +1,9 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/../assets/config/config.php';
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../assets/config/config.php';
 
 use App\Helpers\DiscordOAuth;
+use App\Http\Response;
 use App\Models\RegistrationCode;
 use App\Models\Role;
 use App\Models\User;
@@ -19,17 +20,17 @@ error_reporting(E_ALL);
 $stateResult = SessionManager::consumeOAuth2State((string) ($_GET['state'] ?? ''));
 switch ($stateResult) {
     case 'missing':
-        exit('Session expired. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
+        return Response::html('Session expired. Please <a href="' . BASE_PATH . 'auth/discord">try again</a>.', 400);
     case 'expired':
-        exit('Authorization expired. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
+        return Response::html('Authorization expired. Please <a href="' . BASE_PATH . 'auth/discord">try again</a>.', 400);
     case 'mismatch':
-        exit('Invalid state parameter. Please <a href="' . BASE_PATH . 'auth/discord.php">try again</a>.');
+        return Response::html('Invalid state parameter. Please <a href="' . BASE_PATH . 'auth/discord">try again</a>.', 400);
 }
 
 $provider = DiscordOAuth::createProvider('auth/callback.php');
 
 if (!isset($_GET['code'])) {
-    exit('Authorization code not provided.');
+    return Response::text('Authorization code not provided.', 400);
 }
 
 try {
@@ -57,14 +58,12 @@ try {
 
         if ($registrationMode === 'closed') {
             SessionManager::setRegistrationError('Registrierung ist derzeit geschlossen. Bitte wenden Sie sich an einen Administrator.');
-            header('Location: ' . BASE_PATH . 'login.php');
-            exit;
+            return Response::redirect(BASE_PATH . 'login');
         } elseif ($registrationMode === 'code') {
             $code = SessionManager::getRegistrationCode();
             if (!$code) {
                 SessionManager::setRegistrationError('Als neuer Benutzer benötigen Sie einen Registrierungscode. Bitte geben Sie diesen auf der Login-Seite ein.');
-                header('Location: ' . BASE_PATH . 'login.php');
-                exit;
+                return Response::redirect(BASE_PATH . 'login');
             }
         }
     }
@@ -72,13 +71,13 @@ try {
     $adminRole = Role::query()->where('admin', 1)->first();
 
     if (!$adminRole) {
-        exit('Admin role not configured in intra_users_roles table.');
+        return Response::text('Admin role not configured in intra_users_roles table.', 500);
     }
 
     $defaultRole = Role::query()->where('default', 1)->first();
 
     if (!$defaultRole) {
-        exit('Default role not configured in intra_users_roles table.');
+        return Response::text('Default role not configured in intra_users_roles table.', 500);
     }
 
     $userCount = User::query()->count();
@@ -113,8 +112,7 @@ try {
         // Deaktivierte Benutzer ablehnen
         if (isset($user->is_active) && !$user->is_active) {
             SessionManager::setRegistrationError('Dein Benutzerkonto wurde deaktiviert. Bitte wende dich an einen Administrator.');
-            header('Location: ' . BASE_PATH . 'login.php');
-            exit;
+            return Response::redirect(BASE_PATH . 'login');
         }
 
         if ($user->full_admin) {
@@ -132,8 +130,7 @@ try {
         if ($registrationMode === 'closed') {
             // No registration allowed - redirect to login with error message
             SessionManager::setRegistrationError('Registrierung ist derzeit geschlossen. Bitte wenden Sie sich an einen Administrator.');
-            header('Location: ' . BASE_PATH . 'login.php');
-            exit;
+            return Response::redirect(BASE_PATH . 'login');
         } elseif ($registrationMode === 'code') {
             // Check for valid registration code
             $code = SessionManager::getRegistrationCode();
@@ -141,8 +138,7 @@ try {
             if (!$code) {
                 // No code provided - redirect to login with error message
                 SessionManager::setRegistrationError('Als neuer Benutzer benötigen Sie einen Registrierungscode. Bitte geben Sie diesen auf der Login-Seite ein.');
-                header('Location: ' . BASE_PATH . 'login.php');
-                exit;
+                return Response::redirect(BASE_PATH . 'login');
             }
 
             $codeRecord = RegistrationCode::query()
@@ -153,16 +149,14 @@ try {
             if (!$codeRecord) {
                 SessionManager::clearRegistrationCode();
                 SessionManager::setRegistrationError('Ungültiger oder bereits verwendeter Einladungslink.');
-                header('Location: ' . BASE_PATH . 'login.php');
-                exit;
+                return Response::redirect(BASE_PATH . 'login');
             }
 
             // Ablaufdatum prüfen
             if ($codeRecord->expires_at !== null && $codeRecord->expires_at->isPast()) {
                 SessionManager::clearRegistrationCode();
                 SessionManager::setRegistrationError('Dieser Einladungslink ist abgelaufen.');
-                header('Location: ' . BASE_PATH . 'login.php');
-                exit;
+                return Response::redirect(BASE_PATH . 'login');
             }
 
             // Create user with the code
@@ -202,7 +196,7 @@ try {
         SessionManager::loginUser($user->toArray(), []);
     }
 
-    $redirectUrl = SessionManager::pullRedirectUrl() ?? BASE_PATH . 'index.php';
+    $redirectUrl = SessionManager::pullRedirectUrl() ?? BASE_PATH . 'index';
 
     // Cleanup: gelesene Benachrichtigungen älter als 30 Tage löschen (max. 1x pro Tag)
     try {
@@ -216,9 +210,7 @@ try {
         error_log("Notification cleanup error: " . $e->getMessage());
     }
 
-    header("Location: $redirectUrl");
-    exit;
+    return Response::redirect($redirectUrl);
 } catch (Exception $e) {
-    echo 'Failed to get access token: ' . $e->getMessage();
-    exit;
+    return Response::text('Failed to get access token: ' . $e->getMessage(), 500);
 }
