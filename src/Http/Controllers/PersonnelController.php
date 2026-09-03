@@ -190,7 +190,7 @@ class PersonnelController extends Controller
                 // Pending Registration-Code mit Label = Mitarbeiter-Name?
                 $pending = Capsule::table('intra_registration_codes')
                     ->where('is_used', 0)
-                    ->where('label', 'like', '%' . $mitarbeiter->fullname . '%')
+                    ->where('label', 'like', '%' . ignis_like_prefix($mitarbeiter->fullname) . '%')
                     ->where(function ($q) {
                         $q->whereNull('expires_at')
                           ->orWhere('expires_at', '>', Capsule::raw('NOW()'));

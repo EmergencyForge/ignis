@@ -59,7 +59,7 @@ final class BlogClient
                 $query->where('category', $category);
             }
             if ($tag !== null && $tag !== '') {
-                $query->where('tags', 'like', '%"' . strtolower($tag) . '"%');
+                $query->where('tags', 'like', '%"' . ignis_like_prefix(strtolower($tag)) . '"%');
             }
 
             $rows = $query

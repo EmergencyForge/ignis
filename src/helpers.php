@@ -81,3 +81,46 @@ if (!function_exists('asset')) {
         return $version > 0 ? $url . '?v=' . $version : $url;
     }
 }
+
+if (!function_exists('confirm_attr')) {
+    /**
+     * Baut den Wert eines `onsubmit`/`onclick`-Attributs `return confirm(...)`
+     * mit dynamischem Text.
+     *
+     * Zwei Kontexte, zwei Escapings: json_encode() mit HEX-Flags für den
+     * JS-String (Apostroph, Anführungszeichen, spitze Klammern, Kaufmanns-Und),
+     * htmlspecialchars() für das Attribut. Nur `htmlspecialchars($name)` in
+     * `confirm('...')` reicht nicht: der Browser dekodiert das Attribut, bevor
+     * der JS-Parser es sieht, ein Apostroph im Namen bricht den String auf.
+     *
+     *     <form onsubmit="<?= confirm_attr("Rolle \"$name\" wirklich löschen?") ?>">
+     */
+    function confirm_attr(string $message): string
+    {
+        $jsString = json_encode(
+            $message,
+            JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE
+        );
+        if ($jsString === false) {
+            $jsString = '""';
+        }
+
+        return htmlspecialchars('return confirm(' . $jsString . ');', ENT_QUOTES);
+    }
+}
+
+if (!function_exists('ignis_like_prefix')) {
+    /**
+     * Escaped Nutzereingabe für ein LIKE-Muster: `%`, `_` und `\` werden
+     * zu Literalen, damit ein Suchwort wie "%" nicht jede Zeile trifft.
+     * Die Wildcards baut der Aufrufer selbst drumherum:
+     *
+     *     ->where('name', 'LIKE', '%' . ignis_like_prefix($q) . '%')
+     *
+     * MySQL/MariaDB nehmen `\` als Escape-Zeichen, ohne ESCAPE-Klausel.
+     */
+    function ignis_like_prefix(string $value): string
+    {
+        return addcslashes($value, '%_\\');
+    }
+}

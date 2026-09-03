@@ -15,7 +15,6 @@
  * @var array<string,string>            $fahrttypBadges
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = 'Fahrtenbuch';
 
@@ -42,7 +41,6 @@ $bodyId = 'fahrzeuge';
                     <?php endif; ?>
                 </div>
 
-                <?php Flash::render(); ?>
 
                 <?php if (!$tableExists): ?>
                     <div class="ignis-alert ignis-alert--warning">
@@ -230,7 +228,7 @@ $bodyId = 'fahrzeuge';
                                                             <i class="fa-solid fa-pen"></i>
                                                         </button>
                                                         <form method="POST" action="<?= BASE_PATH ?>logbook/actions" class="inline"
-                                                              onsubmit="return confirm('Eintrag wirklich löschen?');">
+                                                              onsubmit="<?= confirm_attr('Eintrag wirklich löschen?') ?>">
                                                             <input type="hidden" name="action" value="delete">
                                                             <input type="hidden" name="id" value="<?= (int) $e['id'] ?>">
                                                             <input type="hidden" name="return_to" value="admin">

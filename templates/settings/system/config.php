@@ -144,7 +144,6 @@ $SITE_TITLE = 'System-Konfiguration';
                             <p class="twplus-page-header__description">Identität, Schnittstellen und Laufzeitverhalten des Systems konfigurieren.</p>
                         </div>
                     </div>
-                    <?php Flash::render(); ?>
 
                     <div class="twplus-toolbar mb-4">
                         <div class="btn-toolbar-group" id="categoryFilter">

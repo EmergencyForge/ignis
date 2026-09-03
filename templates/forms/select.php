@@ -5,7 +5,6 @@
  * @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\FormType> $typen
  */
 
-use App\Helpers\Flash;
 
 $SITE_TITLE = "Antrag einreichen";
 
@@ -22,7 +21,6 @@ $bodyId = 'antrag-select';
                 </div>
             </header>
 
-            <?php Flash::render(); ?>
 
             <?php if ($typen->isEmpty()): ?>
                 <div class="twplus-empty">

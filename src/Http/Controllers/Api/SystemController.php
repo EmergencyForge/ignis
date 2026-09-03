@@ -327,7 +327,7 @@ final class SystemController
             return Response::json(['results' => []]);
         }
 
-        $searchParam = '%' . $query . '%';
+        $searchParam = '%' . ignis_like_prefix($query) . '%';
         $results     = [];
 
         try {

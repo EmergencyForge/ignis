@@ -6,7 +6,6 @@
  * @var array<string,mixed> $old
  */
 
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'antragstyp-create';
@@ -17,7 +16,6 @@ $SITE_TITLE = 'Neuer Antragstyp';
             <div class="max-w-4xl mx-auto">
                     <header class="twplus-page-header mb-4"><div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Formularbaukasten</p><h1><i class="fa-solid fa-circle-plus mr-2"></i>Neuen Antragstyp erstellen</h1><p class="twplus-page-header__description">Grunddaten festlegen; Formularfelder werden anschließend ergänzt.</p></div></header>
 
-                    <?php Flash::render(); ?>
 
                     <div class="twplus-section-card p-4">
                         <form method="post" action="">

@@ -6,7 +6,6 @@
  * @var array<int,array<int,array<string,mixed>>> $tilesByCategory
  */
 
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'settings';
@@ -27,7 +26,6 @@ $SITE_TITLE = 'Dashboard-Konfiguration';
                     </button>
                 </div>
             </div>
-            <?php Flash::render(); ?>
             <div class="twplus-section-card p-3">
                 <?php if (empty($categories)): ?>
                     <div class="twplus-empty"><i class="fa-solid fa-table-cells-large twplus-empty__icon"></i><h2 class="twplus-empty__title">Noch kein Dashboard konfiguriert</h2><p class="twplus-empty__description">Erstelle zuerst eine Kategorie und füge anschließend Verlinkungen hinzu.</p></div>

@@ -5,7 +5,6 @@
  */
 
 use App\Auth\Permissions;
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'settings';
@@ -133,7 +132,6 @@ $SITE_TITLE = 'Performance';
             </div>
         </div>
 
-        <?php Flash::render(); ?>
 
         <!-- Übersicht-Karten -->
         <div class="twplus-stats mb-4">

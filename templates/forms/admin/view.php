@@ -8,7 +8,6 @@
  * @var string                                       $currentUserFullname
  */
 
-use App\Helpers\Flash;
 use App\Models\Form;
 
 $caseId     = $antrag->uniqueid;
@@ -46,7 +45,6 @@ $bodyId = 'antrag-admin-view';
                 </div>
             </header>
 
-            <?php Flash::render(); ?>
 
             <form method="post">
                 <div class="twplus-form-layout">

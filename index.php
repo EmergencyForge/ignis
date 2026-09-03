@@ -7,8 +7,6 @@ if (!\App\Session\SessionManager::isLoggedIn() || !isset($_SESSION['permissions'
     return \App\Http\Response::redirect(BASE_PATH . 'login');
 }
 
-use App\Helpers\Flash;
-
 // Die Seite rendert durch die Hülle (templates/layouts/admin.php):
 // Inhalt puffern, App\Helpers\Layout legt Topbar und Sidebar drumherum.
 ob_start();
@@ -26,7 +24,6 @@ ob_start();
                     <p class="twplus-page-header__description">Deine wichtigsten Kennzahlen, Dokumente, Anträge und Protokolle auf einen Blick.</p>
                 </div>
             </div>
-            <?php Flash::render(); ?>
             <?php include __DIR__ . '/assets/components/index/stats.php' ?>
             <?php include __DIR__ . '/assets/components/index/setup-checklist.php' ?>
             <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" style="margin-top:var(--space-xl);">

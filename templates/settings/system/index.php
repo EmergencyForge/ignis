@@ -11,7 +11,6 @@
  */
 
 use App\Auth\Permissions;
-use App\Helpers\Flash;
 use App\Utils\SystemUpdater;
 
 $SITE_TITLE = 'System';
@@ -99,7 +98,6 @@ $bodyId = 'settings-system';
                 </div>
             </header>
 
-            <?php Flash::render(); ?>
 
             <div class="twplus-settings-layout">
                 <?php include __DIR__ . '/../../../assets/components/settings/system/_navigation.php'; ?>

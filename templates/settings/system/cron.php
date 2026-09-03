@@ -8,7 +8,6 @@
  */
 
 use App\Helpers\DateTimeHelper;
-use App\Helpers\Flash;
 use App\Security\CsrfProtection;
 
 $csrfToken = CsrfProtection::getToken();
@@ -35,7 +34,6 @@ $SITE_TITLE = 'Cron-Jobs';
                 </div>
             </div>
 
-            <?php Flash::render(); ?>
 
             <details class="twplus-section-card mb-4 px-4 py-3">
                 <summary class="cursor-pointer text-sm text-gray-400 flex items-center gap-2 select-none">

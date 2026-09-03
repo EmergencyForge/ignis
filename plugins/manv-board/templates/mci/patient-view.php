@@ -11,7 +11,6 @@
  * @var string|null                    $error
  */
 
-use App\Helpers\Flash;
 
 $skColors = [
     'SK1' => 'danger',
@@ -52,7 +51,6 @@ $bodyPage = 'edivi';
 <?php $layoutHead = ob_get_clean(); ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <?php Flash::render(); ?>
 
             <?php if (!empty($success)): ?>
                 <div class="ignis-alert ignis-alert--success alert-dismissible fade show">

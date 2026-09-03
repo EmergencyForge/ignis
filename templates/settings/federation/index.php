@@ -256,7 +256,6 @@ $SITE_TITLE = 'Instanzvernetzung';
                     <div class="twplus-page-header mb-6">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Vernetzung</p><h1><i class="fa-solid fa-link" style="color:var(--main-color);margin-right:0.5rem"></i>Instanzvernetzung</h1><p class="twplus-page-header__description">Verbundene Installationen, Freigaben und Synchronisierung verwalten.</p></div>
                     </div>
-                    <?php Flash::render(); ?>
 
                     <!-- Federation Toggle -->
                     <div class="ignis-card twplus-section-card mb-4">

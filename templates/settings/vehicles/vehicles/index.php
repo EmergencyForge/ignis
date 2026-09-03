@@ -4,7 +4,6 @@
  */
 
 use App\Auth\Permissions;
-use App\Helpers\Flash;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 $layout = 'admin';
@@ -39,9 +38,6 @@ $SITE_TITLE = 'Fahrzeuge';
                             <?php endif; ?>
                         </div>
                     </div>
-                    <?php
-                    Flash::render();
-                    ?>
                     <div class="twplus-table-card">
                         <table class="table table-striped twplus-table" id="table-fahrzeuge">
                             <thead>

@@ -8,7 +8,6 @@
  * @var string|null                     $error
  */
 
-use App\Helpers\Flash;
 
 $lageId     = (int) $lage['id'];
 $SITE_TITLE = 'MANV-Lage bearbeiten - ' . htmlspecialchars($lage['einsatznummer']);
@@ -27,7 +26,6 @@ $bodyPage = 'edivi';
                 </div>
             </header>
 
-            <?php Flash::render(); ?>
 
             <?php if (!empty($success)): ?>
                 <div class="ignis-alert ignis-alert--success alert-dismissible fade show">

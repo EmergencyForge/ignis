@@ -6,7 +6,6 @@
  * @var bool                           $showArchived
  */
 
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'protokolle';
@@ -29,7 +28,6 @@ $SITE_TITLE = 'Einsatz-QM';
                 </div>
             </div>
         </div>
-        <?php Flash::render(); ?>
 
         <?php if ($showArchived): ?>
             <div class="ignis-alert ignis-alert--info mb-3">

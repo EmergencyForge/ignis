@@ -151,7 +151,7 @@ class MANVPatient
      */
     public function search(int $lageId, string $searchTerm): array
     {
-        $searchPattern = "%$searchTerm%";
+        $searchPattern = '%' . ignis_like_prefix($searchTerm) . '%';
 
         return Capsule::table('intra_manv_patienten')
             ->where('manv_lage_id', $lageId)

@@ -1,5 +1,4 @@
 <?php
-use App\Helpers\Flash;
 
 $layout = 'admin';
 $bodyId = 'lexicon';
@@ -25,7 +24,6 @@ $SITE_TITLE = 'KB Kategorien & Tags';
                     <a href="<?= BASE_PATH ?>lexicon/index" class="ignis-btn ignis-btn--ghost"><i class="fa-solid fa-arrow-left"></i> Zur Übersicht</a>
                 </div>
             </header>
-            <?php Flash::render(); ?>
 
             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <!-- Kategorien -->

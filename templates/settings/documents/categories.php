@@ -4,7 +4,6 @@
  */
 
 use App\Auth\Permissions;
-use App\Helpers\Flash;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 // Kategorien laden
@@ -38,7 +37,6 @@ $SITE_TITLE = 'Dokumenten-Kategorien';
                 </div>
             </div>
 
-            <?php Flash::render(); ?>
 
             <div class="twplus-table-card">
                 <table class="table table-striped mb-0 twplus-table" id="categoryTable">

@@ -218,7 +218,7 @@ final class KnowledgebaseController
             }
             $ftQuery = trim($ftQuery);
 
-            $searchParam = '%' . $query . '%';
+            $searchParam = '%' . ignis_like_prefix($query) . '%';
 
             if ($ftQuery !== '') {
                 $sql = "SELECT kb.id, kb.type, kb.title, kb.subtitle, kb.competency_level, kb.content,
