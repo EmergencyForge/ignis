@@ -344,7 +344,7 @@ $router->get('/personnel/document-view',     [PersonnelController::class, 'showD
 $router->match(['GET', 'HEAD'], '/assets/functions/docredir', function (\App\Http\Request $request): \App\Http\Response {
     $docid = (string) ($request->query['docid'] ?? '');
     $base  = defined('BASE_PATH') ? (string) BASE_PATH : '/';
-    $url   = $base . 'mitarbeiter/dokument-view' . ($docid !== '' ? '?docid=' . rawurlencode($docid) : '');
+    $url   = $base . 'personnel/document-view' . ($docid !== '' ? '?docid=' . rawurlencode($docid) : '');
     return \App\Http\Response::redirect($url, 308);
 });
 
@@ -447,8 +447,17 @@ $router->post('/settings/system/cron/run',     [\App\Http\Controllers\Settings\C
 $router->post('/settings/system/cron/delete',  [\App\Http\Controllers\Settings\CronController::class, 'delete'],  $settingsAuth);
 $router->post('/settings/system/cron/create',  [\App\Http\Controllers\Settings\CronController::class, 'store'],   $settingsAuth);
 
-// 308-Redirects für Legacy-API-URLs (JS-Callsites nutzen noch alte Pfade)
-$settingsApiRedirect = function (string $target): \Closure {
+// ----------------------------------------------------------------------------
+//  Legacy-API-URLs → 308 auf die Router-Routen
+//
+//  Die Pfade unter assets/functions/ waren früher kleine PHP-Skripte, die
+//  denselben 308 gesetzt haben; die Dateien sind weg, weil assets/ nicht
+//  mehr im Docroot liegt. 308 bewahrt Methode und Body, damit alte
+//  JS-POSTs ohne Änderung durchkommen. Alle Pfade stehen ohne `.php`,
+//  weil der Front-Controller das Suffix vor dem Routing abstreift.
+// ----------------------------------------------------------------------------
+
+$legacyApiRedirect = function (string $target): \Closure {
     return function (\App\Http\Request $request) use ($target): \App\Http\Response {
         $qs   = $request->server['QUERY_STRING'] ?? '';
         $base = defined('BASE_PATH') ? (string) BASE_PATH : '/';
@@ -456,8 +465,30 @@ $settingsApiRedirect = function (string $target): \Closure {
         return \App\Http\Response::redirect($url, 308);
     };
 };
-$router->match(['GET', 'POST'], '/settings/vehicles/defects/handler.php',       $settingsApiRedirect('/api/vehicles/defects-handler'));
-$router->match(['GET', 'POST'], '/settings/system/regenerate-api-key.php',      $settingsApiRedirect('/api/system/regenerate-api-key'));
+$legacyApiPaths = [
+    '/settings/vehicles/defects/handler'         => '/api/vehicles/defects-handler',
+    '/settings/system/regenerate-api-key'        => '/api/system/regenerate-api-key',
+    '/assets/functions/checkdienstnr2'           => '/api/personnel/check-dienstnr',
+    '/assets/functions/checkdnr'                 => '/api/personnel/check-dienstnr-legacy',
+    '/assets/functions/save_fields'              => '/api/enotf/save-fields',
+    '/assets/functions/documents/categories'     => '/api/documents/categories',
+    '/assets/functions/documents/create-custom'  => '/api/documents/create-custom',
+    '/assets/functions/documents/delete'         => '/api/documents/delete',
+    '/assets/functions/documents/get'            => '/api/documents/get',
+    '/assets/functions/documents/list'           => '/api/documents/list',
+    '/assets/functions/documents/save'           => '/api/documents/save',
+    '/assets/functions/system/global-search-api' => '/api/system/global-search',
+    '/assets/functions/system/performance-api'   => '/api/system/performance',
+    '/assets/functions/system/theme-api'         => '/api/system/theme',
+];
+foreach ($legacyApiPaths as $legacyPath => $target) {
+    $router->match(['GET', 'POST', 'DELETE'], $legacyPath, $legacyApiRedirect($target));
+}
+
+// eNOTF v1 postet sein Anlege-Formular an dieses Skript (Form-Action in
+// plugins/enotf/templates/enotf/create.php). Es bleibt, wo es liegt, und
+// bekommt hier seine Route; es antwortet weiterhin selbst per header().
+$router->match(['GET', 'POST'], '/assets/functions/enotf/enrbridge', $rootScript('assets/functions/enotf/enrbridge.php'));
 
 // ----------------------------------------------------------------------------
 //  Statische Dateien außerhalb des Docroots
