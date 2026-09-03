@@ -44,31 +44,59 @@ class PluginLoaderTest extends TestCase
     }
 
     #[Test]
-    public function it_appends_plugin_navigation_to_the_rail(): void
+    public function it_appends_plugin_navigation_to_the_groups(): void
     {
         $loader = $this->loaderWith([$this->goodPlugin()]);
 
-        $config = ['rail' => [['id' => 'core', 'label' => 'Core', 'sections' => []]]];
+        $config = ['groups' => [['id' => 'core', 'label' => 'Core', 'items' => []]]];
         $merged = $loader->mergeNavigation($config);
 
-        // Eintrag 1 wird angehängt, Eintrag 2 (merge_into) landet als
-        // Section im bestehenden core-Eintrag.
-        $this->assertCount(2, $merged['rail']);
-        $this->assertSame('core', $merged['rail'][0]['id']);
-        $this->assertSame('good', $merged['rail'][1]['id']);
-        $this->assertSame('Good Tools', $merged['rail'][0]['sections'][0]['label']);
+        // Fragment 1 (Einzellink) wird eine eigene Gruppe, Fragment 2
+        // (merge_into) hängt seine Einträge an die core-Gruppe.
+        $this->assertCount(2, $merged['groups']);
+        $this->assertSame('core', $merged['groups'][0]['id']);
+        $this->assertSame(['Tool'], array_column($merged['groups'][0]['items'], 'label'));
+        $this->assertSame('good', $merged['groups'][1]['id']);
+        $this->assertSame('/good', $merged['groups'][1]['items'][0]['href']);
     }
 
     #[Test]
-    public function merge_into_falls_back_to_an_own_rail_entry_when_the_target_is_missing(): void
+    public function merge_into_falls_back_to_an_own_group_when_the_target_is_missing(): void
     {
         $loader = $this->loaderWith([$this->goodPlugin()]);
 
-        $merged = $loader->mergeNavigation(['rail' => []]);
+        $merged = $loader->mergeNavigation(['groups' => []]);
 
-        $ids = array_column($merged['rail'], 'id');
+        $ids = array_column($merged['groups'], 'id');
         $this->assertContains('good', $ids);
         $this->assertContains('good-extra', $ids);
+    }
+
+    #[Test]
+    public function legacy_sections_pass_icon_and_permissions_down_to_their_items(): void
+    {
+        $loader = $this->loaderWith([$this->goodPlugin()]);
+
+        $merged = $loader->mergeNavigation(['groups' => []]);
+
+        $byId = array_column($merged['groups'], null, 'id');
+        $tool = $byId['good-extra']['items'][0];
+        $this->assertSame('fa-solid fa-puzzle-piece', $tool['icon'], 'Icon des Fragments erbt der Eintrag');
+        $this->assertSame(['good.view'], $tool['permissions'], 'Permissions der Section erbt der Eintrag');
+        $this->assertSame('fa-solid fa-puzzle-piece', $byId['good']['items'][0]['icon']);
+    }
+
+    #[Test]
+    public function groups_without_items_disappear(): void
+    {
+        $loader = $this->loaderWith([]);
+
+        $merged = $loader->mergeNavigation(['groups' => [
+            ['id' => 'anchor', 'label' => 'Protokolle', 'items' => []],
+            ['id' => 'kept', 'label' => 'Kern', 'items' => [['label' => 'A', 'href' => '/a', 'icon' => 'fa-solid fa-a']]],
+        ]]);
+
+        $this->assertSame(['kept'], array_column($merged['groups'], 'id'));
     }
 
     #[Test]
@@ -185,7 +213,7 @@ class PluginLoaderTest extends TestCase
         );
         $loader = $this->loaderWith([$bare]);
 
-        $this->assertSame(['rail' => []], $loader->mergeNavigation(['rail' => []]));
+        $this->assertSame(['groups' => []], $loader->mergeNavigation(['groups' => []]));
         $this->assertSame([], $loader->mergeEventMap([]));
         $this->assertSame([], $loader->mergeConsoleCommands([]));
         $this->assertSame([], $loader->mergePermissionGroups([]));

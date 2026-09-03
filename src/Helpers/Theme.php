@@ -61,18 +61,33 @@ final class Theme
     }
 
     /**
-     * Inline-Script für den <head>, vor dem ersten Stylesheet: setzt
-     * data-theme am <html>, damit die Tokens des richtigen Satzes gelten,
-     * bevor etwas gezeichnet wird.
+     * Inline-Script für den <head> von Seiten, die ihr <html> selbst bauen
+     * (eNOTF, fireTab, Login): setzt data-theme am <html> vor dem ersten
+     * Stylesheet, damit die Tokens des richtigen Satzes gelten, bevor
+     * etwas gezeichnet wird. Die Hülle (templates/layouts/admin.php)
+     * schreibt den Modus als Attribut und braucht nur systemScript().
      */
     public static function headScript(): string
     {
         $mode = self::mode();
         if ($mode === 'system') {
-            return "<script>document.documentElement.dataset.theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';</script>";
+            return self::systemScript();
         }
 
         return '<script>document.documentElement.dataset.theme = "' . $mode . '";</script>';
+    }
+
+    /**
+     * Löst „system" nach der Systemeinstellung des Browsers auf; leer für
+     * dark und light, die als Attribut am <html> stehen.
+     */
+    public static function systemScript(): string
+    {
+        if (self::mode() !== 'system') {
+            return '';
+        }
+
+        return "<script>document.documentElement.dataset.theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';</script>";
     }
 
     /**

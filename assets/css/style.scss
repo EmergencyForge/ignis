@@ -71,25 +71,26 @@ body:not(#antrag) {
   --bs-body-bg: var(--bg) !important;
 }
 
-body:has(.intra-sidebar) {
-  padding-left: var(--sidebar-width);
+// Typografie der eingeloggten Ansichten (Hülle aus templates/layouts/admin.php,
+// Raster und Leisten in _shell.scss).
+body.ignis-app {
   color: var(--text-2);
 }
 
-body:has(.intra-sidebar) h1,
-body:has(.intra-sidebar) h2,
-body:has(.intra-sidebar) h3,
-body:has(.intra-sidebar) h4,
-body:has(.intra-sidebar) h5,
-body:has(.intra-sidebar) h6 {
+body.ignis-app h1,
+body.ignis-app h2,
+body.ignis-app h3,
+body.ignis-app h4,
+body.ignis-app h5,
+body.ignis-app h6 {
   color: var(--text);
 }
 
-body:has(.intra-sidebar) .text-muted {
+body.ignis-app .text-muted {
   color: var(--text-3) !important;
 }
 
-body:has(.intra-sidebar) {
+body.ignis-app {
   --bs-body-font-weight: 400;
 
   h1, h2, h3, h4, h5, h6 {
@@ -113,12 +114,6 @@ body:has(.intra-sidebar) {
   }
 }
 
-@media (max-width: 991.98px) {
-  body:has(.intra-sidebar) {
-    padding-left: 0;
-    padding-top: 56px;
-  }
-}
 
 .bg-secondary-color {
   background-color: var(--secondary-color) !important;

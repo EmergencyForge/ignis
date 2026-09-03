@@ -1,169 +1,81 @@
 <?php
 
-/**
- * Sidebar — Icon-Rail links + aufklappbares Flyout-Panel daneben.
- *
- * Rendert ausschließlich die Sidebar. Topbar, Notifications-Flyout,
- * User-Dropdown und globale Modals bleiben in navbar.php.
- *
- * Datenquelle: config/navigation.php
- */
-
-use App\Auth\Permissions;
-
-$navigationConfig = require __DIR__ . '/../../config/navigation.php';
-
-// Navigations-Einträge aktiver Plugins anhängen.
-try {
-    $navigationConfig = app(\App\Plugins\PluginLoader::class)->mergeNavigation($navigationConfig);
-} catch (\Throwable $e) {
-    \App\Logging\Logger::warning('Plugin-Navigation nicht geladen: ' . $e->getMessage());
-}
+declare(strict_types=1);
 
 /**
- * Filtert Rail/Sections/Items rekursiv nach Permissions.
- * Entfernt leere Sections/Rails, wenn nichts mehr sichtbar ist.
+ * assets/components/navbar-sidebar.php — Sidebar-Navigation.
+ *
+ * Gruppen und Einträge aus App\Helpers\Navigation (config/navigation.php
+ * plus Plugin-Fragmente, nach Rechten gefiltert, aktiver Eintrag per
+ * Pfadvergleich). Ein Eintrag mit Schnellaktion bekommt ein Plus an der
+ * Zeile, sichtbar beim Überfahren oder per Tastatur; shell.js führt die
+ * Aktion aus (Link, oder CustomEvent `quick-action:<target>` für Modals).
+ *
+ * 240 px breit, eingeklappt 56 px: dann bleiben die Symbole mit Tooltip
+ * (title), Labels und Gruppen verschwinden (CSS über html.is-collapsed,
+ * Zustand hält shell.js in localStorage). Unter 900 px ist sie ein
+ * Drawer hinter dem Menü-Knopf der Topbar, mit Scrim.
+ *
+ * Läuft per `require` im Scope des Layouts (oder des Shims navbar.php) und
+ * teilt dessen Variablen. Alle lokalen Variablen tragen darum das Präfix
+ * `nav`; tests/Unit/Templates/SidebarScopeTest.php hält das fest.
  */
-$filterNavigation = static function (array $rail): array {
-    $result = [];
-    foreach ($rail as $item) {
-        if (!empty($item['permissions']) && !Permissions::check($item['permissions'])) {
-            continue;
-        }
-        if (!empty($item['sections'])) {
-            $visibleSections = [];
-            foreach ($item['sections'] as $section) {
-                if (!empty($section['permissions']) && !Permissions::check($section['permissions'])) {
-                    continue;
-                }
-                $visibleItems = [];
-                foreach ($section['items'] ?? [] as $subItem) {
-                    if (!empty($subItem['permissions']) && !Permissions::check($subItem['permissions'])) {
-                        continue;
-                    }
-                    $visibleItems[] = $subItem;
-                }
-                if (!empty($visibleItems)) {
-                    $section['items'] = $visibleItems;
-                    $visibleSections[] = $section;
-                }
-            }
-            if (empty($visibleSections)) {
-                continue;
-            }
-            $item['sections'] = $visibleSections;
-        }
-        $result[] = $item;
-    }
-    return $result;
-};
 
-$rail = $filterNavigation($navigationConfig['rail'] ?? []);
+use App\Helpers\Navigation;
+
+$navGroups = Navigation::groups();
+
+$navVersionFile = dirname(__DIR__, 2) . '/storage/version.json';
+$navVersionInfo = is_file($navVersionFile) ? json_decode((string) file_get_contents($navVersionFile), true) : null;
+$navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? (string) $navVersionInfo['version'] : null;
 ?>
-
-<aside class="intra-sidebar intra-sidebar--a16" id="intraSidebar" data-navbar-variant="a16">
-
-    <!-- Rail (Icons) -->
-    <div class="rail">
-        <a href="<?= BASE_PATH ?>index" class="rail-logo" aria-label="<?= htmlspecialchars(SYSTEM_NAME) ?>">
-            <svg viewBox="0 0 160 56" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="<?= htmlspecialchars(SYSTEM_NAME) ?>">
-                <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="Geist, system-ui, sans-serif" font-weight="800" font-style="italic" font-size="42" letter-spacing="-0.02em" fill="currentColor">ıgnıs</text>
-            </svg>
-        </a>
-
-        <nav class="rail-nav" aria-label="Hauptnavigation">
-            <?php foreach ($rail as $item):
-                $hasFlyout = !empty($item['sections']);
-                $dataPage = $item['data_page'] ?? $item['id'];
-                $hrefAttr = $hasFlyout ? '#' : htmlspecialchars($item['href'] ?? '#');
-                $roleAttr = $hasFlyout ? 'button' : 'link';
-                $quickAction = $item['quick_action'] ?? null;
+<aside class="ignis-sidebar" id="ignisSidebar" aria-label="Hauptnavigation">
+    <nav class="ignis-sidebar__nav">
+        <?php foreach ($navGroups as $navGroup): ?>
+            <?php if (!empty($navGroup['label'])): ?>
+                <div class="ignis-sidebar__group"><?= htmlspecialchars((string) $navGroup['label']) ?></div>
+            <?php endif; ?>
+            <?php foreach ($navGroup['items'] as $navItem):
+                $navQuick = is_array($navItem['quick_action'] ?? null) ? $navItem['quick_action'] : null;
+                $navExternal = !empty($navItem['external']);
             ?>
-                <div class="rail-item-wrap">
+                <div class="ignis-sidebar__row<?= $navItem['active'] ? ' is-active' : '' ?>">
                     <a
-                        href="<?= $hrefAttr ?>"
-                        class="rail-item"
-                        data-nav-id="<?= htmlspecialchars($item['id']) ?>"
-                        data-page="<?= htmlspecialchars($dataPage) ?>"
-                        <?= $hasFlyout ? 'data-flyout-trigger="true" role="button" aria-haspopup="true" aria-expanded="false"' : '' ?>
-                        aria-label="<?= htmlspecialchars($item['label']) ?>"
+                        href="<?= htmlspecialchars((string) $navItem['href'], ENT_QUOTES) ?>"
+                        class="ignis-sidebar__link"
+                        title="<?= htmlspecialchars((string) $navItem['label'], ENT_QUOTES) ?>"
+                        <?= $navItem['active'] ? 'aria-current="page"' : '' ?>
+                        <?= $navExternal ? 'target="_blank" rel="noopener"' : '' ?>
                     >
-                        <i class="<?= htmlspecialchars($item['icon']) ?>"></i>
-                        <span class="rail-item-label"><?= htmlspecialchars($item['label']) ?></span>
+                        <i class="<?= htmlspecialchars((string) $navItem['icon']) ?>" aria-hidden="true"></i>
+                        <span class="ignis-sidebar__label"><?= htmlspecialchars((string) $navItem['label']) ?></span>
+                        <?php if ($navExternal): ?>
+                            <i class="fa-solid fa-arrow-up-right-from-square ignis-sidebar__external" aria-hidden="true"></i>
+                        <?php endif; ?>
                     </a>
-                    <?php if (!$hasFlyout && $quickAction !== null): ?>
+                    <?php if ($navQuick !== null && isset($navQuick['type'], $navQuick['target'], $navQuick['label'])): ?>
                         <button
                             type="button"
-                            class="rail-quick-action"
-                            data-quick-action-type="<?= htmlspecialchars($quickAction['type']) ?>"
-                            data-quick-action-target="<?= htmlspecialchars($quickAction['target']) ?>"
-                            data-quick-action-parent="<?= htmlspecialchars($item['href'] ?? '') ?>"
-                            aria-label="<?= htmlspecialchars($quickAction['label']) ?>"
-                            title="<?= htmlspecialchars($quickAction['label']) ?>"
+                            class="ignis-sidebar__quick"
+                            data-quick-action-type="<?= htmlspecialchars((string) $navQuick['type'], ENT_QUOTES) ?>"
+                            data-quick-action-target="<?= htmlspecialchars((string) $navQuick['target'], ENT_QUOTES) ?>"
+                            data-quick-action-parent="<?= htmlspecialchars((string) $navItem['href'], ENT_QUOTES) ?>"
+                            aria-label="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
+                            title="<?= htmlspecialchars((string) $navQuick['label'], ENT_QUOTES) ?>"
                         >
-                            <i class="<?= htmlspecialchars($quickAction['icon'] ?? 'fa-solid fa-plus') ?>"></i>
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
                         </button>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
-        </nav>
-    </div>
+        <?php endforeach; ?>
+    </nav>
 
-    <!-- Flyout Panels -->
-    <?php foreach ($rail as $item): if (empty($item['sections'])) continue; ?>
-        <div
-            class="flyout"
-            data-flyout-for="<?= htmlspecialchars($item['id']) ?>"
-            role="region"
-            aria-label="<?= htmlspecialchars($item['label']) ?>"
-            hidden
-        >
-            <div class="flyout-header">
-                <span class="flyout-title"><?= htmlspecialchars($item['label']) ?></span>
-            </div>
-
-            <div class="flyout-body">
-                <?php foreach ($item['sections'] as $sectionIdx => $section): ?>
-                    <div class="flyout-section">
-                        <?php if (!empty($section['label'])): ?>
-                            <span class="flyout-section-title"><?= htmlspecialchars($section['label']) ?></span>
-                        <?php endif; ?>
-                        <?php foreach ($section['items'] as $subItem):
-                            $isExternal = !empty($subItem['external']);
-                            $qa = $subItem['quick_action'] ?? null;
-                        ?>
-                            <div class="flyout-item-wrap">
-                                <a
-                                    href="<?= htmlspecialchars($subItem['href']) ?>"
-                                    class="flyout-item"
-                                    <?= $isExternal ? 'target="_blank" rel="noopener"' : '' ?>
-                                    data-href="<?= htmlspecialchars($subItem['href']) ?>"
-                                >
-                                    <span class="flyout-item-label"><?= htmlspecialchars($subItem['label']) ?></span>
-                                    <?php if ($isExternal): ?>
-                                        <i class="fa-solid fa-arrow-up-right-from-square flyout-item-external"></i>
-                                    <?php endif; ?>
-                                </a>
-                                <?php if ($qa !== null): ?>
-                                    <button
-                                        type="button"
-                                        class="flyout-quick-action"
-                                        data-quick-action-type="<?= htmlspecialchars($qa['type']) ?>"
-                                        data-quick-action-target="<?= htmlspecialchars($qa['target']) ?>"
-                                        data-quick-action-parent="<?= htmlspecialchars($subItem['href']) ?>"
-                                        aria-label="<?= htmlspecialchars($qa['label']) ?>"
-                                        title="<?= htmlspecialchars($qa['label']) ?>"
-                                    >
-                                        <i class="<?= htmlspecialchars($qa['icon'] ?? 'fa-solid fa-plus') ?>"></i>
-                                    </button>
-                                <?php endif; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endforeach; ?>
-            </div>
+    <?php if ($navVersion !== null): ?>
+        <div class="ignis-sidebar__version" title="ıgnıs <?= htmlspecialchars($navVersion, ENT_QUOTES) ?>">
+            <span class="ignis-sidebar__version-mark" aria-hidden="true">ı</span>
+            <span class="ignis-sidebar__label">ıgnıs <?= htmlspecialchars($navVersion) ?></span>
         </div>
-    <?php endforeach; ?>
-
+    <?php endif; ?>
 </aside>
-<div class="intra-sidebar-backdrop" id="intraSidebarBackdrop" hidden></div>
+<div class="ignis-sidebar-scrim" data-ignis-nav-close hidden></div>

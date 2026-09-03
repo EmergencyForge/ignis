@@ -1,322 +1,289 @@
 <?php
 
 /**
- * intraRP — Sidebar-Navigation
+ * config/navigation.php — Sidebar-Navigation der eingeloggten Ansichten.
  *
- * Deklarative Struktur der Icon-Rail + Flyout-Sidebar. Gelesen von
- * assets/components/navbar-sidebar.php und dem JS-Flyout-Modul.
+ * Flache Gruppen mit Einträgen, gelesen von App\Helpers\Navigation, die
+ * die Plugin-Fragmente anhängt (PluginLoader::mergeNavigation) und nach
+ * Rechten filtert. Gerendert von assets/components/navbar-sidebar.php;
+ * die Topbar baut aus den Schnellaktionen das Neu-Menü und aus allen
+ * Einträgen die Ziele der Suche.
  *
  * Struktur:
- *   - 'rail' => array<array{
- *         id: string,                    Eindeutige ID, auch für data-page-Mapping
- *         label: string,                 Anzeige im Tooltip + Flyout-Header
- *         icon: string,                  Font Awesome class (z.B. 'fa-solid fa-users')
- *         href?: string,                 Wenn gesetzt: simpler Link ohne Flyout
- *         data_page?: string,            Wert für $_SERVER-basiertes Active-State (vgl. alte Navbar)
- *         permissions?: string[],        Wenn gesetzt: Permissions::check mit array = ANY-Match
- *         sections?: array<array{
- *             label?: string,            Optional — ohne Label: Items werden inline gerendert
- *             permissions?: string[],
- *             items: array<array{
- *                 label: string,
- *                 href: string,
- *                 permissions?: string[],
- *                 external?: bool,       target=_blank + Icon
- *                 quick_action?: array{
- *                     type: 'link'|'modal',
- *                     target: string,    URL (link) oder Event-Name (modal)
- *                     label: string,     Tooltip/aria-label für den + Button
- *                     icon?: string,     Default: 'fa-solid fa-plus'
- *                 }
- *             }>
- *         }>
- *     }>
+ *   'groups' => array<array{
+ *       id: string,                   Anker für merge_into der Plugins
+ *       label: string|null,           Überschrift; null = ohne Überschrift
+ *       permissions?: string[],       Permissions::check, ANY-Match
+ *       items: array<array{
+ *           label: string,
+ *           href: string,             absoluter Pfad mit BASE_PATH oder externe URL
+ *           icon: string,             Font-Awesome-Klasse, z.B. 'fa-solid fa-users'
+ *           permissions?: string[],   ANY-Match; fehlt: jeder Eingeloggte
+ *           match?: string[],         Pfadpräfixe (ohne BASE_PATH), unter denen der
+ *                                     Eintrag als aktiv gilt, zusätzlich zum href
+ *           external?: bool,          target=_blank mit Pfeil
+ *           quick_action?: array{
+ *               type: 'link'|'modal',
+ *               target: string,       URL (link) oder Event-Name (modal)
+ *               label: string,        Tooltip des Plus-Knopfs, Eintrag im Neu-Menü
+ *               icon?: string,        Standard: das Icon des Eintrags
+ *           }
+ *       }>
+ *   }>
  *
- * Modal-Quick-Actions:
- * - type 'modal' → feuert window CustomEvent('quick-action:<target>').
- *   Wenn der User bereits auf der passenden Seite ist, öffnet die dortige
- *   JS-Logic das Modal sofort. Wenn nicht, hängt das JS-Modul den Parameter
- *   `?action=create` an die Navigation-URL des Items und die Zielseite
- *   öffnet das Modal beim Page-Load.
+ * Schnellaktionen vom Typ 'modal' feuern window.CustomEvent('quick-action:<target>').
+ * Ist der Nutzer nicht auf der Seite des Eintrags, geht es erst dorthin,
+ * mit ?action=create&quick=<target>, und die Seite öffnet das Modal beim
+ * Laden (assets/js/ui/shell.js).
+ *
+ * Plugins liefern in plugins/<id>/navigation.php eine Liste von Fragmenten
+ * in derselben Form (id, label, items) und hängen sich per merge_into an
+ * eine Gruppe von hier; ohne Ziel wird das Fragment eine eigene Gruppe.
+ * Das ältere Rail-Schema (sections mit items, oder href als Einzellink)
+ * wird weiterhin gelesen. Eine Gruppe ohne Einträge, etwa „Protokolle"
+ * ohne aktives Protokoll-Plugin, erscheint nicht.
  */
 
 declare(strict_types=1);
 
-
 return [
-    'rail' => [
+    'groups' => [
 
-        // ─────────────────────────────────────────────────────────────
-        // Dashboard — direkter Link, kein Flyout (das Logo verlinkt
-        // ebenfalls auf die Startseite, aber ein benannter Eintrag ist
-        // auffindbarer und entspricht der alten Sidebar)
-        // ─────────────────────────────────────────────────────────────
+        // Einstieg: ohne Überschrift. Lexikon hängt sich hier ein.
         [
-            'id'        => 'dashboard',
-            'label'     => 'Dashboard',
-            'icon'      => 'fa-solid fa-house',
-            'href'      => BASE_PATH . 'index',
-            'data_page' => 'dashboard',
+            'id'    => 'start',
+            'label' => null,
+            'items' => [
+                [
+                    'label' => 'Dashboard',
+                    'href'  => BASE_PATH . 'index',
+                    'icon'  => 'fa-solid fa-house',
+                    'match' => ['/'],
+                ],
+                [
+                    'label'        => 'Kalender',
+                    'href'         => BASE_PATH . 'calendar',
+                    'icon'         => 'fa-solid fa-calendar-days',
+                    'permissions'  => ['admin', 'calendar.view'],
+                    'match'        => ['/calendar'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'calendar-event-create',
+                        'label'  => 'Neuen Termin erstellen',
+                    ],
+                ],
+            ],
         ],
 
-        // ─────────────────────────────────────────────────────────────
-        // Personal
-        // ─────────────────────────────────────────────────────────────
         [
-            'id'          => 'personal',
-            'label'       => 'Personal',
-            'icon'        => 'fa-solid fa-users',
-            'data_page'   => 'personal',
-            'permissions' => ['admin', 'users.view', 'personnel.view'],
-            'sections'    => [
+            'id'    => 'personal',
+            'label' => 'Personal',
+            'items' => [
                 [
                     'label'       => 'Benutzer',
+                    'href'        => BASE_PATH . 'users/list',
+                    'icon'        => 'fa-solid fa-users',
                     'permissions' => ['admin', 'users.view'],
-                    'items'       => [
-                        [
-                            'label' => 'Übersicht',
-                            'href'  => BASE_PATH . 'users/list',
-                        ],
-                        [
-                            'label'       => 'Registrierungscodes',
-                            'href'        => BASE_PATH . 'users/registration-codes',
-                            'permissions' => ['admin', 'users.create'],
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'registration-invite-create',
-                                'label'  => 'Neue Einladung erstellen',
-                            ],
-                        ],
-                        [
-                            'label'        => 'Rollenverwaltung',
-                            'href'         => BASE_PATH . 'users/roles/index',
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'role-create',
-                                'label'  => 'Neue Rolle anlegen',
-                            ],
-                        ],
-                        [
-                            'label'       => 'Audit-Log',
-                            'href'        => BASE_PATH . 'users/audit-log',
-                            'permissions' => ['admin', 'audit.view'],
-                        ],
+                    'match'       => ['/users/list', '/users/edit'],
+                ],
+                [
+                    'label'        => 'Registrierungscodes',
+                    'href'         => BASE_PATH . 'users/registration-codes',
+                    'icon'         => 'fa-solid fa-ticket',
+                    'permissions'  => ['admin', 'users.create'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'registration-invite-create',
+                        'label'  => 'Neue Einladung erstellen',
                     ],
                 ],
                 [
-                    'label'       => 'Mitarbeiter',
-                    'permissions' => ['admin', 'personnel.view'],
-                    'items'       => [
-                        [
-                            'label'        => 'Übersicht',
-                            'href'         => BASE_PATH . 'personnel/list',
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'mitarbeiter-create',
-                                'label'  => 'Neuen Mitarbeiter anlegen',
-                            ],
-                        ],
-                        [
-                            'label'       => 'Anträge bearbeiten',
-                            'href'        => BASE_PATH . 'forms/admin/list',
-                            'permissions' => ['admin', 'application.view'],
-                        ],
+                    'label'        => 'Rollen',
+                    'href'         => BASE_PATH . 'users/roles/index',
+                    'icon'         => 'fa-solid fa-user-shield',
+                    'permissions'  => ['admin', 'users.view'],
+                    'match'        => ['/users/roles'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'role-create',
+                        'label'  => 'Neue Rolle anlegen',
                     ],
+                ],
+                [
+                    'label'       => 'Audit-Log',
+                    'href'        => BASE_PATH . 'users/audit-log',
+                    'icon'        => 'fa-solid fa-clock-rotate-left',
+                    'permissions' => ['admin', 'audit.view'],
+                ],
+                [
+                    'label'        => 'Mitarbeiter',
+                    'href'         => BASE_PATH . 'personnel/list',
+                    'icon'         => 'fa-solid fa-id-badge',
+                    'permissions'  => ['admin', 'personnel.view'],
+                    'match'        => ['/personnel'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'mitarbeiter-create',
+                        'label'  => 'Neuen Mitarbeiter anlegen',
+                    ],
+                ],
+                [
+                    'label'       => 'Anträge',
+                    'href'        => BASE_PATH . 'forms/admin/list',
+                    'icon'        => 'fa-solid fa-file-signature',
+                    'permissions' => ['admin', 'application.view'],
+                    'match'       => ['/forms/admin'],
                 ],
             ],
         ],
 
-        // ─────────────────────────────────────────────────────────────
-        // Protokolle
-        // ─────────────────────────────────────────────────────────────
-        // Sections kommen aus den Protokoll-Plugins (eNOTF, fireTab,
-        // MANV-Board) per merge_into — der Rail-Eintrag bleibt als Anker.
+        // Anker für die Protokoll-Plugins (eNOTF, fireTab, MANV-Board);
+        // ohne aktives Plugin bleibt die Gruppe leer und verschwindet.
         [
-            'id'        => 'protokolle',
-            'label'     => 'Protokolle',
-            'icon'      => 'fa-solid fa-file-medical',
-            'data_page' => 'protokolle',
-            'sections'  => [],
+            'id'    => 'protokolle',
+            'label' => 'Protokolle',
+            'icon'  => 'fa-solid fa-file-medical',
+            'items' => [],
         ],
 
-        // ─────────────────────────────────────────────────────────────
-        // Kalender — Termine, role-getaggte Dienste, Recurring-Events
-        // ─────────────────────────────────────────────────────────────
-        [
-            'id'           => 'kalender',
-            'label'        => 'Kalender',
-            'icon'         => 'fa-solid fa-calendar-days',
-            'href'         => BASE_PATH . 'calendar',
-            'data_page'    => 'kalender',
-            'permissions'  => ['admin', 'calendar.view'],
-            'quick_action' => [
-                'type'   => 'modal',
-                'target' => 'calendar-event-create',
-                'label'  => 'Neuen Termin erstellen',
-            ],
-        ],
-
-        // ─────────────────────────────────────────────────────────────
-        // Fahrzeuge
-        // ─────────────────────────────────────────────────────────────
         [
             'id'          => 'fahrzeuge',
             'label'       => 'Fahrzeuge',
-            'icon'        => 'fa-solid fa-truck',
-            'data_page'   => 'fahrzeuge',
             'permissions' => ['admin', 'vehicles.view'],
-            'sections'    => [
+            'items'       => [
                 [
-                    'items' => [
-                        [
-                            'label'        => 'Übersicht',
-                            'href'         => BASE_PATH . 'settings/vehicles/vehicles/index',
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'fahrzeug-create',
-                                'label'  => 'Neues Fahrzeug anlegen',
-                            ],
-                        ],
-                        [
-                            'label'        => 'Defekt-Meldungen',
-                            'href'         => BASE_PATH . 'settings/vehicles/defects/index',
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'defekt-create',
-                                'label'  => 'Neue Defektmeldung erfassen',
-                            ],
-                        ],
-                        [
-                            'label'       => 'Fahrtenbuch',
-                            'href'        => BASE_PATH . 'logbook/index',
-                            'permissions' => ['admin', 'logbook.view', 'logbook.manage'],
-                        ],
-                        [
-                            'label'       => 'Beladelisten',
-                            'href'        => BASE_PATH . 'settings/vehicles/vehload/index',
-                            'permissions' => ['admin', 'vehicles.manage'],
-                        ],
+                    'label'        => 'Fahrzeuge',
+                    'href'         => BASE_PATH . 'settings/vehicles/vehicles/index',
+                    'icon'         => 'fa-solid fa-truck',
+                    'match'        => ['/settings/vehicles/vehicles'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'fahrzeug-create',
+                        'label'  => 'Neues Fahrzeug anlegen',
                     ],
+                ],
+                [
+                    'label'        => 'Defekt-Meldungen',
+                    'href'         => BASE_PATH . 'settings/vehicles/defects/index',
+                    'icon'         => 'fa-solid fa-triangle-exclamation',
+                    'match'        => ['/settings/vehicles/defects'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'defekt-create',
+                        'label'  => 'Neue Defektmeldung erfassen',
+                    ],
+                ],
+                [
+                    'label'       => 'Fahrtenbuch',
+                    'href'        => BASE_PATH . 'logbook/index',
+                    'icon'        => 'fa-solid fa-road',
+                    'permissions' => ['admin', 'logbook.view', 'logbook.manage'],
+                    'match'       => ['/logbook'],
+                ],
+                [
+                    'label'       => 'Beladelisten',
+                    'href'        => BASE_PATH . 'settings/vehicles/vehload/index',
+                    'icon'        => 'fa-solid fa-boxes-stacked',
+                    'permissions' => ['admin', 'vehicles.manage'],
+                    'match'       => ['/settings/vehicles/vehload'],
                 ],
             ],
         ],
 
-        // ─────────────────────────────────────────────────────────────
-        // Einstellungen
-        // ─────────────────────────────────────────────────────────────
+        // Die eNOTF-Einstellungen (POIs, Medikamente, Schnellzugriff) hängen
+        // sich hier ein. Die acht Systemseiten teilen sich den Eintrag
+        // „System"; ihre eigene Unternavigation steht auf den Seiten.
         [
-            'id'          => 'settings',
-            'label'       => 'Einstellungen',
-            'icon'        => 'fa-solid fa-sliders',
-            'data_page'   => 'settings',
-            'permissions' => ['admin', 'personnel.view', 'edivi.view', 'dashboard.manage'],
-            'sections'    => [
+            'id'    => 'settings',
+            'label' => 'Einstellungen',
+            'items' => [
                 [
-                    'label'       => 'Personal',
-                    'permissions' => ['admin', 'personnel.view'],
-                    'items'       => [
-                        [
-                            'label'        => 'Dienstgrade',
-                            'href'         => BASE_PATH . 'settings/personnel/ranks/index',
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'dienstgrad-create',
-                                'label'  => 'Neuen Rank anlegen',
-                            ],
-                        ],
-                        [
-                            'label'        => 'FW Qualifikationen',
-                            'href'         => BASE_PATH . 'settings/personnel/fdskills/index',
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'qualifw-create',
-                                'label'  => 'Neue FW-Qualifikation',
-                            ],
-                        ],
-                        [
-                            'label'        => 'RD Qualifikationen',
-                            'href'         => BASE_PATH . 'settings/personnel/ambskills/index',
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'qualird-create',
-                                'label'  => 'Neue RD-Qualifikation',
-                            ],
-                        ],
-                        [
-                            'label'        => 'Fachdienste',
-                            'href'         => BASE_PATH . 'settings/personnel/specialties/index',
-                            'quick_action' => [
-                                'type'   => 'modal',
-                                'target' => 'qualifd-create',
-                                'label'  => 'Neuen Fachdienst anlegen',
-                            ],
-                        ],
-                        [
-                            'label'       => 'Dokumente',
-                            'href'        => BASE_PATH . 'settings/documents/templates',
-                            'permissions' => ['admin'],
-                        ],
-                        [
-                            'label'        => 'Antragstypen',
-                            'href'         => BASE_PATH . 'settings/forms/list',
-                            'permissions'  => ['admin'],
-                            'quick_action' => [
-                                'type'   => 'link',
-                                'target' => BASE_PATH . 'settings/forms/create',
-                                'label'  => 'Neuen Antragstyp anlegen',
-                            ],
-                        ],
+                    'label'        => 'Dienstgrade',
+                    'href'         => BASE_PATH . 'settings/personnel/ranks/index',
+                    'icon'         => 'fa-solid fa-medal',
+                    'permissions'  => ['admin', 'personnel.view'],
+                    'match'        => ['/settings/personnel/ranks'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'dienstgrad-create',
+                        'label'  => 'Neuen Dienstgrad anlegen',
                     ],
                 ],
                 [
-                    'label' => 'System',
-                    'items' => [
-                        [
-                            'label'       => 'Dashboard',
-                            'href'        => BASE_PATH . 'settings/dashboard/index',
-                            'permissions' => ['admin', 'dashboard.manage'],
-                        ],
-                        [
-                            'label'       => 'Konfiguration',
-                            'href'        => BASE_PATH . 'settings/system/config',
-                            'permissions' => ['admin'],
-                        ],
-                        [
-                            'label'       => 'Updater',
-                            'href'        => BASE_PATH . 'settings/system/updater',
-                            'permissions' => ['admin'],
-                        ],
-                        [
-                            'label'       => 'Plugins',
-                            'href'        => BASE_PATH . 'settings/system/plugins',
-                            'permissions' => ['admin'],
-                        ],
-                        [
-                            'label'       => 'Telemetrie',
-                            'href'        => BASE_PATH . 'settings/system/telemetry',
-                            'permissions' => ['admin'],
-                        ],
-                        [
-                            'label'       => 'Performance',
-                            'href'        => BASE_PATH . 'settings/system/performance',
-                            'permissions' => ['admin'],
-                        ],
-                        [
-                            'label'       => 'Logs & Errors',
-                            'href'        => BASE_PATH . 'settings/system/logs',
-                            'permissions' => ['admin'],
-                        ],
-                        [
-                            'label'       => 'Cron-Jobs',
-                            'href'        => BASE_PATH . 'settings/system/cron',
-                            'permissions' => ['admin'],
-                        ],
-                        [
-                            'label'       => 'Instanzvernetzung',
-                            'href'        => BASE_PATH . 'settings/federation/index',
-                            'permissions' => ['admin'],
-                        ],
+                    'label'        => 'FW-Qualifikationen',
+                    'href'         => BASE_PATH . 'settings/personnel/fdskills/index',
+                    'icon'         => 'fa-solid fa-fire',
+                    'permissions'  => ['admin', 'personnel.view'],
+                    'match'        => ['/settings/personnel/fdskills'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'qualifw-create',
+                        'label'  => 'Neue FW-Qualifikation',
                     ],
+                ],
+                [
+                    'label'        => 'RD-Qualifikationen',
+                    'href'         => BASE_PATH . 'settings/personnel/ambskills/index',
+                    'icon'         => 'fa-solid fa-kit-medical',
+                    'permissions'  => ['admin', 'personnel.view'],
+                    'match'        => ['/settings/personnel/ambskills'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'qualird-create',
+                        'label'  => 'Neue RD-Qualifikation',
+                    ],
+                ],
+                [
+                    'label'        => 'Fachdienste',
+                    'href'         => BASE_PATH . 'settings/personnel/specialties/index',
+                    'icon'         => 'fa-solid fa-layer-group',
+                    'permissions'  => ['admin', 'personnel.view'],
+                    'match'        => ['/settings/personnel/specialties'],
+                    'quick_action' => [
+                        'type'   => 'modal',
+                        'target' => 'qualifd-create',
+                        'label'  => 'Neuen Fachdienst anlegen',
+                    ],
+                ],
+                [
+                    'label'       => 'Dokumente',
+                    'href'        => BASE_PATH . 'settings/documents/templates',
+                    'icon'        => 'fa-solid fa-file-lines',
+                    'permissions' => ['admin'],
+                    'match'       => ['/settings/documents'],
+                ],
+                [
+                    'label'        => 'Antragstypen',
+                    'href'         => BASE_PATH . 'settings/forms/list',
+                    'icon'         => 'fa-solid fa-list-check',
+                    'permissions'  => ['admin'],
+                    'match'        => ['/settings/forms'],
+                    'quick_action' => [
+                        'type'   => 'link',
+                        'target' => BASE_PATH . 'settings/forms/create',
+                        'label'  => 'Neuen Antragstyp anlegen',
+                    ],
+                ],
+                [
+                    'label'       => 'Dashboard',
+                    'href'        => BASE_PATH . 'settings/dashboard/index',
+                    'icon'        => 'fa-solid fa-table-cells-large',
+                    'permissions' => ['admin', 'dashboard.manage'],
+                    'match'       => ['/settings/dashboard'],
+                ],
+                [
+                    'label'       => 'System',
+                    'href'        => BASE_PATH . 'settings/system/index',
+                    'icon'        => 'fa-solid fa-sliders',
+                    'permissions' => ['admin'],
+                    'match'       => ['/settings/system'],
+                ],
+                [
+                    'label'       => 'Instanzvernetzung',
+                    'href'        => BASE_PATH . 'settings/federation/index',
+                    'icon'        => 'fa-solid fa-diagram-project',
+                    'permissions' => ['admin'],
+                    'match'       => ['/settings/federation'],
                 ],
             ],
         ],
