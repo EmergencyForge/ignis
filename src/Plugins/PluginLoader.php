@@ -234,22 +234,26 @@ class PluginLoader
     }
 
     /**
-     * Hängt die Navigations-Einträge der aktiven Plugins an die Rail an.
-     * Ein Plugin liefert in navigation.php eine Liste von Rail-Einträgen
-     * im selben Format wie config/navigation.php.
+     * Hängt die Navigations-Einträge der aktiven Plugins an die Gruppen
+     * aus config/navigation.php an. Ein Plugin liefert in navigation.php
+     * eine Liste von Fragmenten: Gruppen mit `items` wie in der Kern-Datei.
      *
-     * Sonderfall `merge_into`: Statt einen eigenen Rail-Eintrag zu
-     * erzeugen, kann ein Fragment seine `sections` in einen bestehenden
-     * Rail-Eintrag einhängen — z.B. eine Modul-Section unter „Protokolle".
-     * Existiert der Ziel-Eintrag nicht (Kern umgebaut), wird das Fragment
-     * als eigener Rail-Eintrag angehängt statt verworfen.
+     * `merge_into`: Statt einer eigenen Gruppe hängt ein Fragment seine
+     * Einträge an eine bestehende Gruppe, z.B. unter „Protokolle". Fehlt
+     * die Zielgruppe (Kern umgebaut), wird das Fragment eine eigene Gruppe
+     * statt zu verschwinden.
+     *
+     * Fragmente im älteren Rail-Schema (`sections` mit `items`, oder ein
+     * Einzellink mit `href`) werden weiterhin gelesen; eNOTF liefert so.
+     * Ihre Einträge erben Icon und Permissions der Section bzw. des
+     * Fragments, weil das alte Schema die nur dort kannte.
      *
      * @param array<string, mixed> $config
      * @return array<string, mixed>
      */
     public function mergeNavigation(array $config): array
     {
-        $rail = is_array($config['rail'] ?? null) ? $config['rail'] : [];
+        $groups = is_array($config['groups'] ?? null) ? array_values($config['groups']) : [];
 
         foreach ($this->active() as $plugin) {
             $file = $plugin->path('navigation.php');
@@ -264,44 +268,97 @@ class PluginLoader
                 if (!is_array($entry)) {
                     continue;
                 }
+                $items = self::navigationItems($entry);
 
                 $target = $entry['merge_into'] ?? null;
                 if (is_string($target) && $target !== '') {
                     $merged = false;
-                    foreach ($rail as &$railEntry) {
-                        if (($railEntry['id'] ?? null) === $target) {
-                            $sections = is_array($railEntry['sections'] ?? null) ? $railEntry['sections'] : [];
-                            foreach ((array) ($entry['sections'] ?? []) as $section) {
-                                if (is_array($section)) {
-                                    $sections[] = $section;
-                                }
-                            }
-                            $railEntry['sections'] = $sections;
+                    foreach ($groups as &$group) {
+                        if (is_array($group) && ($group['id'] ?? null) === $target) {
+                            $existing = is_array($group['items'] ?? null) ? array_values($group['items']) : [];
+                            $group['items'] = array_merge($existing, $items);
                             $merged = true;
                             break;
                         }
                     }
-                    unset($railEntry);
+                    unset($group);
                     if ($merged) {
                         continue;
                     }
                     unset($entry['merge_into']);
                 }
 
-                $rail[] = $entry;
+                if ($items === []) {
+                    continue;
+                }
+                unset($entry['sections'], $entry['href'], $entry['quick_action'], $entry['external'], $entry['match'], $entry['data_page']);
+                $entry['items'] = $items;
+                $groups[] = $entry;
             }
         }
 
-        // Rail-Einträge, die nur als Merge-Anker dienen (keine eigenen
-        // Sections, kein eigener Link), verschwinden, wenn kein aktives
-        // Plugin etwas beigesteuert hat — sonst bleibt z.B. „Protokolle"
-        // als toter Eintrag stehen, wenn alle Protokoll-Plugins aus sind.
-        $rail = array_values(array_filter($rail, static function ($entry): bool {
-            return is_array($entry) && (!empty($entry['sections']) || !empty($entry['href']));
+        // Gruppen ohne Einträge sind Anker, an die kein aktives Plugin
+        // etwas gehängt hat — „Protokolle" ohne Protokoll-Plugin. Sie
+        // fallen weg statt als leere Überschrift stehen zu bleiben.
+        $groups = array_values(array_filter($groups, static function ($group): bool {
+            return is_array($group) && !empty($group['items']);
         }));
 
-        $config['rail'] = $rail;
+        $config['groups'] = $groups;
         return $config;
+    }
+
+    /**
+     * Die Einträge eines Navigations-Fragments, gleich in welchem Schema es
+     * geliefert wurde: `items` direkt, `sections` mit `items` (altes Rail-
+     * Schema) oder ein Einzellink mit `href`.
+     *
+     * @param array<string, mixed> $entry
+     * @return list<array<string, mixed>>
+     */
+    private static function navigationItems(array $entry): array
+    {
+        $icon = is_string($entry['icon'] ?? null) && $entry['icon'] !== '' ? $entry['icon'] : 'fa-solid fa-circle-dot';
+        $items = [];
+
+        foreach ((array) ($entry['items'] ?? []) as $item) {
+            if (is_array($item)) {
+                $items[] = $item + ['icon' => $icon];
+            }
+        }
+
+        foreach ((array) ($entry['sections'] ?? []) as $section) {
+            if (!is_array($section)) {
+                continue;
+            }
+            $sectionIcon = is_string($section['icon'] ?? null) && $section['icon'] !== '' ? $section['icon'] : $icon;
+            foreach ((array) ($section['items'] ?? []) as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                $item += ['icon' => $sectionIcon];
+                if (!isset($item['permissions']) && isset($section['permissions'])) {
+                    $item['permissions'] = $section['permissions'];
+                }
+                $items[] = $item;
+            }
+        }
+
+        if ($items === [] && is_string($entry['href'] ?? null) && $entry['href'] !== '') {
+            $link = [
+                'label' => (string) ($entry['label'] ?? ''),
+                'href'  => $entry['href'],
+                'icon'  => $icon,
+            ];
+            foreach (['permissions', 'quick_action', 'external', 'match'] as $key) {
+                if (isset($entry[$key])) {
+                    $link[$key] = $entry[$key];
+                }
+            }
+            $items[] = $link;
+        }
+
+        return $items;
     }
 
     /**

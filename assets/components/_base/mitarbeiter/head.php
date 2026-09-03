@@ -4,7 +4,8 @@ $SITE_TITLE = isset($SITE_TITLE) ? $SITE_TITLE : 'Administration';
 ?>
 <meta charset="UTF-8" />
 <?php // Darstellungsmodus des Kontos (dark|light|system) am <html>, bevor ein Stylesheet lädt.
-echo \App\Helpers\Theme::headScript(); ?>
+// Die Hülle (templates/layouts/admin.php) schreibt ihn selbst als Attribut und meldet das über $layoutTheme.
+if (!isset($layoutTheme)) { echo \App\Helpers\Theme::headScript(); } ?>
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title><?php echo $SITE_TITLE; ?> &rsaquo; <?php echo SYSTEM_NAME ?></title>

@@ -1,0 +1,752 @@
+// _shell.scss — App-Hülle: Topbar, Sidebar, Inhalt, Menüs, Palette
+//
+// Markup in templates/layouts/admin.php, assets/components/topbar.php und
+// assets/components/navbar-sidebar.php; Verhalten in assets/js/ui/shell.js
+// und assets/js/navbar/global-search.js. Der body ist ein Raster: Topbar
+// über die volle Breite, darunter Sidebar und Inhalt. Der Zustand liegt
+// am <html>, weil das Layout ihn vor dem ersten Stylesheet setzt:
+// `html.is-collapsed` schmälert die Sidebar auf Symbole, unter 900 px
+// wird sie ein Drawer (`html.is-nav-open`).
+//
+// `body.ignis-app--legacy` ist der Modus des Shims navbar.php für Seiten,
+// die ihr <html> noch selbst bauen (eNOTF-Admin): kein Raster, Topbar und
+// Sidebar fest positioniert, der Inhalt rückt per Padding beiseite.
+//
+// Nur Tokens aus _tokens.scss (ThemeTokensTest); die Maße --sidebar-w,
+// --sidebar-w-collapsed und --topbar-h stehen dort.
+
+// =====================================================
+// Raster
+// =====================================================
+
+body.ignis-app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  grid-template-rows: var(--topbar-h) minmax(0, 1fr);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  transition: grid-template-columns 0.18s var(--ease-out-expo);
+}
+
+html.is-collapsed body.ignis-app {
+  grid-template-columns: var(--sidebar-w-collapsed) minmax(0, 1fr);
+}
+
+.ignis-main {
+  min-width: 0;
+  padding: var(--space-md) 0 var(--space-xl);
+}
+
+// Shim-Modus: Inhalt ohne <main>, deshalb feste Leisten und Padding.
+body.ignis-app--legacy {
+  display: block;
+  padding: calc(var(--topbar-h) + var(--space-md)) var(--space-md) var(--space-md) calc(var(--sidebar-w) + var(--space-md));
+  transition: padding-left 0.18s var(--ease-out-expo);
+
+  .ignis-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  .ignis-sidebar {
+    position: fixed;
+    top: var(--topbar-h);
+    left: 0;
+    bottom: 0;
+    height: auto;
+    width: var(--sidebar-w);
+  }
+}
+
+html.is-collapsed body.ignis-app--legacy {
+  padding-left: calc(var(--sidebar-w-collapsed) + var(--space-md));
+
+  .ignis-sidebar { width: var(--sidebar-w-collapsed); }
+}
+
+// =====================================================
+// Topbar
+// =====================================================
+
+.ignis-topbar {
+  grid-column: 1 / -1;
+  position: sticky;
+  top: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: var(--topbar-h);
+  padding: 0 0.75rem;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-2);
+
+  &__toggle,
+  &__user {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    height: 32px;
+    min-width: 32px;
+    padding: 0 0.4rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--text-2);
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.12s ease, color 0.12s ease;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--fill-2);
+      color: var(--text);
+      outline: none;
+    }
+  }
+
+  &__mark {
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem 0 0.25rem;
+    color: var(--text);
+    text-decoration: none;
+
+    img,
+    svg {
+      display: block;
+      height: 1.5rem;
+      width: auto;
+    }
+
+    svg { height: 2.2rem; }
+
+    &:hover { color: var(--accent); }
+  }
+
+  &__search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 0 1 30rem;
+    height: 32px;
+    padding: 0 0.65rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--input-bg);
+    color: var(--text-3);
+
+    &:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+  }
+
+  &__search-input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--input-text);
+    font: inherit;
+    font-size: var(--fs-base);
+    outline: none;
+
+    &::placeholder { color: var(--input-placeholder); }
+    &::-webkit-search-cancel-button { appearance: none; }
+  }
+
+  &__kbd {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    padding: 0 0.3rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+
+  &__spacer { flex: 1; }
+
+  &__new { gap: 0.35rem; }
+
+  &__username {
+    max-width: 10rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--fs-base);
+  }
+
+  &__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--surface-3);
+    color: var(--text);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.1rem;
+    height: 1.1rem;
+    padding: 0 0.3rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 0.62rem;
+    font-weight: 600;
+    line-height: 1;
+
+    &[hidden] { display: none; }
+  }
+}
+
+// =====================================================
+// Menü aus <details>: funktioniert ohne JS, shell.js schließt bei Klick daneben.
+// =====================================================
+
+.ignis-menu {
+  position: relative;
+
+  > summary {
+    list-style: none;
+    cursor: pointer;
+
+    &::-webkit-details-marker { display: none; }
+  }
+
+  &__caret {
+    font-size: 0.6em;
+    opacity: 0.7;
+  }
+
+  &__panel {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 130;
+    min-width: 13rem;
+    padding: 0.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  &--right &__panel {
+    left: auto;
+    right: 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.45rem 0.55rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--text-2);
+    font: inherit;
+    font-size: var(--fs-base);
+    text-align: left;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+
+    i {
+      width: 1rem;
+      text-align: center;
+      color: var(--text-3);
+    }
+
+    &:hover,
+    &:focus-visible {
+      background: var(--fill-2);
+      color: var(--text);
+      text-decoration: none;
+      outline: none;
+    }
+
+    &.is-current { color: var(--text); }
+  }
+
+  &__check {
+    margin-left: auto;
+    color: var(--accent) !important;
+  }
+
+  &__count {
+    margin-left: auto;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+
+    &[hidden] { display: none; }
+  }
+
+  &__heading {
+    padding: 0.4rem 0.55rem 0.2rem;
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  &__sep {
+    height: 1px;
+    margin: 0.25rem 0;
+    background: var(--border);
+  }
+
+  &__form { display: grid; }
+
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.55rem;
+  }
+
+  &__identity-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  &__identity-name {
+    color: var(--text);
+    font-size: var(--fs-base);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__identity-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+  }
+
+  &__role-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--text-3);
+  }
+}
+
+// =====================================================
+// Sidebar
+// =====================================================
+
+.ignis-sidebar {
+  position: sticky;
+  top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-2);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+.ignis-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.5rem;
+}
+
+.ignis-sidebar__group {
+  padding: 0.7rem 0.5rem 0.25rem;
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.ignis-sidebar__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-md);
+
+  &:hover,
+  &:focus-within {
+    background: var(--fill-2);
+
+    .ignis-sidebar__link { color: var(--text); }
+    .ignis-sidebar__quick { opacity: 1; }
+  }
+
+  &.is-active {
+    background: var(--surface-3);
+
+    .ignis-sidebar__link { color: var(--text); }
+    .ignis-sidebar__link > i:first-child { color: var(--accent); }
+  }
+}
+
+.ignis-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 0.5rem;
+  border-radius: var(--radius-md);
+  color: var(--text-2);
+  font-size: var(--fs-base);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.12s ease;
+
+  > i:first-child {
+    width: 1.1rem;
+    flex-shrink: 0;
+    text-align: center;
+    color: var(--text-3);
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--text);
+    text-decoration: none;
+    outline: none;
+  }
+}
+
+.ignis-sidebar__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ignis-sidebar__external {
+  margin-left: auto;
+  font-size: 0.6rem;
+  opacity: 0.5;
+}
+
+// Das Plus an der Zeile: erst beim Überfahren oder per Tastatur sichtbar.
+.ignis-sidebar__quick {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-3);
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease, background-color 0.12s ease, color 0.12s ease;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--accent-soft);
+    color: var(--accent);
+    opacity: 1;
+    outline: none;
+  }
+}
+
+.ignis-sidebar__row:has(.ignis-sidebar__quick) .ignis-sidebar__link {
+  padding-right: 2rem;
+}
+
+.ignis-sidebar__version {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding: 0.6rem 0.75rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-3);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.ignis-sidebar__version-mark {
+  display: none;
+  font-weight: 800;
+  font-style: italic;
+}
+
+.ignis-sidebar-scrim { display: none; }
+
+// Eingeklappt: nur Symbole, Tooltip über title.
+@media (min-width: 901px) {
+  html.is-collapsed {
+    .ignis-sidebar__label,
+    .ignis-sidebar__group,
+    .ignis-sidebar__external,
+    .ignis-sidebar__quick { display: none; }
+
+    .ignis-sidebar__link {
+      justify-content: center;
+      padding: 0;
+    }
+
+    .ignis-sidebar__row:has(.ignis-sidebar__quick) .ignis-sidebar__link { padding-right: 0; }
+
+    .ignis-sidebar__version { justify-content: center; }
+    .ignis-sidebar__version-mark { display: inline; }
+  }
+}
+
+// Drawer unter 900 px
+@media (max-width: 900px) {
+  body.ignis-app,
+  html.is-collapsed body.ignis-app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.ignis-app--legacy,
+  html.is-collapsed body.ignis-app--legacy {
+    padding-left: var(--space-md);
+  }
+
+  .ignis-sidebar,
+  body.ignis-app--legacy .ignis-sidebar,
+  html.is-collapsed body.ignis-app--legacy .ignis-sidebar {
+    position: fixed;
+    top: var(--topbar-h);
+    bottom: 0;
+    left: 0;
+    width: var(--sidebar-w);
+    height: auto;
+    z-index: 115;
+    transform: translateX(-100%);
+    transition: transform 0.18s var(--ease-out-expo);
+  }
+
+  html.is-nav-open .ignis-sidebar { transform: none; }
+
+  .ignis-sidebar-scrim {
+    display: block;
+    position: fixed;
+    inset: var(--topbar-h) 0 0 0;
+    z-index: 114;
+    background: rgba(0, 0, 0, 0.5);
+
+    &[hidden] { display: none; }
+  }
+
+  .ignis-topbar__username,
+  .ignis-topbar__kbd,
+  .ignis-topbar__new-label { display: none; }
+
+  .ignis-topbar__search { flex: 1 1 auto; }
+
+  .ignis-main { padding-bottom: var(--space-lg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.ignis-app,
+  body.ignis-app--legacy,
+  .ignis-sidebar,
+  .ignis-sidebar__quick,
+  .ignis-sidebar__link { transition: none; }
+}
+
+// =====================================================
+// Palette (global-search.js): Overlay über der Seite, Ctrl+K
+// =====================================================
+
+.global-search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1080;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10vh 1rem 1rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+
+  &.show { display: flex; }
+}
+
+.global-search-modal {
+  width: 100%;
+  max-width: 680px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: gsm-in 0.15s ease;
+}
+
+@keyframes gsm-in {
+  from { opacity: 0; transform: scale(0.96) translateY(-10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.gsm-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3.4rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+
+  i {
+    flex-shrink: 0;
+    color: var(--text-3);
+    font-size: 0.95rem;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.95rem;
+    outline: none;
+
+    &::placeholder { color: var(--input-placeholder); }
+  }
+
+  .gsm-shortcut {
+    flex-shrink: 0;
+    padding: 0.1rem 0.35rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 4px;
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+  }
+}
+
+.gsm-results {
+  max-height: min(440px, 58vh);
+  overflow-y: auto;
+  padding: 0.35rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+
+  &:empty { display: none; }
+}
+
+.gsr-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1rem 0.2rem;
+  color: var(--text-3);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+  &:not(:first-child) {
+    margin-top: 0.25rem;
+    padding-top: 0.55rem;
+    border-top: 1px solid var(--border);
+  }
+
+  i { font-size: 0.7rem; }
+}
+
+.gsr-item {
+  display: block;
+  margin: 2px 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  color: var(--text-2);
+  text-decoration: none;
+  transition: background-color 0.12s ease;
+
+  &:hover,
+  &.gsr-active {
+    background: var(--accent-soft);
+    border-color: rgba(var(--accent-rgb), 0.25);
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  mark {
+    background: transparent;
+    color: var(--accent);
+    font-weight: 600;
+  }
+}
+
+.gsr-item-title {
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gsr-item-sub {
+  color: var(--text-3);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gsr-empty,
+.gsr-loading {
+  padding: 1.25rem 1rem;
+  color: var(--text-3);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.gsm-footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.45rem 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-3);
+  font-size: 0.7rem;
+
+  kbd {
+    padding: 0.05rem 0.3rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    background: var(--fill-2);
+    color: var(--text-3);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+  }
+}

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Auth\Gate;
 use App\Helpers\Flash;
+use App\Helpers\Layout;
 
 /**
  * Base-Klasse für alle HTTP-Controller in intraRP.
@@ -65,17 +66,6 @@ abstract class Controller
     }
 
     /**
-     * Rendert ein PHP-Template aus templates/. View-Daten werden via extract()
-     * in den lokalen Scope geschoben, damit das Template direkt darauf zugreifen
-     * kann ($users statt $viewData['users']).
-     *
-     * Views werden relativ zu viewBasePath() aufgelöst — Controller in
-     * Plugins überschreiben die Methode und zeigen auf ihr eigenes
-     * templates/-Verzeichnis.
-     *
-     * @param array<string,mixed> $data
-     */
-    /**
      * Basis-Verzeichnis für renderView(). Plugin-Controller überschreiben
      * das und liefern das templates/-Verzeichnis ihres Plugins.
      */
@@ -84,6 +74,24 @@ abstract class Controller
         return dirname(__DIR__, 3) . '/templates';
     }
 
+    /**
+     * Rendert ein PHP-Template aus templates/. View-Daten werden via extract()
+     * in den lokalen Scope geschoben, damit das Template direkt darauf zugreifen
+     * kann ($users statt $viewData['users']).
+     *
+     * Views werden relativ zu viewBasePath() aufgelöst — Controller in
+     * Plugins überschreiben die Methode und zeigen auf ihr eigenes
+     * templates/-Verzeichnis.
+     *
+     * Setzt das Template `$layout = 'admin'`, liefert es nur den Inhalt von
+     * <main>; die Hülle (templates/layouts/admin.php, immer aus dem Kern,
+     * auch für Plugin-Templates) kommt von App\Helpers\Layout. Das Template
+     * gibt dazu `$bodyId` und `$SITE_TITLE` mit, optional `$bodyPage` und
+     * `$layoutHead`. Ohne `$layout` bleibt alles wie bisher — eNOTF und die
+     * Seiten mit eigener Hülle bauen ihr <html> weiter selbst.
+     *
+     * @param array<string,mixed> $data
+     */
     protected function renderView(string $view, array $data = []): void
     {
         $templatePath = rtrim($this->viewBasePath(), '/\\') . '/' . $view . '.php';
@@ -100,11 +108,21 @@ abstract class Controller
         ob_start();
         try {
             require $templatePath;
-            $output = ob_get_clean();
-            echo $output;
+            $output = (string) ob_get_clean();
         } catch (\Throwable $e) {
             ob_end_clean();
             throw $e;
         }
+
+        if (isset($layout) && is_string($layout) && $layout !== '') {
+            $output = Layout::render($layout, $output, [
+                'SITE_TITLE' => $SITE_TITLE ?? null,
+                'bodyId'     => $bodyId ?? null,
+                'bodyPage'   => $bodyPage ?? null,
+                'layoutHead' => $layoutHead ?? null,
+            ]);
+        }
+
+        echo $output;
     }
 }
