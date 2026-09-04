@@ -23,9 +23,14 @@ use InvalidArgumentException;
  *         'requires'        => ['ignis' => '>=1.2 <2.0'],
  *         'depends'         => [],
  *         'permissions'     => ['enotf.view', 'enotf.edit', 'enotf.admin'],
+ *         'search'          => ['Plugin\\Enotf\\Search\\ProtocolSource'],
  *         'default_enabled' => true,
  *         'removable'       => true,
  *     ];
+ *
+ * `search` nennt Klassen, die App\Search\SearchSourceInterface umsetzen;
+ * die globale Suche fragt sie neben den Kern-Quellen ab
+ * (PluginLoader::searchSources()).
  */
 final class PluginManifest
 {
@@ -39,6 +44,7 @@ final class PluginManifest
      * @param list<string>          $permissions   Permissions, die dieses Plugin einbringt
      * @param array<string, string> $autoload      PSR-4-Map: Namespace-Prefix => Verzeichnis (relativ zum Plugin)
      * @param array<string, string> $policies      Gate-Ressource => Policy-Klasse (FQCN)
+     * @param list<string>          $search        Quellen der globalen Suche (FQCN, App\Search\SearchSourceInterface)
      * @param bool                  $defaultEnabled Bei Erstinstallation direkt aktiv?
      * @param bool                  $removable      Darf der Nutzer es deaktivieren?
      */
@@ -52,6 +58,7 @@ final class PluginManifest
         public readonly array $permissions,
         public readonly array $autoload,
         public readonly array $policies,
+        public readonly array $search,
         public readonly bool $defaultEnabled,
         public readonly bool $removable,
     ) {}
@@ -85,6 +92,7 @@ final class PluginManifest
             permissions: self::stringList($data['permissions'] ?? []),
             autoload: self::stringMap($data['autoload'] ?? []),
             policies: self::stringMap($data['policies'] ?? []),
+            search: self::stringList($data['search'] ?? []),
             defaultEnabled: (bool) ($data['default_enabled'] ?? false),
             removable: (bool) ($data['removable'] ?? true),
         );

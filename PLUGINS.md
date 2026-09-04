@@ -30,6 +30,13 @@ grenzt kompatible ıgnıs-Versionen ein; `depends` nennt andere Plugin-IDs.
 `autoload`, `policies`, `permissions`, `default_enabled` und `removable`
 entsprechen den Beispielen der mitgelieferten Plugins unter `plugins/`.
 
+`search` nennt Klassen, die `App\Search\SearchSourceInterface` umsetzen
+(`key()`, `label()`, `allowed()`, `search(string $q, int $limit)`); die
+globale Suche in der Topbar fragt sie neben den Kern-Quellen ab und zeigt
+je Quelle eine Gruppe mit `label`, `sub` und `href` pro Treffer. fireTab
+(`Plugin\Firetab\Search\IncidentSource`) und die Wissensdatenbank
+(`Plugin\KnowledgeBase\Search\LexiconSource`) sind die Vorlagen.
+
 Ein heruntergeladenes Plugin bleibt vollständig inert. Erst die separate
 Installationsbestätigung in der Verwaltung legt den `.installed`-Marker an,
 führt Migrationen aus und aktiviert das Plugin.

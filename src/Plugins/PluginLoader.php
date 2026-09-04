@@ -214,6 +214,34 @@ class PluginLoader
     }
 
     /**
+     * Die Suchquellen der aktiven Plugins (Manifest-Feld `search`), in
+     * Ladereihenfolge. Eine Klasse, die fehlt oder das Interface nicht
+     * umsetzt, wird protokolliert und übersprungen, damit ein Plugin die
+     * Suche der anderen nicht mitreißt.
+     *
+     * @return list<\App\Search\SearchSourceInterface>
+     */
+    public function searchSources(): array
+    {
+        $sources = [];
+        foreach ($this->active() as $plugin) {
+            foreach ($plugin->manifest->search as $class) {
+                if (!class_exists($class)) {
+                    Logger::warning("Plugin '{$plugin->id()}': Suchquelle {$class} nicht gefunden.");
+                    continue;
+                }
+                $source = new $class();
+                if (!$source instanceof \App\Search\SearchSourceInterface) {
+                    Logger::warning("Plugin '{$plugin->id()}': {$class} ist keine SearchSourceInterface.");
+                    continue;
+                }
+                $sources[] = $source;
+            }
+        }
+        return $sources;
+    }
+
+    /**
      * Routen-Fragmente der aktiven Plugins (web zuerst, dann api —
      * gleiche Reihenfolge wie die Kern-Routen).
      *

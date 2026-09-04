@@ -10,6 +10,7 @@ return [
     'permissions'     => ['fire.incident.qm'],
     'autoload'        => ['Plugin\\Firetab\\' => 'src/'],
     'policies'        => ['fireIncident' => 'Plugin\\Firetab\\Policies\\FireIncidentPolicy'],
+    'search'          => ['Plugin\\Firetab\\Search\\IncidentSource'],
     'default_enabled' => true,
     'removable'       => true,
 ];

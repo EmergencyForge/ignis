@@ -7,7 +7,8 @@ declare(strict_types=1);
  *
  * Links der Sidebar-Schalter und die Wortmarke (SYSTEM_LOGO, sonst die
  * ignis-Wortmarke in Textfarbe), in der Mitte das Suchfeld (Ctrl+K springt
- * hinein; die Palette in global-search.js öffnet sich darüber), rechts das
+ * hinein; beim Tippen öffnet palette.js die Palette darunter, gespeist aus
+ * GET /api/system/global-search und den Aktionen in data-ignis-actions), rechts das
  * Neu-Menü mit den Schnellaktionen der Navigation, die der Betrachter
  * sehen darf, und das Kontomenü mit Darstellungswechsel, Benachrichtigungen
  * und Abmelden. Die Menüs sind <details>, damit sie ohne JS funktionieren;
@@ -78,32 +79,32 @@ if (!$topLogoIsDefault && !preg_match('~^(https?:)?//~i', $topLogo)) {
 $topGroups  = $topLoggedIn ? Navigation::groups() : [];
 $topActions = Navigation::quickActions($topGroups);
 
-// Einträge der Palette (global-search.js): alle sichtbaren Ziele und die
-// Schnellaktionen, dazu die Treffer aus GET /api/system/global-search.
-$topCommands = [];
-foreach ($topGroups as $topGroup) {
-    foreach ($topGroup['items'] as $topItem) {
-        $topCommands[] = [
-            'group'    => 'Navigation',
-            'icon'     => (string) $topItem['icon'],
-            'title'    => (string) $topItem['label'],
-            'subtitle' => is_string($topGroup['label'] ?? null) ? $topGroup['label'] : 'Öffnen',
-            'url'      => (string) $topItem['href'],
-            'keywords' => 'gehe zu öffnen',
-        ];
-    }
-}
+// Einträge der Palette ohne Server (assets/js/ui/palette.js): „X anlegen"
+// aus den Schnellaktionen und „Gehe zu" aus der sichtbaren Navigation,
+// als JSON am Suchfeld. Die Treffer aus dem Datenbestand kommen von
+// GET /api/system/global-search dazu.
+$topPalette = [];
 foreach ($topActions as $topAction) {
-    $topCommands[] = [
-        'group'    => 'Schnellaktionen',
-        'icon'     => $topAction['icon'],
-        'title'    => $topAction['label'],
-        'subtitle' => 'Neu',
-        'url'      => $topAction['type'] === 'link'
-            ? $topAction['target']
-            : $topAction['parent'] . (str_contains($topAction['parent'], '?') ? '&' : '?') . 'action=create&quick=' . rawurlencode($topAction['target']),
+    $topPalette[] = [
+        'label'    => $topAction['label'],
+        'sub'      => 'Neu',
+        'href'     => $topAction['type'] === 'modal'
+            ? $topAction['parent'] . (str_contains($topAction['parent'], '?') ? '&' : '?') . 'action=create&quick=' . rawurlencode($topAction['target'])
+            : $topAction['target'],
+        'drawer'   => $topAction['type'] === 'drawer',
         'keywords' => 'neu anlegen erstellen',
     ];
+}
+foreach ($topGroups as $topGroup) {
+    foreach ($topGroup['items'] as $topItem) {
+        $topPalette[] = [
+            'label'    => (string) $topItem['label'],
+            'sub'      => 'Gehe zu',
+            'href'     => (string) $topItem['href'],
+            'drawer'   => false,
+            'keywords' => 'gehe zu öffnen ' . (is_string($topGroup['label'] ?? null) ? $topGroup['label'] : ''),
+        ];
+    }
 }
 ?>
 <header class="ignis-topbar" data-base-path="<?= htmlspecialchars($topBasePath, ENT_QUOTES) ?>">
@@ -121,9 +122,11 @@ foreach ($topActions as $topAction) {
     </a>
 
     <?php if ($topLoggedIn): ?>
-        <div class="ignis-topbar__search" role="search">
+        <div class="ignis-topbar__search" role="search"
+            data-endpoint="<?= htmlspecialchars($topBasePath . 'api/system/global-search', ENT_QUOTES) ?>"
+            data-ignis-actions="<?= htmlspecialchars((string) json_encode($topPalette, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES) ?>">
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input type="search" class="ignis-topbar__search-input" data-ignis-global-search placeholder="Suchen oder Schnellaktion starten" aria-label="Suche" autocomplete="off">
+            <input type="search" class="ignis-topbar__search-input" data-ignis-global-search placeholder="Suchen oder Schnellaktion starten" aria-label="Suche" autocomplete="off" aria-autocomplete="list" aria-expanded="false">
             <kbd class="ignis-topbar__kbd" aria-hidden="true">Ctrl K</kbd>
         </div>
     <?php endif; ?>
@@ -190,26 +193,3 @@ foreach ($topActions as $topAction) {
         <a href="<?= htmlspecialchars($topBasePath . 'login', ENT_QUOTES) ?>" class="ignis-btn ignis-btn--sm"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i> Anmelden</a>
     <?php endif; ?>
 </header>
-
-<?php if ($topLoggedIn): ?>
-    <?php // Palette: Ziele und Schnellaktionen von oben, dazu die Treffer der Suche (global-search.js). ?>
-    <div class="global-search-overlay" id="globalSearchOverlay" role="dialog" aria-modal="true" aria-labelledby="globalSearchLabel"
-        data-base-path="<?= htmlspecialchars($topBasePath, ENT_QUOTES) ?>"
-        data-endpoint="<?= htmlspecialchars($topBasePath . 'api/system/global-search', ENT_QUOTES) ?>"
-        data-commands="<?= htmlspecialchars((string) json_encode($topCommands, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES) ?>">
-        <div class="global-search-modal">
-            <div class="gsm-input-wrap">
-                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                <label for="globalSearchInput" class="sr-only" id="globalSearchLabel">Suche</label>
-                <input type="text" id="globalSearchInput" placeholder="Navigieren, suchen oder Schnellaktion starten …" autocomplete="off" />
-                <span class="gsm-shortcut">ESC</span>
-            </div>
-            <div class="gsm-results" id="globalSearchResults"></div>
-            <div class="gsm-footer">
-                <span><kbd>&uarr;</kbd> <kbd>&darr;</kbd> Navigation</span>
-                <span><kbd>Enter</kbd> &Ouml;ffnen</span>
-                <span><kbd>Esc</kbd> Schlie&szlig;en</span>
-            </div>
-        </div>
-    </div>
-<?php endif; ?>

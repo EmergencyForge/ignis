@@ -141,3 +141,15 @@ if (!function_exists('old')) {
         return \App\Http\Requests\FormRequest::pullOldInput($field, $default);
     }
 }
+
+if (!function_exists('search_base_path')) {
+    /**
+     * BASE_PATH mit genau einem Schrägstrich am Ende, für die Ziele der
+     * Suchquellen (App\Search). Über defined(), damit PHPStan nicht den
+     * Fallback aus config.php als festen Wert nimmt.
+     */
+    function search_base_path(): string
+    {
+        return rtrim(defined('BASE_PATH') ? (string) constant('BASE_PATH') : '/', '/') . '/';
+    }
+}

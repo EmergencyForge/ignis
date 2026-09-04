@@ -7,5 +7,6 @@ return [
     'requires' => ['ignis' => '>=1.0'],
     'autoload' => ['GoodPluginFixture\\' => 'src/'],
     'policies' => ['goodres' => 'GoodPluginFixture\\Policies\\GoodresPolicy'],
+    'search' => ['GoodPluginFixture\\Search\\WidgetSource'],
     'default_enabled' => true,
 ];

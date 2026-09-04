@@ -10,7 +10,7 @@
  * <html>, damit nichts springt; dieses Modul pflegt ihn nur.
  *
  *   [                 Sidebar ein-/ausklappen (außerhalb von Eingabefeldern)
- *   Ctrl+K            öffnet die Palette (global-search.js), sonst das Suchfeld
+ *   Ctrl+K            springt ins Suchfeld der Topbar (Palette: palette.js)
  *   Esc               schließt offene Menüs und den Navigations-Drawer
  *
  * Schnellaktionen ([data-quick-action-type], Plus an der Sidebar-Zeile und
@@ -120,8 +120,7 @@ function init() {
             return;
         }
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-            // Mit Palette übernimmt global-search.js den Kurzbefehl.
-            if (window.ignis && window.ignis.search) return;
+            // Ins Suchfeld; die Palette (palette.js) öffnet beim Tippen.
             const search = document.querySelector('[data-ignis-global-search]');
             if (search) { e.preventDefault(); search.focus(); search.select(); }
             return;

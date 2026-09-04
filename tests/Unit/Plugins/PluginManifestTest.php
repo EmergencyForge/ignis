@@ -58,8 +58,20 @@ class PluginManifestTest extends TestCase
         $this->assertSame('*', $m->ignisRequire);
         $this->assertSame([], $m->depends);
         $this->assertSame([], $m->permissions);
+        $this->assertSame([], $m->search);
         $this->assertFalse($m->defaultEnabled);
         $this->assertTrue($m->removable, 'removable defaults to true');
+    }
+
+    #[Test]
+    public function it_reads_the_search_sources(): void
+    {
+        $data = $this->validData();
+        $data['search'] = ['Plugin\\Enotf\\Search\\ProtocolSource', 'Plugin\\Enotf\\Search\\PoiSource'];
+
+        $m = PluginManifest::fromArray($data);
+
+        $this->assertSame(['Plugin\\Enotf\\Search\\ProtocolSource', 'Plugin\\Enotf\\Search\\PoiSource'], $m->search);
     }
 
     #[Test]
