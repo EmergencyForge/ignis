@@ -3,9 +3,11 @@
  * View: Kalender-Termin-Detail (HTML-Fragment fuer Modal-Anzeige).
  *
  * Wird vom CalendarController::show() gerendert. Wenn der User per Direct-Link
- * auf /kalender/view?id=X kommt, kriegt er die volle Page mit Navbar; das
- * Modal-Frontend kann das HTML auch via fetch() einlesen und nur den
- * relevanten Teil ins Dialog-Body kippen (siehe assets/js/pages/calendar.js).
+ * auf /calendar/view?id=X kommt, kriegt er die volle Seite in der Hülle; das
+ * Modal-Frontend liest das HTML per fetch() und kippt den Inhalt von
+ * [data-calendar-event-detail] in den Dialog (siehe assets/js/pages/calendar.js).
+ * Deshalb steht der Seitenkopf mit Titel und Aktionen innerhalb dieses
+ * Wrappers, nur die Brotkrumen bleiben draußen.
  *
  * @var \App\Models\CalendarEvent  $event
  * @var array<int,array{mitarbeiter:\App\Models\Mitarbeiter,response:?string,is_organizer:bool}> $attendeesData
@@ -23,38 +25,38 @@ $SITE_TITLE = 'Termin: ' . ($event->title ?? '');
 
 $layout = 'admin';
 $bodyId = 'kalender';
+
+$fmt = static fn ($value): string => $value instanceof DateTimeInterface ? $value->format('d.m.Y H:i') : (string) $value;
 ?>
 <?php ob_start(); ?>
     <link rel="stylesheet" href="<?= BASE_PATH ?>assets/css/pages/calendar.css">
 <?php $layoutHead = ob_get_clean(); ?>
 
     <div class="container-full relative" id="mainpageContainer">
-        <div class="twplus-page" data-calendar-event-detail>
-            <div class="mb-4">
-                <nav class="ignis-breadcrumb">
-                    <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>calendar">Kalender</a></span>
-                    <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($event->title) ?></span>
-                </nav>
-            </div>
+        <div class="twplus-page">
+            <nav class="ignis-breadcrumb mb-4">
+                <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>calendar">Kalender</a></span>
+                <span class="ignis-breadcrumb__item is-active"><?= htmlspecialchars($event->title) ?></span>
+            </nav>
 
-
-            <div class="ignis-card twplus-section-card mb-4">
-                <div class="ignis-card__header">
-                    <div>
-                        <h2 class="mb-1"><?= htmlspecialchars($event->title) ?></h2>
-                        <span class="ignis-chip"><?= htmlspecialchars($categoriesLabel) ?></span>
+            <div data-calendar-event-detail>
+                <div class="page-header twplus-page-header mb-4">
+                    <div class="twplus-page-header__copy">
+                        <p class="twplus-page-header__eyebrow">Termin</p>
+                        <h1><?= htmlspecialchars($event->title) ?></h1>
+                        <p class="twplus-page-header__description"><span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($categoriesLabel) ?></span> <?= htmlspecialchars($fmt($event->starts_at)) ?> bis <?= htmlspecialchars($fmt($event->ends_at)) ?></p>
                     </div>
                     <?php if ($canEdit || $canDelete): ?>
-                        <div class="flex gap-2">
+                        <div class="header-actions twplus-page-header__actions">
                             <?php if ($canEdit): ?>
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm" data-edit-event="<?= (int) $event->id ?>">
+                                <button type="button" class="ignis-btn ignis-btn--secondary" data-edit-event="<?= (int) $event->id ?>">
                                     <i class="fa-solid fa-pen"></i> Bearbeiten
                                 </button>
                             <?php endif; ?>
                             <?php if ($canDelete): ?>
                                 <form method="post" action="<?= BASE_PATH ?>calendar/delete?id=<?= (int) $event->id ?>"
                                       onsubmit="<?= confirm_attr('Diesen Termin wirklich löschen?') ?>" class="inline">
-                                    <button type="submit" class="ignis-btn ignis-btn--ghost-danger ignis-btn--sm">
+                                    <button type="submit" class="ignis-btn ignis-btn--danger">
                                         <i class="fa-solid fa-trash"></i> Löschen
                                     </button>
                                 </form>
@@ -63,132 +65,134 @@ $bodyId = 'kalender';
                     <?php endif; ?>
                 </div>
 
-                <div class="ignis-card__body">
-                    <div class="twplus-description-list">
-                        <div>
-                            <div class="ignis-field__label">Beginn</div>
-                            <div><?= htmlspecialchars($event->starts_at instanceof DateTimeInterface ? $event->starts_at->format('d.m.Y H:i') : (string) $event->starts_at) ?></div>
-                        </div>
-                        <div>
-                            <div class="ignis-field__label">Ende</div>
-                            <div><?= htmlspecialchars($event->ends_at instanceof DateTimeInterface ? $event->ends_at->format('d.m.Y H:i') : (string) $event->ends_at) ?></div>
-                        </div>
-                        <?php if (!empty($event->location)): ?>
-                            <div>
-                                <div class="ignis-field__label">Ort</div>
-                                <div><?= htmlspecialchars($event->location) ?></div>
-                            </div>
-                        <?php endif; ?>
-                        <div>
-                            <div class="ignis-field__label">Sichtbarkeit</div>
-                            <div>
-                                <?php
-                                $vLabel = match ($event->visibility) {
-                                    'private'   => 'Privat (nur Ersteller)',
-                                    'attendees' => 'Eingeladene Mitarbeiter',
-                                    'role'      => 'Rollen: ' . ($event->visibilityRoles->isEmpty()
-                                        ? '—'
-                                        : $event->visibilityRoles->pluck('name')->join(', ')),
-                                    'all'       => 'Alle (öffentlich)',
-                                    default     => $event->visibility,
-                                };
-                                echo htmlspecialchars($vLabel);
-                                ?>
-                            </div>
-                        </div>
-                        <?php if (!empty($event->recurrence_rule)): ?>
-                            <div class="md:col-span-2">
-                                <div class="ignis-field__label">Wiederholung</div>
-                                <code><?= htmlspecialchars($event->recurrence_rule) ?></code>
-                                <?php if ($event->recurrence_until): ?>
-                                    bis <?= htmlspecialchars($event->recurrence_until->format('d.m.Y')) ?>
-                                <?php endif; ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-
-                    <?php if (!empty($event->description)): ?>
-                        <hr class="my-3">
-                        <div class="ignis-field__label">Beschreibung</div>
-                        <div class="whitespace-pre-line"><?= nl2br(htmlspecialchars($event->description)) ?></div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Attendees-Liste mit Response-Status — nur sichtbar wenn
-                 attendees/private ODER role mit aktivem Tracking. -->
-            <?php if (!empty($attendeesData) && $showAttendeeList): ?>
-                <?php
-                $statusMeta = [
-                    'accepted'  => ['icon' => 'fa-circle-check',    'class' => 'attendee-status--accepted',  'label' => 'Zugesagt'],
-                    'tentative' => ['icon' => 'fa-circle-question', 'class' => 'attendee-status--tentative', 'label' => 'Vielleicht'],
-                    'declined'  => ['icon' => 'fa-circle-xmark',    'class' => 'attendee-status--declined',  'label' => 'Abgesagt'],
-                    'pending'   => ['icon' => 'fa-circle-dot',      'class' => 'attendee-status--pending',   'label' => 'Ausstehend'],
-                ];
-                ?>
                 <div class="ignis-card twplus-section-card mb-4">
-                    <div class="ignis-card__header">
-                        <h5 class="mb-0">Teilnehmer (<?= (int) $attendeeCount ?>)</h5>
-                    </div>
                     <div class="ignis-card__body">
-                        <ul class="attendee-list twplus-stacked-list">
-                            <?php foreach ($attendeesData as $att):
-                                $m       = $att['mitarbeiter'];
-                                $resp    = $att['response'];
-                                $meta    = $resp !== null ? ($statusMeta[$resp] ?? null) : null;
-                                $name    = trim((string) ($m->fullname ?? ''));
-                                $dnr     = $m->dienstnr ? ' · ' . $m->dienstnr : '';
-                            ?>
-                                <li class="attendee-list__row twplus-stacked-list__item">
-                                    <span class="attendee-list__name">
-                                        <?= htmlspecialchars($name . $dnr) ?>
-                                        <?php if (!empty($att['is_organizer'])): ?>
-                                            <span class="attendee-list__organizer" title="Organisator">
-                                                <i class="fa-solid fa-star"></i>
+                        <div class="twplus-description-list">
+                            <div>
+                                <div class="ignis-field__label">Beginn</div>
+                                <div><?= htmlspecialchars($fmt($event->starts_at)) ?></div>
+                            </div>
+                            <div>
+                                <div class="ignis-field__label">Ende</div>
+                                <div><?= htmlspecialchars($fmt($event->ends_at)) ?></div>
+                            </div>
+                            <?php if (!empty($event->location)): ?>
+                                <div>
+                                    <div class="ignis-field__label">Ort</div>
+                                    <div><?= htmlspecialchars($event->location) ?></div>
+                                </div>
+                            <?php endif; ?>
+                            <div>
+                                <div class="ignis-field__label">Sichtbarkeit</div>
+                                <div>
+                                    <?php
+                                    $vLabel = match ($event->visibility) {
+                                        'private'   => 'Privat (nur Ersteller)',
+                                        'attendees' => 'Eingeladene Mitarbeiter',
+                                        'role'      => 'Rollen: ' . ($event->visibilityRoles->isEmpty()
+                                            ? '—'
+                                            : $event->visibilityRoles->pluck('name')->join(', ')),
+                                        'all'       => 'Alle (öffentlich)',
+                                        default     => $event->visibility,
+                                    };
+                                    echo htmlspecialchars($vLabel);
+                                    ?>
+                                </div>
+                            </div>
+                            <?php if (!empty($event->recurrence_rule)): ?>
+                                <div class="md:col-span-2">
+                                    <div class="ignis-field__label">Wiederholung</div>
+                                    <code><?= htmlspecialchars($event->recurrence_rule) ?></code>
+                                    <?php if ($event->recurrence_until): ?>
+                                        bis <?= htmlspecialchars($event->recurrence_until->format('d.m.Y')) ?>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if (!empty($event->description)): ?>
+                            <hr class="my-3">
+                            <div class="ignis-field__label">Beschreibung</div>
+                            <div class="whitespace-pre-line"><?= nl2br(htmlspecialchars($event->description)) ?></div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <!-- Attendees-Liste mit Response-Status — nur sichtbar wenn
+                     attendees/private ODER role mit aktivem Tracking. -->
+                <?php if (!empty($attendeesData) && $showAttendeeList): ?>
+                    <?php
+                    $statusMeta = [
+                        'accepted'  => ['icon' => 'fa-circle-check',    'class' => 'attendee-status--accepted',  'label' => 'Zugesagt'],
+                        'tentative' => ['icon' => 'fa-circle-question', 'class' => 'attendee-status--tentative', 'label' => 'Vielleicht'],
+                        'declined'  => ['icon' => 'fa-circle-xmark',    'class' => 'attendee-status--declined',  'label' => 'Abgesagt'],
+                        'pending'   => ['icon' => 'fa-circle-dot',      'class' => 'attendee-status--pending',   'label' => 'Ausstehend'],
+                    ];
+                    ?>
+                    <div class="ignis-card twplus-section-card mb-4">
+                        <div class="ignis-card__header">
+                            <h2 class="ignis-card__title mb-0">Teilnehmer (<?= (int) $attendeeCount ?>)</h2>
+                        </div>
+                        <div class="ignis-card__body">
+                            <ul class="attendee-list twplus-stacked-list">
+                                <?php foreach ($attendeesData as $att):
+                                    $m       = $att['mitarbeiter'];
+                                    $resp    = $att['response'];
+                                    $meta    = $resp !== null ? ($statusMeta[$resp] ?? null) : null;
+                                    $name    = trim((string) ($m->fullname ?? ''));
+                                    $dnr     = $m->dienstnr ? ' · ' . $m->dienstnr : '';
+                                ?>
+                                    <li class="attendee-list__row twplus-stacked-list__item">
+                                        <span class="attendee-list__name">
+                                            <?= htmlspecialchars($name . $dnr) ?>
+                                            <?php if (!empty($att['is_organizer'])): ?>
+                                                <span class="attendee-list__organizer" title="Organisator">
+                                                    <i class="fa-solid fa-star"></i>
+                                                </span>
+                                            <?php endif; ?>
+                                        </span>
+                                        <?php if ($meta !== null): ?>
+                                            <span class="attendee-status <?= $meta['class'] ?>" title="<?= htmlspecialchars($meta['label']) ?>">
+                                                <i class="fa-solid <?= $meta['icon'] ?>"></i>
+                                                <span class="attendee-status__label"><?= htmlspecialchars($meta['label']) ?></span>
                                             </span>
                                         <?php endif; ?>
-                                    </span>
-                                    <?php if ($meta !== null): ?>
-                                        <span class="attendee-status <?= $meta['class'] ?>" title="<?= htmlspecialchars($meta['label']) ?>">
-                                            <i class="fa-solid <?= $meta['icon'] ?>"></i>
-                                            <span class="attendee-status__label"><?= htmlspecialchars($meta['label']) ?></span>
-                                        </span>
-                                    <?php endif; ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-            <?php endif; ?>
+                <?php endif; ?>
 
-            <!-- RSVP-Buttons — sichtbar wenn User antworten darf. Form-Submit
-                 funktioniert auch ohne JS (server-redirect zurueck zu /kalender);
-                 calendar.js faengt den Submit fuer's Detail-Modal ab und
-                 macht's per fetch, sodass das Modal offen bleibt. -->
-            <?php if (!empty($canRespond)): ?>
-                <div class="ignis-card mb-4">
-                    <div class="ignis-card__body">
-                        <div class="ignis-field__label mb-2">Deine Antwort</div>
-                        <form method="post"
-                              action="<?= BASE_PATH ?>calendar/respond?id=<?= (int) $event->id ?>"
-                              class="flex gap-2"
-                              data-rsvp-form
-                              data-event-id="<?= (int) $event->id ?>">
-                            <button name="response" value="accepted"
-                                    class="ignis-btn ignis-btn--soft-success ignis-btn--sm <?= $myResponse === 'accepted' ? 'is-active' : '' ?>">
-                                <i class="fa-solid fa-check"></i> Zusagen
-                            </button>
-                            <button name="response" value="tentative"
-                                    class="ignis-btn ignis-btn--soft-warning ignis-btn--sm <?= $myResponse === 'tentative' ? 'is-active' : '' ?>">
-                                <i class="fa-solid fa-question"></i> Vielleicht
-                            </button>
-                            <button name="response" value="declined"
-                                    class="ignis-btn ignis-btn--soft-danger ignis-btn--sm <?= $myResponse === 'declined' ? 'is-active' : '' ?>">
-                                <i class="fa-solid fa-xmark"></i> Absagen
-                            </button>
-                        </form>
+                <!-- RSVP-Buttons — sichtbar wenn User antworten darf. Form-Submit
+                     funktioniert auch ohne JS (server-redirect zurueck zu /calendar);
+                     calendar.js faengt den Submit fuer's Detail-Modal ab und
+                     macht's per fetch, sodass das Modal offen bleibt. -->
+                <?php if (!empty($canRespond)): ?>
+                    <div class="ignis-card mb-4">
+                        <div class="ignis-card__body">
+                            <div class="ignis-field__label mb-2">Deine Antwort</div>
+                            <form method="post"
+                                  action="<?= BASE_PATH ?>calendar/respond?id=<?= (int) $event->id ?>"
+                                  class="flex flex-wrap gap-2"
+                                  data-rsvp-form
+                                  data-event-id="<?= (int) $event->id ?>">
+                                <button name="response" value="accepted"
+                                        class="ignis-btn ignis-btn--soft-success ignis-btn--sm <?= $myResponse === 'accepted' ? 'is-active' : '' ?>">
+                                    <i class="fa-solid fa-check"></i> Zusagen
+                                </button>
+                                <button name="response" value="tentative"
+                                        class="ignis-btn ignis-btn--soft-warning ignis-btn--sm <?= $myResponse === 'tentative' ? 'is-active' : '' ?>">
+                                    <i class="fa-solid fa-question"></i> Vielleicht
+                                </button>
+                                <button name="response" value="declined"
+                                        class="ignis-btn ignis-btn--soft-danger ignis-btn--sm <?= $myResponse === 'declined' ? 'is-active' : '' ?>">
+                                    <i class="fa-solid fa-xmark"></i> Absagen
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            <?php endif; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </div>

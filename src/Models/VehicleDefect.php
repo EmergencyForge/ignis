@@ -29,6 +29,35 @@ class VehicleDefect extends Model
 {
     protected $table = 'intra_fahrzeuge_defects';
 
+    /**
+     * Anzeigenamen der Kategorien (Whitelist in
+     * App\Http\Requests\Vehicles\CreateDefectRequest::ALLOWED_CATEGORIES).
+     */
+    public const CATEGORY_LABELS = [
+        'aufbau_karosserie'      => 'Aufbau / Karosserie',
+        'ausbau'                 => 'Ausbau',
+        'batterie'               => 'Batterie',
+        'beleuchtung'            => 'Beleuchtung',
+        'bremsen'                => 'Bremsen',
+        'elektrik'               => 'Elektrik',
+        'fahrwerk'               => 'Fahrwerk',
+        'getriebe'               => 'Getriebe',
+        'motor'                  => 'Motor',
+        'reifen'                 => 'Reifen',
+        'service_pruefintervall' => 'Service / Prüfintervall',
+        'signalanlage'           => 'Signalanlage',
+        'sonstiges'              => 'Sonstiges',
+        'windschutzscheibe'      => 'Windschutzscheibe',
+    ];
+
+    /** Status => [Anzeigename, Chip-Modifier (ignis-chip--*)], in Lebenslauf-Reihenfolge. */
+    public const STATUS_LABELS = [
+        'open'        => ['Offen', 'danger'],
+        'in_progress' => ['In Bearbeitung', 'warn'],
+        'deferred'    => ['Aufgeschoben', 'info'],
+        'resolved'    => ['Gelöst', 'ok'],
+    ];
+
     protected $casts = [
         'id'         => 'integer',
         'vehicle_id' => 'integer',
