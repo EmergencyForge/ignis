@@ -65,7 +65,7 @@ final class GlobalSearchTest extends FeatureTestCase
         $this->assertSame('Fahrzeuge', $vehicles['label']);
         $this->assertSame('Florian Suchtest 1/83/1', $vehicles['items'][0]['label']);
         $this->assertSame('suchtest_rtw', $vehicles['items'][0]['sub']);
-        $this->assertSame('/settings/vehicles/vehicles/index?q=suchtest_rtw', $vehicles['items'][0]['href']);
+        $this->assertMatchesRegularExpression('~^/settings/vehicles/vehicles/\d+$~', $vehicles['items'][0]['href']);
 
         $people = $this->search('estmann');
         $this->assertSame(['personnel'], array_column($people['results'], 'key'));

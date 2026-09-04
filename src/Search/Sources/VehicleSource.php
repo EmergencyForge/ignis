@@ -55,7 +55,7 @@ final class VehicleSource implements SearchSourceInterface
             $items[] = [
                 'label' => (string) $row->name,
                 'sub'   => implode(' · ', array_filter([(string) $row->identifier, (string) ($row->kennzeichen ?? '')])),
-                'href'  => $base . 'settings/vehicles/vehicles/index?q=' . rawurlencode((string) $row->identifier),
+                'href'  => $base . 'settings/vehicles/vehicles/' . (int) $row->id,
             ];
         }
 

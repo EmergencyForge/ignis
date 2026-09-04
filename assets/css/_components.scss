@@ -755,3 +755,171 @@ table.ignis-table {
     input { vertical-align: middle; }
   }
 }
+
+// =====================================================
+// Detailmuster (Lex L8): Register oder Karten links, Seitenspalte mit
+// Stammdaten und Aktivität rechts (templates/settings/vehicles/vehicles/
+// show.php, templates/partials/activity.php). Unter 1100 px rutscht die
+// Seitenspalte unter den Inhalt.
+// =====================================================
+
+.ignis-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 1rem;
+  align-items: start;
+
+  @media (max-width: 1099px) { grid-template-columns: minmax(0, 1fr); }
+
+  &__main { min-width: 0; }
+
+  &__aside {
+    display: grid;
+    gap: 0.75rem;
+    position: sticky;
+    top: calc(var(--topbar-h) + 1rem);
+
+    @media (max-width: 1099px) { position: static; }
+  }
+
+  &__block {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--surface);
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+
+    h4 {
+      margin: 0 0 0.5rem;
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+  }
+
+  &__dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.35rem 0.75rem;
+    margin: 0;
+
+    dt { color: var(--text-3); }
+    dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  }
+
+  &__muted { margin: 0; color: var(--text-3); }
+
+  // Titel mit Chips: die Chips behalten ihre Größe neben der Überschrift.
+  &__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0;
+
+    .ignis-chip { font-size: var(--fs-xs); }
+  }
+
+  &__groups {
+    display: grid;
+    gap: 1rem;
+  }
+
+  &__group-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text);
+
+    .ignis-detail__muted { font-weight: 400; font-size: var(--fs-xs); }
+  }
+
+  // Taktisches Zeichen: großes SVG neben Name und Feldern, darunter die
+  // JSON-Definition zum Kopieren.
+  &__tz {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3rem;
+    margin-bottom: 1rem;
+    color: var(--text-2);
+  }
+
+  &__tz-svg {
+    display: inline-flex;
+    flex: none;
+    width: 120px;
+    height: 120px;
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+
+    svg { width: 100%; height: 100%; }
+  }
+
+  &__json {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+
+    pre {
+      margin: 0;
+      padding: 0.75rem 0.9rem;
+      overflow-x: auto;
+      color: var(--text-2);
+      font-size: var(--fs-xs);
+      line-height: 1.5;
+    }
+  }
+
+  &__json-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.35rem 0.5rem 0.35rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+.ignis-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &__item {
+    position: relative;
+    padding: 0.15rem 0 0.6rem 0.9rem;
+    border-left: 2px solid var(--fill-3);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0.45rem;
+      left: -5px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-3);
+    }
+
+    &:last-child { padding-bottom: 0; }
+  }
+
+  &__text { display: block; color: var(--text); }
+  &__when { display: block; color: var(--text-3); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
+}
