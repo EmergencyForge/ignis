@@ -13,6 +13,9 @@
  *   $vehicleId (int|null)       - Pre-filled vehicle ID
  *   $fahrerName (string)        - Pre-filled driver name
  *   $vehicles (array)           - Vehicle list for admin dropdown
+ *
+ * Auf dem Tablet (enotf/firetab) bleiben die Felder in voller Größe,
+ * die Verwaltung nimmt die kleine Stufe.
  */
 
 $entry = $entry ?? null;
@@ -24,6 +27,7 @@ $vehicles = $vehicles ?? [];
 
 $isReadonly = in_array($context, ['enotf', 'firetab']);
 $isEdit = $entry !== null;
+$fieldClass = $context === 'admin' ? 'ignis-input ignis-input--sm' : 'ignis-input';
 
 $val = function (string $field, string $default = '') use ($entry) {
     return htmlspecialchars($entry[$field] ?? $default);
@@ -33,35 +37,35 @@ $val = function (string $field, string $default = '') use ($entry) {
 <div class="grid grid-cols-1 gap-3 md:grid-cols-12">
     <!-- Datum -->
     <div class="md:col-span-4">
-        <label for="fb_datum" class="ignis-field__label">Datum <span class="text-[#d46b6b]">*</span></label>
-        <input type="date" class="ignis-input ignis-input--sm" id="fb_datum" name="datum"
+        <label for="fb_datum" class="ignis-field__label">Datum <span class="ignis-field__required">*</span></label>
+        <input type="date" class="<?= $fieldClass ?>" id="fb_datum" name="datum"
                value="<?= $isEdit ? $val('datum') : date('Y-m-d') ?>" required
                data-ignis-datepicker>
     </div>
 
     <!-- Abfahrt -->
     <div class="md:col-span-4">
-        <label for="fb_abfahrt" class="ignis-field__label">Abfahrt <span class="text-[#d46b6b]">*</span></label>
-        <input type="time" class="ignis-input ignis-input--sm" id="fb_abfahrt" name="abfahrt"
+        <label for="fb_abfahrt" class="ignis-field__label">Abfahrt <span class="ignis-field__required">*</span></label>
+        <input type="time" class="<?= $fieldClass ?>" id="fb_abfahrt" name="abfahrt"
                value="<?= $isEdit ? $val('abfahrt') : date('H:i') ?>" required>
     </div>
 
     <!-- Ankunft -->
     <div class="md:col-span-4">
         <label for="fb_ankunft" class="ignis-field__label">Ankunft</label>
-        <input type="time" class="ignis-input ignis-input--sm" id="fb_ankunft" name="ankunft"
+        <input type="time" class="<?= $fieldClass ?>" id="fb_ankunft" name="ankunft"
                value="<?= $val('ankunft') ?>">
     </div>
 
     <!-- Fahrzeug -->
     <div class="md:col-span-6">
-        <label for="fb_fahrzeug" class="ignis-field__label">Fahrzeug <span class="text-[#d46b6b]">*</span></label>
+        <label for="fb_fahrzeug" class="ignis-field__label">Fahrzeug <span class="ignis-field__required">*</span></label>
         <?php if ($isReadonly): ?>
-            <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($vehicleName ?: $vehicleIdentifier) ?>" readonly>
+            <input type="text" class="<?= $fieldClass ?>" value="<?= htmlspecialchars($vehicleName ?: $vehicleIdentifier) ?>" readonly>
             <input type="hidden" name="vehicle_id" value="<?= (int)$vehicleId ?>">
             <input type="hidden" name="vehicle_identifier" value="<?= htmlspecialchars($vehicleIdentifier) ?>">
         <?php else: ?>
-            <select class="form-select form-select-sm" data-custom-dropdown="true" id="fb_fahrzeug" name="vehicle_id" required>
+            <select class="<?= $fieldClass ?>" data-custom-dropdown="true" id="fb_fahrzeug" name="vehicle_id" required>
                 <option value="">Bitte auswählen...</option>
                 <?php foreach ($vehicles as $v): ?>
                     <option value="<?= $v['id'] ?>"
@@ -78,20 +82,20 @@ $val = function (string $field, string $default = '') use ($entry) {
 
     <!-- Fahrer -->
     <div class="md:col-span-6">
-        <label for="fb_fahrer" class="ignis-field__label">Fahrer <span class="text-[#d46b6b]">*</span></label>
+        <label for="fb_fahrer" class="ignis-field__label">Fahrer <span class="ignis-field__required">*</span></label>
         <?php if ($isReadonly): ?>
-            <input type="text" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($fahrerName) ?>" readonly>
+            <input type="text" class="<?= $fieldClass ?>" value="<?= htmlspecialchars($fahrerName) ?>" readonly>
             <input type="hidden" name="fahrer_name" value="<?= htmlspecialchars($fahrerName) ?>">
         <?php else: ?>
-            <input type="text" class="ignis-input ignis-input--sm" id="fb_fahrer" name="fahrer_name"
-                   value="<?= $isEdit ? $val('fahrer_name') : htmlspecialchars($fahrerName) ?>" required>
+            <input type="text" class="<?= $fieldClass ?>" id="fb_fahrer" name="fahrer_name"
+                   value="<?= $isEdit ? $val('fahrer_name') : htmlspecialchars($fahrerName) ?>" placeholder="Vor- und Nachname" required>
         <?php endif; ?>
     </div>
 
     <!-- Fahrttyp -->
     <div class="md:col-span-6">
-        <label for="fb_fahrttyp" class="ignis-field__label">Fahrttyp <span class="text-[#d46b6b]">*</span></label>
-        <select class="form-select form-select-sm" data-custom-dropdown="true" id="fb_fahrttyp" name="fahrttyp" required>
+        <label for="fb_fahrttyp" class="ignis-field__label">Fahrttyp <span class="ignis-field__required">*</span></label>
+        <select class="<?= $fieldClass ?>" data-custom-dropdown="true" id="fb_fahrttyp" name="fahrttyp" required>
             <option value="">Bitte auswählen...</option>
             <?php foreach ($fahrttypen as $slug => $label): ?>
                 <option value="<?= htmlspecialchars($slug) ?>"
@@ -105,21 +109,21 @@ $val = function (string $field, string $default = '') use ($entry) {
     <!-- Kilometer -->
     <div class="md:col-span-6">
         <label for="fb_kilometer" class="ignis-field__label">Kilometer</label>
-        <input type="number" class="ignis-input ignis-input--sm" id="fb_kilometer" name="kilometer"
-               step="0.1" min="0" value="<?= $val('kilometer') ?>">
+        <input type="number" class="<?= $fieldClass ?>" id="fb_kilometer" name="kilometer"
+               step="0.1" min="0" value="<?= $val('kilometer') ?>" placeholder="0,0">
     </div>
 
     <!-- Stationierungsort -->
     <div class="md:col-span-12">
         <label for="fb_stationierungsort" class="ignis-field__label">Stationierungsort</label>
-        <input type="text" class="ignis-input ignis-input--sm" id="fb_stationierungsort" name="stationierungsort"
+        <input type="text" class="<?= $fieldClass ?>" id="fb_stationierungsort" name="stationierungsort"
                value="<?= $val('stationierungsort') ?>" placeholder="z.B. Feuerwehr Gerätehaus">
     </div>
 
     <!-- Grund -->
     <div class="md:col-span-12">
         <label for="fb_grund" class="ignis-field__label">Grund der Fahrt</label>
-        <textarea class="ignis-input ignis-input--sm" id="fb_grund" name="grund" rows="2"
+        <textarea class="<?= $fieldClass ?>" id="fb_grund" name="grund" rows="2"
                   placeholder="Freitext..."><?= $val('grund') ?></textarea>
     </div>
 </div>

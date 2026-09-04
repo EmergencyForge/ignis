@@ -61,6 +61,7 @@ final class ComponentClassTest extends TestCase
         'ignis-mono',
         'ignis-pagination',
         'ignis-list-toolbar',
+        'ignis-list-toolbar__field',
         'ignis-list-footer',
         'ignis-snack',
     ];

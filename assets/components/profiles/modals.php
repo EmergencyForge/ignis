@@ -151,21 +151,24 @@ async function toggleArchiveFromViewer(docid, archive) {
         ->all();
 ?>
 <template id="fdqualiFormTemplate">
-    <table class="table table-striped twplus-table">
+    <table class="ignis-table">
         <thead>
             <tr>
-                <th>Ja/Nein</th>
-                <th colspan="2">Bezeichnung</th>
+                <th scope="col" class="ignis-table__check"><span class="sr-only">Zugewiesen</span></th>
+                <th scope="col">Nr.</th>
+                <th scope="col">Bezeichnung</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($fachdienste as $fd): ?>
                 <tr>
-                    <td>
-                        <input type="checkbox" name="fachdienste[]" value="<?= htmlspecialchars($fd['sgnr']) ?>"
-                            <?php if (in_array($fd['sgnr'], $fdqualis)) echo 'checked'; ?>>
+                    <td class="ignis-table__check">
+                        <label class="ignis-checkbox">
+                            <input type="checkbox" name="fachdienste[]" value="<?= htmlspecialchars($fd['sgnr']) ?>"
+                                <?php if (in_array($fd['sgnr'], $fdqualis)) echo 'checked'; ?> aria-label="<?= htmlspecialchars($fd['sgname']) ?>">
+                        </label>
                     </td>
-                    <td><?= htmlspecialchars($fd['sgnr']) ?></td>
+                    <td class="ignis-mono"><?= htmlspecialchars($fd['sgnr']) ?></td>
                     <td><?= htmlspecialchars($fd['sgname']) ?></td>
                 </tr>
             <?php endforeach; ?>
