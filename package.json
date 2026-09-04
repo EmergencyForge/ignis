@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "vite:build": "vite build --mode tailwind && vite build --mode vendor && vite build --mode vendor-enotf && vite build --mode vendor-chart && vite build --mode styles",
+    "vite:build": "vite build --mode tailwind && vite build --mode vendor && vite build --mode vendor-enotf && vite build --mode vendor-chart && vite build --mode ui && vite build --mode styles",
     "build": "npm run vite:build",
     "preview": "vite preview"
   },
