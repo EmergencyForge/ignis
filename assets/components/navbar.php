@@ -8,7 +8,8 @@
  * 1400 Zeilen CSS und 800 Zeilen JS inline. Das alles wohnt jetzt in der
  * Hülle (templates/layouts/admin.php mit topbar.php und navbar-sidebar.php,
  * Styles in assets/css/_shell.scss, Verhalten in assets/js/ui/shell.js,
- * assets/js/navbar/global-search.js und notifications.js).
+ * assets/js/ui/palette.js, assets/js/ui/drawer-form.js und
+ * assets/js/navbar/notifications.js).
  *
  * Dieser Include bleibt für Seiten, die ihr <html> noch selbst bauen und
  * ihn weiter einbinden — die Admin-Seiten von eNOTF. Sie bekommen
@@ -31,7 +32,8 @@ $navbarSystemNav = str_starts_with($navbarPath, '/settings/system/') && $navbarP
 <?php require __DIR__ . '/navbar-sidebar.php'; ?>
 <?php include __DIR__ . '/global-announcements.php'; ?>
 <script type="module" src="<?= BASE_PATH ?>assets/js/ui/shell.js"></script>
-<script type="module" src="<?= BASE_PATH ?>assets/js/navbar/global-search.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer-form.js"></script>
+<script type="module" src="<?= BASE_PATH ?>assets/js/ui/palette.js"></script>
 <script type="module" src="<?= BASE_PATH ?>assets/js/navbar/notifications.js"></script>
 <?php if ($navbarSystemNav): ?>
     <div class="twplus-page" style="padding-bottom:0;">

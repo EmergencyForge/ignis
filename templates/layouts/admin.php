@@ -42,7 +42,7 @@ $layoutSystemNav = str_starts_with($layoutPath, '/settings/system/') && $layoutP
     <?php require dirname(__DIR__, 2) . '/assets/components/_base/admin/head.php'; ?>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/shell.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/ui/drawer-form.js"></script>
-    <script type="module" src="<?= BASE_PATH ?>assets/js/navbar/global-search.js"></script>
+    <script type="module" src="<?= BASE_PATH ?>assets/js/ui/palette.js"></script>
     <script type="module" src="<?= BASE_PATH ?>assets/js/navbar/notifications.js"></script>
     <?= $layoutHead ?>
 </head>

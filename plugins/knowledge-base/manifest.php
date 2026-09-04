@@ -10,6 +10,7 @@ return [
     'permissions'     => ['kb.view', 'kb.edit', 'kb.archive'],
     'autoload'        => ['Plugin\\KnowledgeBase\\' => 'src/'],
     'policies'        => ['knowledgebase' => 'Plugin\\KnowledgeBase\\Policies\\KnowledgebasePolicy'],
+    'search'          => ['Plugin\\KnowledgeBase\\Search\\LexiconSource'],
     'default_enabled' => true,
     'removable'       => true,
 ];

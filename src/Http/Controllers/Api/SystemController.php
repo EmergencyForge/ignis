@@ -4,13 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api;
 
-use App\Auth\Gate;
 use App\Http\Request;
 use App\Http\Response;
 use App\Logging\Logger;
-use App\Policies\PersonnelPolicy;
-use App\Policies\VehiclePolicy;
-use App\Policies\DocumentPolicy;
+use App\Search\SearchRegistry;
 use App\Utils\AuditLogger;
 use App\Utils\SystemUpdater;
 use Illuminate\Database\Capsule\Manager as Capsule;
@@ -18,7 +15,7 @@ use PDOException;
 
 /**
  * System-Admin-API: Composer-Status, Performance-Metrics, API-Key-Regeneration,
- * User-Theme-Config, globale Suche über alle Module.
+ * User-Theme-Config, globale Suche über alle Module (App\Search).
  *
  * Alle Endpoints erfordern Session-Auth plus je nach Aktion spezifische
  * Permissions. Die Methoden-Kommentare dokumentieren die erforderlichen
@@ -26,6 +23,10 @@ use PDOException;
  */
 final class SystemController
 {
+    public function __construct(private readonly SearchRegistry $search)
+    {
+    }
+
     // ── Composer-Status ───────────────────────────────────────────────
 
     /**
@@ -317,389 +318,29 @@ final class SystemController
     /**
      * GET /api/system/global-search?q=...
      *
-     * Durchsucht Wissensdatenbank, Mitarbeiter, Brandeinsätze, eNOTF,
-     * Dokumente, Templates, Fahrzeuge und Defekte — je nach User-Permission.
+     * Antwort für die Palette (assets/js/ui/palette.js): eine Gruppe je
+     * Quelle, die der Nutzer sehen darf und die etwas gefunden hat, mit
+     * höchstens fünf Treffern. Welche Quellen es gibt, weiß die
+     * App\Search\SearchRegistry: die des Kerns plus die der aktiven Plugins
+     * aus deren Manifest. Unter zwei Zeichen kommt nichts.
+     *
+     *     { "q": "must", "results": [
+     *         { "key": "personnel", "label": "Mitarbeiter",
+     *           "items": [ { "label": "Max Mustermann", "sub": "Dienstnr. RD-01", "href": "/personnel/profile?id=3" } ] }
+     *     ] }
      */
     public function globalSearch(Request $request): Response
     {
         $query = trim((string) ($request->query['q'] ?? ''));
-        if (mb_strlen($query) < 2) {
-            return Response::json(['results' => []]);
-        }
-
-        $searchParam = '%' . ignis_like_prefix($query) . '%';
-        $results     = [];
 
         try {
-            // Wissensdatenbank
-            $kbResults = $this->searchKnowledgeBase($query, $searchParam);
-            if (!empty($kbResults)) {
-                $results[] = ['module' => 'Wissensdatenbank', 'icon' => 'fa-book-medical', 'items' => $kbResults];
-            }
-
-            if (PersonnelPolicy::viewList()) {
-                $items = $this->searchMitarbeiter($searchParam);
-                if (!empty($items)) {
-                    $results[] = ['module' => 'Mitarbeiter', 'icon' => 'fa-users', 'items' => $items];
-                }
-            }
-
-            if (app(\App\Plugins\PluginLoader::class)->isActive('firetab') && \Plugin\Firetab\Policies\FireIncidentPolicy::manageQm()) {
-                $items = $this->searchFireIncidents($searchParam);
-                if (!empty($items)) {
-                    $results[] = ['module' => 'Brandeinsätze', 'icon' => 'fa-fire', 'items' => $items];
-                }
-            }
-
-            if (app(\App\Plugins\PluginLoader::class)->isActive('enotf') && Gate::allows('enotf.viewAdminList')) {
-                $items = $this->searchEnotf($searchParam);
-                if (!empty($items)) {
-                    $results[] = ['module' => 'eNOTF Protokolle', 'icon' => 'fa-file-medical', 'items' => $items];
-                }
-            }
-
-            if (PersonnelPolicy::viewList()) {
-                $items = $this->searchDocuments($searchParam);
-                if (!empty($items)) {
-                    $results[] = ['module' => 'Dokumente', 'icon' => 'fa-file-lines', 'items' => $items];
-                }
-            }
-
-            if (DocumentPolicy::resetTemplate()) {
-                $items = $this->searchTemplates($searchParam);
-                if (!empty($items)) {
-                    $results[] = ['module' => 'Dokumentvorlagen', 'icon' => 'fa-file-contract', 'items' => $items];
-                }
-            }
-
-            if (VehiclePolicy::view()) {
-                $items = $this->searchVehicles($searchParam);
-                if (!empty($items)) {
-                    $results[] = ['module' => 'Fahrzeuge', 'icon' => 'fa-truck', 'items' => $items];
-                }
-                $items = $this->searchDefects($searchParam);
-                if (!empty($items)) {
-                    $results[] = ['module' => 'Defekt-Meldungen', 'icon' => 'fa-triangle-exclamation', 'items' => $items];
-                }
-            }
-
-            return Response::json(['results' => $results]);
+            return Response::json([
+                'q'       => $query,
+                'results' => $this->search->run($query),
+            ]);
         } catch (\Throwable $e) {
             Logger::error('System: global-search Fehler', ['error' => $e->getMessage(), 'query' => $query]);
             return Response::json(['error' => 'Datenbankfehler'], 500);
         }
-    }
-
-    // ── Private Search-Helper (aus dem alten global-search.php übernommen) ──
-
-    /**
-     * @return list<array{title: string, subtitle: string, url: string}>
-     */
-    private function searchKnowledgeBase(string $query, string $searchParam): array
-    {
-        // Kein Wissensdatenbank-Plugin, keine Treffer — sonst würde die
-        // globale Suche auf Seiten verlinken, deren Routen nicht existieren.
-        if (!app(\App\Plugins\PluginLoader::class)->isActive('knowledge-base')) {
-            return [];
-        }
-
-        $ftQuery = '';
-        $words = preg_split('/\s+/', trim($query)) ?: [];
-        foreach ($words as $w) {
-            $w = trim($w);
-            if (mb_strlen($w) >= 2) {
-                $w = preg_replace('/[+\-><()~*"@]+/', '', $w);
-                if ($w !== '') {
-                    $ftQuery .= '+' . $w . '* ';
-                }
-            }
-        }
-        $ftQuery = trim($ftQuery);
-
-        if ($ftQuery !== '') {
-            $rows = Capsule::table('intra_kb_entries as kb')
-                ->select('kb.id', 'kb.title', 'kb.subtitle', 'kb.content')
-                ->where('kb.is_archived', 0)
-                ->where(function ($q) use ($ftQuery, $searchParam) {
-                    $q->whereRaw('MATCH(kb.title, kb.subtitle, kb.content) AGAINST(? IN BOOLEAN MODE)', [$ftQuery])
-                        ->orWhere('kb.title', 'LIKE', $searchParam);
-                })
-                ->orderByRaw('MATCH(kb.title, kb.subtitle, kb.content) AGAINST(? IN BOOLEAN MODE) DESC, kb.title ASC', [$ftQuery])
-                ->limit(5)
-                ->get();
-        } else {
-            $rows = Capsule::table('intra_kb_entries as kb')
-                ->select('kb.id', 'kb.title', 'kb.subtitle', 'kb.content')
-                ->where('kb.is_archived', 0)
-                ->where('kb.title', 'LIKE', $searchParam)
-                ->orderBy('kb.title')
-                ->limit(5)
-                ->get();
-        }
-
-        $items = [];
-        foreach ($rows->map(fn ($row) => (array) $row)->all() as $row) {
-            $snippet = \Plugin\KnowledgeBase\KBHelper::createSearchSnippet($row['content'], $query, 100);
-            $items[] = [
-                'title'    => $row['title'],
-                'subtitle' => $snippet ?? ($row['subtitle'] ?: ''),
-                'url'      => 'lexicon/entry.php?id=' . $row['id'],
-            ];
-        }
-        return $items;
-    }
-
-    /**
-     * @return list<array<string,mixed>>
-     */
-    private function searchMitarbeiter(string $searchParam): array
-    {
-        $rows = Capsule::table('intra_mitarbeiter')
-            ->select(['id', 'fullname', 'dienstnr'])
-            ->where('fullname', 'LIKE', $searchParam)
-            ->orWhere('dienstnr', 'LIKE', $searchParam)
-            ->orderBy('fullname')
-            ->limit(5)
-            ->get();
-        $items = [];
-        foreach ($rows->map(fn ($row) => (array) $row)->all() as $row) {
-            $items[] = [
-                'title'    => $row['fullname'],
-                'subtitle' => $row['dienstnr'] ? 'DNr: ' . $row['dienstnr'] : '',
-                'url'      => 'mitarbeiter/profile?id=' . $row['id'],
-            ];
-        }
-        return $items;
-    }
-
-    /**
-     * @return list<array<string,mixed>>
-     */
-    private function searchFireIncidents(string $searchParam): array
-    {
-        try {
-            $rows = Capsule::table('intra_fire_incidents')
-                ->select(['id', 'incident_number', 'location', 'keyword', 'started_at'])
-                ->where('incident_number', 'LIKE', $searchParam)
-                ->orWhere('location', 'LIKE', $searchParam)
-                ->orWhere('keyword', 'LIKE', $searchParam)
-                ->orderByDesc('started_at')
-                ->limit(5)
-                ->get()
-                ->map(fn ($row) => (array) $row)
-                ->all();
-        } catch (PDOException) {
-            return [];
-        }
-
-        $items = [];
-        foreach ($rows as $row) {
-            $subtitle = $row['keyword'] ?: $row['location'] ?: '';
-            if ($row['started_at']) {
-                $subtitle .= ($subtitle ? ' — ' : '') . date('d.m.Y', strtotime($row['started_at']));
-            }
-            $items[] = [
-                'title'    => $row['incident_number'],
-                'subtitle' => $subtitle,
-                'url'      => 'einsatz/admin/view.php?id=' . $row['id'],
-            ];
-        }
-        return $items;
-    }
-
-    /**
-     * @return list<array<string,mixed>>
-     */
-    private function searchEnotf(string $searchParam): array
-    {
-        $rows = Capsule::table('intra_edivi')
-            ->select(['id', 'enr', 'patname', 'diagnose', 'edatum'])
-            ->where('enr', 'LIKE', $searchParam)
-            ->orWhere('patname', 'LIKE', $searchParam)
-            ->orWhere('diagnose', 'LIKE', $searchParam)
-            ->orderByDesc('edatum')
-            ->limit(5)
-            ->get();
-
-        $items = [];
-        foreach ($rows->map(fn ($row) => (array) $row)->all() as $row) {
-            $subtitle = $row['patname'] ?: '';
-            if ($row['edatum']) {
-                $subtitle .= ($subtitle ? ' — ' : '') . date('d.m.Y', strtotime($row['edatum']));
-            }
-            $items[] = [
-                'title'    => 'Protokoll ' . $row['enr'],
-                'subtitle' => $subtitle,
-                'url'      => 'enotf/admin/view.php?id=' . $row['id'],
-            ];
-        }
-        return $items;
-    }
-
-    /**
-     * @return list<array<string,mixed>>
-     */
-    private function searchDocuments(string $searchParam): array
-    {
-        $documentQuery = fn (bool $withArchiveFilter) => Capsule::table('intra_mitarbeiter_dokumente as d')
-            ->leftJoin('intra_dokument_templates as t', 'd.template_id', '=', 't.id')
-            ->select(
-                'd.id', 'd.docid', 'd.erhalter', 'd.ausstellungsdatum', 'd.profileid',
-                'd.aussteller_name', 't.name as template_name'
-            )
-            ->where(function ($q) use ($searchParam) {
-                $q->where('d.erhalter', 'LIKE', $searchParam)
-                    ->orWhere('d.docid', 'LIKE', $searchParam)
-                    ->orWhere('t.name', 'LIKE', $searchParam)
-                    ->orWhere('d.aussteller_name', 'LIKE', $searchParam);
-            })
-            ->when($withArchiveFilter, fn ($q) => $q->whereRaw('IFNULL(d.is_archived, 0) = 0'))
-            ->orderByDesc('d.timestamp')
-            ->limit(8);
-
-        try {
-            $rows = $documentQuery(true)->get();
-        } catch (PDOException) {
-            $rows = $documentQuery(false)->get();
-        }
-
-        $items = [];
-        foreach ($rows->map(fn ($row) => (array) $row)->all() as $row) {
-            $title    = $row['erhalter'] ?: 'Dokument #' . $row['docid'];
-            $subtitle = $row['template_name'] ?: '';
-            if ($row['ausstellungsdatum']) {
-                $subtitle .= ($subtitle ? ' — ' : '') . date('d.m.Y', strtotime($row['ausstellungsdatum']));
-            }
-            $items[] = [
-                'title'    => $title,
-                'subtitle' => $subtitle,
-                'url'      => 'mitarbeiter/dokument-view.php?docid=' . $row['docid'],
-            ];
-        }
-        return $items;
-    }
-
-    /**
-     * @return list<array<string,mixed>>
-     */
-    private function searchTemplates(string $searchParam): array
-    {
-        try {
-            $rows = Capsule::table('intra_dokument_templates')
-                ->select(['id', 'name', 'category', 'description'])
-                ->where('name', 'LIKE', $searchParam)
-                ->orWhere('description', 'LIKE', $searchParam)
-                ->orderBy('name')
-                ->limit(5)
-                ->get()
-                ->map(fn ($row) => (array) $row)
-                ->all();
-        } catch (PDOException) {
-            return [];
-        }
-
-        $categoryLabels = [
-            'urkunde'    => 'Urkunde',
-            'zertifikat' => 'Zertifikat',
-            'schreiben'  => 'Schreiben',
-            'sonstiges'  => 'Sonstiges',
-        ];
-
-        $items = [];
-        foreach ($rows as $row) {
-            $subtitle = $categoryLabels[$row['category']] ?? $row['category'] ?? '';
-            if ($row['description']) {
-                $subtitle .= ($subtitle ? ' — ' : '') . mb_substr($row['description'], 0, 60);
-            }
-            $items[] = [
-                'title'    => $row['name'],
-                'subtitle' => $subtitle,
-                'url'      => 'settings/documents/templates.php',
-            ];
-        }
-        return $items;
-    }
-
-    /**
-     * @return list<array<string,mixed>>
-     */
-    private function searchVehicles(string $searchParam): array
-    {
-        try {
-            $rows = Capsule::table('intra_fahrzeuge')
-                ->select(['id', 'identifier', 'name', 'kennzeichen'])
-                ->where('identifier', 'LIKE', $searchParam)
-                ->orWhere('name', 'LIKE', $searchParam)
-                ->orWhere('kennzeichen', 'LIKE', $searchParam)
-                ->orderBy('identifier')
-                ->limit(5)
-                ->get()
-                ->map(fn ($row) => (array) $row)
-                ->all();
-        } catch (PDOException) {
-            return [];
-        }
-
-        $items = [];
-        foreach ($rows as $row) {
-            $subtitle = $row['name'] ?: '';
-            if ($row['kennzeichen']) {
-                $subtitle .= ($subtitle ? ' — ' : '') . $row['kennzeichen'];
-            }
-            $items[] = [
-                'title'    => $row['identifier'],
-                'subtitle' => $subtitle,
-                'url'      => 'settings/vehicles/vehicles/index.php',
-            ];
-        }
-        return $items;
-    }
-
-    /**
-     * @return list<array<string,mixed>>
-     */
-    private function searchDefects(string $searchParam): array
-    {
-        $statusLabels = [
-            'open'        => 'Offen',
-            'in_progress' => 'In Bearbeitung',
-            'deferred'    => 'Aufgeschoben',
-            'resolved'    => 'Gelöst',
-        ];
-
-        try {
-            $rows = Capsule::table('intra_fahrzeuge_defects as d')
-                ->join('intra_fahrzeuge as f', 'd.vehicle_id', '=', 'f.id')
-                ->select(
-                    'd.id', 'd.title', 'd.description', 'd.status', 'd.created_at',
-                    'f.name as vehicle_name', 'f.identifier as vehicle_identifier'
-                )
-                ->where('d.title', 'LIKE', $searchParam)
-                ->orWhere('d.description', 'LIKE', $searchParam)
-                ->orWhere('f.name', 'LIKE', $searchParam)
-                ->orWhere('f.identifier', 'LIKE', $searchParam)
-                ->orderByDesc('d.created_at')
-                ->limit(5)
-                ->get()
-                ->map(fn ($row) => (array) $row)
-                ->all();
-        } catch (PDOException) {
-            return [];
-        }
-
-        $items = [];
-        foreach ($rows as $row) {
-            $status   = $statusLabels[$row['status']] ?? $row['status'];
-            $subtitle = $row['vehicle_name'] . ' (' . $row['vehicle_identifier'] . ') — ' . $status;
-            if ($row['created_at']) {
-                $subtitle .= ' — ' . date('d.m.Y', strtotime($row['created_at']));
-            }
-            $items[] = [
-                'title'    => $row['title'],
-                'subtitle' => $subtitle,
-                'url'      => 'settings/vehicles/defects/index.php',
-            ];
-        }
-        return $items;
     }
 }
