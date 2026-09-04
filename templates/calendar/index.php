@@ -1,6 +1,10 @@
 <?php
 /**
- * View: Kalender-Hauptseite mit FullCalendar-Mount + Sidebar.
+ * View: Kalender-Hauptseite mit FullCalendar-Mount.
+ *
+ * Seitenkopf wie die übrigen Seiten (Brotkrumen, Titel, Aktionen rechts);
+ * die Kategorie-Filter sind Schalter-Chips (ignis-chip--toggle) über dem
+ * Kalender, calendar.js liest die Kästchen darin (.filter-category).
  *
  * @var \Illuminate\Support\Collection<int,\App\Models\Mitarbeiter> $mitarbeiter
  * @var array<int,array<string,mixed>>                              $roles
@@ -27,14 +31,21 @@ $bodyId = 'kalender';
                     <span class="ignis-breadcrumb__item is-active">Kalender</span>
                 </nav>
 
-                <div class="page-header twplus-page-header mb-3">
+                <div class="page-header twplus-page-header mb-4">
                     <div class="twplus-page-header__copy">
                         <p class="twplus-page-header__eyebrow">Organisation</p>
                         <h1>Kalender</h1>
                         <p class="twplus-page-header__description">Termine, Abwesenheiten und Einladungen in einer gemeinsamen Ansicht.</p>
                     </div>
+                    <div class="header-actions twplus-page-header__actions">
+                        <button type="button" class="ignis-btn ignis-btn--secondary" id="btn-subscribe" title="Diesen Kalender abonnieren">
+                            <i class="fa-solid fa-rss"></i> Abonnieren
+                        </button>
+                        <a href="<?= BASE_PATH ?>calendar/create" class="ignis-btn ignis-btn--primary" id="btn-new-event" data-ignis-drawer>
+                            <i class="fa-solid fa-plus"></i> Neuer Termin
+                        </a>
+                    </div>
                 </div>
-
 
                 <?php if (isset($absentToday) && $absentToday->isNotEmpty()): ?>
                     <div class="calendar-absence-strip mb-3">
@@ -47,29 +58,15 @@ $bodyId = 'kalender';
                     </div>
                 <?php endif; ?>
 
-                <!--
-                    Toolbar: Filter-Chips (links) + Neuer-Termin-Button (rechts).
-                    Liegt direkt ueber dem FullCalendar-Mount, sodass der Kalender
-                    die volle Breite kriegt — der frueher rechts angedockte Sidebar-
-                    Block hat den Raum zu schlecht ausgenutzt.
-                -->
-                <div class="calendar-toolbar twplus-toolbar mb-3">
+                <div class="calendar-toolbar mb-3">
                     <div class="calendar-toolbar__filters" role="group" aria-label="Kategorien filtern">
                         <span class="calendar-toolbar__label">Kategorien:</span>
                         <?php foreach ($categories as $key => $label): ?>
-                            <label class="calendar-filter-chip is-active" data-category-chip="<?= htmlspecialchars($key) ?>">
+                            <label class="ignis-chip ignis-chip--toggle is-active" data-category-chip="<?= htmlspecialchars($key) ?>">
                                 <input type="checkbox" class="filter-category" data-category="<?= htmlspecialchars($key) ?>" checked hidden>
                                 <?= htmlspecialchars($label) ?>
                             </label>
                         <?php endforeach; ?>
-                    </div>
-                    <div class="calendar-toolbar__actions">
-                        <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm" id="btn-subscribe" title="Diesen Kalender abonnieren">
-                            <i class="fa-solid fa-rss"></i> Abonnieren
-                        </button>
-                        <a href="<?= BASE_PATH ?>calendar/create" class="ignis-btn ignis-btn--primary ignis-btn--sm" id="btn-new-event" data-ignis-drawer>
-                            <i class="fa-solid fa-plus"></i> Neuer Termin
-                        </a>
                     </div>
                 </div>
 

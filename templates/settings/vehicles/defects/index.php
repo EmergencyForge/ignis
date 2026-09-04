@@ -1,6 +1,11 @@
 <?php
 /**
  * View: Defekt-Meldungen-Verwaltung
+ *
+ * Seitenkopf wie die übrigen Listen (Brotkrumen, Titel, Aktionen rechts),
+ * Filter als Werkzeugleiste (Fahrzeug als Auswahl, Status als Links), die
+ * Meldungen als Stapel mit Anker je Mangel (#defect-ID, Ziel der Links aus
+ * Vorschau und Fahrzeugseite). Die Abfragen liegen weiter hier im Template.
  */
 
 use App\Auth\Permissions;
@@ -24,23 +29,7 @@ $users = Capsule::table('intra_users as u')
     ->map(fn ($row) => (array) $row)
     ->all();
 
-// Kategorien
-$categoryLabels = [
-    'aufbau_karosserie' => 'Aufbau / Karosserie',
-    'ausbau' => 'Ausbau',
-    'batterie' => 'Batterie',
-    'beleuchtung' => 'Beleuchtung',
-    'bremsen' => 'Bremsen',
-    'elektrik' => 'Elektrik',
-    'fahrwerk' => 'Fahrwerk',
-    'getriebe' => 'Getriebe',
-    'motor' => 'Motor',
-    'reifen' => 'Reifen',
-    'service_pruefintervall' => 'Service / Prüfintervall',
-    'signalanlage' => 'Signalanlage',
-    'sonstiges' => 'Sonstiges',
-    'windschutzscheibe' => 'Windschutzscheibe'
-];
+$categoryLabels = \App\Models\VehicleDefect::CATEGORY_LABELS;
 
 // Tabelle prüfen & Statistiken laden
 $tableExists = true;
@@ -48,6 +37,9 @@ $stats = ['total' => 0, 'open_count' => 0, 'in_progress_count' => 0, 'deferred_c
 $defects = [];
 $filterVehicle = isset($_GET['vehicle']) ? (int)$_GET['vehicle'] : 0;
 $filterStatus = $_GET['status'] ?? '';
+if (!in_array($filterStatus, ['open', 'in_progress', 'deferred', 'resolved'], true)) {
+    $filterStatus = '';
+}
 
 try {
     $stats = (array) Capsule::table('intra_fahrzeuge_defects')
@@ -105,7 +97,7 @@ if ($tableExists) {
     if ($filterVehicle) {
         $query->where('d.vehicle_id', $filterVehicle);
     }
-    if ($filterStatus && in_array($filterStatus, ['open', 'in_progress', 'deferred', 'resolved'])) {
+    if ($filterStatus !== '') {
         $query->where('d.status', $filterStatus);
     }
 
@@ -118,12 +110,21 @@ if ($tableExists) {
         ->all();
 }
 
-$statusLabels = [
-    'open' => ['Offen', 'danger'],
-    'in_progress' => ['In Bearbeitung', 'warning'],
-    'deferred' => ['Aufgeschoben', 'primary'],
-    'resolved' => ['Gelöst', 'success']
-];
+$statusLabels = \App\Models\VehicleDefect::STATUS_LABELS;
+
+// URL der Liste mit geänderten Filtern (null entfernt den Parameter).
+$listUrl = static function (array $overrides = []) use ($filterVehicle, $filterStatus): string {
+    $params = array_filter(['vehicle' => $filterVehicle > 0 ? $filterVehicle : null, 'status' => $filterStatus !== '' ? $filterStatus : null] + [], static fn ($v) => $v !== null);
+    foreach ($overrides as $key => $value) {
+        if ($value === null || $value === '') {
+            unset($params[$key]);
+        } else {
+            $params[$key] = $value;
+        }
+    }
+
+    return BASE_PATH . 'settings/vehicles/defects/index' . ($params === [] ? '' : '?' . http_build_query($params));
+};
 
 $layout = 'admin';
 $bodyId = 'fahrzeuge';
@@ -141,6 +142,9 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                             <p class="twplus-page-header__description">Einsatzfähigkeit, Bearbeitungsstand und Lösungen aller Fahrzeugmängel.</p>
                         </div>
                         <div class="header-actions twplus-page-header__actions">
+                            <a href="<?= BASE_PATH ?>settings/vehicles/vehicles/index" class="ignis-btn ignis-btn--secondary">
+                                <i class="fa-solid fa-truck"></i> Fahrzeuge
+                            </a>
                             <a href="<?= BASE_PATH ?>settings/vehicles/defects/create<?= $filterVehicle > 0 ? '?vehicle=' . $filterVehicle : '' ?>" class="ignis-btn ignis-btn--primary" data-ignis-drawer>
                                 <i class="fa-solid fa-plus"></i> Mangel melden
                             </a>
@@ -149,7 +153,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
 
 
                     <?php if (!$tableExists): ?>
-                        <div class="ignis-alert ignis-alert--warning">
+                        <div class="ignis-alert ignis-alert--warn">
                             <i class="fa-solid fa-database"></i> Die Tabelle <code>intra_fahrzeuge_defects</code> existiert noch nicht.
                             Lade die Seite neu — die Datenbank wird automatisch migriert. Falls das Problem bestehen bleibt, führe auf der Konsole <code>composer db:migrate</code> aus.
                         </div>
@@ -159,70 +163,60 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                     <dl class="twplus-stats twplus-stats--five" aria-label="Defektstatistik">
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Offen</dt>
-                            <dd class="twplus-stats__value text-[#d46b6b]"><?= (int)$stats['open_count'] ?></dd>
+                            <dd class="twplus-stats__value text-[var(--danger)]"><?= (int)$stats['open_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">In Bearbeitung</dt>
-                            <dd class="twplus-stats__value text-[#ddb84a]"><?= (int)$stats['in_progress_count'] ?></dd>
+                            <dd class="twplus-stats__value text-[var(--warn)]"><?= (int)$stats['in_progress_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Aufgeschoben</dt>
-                            <dd class="twplus-stats__value text-[#7ba3d4]"><?= (int)$stats['deferred_count'] ?></dd>
+                            <dd class="twplus-stats__value text-[var(--info)]"><?= (int)$stats['deferred_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Gelöst</dt>
-                            <dd class="twplus-stats__value text-[#6abf76]"><?= (int)$stats['resolved_count'] ?></dd>
+                            <dd class="twplus-stats__value text-[var(--ok)]"><?= (int)$stats['resolved_count'] ?></dd>
                         </div>
                         <div class="twplus-stats__item">
                             <dt class="twplus-stats__label">Nicht einsatzfähig</dt>
-                            <dd class="twplus-stats__value" style="color:#ff4444;"><?= (int)$stats['not_operable_open'] ?></dd>
+                            <dd class="twplus-stats__value text-[var(--danger)]"><?= (int)$stats['not_operable_open'] ?></dd>
                         </div>
                     </dl>
 
-                    <!-- Filter -->
-                    <div class="twplus-toolbar mb-4">
-                        <form method="GET" class="flex flex-wrap items-end gap-2">
-                            <div>
-                                <label class="ignis-field__label mb-1">Fahrzeug</label>
-                                <select name="vehicle" class="ignis-input ignis-input--sm" data-custom-dropdown="true">
-                                    <option value="">Alle</option>
-                                    <?php foreach ($vehicles as $v): ?>
-                                        <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($v['name']) ?> (<?= htmlspecialchars($v['veh_type']) ?>)
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="ignis-field__label mb-1">Status</label>
-                                <select name="status" class="ignis-input ignis-input--sm" data-custom-dropdown="true">
-                                    <option value="">Alle</option>
-                                    <option value="open" <?= $filterStatus === 'open' ? 'selected' : '' ?>>Offen</option>
-                                    <option value="in_progress" <?= $filterStatus === 'in_progress' ? 'selected' : '' ?>>In Bearbeitung</option>
-                                    <option value="deferred" <?= $filterStatus === 'deferred' ? 'selected' : '' ?>>Aufgeschoben</option>
-                                    <option value="resolved" <?= $filterStatus === 'resolved' ? 'selected' : '' ?>>Gelöst</option>
-                                </select>
-                            </div>
-                            <div class="flex gap-2">
-                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
-                                <a href="?" class="ignis-btn ignis-btn--sm ignis-btn--ghost no-underline hover:no-underline">Zurücksetzen</a>
-                            </div>
-                        </form>
-                    </div>
+                    <!-- Filter: Fahrzeug als Auswahl (GET), Status als Links, Suche lokal im Browser -->
+                    <form method="GET" action="<?= BASE_PATH ?>settings/vehicles/defects/index" class="ignis-list-toolbar" role="search">
+                        <?php if ($filterStatus !== ''): ?>
+                            <input type="hidden" name="status" value="<?= htmlspecialchars($filterStatus) ?>">
+                        <?php endif; ?>
+                        <label class="ignis-list-toolbar__search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="search" id="defectLocalSearch" class="ignis-input" placeholder="Titel, Fahrzeug, Kategorie, Melder" aria-label="Defekte durchsuchen"<?= empty($defects) ? ' disabled' : '' ?>>
+                        </label>
+                        <label for="defectVehicleFilter" class="sr-only">Fahrzeug</label>
+                        <select name="vehicle" id="defectVehicleFilter" class="ignis-input ignis-input--sm" data-custom-dropdown="true" style="width:auto;max-width:18rem;">
+                            <option value="">Alle Fahrzeuge</option>
+                            <?php foreach ($vehicles as $v): ?>
+                                <option value="<?= $v['id'] ?>" <?= $filterVehicle == $v['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($v['name']) ?> (<?= htmlspecialchars($v['veh_type']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm">Filtern</button>
+                        <?php if ($filterVehicle > 0): ?>
+                            <a href="<?= htmlspecialchars($listUrl(['vehicle' => null])) ?>" class="ignis-btn ignis-btn--ghost ignis-btn--sm">Zurücksetzen</a>
+                        <?php endif; ?>
+                        <span class="ignis-list-toolbar__spacer"></span>
+                        <nav class="ignis-filter-links" aria-label="Status">
+                            <?php foreach (['' => 'Alle'] + array_map(static fn (array $s): string => $s[0], $statusLabels) as $statusKey => $statusLabel): ?>
+                                <a href="<?= htmlspecialchars($listUrl(['status' => $statusKey === '' ? null : $statusKey])) ?>"<?= $filterStatus === $statusKey ? ' class="is-active" aria-current="true"' : '' ?>><?= htmlspecialchars($statusLabel) ?></a>
+                            <?php endforeach; ?>
+                        </nav>
+                    </form>
 
                     <!-- Defekt-Liste -->
                     <div class="twplus-stacked-list">
-                        <?php if (!empty($defects)): ?>
-                            <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
-                                <div class="ignis-input-group">
-                                    <i class="fa-solid fa-search ignis-input-group__icon" aria-hidden="true"></i>
-                                    <input type="text" id="defectLocalSearch" class="ignis-input ignis-input--sm" placeholder="Defekte durchsuchen (Titel, Fahrzeug, Kategorie, Melder...)">
-                                </div>
-                            </div>
-                        <?php endif; ?>
-                        <div id="defectNoResults" class="p-4 text-center text-gray-400" style="display:none;">
-                            <i class="fa-solid fa-search fa-2x mb-2" style="opacity:0.4;"></i>
-                            <div>Keine Treffer</div>
+                        <div id="defectNoResults" class="ignis-table-empty" hidden>
+                            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Keine Treffer
                         </div>
                         <?php if (empty($defects)): ?>
                             <div class="twplus-empty">
@@ -232,20 +226,20 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                             </div>
                         <?php else: ?>
                             <?php foreach ($defects as $d):
-                                $stat = $statusLabels[$d['status']] ?? ['?', 'secondary'];
+                                [$statLabel, $statChip] = $statusLabels[$d['status']] ?? ['?', 'secondary'];
                                 $isResolved = $d['status'] === 'resolved';
                                 $catLabel = $categoryLabels[$d['category']] ?? $d['category'];
                                 $operable = (int)$d['vehicle_operable'];
                             ?>
-                                <div class="defect-item <?= $isResolved ? 'defect-resolved' : '' ?>" data-id="<?= $d['id'] ?>" data-search="<?= htmlspecialchars(mb_strtolower($d['title'] . ' ' . $d['vehicle_name'] . ' ' . $d['vehicle_identifier'] . ' ' . ($d['kennzeichen'] ?? '') . ' ' . $catLabel . ' ' . ($d['reporter_name'] ?? '') . ' ' . ($d['description'] ?? '') . ' ' . ($d['resolution_note'] ?? ''))) ?>" style="cursor:pointer;">
+                                <div class="defect-item <?= $isResolved ? 'defect-resolved' : '' ?>" id="defect-<?= (int) $d['id'] ?>" data-id="<?= $d['id'] ?>" data-search="<?= htmlspecialchars(mb_strtolower($d['title'] . ' ' . $d['vehicle_name'] . ' ' . $d['vehicle_identifier'] . ' ' . ($d['kennzeichen'] ?? '') . ' ' . $catLabel . ' ' . ($d['reporter_name'] ?? '') . ' ' . ($d['description'] ?? '') . ' ' . ($d['resolution_note'] ?? ''))) ?>">
                                     <div class="defect-operable-bar <?= $operable ? 'operable-yes' : 'operable-no' ?>"></div>
                                     <div class="defect-body">
                                         <div class="defect-header">
                                             <div class="defect-title-row">
-                                                <h5 class="defect-title mb-0"><?= htmlspecialchars($d['title']) ?></h5>
+                                                <h3 class="defect-title mb-0"><?= htmlspecialchars($d['title']) ?></h3>
                                                 <div class="defect-badges">
-                                                    <span class="ignis-chip"><?= htmlspecialchars($catLabel) ?></span>
-                                                    <span class="ignis-chip ignis-chip--<?= $stat[1] ?>"><?= $stat[0] ?></span>
+                                                    <span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($catLabel) ?></span>
+                                                    <span class="ignis-chip ignis-chip--dot ignis-chip--<?= $statChip ?>"><?= htmlspecialchars($statLabel) ?></span>
                                                     <?php if (!$operable): ?>
                                                         <span class="ignis-chip ignis-chip--danger"><i class="fa-solid fa-ban"></i> Nicht einsatzfähig</span>
                                                     <?php endif; ?>
@@ -253,10 +247,10 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                                             </div>
                                             <div class="defect-vehicle">
                                                 <i class="fa-solid fa-truck"></i>
-                                                <span data-vehicle-card="<?= (int) $d['vehicle_id'] ?>" style="cursor:help;">
+                                                <a href="<?= BASE_PATH ?>settings/vehicles/vehicles/<?= (int) $d['vehicle_id'] ?>" data-vehicle-card="<?= (int) $d['vehicle_id'] ?>">
                                                     <?= htmlspecialchars($d['vehicle_name']) ?>
-                                                    <span class="text-gray-400">(<?= htmlspecialchars($d['vehicle_identifier']) ?>)</span>
-                                                </span>
+                                                    <span class="ignis-preview__muted">(<?= htmlspecialchars($d['vehicle_identifier']) ?>)</span>
+                                                </a>
                                             </div>
                                         </div>
                                         <?php if ($d['description']): ?>
@@ -283,28 +277,28 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                                         <?php if ($canManage && !$isResolved): ?>
                                             <div class="defect-actions mt-2">
                                                 <?php if ($d['status'] === 'open' || $d['status'] === 'deferred'): ?>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-warning defect-status-btn"
+                                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost defect-status-btn"
                                                             data-id="<?= $d['id'] ?>"
                                                             data-title="<?= htmlspecialchars($d['title']) ?>"
                                                             data-status="in_progress"
                                                             data-label="In Bearbeitung"
-                                                            data-btn-class="ignis-btn--warning"
+                                                            data-variant="warning"
                                                             title="In Bearbeitung setzen">
                                                         <i class="fa-solid fa-wrench"></i> In Bearbeitung
                                                     </button>
                                                 <?php endif; ?>
                                                 <?php if ($d['status'] === 'open' || $d['status'] === 'in_progress'): ?>
-                                                    <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary defect-status-btn"
+                                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost defect-status-btn"
                                                             data-id="<?= $d['id'] ?>"
                                                             data-title="<?= htmlspecialchars($d['title']) ?>"
                                                             data-status="deferred"
                                                             data-label="Aufgeschoben"
-                                                            data-btn-class="ignis-btn--primary"
+                                                            data-variant="primary"
                                                             title="Aufgeschoben">
                                                         <i class="fa-solid fa-clock"></i> Aufschieben
                                                     </button>
                                                 <?php endif; ?>
-                                                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-success defect-resolve-btn"
+                                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary defect-resolve-btn"
                                                         data-id="<?= $d['id'] ?>"
                                                         data-title="<?= htmlspecialchars($d['title']) ?>"
                                                         title="Als gelöst markieren">
@@ -325,7 +319,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
     <template id="resolveDefectFormTemplate">
         <p class="mb-3">Defekt <strong class="resolve-defect-title-display"></strong> als gelöst markieren?</p>
         <div class="mb-3">
-            <label class="ignis-field__label">Lösungsnotiz <small class="text-gray-400">(optional)</small></label>
+            <label class="ignis-field__label">Lösungsnotiz <small class="form-hint">(optional)</small></label>
             <textarea name="resolution_note" class="ignis-input" rows="3" placeholder="Was wurde gemacht?"></textarea>
         </div>
     </template>
@@ -333,7 +327,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
     <template id="statusChangeFormTemplate">
         <p class="mb-3">Defekt <strong class="status-change-defect-title-display"></strong> auf <span class="status-change-label-display font-bold"></span> setzen?</p>
         <div class="mb-3">
-            <label class="ignis-field__label">Notiz <small class="text-gray-400">(optional)</small></label>
+            <label class="ignis-field__label">Notiz <small class="form-hint">(optional)</small></label>
             <textarea name="status_note" class="ignis-input" rows="3" placeholder="z.B. Ersatzteil bestellt, wird nächste Woche geliefert..."></textarea>
         </div>
     </template>
@@ -344,38 +338,38 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
     <template id="defectDetailTemplate">
         <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-12">
             <div class="md:col-span-6">
-                <small class="text-gray-400">Fahrzeug</small>
+                <small class="form-hint">Fahrzeug</small>
                 <div class="detail-vehicle font-bold"></div>
             </div>
             <div class="md:col-span-3">
-                <small class="text-gray-400">Kategorie</small>
+                <small class="form-hint">Kategorie</small>
                 <div class="detail-category"></div>
             </div>
             <div class="md:col-span-3">
-                <small class="text-gray-400">Status</small>
+                <small class="form-hint">Status</small>
                 <div class="detail-status"></div>
             </div>
         </div>
         <div class="mb-3">
-            <small class="text-gray-400">Beschreibung</small>
+            <small class="form-hint">Beschreibung</small>
             <div class="detail-description"></div>
         </div>
         <div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-3">
             <div>
-                <small class="text-gray-400">Gemeldet von</small>
+                <small class="form-hint">Gemeldet von</small>
                 <div class="detail-reporter"></div>
             </div>
             <div>
-                <small class="text-gray-400">Zugewiesen an</small>
+                <small class="form-hint">Zugewiesen an</small>
                 <div class="detail-assigned"></div>
             </div>
             <div>
-                <small class="text-gray-400">Einsatzfähig?</small>
+                <small class="form-hint">Einsatzfähig?</small>
                 <div class="detail-operable"></div>
             </div>
         </div>
-        <div class="detail-resolution-wrap mb-3" style="display:none;">
-            <small class="text-gray-400">Lösung</small>
+        <div class="detail-resolution-wrap mb-3" hidden>
+            <small class="form-hint">Lösung</small>
             <div class="defect-resolution p-2 detail-resolution"></div>
         </div>
 
@@ -392,27 +386,31 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                         <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['fullname']) ?></option>
                     <?php endforeach; ?>
                 </select>
-                <button class="ignis-btn ignis-btn--sm ignis-btn--soft-primary detail-assign-btn">Zuweisen</button>
+                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary detail-assign-btn">Zuweisen</button>
             </div>
         <?php endif; ?>
     </template>
 
     <style>
+        /* Stapel der Meldungen: nur Tokens, damit der helle Satz mitkommt. */
         .defect-item {
             display: flex;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+            border-bottom: 1px solid var(--fill-2);
             transition: background 0.15s;
+            cursor: pointer;
         }
+        .defect-item[hidden], #defectNoResults[hidden] { display: none; }
         .defect-item:last-child { border-bottom: none; }
-        .defect-item:hover { background: rgba(255,255,255,0.02); }
+        .defect-item:hover { background: var(--fill-1); }
+        .defect-item:target { background: var(--accent-soft); }
         .defect-resolved { opacity: 0.55; }
         .defect-operable-bar {
             width: 4px;
             flex-shrink: 0;
             border-radius: 4px 0 0 4px;
         }
-        .operable-yes { background: var(--bs-success); }
-        .operable-no { background: var(--bs-danger); }
+        .operable-yes { background: var(--ok); }
+        .operable-no { background: var(--danger); }
         .defect-body {
             flex: 1;
             padding: 0.85rem 1rem;
@@ -433,16 +431,16 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
             display: flex;
             gap: 0.3rem;
         }
-        .defect-badges .badge { font-size: 0.65rem; font-weight: 500; }
         .defect-vehicle {
             font-size: 0.8rem;
-            color: var(--text-dimmed);
+            color: var(--text-3);
             margin-top: 0.15rem;
         }
         .defect-vehicle i { margin-right: 0.3rem; font-size: 0.7rem; }
+        .defect-vehicle a { color: var(--text-2); }
         .defect-desc {
             font-size: 0.85rem;
-            color: var(--text-normal);
+            color: var(--text-2);
             line-height: 1.5;
         }
         .defect-meta {
@@ -450,12 +448,12 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
             flex-wrap: wrap;
             gap: 0.75rem;
             font-size: 0.75rem;
-            color: var(--text-dimmed);
+            color: var(--text-3);
         }
         .defect-meta i { margin-right: 0.25rem; }
         .defect-resolution {
-            background: rgba(25, 135, 84, 0.1);
-            border-left: 3px solid var(--bs-success);
+            background: var(--ok-soft);
+            border-left: 3px solid var(--ok);
             padding: 0.4rem 0.6rem;
             border-radius: 0 6px 6px 0;
             font-size: 0.8rem;
@@ -477,7 +475,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
             top: 0;
             bottom: 0;
             width: 2px;
-            background: rgba(255,255,255,0.1);
+            background: var(--fill-3);
         }
         .log-entry {
             position: relative;
@@ -492,21 +490,21 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: var(--bs-primary);
-            border: 2px solid var(--bs-body-bg);
+            background: var(--accent);
+            border: 2px solid var(--surface);
         }
         .log-entry .log-user { font-weight: 500; }
         .log-entry .log-time {
             font-size: 0.7rem;
-            color: var(--text-dimmed);
+            color: var(--text-3);
         }
-        .log-entry .log-detail { color: var(--text-normal); }
+        .log-entry .log-detail { color: var(--text-2); }
     </style>
 
     <script>
     var handlerUrl = '<?= BASE_PATH ?>api/vehicles/defects-handler';
     var categoryLabels = <?= json_encode($categoryLabels) ?>;
-    var statusLabels = { open: ['Offen', 'danger'], in_progress: ['In Bearbeitung', 'warning'], deferred: ['Aufgeschoben', 'primary'], resolved: ['Gelöst', 'success'] };
+    var statusLabels = <?= json_encode($statusLabels) ?>;
 
     // Generischer AJAX-POST gegen den defects-handler. data ist ein {key: val}-
     // Objekt; action wird automatisch ergaenzt.
@@ -522,8 +520,6 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
         else alert(data.error || 'Fehler');
     }
 
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
         // Status-Aenderungs-Modal: Title + Submit-Button-Style ist pro Aktion
         // unterschiedlich (z.B. "In Bearbeitung" warning vs. "Aufschieben" primary).
@@ -535,7 +531,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                     title:         'Status ändern',
                     template:      'statusChangeFormTemplate',
                     submitLabel:   data.label,
-                    submitVariant: (data.btnClass || 'ignis-btn--primary').replace(/^ignis-btn--/, ''),
+                    submitVariant: data.variant || 'primary',
                     onOpen: function (dlg) {
                         dlg.element.querySelector('.status-change-defect-title-display').textContent = data.title;
                         dlg.element.querySelector('.status-change-label-display').textContent = data.label;
@@ -575,7 +571,8 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
         });
 
         document.querySelectorAll('.defect-item').forEach(function(item) {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function(e) {
+                if (e.target.closest('a, button')) return;
                 var defectId = this.dataset.id;
                 fetch(handlerUrl + '?action=get&id=' + defectId)
                     .then(function(r) { return r.json(); })
@@ -591,18 +588,18 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
 
                         // Felder befuellen via Klassen-Selektoren
                         wrapper.querySelector('.detail-vehicle').textContent = (d.vehicle_name || '') + ' (' + (d.vehicle_identifier || '') + ')';
-                        wrapper.querySelector('.detail-category').innerHTML = '<span class="ignis-chip">' + (categoryLabels[d.category] || d.category) + '</span>';
-                        wrapper.querySelector('.detail-status').innerHTML = '<span class="ignis-chip ignis-chip--' + stat[1] + '">' + stat[0] + '</span>';
+                        wrapper.querySelector('.detail-category').innerHTML = '<span class="ignis-chip ignis-chip--secondary">' + escHtml(categoryLabels[d.category] || d.category) + '</span>';
+                        wrapper.querySelector('.detail-status').innerHTML = '<span class="ignis-chip ignis-chip--dot ignis-chip--' + stat[1] + '">' + escHtml(stat[0]) + '</span>';
                         wrapper.querySelector('.detail-description').textContent = d.description || '—';
                         wrapper.querySelector('.detail-reporter').textContent = (d.reporter_name || 'Unbekannt') + ' am ' + formatDate(d.created_at);
                         wrapper.querySelector('.detail-assigned').textContent = d.assigned_name || '—';
                         wrapper.querySelector('.detail-operable').innerHTML = d.vehicle_operable == 1
-                            ? '<span class="text-[#6abf76]"><i class="fa-solid fa-check"></i> Ja</span>'
-                            : '<span class="text-[#d46b6b]"><i class="fa-solid fa-ban"></i> Nein</span>';
+                            ? '<span class="text-[var(--ok)]"><i class="fa-solid fa-check"></i> Ja</span>'
+                            : '<span class="text-[var(--danger)]"><i class="fa-solid fa-ban"></i> Nein</span>';
 
                         var resWrap = wrapper.querySelector('.detail-resolution-wrap');
                         if (d.resolution_note) {
-                            resWrap.style.display = '';
+                            resWrap.hidden = false;
                             wrapper.querySelector('.detail-resolution').textContent = d.resolution_note;
                         }
 
@@ -617,7 +614,7 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                                 logHtml += '</div>';
                             });
                         } else {
-                            logHtml = '<div class="text-gray-400">Kein Verlauf vorhanden</div>';
+                            logHtml = '<div class="form-hint">Kein Verlauf vorhanden</div>';
                         }
                         wrapper.querySelector('.detail-log').innerHTML = logHtml;
 
@@ -655,9 +652,10 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
             return div.innerHTML;
         }
 
-        // Lokale Suche
+        // Lokale Suche (Enter darf das Filter-Formular nicht abschicken)
         var searchInput = document.getElementById('defectLocalSearch');
         if (searchInput) {
+            searchInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') e.preventDefault(); });
             searchInput.addEventListener('input', function() {
                 var q = this.value.toLowerCase().trim();
                 var items = document.querySelectorAll('.defect-item');
@@ -665,11 +663,11 @@ $SITE_TITLE = 'Fahrzeug-Defekte';
                 items.forEach(function(item) {
                     var searchData = item.dataset.search || '';
                     var match = !q || searchData.indexOf(q) !== -1;
-                    item.style.display = match ? '' : 'none';
+                    item.hidden = !match;
                     if (match) visibleCount++;
                 });
                 var noResults = document.getElementById('defectNoResults');
-                if (noResults) noResults.style.display = visibleCount === 0 ? '' : 'none';
+                if (noResults) noResults.hidden = visibleCount !== 0;
             });
         }
     });

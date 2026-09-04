@@ -237,46 +237,6 @@
     margin-right: 0.25rem;
 }
 
-.calendar-toolbar__actions {
-    flex-shrink: 0;
-}
-
-/* Filter-Chip in der Calendar-Toolbar — bewusst dieselbe Optik wie die
-   FullCalendar-View-Switcher (Monat/Woche/Tag/Liste), damit die Toolbar
-   visuell als ein Stueck wirkt. Keine per-Kategorie-Farben — die echte
-   Event-Farbe waehlt der User pro Termin selbst, deshalb waeren feste
-   Filter-Farben irrefuehrend. */
-.calendar-filter-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.35rem 0.75rem;
-    border-radius: var(--button-border-radius, 6px);
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-3);
-    font-size: 0.78rem;
-    font-weight: 500;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.12s, border-color 0.12s, color 0.12s;
-}
-
-.calendar-filter-chip:hover {
-    background: var(--surface);
-    border-color: var(--accent);
-    color: var(--white);
-}
-
-.calendar-filter-chip.is-active {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--white);
-}
-
-.calendar-filter-chip.is-active:hover {
-    background: var(--accent);
-}
-
 /* Toggle-Chip (nur Wochentag-Auswahl im Recurrence-Form) */
 .ignis-chip--toggle {
     cursor: pointer;
