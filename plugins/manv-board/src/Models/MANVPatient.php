@@ -107,7 +107,7 @@ class MANVPatient
     /**
      * Ruft alle Patienten einer MANV-Lage ab
      */
-    public function getByLage(int $lageId, ?string $kategorie = null): array
+    public function getByLage(int $lageId, ?string $kategorie = null, ?\App\Support\ListQuery $list = null): array
     {
         $query = Capsule::table('intra_manv_patienten')
             ->where('manv_lage_id', $lageId)
@@ -117,9 +117,15 @@ class MANVPatient
             $query->where('sichtungskategorie', $kategorie);
         }
 
+        // Mit ListQuery (Board) sortiert die gewählte Spalte, danach die
+        // Patientennummer; sonst die Reihenfolge der Sichtung.
+        if ($list !== null) {
+            $query->orderBy($list->column(), $list->dir)->orderBy('patienten_nummer', 'asc');
+        } else {
+            $query->orderBy('sichtungskategorie_zeit', 'desc')->orderBy('patienten_nummer', 'asc');
+        }
+
         return $query
-            ->orderBy('sichtungskategorie_zeit', 'desc')
-            ->orderBy('patienten_nummer', 'asc')
             ->get()
             ->map(fn ($row) => (array) $row)
             ->all();

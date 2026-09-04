@@ -923,3 +923,18 @@ table.ignis-table {
   &__text { display: block; color: var(--text); }
   &__when { display: block; color: var(--text-3); font-size: var(--fs-xs); font-variant-numeric: tabular-nums; }
 }
+
+// Arbeitsbereich ohne Vorschau (fireTab-Einsatzliste): nur Leiste und Liste.
+.ignis-workbench--plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+// Sichtungskategorien des MANV-Boards (plugins/manv-board): volle Fläche in
+// der Bedeutungsfarbe, weil die Farbe hier das Signal ist.
+.ignis-chip--sk1 { background: var(--danger); color: var(--white); }
+.ignis-chip--sk2 { background: var(--warn); color: var(--bg); }
+.ignis-chip--sk3 { background: var(--ok); color: var(--white); }
+.ignis-chip--sk4 { background: var(--info); color: var(--white); }
+.ignis-chip--sk5,
+.ignis-chip--tot { background: var(--text); color: var(--bg); }
+.ignis-chip--sk6 { background: var(--fill-4); color: var(--text); }

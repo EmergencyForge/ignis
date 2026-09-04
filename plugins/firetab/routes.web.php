@@ -27,6 +27,7 @@ declare(strict_types=1);
  */
 
 use App\Http\Middleware\AuthMiddleware;
+use App\Http\Middleware\CsrfMiddleware;
 use App\Http\Middleware\FiveMCspMiddleware;
 use Plugin\Firetab\Controllers\FiretabController;
 
@@ -55,6 +56,8 @@ $router->get('/firetab/logbook',     [FiretabController::class, 'fireTabFahrtenb
 $router->get('/firetab/status-reports',     [FiretabController::class, 'statusmeldungen'], $einsatzAuth);
 
 $router->get('/firetab/admin/list',     [FiretabController::class, 'adminList'], $einsatzAdminAuth);
+// Sammel-Löschen aus der QM-Liste (Aktionsleiste des Arbeitsbereichs, `ids[]`), mit CSRF-Token wie die Sammelaktionen der Fahrzeugliste.
+$router->post('/firetab/admin/list/delete', [FiretabController::class, 'adminBulkDelete'], [new AuthMiddleware(), new CsrfMiddleware()]);
 
 // Legacy-API-URL-Kompatibilität: alte JS-POSTs auf die neuen Endpoints
 // weiterreichen. 308 bewahrt Methode + Body.

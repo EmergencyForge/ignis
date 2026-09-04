@@ -2,118 +2,182 @@
 /**
  * View: QM-Übersicht aller Einsatzprotokolle (Admin)
  *
+ * Sortierung, Suche und Seiten laufen über den Server (App\Support\ListQuery,
+ * FiretabController::adminList). Die Liste ist ein Arbeitsbereich
+ * (assets/js/ui/workbench.js) ohne Vorschau: Enter oder Klick öffnet das
+ * Protokoll, angehakte Zeilen bekommen die Leiste mit „Löschen"
+ * (POST admin/list/delete mit ids[], CSRF-Token, Rückfrage). Einsätze aus dem
+ * Verbund stehen nur lesend dabei, ohne Kästchen.
+ *
  * @var array<int,array<string,mixed>> $incidents
  * @var bool                           $showArchived
+ * @var \App\Support\ListQuery         $list
  */
 
+use App\Security\CsrfProtection;
 
 $layout = 'admin';
 $bodyId = 'protokolle';
 $SITE_TITLE = 'Einsatz-QM';
+
+$pgPath  = 'firetab/admin/list';
+$pgLabel = 'Protokolle';
+
+$statusMap = [
+    0 => ['secondary', 'Ungesehen'],
+    1 => ['warn', 'In Prüfung'],
+    2 => ['ok', 'Freigegeben'],
+    3 => ['danger', 'Ungenügend'],
+    4 => ['secondary', 'Ausgeblendet'],
+];
 ?>
-    <div class="container my-4">
-        <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">Einsatz QM</span></nav>
-        <div class="page-header mb-4">
-            <h1>Einsatzprotokolle (QM)</h1>
-            <div class="header-actions">
-                <div class="flex items-center gap-3">
-                    <div class="btn-toolbar-group">
-                        <a href="<?= BASE_PATH ?>firetab/admin/list" class="ignis-btn <?= !$showArchived ? 'active' : '' ?>">Aktiv</a>
-                        <a href="<?= BASE_PATH ?>firetab/admin/list?show_archived=1" class="ignis-btn <?= $showArchived ? 'active' : '' ?>">Archiv</a>
-                    </div>
-                    <a href="<?= BASE_PATH ?>firetab/create" class="ignis-btn ignis-btn--success"><i class="fa-solid fa-plus"></i> Neu</a>
-                    <button onclick="showBulkDeleteModal()" class="ignis-btn ignis-btn--outline-danger ignis-btn--sm">
-                        <i class="fa-solid fa-trash-can"></i> Protokolle löschen
+    <div class="container-full relative" id="mainpageContainer">
+        <div class="twplus-page">
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Protokolle</span> <span class="ignis-breadcrumb__item is-active">Einsatz-QM</span></nav>
+            <div class="page-header twplus-page-header mb-4">
+                <div class="twplus-page-header__copy">
+                    <p class="twplus-page-header__eyebrow">Feuerwehr</p>
+                    <h1>Einsatzprotokolle (QM)</h1>
+                    <p class="twplus-page-header__description">Alle Einsätze mit Prüfstand, Archiv und Sammelaktionen.</p>
+                </div>
+                <div class="header-actions twplus-page-header__actions">
+                    <button type="button" class="ignis-btn ignis-btn--secondary" onclick="showBulkDeleteModal()">
+                        <i class="fa-solid fa-broom"></i> Leere Protokolle löschen
                     </button>
+                    <a href="<?= BASE_PATH ?>firetab/create" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-plus"></i> Neu</a>
                 </div>
             </div>
-        </div>
 
-        <?php if ($showArchived): ?>
-            <div class="ignis-alert ignis-alert--info mb-3">
-                <i class="fa-solid fa-archive mr-2"></i>
-                Sie sehen archivierte Einsätze. Diese sind aus den normalen Listen ausgeblendet.
+            <form class="ignis-list-toolbar" method="get" action="<?= BASE_PATH . $pgPath ?>" role="search">
+                <?php if ($showArchived): ?>
+                    <input type="hidden" name="show_archived" value="1">
+                <?php endif; ?>
+                <?php if ($list->sort !== ($showArchived ? 'archived' : 'created') || $list->dir !== 'desc'): ?>
+                    <input type="hidden" name="sort" value="<?= htmlspecialchars($list->sort) ?>">
+                    <input type="hidden" name="dir" value="<?= htmlspecialchars($list->dir) ?>">
+                <?php endif; ?>
+                <label class="ignis-list-toolbar__search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input class="ignis-input" type="search" name="q" value="<?= htmlspecialchars($list->q) ?>" placeholder="Einsatznummer, Ort, Stichwort oder Leiter" aria-label="Protokolle suchen">
+                </label>
+                <button type="submit" class="ignis-btn ignis-btn--secondary ignis-btn--sm">Suchen</button>
+                <?php if ($list->q !== ''): ?>
+                    <a class="ignis-btn ignis-btn--ghost ignis-btn--sm" href="<?= htmlspecialchars($list->url($pgPath, ['q' => null, 'page' => null])) ?>">Zurücksetzen</a>
+                <?php endif; ?>
+                <span class="ignis-list-toolbar__spacer"></span>
+                <nav class="ignis-filter-links" aria-label="Archiv">
+                    <a href="<?= htmlspecialchars($list->url($pgPath, ['show_archived' => null, 'sort' => null, 'dir' => null, 'page' => null])) ?>"<?= !$showArchived ? ' class="is-active" aria-current="true"' : '' ?>>Aktiv</a>
+                    <a href="<?= htmlspecialchars($list->url($pgPath, ['show_archived' => '1', 'sort' => null, 'dir' => null, 'page' => null])) ?>"<?= $showArchived ? ' class="is-active" aria-current="true"' : '' ?>>Archiv</a>
+                </nav>
+            </form>
+
+            <?php if ($showArchived): ?>
+                <div class="ignis-alert ignis-alert--info mb-3">
+                    <i class="fa-solid fa-archive mr-2"></i>
+                    Sie sehen archivierte Einsätze. Diese sind aus den normalen Listen ausgeblendet.
+                </div>
+            <?php endif; ?>
+
+            <div class="ignis-workbench ignis-workbench--plain" data-ignis-workbench>
+                <?php if (!$showArchived): ?>
+                    <form method="POST" action="<?= BASE_PATH ?>firetab/admin/list/delete" class="ignis-bulkbar" data-ignis-bulkbar hidden>
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(CsrfProtection::getToken(), ENT_QUOTES) ?>">
+                        <span class="ignis-bulkbar__count"><b data-ignis-bulk-count>0</b> ausgewählt</span>
+                        <span class="ignis-bulkbar__spacer"></span>
+                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--danger" data-ignis-bulk-confirm="{n} ausgewählte Protokolle wirklich löschen? Sie werden archiviert und ausgeblendet."><i class="fa-solid fa-trash" aria-hidden="true"></i> Löschen</button>
+                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" data-ignis-bulk-clear>Abbrechen</button>
+                    </form>
+                <?php endif; ?>
+                <div class="twplus-table-card">
+                    <div class="twplus-table-card__scroll">
+                        <table class="ignis-table" id="table-incidents">
+                            <thead>
+                                <tr>
+                                    <?php if (!$showArchived): ?>
+                                        <th scope="col" class="ignis-table__check"><input type="checkbox" data-ignis-select-all aria-label="Alle auswählen"></th>
+                                    <?php endif; ?>
+                                    <?= $list->th('nr', 'Einsatznummer', $pgPath) ?>
+                                    <?= $list->th('start', 'Beginn', $pgPath) ?>
+                                    <?= $list->th('location', 'Ort', $pgPath) ?>
+                                    <?= $list->th('keyword', 'Stichwort', $pgPath) ?>
+                                    <?= $list->th('leader', 'Leiter', $pgPath) ?>
+                                    <?= $list->th('status', 'Status', $pgPath) ?>
+                                    <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if ($incidents === []): ?>
+                                    <tr><td colspan="<?= $showArchived ? 7 : 8 ?>" class="ignis-table-empty">Keine Protokolle gefunden.</td></tr>
+                                <?php endif; ?>
+                                <?php foreach ($incidents as $i): ?>
+                                    <?php
+                                    $isFederated = !empty($i['_federation_readonly']);
+                                    if ($isFederated) {
+                                        $i['finalized'] = $i['finalized'] ?? 1;
+                                        $i['status'] = $i['status'] ?? 2;
+                                        $i['started_at'] = $i['created_at'] ?? date('Y-m-d H:i:s');
+                                        $i['location'] = $i['location'] ?? '';
+                                        $i['keyword'] = $i['keyword'] ?? '';
+                                    }
+                                    if (!$i['finalized']) {
+                                        [$statusChip, $statusText] = ['secondary', 'Unfertig'];
+                                    } else {
+                                        [$statusChip, $statusText] = $statusMap[(int) $i['status']] ?? ['secondary', 'Unbekannt'];
+                                    }
+                                    $startDt = new DateTime($i['started_at'], new DateTimeZone('UTC'));
+                                    $startDt->setTimezone(new DateTimeZone('Europe/Berlin'));
+                                    $viewUrl = BASE_PATH . 'firetab/view?id=' . (int) $i['id'];
+                                    ?>
+                                    <?php if ($isFederated): ?>
+                                        <tr class="is-muted">
+                                    <?php else: ?>
+                                        <tr data-ignis-row="<?= (int) $i['id'] ?>" data-href="<?= htmlspecialchars($viewUrl, ENT_QUOTES) ?>" tabindex="0">
+                                    <?php endif; ?>
+                                        <?php if (!$showArchived): ?>
+                                            <td class="ignis-table__check"><?php if (!$isFederated): ?><input type="checkbox" data-ignis-select value="<?= (int) $i['id'] ?>" aria-label="Protokoll auswählen"><?php endif; ?></td>
+                                        <?php endif; ?>
+                                        <td>
+                                            <?php if ($isFederated): ?>
+                                                <?= htmlspecialchars($i['incident_number'] ?? '-') ?> <span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($i['_federation_source'] ?? '') ?></span>
+                                            <?php else: ?>
+                                                <a href="<?= htmlspecialchars($viewUrl, ENT_QUOTES) ?>" class="ignis-mono"><?= htmlspecialchars($i['incident_number'] ?? '-') ?></a>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td><?= htmlspecialchars($startDt->format('d.m.Y H:i')) ?></td>
+                                        <td><?= htmlspecialchars($i['location']) ?></td>
+                                        <td><?= htmlspecialchars($i['keyword']) ?></td>
+                                        <td><?= htmlspecialchars($i['leader_name'] ?? '-') ?></td>
+                                        <td><span class="ignis-chip ignis-chip--dot ignis-chip--<?= $statusChip ?>"><?= htmlspecialchars($statusText) ?></span></td>
+                                        <td class="ignis-table__actions">
+                                            <?php if ($isFederated): ?>
+                                                <span class="ignis-list-meta">nur lesen</span>
+                                            <?php else: ?>
+                                                <div class="ignis-row-actions">
+                                                    <a class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" href="<?= htmlspecialchars($viewUrl, ENT_QUOTES) ?>" data-ignis-tooltip="Öffnen" aria-label="Öffnen"><i class="fa-solid fa-arrow-right"></i></a>
+                                                    <?php if ($showArchived): ?>
+                                                        <form method="post" action="<?= BASE_PATH ?>firetab/actions" class="inline">
+                                                            <input type="hidden" name="action" value="unarchive_incident">
+                                                            <input type="hidden" name="incident_id" value="<?= (int) $i['id'] ?>">
+                                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Wiederherstellen" aria-label="Wiederherstellen"><i class="fa-solid fa-box-open"></i></button>
+                                                        </form>
+                                                    <?php else: ?>
+                                                        <form method="post" action="<?= BASE_PATH ?>firetab/actions" class="inline">
+                                                            <input type="hidden" name="action" value="archive_incident">
+                                                            <input type="hidden" name="incident_id" value="<?= (int) $i['id'] ?>">
+                                                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="Archivieren" aria-label="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });"><i class="fa-solid fa-archive"></i></button>
+                                                        </form>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <?php require dirname(__DIR__, 4) . '/templates/partials/pagination.php'; ?>
+                </div>
             </div>
-        <?php endif; ?>
-
-        <div class="twplus-table-card">
-            <table class="table table-striped twplus-table" id="table-incidents">
-                <thead>
-                    <tr>
-                        <th>Einsatznummer</th>
-                        <th>Beginn</th>
-                        <th>Ort</th>
-                        <th>Stichwort</th>
-                        <th>Leiter</th>
-                        <th>Status</th>
-                        <th>Aktionen</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($incidents as $i): ?>
-                        <?php
-                        $isFederated = !empty($i['_federation_readonly']);
-                        if ($isFederated) {
-                            $i['finalized'] = $i['finalized'] ?? 1;
-                            $i['status'] = $i['status'] ?? 2;
-                            $i['started_at'] = $i['created_at'] ?? date('Y-m-d H:i:s');
-                            $i['location'] = $i['location'] ?? '';
-                            $i['keyword'] = $i['keyword'] ?? '';
-                        }
-                        if (!$i['finalized']) {
-                            $statusClass = 'status-muted';
-                            $statusText = 'Unfertig';
-                        } else {
-                            $statusMap = [
-                                0 => ['status-muted', 'Ungesehen'],
-                                1 => ['status-warning', 'In Prüfung'],
-                                2 => ['status-success', 'Freigegeben'],
-                                3 => ['status-danger', 'Ungenügend'],
-                                4 => ['status-muted', 'Ausgeblendet'],
-                            ];
-                            $s = (int)$i['status'];
-                            [$statusClass, $statusText] = $statusMap[$s] ?? ['status-muted', 'Unbekannt'];
-                        }
-                        ?>
-                        <tr>
-                            <td><?= htmlspecialchars($i['incident_number'] ?? '-') ?><?php if ($isFederated): ?> <span class="ignis-chip" style="background:rgba(255,255,255,0.1);font-size:0.6rem;"><?= htmlspecialchars($i['_federation_source'] ?? '') ?></span><?php endif; ?></td>
-                            <td><?php
-                                $startDt = new DateTime($i['started_at'], new DateTimeZone('UTC'));
-                                $startDt->setTimezone(new DateTimeZone('Europe/Berlin'));
-                                echo htmlspecialchars($startDt->format('d.m.Y H:i'));
-                            ?></td>
-                            <td><?= htmlspecialchars($i['location']) ?></td>
-                            <td><?= htmlspecialchars($i['keyword']) ?></td>
-                            <td><?= htmlspecialchars($i['leader_name'] ?? '-') ?></td>
-                            <td><span class="badge-status <?= $statusClass ?>"><span class="status-dot"></span><?= htmlspecialchars($statusText) ?></span></td>
-                            <td>
-                                <?php if ($isFederated): ?>
-                                    <span style="font-size:var(--fs-xs);color:var(--text-dimmed);">read-only</span>
-                                <?php else: ?>
-                                <a class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" href="<?= BASE_PATH ?>firetab/view?id=<?= (int)$i['id'] ?>">Öffnen</a>
-                                <?php if ($showArchived): ?>
-                                    <form method="post" action="<?= BASE_PATH ?>firetab/actions" class="inline">
-                                        <input type="hidden" name="action" value="unarchive_incident">
-                                        <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
-                                        <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success ignis-btn--icon" title="Wiederherstellen">
-                                            <i class="fa-solid fa-box-open"></i>
-                                        </button>
-                                    </form>
-                                <?php else: ?>
-                                    <form method="post" action="<?= BASE_PATH ?>firetab/actions" class="inline">
-                                        <input type="hidden" name="action" value="archive_incident">
-                                        <input type="hidden" name="incident_id" value="<?= (int)$i['id'] ?>">
-                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-warning ignis-btn--icon" title="Archivieren" onclick="event.preventDefault(); showConfirm('Einsatz wirklich archivieren? Er wird aus allen Listen ausgeblendet.', {danger: true, confirmText: 'Archivieren', title: 'Einsatz archivieren'}).then(result => { if(result) this.closest('form').submit(); });">
-                                            <i class="fa-solid fa-archive"></i>
-                                        </button>
-                                    </form>
-                                <?php endif; ?>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
         </div>
     </div>
 
@@ -124,15 +188,6 @@ $SITE_TITLE = 'Einsatz-QM';
     <div id="bulkDeleteContentHelper" style="display: none;"></div>
 
     <script>
-        $(document).ready(function() {
-            $('#table-incidents').DataTable({
-                stateSave: true,
-                order: [[0, 'desc']],
-                pageLength: 20,
-                language: window.IgnisDataTableLang('Einträge')
-            });
-        });
-
         // Dialog-Instanz halten wir in einem Closure, damit alle drei States
         // (Field-Select, Preview, Result) den gleichen Body ueberschreiben.
         let bulkDeleteDialog = null;
@@ -158,7 +213,7 @@ $SITE_TITLE = 'Einsatz-QM';
                 if (bodyEl) bodyEl.innerHTML = initialContent.innerHTML;
             } else {
                 bulkDeleteDialog = new Dialog({
-                    title:   'Einsatzprotokolle löschen',
+                    title:   'Leere Einsatzprotokolle löschen',
                     size:    'lg',
                     body:    initialContent,
                     actions: [{ label: 'Abbrechen', variant: 'ghost', close: true }],
@@ -211,16 +266,16 @@ $SITE_TITLE = 'Einsatz-QM';
                                     <label class="ignis-field__label font-bold">Leere Felder (ALLE müssen leer sein):</label>
                                     ${fieldsHtml}
                                 </div>
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary" onclick="previewBulkDelete()">
+                                <button type="button" class="ignis-btn ignis-btn--secondary" onclick="previewBulkDelete()">
                                     <i class="fa-solid fa-search"></i> Vorschau anzeigen
                                 </button>
                             </form>`);
                     } else {
-                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div>`);
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div>`);
                     }
                 })
                 .catch(error => {
-                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div>`);
+                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div>`);
                 });
         };
 
@@ -255,7 +310,7 @@ $SITE_TITLE = 'Einsatz-QM';
                             let protocolsList = data.protocols.map(p => {
                                 const date = new Date(p.created_at);
                                 const dateStr = date.toLocaleDateString('de-DE') + ' ' + date.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-                                const statusBadge = p.finalized == 1 ? '<span class="ignis-chip ignis-chip--success">Abgeschlossen</span>' : '<span class="ignis-chip">Unfertig</span>';
+                                const statusBadge = p.finalized == 1 ? '<span class="ignis-chip ignis-chip--ok">Abgeschlossen</span>' : '<span class="ignis-chip ignis-chip--secondary">Unfertig</span>';
                                 return `<tr><td>${p.incident_number || '<em>-</em>'}</td><td>${p.location || '<em>-</em>'}</td><td>${p.keyword || '<em>-</em>'}</td><td>${p.leader_name || '<em>-</em>'}</td><td>${dateStr}</td><td>${statusBadge}</td></tr>`;
                             }).join('');
 
@@ -263,12 +318,12 @@ $SITE_TITLE = 'Einsatz-QM';
                             // ignis-Dialog kein dynamisches Action-Hinzufuegen
                             // unterstuetzt — er ist nur im Preview-State sichtbar.
                             setBulkDeleteContent(`
-                                <div class="ignis-alert ignis-alert--warning"><i class="fa-solid fa-exclamation-triangle"></i> <strong>Achtung!</strong><p class="mb-0 mt-2">Es wurden <strong>${data.count} Protokoll(e)</strong> gefunden, die archiviert werden.</p><p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p></div>
+                                <div class="ignis-alert ignis-alert--warn"><i class="fa-solid fa-exclamation-triangle"></i> <strong>Achtung!</strong><p class="mb-0 mt-2">Es wurden <strong>${data.count} Protokoll(e)</strong> gefunden, die archiviert werden.</p><p class="mb-0 mt-2"><small>Leere Felder: ${data.selectedFieldsLabel}</small></p></div>
                                 <div class="overflow-x-auto" style="max-height: 400px; overflow-y: auto;">
-                                    <table class="table table-sm table-striped twplus-table"><thead class="sticky top-0 bg-[rgba(0,0,0,0.3)]"><tr><th>Einsatznummer</th><th>Ort</th><th>Stichwort</th><th>Leiter</th><th>Angelegt am</th><th>Status</th></tr></thead><tbody>${protocolsList}</tbody></table>
+                                    <table class="ignis-table"><thead><tr><th>Einsatznummer</th><th>Ort</th><th>Stichwort</th><th>Leiter</th><th>Angelegt am</th><th>Status</th></tr></thead><tbody>${protocolsList}</tbody></table>
                                 </div>
                                 <div class="text-right mt-3">
-                                    <button type="button" class="ignis-btn ignis-btn--ghost-danger" onclick="executeBulkDelete(this)">
+                                    <button type="button" class="ignis-btn ignis-btn--danger" onclick="executeBulkDelete(this)">
                                         <i class="fa-solid fa-trash"></i> Jetzt löschen
                                     </button>
                                 </div>`);
@@ -277,11 +332,11 @@ $SITE_TITLE = 'Einsatz-QM';
                             window.bulkDeleteStatusFilter = statusFilter;
                         }
                     } else {
-                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${data.message || 'Unbekannter Fehler'}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
                     }
                 })
                 .catch(error => {
-                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
+                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler: ${error.message}</div><button type="button" class="ignis-btn ignis-btn--ghost" onclick="showBulkDeleteModal()"><i class="fa-solid fa-arrow-left"></i> Zurück</button>`);
                 });
         };
 
@@ -307,16 +362,16 @@ $SITE_TITLE = 'Einsatz-QM';
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--success"><i class="fa-solid fa-check-circle"></i> <strong>Erfolgreich!</strong><p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich archiviert.</p></div>`);
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--ok"><i class="fa-solid fa-check-circle"></i> <strong>Erfolgreich!</strong><p class="mb-0 mt-2">${data.deleted} Protokoll(e) wurden erfolgreich archiviert.</p></div>`);
                         setTimeout(() => { location.reload(); }, 2000);
                     } else {
-                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}</div>`);
+                        setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${data.message || 'Unbekannter Fehler'}</div>`);
                         deleteButton.innerHTML = originalText;
                         deleteButton.disabled = false;
                     }
                 })
                 .catch(error => {
-                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--danger"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${error.message}</div>`);
+                    setBulkDeleteContent(`<div class="ignis-alert ignis-alert--error"><i class="fa-solid fa-exclamation-circle"></i> Fehler beim Löschen: ${error.message}</div>`);
                     deleteButton.innerHTML = originalText;
                     deleteButton.disabled = false;
                 });

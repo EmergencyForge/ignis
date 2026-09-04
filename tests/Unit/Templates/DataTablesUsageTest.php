@@ -10,20 +10,15 @@ use PHPUnit\Framework\TestCase;
  * Listen sortieren, filtern und blättern auf dem Server (App\Support\ListQuery,
  * templates/partials/pagination.php); DataTables bleibt nur für eNOTF, das
  * nicht Teil des Redesigns ist. Der Test findet jede Ansicht außerhalb von
- * eNOTF, die DataTables noch initialisiert, und verlangt, dass sie auf der
- * Liste unten steht.
+ * eNOTF, die DataTables noch initialisiert, und verlangt, dass es keine gibt.
  *
- * Die Liste ist der Rest, nicht die Regel: die beiden Plugin-Listen nutzen
- * Mehrfachauswahl über DataTables-Zeilen (fireTab) und sortieren nach zwei
- * Spalten (MANV); sie kommen dran, wenn ListQuery Mehrfachauswahl kann.
+ * Die letzten beiden Reste, die fireTab-Einsatzliste (Mehrfachauswahl über
+ * den Arbeitsbereich, assets/js/ui/workbench.js) und das MANV-Board
+ * (Sortierung über ListQuery), sind umgestellt; das Vendor-Bundle
+ * (assets/js/vendor.js) trägt DataTables nur noch für eNOTF.
  */
 final class DataTablesUsageTest extends TestCase
 {
-    private const STILL_DATATABLES = [
-        'plugins/firetab/templates/firetab/admin-list.php',
-        'plugins/manv-board/templates/mci/board.php',
-    ];
-
     /** @return list<string> Verzeichnisse relativ zur Repo-Wurzel */
     private function roots(): array
     {
@@ -38,7 +33,7 @@ final class DataTablesUsageTest extends TestCase
         return $roots;
     }
 
-    public function testOnlyTheListedViewsStillInitialiseDataTables(): void
+    public function testNoViewOutsideEnotfInitialisesDataTables(): void
     {
         $base  = dirname(__DIR__, 3);
         $found = [];
@@ -64,16 +59,9 @@ final class DataTablesUsageTest extends TestCase
         sort($found);
 
         $this->assertSame(
-            self::STILL_DATATABLES,
+            [],
             $found,
-            "DataTables-Aufrufe außerhalb der bekannten Reste. Neue Listen laufen über ListQuery; eine umgestellte Liste muss von der Liste im Test gestrichen werden.",
+            "DataTables-Aufrufe außerhalb von eNOTF. Listen laufen über ListQuery (Sortier-Links, Suche als GET, Pagination-Partial):\n  " . implode("\n  ", $found),
         );
-    }
-
-    public function testListedViewsExist(): void
-    {
-        foreach (self::STILL_DATATABLES as $rel) {
-            $this->assertFileExists(dirname(__DIR__, 3) . '/' . $rel);
-        }
     }
 }
