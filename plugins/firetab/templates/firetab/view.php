@@ -15,6 +15,8 @@ use App\Auth\Permissions;
 use App\Helpers\Flash;
 
 // Helper for date/time formatting (UTC → Europe/Berlin)
+// Guarded, weil die Seite in einem Prozess mehrmals rendern kann (Feature-Tests).
+if (!function_exists('fmt_dt')) {
 function fmt_dt(?string $ts): string
 {
     if (!$ts) return '-';
@@ -26,8 +28,11 @@ function fmt_dt(?string $ts): string
         return $ts;
     }
 }
+}
 
 // Helper to format seconds as MM:SS
+// Guarded, weil die Seite in einem Prozess mehrmals rendern kann (Feature-Tests).
+if (!function_exists('fmt_elapsed')) {
 function fmt_elapsed(int|string $seconds): string
 {
     $sec = (int)$seconds;
@@ -35,6 +40,7 @@ function fmt_elapsed(int|string $seconds): string
     $mins = floor($sec / 60);
     $secs = $sec % 60;
     return sprintf('%02d:%02d', $mins, $secs);
+}
 }
 ?>
 <!DOCTYPE html>

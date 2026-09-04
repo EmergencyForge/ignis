@@ -23,21 +23,22 @@ try {
     $logEntries = [];
 }
 
+// Aktion => Beschriftung, Icon, Chip-Semantik (ok | warn | danger | info | secondary)
 $actionTypeLabels = [
-    'created' => ['label' => 'Erstellt', 'icon' => 'fa-plus-circle', 'color' => 'success'],
+    'created' => ['label' => 'Erstellt', 'icon' => 'fa-plus-circle', 'color' => 'ok'],
     'viewed' => ['label' => 'Seite aufgerufen', 'icon' => 'fa-eye', 'color' => 'secondary'],
-    'vehicle_added' => ['label' => 'Fahrzeug hinzugefügt', 'icon' => 'fa-truck', 'color' => 'primary'],
-    'vehicle_removed' => ['label' => 'Fahrzeug entfernt', 'icon' => 'fa-truck', 'color' => 'warning'],
+    'vehicle_added' => ['label' => 'Fahrzeug hinzugefügt', 'icon' => 'fa-truck', 'color' => 'info'],
+    'vehicle_removed' => ['label' => 'Fahrzeug entfernt', 'icon' => 'fa-truck', 'color' => 'warn'],
     'sitrep_added' => ['label' => 'Lagemeldung', 'icon' => 'fa-clipboard', 'color' => 'info'],
-    'data_updated' => ['label' => 'Daten aktualisiert', 'icon' => 'fa-edit', 'color' => 'primary'],
-    'finalized' => ['label' => 'Abgeschlossen', 'icon' => 'fa-check-circle', 'color' => 'success'],
-    'status_changed' => ['label' => 'Status geändert', 'icon' => 'fa-exchange-alt', 'color' => 'warning'],
+    'data_updated' => ['label' => 'Daten aktualisiert', 'icon' => 'fa-edit', 'color' => 'info'],
+    'finalized' => ['label' => 'Abgeschlossen', 'icon' => 'fa-check-circle', 'color' => 'ok'],
+    'status_changed' => ['label' => 'Status geändert', 'icon' => 'fa-exchange-alt', 'color' => 'warn'],
     'marker_created' => ['label' => 'Marker erstellt', 'icon' => 'fa-map-marker-alt', 'color' => 'info'],
     'marker_deleted' => ['label' => 'Marker gelöscht', 'icon' => 'fa-map-marker-alt', 'color' => 'danger'],
     'zone_created' => ['label' => 'Zone erstellt', 'icon' => 'fa-draw-polygon', 'color' => 'info'],
     'zone_deleted' => ['label' => 'Zone gelöscht', 'icon' => 'fa-draw-polygon', 'color' => 'danger'],
-    'archived' => ['label' => 'Archiviert', 'icon' => 'fa-archive', 'color' => 'warning'],
-    'unarchived' => ['label' => 'Wiederhergestellt', 'icon' => 'fa-box-open', 'color' => 'success'],
+    'archived' => ['label' => 'Archiviert', 'icon' => 'fa-archive', 'color' => 'warn'],
+    'unarchived' => ['label' => 'Wiederhergestellt', 'icon' => 'fa-box-open', 'color' => 'ok'],
 ];
 ?>
 
@@ -53,14 +54,15 @@ $actionTypeLabels = [
             </div>
         <?php else: ?>
             <div class="twplus-table-card">
-                <table class="table table-hover table-sm twplus-table">
+                <div class="twplus-table-card__scroll">
+                <table class="ignis-table" id="table-incident-log">
                     <thead>
                         <tr>
-                            <th style="width: 180px;">Zeitpunkt</th>
-                            <th style="width: 150px;">Aktion</th>
-                            <th>Beschreibung</th>
-                            <th style="width: 150px;">Fahrzeug</th>
-                            <th style="width: 150px;">Operator</th>
+                            <th scope="col">Zeitpunkt</th>
+                            <th scope="col">Aktion</th>
+                            <th scope="col">Beschreibung</th>
+                            <th scope="col">Fahrzeug</th>
+                            <th scope="col">Operator</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -68,69 +70,48 @@ $actionTypeLabels = [
                             $typeInfo = $actionTypeLabels[$entry['action_type']] ?? ['label' => $entry['action_type'], 'icon' => 'fa-circle', 'color' => 'secondary'];
                             $isViewed = $entry['action_type'] === 'viewed';
                         ?>
-                            <tr class="<?= $isViewed ? 'text-gray-400' : '' ?>" style="<?= $isViewed ? 'opacity: 0.6; font-size: 0.9em;' : '' ?>">
-                                <td>
-                                    <small class="<?= $isViewed ? 'text-gray-400' : '' ?>">
-                                        <?= fmt_dt($entry['created_at']) ?>
-                                    </small>
-                                </td>
+                            <tr<?= $isViewed ? ' class="is-muted"' : '' ?>>
+                                <td class="whitespace-nowrap"><?= fmt_dt($entry['created_at']) ?></td>
                                 <td>
                                     <span class="ignis-chip ignis-chip--<?= $typeInfo['color'] ?>">
-                                        <i class="fas <?= $typeInfo['icon'] ?> mr-1"></i>
+                                        <i class="fas <?= $typeInfo['icon'] ?> mr-1" aria-hidden="true"></i>
                                         <?= htmlspecialchars($typeInfo['label']) ?>
                                     </span>
                                 </td>
                                 <td><?= htmlspecialchars($entry['action_description']) ?></td>
                                 <td>
                                     <?php if ($entry['vehicle_name']): ?>
-                                        <i class="fas fa-truck mr-1 text-gray-400"></i>
+                                        <i class="fas fa-truck mr-1 text-[var(--text-3)]" aria-hidden="true"></i>
                                         <?= htmlspecialchars($entry['vehicle_name']) ?>
                                     <?php else: ?>
-                                        <span class="text-gray-400">—</span>
+                                        <span class="text-[var(--text-3)]">—</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
                                     <?php if ($entry['operator_name']): ?>
-                                        <i class="fas fa-user mr-1 text-gray-400"></i>
+                                        <i class="fas fa-user mr-1 text-[var(--text-3)]" aria-hidden="true"></i>
                                         <?= htmlspecialchars($entry['operator_name']) ?>
                                     <?php elseif ($entry['created_by'] === null): ?>
-                                        <span class="ignis-chip system-badge">
-                                            <i class="fas fa-cog mr-1"></i>
+                                        <span class="ignis-chip ignis-chip--danger">
+                                            <i class="fas fa-cog mr-1" aria-hidden="true"></i>
                                             System
                                         </span>
                                     <?php elseif ($entry['created_by_name']): ?>
-                                        <i class="fas fa-user mr-1 text-gray-400"></i>
+                                        <i class="fas fa-user mr-1 text-[var(--text-3)]" aria-hidden="true"></i>
                                         <?= htmlspecialchars($entry['created_by_name']) ?>
                                     <?php else: ?>
-                                        <span class="text-gray-400">—</span>
+                                        <span class="text-[var(--text-3)]">—</span>
                                     <?php endif; ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="mt-3">
-                <small class="text-gray-400">
-                    <i class="fas fa-info-circle mr-1"></i>
-                    Gesamt: <?= count($logEntries) ?> Einträge
-                </small>
+                </div>
+                <div class="ignis-list-footer">
+                    <p class="ignis-list-meta"><?= count($logEntries) ?> Einträge</p>
+                </div>
             </div>
         <?php endif; ?>
     </div>
 </div>
-
-<style>
-    .system-badge {
-        background: rgba(255, 0, 0, .3);
-        color: #ff0000;
-        font-weight: 600;
-        padding: 0.35em 0.65em;
-        border-radius: 0.25rem;
-    }
-
-    .system-badge i {
-        opacity: 0.9;
-    }
-</style>

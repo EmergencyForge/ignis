@@ -8,6 +8,8 @@ use App\Helpers\MapCoordinates;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 // Helper function to get display name with fallback to vehicle operator
+// Guarded, weil die Seite in einem Prozess mehrmals rendern kann (Feature-Tests).
+if (!function_exists('getDisplayName')) {
 function getDisplayName(?string $created_by_name, ?string $operator_name, ?string $vehicle_name): string
 {
     if (!empty($created_by_name)) {
@@ -26,6 +28,7 @@ function getDisplayName(?string $created_by_name, ?string $operator_name, ?strin
         return $_SESSION['einsatz_operator_name'];
     }
     return 'Unbekannt';
+}
 }
 
 // Load existing markers for this incident
@@ -418,7 +421,7 @@ try {
 
         <?php if (!empty($assignedVehicles)): ?>
             <!-- Assigned Vehicle Markers Grid -->
-            <div class="mb-2 text-[var(--text-dimmed,#818189)] text-sm"><strong>Zugewiesene Fahrzeuge:</strong></div>
+            <div class="mb-2 text-[var(--text-3)] text-sm"><strong>Zugewiesene Fahrzeuge:</strong></div>
             <div class="marker-legend mb-3" id="vehicleMarkerLegend">
                 <?php foreach ($assignedVehicles as $vehicle): ?>
                     <div class="legend-item"
@@ -440,7 +443,7 @@ try {
         <?php endif; ?>
 
         <!-- Standard Markers Grid -->
-        <div class="mb-2 text-[var(--text-dimmed,#818189)] text-sm"><strong>Standard-Marker:</strong></div>
+        <div class="mb-2 text-[var(--text-3)] text-sm"><strong>Standard-Marker:</strong></div>
         <div class="marker-legend" id="markerLegend">
 
             <div class="legend-item" data-type="Einsatzleiter"
@@ -491,21 +494,21 @@ try {
         <div class="mt-4">
             <h6 class="mb-3"><i class="fa-solid fa-map-pin mr-2"></i>Platzierte Marker</h6>
             <div class="twplus-table-card">
-                <table class="table table-striped table-hover twplus-table">
+                <table class="ignis-table" id="table-map-markers">
                     <thead>
                         <tr>
-                            <th>Typ</th>
-                            <th>Beschreibung</th>
-                            <th>Erstellt von</th>
-                            <th>Fahrzeug</th>
-                            <th>Zeitstempel</th>
-                            <th>Aktionen</th>
+                            <th scope="col">Typ</th>
+                            <th scope="col">Beschreibung</th>
+                            <th scope="col">Erstellt von</th>
+                            <th scope="col">Fahrzeug</th>
+                            <th scope="col">Zeitstempel</th>
+                            <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                         </tr>
                     </thead>
                     <tbody id="markerTableBody">
                         <?php if (empty($markers)): ?>
                             <tr>
-                                <td colspan="6" class="text-center text-[var(--text-dimmed,#818189)]">
+                                <td colspan="6" class="ignis-table-empty">
                                     Noch keine Marker platziert
                                 </td>
                             </tr>
@@ -519,11 +522,11 @@ try {
                                     <td><?= htmlspecialchars(getDisplayName($marker['created_by_name'], $marker['operator_name'], $marker['vehicle_name'])) ?></td>
                                     <td><?= htmlspecialchars($marker['vehicle_name'] ?? '-') ?></td>
                                     <td><?= fmt_dt($marker['created_at']) ?></td>
-                                    <td>
+                                    <td class="ignis-table__actions">
                                         <?php if (!$incident['finalized']): ?>
-                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-marker-btn"
+                                            <button class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon delete-marker-btn" aria-label="Marker löschen"
                                                 data-marker-id="<?= $marker['id'] ?>">
-                                                <i class="fa-solid fa-trash"></i>
+                                                <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                             </button>
                                         <?php endif; ?>
                                     </td>
@@ -539,22 +542,22 @@ try {
         <div class="mt-4">
             <h6 class="mb-3"><i class="fa-solid fa-draw-polygon mr-2"></i>Markierte Zonen</h6>
             <div class="twplus-table-card">
-                <table class="table table-striped table-hover twplus-table">
+                <table class="ignis-table" id="table-map-zones">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Farbe</th>
-                            <th>Beschreibung</th>
-                            <th>Erstellt von</th>
-                            <th>Fahrzeug</th>
-                            <th>Zeitstempel</th>
-                            <th>Aktionen</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Farbe</th>
+                            <th scope="col">Beschreibung</th>
+                            <th scope="col">Erstellt von</th>
+                            <th scope="col">Fahrzeug</th>
+                            <th scope="col">Zeitstempel</th>
+                            <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                         </tr>
                     </thead>
                     <tbody id="zoneTableBody">
                         <?php if (empty($zones)): ?>
                             <tr>
-                                <td colspan="7" class="text-center text-[var(--text-dimmed,#818189)]">
+                                <td colspan="7" class="ignis-table-empty">
                                     Noch keine Zonen erstellt
                                 </td>
                             </tr>
@@ -573,11 +576,11 @@ try {
                                     <td><?= htmlspecialchars(getDisplayName($zone['created_by_name'], $zone['operator_name'], $zone['vehicle_name'])) ?></td>
                                     <td><?= htmlspecialchars($zone['vehicle_name'] ?? '-') ?></td>
                                     <td><?= fmt_dt($zone['created_at']) ?></td>
-                                    <td>
+                                    <td class="ignis-table__actions">
                                         <?php if (!$incident['finalized']): ?>
-                                            <button class="ignis-btn ignis-btn--sm ignis-btn--outline-danger delete-zone-btn"
+                                            <button class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon delete-zone-btn" aria-label="Zone löschen"
                                                 data-zone-id="<?= $zone['id'] ?>">
-                                                <i class="fa-solid fa-trash"></i>
+                                                <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                             </button>
                                         <?php endif; ?>
                                     </td>
@@ -603,7 +606,7 @@ try {
                         <div class="text-center mb-2">
                             <span id="selectedMarkerIcon">📌</span>
                         </div>
-                        <p class="text-center text-[var(--text-dimmed,#818189)] text-sm" id="selectedMarkerText">
+                        <p class="text-center text-[var(--text-3)] text-sm" id="selectedMarkerText">
                             Bitte wählen Sie einen Marker-Typ aus der Legende
                         </p>
                     </div>
@@ -619,7 +622,7 @@ try {
                         <label for="markerText" class="ignis-field__label">Text-Beschriftung</label>
                         <input type="text" class="ignis-input" id="markerText" name="text"
                             placeholder="z.B. LF20, RTW 1/82-1">
-                        <small class="text-[var(--text-dimmed,#818189)]">Wird auf dem taktischen Zeichen angezeigt</small>
+                        <small class="text-[var(--text-3)]">Wird auf dem taktischen Zeichen angezeigt</small>
                     </div>
 
                     <!-- Name field for tactical symbols -->
@@ -627,7 +630,7 @@ try {
                         <label for="markerName" class="ignis-field__label">Name</label>
                         <input type="text" class="ignis-input" id="markerName" name="name"
                             placeholder="z.B. Einsatzabschnitt Nord">
-                        <small class="text-[var(--text-dimmed,#818189)]">Name des taktischen Zeichens</small>
+                        <small class="text-[var(--text-3)]">Name des taktischen Zeichens</small>
                     </div>
 
                     <!-- Typ field for tactical symbols -->
@@ -635,7 +638,7 @@ try {
                         <label for="markerTyp" class="ignis-field__label">Typ</label>
                         <input type="text" class="ignis-input" id="markerTyp" name="typ"
                             placeholder="z.B. HLF20, RTW, DLK23/12">
-                        <small class="text-[var(--text-dimmed,#818189)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
+                        <small class="text-[var(--text-3)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
                     </div>
 
                     <!-- Custom Tactical Symbol Fields -->
@@ -797,7 +800,7 @@ try {
                             <label for="customTyp" class="ignis-field__label">Typ</label>
                             <input type="text" class="ignis-input" id="customTyp"
                                 placeholder="z.B. HLF20, RTW, DLK23/12">
-                            <small class="ignis-field__hint text-[var(--text-dimmed,#818189)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
+                            <small class="ignis-field__hint text-[var(--text-3)]">Fahrzeugtyp oder Typ des taktischen Zeichens</small>
                         </div>
 
                         <div class="text-center mb-3">

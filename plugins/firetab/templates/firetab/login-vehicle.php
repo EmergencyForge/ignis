@@ -38,18 +38,15 @@ use App\Helpers\Flash;
         .sidebar-nav::-webkit-scrollbar { width: 8px; }
         html::-webkit-scrollbar-track,
         body::-webkit-scrollbar-track,
-        .sidebar-nav::-webkit-scrollbar-track { background: #1a1a1a; }
+        .sidebar-nav::-webkit-scrollbar-track { background: var(--surface-2); }
         html::-webkit-scrollbar-thumb,
         body::-webkit-scrollbar-thumb,
-        .sidebar-nav::-webkit-scrollbar-thumb { background: #4a4a4a; border-radius: 4px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: var(--fill-3); border-radius: 4px; }
         html::-webkit-scrollbar-thumb:hover,
         body::-webkit-scrollbar-thumb:hover,
-        .sidebar-nav::-webkit-scrollbar-thumb:hover { background: #5a5a5a; }
+        .sidebar-nav::-webkit-scrollbar-thumb:hover { background: var(--fill-4); }
 
         .login-container { max-width: 600px; margin: 100px auto; }
-        .vehicle-card { transition: all 0.2s; cursor: pointer; border: 2px solid transparent; }
-        .vehicle-card:hover { border-color: #0d6efd; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
-        .vehicle-card.selected { border-color: #0d6efd; background-color: rgba(13, 110, 253, 0.1); }
     </style>
 </head>
 
@@ -61,7 +58,7 @@ use App\Helpers\Flash;
                 <div class="ignis-card">
                     <div class="ignis-card__body text-center">
                         <h3 class="mb-4">
-                            <i class="fa-solid fa-truck text-[#7ba3d4] mr-2"></i>
+                            <i class="fa-solid fa-truck text-[var(--info)] mr-2" aria-hidden="true"></i>
                             Angemeldet
                         </h3>
                         <div class="ignis-alert ignis-alert--success">
@@ -72,7 +69,7 @@ use App\Helpers\Flash;
                             <a href="<?= BASE_PATH ?>firetab/list" class="ignis-btn ignis-btn--primary ignis-btn--lg">
                                 <i class="fa-solid fa-list mr-2"></i>Zur Einsatzliste
                             </a>
-                            <a href="<?= BASE_PATH ?>firetab/login-vehicle?logout=1" class="ignis-btn ignis-btn--outline-secondary">
+                            <a href="<?= BASE_PATH ?>firetab/login-vehicle?logout=1" class="ignis-btn ignis-btn--secondary ignis-btn--lg">
                                 <i class="fa-solid fa-sign-out-alt mr-2"></i>Abmelden
                             </a>
                         </div>
@@ -86,7 +83,7 @@ use App\Helpers\Flash;
                             <i class="fa-solid fa-truck mr-2"></i>
                             Fahrzeug-Anmeldung
                         </h3>
-                        <p class="mb-4 text-center text-gray-400">
+                        <p class="mb-4 text-center text-[var(--text-3)]">
                             Bitte melden Sie sich auf einem Fahrzeug an, um Einsätze zu erstellen oder anzuzeigen.
                         </p>
 
@@ -109,7 +106,7 @@ use App\Helpers\Flash;
                                         <i class="fa-solid fa-truck mr-1"></i>
                                         Fahrzeug auswählen *
                                     </label>
-                                    <select name="vehicle_id" id="vehicleSelect" class="form-select" required data-custom-dropdown="true" data-search-threshold="5">
+                                    <select name="vehicle_id" id="vehicleSelect" class="ignis-input" required data-custom-dropdown="true" data-search-threshold="5">
                                         <option value="">-- Bitte Fahrzeug wählen --</option>
                                         <?php foreach ($vehicles as $v): ?>
                                             <option value="<?= (int) $v['id'] ?>">
@@ -130,9 +127,9 @@ use App\Helpers\Flash;
                                     <?php if ($charLocked && $lockedOperator): ?>
                                         <input type="hidden" name="operator_id" value="<?= (int) $lockedOperator['id'] ?>">
                                         <input type="text" class="ignis-input" value="<?= htmlspecialchars($lockedOperator['fullname']) ?>" readonly>
-                                        <small class="text-gray-400"><i class="fa-solid fa-lock mr-1"></i>Charakter-Sperre aktiv</small>
+                                        <small class="form-hint"><i class="fa-solid fa-lock mr-1" aria-hidden="true"></i>Charakter-Sperre aktiv</small>
                                     <?php else: ?>
-                                        <select name="operator_id" id="operatorSelect" class="form-select" required data-custom-dropdown="true" data-search-threshold="5">
+                                        <select name="operator_id" id="operatorSelect" class="ignis-input" required data-custom-dropdown="true" data-search-threshold="5">
                                             <option value="">-- Bitte Mitarbeiter wählen --</option>
                                             <?php foreach ($personnel as $p): ?>
                                                 <option value="<?= (int) $p['id'] ?>">
@@ -140,7 +137,7 @@ use App\Helpers\Flash;
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
-                                        <small class="text-gray-400">Wählen Sie Ihren Namen aus der Liste</small>
+                                        <small class="form-hint">Wähle deinen Namen aus der Liste</small>
                                     <?php endif; ?>
                                 </div>
 
