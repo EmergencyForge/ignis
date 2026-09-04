@@ -1,8 +1,11 @@
 <?php
 /**
- * View: Admin-Detailansicht eines Antrags mit Bearbeitungs-Form
+ * View: Admin-Detailansicht eines Antrags mit Bearbeitungs-Form, nach dem
+ * Detailmuster: Brotkrumen, Titel mit Status-Chip; Hauptspalte mit
+ * Antragsteller und Antragsinhalt als Beschreibungslisten und der
+ * Bearbeitung als Formularkarte, Seitenspalte mit den Antragsdetails.
  *
- * @var \App\Models\Antrag                          $antrag
+ * @var \App\Models\Form                            $antrag
  * @var array<int,\stdClass>                        $felderMitWerten
  * @var array{class:string,text:string,icon:string} $currentStatus
  * @var string                                       $currentUserFullname
@@ -16,182 +19,139 @@ $SITE_TITLE = htmlspecialchars($antrag->typ->name) . ' bearbeiten [#' . htmlspec
 
 $layout = 'admin';
 $bodyId = 'antrag-admin-view';
+
+// Chip-Semantik der Statusfarben (STATUS_DISPLAY nennt die alten Namen).
+$chipFor    = ['info' => 'info', 'danger' => 'danger', 'warning' => 'warn', 'success' => 'ok'];
+$statusChip = '<span class="ignis-chip ignis-chip--dot ignis-chip--' . ($chipFor[$currentStatus['class']] ?? 'secondary') . '">' . htmlspecialchars($currentStatus['text']) . '</span>';
+$isVacation = strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') === 0;
 ?>
-<?php ob_start(); ?>
-    <style>
-        .field-label {
-            font-weight: 600;
-            color: #aaa;
-            font-size: 0.875rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .field-value {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.75rem;
-            border-radius: 0;
-            min-height: 2.5rem;
-        }
-    </style>
-<?php $layoutHead = ob_get_clean(); ?>
-
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
-            <header class="twplus-page-header mb-4">
+            <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>forms/admin/list">Anträge</a></span> <span class="ignis-breadcrumb__item is-active">#<?= htmlspecialchars($caseId) ?></span></nav>
+
+            <div class="page-header twplus-page-header mb-4">
                 <div class="twplus-page-header__copy">
                     <p class="twplus-page-header__eyebrow">Antrag #<?= htmlspecialchars($caseId) ?></p>
-                    <h1><i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?> mr-2"></i><?= htmlspecialchars($antrag->typ->name) ?> bearbeiten</h1>
+                    <h1 class="ignis-detail__title"><i class="<?= htmlspecialchars($antrag->typ->icon ?? 'fa-solid fa-file') ?>" aria-hidden="true"></i> <?= htmlspecialchars($antrag->typ->name) ?> <?= $statusChip ?></h1>
                     <p class="twplus-page-header__description">Status, Zuständigkeit und Rückmeldung an den Antragsteller bearbeiten.</p>
                 </div>
-            </header>
+                <div class="header-actions twplus-page-header__actions">
+                    <a href="<?= BASE_PATH ?>forms/admin/list" class="ignis-btn ignis-btn--ghost"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Übersicht</a>
+                </div>
+            </div>
 
-
-            <form method="post">
-                <div class="twplus-form-layout">
-                    <!-- Haupt-Spalte (lg: 2/3 Breite) -->
-                    <div class="twplus-form-layout__main">
-                        <!-- Antragsteller -->
-                        <div class="twplus-section-card mb-4 p-3">
-                            <h5 class="mb-4"><i class="fa-solid fa-user mr-2"></i>Antragsteller</h5>
-                            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                <div>
-                                    <div class="field-label">Name und Dienstnummer</div>
-                                    <div class="field-value"><?= htmlspecialchars($antrag->name_dn) ?></div>
-                                </div>
-                                <div>
-                                    <div class="field-label">Dienstgrad</div>
-                                    <div class="field-value"><?= htmlspecialchars($antrag->dienstgrad ?? '') ?></div>
-                                </div>
+            <form method="post" class="ignis-detail">
+                <div class="ignis-detail__main">
+                    <div class="ignis-detail__groups">
+                        <section class="ignis-card">
+                            <div class="ignis-card__header"><h2 class="ignis-card__title"><i class="fa-solid fa-user mr-2" aria-hidden="true"></i>Antragsteller</h2></div>
+                            <div class="ignis-card__body">
+                                <dl class="ignis-detail__dl">
+                                    <dt>Name und Dienstnummer</dt>
+                                    <dd><?= htmlspecialchars($antrag->name_dn) ?></dd>
+                                    <dt>Dienstgrad</dt>
+                                    <dd><?= ($antrag->dienstgrad ?? '') !== '' ? htmlspecialchars((string) $antrag->dienstgrad) : '—' ?></dd>
+                                </dl>
                             </div>
-                        </div>
+                        </section>
 
-                        <!-- Antragsinhalt -->
-                        <div class="twplus-section-card mb-4 p-3">
-                            <h5 class="mb-4"><i class="fa-solid fa-file-lines mr-2"></i>Antragsinhalt</h5>
+                        <section class="ignis-card">
+                            <div class="ignis-card__header"><h2 class="ignis-card__title"><i class="fa-solid fa-file-lines mr-2" aria-hidden="true"></i>Antragsinhalt</h2></div>
+                            <div class="ignis-card__body">
+                                <?php if (!empty($felderMitWerten)): ?>
+                                    <dl class="ignis-detail__dl">
+                                        <?php foreach ($felderMitWerten as $feld): ?>
+                                            <?php
+                                            if ($feld->feldtyp === 'checkbox') {
+                                                $feldWert = $feld->wert ? '<i class="fa-solid fa-square-check text-[var(--ok)]" aria-hidden="true"></i> Ja' : '<i class="fa-regular fa-square text-[var(--text-3)]" aria-hidden="true"></i> Nein';
+                                            } elseif (empty($feld->wert)) {
+                                                $feldWert = '<span class="text-[var(--text-3)]">Keine Angabe</span>';
+                                            } else {
+                                                $feldWert = htmlspecialchars($feld->wert);
+                                            }
+                                            ?>
+                                            <dt><?= htmlspecialchars($feld->label) ?></dt>
+                                            <dd class="whitespace-pre-line"><?= $feldWert ?></dd>
+                                        <?php endforeach; ?>
+                                    </dl>
+                                <?php else: ?>
+                                    <p class="ignis-detail__muted">Keine Felddaten vorhanden.</p>
+                                <?php endif; ?>
+                            </div>
+                        </section>
 
-                            <?php if (!empty($felderMitWerten)): ?>
-                                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    <?php foreach ($felderMitWerten as $feld):
-                                        $isFullWidth = $feld->feldtyp === 'textarea' || $feld->breite !== 'half';
-                                        $spanClass   = $isFullWidth ? 'md:col-span-2' : '';
-                                    ?>
-                                        <div class="<?= $spanClass ?>">
-                                            <div class="field-label"><?= htmlspecialchars($feld->label) ?></div>
-                                            <div class="field-value">
-                                                <?php if ($feld->feldtyp === 'checkbox'): ?>
-                                                    <?= $feld->wert ? '<i class="fa-solid fa-square-check text-[#6abf76]"></i> Ja' : '<i class="fa-regular fa-square text-gray-400"></i> Nein' ?>
-                                                <?php elseif (empty($feld->wert)): ?>
-                                                    <span class="text-gray-400"><i>Keine Angabe</i></span>
-                                                <?php else: ?>
-                                                    <?= nl2br(htmlspecialchars($feld->wert)) ?>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
+                        <section class="ignis-card">
+                            <div class="ignis-card__header"><h2 class="ignis-card__title"><i class="fa-solid fa-clipboard-check mr-2" aria-hidden="true"></i>Bearbeitung</h2></div>
+                            <div class="ignis-card__body">
+                                <div class="mb-3">
+                                    <span class="ignis-field__label">Aktueller Bearbeiter</span>
+                                    <div>
+                                        <?php if (!empty($antrag->cirs_manager)): ?>
+                                            <?= htmlspecialchars($antrag->cirs_manager) ?>
+                                        <?php else: ?>
+                                            <span class="text-[var(--text-3)]">Noch nicht zugewiesen</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <small class="form-hint block">Wird beim Speichern auf „<?= htmlspecialchars($currentUserFullname) ?>" gesetzt.</small>
                                 </div>
-                            <?php else: ?>
-                                <div class="rounded bg-black/30 p-3">
-                                    <p class="mb-0 text-gray-400"><i>Keine Felddaten vorhanden</i></p>
-                                </div>
-                            <?php endif; ?>
-                        </div>
 
-                        <!-- Bearbeitung -->
-                        <div class="twplus-section-card mb-6 p-3">
-                            <h5 class="mb-4"><i class="fa-solid fa-clipboard-check mr-2"></i>Bearbeitung</h5>
-
-                            <div class="mb-4">
-                                <label class="ignis-field__label text-xs text-gray-400">Aktueller Bearbeiter</label>
-                                <div class="form-control-plaintext">
-                                    <?php if (!empty($antrag->cirs_manager)): ?>
-                                        <span class="font-bold"><?= htmlspecialchars($antrag->cirs_manager) ?></span>
-                                    <?php else: ?>
-                                        <span class="text-gray-400"><i>Noch nicht zugewiesen</i></span>
+                                <div class="mb-3">
+                                    <label for="cirs_status" class="ignis-field__label">Status setzen <span class="ignis-field__required">*</span></label>
+                                    <select class="ignis-input" id="cirs_status" name="cirs_status" required>
+                                        <?php foreach (Form::STATUS_LABELS as $value => $label): ?>
+                                            <option value="<?= (int) $value ?>" <?= $antrag->cirs_status === $value ? 'selected' : '' ?>>
+                                                <?= htmlspecialchars($label) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <?php if ($isVacation): ?>
+                                        <small class="form-hint block">
+                                            <i class="fa-solid fa-calendar-days mr-1" aria-hidden="true"></i>
+                                            Bei <strong>Angenommen</strong> wird automatisch ein Eintrag im
+                                            Kalender als Abwesenheit erstellt; bei jedem anderen Status
+                                            wird er wieder entfernt.
+                                        </small>
                                     <?php endif; ?>
                                 </div>
-                                <small class="mt-1 block text-xs text-gray-400">Wird auf "<?= htmlspecialchars($currentUserFullname) ?>" gesetzt beim Speichern</small>
-                            </div>
 
-                            <div class="mb-4">
-                                <label for="cirs_status" class="ignis-field__label font-bold">Status setzen <span class="text-red-500">*</span></label>
-                                <select class="form-select" id="cirs_status" name="cirs_status" required>
-                                    <?php foreach (Form::STATUS_LABELS as $value => $label): ?>
-                                        <option value="<?= (int) $value ?>" <?= $antrag->cirs_status === $value ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($label) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <?php if (strcasecmp((string) ($antrag->typ->name ?? ''), 'Urlaubsantrag') === 0): ?>
-                                    <small class="mt-1 block text-xs text-gray-400">
-                                        <i class="fa-solid fa-calendar-days mr-1"></i>
-                                        Bei <strong>Angenommen</strong> wird automatisch ein Eintrag im
-                                        Kalender als Abwesenheit erstellt; bei jedem anderen Status
-                                        wird er wieder entfernt.
-                                    </small>
-                                <?php endif; ?>
-                            </div>
-
-                            <div class="mb-4">
-                                <label for="cirs_text" class="ignis-field__label font-bold">Bemerkung durch Bearbeiter</label>
-                                <textarea class="ignis-input" id="cirs_text" name="cirs_text" rows="5"
-                                    placeholder="Fügen Sie hier Ihre Bemerkungen zum Antrag hinzu..."><?= htmlspecialchars($antrag->cirs_text ?? '') ?></textarea>
-                                <small class="mt-1 block text-xs text-gray-400">Diese Bemerkung wird dem Antragsteller angezeigt</small>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sidebar (lg: 1/3 Breite) -->
-                    <div class="twplus-form-layout__aside">
-                        <!-- Antragsdetails -->
-                        <div class="twplus-section-card mb-4 p-3">
-                            <h6 class="mb-4"><i class="fa-solid fa-circle-info mr-2"></i>Antragsdetails</h6>
-                            <div class="text-sm">
-                                <div class="flex justify-between border-b border-white/10 py-2">
-                                    <span class="text-gray-400">Antragsnummer:</span>
-                                    <span class="font-bold">#<?= htmlspecialchars($caseId) ?></span>
-                                </div>
-                                <div class="flex justify-between border-b border-white/10 py-2">
-                                    <span class="text-gray-400">Typ:</span>
-                                    <span><?= htmlspecialchars($antrag->typ->name) ?></span>
-                                </div>
-                                <div class="flex justify-between border-b border-white/10 py-2">
-                                    <span class="text-gray-400">Erstellt am:</span>
-                                    <span><?= $createDate ? $createDate->format('d.m.Y H:i') : '' ?></span>
-                                </div>
-                                <div class="flex justify-between border-b border-white/10 py-2">
-                                    <span class="text-gray-400">Discord-ID:</span>
-                                    <span class="font-mono text-xs"><?= htmlspecialchars($antrag->discordid ?? 'N/A') ?></span>
-                                </div>
-                                <?php if ($antrag->cirs_time): ?>
-                                    <div class="flex justify-between border-b border-white/10 py-2">
-                                        <span class="text-gray-400">Letzte Bearbeitung:</span>
-                                        <span><?= $antrag->cirs_time->format('d.m.Y H:i') ?></span>
-                                    </div>
-                                <?php endif; ?>
-                                <div class="flex justify-between py-2">
-                                    <span class="text-gray-400">Status:</span>
-                                    <span class="ignis-chip ignis-chip--<?= $currentStatus['class'] ?>">
-                                        <i class="<?= $currentStatus['icon'] ?> mr-1"></i>
-                                        <?= $currentStatus['text'] ?>
-                                    </span>
+                                <div>
+                                    <label for="cirs_text" class="ignis-field__label">Bemerkung durch Bearbeiter</label>
+                                    <textarea class="ignis-input" id="cirs_text" name="cirs_text" rows="5"
+                                        placeholder="Bemerkungen zum Antrag, die der Antragsteller sieht"><?= htmlspecialchars($antrag->cirs_text ?? '') ?></textarea>
+                                    <small class="form-hint block">Diese Bemerkung wird dem Antragsteller angezeigt.</small>
                                 </div>
                             </div>
-                        </div>
-
-                        <!-- Aktionen -->
-                        <div class="twplus-section-card p-3">
-                            <h6 class="mb-4"><i class="fa-solid fa-screwdriver-wrench mr-2"></i>Aktionen</h6>
-                            <div class="flex flex-col gap-2">
-                                <button type="submit" name="save" class="ignis-btn ignis-btn--success">
-                                    <i class="fa-solid fa-floppy-disk mr-2"></i>Änderungen speichern
+                            <div class="ignis-card__footer">
+                                <a href="<?= BASE_PATH ?>forms/admin/list" class="ignis-btn ignis-btn--ghost">Abbrechen</a>
+                                <button type="submit" name="save" class="ignis-btn ignis-btn--primary">
+                                    <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Änderungen speichern
                                 </button>
-                                <a href="<?= BASE_PATH ?>forms/admin/list" class="ignis-btn ignis-btn--ghost no-underline hover:no-underline">
-                                    <i class="fa-solid fa-arrow-left mr-2"></i>Zurück zur Übersicht
-                                </a>
                             </div>
-                        </div>
+                        </section>
                     </div>
                 </div>
+
+                <aside class="ignis-detail__aside">
+                    <div class="ignis-detail__block">
+                        <h4>Antragsdetails</h4>
+                        <dl class="ignis-detail__dl">
+                            <dt>Nummer</dt>
+                            <dd><span class="ignis-mono">#<?= htmlspecialchars($caseId) ?></span></dd>
+                            <dt>Typ</dt>
+                            <dd><?= htmlspecialchars($antrag->typ->name) ?></dd>
+                            <dt>Erstellt</dt>
+                            <dd><?= $createDate->format('d.m.Y H:i') ?></dd>
+                            <dt>Discord-ID</dt>
+                            <dd><span class="ignis-mono"><?= htmlspecialchars($antrag->discordid ?? 'N/A') ?></span></dd>
+                            <?php if ($antrag->cirs_time): ?>
+                                <dt>Bearbeitet</dt>
+                                <dd><?= $antrag->cirs_time->format('d.m.Y H:i') ?></dd>
+                            <?php endif; ?>
+                            <dt>Status</dt>
+                            <dd><?= $statusChip ?></dd>
+                        </dl>
+                    </div>
+                </aside>
             </form>
         </div>
     </div>
