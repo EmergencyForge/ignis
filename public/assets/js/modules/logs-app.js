@@ -41,15 +41,15 @@
     function levelBadge(level) {
         const lvl = String(level || '').toUpperCase();
         const map = {
-            'CRITICAL': 'status-danger',
-            'ERROR':    'status-danger',
-            'WARNING':  'status-warning',
-            'NOTICE':   'status-info',
-            'INFO':     'status-info',
-            'DEBUG':    'status-muted',
+            'CRITICAL': 'danger',
+            'ERROR':    'danger',
+            'WARNING':  'warn',
+            'NOTICE':   'info',
+            'INFO':     'info',
+            'DEBUG':    'secondary',
         };
-        const cls = map[lvl] || 'status-muted';
-        return '<span class="badge-status ' + cls + '"><span class="status-dot"></span>' + escapeHtml(lvl) + '</span>';
+        const chip = map[lvl] || 'secondary';
+        return '<span class="ignis-chip ignis-chip--dot ignis-chip--' + chip + '">' + escapeHtml(lvl) + '</span>';
     }
 
     function timeAgo(datetime) {
@@ -116,7 +116,7 @@
 
         // Action bar: Kopier-Buttons
         html += '<div class="logs-detail-actions">';
-        html += '<button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm copy-btn" data-copy-text="' + escapeAttr(reportText) + '">';
+        html += '<button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm copy-btn" data-copy-text="' + escapeAttr(reportText) + '">';
         html += '<i class="fa-solid fa-copy mr-1"></i>Kompletten Report kopieren</button>';
         if (entry.error_id) {
             html += '<button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-btn" data-copy="' + escapeAttr(entry.error_id) + '">';
@@ -203,7 +203,7 @@
                         <div class="file">${escapeHtml((sample.file || '–') + (sample.line ? ':' + sample.line : ''))}</div>
                     </div>
                     <div class="count-cell">
-                        ${group.count > 1 ? '<span class="ignis-chip ignis-chip--status ignis-chip--warning">×' + group.count + '</span>' : ''}
+                        ${group.count > 1 ? '<span class="ignis-chip ignis-chip--warn">×' + group.count + '</span>' : ''}
                     </div>
                     <div class="time-cell">${escapeHtml(timeAgo(group.last_seen))}</div>
                     <div class="chevron"><i class="fa-solid fa-chevron-right"></i></div>
@@ -353,7 +353,7 @@
         const params = new URLSearchParams();
         params.set('q', document.getElementById('searchQuery').value || '');
         const file = document.getElementById('searchFile').value;
-        const activeScope = document.querySelector('#inboxScopeFilter [data-scope].active');
+        const activeScope = document.querySelector('#inboxScopeFilter [data-scope].is-active');
         if (activeScope && activeScope.dataset.scope !== 'all') {
             params.set('level', activeScope.dataset.scope);
         }
@@ -389,8 +389,8 @@
     // ── Scope-Filter (Alle/Critical/Error/Warning) ──
     document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(btn => {
         btn.addEventListener('click', async function () {
-            document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+            document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(b => b.classList.remove('is-active'));
+            this.classList.add('is-active');
             const scope = this.dataset.scope;
             if (scope === 'all') {
                 renderGroups(initialGroups);
@@ -408,8 +408,8 @@
     document.getElementById('resetBtn').addEventListener('click', function () {
         document.getElementById('searchQuery').value = '';
         document.getElementById('searchFile').value = '';
-        document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(b => b.classList.remove('active'));
-        document.querySelector('#inboxScopeFilter [data-scope="all"]').classList.add('active');
+        document.querySelectorAll('#inboxScopeFilter [data-scope]').forEach(b => b.classList.remove('is-active'));
+        document.querySelector('#inboxScopeFilter [data-scope="all"]').classList.add('is-active');
         renderGroups(initialGroups);
     });
 

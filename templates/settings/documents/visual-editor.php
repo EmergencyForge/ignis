@@ -460,8 +460,8 @@ $SITE_TITLE = 'Template Editor - ' . htmlspecialchars($template['name']);
 
     <!-- Shortcut-Hilfe Park-Body -->
     <div id="shortcutHelpModal" class="ignis-dialog-park" hidden>
-        <div class="p-0" style="font-size:0.82rem;">
-            <table class="table table-striped mb-0 twplus-table">
+        <div class="p-0 text-sm">
+            <table class="ignis-table">
                 <tbody>
                     <tr><td class="pl-3"><kbd>Ctrl+S</kbd></td><td>Speichern</td></tr>
                     <tr><td class="pl-3"><kbd>Ctrl+Z</kbd></td><td>Rückgängig</td></tr>

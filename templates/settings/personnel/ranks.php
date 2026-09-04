@@ -20,54 +20,53 @@ $SITE_TITLE = 'Dienstgrade';
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Personalstammdaten</p><h1>Dienstgrade verwalten</h1><p class="twplus-page-header__description">Bezeichnungen, Badges und Sortierung der Dienstgrade pflegen.</p></div>
                         <div class="header-actions twplus-page-header__actions">
                             <?php if (Permissions::check('admin')) : ?>
-                                <button type="button" class="ignis-btn ignis-btn--success" onclick="openCreateDienstgradModal()">
-                                    <i class="fa-solid fa-plus"></i> Dienstgrad erstellen
+                                <button type="button" class="ignis-btn ignis-btn--primary" onclick="openCreateDienstgradModal()">
+                                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Dienstgrad erstellen
                                 </button>
                             <?php endif; ?>
                         </div>
                     </div>
                     <div class="twplus-table-card">
+                        <div class="twplus-table-card__scroll">
                         <table class="ignis-table" id="table-dienstgrade">
                             <thead>
                                 <tr>
-                                    <th scope="col">Priorität</th>
+                                    <th scope="col" class="ignis-table__num">Priorität</th>
                                     <th scope="col">Badge</th>
                                     <th scope="col">Bezeichnung <i class="fa-solid fa-mars-and-venus"></i></th>
                                     <th scope="col">Bezeichnung <i class="fa-solid fa-mars"></i></th>
                                     <th scope="col">Bezeichnung <i class="fa-solid fa-venus"></i></th>
                                     <th scope="col">Archiv?</th>
-                                    <th scope="col"></th>
+                                    <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($ranks as $row):
-                                    $dimmed = '';
-                                    if ((int)$row['archive'] === 0) {
-                                        $dgActive = "<span class='badge-status status-success'><span class='status-dot'></span>Nein</span>";
-                                    } else {
-                                        $dgActive = "<span class='badge-status status-danger'><span class='status-dot'></span>Ja</span>";
-                                        $dimmed = "style='color:var(--tag-color)'";
-                                    }
+                                    $archived = (int)$row['archive'] !== 0;
+                                    $dgActive = $archived
+                                        ? "<span class='ignis-chip ignis-chip--dot ignis-chip--danger'>Ja</span>"
+                                        : "<span class='ignis-chip ignis-chip--dot ignis-chip--ok'>Nein</span>";
                                     $badge = $row['badge'] === null
                                         ? ''
                                         : "<img src='" . htmlspecialchars($row['badge']) . "' height='16px' width='auto' alt='Dienstgrad'>";
 
                                     $actions = Permissions::check('admin')
-                                        ? "<button type='button' title='Dienstgrad bearbeiten' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary ignis-btn--icon' onclick='openEditDienstgradModal(this)' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-badge='" . htmlspecialchars((string)$row['badge']) . "' data-priority='{$row['priority']}' data-archive='{$row['archive']}'><i class='fa-solid fa-pen'></i></button>"
+                                        ? "<button type='button' class='ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon' data-ignis-tooltip='Dienstgrad bearbeiten' aria-label='Dienstgrad bearbeiten' onclick='openEditDienstgradModal(this)' data-id='{$row['id']}' data-name='" . htmlspecialchars($row['name']) . "' data-name_m='" . htmlspecialchars($row['name_m']) . "' data-name_w='" . htmlspecialchars($row['name_w']) . "' data-badge='" . htmlspecialchars((string)$row['badge']) . "' data-priority='{$row['priority']}' data-archive='{$row['archive']}'><i class='fa-solid fa-pen'></i></button>"
                                         : '';
                                 ?>
-                                    <tr>
-                                        <td <?= $dimmed ?>><?= (int)$row['priority'] ?></td>
+                                    <tr<?= $archived ? ' class="is-muted"' : '' ?>>
+                                        <td class="ignis-table__num"><?= (int)$row['priority'] ?></td>
                                         <td><?= $badge ?></td>
-                                        <td <?= $dimmed ?>><?= htmlspecialchars($row['name']) ?></td>
-                                        <td <?= $dimmed ?>><?= htmlspecialchars($row['name_m']) ?></td>
-                                        <td <?= $dimmed ?>><?= htmlspecialchars($row['name_w']) ?></td>
+                                        <td><?= htmlspecialchars($row['name']) ?></td>
+                                        <td><?= htmlspecialchars($row['name_m']) ?></td>
+                                        <td><?= htmlspecialchars($row['name_w']) ?></td>
                                         <td><?= $dgActive ?></td>
-                                        <td><?= $actions ?></td>
+                                        <td class="ignis-table__actions"><div class="ignis-row-actions"><?= $actions ?></div></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -96,11 +95,9 @@ $SITE_TITLE = 'Dienstgrade';
 
             <div class="mb-3">
                 <label for="dienstgrad-badge" class="ignis-field__label">Badge <small class="form-hint">(Pfad oder URL, optional)</small></label>
-                <div class="input-group">
-                    <input type="text" class="ignis-input" name="badge" id="dienstgrad-badge">
-                    <span class="input-group-text p-1">
-                        <img id="dienstgrad-badge-preview" src="" alt="Preview" style="height:30px; display: none;">
-                    </span>
+                <div class="flex items-center gap-2">
+                    <input type="text" class="ignis-input" name="badge" id="dienstgrad-badge" placeholder="assets/img/badges/…">
+                    <img id="dienstgrad-badge-preview" src="" alt="Vorschau des Badges" class="h-8 w-auto shrink-0" hidden>
                 </div>
             </div>
 
@@ -115,7 +112,7 @@ $SITE_TITLE = 'Dienstgrade';
         <!-- Hidden Delete-Form fuer den Loeschen-Action im Edit-Dialog. Bleibt
              ausserhalb der Dialog-DOM, damit die Form auch nach Dialog-Close
              noch existiert (Submit erfolgt direkt nach Confirm). -->
-        <form id="delete-dienstgrad-form" action="<?= BASE_PATH ?>settings/personnel/ranks/delete" method="POST" style="display:none;">
+        <form id="delete-dienstgrad-form" action="<?= BASE_PATH ?>settings/personnel/ranks/delete" method="POST" hidden>
             <input type="hidden" name="id" id="dienstgrad-delete-id">
         </form>
     <?php endif; ?>
@@ -129,8 +126,8 @@ $SITE_TITLE = 'Dienstgrade';
             if (!input || !preview) return;
             function update() {
                 var v = input.value.trim();
-                if (v) { preview.src = v; preview.style.display = 'block'; }
-                else   { preview.style.display = 'none'; }
+                if (v) { preview.src = v; preview.hidden = false; }
+                else   { preview.hidden = true; }
             }
             input.addEventListener('blur', update);
             update();
@@ -142,7 +139,7 @@ $SITE_TITLE = 'Dienstgrade';
                 template:     'dienstgradFormTemplate',
                 formAction:   '<?= BASE_PATH ?>settings/personnel/ranks/create',
                 submitLabel:  'Erstellen',
-                submitVariant:'success',
+                submitVariant:'primary',
                 onOpen:       function (dlg) { bindBadgePreview(dlg.element); },
             });
         }
@@ -159,7 +156,7 @@ $SITE_TITLE = 'Dienstgrade';
                 formAction:   '<?= BASE_PATH ?>settings/personnel/ranks/update',
                 hiddenFields: { id: data.id },
                 submitLabel:  'Speichern',
-                submitVariant:'soft-primary',
+                submitVariant:'primary',
                 dangerAction: {
                     label:   'Löschen',
                     onClick: function (dlg) {
@@ -173,14 +170,14 @@ $SITE_TITLE = 'Dienstgrade';
                     },
                 },
                 onOpen: function (dlg) {
-                    var $body = $(dlg.element);
-                    $body.find('#dienstgrad-name').val(data.name);
-                    $body.find('#dienstgrad-name_m').val(data.name_m);
-                    $body.find('#dienstgrad-name_w').val(data.name_w);
-                    $body.find('#dienstgrad-priority').val(data.priority);
-                    $body.find('#dienstgrad-badge').val(data.badge);
-                    $body.find('#dienstgrad-archive').prop('checked', data.archive == 1);
-                    bindBadgePreview(dlg.element);
+                    var body = dlg.element;
+                    body.querySelector('#dienstgrad-name').value = data.name;
+                    body.querySelector('#dienstgrad-name_m').value = data.name_m;
+                    body.querySelector('#dienstgrad-name_w').value = data.name_w;
+                    body.querySelector('#dienstgrad-priority').value = data.priority;
+                    body.querySelector('#dienstgrad-badge').value = data.badge;
+                    body.querySelector('#dienstgrad-archive').checked = data.archive == 1;
+                    bindBadgePreview(body);
                 },
             });
         }

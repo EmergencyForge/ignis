@@ -13,24 +13,6 @@ use App\Security\CsrfProtection;
 // CSRF-Token für Failed-Jobs-POST-Aktionen generieren/holen
 $csrfToken = CsrfProtection::getToken();
 
-/**
- * Mappt einen Log-Level auf das System-Status-Badge.
- */
-function logs_level_badge(string $level): string
-{
-    $level = strtoupper($level);
-    $map = [
-        'CRITICAL' => 'status-danger',
-        'ERROR'    => 'status-danger',
-        'WARNING'  => 'status-warning',
-        'NOTICE'   => 'status-info',
-        'INFO'     => 'status-info',
-        'DEBUG'    => 'status-muted',
-    ];
-    $cls = $map[$level] ?? 'status-muted';
-    return "<span class='badge-status {$cls}'><span class='status-dot'></span>" . htmlspecialchars($level) . '</span>';
-}
-
 $layout = 'admin';
 $bodyId = 'settings';
 $SITE_TITLE = 'Fehlerprotokoll';
@@ -55,12 +37,12 @@ $SITE_TITLE = 'Fehlerprotokoll';
 
         /* Group rows: kompakt, nutzen System-Border-Tokens */
         .logs-group {
-            border-bottom: 1px solid var(--bs-border-color, rgba(255, 255, 255, 0.08));
+            border-bottom: 1px solid var(--border);
             transition: background-color 0.12s;
         }
         .logs-group:last-child { border-bottom: none; }
-        .logs-group:hover { background-color: rgba(255, 255, 255, 0.03); }
-        .logs-group.expanded { background-color: rgba(255, 255, 255, 0.045); }
+        .logs-group:hover { background-color: var(--fill-1); }
+        .logs-group.expanded { background-color: var(--fill-2); }
 
         .logs-group-row {
             display: grid;
@@ -103,7 +85,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
         .logs-detail {
             display: none;
             padding: 14px 18px 18px 18px;
-            border-top: 1px dashed var(--bs-border-color, rgba(255, 255, 255, 0.08));
+            border-top: 1px dashed var(--border);
         }
         .logs-group.expanded .logs-detail { display: block; }
         .logs-detail-actions {
@@ -133,8 +115,8 @@ $SITE_TITLE = 'Fehlerprotokoll';
             gap: 12px 18px;
         }
         .logs-trace {
-            background: var(--bs-tertiary-bg, #1a1a1a);
-            border: 1px solid var(--bs-border-color, rgba(255, 255, 255, 0.1));
+            background: var(--surface-2);
+            border: 1px solid var(--border);
             padding: 0.85rem 1rem;
             border-radius: 6px;
             font-size: 0.75rem;
@@ -152,8 +134,8 @@ $SITE_TITLE = 'Fehlerprotokoll';
             margin-top: 2px;
         }
         .logs-id-pill {
-            background: var(--bs-tertiary-bg, rgba(255, 255, 255, 0.06));
-            border: 1px solid var(--bs-border-color, rgba(255, 255, 255, 0.1));
+            background: var(--fill-2);
+            border: 1px solid var(--border);
             font-family: var(--font-mono, 'Inconsolata', monospace);
             font-size: 0.72rem;
             padding: 3px 8px;
@@ -161,7 +143,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
             cursor: pointer;
             transition: background 0.1s;
         }
-        .logs-id-pill:hover { background: var(--bs-secondary-bg, rgba(255, 255, 255, 0.12)); }
+        .logs-id-pill:hover { background: var(--fill-3); }
 
         .logs-empty {
             display: flex;
@@ -204,81 +186,78 @@ $SITE_TITLE = 'Fehlerprotokoll';
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
             <div class="mb-6">
-                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item">System</span> <span class="ignis-breadcrumb__item is-active">Fehlerprotokoll</span></nav>
+                    <nav class="ignis-breadcrumb"><span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>index">Dashboard</a></span> <span class="ignis-breadcrumb__item">Einstellungen</span> <span class="ignis-breadcrumb__item"><a href="<?= BASE_PATH ?>settings/system/index">System</a></span> <span class="ignis-breadcrumb__item is-active">Fehlerprotokoll</span></nav>
                     <div class="page-header twplus-page-header mb-4">
                         <div class="twplus-page-header__copy"><p class="twplus-page-header__eyebrow">Diagnostik</p><h1>Fehlerprotokoll</h1><p class="twplus-page-header__description">Fehler suchen, gruppierte Ereignisse untersuchen und fehlgeschlagene Jobs behandeln.</p></div>
                         <div class="header-actions twplus-page-header__actions">
-                            <button type="button" class="ignis-btn ignis-btn--ghost" id="refreshBtn">
-                                <i class="fa-solid fa-rotate mr-1"></i>Aktualisieren
+                            <button type="button" class="ignis-btn ignis-btn--secondary" id="refreshBtn">
+                                <i class="fa-solid fa-rotate" aria-hidden="true"></i> Aktualisieren
                             </button>
                         </div>
                     </div>
 
                     <!-- ───────────── HERO: Error-ID Lookup (primärer Use-Case) ───────────── -->
-                    <div class="twplus-toolbar logs-lookup-hero mb-3 p-3">
-                        <div class="flex flex-wrap items-center gap-3">
+                    <div class="ignis-card logs-lookup-hero mb-3">
+                        <div class="ignis-card__body flex flex-wrap items-center gap-3">
                             <div class="shrink-0">
-                                <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-[#7ba3d4]"></i>Error-ID Lookup</div>
-                                <div class="text-gray-400" style="font-size: 0.72rem;">
+                                <div class="font-semibold"><i class="fa-solid fa-key mr-2 text-[var(--info)]" aria-hidden="true"></i>Error-ID Lookup</div>
+                                <div class="text-xs text-[var(--text-3)]">
                                     8-stellige ID aus der Production-Fehlerseite &mdash; z.B. <code>0B29305D</code>
                                 </div>
                             </div>
-                            <div class="flex-1" style="min-width: 260px;">
-                                <div class="input-group">
-                                    <input type="text"
-                                           id="errorIdInput"
-                                           class="ignis-input lookup-input"
-                                           placeholder="A1B2C3D4"
-                                           maxlength="8"
-                                           autocomplete="off"
-                                           pattern="[A-Fa-f0-9]{8}"
-                                           autofocus>
-                                    <button type="button" class="ignis-btn ignis-btn--soft-primary" id="errorIdLookupBtn">
-                                        <i class="fa-solid fa-magnifying-glass mr-1"></i>Suchen
-                                    </button>
-                                </div>
+                            <div class="flex min-w-[260px] flex-1 items-center gap-2">
+                                <label for="errorIdInput" class="sr-only">Error-ID</label>
+                                <input type="text"
+                                       id="errorIdInput"
+                                       class="ignis-input lookup-input"
+                                       placeholder="A1B2C3D4"
+                                       maxlength="8"
+                                       autocomplete="off"
+                                       pattern="[A-Fa-f0-9]{8}"
+                                       autofocus>
+                                <button type="button" class="ignis-btn ignis-btn--primary" id="errorIdLookupBtn">
+                                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Suchen
+                                </button>
                             </div>
                         </div>
                     </div>
 
                     <!-- ───────────── Stats ───────────── -->
-                    <div class="twplus-stats twplus-stats--five mb-3">
-                        <div class="twplus-stats__item h-full p-3 text-center">
-                            <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Errors gesamt</div>
-                            <div class="mt-1 text-xl font-bold"><?= number_format($stats['total'] ?? 0, 0, ',', '.') ?></div>
+                    <dl class="twplus-stats twplus-stats--five mb-3" aria-label="Fehlerstatistik">
+                        <div class="twplus-stats__item">
+                            <dt class="twplus-stats__label">Errors gesamt</dt>
+                            <dd class="twplus-stats__value"><?= number_format($stats['total'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
-                        <div class="twplus-stats__item h-full p-3 text-center">
-                            <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Letzte 24h</div>
-                            <div class="mt-1 text-xl font-bold text-[#ddb84a]"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></div>
+                        <div class="twplus-stats__item">
+                            <dt class="twplus-stats__label">Letzte 24h</dt>
+                            <dd class="twplus-stats__value text-[var(--warn)]"><?= number_format($stats['last_24h'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
-                        <div class="twplus-stats__item h-full p-3 text-center">
-                            <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Letzte 7 Tage</div>
-                            <div class="mt-1 text-xl font-bold text-[#ddb84a]"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></div>
+                        <div class="twplus-stats__item">
+                            <dt class="twplus-stats__label">Letzte 7 Tage</dt>
+                            <dd class="twplus-stats__value text-[var(--warn)]"><?= number_format($stats['last_7d'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
-                        <div class="twplus-stats__item h-full p-3 text-center">
-                            <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Critical</div>
-                            <div class="mt-1 text-xl font-bold text-[#d46b6b]"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></div>
+                        <div class="twplus-stats__item">
+                            <dt class="twplus-stats__label">Critical</dt>
+                            <dd class="twplus-stats__value text-[var(--danger)]"><?= number_format($stats['by_level']['CRITICAL'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
-                        <div class="twplus-stats__item h-full p-3 text-center">
-                            <div class="text-xs uppercase text-gray-400" style="letter-spacing:0.05em;">Error</div>
-                            <div class="mt-1 text-xl font-bold text-[#d46b6b]"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></div>
+                        <div class="twplus-stats__item">
+                            <dt class="twplus-stats__label">Error</dt>
+                            <dd class="twplus-stats__value text-[var(--danger)]"><?= number_format($stats['by_level']['ERROR'] ?? 0, 0, ',', '.') ?></dd>
                         </div>
-                    </div>
+                    </dl>
 
                     <!-- ───────────── Browse / Filter / Inbox ───────────── -->
-                    <div class="twplus-section-card p-3">
-                        <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
-                            <div>
-                                <h5 class="mb-0"><i class="fa-solid fa-inbox mr-2"></i>Letzte Fehler</h5>
-                                <small class="text-gray-400">Gruppiert nach Exception &amp; Datei. Klick zum Aufklappen.</small>
-                            </div>
-                            <div class="btn-toolbar-group" id="inboxScopeFilter">
-                                <button type="button" class="ignis-btn active" data-scope="all">Alle</button>
-                                <button type="button" class="ignis-btn" data-scope="CRITICAL">Critical</button>
-                                <button type="button" class="ignis-btn" data-scope="ERROR">Error</button>
-                                <button type="button" class="ignis-btn" data-scope="WARNING">Warning</button>
-                            </div>
+                    <div class="ignis-card">
+                        <div class="ignis-card__header">
+                            <h2 class="ignis-card__title"><i class="fa-solid fa-inbox mr-2" aria-hidden="true"></i>Letzte Fehler <span class="ignis-card__subtitle">Gruppiert nach Exception und Datei, Klick klappt auf.</span></h2>
+                            <nav class="ignis-filter-links" id="inboxScopeFilter" aria-label="Stufe">
+                                <button type="button" class="is-active" data-scope="all">Alle</button>
+                                <button type="button" data-scope="CRITICAL">Critical</button>
+                                <button type="button" data-scope="ERROR">Error</button>
+                                <button type="button" data-scope="WARNING">Warning</button>
+                            </nav>
                         </div>
+                        <div class="ignis-card__body">
 
                         <div class="mb-3 flex flex-col gap-2 md:flex-row md:items-center">
                             <div class="flex-1">
@@ -289,7 +268,8 @@ $SITE_TITLE = 'Fehlerprotokoll';
                                        autocomplete="off">
                             </div>
                             <div class="md:w-56">
-                                <select id="searchFile" class="form-select">
+                                <label for="searchFile" class="sr-only">Datei</label>
+                                <select id="searchFile" class="ignis-input">
                                     <option value="">Alle Dateien</option>
                                     <?php foreach ($files as $f): ?>
                                         <option value="<?= htmlspecialchars($f['name']) ?>">
@@ -299,11 +279,11 @@ $SITE_TITLE = 'Fehlerprotokoll';
                                 </select>
                             </div>
                             <div class="flex gap-1">
-                                <button type="button" class="ignis-btn ignis-btn--soft-primary" id="searchBtn">
-                                    <i class="fa-solid fa-magnifying-glass mr-1"></i>Suchen
+                                <button type="button" class="ignis-btn ignis-btn--secondary" id="searchBtn">
+                                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Suchen
                                 </button>
-                                <button type="button" class="ignis-btn ignis-btn--ghost" id="resetBtn" title="Zurück zur Inbox">
-                                    <i class="fa-solid fa-rotate-left"></i>
+                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--icon" id="resetBtn" data-ignis-tooltip="Zurück zur Inbox" aria-label="Zurück zur Inbox">
+                                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
                                 </button>
                             </div>
                         </div>
@@ -319,6 +299,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                                 <div id="inboxList"></div>
                             <?php endif; ?>
                         </div>
+                        </div>
                     </div>
 
                     <!-- ───────────── Failed Jobs Section ───────────── -->
@@ -326,34 +307,33 @@ $SITE_TITLE = 'Fehlerprotokoll';
                     $failedTotal = $failedJobsStats['total'] ?? 0;
                     $failed24h   = $failedJobsStats['last_24h'] ?? 0;
                     ?>
-                    <div class="twplus-section-card p-3 mt-3">
-                        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-hexagon-exclamation text-[#ddb84a]"></i>
-                                <h6 class="mb-0 font-semibold">Fehlgeschlagene Hintergrund-Jobs</h6>
+                    <div class="ignis-card mt-3">
+                        <div class="ignis-card__header">
+                            <h2 class="ignis-card__title flex flex-wrap items-center gap-2">
+                                <i class="fa-solid fa-hexagon-exclamation text-[var(--warn)]" aria-hidden="true"></i>
+                                Fehlgeschlagene Hintergrund-Jobs
                                 <?php if ($failedTotal > 0): ?>
-                                    <span class="ignis-chip ignis-chip--status ignis-chip--danger"><?= (int) $failedTotal ?>
-                                    </span>
+                                    <span class="ignis-chip ignis-chip--dot ignis-chip--danger"><?= (int) $failedTotal ?></span>
                                 <?php endif; ?>
                                 <?php if ($failed24h > 0): ?>
-                                    <span class="ignis-chip ignis-chip--status ignis-chip--warning"><?= (int) $failed24h ?> in 24h
-                                    </span>
+                                    <span class="ignis-chip ignis-chip--dot ignis-chip--warn"><?= (int) $failed24h ?> in 24h</span>
                                 <?php endif; ?>
-                            </div>
-                            <div class="btn-toolbar-group">
-                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="refreshFailedJobsBtn" title="Liste neu laden">
-                                    <i class="fa-solid fa-rotate"></i>
+                            </h2>
+                            <div class="ignis-card__actions">
+                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" id="refreshFailedJobsBtn" data-ignis-tooltip="Liste neu laden" aria-label="Liste neu laden">
+                                    <i class="fa-solid fa-rotate" aria-hidden="true"></i>
                                 </button>
                                 <?php if ($failedTotal > 0): ?>
-                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary" id="retryAllFailedJobsBtn">
-                                        <i class="fa-solid fa-arrows-rotate mr-1"></i>Alle erneut versuchen
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" id="retryAllFailedJobsBtn">
+                                        <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Alle erneut versuchen
                                     </button>
-                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" id="deleteAllFailedJobsBtn">
-                                        <i class="fa-solid fa-trash mr-1"></i>Alle löschen
+                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger" id="deleteAllFailedJobsBtn">
+                                        <i class="fa-solid fa-trash" aria-hidden="true"></i> Alle löschen
                                     </button>
                                 <?php endif; ?>
                             </div>
                         </div>
+                        <div class="ignis-card__body">
 
                         <div id="failedJobsList">
                             <?php if (empty($failedJobs)): ?>
@@ -369,7 +349,7 @@ $SITE_TITLE = 'Fehlerprotokoll';
                                 <?php foreach ($failedJobs as $fj): ?>
                                     <div class="logs-group" data-failed-id="<?= (int) $fj['id'] ?>">
                                         <div class="logs-group-row">
-                                            <div><span class="ignis-chip ignis-chip--status ignis-chip--danger">FAILED</span></div>
+                                            <div><span class="ignis-chip ignis-chip--dot ignis-chip--danger">FAILED</span></div>
                                             <div class="info">
                                                 <span class="exception"><?= htmlspecialchars($fj['job_class'] ?? 'Unbekannter Job') ?></span>
                                                 <div class="message"><?= htmlspecialchars($fj['short_message'] ?? '–') ?></div>
@@ -381,11 +361,11 @@ $SITE_TITLE = 'Fehlerprotokoll';
                                         </div>
                                         <div class="logs-detail" data-rendered="1">
                                             <div class="logs-detail-actions">
-                                                <button type="button" class="ignis-btn ignis-btn--soft-primary ignis-btn--sm failed-retry-btn" data-id="<?= (int) $fj['id'] ?>">
-                                                    <i class="fa-solid fa-arrows-rotate mr-1"></i>Erneut versuchen
+                                                <button type="button" class="ignis-btn ignis-btn--secondary ignis-btn--sm failed-retry-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                    <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i> Erneut versuchen
                                                 </button>
-                                                <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm text-[#d46b6b] failed-delete-btn" data-id="<?= (int) $fj['id'] ?>">
-                                                    <i class="fa-solid fa-trash mr-1"></i>Löschen
+                                                <button type="button" class="ignis-btn ignis-btn--ghost-danger ignis-btn--sm failed-delete-btn" data-id="<?= (int) $fj['id'] ?>">
+                                                    <i class="fa-solid fa-trash" aria-hidden="true"></i> Löschen
                                                 </button>
                                                 <button type="button" class="ignis-btn ignis-btn--ghost ignis-btn--sm copy-btn" data-copy="<?= htmlspecialchars($fj['uuid'], ENT_QUOTES) ?>" title="UUID kopieren">
                                                     <i class="fa-regular fa-copy"></i> UUID
@@ -422,45 +402,50 @@ $SITE_TITLE = 'Fehlerprotokoll';
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
+                        </div>
                     </div>
 
                     <!-- ───────────── Files (collapsed) ───────────── -->
-                    <details class="twplus-section-card p-3 mt-3">
-                        <summary class="font-bold" style="cursor:pointer;">
-                            <i class="fa-solid fa-folder-tree mr-2"></i>Verfügbare Log-Dateien (<?= count($files) ?>)
+                    <details class="ignis-card mt-3">
+                        <summary class="ignis-card__header cursor-pointer select-none font-semibold">
+                            <span><i class="fa-solid fa-folder-tree mr-2" aria-hidden="true"></i>Verfügbare Log-Dateien (<?= count($files) ?>)</span>
                         </summary>
-                        <table class="table table-striped table-sm mt-3 mb-0 twplus-table">
+                        <div class="twplus-table-card__scroll">
+                        <table class="ignis-table" id="table-log-files">
                             <thead>
                                 <tr>
-                                    <th>Datei</th>
-                                    <th class="text-right">Größe</th>
-                                    <th>Typ</th>
-                                    <th>Letzte Änderung</th>
-                                    <th></th>
+                                    <th scope="col">Datei</th>
+                                    <th scope="col" class="ignis-table__num">Größe</th>
+                                    <th scope="col">Typ</th>
+                                    <th scope="col">Letzte Änderung</th>
+                                    <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($files as $f): ?>
                                     <tr>
-                                        <td><code><?= htmlspecialchars($f['name']) ?></code></td>
-                                        <td class="text-right"><?= number_format($f['size'] / 1024, 1) ?> KB</td>
+                                        <td><code class="ignis-mono"><?= htmlspecialchars($f['name']) ?></code></td>
+                                        <td class="ignis-table__num"><?= number_format($f['size'] / 1024, 1) ?> KB</td>
                                         <td>
                                             <?php if ($f['type'] === 'error'): ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--danger">error</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--danger">error</span>
                                             <?php else: ?>
-                                                <span class="ignis-chip ignis-chip--status ignis-chip--dark">app</span>
+                                                <span class="ignis-chip ignis-chip--dot ignis-chip--secondary">app</span>
                                             <?php endif; ?>
                                         </td>
                                         <td><?= date('d.m.Y H:i', $f['mtime']) ?></td>
-                                        <td class="text-right">
-                                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary tail-btn" data-file="<?= htmlspecialchars($f['name']) ?>">
-                                                <i class="fa-solid fa-eye mr-1"></i>Letzte 100
-                                            </button>
+                                        <td class="ignis-table__actions">
+                                            <div class="ignis-row-actions">
+                                                <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary tail-btn" data-file="<?= htmlspecialchars($f['name']) ?>">
+                                                    <i class="fa-solid fa-eye" aria-hidden="true"></i> Letzte 100
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
+                        </div>
                     </details>
             </div>
         </div>
