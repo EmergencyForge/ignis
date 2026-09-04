@@ -91,7 +91,9 @@ final class ComponentClassTest extends TestCase
      */
     private function markupFiles(): array
     {
-        $roots = ['/templates', '/assets/components', '/assets/js/ui', '/assets/js/modules', '/src', '/index.php', '/dashboard.php'];
+        // Die UI-Module kommen gebaut aus dem Paket (public/assets/js/ui,
+        // tests/Unit/Assets/UiPackageTest.php), darum das Kompilat statt der Quelle.
+        $roots = ['/templates', '/assets/components', '/assets/js/ui', '/public/assets/js/ui', '/assets/js/modules', '/src', '/index.php', '/dashboard.php'];
         foreach (glob(self::ROOT . '/plugins/*', GLOB_ONLYDIR) ?: [] as $plugin) {
             if (str_starts_with(basename($plugin), 'enotf')) {
                 continue;
