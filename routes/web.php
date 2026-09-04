@@ -383,6 +383,8 @@ $router->post('/settings/vehicles/vehicles/update',     [\App\Http\Controllers\S
 // Controller wie bei Liste und Einzelaktion (vehicle.view / vehicle.manage).
 $router->get('/settings/vehicles/vehicles/{id:\d+}/preview', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'preview'], $settingsAuth);
 $router->get('/settings/vehicles/vehicles/{id:\d+}/edit',    [\App\Http\Controllers\Settings\FahrzeugeController::class, 'edit'],    $settingsAuth);
+// Fahrzeugseite (Detailmuster): Ziel von „Öffnen" in der Vorschau, Enter auf der Zeile und der Suche.
+$router->get('/settings/vehicles/vehicles/{id:\d+}',         [\App\Http\Controllers\Settings\FahrzeugeController::class, 'show'],    $settingsAuth);
 $router->post('/settings/vehicles/vehicles/status',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkStatus'], [new AuthMiddleware(), new CsrfMiddleware()]);
 $router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'],    [new AuthMiddleware(), new CsrfMiddleware()]);
 $router->get('/settings/vehicles/vehload/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladelistenIndex'], $settingsAuth);

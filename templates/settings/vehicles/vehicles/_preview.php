@@ -7,8 +7,9 @@
  * Wird von Settings\FahrzeugeController::preview() ohne Layout gerendert
  * und per fetch in `.ignis-preview` gesetzt. Beantwortet die häufigste
  * Frage an der Liste („Ist das Fahrzeug einsatzbereit, was ist offen?")
- * ohne Seitenwechsel. Das taktische Zeichen steht als JSON in
- * data-ignis-tz; assets/js/pages/vehicle-preview.js zeichnet es.
+ * ohne Seitenwechsel; „Öffnen" führt zur Fahrzeugseite (show.php). Das
+ * taktische Zeichen steht als JSON in data-ignis-tz;
+ * assets/js/pages/vehicle-preview.js zeichnet es.
  *
  * Erwartete Variablen:
  *   @var array<string,mixed>       $vehicle      Zeile aus intra_fahrzeuge
@@ -19,6 +20,7 @@
 
 use App\Auth\Gate;
 use App\Helpers\DateTimeHelper;
+use App\Models\VehicleDefect;
 
 $basePath  = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $canManage = Gate::allows('vehicle.manage');
@@ -33,15 +35,6 @@ $rdTypes = [
 [$rdChip, $rdLabel] = $rdTypes[(int) ($vehicle['rd_type'] ?? 0)] ?? ['secondary', 'Andere'];
 $isActive = (int) ($vehicle['active'] ?? 0) !== 0;
 
-$defectStatus = [
-    'open'        => ['Offen', 'danger'],
-    'in_progress' => ['In Bearbeitung', 'warn'],
-    'deferred'    => ['Aufgeschoben', 'info'],
-];
-$defectCategories = [
-    'mechanik' => 'Mechanik', 'elektrik' => 'Elektrik', 'karosserie' => 'Karosserie',
-    'ausruestung' => 'Ausrüstung', 'medizintechnik' => 'Medizintechnik', 'sonstiges' => 'Sonstiges',
-];
 $blocking = array_filter($defects, static fn (array $d): bool => (int) ($d['vehicle_operable'] ?? 1) === 0);
 
 // Taktisches Zeichen: die Felder, die der Generator kennt.
@@ -56,6 +49,7 @@ if (!empty($vehicle['tz_name'])) {
 }
 $tzParts = array_values(array_filter([$vehicle['grundzeichen'] ?? '', $vehicle['organisation'] ?? '', $vehicle['fachaufgabe'] ?? '', $vehicle['einheit'] ?? '']));
 
+$showUrl    = $basePath . 'settings/vehicles/vehicles/' . $vehicleId;
 $defectsUrl = $basePath . 'settings/vehicles/defects/index?vehicle=' . $vehicleId;
 ?>
 <h3 class="ignis-preview__title">
@@ -97,7 +91,7 @@ $defectsUrl = $basePath . 'settings/vehicles/defects/index?vehicle=' . $vehicleI
     <dt>Beladung</dt>
     <dd>
         <?php if ($loadout !== null && (int) $loadout['categories'] > 0): ?>
-            <a href="<?= htmlspecialchars($basePath . 'settings/vehicles/vehload/index') ?>"><?= (int) $loadout['positions'] ?> Positionen</a>
+            <a href="<?= htmlspecialchars($showUrl . '#beladung') ?>"><?= (int) $loadout['positions'] ?> Positionen</a>
             <span class="ignis-preview__muted">in <?= (int) $loadout['categories'] ?> Kategorien<?= (int) $loadout['amount'] > 0 ? ', ' . (int) $loadout['amount'] . ' Stück' : '' ?><?= !empty($loadout['changed_at']) ? ', zuletzt ' . htmlspecialchars(DateTimeHelper::formatDateLocal((string) $loadout['changed_at'])) : '' ?></span>
         <?php else: ?>
             <span class="ignis-preview__muted">Keine Beladeliste für <?= htmlspecialchars((string) $vehicle['veh_type']) ?></span>
@@ -122,17 +116,17 @@ $defectsUrl = $basePath . 'settings/vehicles/defects/index?vehicle=' . $vehicleI
 <div class="ignis-preview__section">
     <h4>
         <span><?= $openDefects === 0 ? 'Keine offenen Mängel' : ($openDefects === 1 ? '1 offener Mangel' : $openDefects . ' offene Mängel') ?></span>
-        <?php if ($openDefects > count($defects)): ?><a href="<?= htmlspecialchars($defectsUrl) ?>">alle</a><?php endif; ?>
+        <?php if ($openDefects > 0): ?><a href="<?= htmlspecialchars($defectsUrl) ?>">alle</a><?php endif; ?>
     </h4>
     <?php if ($defects === []): ?>
         <p class="ignis-preview__muted">Nichts gemeldet.</p>
     <?php else: ?>
         <ul class="ignis-preview__list">
             <?php foreach ($defects as $defect): ?>
-                <?php [$statusLabel, $statusChip] = $defectStatus[(string) $defect['status']] ?? [(string) $defect['status'], 'secondary']; ?>
+                <?php [$statusLabel, $statusChip] = VehicleDefect::STATUS_LABELS[(string) $defect['status']] ?? [(string) $defect['status'], 'secondary']; ?>
                 <li>
                     <a href="<?= htmlspecialchars($defectsUrl) ?>#defect-<?= (int) $defect['id'] ?>"><?= htmlspecialchars((string) $defect['title']) ?></a>
-                    <span class="ignis-preview__muted"><?= htmlspecialchars($defectCategories[(string) $defect['category']] ?? (string) $defect['category']) ?> · <?= htmlspecialchars(DateTimeHelper::formatDateLocal((string) $defect['created_at'])) ?></span>
+                    <span class="ignis-preview__muted"><?= htmlspecialchars(VehicleDefect::CATEGORY_LABELS[(string) $defect['category']] ?? (string) $defect['category']) ?> · <?= htmlspecialchars(DateTimeHelper::formatDateLocal((string) $defect['created_at'])) ?></span>
                     <span class="ignis-chip ignis-chip--sm ignis-chip--<?= $statusChip ?>"><?= htmlspecialchars($statusLabel) ?></span>
                 </li>
             <?php endforeach; ?>
@@ -141,7 +135,7 @@ $defectsUrl = $basePath . 'settings/vehicles/defects/index?vehicle=' . $vehicleI
 </div>
 
 <div class="ignis-preview__actions">
-    <a href="<?= htmlspecialchars($defectsUrl) ?>" class="ignis-btn ignis-btn--sm ignis-btn--primary"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Öffnen</a>
+    <a href="<?= htmlspecialchars($showUrl) ?>" class="ignis-btn ignis-btn--sm ignis-btn--primary"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i> Öffnen</a>
     <?php if ($canReport): ?>
         <a href="<?= htmlspecialchars($basePath . 'settings/vehicles/defects/create?vehicle=' . $vehicleId) ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" data-ignis-drawer><i class="fa-solid fa-wrench" aria-hidden="true"></i> Mangel melden</a>
     <?php endif; ?>

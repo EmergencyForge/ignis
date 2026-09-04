@@ -203,7 +203,7 @@ final class VehicleWorkbenchTest extends FeatureTestCase
         $list = $this->get(self::LIST, ['query' => ['q' => 'Haken']]);
         $this->assertOk($list);
         $this->assertBodyContains('data-ignis-workbench data-ignis-preview-url="/settings/vehicles/vehicles/{id}/preview"', $list);
-        $this->assertBodyContains('<tr data-ignis-row="' . $vehicle['id'] . '" data-href="/settings/vehicles/defects/index?vehicle=' . $vehicle['id'] . '" tabindex="0">', $list);
+        $this->assertBodyContains('<tr data-ignis-row="' . $vehicle['id'] . '" data-href="/settings/vehicles/vehicles/' . $vehicle['id'] . '" tabindex="0">', $list);
         $this->assertBodyContains('class="ignis-preview" data-ignis-preview', $list);
         $this->assertBodyContains('assets/js/ui/workbench.js', $list);
         $this->assertBodyNotContains('data-ignis-bulkbar', $list);

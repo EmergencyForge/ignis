@@ -5,7 +5,7 @@
  * Sortierung, Suche und Seiten laufen über den Server (App\Support\ListQuery,
  * Settings\FahrzeugeController::index). Die Liste ist ein Arbeitsbereich
  * (assets/js/ui/workbench.js): die gewählte Zeile erscheint rechts als
- * Vorschau (GET …/{id}/preview), Enter öffnet die Mängel des Fahrzeugs,
+ * Vorschau (GET …/{id}/preview), Enter öffnet die Fahrzeugseite,
  * angehakte Zeilen bekommen die Aktionsleiste mit „Status setzen" und
  * „Löschen" (nur mit vehicle.manage, CSRF-Token, Rückfrage im Dialog).
  * Bearbeiten öffnet das Formular im Drawer.
@@ -132,7 +132,8 @@ $SITE_TITLE = 'Fahrzeuge';
                                     $minOperable = $row['min_operable'];
                                     $defectChip  = ($minOperable !== null && (int) $minOperable === 0) ? 'danger' : 'warn';
                                     $rowId       = (int) $row['id'];
-                                    $rowHref     = BASE_PATH . 'settings/vehicles/defects/index?vehicle=' . $rowId;
+                                    $rowHref     = BASE_PATH . 'settings/vehicles/vehicles/' . $rowId;
+                                    $defectsHref = BASE_PATH . 'settings/vehicles/defects/index?vehicle=' . $rowId;
 
                                     // Daten für „Kopieren" (vehicles-admin.js öffnet den Anlage-Dialog vorbefüllt).
                                     $dataStr = '';
@@ -171,7 +172,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                         <td><span class="ignis-chip ignis-chip--<?= $rdChip ?>"><?= $rdLabel ?></span></td>
                                         <td class="ignis-table__num">
                                             <?php if ($openDefects > 0): ?>
-                                                <a href="<?= htmlspecialchars($rowHref, ENT_QUOTES) ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" title="Offene Defekte anzeigen"><?= $openDefects ?></a>
+                                                <a href="<?= htmlspecialchars($defectsHref, ENT_QUOTES) ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" title="Offene Defekte anzeigen"><?= $openDefects ?></a>
                                             <?php else: ?>
                                                 <span class="text-[var(--text-3)]">—</span>
                                             <?php endif; ?>
@@ -202,7 +203,7 @@ $SITE_TITLE = 'Fahrzeuge';
                         <div class="ignis-preview__empty">
                             <i class="fa-solid fa-truck-medical" aria-hidden="true"></i>
                             <b>Kein Fahrzeug gewählt</b>
-                            Zeile anklicken oder mit <kbd>↑</kbd> <kbd>↓</kbd> wählen, <kbd>Enter</kbd> öffnet die Mängel des Fahrzeugs.
+                            Zeile anklicken oder mit <kbd>↑</kbd> <kbd>↓</kbd> wählen, <kbd>Enter</kbd> öffnet die Fahrzeugseite.
                         </div>
                     </aside>
                     </div>
