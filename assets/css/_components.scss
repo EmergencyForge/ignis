@@ -561,3 +561,197 @@ table.ignis-table {
     &__meta .ignis-chip { display: none; }
   }
 }
+
+// =====================================================
+// Arbeitsbereich für Listen (assets/js/ui/workbench.js): Liste links,
+// Vorschau der gewählten Zeile rechts, Aktionsleiste über der Liste,
+// sobald Zeilen angehakt sind. Unter 1100 px fällt die Vorschau weg und
+// ein Klick auf die Zeile öffnet die Seite.
+// =====================================================
+
+.ignis-workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 1rem;
+  align-items: start;
+
+  .ignis-bulkbar { grid-column: 1 / -1; }
+
+  @media (max-width: 1099px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.ignis-bulkbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  background: var(--accent-soft);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+
+  &[hidden] { display: none; }
+  &__spacer { flex: 1; }
+  &__count b { color: var(--text); }
+  &__group { display: inline-flex; align-items: center; gap: 0.35rem; }
+  .ignis-input { width: auto; min-width: 8rem; }
+}
+
+.ignis-preview {
+  position: sticky;
+  top: calc(var(--topbar-h) + 1rem);
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+
+  @media (max-width: 1099px) { display: none; }
+
+  &__empty {
+    padding: 1.75rem 0.5rem;
+    color: var(--text-3);
+    text-align: center;
+    line-height: 1.5;
+
+    i { display: block; margin-bottom: 0.5rem; font-size: 1.4rem; }
+    b { display: block; margin-bottom: 0.2rem; color: var(--text-2); }
+    kbd { padding: 0 0.3rem; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-size: 0.85em; }
+  }
+
+  &__loading {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0.25rem 0;
+
+    .ignis-skeleton { display: block; height: 0.85em; border-radius: 999px; }
+  }
+
+  &__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.6rem;
+    font-size: var(--fs-md);
+    font-weight: 700;
+    color: var(--text);
+
+    small { color: var(--text-3); font-weight: 400; font-size: var(--fs-sm); }
+  }
+
+  &__chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.75rem; }
+
+  &__alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--radius-md);
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-weight: 600;
+
+    i { margin-top: 0.15rem; }
+  }
+
+  &__dl {
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr);
+    gap: 0.35rem 0.75rem;
+    margin: 0;
+
+    dt { color: var(--text-3); }
+    dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  }
+
+  &__section {
+    margin-top: 0.9rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--fill-2);
+
+    h4 {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin: 0 0 0.35rem;
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+
+      a { font-weight: 500; letter-spacing: 0; text-transform: none; }
+    }
+  }
+
+  &__muted { color: var(--text-3); }
+  p.ignis-preview__muted { margin: 0; }
+
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0;
+
+      .ignis-preview__muted { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    }
+  }
+
+  &__tz {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 2.5rem;
+  }
+
+  &__tz-svg {
+    display: inline-flex;
+    flex: none;
+    width: 56px;
+    height: 56px;
+    padding: 4px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--white);
+
+    svg { width: 100%; height: 100%; }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+  }
+}
+
+table.ignis-table {
+  tbody tr[data-ignis-row] {
+    cursor: default;
+
+    &:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    &[aria-selected="true"] > td { background: var(--accent-soft); }
+    &.is-checked > td { background: var(--fill-1); }
+  }
+
+  .ignis-table__check {
+    width: 2rem;
+    padding-right: 0;
+
+    input { vertical-align: middle; }
+  }
+}

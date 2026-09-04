@@ -377,7 +377,14 @@ $router->post('/settings/vehicles/vehicles/create',     [\App\Http\Controllers\S
 $router->get('/settings/vehicles/defects/create',       [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defektCreate'], $settingsAuth);
 $router->post('/settings/vehicles/defects/create',      [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defektStore'],  $settingsAuth);
 $router->post('/settings/vehicles/vehicles/update',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'update'],  $settingsAuth);
-$router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'], $settingsAuth);
+// Arbeitsbereich der Liste (assets/js/ui/workbench.js): Vorschau und
+// Bearbeiten-Formular je Zeile, Sammelaktionen der Aktionsleiste mit
+// CSRF-Token; Löschen nimmt ein `id` oder `ids[]`. Die Rechte prüft der
+// Controller wie bei Liste und Einzelaktion (vehicle.view / vehicle.manage).
+$router->get('/settings/vehicles/vehicles/{id:\d+}/preview', [\App\Http\Controllers\Settings\FahrzeugeController::class, 'preview'], $settingsAuth);
+$router->get('/settings/vehicles/vehicles/{id:\d+}/edit',    [\App\Http\Controllers\Settings\FahrzeugeController::class, 'edit'],    $settingsAuth);
+$router->post('/settings/vehicles/vehicles/status',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'bulkStatus'], [new AuthMiddleware(), new CsrfMiddleware()]);
+$router->post('/settings/vehicles/vehicles/delete',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'destroy'],    [new AuthMiddleware(), new CsrfMiddleware()]);
 $router->get('/settings/vehicles/vehload/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladelistenIndex'], $settingsAuth);
 $router->post('/settings/vehicles/vehload/beladung_handler',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'beladungHandler'], $settingsAuth);
 $router->get('/settings/vehicles/defects/index',     [\App\Http\Controllers\Settings\FahrzeugeController::class, 'defekteIndex'], $settingsAuth);
