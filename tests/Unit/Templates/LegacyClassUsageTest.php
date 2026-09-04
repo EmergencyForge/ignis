@@ -52,16 +52,6 @@ final class LegacyClassUsageTest extends TestCase
      * Pfade relativ zur Repo-Wurzel.
      */
     private const STILL_LEGACY = [
-        'assets/components/index/applications.php',
-        'assets/components/index/documents.php',
-        'assets/components/index/fire-protocols.php',
-        'assets/components/index/protocols.php',
-        'assets/components/logbook/_form-fields.php',
-        'assets/components/logbook/_list-table.php',
-        'assets/components/profiles/documents/main.php',
-        'assets/components/profiles/modals.php',
-        'dashboard.php',
-
         'plugins/firetab/templates/firetab/create.php',
         'plugins/firetab/templates/firetab/login-vehicle.php',
         'plugins/firetab/templates/firetab/tabs/asu_trupps.php',
@@ -72,7 +62,6 @@ final class LegacyClassUsageTest extends TestCase
         'templates/forms/admin/view.php',
         'templates/forms/create.php',
         'templates/forms/view.php',
-        'templates/logbook/index.php',
         'templates/settings/dashboard/index.php',
         'templates/settings/documents/categories.php',
         'templates/settings/documents/visual-editor.php',

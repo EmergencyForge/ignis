@@ -1,5 +1,6 @@
 <?php
 
+use App\Auth\Permissions;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 // Optimiert: Eine UNION-Query statt separater Queries. Die eNOTF-Zahl
@@ -23,27 +24,28 @@ if ($statsEnotfActive) {
         $statsEnotfActive = false;
     }
 }
+
+// Kachel = Weg zur Liste: wer die Liste sehen darf, bekommt einen Link,
+// sonst bleibt es eine Zahl. Rechte wie in config/navigation.php.
+$statTiles = [
+    ['Benutzer', 'fa-solid fa-users', (int) ($statsData['users'] ?? 0), BASE_PATH . 'users/list', ['admin', 'users.view']],
+    ['Mitarbeiter', 'fa-solid fa-id-card', (int) ($statsData['mitarbeiter'] ?? 0), BASE_PATH . 'personnel/list', ['admin', 'personnel.view']],
+];
+if ($statsEnotfActive) {
+    $statTiles[] = ['eNOTF-Protokolle', 'fa-solid fa-truck-medical', (int) ($statsData['enotf'] ?? 0), BASE_PATH . 'enotf/admin/list', ['admin', 'edivi.view']];
+}
+$statTiles[] = ['Dokumente', 'fa-solid fa-folder-open', (int) ($statsData['dokumente'] ?? 0), null, []];
 ?>
-<dl class="twplus-stats" aria-label="Systemstatistiken">
-    <div class="twplus-stats__item">
-        <dt class="twplus-stats__label"><i class="fa-solid fa-users mr-1" aria-hidden="true"></i> Benutzer</dt>
-        <dd class="twplus-stats__value" data-count-to="<?= (int)($statsData['users'] ?? 0) ?>">0</dd>
-    </div>
-    <div class="twplus-stats__item">
-        <dt class="twplus-stats__label"><i class="fa-solid fa-id-card mr-1" aria-hidden="true"></i> Mitarbeiter</dt>
-        <dd class="twplus-stats__value" data-count-to="<?= (int)($statsData['mitarbeiter'] ?? 0) ?>">0</dd>
-    </div>
-    <?php if ($statsEnotfActive): ?>
-        <div class="twplus-stats__item">
-            <dt class="twplus-stats__label"><i class="fa-solid fa-truck-medical mr-1" aria-hidden="true"></i> eNOTF-Protokolle</dt>
-            <dd class="twplus-stats__value" data-count-to="<?= (int)($statsData['enotf'] ?? 0) ?>">0</dd>
-        </div>
-    <?php endif; ?>
-    <div class="twplus-stats__item">
-        <dt class="twplus-stats__label"><i class="fa-solid fa-folder-open mr-1" aria-hidden="true"></i> Dokumente</dt>
-        <dd class="twplus-stats__value" data-count-to="<?= (int)($statsData['dokumente'] ?? 0) ?>">0</dd>
-    </div>
-</dl>
+<div class="twplus-stats" aria-label="Systemstatistiken">
+    <?php foreach ($statTiles as [$statLabel, $statIcon, $statValue, $statHref, $statPermissions]):
+        $statLinked = $statHref !== null && Permissions::check($statPermissions);
+    ?>
+        <<?= $statLinked ? 'a href="' . htmlspecialchars($statHref) . '"' : 'div' ?> class="twplus-stats__item">
+            <span class="twplus-stats__label"><i class="<?= $statIcon ?> mr-1" aria-hidden="true"></i> <?= $statLabel ?><?= $statLinked ? ' <i class="fa-solid fa-arrow-right twplus-stats__arrow" aria-hidden="true"></i>' : '' ?></span>
+            <span class="twplus-stats__value" data-count-to="<?= $statValue ?>">0</span>
+        </<?= $statLinked ? 'a' : 'div' ?>>
+    <?php endforeach; ?>
+</div>
 <script>
 // Stats count-up: command center power-on effect
 (function() {

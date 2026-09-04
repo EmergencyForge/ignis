@@ -2,6 +2,12 @@
 /**
  * View: Fahrtenbuch-Übersicht (Admin)
  *
+ * Seitenkopf wie die übrigen Listen, Kennzahlen, Filter als Werkzeugleiste
+ * (Fahrzeug und Fahrttyp als Auswahl, Zeitraum, Suche lokal im Browser),
+ * die Fahrten als ignis-Tabelle. Anlegen und Bearbeiten laufen in einem
+ * Seitenpanel (twplus-slide-over) über dieselben Felder
+ * (assets/components/logbook/_form-fields.php).
+ *
  * @var array<int,array<string,mixed>> $entries
  * @var array<int,array<string,mixed>> $vehicles
  * @var array{total:int,total_km:float} $stats
@@ -20,6 +26,11 @@ $SITE_TITLE = 'Fahrtenbuch';
 
 $layout = 'admin';
 $bodyId = 'fahrzeuge';
+
+// Fahrttyp => Chip-Semantik (FAHRTTYP_BADGES nennt die alten Namen).
+$chipFor = ['danger' => 'danger', 'info' => 'info', 'warning' => 'warn', 'success' => 'ok', 'primary' => 'primary', 'secondary' => 'secondary'];
+$sourceLabels = ['enotf' => 'eNOTF', 'firetab' => 'fireTab', 'admin' => 'Verwaltung'];
+$hasFilter = $filterVehicle > 0 || $filterFahrttyp !== '' || $filterDateFrom !== '' || $filterDateTo !== '';
 ?>
     <div class="container-full relative" id="mainpageContainer">
         <div class="twplus-page">
@@ -34,8 +45,8 @@ $bodyId = 'fahrzeuge';
                     </div>
                     <?php if ($canManage): ?>
                         <div class="header-actions twplus-page-header__actions">
-                            <button type="button" class="ignis-btn ignis-btn--success" id="toggleCreateForm">
-                                <i class="fa-solid fa-plus"></i> Neuer Eintrag
+                            <button type="button" class="ignis-btn ignis-btn--primary" id="toggleCreateForm">
+                                <i class="fa-solid fa-plus" aria-hidden="true"></i> Neuer Eintrag
                             </button>
                         </div>
                     <?php endif; ?>
@@ -43,9 +54,10 @@ $bodyId = 'fahrzeuge';
 
 
                 <?php if (!$tableExists): ?>
-                    <div class="ignis-alert ignis-alert--warning">
-                        <i class="fa-solid fa-database"></i> Die Tabelle <code>intra_fahrtenbuch</code> existiert noch nicht.
-                        Bitte führe <code>composer db:migrate</code> aus oder lade die Seite neu — die Datenbank wird automatisch migriert.
+                    <div class="ignis-alert ignis-alert--warn">
+                        <i class="fa-solid fa-database ignis-alert__icon" aria-hidden="true"></i>
+                        <div class="ignis-alert__body">Die Tabelle <code>intra_fahrtenbuch</code> existiert noch nicht.
+                        Bitte führe <code>composer db:migrate</code> aus oder lade die Seite neu — die Datenbank wird automatisch migriert.</div>
                     </div>
                 <?php else: ?>
 
@@ -63,8 +75,8 @@ $bodyId = 'fahrzeuge';
 
                 <!-- Create Form -->
                 <?php if ($canManage): ?>
-                <div id="createFormWrap" style="display:none;" class="twplus-section-card twplus-slide-over mb-4 p-4">
-                    <h5 class="mb-4">Neuer Eintrag</h5>
+                <div id="createFormWrap" hidden class="twplus-section-card twplus-slide-over mb-4 p-4">
+                    <h2 class="mb-4 text-lg">Neuer Eintrag</h2>
                     <form method="POST" action="<?= BASE_PATH ?>logbook/actions">
                         <input type="hidden" name="action" value="create">
                         <input type="hidden" name="return_to" value="admin">
@@ -80,16 +92,16 @@ $bodyId = 'fahrzeuge';
                         include __DIR__ . '/../../assets/components/logbook/_form-fields.php';
                         ?>
 
-                        <div class="mt-4 flex gap-2">
-                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Speichern</button>
-                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="cancelCreateForm">Abbrechen</button>
+                        <div class="mt-4 flex gap-2 justify-end">
+                            <button type="button" class="ignis-btn ignis-btn--ghost" id="cancelCreateForm">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-save" aria-hidden="true"></i> Speichern</button>
                         </div>
                     </form>
                 </div>
 
                 <!-- Edit Form -->
-                <div id="editFormWrap" style="display:none;" class="twplus-section-card twplus-slide-over mb-4 p-4">
-                    <h5 class="mb-4">Eintrag bearbeiten</h5>
+                <div id="editFormWrap" hidden class="twplus-section-card twplus-slide-over mb-4 p-4">
+                    <h2 class="mb-4 text-lg">Eintrag bearbeiten</h2>
                     <form method="POST" action="<?= BASE_PATH ?>logbook/actions" id="editForm">
                         <input type="hidden" name="action" value="update">
                         <input type="hidden" name="id" id="edit_id" value="">
@@ -101,118 +113,114 @@ $bodyId = 'fahrzeuge';
                         include __DIR__ . '/../../assets/components/logbook/_form-fields.php';
                         ?>
 
-                        <div class="mt-4 flex gap-2">
-                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--success"><i class="fa-solid fa-save mr-1"></i>Aktualisieren</button>
-                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" id="cancelEditForm">Abbrechen</button>
+                        <div class="mt-4 flex gap-2 justify-end">
+                            <button type="button" class="ignis-btn ignis-btn--ghost" id="cancelEditForm">Abbrechen</button>
+                            <button type="submit" class="ignis-btn ignis-btn--primary"><i class="fa-solid fa-save" aria-hidden="true"></i> Aktualisieren</button>
                         </div>
                     </form>
                 </div>
                 <?php endif; ?>
 
-                <!-- Filter -->
-                <div class="twplus-toolbar mb-4">
-                    <form method="GET" class="flex flex-wrap items-end gap-2">
-                        <div>
-                            <label class="ignis-field__label mb-1">Fahrzeug</label>
-                            <select name="vehicle" class="form-select form-select-sm" data-custom-dropdown="true">
-                                <option value="">Alle</option>
-                                <?php foreach ($vehicles as $v): ?>
-                                    <option value="<?= (int) $v['id'] ?>" <?= $filterVehicle === (int) $v['id'] ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($v['name']) ?> (<?= htmlspecialchars($v['identifier']) ?>)
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="ignis-field__label mb-1">Fahrttyp</label>
-                            <select name="fahrttyp" class="form-select form-select-sm" data-custom-dropdown="true">
-                                <option value="">Alle</option>
-                                <?php foreach ($fahrttypen as $slug => $label): ?>
-                                    <option value="<?= htmlspecialchars($slug) ?>" <?= $filterFahrttyp === $slug ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($label) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="ignis-field__label mb-1">Von</label>
-                            <input type="date" name="date_from" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateFrom) ?>">
-                        </div>
-                        <div>
-                            <label class="ignis-field__label mb-1">Bis</label>
-                            <input type="date" name="date_to" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateTo) ?>">
-                        </div>
-                        <div class="flex gap-2">
-                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--soft-primary"><i class="fa-solid fa-filter"></i> Filtern</button>
-                            <a href="?" class="ignis-btn ignis-btn--sm ignis-btn--ghost no-underline hover:no-underline">Zurücksetzen</a>
-                        </div>
-                    </form>
-                </div>
+                <!-- Filter: Fahrzeug, Fahrttyp und Zeitraum per GET, Suche lokal im Browser -->
+                <form method="GET" action="<?= BASE_PATH ?>logbook/index" class="ignis-list-toolbar" role="search">
+                    <label class="ignis-list-toolbar__search">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="search" id="fbLocalSearch" class="ignis-input" placeholder="Fahrzeug, Fahrer, Grund" aria-label="Einträge durchsuchen"<?= empty($entries) ? ' disabled' : '' ?>>
+                    </label>
+                    <label class="ignis-list-toolbar__field">
+                        <span class="ignis-field__label">Fahrzeug</span>
+                        <select name="vehicle" class="ignis-input ignis-input--sm" data-custom-dropdown="true">
+                            <option value="">Alle</option>
+                            <?php foreach ($vehicles as $v): ?>
+                                <option value="<?= (int) $v['id'] ?>" <?= $filterVehicle === (int) $v['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($v['name']) ?> (<?= htmlspecialchars($v['identifier']) ?>)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label class="ignis-list-toolbar__field">
+                        <span class="ignis-field__label">Fahrttyp</span>
+                        <select name="fahrttyp" class="ignis-input ignis-input--sm" data-custom-dropdown="true">
+                            <option value="">Alle</option>
+                            <?php foreach ($fahrttypen as $slug => $label): ?>
+                                <option value="<?= htmlspecialchars($slug) ?>" <?= $filterFahrttyp === $slug ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($label) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label class="ignis-list-toolbar__field">
+                        <span class="ignis-field__label">Von</span>
+                        <input type="date" name="date_from" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateFrom) ?>">
+                    </label>
+                    <label class="ignis-list-toolbar__field">
+                        <span class="ignis-field__label">Bis</span>
+                        <input type="date" name="date_to" class="ignis-input ignis-input--sm" value="<?= htmlspecialchars($filterDateTo) ?>">
+                    </label>
+                    <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary">Filtern</button>
+                    <?php if ($hasFilter): ?>
+                        <a href="<?= BASE_PATH ?>logbook/index" class="ignis-btn ignis-btn--sm ignis-btn--ghost">Zurücksetzen</a>
+                    <?php endif; ?>
+                </form>
 
                 <!-- Entries Table -->
                 <div class="twplus-table-card">
-                    <?php if (!empty($entries)): ?>
-                        <div class="p-3" style="border-bottom:1px solid rgba(255,255,255,0.06);">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
-                                <input type="text" id="fbLocalSearch" class="ignis-input" placeholder="Einträge durchsuchen...">
-                            </div>
+                    <div id="fbNoResults" class="ignis-table-empty" hidden>
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Keine Treffer
+                    </div>
+                    <?php if (empty($entries)): ?>
+                        <div class="twplus-empty">
+                            <i class="fa-solid fa-book twplus-empty__icon" aria-hidden="true"></i>
+                            <h2 class="twplus-empty__title">Keine Fahrten gefunden</h2>
+                            <p class="twplus-empty__description">Passe die Filter an oder erfasse den ersten Fahrtenbucheintrag.</p>
                         </div>
-                    <?php endif; ?>
-                    <div class="p-3">
-                        <?php if (empty($entries)): ?>
-                            <div class="twplus-empty">
-                                <i class="fa-solid fa-book twplus-empty__icon" aria-hidden="true"></i>
-                                <h2 class="twplus-empty__title">Keine Fahrten gefunden</h2>
-                                <p class="twplus-empty__description">Passe die Filter an oder erfasse den ersten Fahrtenbucheintrag.</p>
-                            </div>
-                        <?php else: ?>
-                            <div class="table-responsive">
-                                <table class="table intra__table table-sm mb-0 twplus-table" id="fahrtenbuchAdminTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Datum</th>
-                                            <th>Abfahrt</th>
-                                            <th>Ankunft</th>
-                                            <th>Fahrzeug</th>
-                                            <th>Fahrer</th>
-                                            <th>Fahrttyp</th>
-                                            <th>km</th>
-                                            <th>Stationierungsort</th>
-                                            <th>Grund</th>
-                                            <th>Quelle</th>
-                                            <?php if ($canManage): ?><th></th><?php endif; ?>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($entries as $e):
-                                            $typSlug  = $e['fahrttyp'] ?? '';
-                                            $typLabel = $fahrttypen[$typSlug] ?? $typSlug;
-                                            $typBadge = $fahrttypBadges[$typSlug] ?? 'secondary';
-                                            $sourceLabels = ['enotf' => 'eNOTF', 'firetab' => 'FireTab', 'admin' => 'Admin'];
-                                        ?>
-                                            <tr data-search="<?= htmlspecialchars(mb_strtolower(
-                                                ($e['vehicle_name'] ?? $e['vehicle_identifier']) . ' ' .
-                                                $e['fahrer_name'] . ' ' . $typLabel . ' ' .
-                                                ($e['stationierungsort'] ?? '') . ' ' . ($e['grund'] ?? '')
-                                            )) ?>">
-                                                <td><?= \App\Helpers\DateTimeHelper::formatDateLocal($e['datum']) ?></td>
-                                                <td><?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?></td>
-                                                <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-gray-400">—</span>' ?></td>
-                                                <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
-                                                <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
-                                                <td><span class="ignis-chip ignis-chip--<?= htmlspecialchars($typBadge) ?>"><?= htmlspecialchars($typLabel) ?></span></td>
-                                                <td><?= $e['kilometer'] !== null ? number_format((float) $e['kilometer'], 1, ',', '.') : '—' ?></td>
-                                                <td class="truncate" style="max-width:150px;" title="<?= htmlspecialchars($e['stationierungsort'] ?? '') ?>">
-                                                    <?= htmlspecialchars($e['stationierungsort'] ?? '') ?: '—' ?>
-                                                </td>
-                                                <td class="truncate" style="max-width:150px;" title="<?= htmlspecialchars($e['grund'] ?? '') ?>">
-                                                    <?= htmlspecialchars($e['grund'] ?? '') ?: '—' ?>
-                                                </td>
-                                                <td><span class="ignis-chip"><?= htmlspecialchars($sourceLabels[$e['source']] ?? $e['source']) ?></span></td>
-                                                <?php if ($canManage): ?>
-                                                    <td class="whitespace-nowrap text-right">
-                                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost fb-edit-btn"
+                    <?php else: ?>
+                        <div class="twplus-table-card__scroll">
+                            <table class="ignis-table" id="fahrtenbuchAdminTable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Datum</th>
+                                        <th scope="col">Abfahrt</th>
+                                        <th scope="col">Ankunft</th>
+                                        <th scope="col">Fahrzeug</th>
+                                        <th scope="col">Fahrer</th>
+                                        <th scope="col">Fahrttyp</th>
+                                        <th scope="col" class="ignis-table__num">km</th>
+                                        <th scope="col">Stationierungsort</th>
+                                        <th scope="col">Grund</th>
+                                        <th scope="col">Quelle</th>
+                                        <?php if ($canManage): ?><th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th><?php endif; ?>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($entries as $e):
+                                        $typSlug  = $e['fahrttyp'] ?? '';
+                                        $typLabel = $fahrttypen[$typSlug] ?? $typSlug;
+                                        $typChip  = $chipFor[$fahrttypBadges[$typSlug] ?? 'secondary'] ?? 'secondary';
+                                    ?>
+                                        <tr data-search="<?= htmlspecialchars(mb_strtolower(
+                                            ($e['vehicle_name'] ?? $e['vehicle_identifier']) . ' ' .
+                                            $e['fahrer_name'] . ' ' . $typLabel . ' ' .
+                                            ($e['stationierungsort'] ?? '') . ' ' . ($e['grund'] ?? '')
+                                        )) ?>">
+                                            <td><?= \App\Helpers\DateTimeHelper::formatDateLocal($e['datum']) ?></td>
+                                            <td><?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?></td>
+                                            <td><?= $e['ankunft'] ? \App\Helpers\DateTimeHelper::formatTimeLocal($e['ankunft']) : '<span class="text-[var(--text-3)]">—</span>' ?></td>
+                                            <td><?= htmlspecialchars($e['vehicle_name'] ?? $e['vehicle_identifier']) ?></td>
+                                            <td><?= htmlspecialchars($e['fahrer_name']) ?></td>
+                                            <td><span class="ignis-chip ignis-chip--<?= $typChip ?>"><?= htmlspecialchars($typLabel) ?></span></td>
+                                            <td class="ignis-table__num"><?= $e['kilometer'] !== null ? number_format((float) $e['kilometer'], 1, ',', '.') : '—' ?></td>
+                                            <td class="max-w-[150px] truncate" title="<?= htmlspecialchars($e['stationierungsort'] ?? '') ?>">
+                                                <?= htmlspecialchars($e['stationierungsort'] ?? '') ?: '—' ?>
+                                            </td>
+                                            <td class="max-w-[150px] truncate" title="<?= htmlspecialchars($e['grund'] ?? '') ?>">
+                                                <?= htmlspecialchars($e['grund'] ?? '') ?: '—' ?>
+                                            </td>
+                                            <td><span class="ignis-chip ignis-chip--secondary"><?= htmlspecialchars($sourceLabels[$e['source']] ?? $e['source']) ?></span></td>
+                                            <?php if ($canManage): ?>
+                                                <td class="ignis-table__actions">
+                                                    <div class="ignis-row-actions">
+                                                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon fb-edit-btn"
                                                                 data-id="<?= (int) $e['id'] ?>"
                                                                 data-datum="<?= htmlspecialchars($e['datum']) ?>"
                                                                 data-abfahrt="<?= \App\Helpers\DateTimeHelper::formatTimeLocal($e['abfahrt']) ?>"
@@ -224,27 +232,27 @@ $bodyId = 'fahrzeuge';
                                                                 data-kilometer="<?= htmlspecialchars((string) ($e['kilometer'] ?? '')) ?>"
                                                                 data-stationierungsort="<?= htmlspecialchars($e['stationierungsort'] ?? '') ?>"
                                                                 data-grund="<?= htmlspecialchars($e['grund'] ?? '') ?>"
-                                                                title="Bearbeiten">
-                                                            <i class="fa-solid fa-pen"></i>
+                                                                data-ignis-tooltip="Eintrag bearbeiten" aria-label="Eintrag bearbeiten">
+                                                            <i class="fa-solid fa-pen" aria-hidden="true"></i>
                                                         </button>
                                                         <form method="POST" action="<?= BASE_PATH ?>logbook/actions" class="inline"
                                                               onsubmit="<?= confirm_attr('Eintrag wirklich löschen?') ?>">
                                                             <input type="hidden" name="action" value="delete">
                                                             <input type="hidden" name="id" value="<?= (int) $e['id'] ?>">
                                                             <input type="hidden" name="return_to" value="admin">
-                                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost text-[#d46b6b]" title="Löschen">
-                                                                <i class="fa-solid fa-trash"></i>
+                                                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" data-ignis-tooltip="Eintrag löschen" aria-label="Eintrag löschen">
+                                                                <i class="fa-solid fa-trash" aria-hidden="true"></i>
                                                             </button>
                                                         </form>
-                                                    </td>
-                                                <?php endif; ?>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php endif; ?>
-                    </div>
+                                                    </div>
+                                                </td>
+                                            <?php endif; ?>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <?php endif; // tableExists ?>
@@ -262,26 +270,26 @@ $bodyId = 'fahrzeuge';
 
         if (toggleBtn) {
             toggleBtn.addEventListener('click', function() {
-                if (editWrap) editWrap.style.display = 'none';
-                createWrap.style.display = createWrap.style.display === 'none' ? 'block' : 'none';
+                if (editWrap) editWrap.hidden = true;
+                createWrap.hidden = !createWrap.hidden;
             });
         }
         if (cancelCreate) {
             cancelCreate.addEventListener('click', function() {
-                createWrap.style.display = 'none';
+                createWrap.hidden = true;
             });
         }
         if (cancelEdit) {
             cancelEdit.addEventListener('click', function() {
-                editWrap.style.display = 'none';
+                editWrap.hidden = true;
             });
         }
 
         // Edit buttons
         document.querySelectorAll('.fb-edit-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                if (createWrap) createWrap.style.display = 'none';
-                editWrap.style.display = 'block';
+                if (createWrap) createWrap.hidden = true;
+                editWrap.hidden = false;
 
                 document.getElementById('edit_id').value = btn.dataset.id;
 
@@ -328,15 +336,19 @@ $bodyId = 'fahrzeuge';
 
         // Local search
         var searchInput = document.getElementById('fbLocalSearch');
+        var noResults = document.getElementById('fbNoResults');
         if (searchInput) {
             searchInput.addEventListener('input', function() {
                 var term = this.value.toLowerCase();
                 var rows = document.querySelectorAll('#fahrtenbuchAdminTable tbody tr');
+                var visible = 0;
                 rows.forEach(function(row) {
                     var searchData = row.dataset.search || '';
                     var match = !term || searchData.indexOf(term) !== -1;
-                    row.style.display = match ? '' : 'none';
+                    row.hidden = !match;
+                    if (match) visible++;
                 });
+                if (noResults) noResults.hidden = visible > 0 || rows.length === 0;
             });
         }
     });

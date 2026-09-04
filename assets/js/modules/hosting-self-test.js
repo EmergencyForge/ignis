@@ -21,7 +21,7 @@ if (banner) {
   const showWarning = (heading, detail) => {
     title.textContent = heading;
     message.textContent = `${detail} `;
-    banner.classList.remove('d-none');
+    banner.hidden = false;
   };
 
   // /api/health ist eine Router-URL. Kommt sie nicht an, greift der

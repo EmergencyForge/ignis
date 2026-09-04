@@ -1,130 +1,123 @@
 <?php
+/**
+ * Personalakte: die Dokumente des Mitarbeiters als ignis-Tabelle. Wer
+ * Dokumente verwalten darf, sieht archivierte auf Wunsch mit (Kästchen
+ * über der Tabelle, Zeilen tragen `hidden`) und bekommt je Zeile
+ * Archivieren und Löschen. Erwartet $openedID aus templates/personnel/profile.php.
+ */
 
 use App\Auth\Permissions;
+
+$canManageDocs = Permissions::check(['admin', 'personnel.documents.manage']);
+
+// Pruefe ob is_archived Spalte existiert (Abwaertskompatibilitaet)
+$hasArchived = false;
+try {
+    $hasArchived = \Illuminate\Database\Capsule\Manager::schema()
+        ->hasColumn('intra_mitarbeiter_dokumente', 'is_archived');
+} catch (\PDOException $e) { /* ignore */ }
+
+$archivedCol = $hasArchived ? 'pd.is_archived' : '0 as is_archived';
+
+$dokuresult = \Illuminate\Database\Capsule\Manager::table('intra_mitarbeiter_dokumente as pd')
+    ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
+    ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+    ->leftJoin('intra_dokument_templates as t', 'pd.template_id', '=', 't.id')
+    ->leftJoin('intra_dokument_kategorien as dk', 't.category_id', '=', 'dk.id')
+    ->where('pd.profileid', $openedID)
+    ->orderByDesc('pd.ausstellungsdatum')
+    ->get([
+        'pd.docid',
+        'pd.ausstellungsdatum',
+        'pd.type',
+        \Illuminate\Database\Capsule\Manager::raw($archivedCol),
+        't.name as template_name',
+        't.category as template_category',
+        'dk.color as category_color',
+        \Illuminate\Database\Capsule\Manager::raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
+    ])
+    ->map(fn ($row) => (array) $row)
+    ->all();
+
+// Chip je Dokumenttyp: eigene Vorlagen tragen die Farbe ihrer Kategorie
+// (Klassenname aus intra_dokument_kategorien), die festen Typen eine Semantik.
+$profileDocumentChip = static function (array $doc): string {
+    $type = (int) $doc['type'];
+    if ($type === 99 && !empty($doc['category_color'])) {
+        return (string) $doc['category_color'];
+    }
+    if ($type === 99) {
+        return match ($doc['template_category']) {
+            'urkunde'    => 'ignis-chip--secondary',
+            'zertifikat' => 'ignis-chip--dark',
+            'schreiben'  => 'ignis-chip--warn',
+            default      => 'ignis-chip--info',
+        };
+    }
+    if ($type >= 10 && $type <= 13) {
+        return 'ignis-chip--danger';
+    }
+    if ($type >= 5 && $type <= 7) {
+        return 'ignis-chip--dark';
+    }
+
+    return 'ignis-chip--secondary';
+};
 ?>
 
-<?php if (Permissions::check(['admin', 'personnel.documents.manage'])): ?>
+<?php if ($canManageDocs): ?>
 <div class="flex justify-end mb-2">
-    <label class="ignis-checkbox mb-0" style="font-size:0.78rem;">
-        <input type="checkbox" id="chk-show-archived" onchange="document.querySelectorAll('.doc-archived').forEach(r => r.style.display = this.checked ? '' : 'none');">
-        <span class="text-[var(--text-dimmed,#818189)]">Archivierte anzeigen</span>
+    <label class="ignis-checkbox">
+        <input type="checkbox" id="chk-show-archived" onchange="document.querySelectorAll('.doc-archived').forEach(r => { r.hidden = !this.checked; });">
+        <span>Archivierte anzeigen</span>
     </label>
 </div>
 <?php endif; ?>
 
-<table class="table table-striped twplus-table" id="documentTable">
+<div class="twplus-table-card__scroll">
+<table class="ignis-table" id="documentTable">
     <thead>
-        <th scope="col">Dokumenten-Typ</th>
-        <th scope="col">#</th>
-        <th scope="col">Ersteller</th>
-        <th scope="col">Am</th>
-        <th scope="col"></th>
+        <tr>
+            <th scope="col">Dokumenten-Typ</th>
+            <th scope="col">Nr.</th>
+            <th scope="col">Ersteller</th>
+            <th scope="col">Ausgestellt</th>
+            <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
+        </tr>
     </thead>
     <tbody>
-        <?php
-        // Pruefe ob is_archived Spalte existiert (Abwaertskompatibilitaet)
-        $hasArchived = false;
-        try {
-            $hasArchived = \Illuminate\Database\Capsule\Manager::schema()
-                ->hasColumn('intra_mitarbeiter_dokumente', 'is_archived');
-        } catch (\PDOException $e) { /* ignore */ }
-
-        $archivedCol = $hasArchived ? 'pd.is_archived' : '0 as is_archived';
-
-        $dokuresult = \Illuminate\Database\Capsule\Manager::table('intra_mitarbeiter_dokumente as pd')
-            ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
-            ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
-            ->leftJoin('intra_dokument_templates as t', 'pd.template_id', '=', 't.id')
-            ->leftJoin('intra_dokument_kategorien as dk', 't.category_id', '=', 'dk.id')
-            ->where('pd.profileid', $openedID)
-            ->orderByDesc('pd.ausstellungsdatum')
-            ->get([
-                'pd.docid',
-                'pd.ausstellerid',
-                'pd.ausstellungsdatum',
-                'pd.type',
-                'pd.template_id',
-                'pd.aussteller_name',
-                'pd.pdf_path',
-                \Illuminate\Database\Capsule\Manager::raw($archivedCol),
-                'u.discord_id AS user_id',
-                \Illuminate\Database\Capsule\Manager::raw('COALESCE(m.fullname, u.fullname) as fullname'),
-                'u.aktenid',
-                't.name as template_name',
-                't.category as template_category',
-                'dk.color as category_color',
-                'dk.name as category_name',
-                \Illuminate\Database\Capsule\Manager::raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
-            ])
-            ->map(fn ($row) => (array) $row)
-            ->all();
-
-
-        foreach ($dokuresult as $doks) {
-            $austdatum = date("d.m.Y", strtotime($doks['ausstellungsdatum']));
-
-            // Dokumenttyp bestimmen (zentrale Methode)
-            $docart = \App\Documents\DocumentTemplateManager::getDocumentTypeLabel(
-                (int) $doks['type'],
-                $doks['template_name'] ?? null
-            );
-
-            // Direkter PDF-Pfad
-            $pdfPath = BASE_PATH . "storage/documents/" . $doks['docid'] . ".pdf";
-
-            // Badge-Farbe bestimmen
-            if ($doks['type'] == 99 && !empty($doks['category_color'])) {
-                $bg = $doks['category_color'];
-            } elseif ($doks['type'] == 99) {
-                $bg = match ($doks['template_category']) {
-                    'urkunde' => 'ignis-chip--secondary',
-                    'zertifikat' => 'ignis-chip--dark',
-                    'schreiben' => 'ignis-chip--warning',
-                    default => 'ignis-chip--info'
-                };
-            } elseif ($doks['type'] <= 3) {
-                $bg = "ignis-chip--secondary";
-            } elseif ($doks['type'] == 5 || $doks['type'] == 6 || $doks['type'] == 7) {
-                $bg = "ignis-chip--dark";
-            } elseif ($doks['type'] >= 10 && $doks['type'] <= 13) {
-                $bg = "ignis-chip--danger";
-            } else {
-                $bg = "ignis-chip--secondary";
-            }
-
+        <?php if ($dokuresult === []): ?>
+            <tr><td colspan="5" class="ignis-table-empty">Noch keine Dokumente in dieser Akte.</td></tr>
+        <?php endif; ?>
+        <?php foreach ($dokuresult as $doks):
+            $docart     = \App\Documents\DocumentTemplateManager::getDocumentTypeLabel((int) $doks['type'], $doks['template_name'] ?? null);
             $isArchived = !empty($doks['is_archived']);
-            $rowClass = $isArchived ? 'doc-archived' : '';
-            $rowStyle = $isArchived ? 'display:none;opacity:0.5;' : '';
-
-            echo "<tr class='{$rowClass}' style='{$rowStyle}'>";
-            echo "<td><span class='ignis-chip $bg'>" . htmlspecialchars($docart) . "</span>";
-            if ($isArchived) echo " <span class='ignis-chip ignis-chip--secondary' style='font-size:0.6rem;'>Archiviert</span>";
-            echo "</td>";
-            echo "<td>" . htmlspecialchars($doks['docid']) .  "</td>";
-            echo "<td>" . htmlspecialchars($doks['ersteller_name']) . "</td>";
-            echo "<td>" . htmlspecialchars($austdatum) . "</td>";
-            echo "<td>";
-            echo "<button class='ignis-btn ignis-btn--sm ignis-btn--soft-primary' onclick='openDocumentViewer(\"" . htmlspecialchars($doks['docid']) . "\")'><i class='fa-solid fa-eye'></i> Ansehen</button> ";
-            // echo "<a href='$pdfPath' download class='ignis-btn ignis-btn--sm ignis-btn--success'><i class='las la-download'></i></a>";
-
-            if (Permissions::check(['admin', 'personnel.documents.manage'])) {
-                $escDocid = htmlspecialchars($doks['docid']);
-                $escPid = htmlspecialchars($openedID);
-                $archiveIcon = $isArchived ? 'fa-box-open' : 'fa-box-archive';
-                $archiveTitle = $isArchived ? 'Wiederherstellen' : 'Archivieren';
-                $archiveAction = $isArchived ? 'false' : 'true';
-
-                echo " <button class='ignis-btn ignis-btn--sm ignis-btn--outline-secondary ignis-btn--icon' title='{$archiveTitle}' onclick='confirmArchiveDoc(\"{$escDocid}\", {$archiveAction})'><i class='fa-solid {$archiveIcon}'></i></button>";
-                echo " <button class='ignis-btn ignis-btn--sm ignis-btn--outline-danger ignis-btn--icon' title='Endgültig löschen' onclick='confirmDeleteDoc(\"{$escDocid}\", \"{$escPid}\")'><i class='fa-solid fa-trash'></i></button>";
-            }
-
-            echo "</td>";
-            echo "</tr>";
-        }
+            $escDocid   = htmlspecialchars((string) $doks['docid'], ENT_QUOTES);
         ?>
-
+            <tr<?= $isArchived ? ' class="doc-archived is-muted" hidden' : '' ?>>
+                <td>
+                    <span class="ignis-chip <?= htmlspecialchars($profileDocumentChip($doks)) ?>"><?= htmlspecialchars($docart) ?></span>
+                    <?php if ($isArchived): ?>
+                        <span class="ignis-chip ignis-chip--sm ignis-chip--secondary">Archiviert</span>
+                    <?php endif; ?>
+                </td>
+                <td><span class="ignis-mono"><?= $escDocid ?></span></td>
+                <td><?= htmlspecialchars((string) $doks['ersteller_name']) ?></td>
+                <td><?= date('d.m.Y', strtotime((string) $doks['ausstellungsdatum'])) ?></td>
+                <td class="ignis-table__actions">
+                    <div class="ignis-row-actions">
+                        <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--secondary" onclick="openDocumentViewer('<?= $escDocid ?>')"><i class="fa-solid fa-eye" aria-hidden="true"></i> Ansehen</button>
+                        <?php if ($canManageDocs): ?>
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-tooltip="<?= $isArchived ? 'Wiederherstellen' : 'Archivieren' ?>" aria-label="<?= $isArchived ? 'Wiederherstellen' : 'Archivieren' ?>" onclick="confirmArchiveDoc('<?= $escDocid ?>', <?= $isArchived ? 'false' : 'true' ?>)"><i class="fa-solid <?= $isArchived ? 'fa-box-open' : 'fa-box-archive' ?>" aria-hidden="true"></i></button>
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost-danger ignis-btn--icon" data-ignis-tooltip="Endgültig löschen" aria-label="Endgültig löschen" onclick="confirmDeleteDoc('<?= $escDocid ?>', '<?= (int) $openedID ?>')"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
+                        <?php endif; ?>
+                    </div>
+                </td>
+            </tr>
+        <?php endforeach; ?>
     </tbody>
 </table>
+</div>
 
 <script>
 async function confirmArchiveDoc(docid, archive) {

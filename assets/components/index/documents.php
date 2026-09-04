@@ -1,105 +1,91 @@
-<table class="table table-striped twplus-table" id="documentTable">
+<?php
+/**
+ * Dashboard: die Dokumente der eigenen Personalakte, neueste zuerst.
+ * Eingebunden aus index.php innerhalb einer ignis-card.
+ */
+
+$userData = \App\Models\Personnel::query()
+    ->where('discordtag', $_SESSION['discordtag'])
+    ->first(['id']);
+
+$dokuresult = [];
+if ($userData) {
+    $dokuresult = \Illuminate\Database\Capsule\Manager::table('intra_mitarbeiter_dokumente as pd')
+        ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
+        ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
+        ->leftJoin('intra_dokument_templates as t', 'pd.template_id', '=', 't.id')
+        ->leftJoin('intra_dokument_kategorien as dk', 't.category_id', '=', 'dk.id')
+        ->where('pd.profileid', $userData->id)
+        ->orderByDesc('pd.ausstellungsdatum')
+        ->get([
+            'pd.docid',
+            'pd.ausstellungsdatum',
+            'pd.type',
+            't.name as template_name',
+            't.category as template_category',
+            'dk.color as category_color',
+            \Illuminate\Database\Capsule\Manager::raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
+        ])
+        ->map(fn ($row) => (array) $row)
+        ->all();
+}
+
+// Chip je Dokumenttyp: eigene Vorlagen tragen die Farbe ihrer Kategorie
+// (Klassenname aus intra_dokument_kategorien), die festen Typen eine Semantik.
+$documentChip = static function (array $doc): string {
+    $type = (int) $doc['type'];
+    if ($type === 99 && !empty($doc['category_color'])) {
+        return (string) $doc['category_color'];
+    }
+    if ($type === 99) {
+        return match ($doc['template_category']) {
+            'urkunde'    => 'ignis-chip--secondary',
+            'zertifikat' => 'ignis-chip--dark',
+            'schreiben'  => 'ignis-chip--warn',
+            default      => 'ignis-chip--info',
+        };
+    }
+    if ($type >= 10 && $type <= 13) {
+        return 'ignis-chip--danger';
+    }
+    if ($type >= 5 && $type <= 7) {
+        return 'ignis-chip--dark';
+    }
+
+    return 'ignis-chip--secondary';
+};
+?>
+<table class="ignis-table" id="dashboardDocuments">
     <thead>
-        <th scope="col">Dokumenten-Typ</th>
-        <th scope="col">#</th>
-        <th scope="col">Ersteller</th>
-        <th scope="col">Am</th>
-        <th scope="col"></th>
+        <tr>
+            <th scope="col">Dokumenten-Typ</th>
+            <th scope="col">Nr.</th>
+            <th scope="col">Ersteller</th>
+            <th scope="col">Ausgestellt</th>
+            <th scope="col" class="ignis-table__actions"><span class="sr-only">Aktionen</span></th>
+        </tr>
     </thead>
     <tbody>
-        <?php
-        $userData = \App\Models\Personnel::query()
-            ->where('discordtag', $_SESSION['discordtag'])
-            ->first(['id']);
-
-        if (!$userData) {
-            echo "<tr><td colspan='5'>
-                <div class='empty-state'>
-                    <div class='empty-state-icon'><i class='fa-solid fa-user-plus'></i></div>
-                    <h6>Kein Mitarbeiterprofil verknüpft</h6>
-                    <p>Um Dokumente zu sehen, muss ein Mitarbeiterprofil mit deinem Konto verknüpft sein.</p>
-                </div>
-            </td></tr>";
-        } else {
-            $profileid = $userData->id;
-
-            $dokuresult = \Illuminate\Database\Capsule\Manager::table('intra_mitarbeiter_dokumente as pd')
-                ->leftJoin('intra_users as u', 'pd.ausstellerid', '=', 'u.discord_id')
-                ->leftJoin('intra_mitarbeiter as m', 'u.discord_id', '=', 'm.discordtag')
-                ->leftJoin('intra_dokument_templates as t', 'pd.template_id', '=', 't.id')
-                ->leftJoin('intra_dokument_kategorien as dk', 't.category_id', '=', 'dk.id')
-                ->where('pd.profileid', $profileid)
-                ->orderByDesc('pd.ausstellungsdatum')
-                ->get([
-                    'pd.docid',
-                    'pd.ausstellerid',
-                    'pd.ausstellungsdatum',
-                    'pd.type',
-                    'pd.template_id',
-                    'pd.aussteller_name',
-                    'pd.pdf_path',
-                    'u.discord_id AS user_id',
-                    \Illuminate\Database\Capsule\Manager::raw('COALESCE(m.fullname, u.fullname) as fullname'),
-                    'u.aktenid',
-                    't.name as template_name',
-                    't.category as template_category',
-                    'dk.color as category_color',
-                    \Illuminate\Database\Capsule\Manager::raw("COALESCE(pd.aussteller_name, m.fullname, u.fullname, 'Unbekannt') as ersteller_name"),
-                ])
-                ->map(fn ($row) => (array) $row)
-                ->all();
-
-            // Typ-Labels zentral aus DocumentTemplateManager
-
-            if (empty($dokuresult)) {
-                echo "<tr><td colspan='5'>
-                <div class='empty-state'>
-                    <div class='empty-state-icon'><i class='fa-solid fa-folder-open'></i></div>
-                    <h6>Noch keine Dokumente</h6>
-                    <p>Hier werden deine persönlichen Dokumente wie Urkunden und Zertifikate angezeigt.</p>
-                </div>
-            </td></tr>";
-            } else {
-                foreach ($dokuresult as $doks) {
-                    $austdatum = date("d.m.Y", strtotime($doks['ausstellungsdatum']));
-
-                    $docart = \App\Documents\DocumentTemplateManager::getDocumentTypeLabel(
-                        (int) $doks['type'], $doks['template_name'] ?? null
-                    );
-
-                    $pdfPath = BASE_PATH . "storage/documents/" . $doks['docid'] . ".pdf";
-
-                    if ($doks['type'] == 99 && !empty($doks['category_color'])) {
-                        $bg = $doks['category_color'];
-                    } elseif ($doks['type'] == 99) {
-                        $bg = match ($doks['template_category']) {
-                            'urkunde' => 'ignis-chip--secondary',
-                            'zertifikat' => 'ignis-chip--dark',
-                            'schreiben' => 'ignis-chip--warning',
-                            default => 'ignis-chip--info'
-                        };
-                    } elseif ($doks['type'] <= 3) {
-                        $bg = "ignis-chip--secondary";
-                    } elseif ($doks['type'] == 5 || $doks['type'] == 6 || $doks['type'] == 7) {
-                        $bg = "ignis-chip--dark";
-                    } elseif ($doks['type'] >= 10 && $doks['type'] <= 13) {
-                        $bg = "ignis-chip--danger";
-                    } else {
-                        $bg = "ignis-chip--secondary";
-                    }
-
-                    echo "<tr>";
-                    echo "<td><span class='ignis-chip $bg'>" . htmlspecialchars($docart) . "</span></td>";
-                    echo "<td>" . htmlspecialchars($doks['docid']) .  "</td>";
-                    echo "<td>" . htmlspecialchars($doks['ersteller_name']) . "</td>";
-                    echo "<td>" . htmlspecialchars($austdatum) . "</td>";
-                    echo "<td>";
-                    echo "<a href='$pdfPath' class='ignis-btn ignis-btn--sm ignis-btn--soft-primary' target='_blank'><i class='fa-regular fa-eye'></i> Ansehen</a>";
-                    echo "</td>";
-                    echo "</tr>";
-                }
-            }
-        }
+        <?php if (!$userData): ?>
+            <tr><td colspan="5" class="ignis-table-empty">Kein Mitarbeiterprofil verknüpft. Dokumente erscheinen, sobald ein Profil mit deinem Konto verbunden ist.</td></tr>
+        <?php elseif (empty($dokuresult)): ?>
+            <tr><td colspan="5" class="ignis-table-empty">Noch keine Dokumente. Hier erscheinen deine Urkunden und Zertifikate.</td></tr>
+        <?php endif; ?>
+        <?php foreach ($dokuresult as $doks):
+            $docart  = \App\Documents\DocumentTemplateManager::getDocumentTypeLabel((int) $doks['type'], $doks['template_name'] ?? null);
+            $pdfPath = BASE_PATH . 'storage/documents/' . $doks['docid'] . '.pdf';
         ?>
+            <tr>
+                <td><span class="ignis-chip <?= htmlspecialchars($documentChip($doks)) ?>"><?= htmlspecialchars($docart) ?></span></td>
+                <td><span class="ignis-mono"><?= htmlspecialchars((string) $doks['docid']) ?></span></td>
+                <td><?= htmlspecialchars((string) $doks['ersteller_name']) ?></td>
+                <td><?= date('d.m.Y', strtotime((string) $doks['ausstellungsdatum'])) ?></td>
+                <td class="ignis-table__actions">
+                    <div class="ignis-row-actions">
+                        <a href="<?= htmlspecialchars($pdfPath) ?>" class="ignis-btn ignis-btn--sm ignis-btn--secondary" target="_blank" rel="noopener"><i class="fa-regular fa-eye" aria-hidden="true"></i> Ansehen</a>
+                    </div>
+                </td>
+            </tr>
+        <?php endforeach; ?>
     </tbody>
 </table>
