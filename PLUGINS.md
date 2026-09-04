@@ -37,6 +37,14 @@ je Quelle eine Gruppe mit `label`, `sub` und `href` pro Treffer. fireTab
 (`Plugin\Firetab\Search\IncidentSource`) und die Wissensdatenbank
 (`Plugin\KnowledgeBase\Search\LexiconSource`) sind die Vorlagen.
 
+`notifications` nennt Klassen, die `App\Notifications\NotificationTypeInterface`
+umsetzen (`key()`, `label()`, `icon()`, `allowed()`, `link(array $row)`); der
+`NotificationManager` registriert sie neben den Kern-Typen. Ein Plugin legt
+Einträge über `notify($type, $userIds, ['title' => …, 'message' => …, 'link' => …])`
+an; Glocke, Posteingang und Zähler zeigen sie nur Nutzern, für die `allowed()`
+zutrifft. Einträge eines abgeschalteten Plugins bleiben lesbar (Rohtext, Link).
+fireTab (`Plugin\Firetab\Notifications\FireProtocolType`) ist die Vorlage.
+
 Ein heruntergeladenes Plugin bleibt vollständig inert. Erst die separate
 Installationsbestätigung in der Verwaltung legt den `.installed`-Marker an,
 führt Migrationen aus und aktiviert das Plugin.

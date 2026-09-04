@@ -183,6 +183,7 @@ return [
     \App\Http\Controllers\Api\CharacterController::class         => \DI\autowire(),
     \App\Http\Controllers\Api\EmdSyncController::class           => \DI\autowire(),
     \App\Http\Controllers\Api\NotificationController::class      => \DI\autowire(),
+    \App\Http\Controllers\InboxController::class                 => \DI\autowire(),
     \App\Http\Controllers\Api\VersionController::class             => \DI\autowire(),
     \App\Http\Controllers\Api\HealthController::class              => \DI\autowire(),
     \App\Http\Controllers\Api\PersonnelProfileController::class    => \DI\autowire(),

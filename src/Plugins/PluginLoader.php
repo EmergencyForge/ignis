@@ -242,6 +242,34 @@ class PluginLoader
     }
 
     /**
+     * Die Benachrichtigungstypen der aktiven Plugins (Manifest-Feld
+     * `notifications`), in Ladereihenfolge; dasselbe Muster wie
+     * searchSources(): eine fehlende oder falsche Klasse wird
+     * protokolliert und übersprungen.
+     *
+     * @return list<\App\Notifications\NotificationTypeInterface>
+     */
+    public function notificationTypes(): array
+    {
+        $types = [];
+        foreach ($this->active() as $plugin) {
+            foreach ($plugin->manifest->notifications as $class) {
+                if (!class_exists($class)) {
+                    Logger::warning("Plugin '{$plugin->id()}': Benachrichtigungstyp {$class} nicht gefunden.");
+                    continue;
+                }
+                $type = new $class();
+                if (!$type instanceof \App\Notifications\NotificationTypeInterface) {
+                    Logger::warning("Plugin '{$plugin->id()}': {$class} ist kein NotificationTypeInterface.");
+                    continue;
+                }
+                $types[] = $type;
+            }
+        }
+        return $types;
+    }
+
+    /**
      * Routen-Fragmente der aktiven Plugins (web zuerst, dann api —
      * gleiche Reihenfolge wie die Kern-Routen).
      *

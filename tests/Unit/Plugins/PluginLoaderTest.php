@@ -44,6 +44,27 @@ class PluginLoaderTest extends TestCase
     }
 
     #[Test]
+    public function it_collects_the_notification_types_from_the_manifest(): void
+    {
+        $dir = __DIR__ . '/fixtures/plugins/good';
+        require_once $dir . '/src/Notifications/WidgetType.php';
+        $loader = $this->loaderWith([$this->goodPlugin()]);
+
+        $types = $loader->notificationTypes();
+
+        $this->assertCount(1, $types);
+        $this->assertSame('widget', $types[0]->key());
+        $this->assertSame('Widgets', $types[0]->label());
+
+        // Eine Klasse, die es nicht gibt, fällt weg statt den Rest mitzureißen.
+        $broken = new Plugin(PluginManifest::fromArray([
+            'id' => 'broken', 'name' => 'Broken', 'version' => '1.0.0',
+            'notifications' => ['Nope\\Missing', 'GoodPluginFixture\\Notifications\\WidgetType'],
+        ]), $dir);
+        $this->assertCount(1, $this->loaderWith([$broken])->notificationTypes());
+    }
+
+    #[Test]
     public function it_appends_plugin_navigation_to_the_groups(): void
     {
         $loader = $this->loaderWith([$this->goodPlugin()]);

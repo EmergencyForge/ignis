@@ -13,6 +13,12 @@
  *   Ctrl+K            springt ins Suchfeld der Topbar (Palette: palette.js)
  *   Esc               schließt offene Menüs und den Navigations-Drawer
  *
+ * Glocke (details[data-ignis-inbox]): das Popover wird beim ersten Öffnen
+ * von GET /inbox/popover geladen (InboxController::popover, ohne Hülle)
+ * und erneut, sobald notifications.js einen neuen Zähler meldet
+ * (Event `ignis:inbox-count`). „Alle gelesen" im Popover postet per
+ * fetch und setzt den Zähler auf 0; ohne JS führt das Formular zur Seite.
+ *
  * Schnellaktionen ([data-quick-action-type], Plus an der Sidebar-Zeile und
  * Einträge des Neu-Menüs): `link` geht zur Ziel-URL. `modal` feuert das
  * CustomEvent `quick-action:<target>` am window, wenn die Seite des
@@ -83,6 +89,48 @@ function runQuickAction(el) {
     window.location.href = url.toString();
 }
 
+function initInbox(bell) {
+    const panel = bell.querySelector('.ignis-menu__panel');
+    const url = bell.dataset.ignisInbox;
+    if (!panel || !url) return;
+    let loaded = false;
+
+    async function load() {
+        loaded = true;
+        try {
+            const res = await fetch(url, { credentials: 'same-origin', headers: { 'X-Requested-With': 'fragment' } });
+            if (!res.ok) throw new Error(String(res.status));
+            panel.innerHTML = await res.text();
+        } catch (e) {
+            loaded = false;
+            panel.innerHTML = '<p class="ignis-inbox-popover__empty">Posteingang nicht geladen.</p>';
+        }
+    }
+
+    bell.addEventListener('toggle', () => { if (bell.open && !loaded) load(); });
+    // Neuer Zähler vom Polling: beim nächsten Öffnen frisch laden.
+    window.addEventListener('ignis:inbox-count', () => { loaded = false; if (bell.open) load(); });
+
+    panel.addEventListener('submit', async (e) => {
+        const form = e.target.closest('form[data-ignis-inbox-read]');
+        if (!form) return;
+        e.preventDefault();
+        try {
+            const res = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'fragment' },
+            });
+            if (!res.ok) throw new Error(String(res.status));
+            if (typeof window.intraNotifSetCount === 'function') window.intraNotifSetCount(0);
+            await load();
+        } catch (err) {
+            if (typeof window.showToast === 'function') window.showToast('Konnte nicht als gelesen markieren.', 'error');
+        }
+    });
+}
+
 function fireQuickActionFromUrl() {
     const params = new URLSearchParams(window.location.search);
     const target = params.get('quick');
@@ -111,6 +159,7 @@ function init() {
     document.querySelectorAll('details[data-ignis-menu]').forEach((d) => {
         d.addEventListener('toggle', () => { if (d.open) closeMenus(d); });
     });
+    document.querySelectorAll('details[data-ignis-inbox]').forEach(initInbox);
 
     document.addEventListener('keydown', (e) => {
         const inField = e.target.matches('input, textarea, select, [contenteditable]');

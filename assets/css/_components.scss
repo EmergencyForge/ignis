@@ -395,3 +395,169 @@ table.ignis-table {
   color: var(--danger);
   font-size: 0.78rem;
 }
+
+// =====================================================
+// Posteingang (App\Notifications\NotificationManager): Popover der
+// Glocke in der Topbar, Seite /inbox mit Tagesgruppen. Ungelesen ist ein
+// Punkt in Akzentfarbe vor dem Eintrag.
+// =====================================================
+
+.ignis-inbox-popover {
+  width: 380px;
+  max-width: calc(100vw - 1rem);
+  max-height: calc(100vh - var(--topbar-h) - 1rem);
+  overflow-y: auto;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem 0.3rem;
+
+    b { color: var(--text); font-size: var(--fs-base); }
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.2rem 0.6rem 0.3rem;
+
+    form { display: contents; }
+  }
+
+  &__empty,
+  &__muted {
+    margin: 0;
+    padding: 0.6rem;
+    color: var(--text-3);
+    font-size: var(--fs-sm);
+  }
+
+  &__muted { padding: 0; }
+
+  &__loading {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.75rem 0.6rem;
+
+    .ignis-skeleton { display: block; height: 0.85em; border-radius: 999px; }
+  }
+
+  &__item {
+    align-items: flex-start;
+    white-space: normal;
+
+    > i { margin-top: 0.2rem; }
+    .ignis-inbox__dot { margin-top: 0.45rem; }
+    &.is-unread .ignis-inbox__dot { background: var(--accent); }
+  }
+}
+
+.ignis-menu__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: var(--fs-sm);
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible { text-decoration: underline; outline: none; }
+}
+
+.ignis-inbox {
+  &__group + &__group { border-top: 1px solid var(--border); }
+
+  &__day {
+    margin: 0;
+    padding: 0.6rem 1rem 0.3rem;
+    color: var(--text-3);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__list { margin: 0; padding: 0; list-style: none; }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding-right: 0.5rem;
+    border-top: 1px solid var(--fill-2);
+
+    &:hover { background: var(--fill-1); }
+    &.is-unread .ignis-inbox__dot { background: var(--accent); }
+    &.is-unread .ignis-inbox__text b { color: var(--text); }
+  }
+
+  &__link {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.6rem 1rem;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover { text-decoration: none; }
+  }
+
+  &__dot {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--fill-3);
+  }
+
+  &__icon {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-md);
+    background: var(--fill-2);
+    color: var(--text-2);
+  }
+
+  &__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    gap: 0.1rem;
+
+    b { color: var(--text-2); font-weight: 600; overflow-wrap: anywhere; }
+    span { color: var(--text-3); font-size: var(--fs-sm); overflow-wrap: anywhere; }
+    small { color: var(--text-3); font-size: var(--fs-xs); }
+  }
+
+  &__meta {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__when {
+    color: var(--text-3);
+    font-size: var(--fs-sm);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__mark { flex: none; }
+
+  @media (max-width: 700px) {
+    &__meta .ignis-chip { display: none; }
+  }
+}

@@ -10,9 +10,11 @@ declare(strict_types=1);
  * hinein; beim Tippen öffnet palette.js die Palette darunter, gespeist aus
  * GET /api/system/global-search und den Aktionen in data-ignis-actions), rechts das
  * Neu-Menü mit den Schnellaktionen der Navigation, die der Betrachter
- * sehen darf, und das Kontomenü mit Darstellungswechsel, Benachrichtigungen
- * und Abmelden. Die Menüs sind <details>, damit sie ohne JS funktionieren;
- * shell.js schließt sie bei Klick daneben. Eine Glocke kommt mit I9.
+ * sehen darf, die Glocke mit dem Zähler der ungelesenen Benachrichtigungen
+ * (das Popover lädt shell.js beim ersten Öffnen von GET /inbox/popover,
+ * den Zähler hält notifications.js aktuell) und das Kontomenü mit
+ * Darstellungswechsel und Abmelden. Die Menüs sind <details>, damit sie
+ * ohne JS funktionieren; shell.js schließt sie bei Klick daneben.
  *
  * Läuft per `require` im Scope des Layouts (oder des Shims navbar.php);
  * lokale Variablen tragen das Präfix `top` (SidebarScopeTest).
@@ -20,8 +22,8 @@ declare(strict_types=1);
 
 use App\Helpers\Navigation;
 use App\Helpers\Theme;
-use App\Notifications\NotificationManager;
 use App\Security\CsrfProtection;
+use App\Support\NavigationCounters;
 
 $topBasePath = defined('BASE_PATH') ? (string) BASE_PATH : '/';
 $topLoggedIn = isset($_SESSION['userid']);
@@ -55,14 +57,9 @@ $topThemes = [
     'system' => ['Wie das System', 'circle-half-stroke'],
 ];
 
-$topUnread = 0;
-if ($topLoggedIn) {
-    try {
-        $topUnread = (int) (new NotificationManager())->getUnreadCount((int) $_SESSION['userid']);
-    } catch (\Throwable $topError) {
-        $topUnread = 0;
-    }
-}
+// Glocke: ungelesene Benachrichtigungen, derselbe Zähler wie in der
+// Sidebar (NavigationCounters::for('inbox'), je Request gecacht).
+$topUnread = $topLoggedIn ? (int) (NavigationCounters::for('inbox') ?? 0) : 0;
 
 // Logo: SYSTEM_LOGO, wenn der Betreiber eines hinterlegt hat; sonst die
 // Wortmarke als Text in currentColor, damit sie die Textfarbe des
@@ -153,11 +150,21 @@ foreach ($topGroups as $topGroup) {
     <?php endif; ?>
 
     <?php if ($topLoggedIn): ?>
+        <details class="ignis-menu ignis-menu--right ignis-topbar__bell" data-ignis-menu data-ignis-inbox="<?= htmlspecialchars($topBasePath . 'inbox/popover', ENT_QUOTES) ?>">
+            <summary class="ignis-topbar__toggle" aria-label="Posteingang<?= $topUnread > 0 ? ', ' . $topUnread . ' ungelesen' : '' ?>" title="Posteingang">
+                <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                <span class="ignis-topbar__badge notification-poll-badge"<?= $topUnread > 0 ? '' : ' hidden' ?>><?= $topUnread > 99 ? '99+' : $topUnread ?></span>
+            </summary>
+            <div class="ignis-menu__panel ignis-inbox-popover" role="menu">
+                <div class="ignis-inbox-popover__loading" aria-hidden="true"><span class="ignis-skeleton" style="width:50%"></span><span class="ignis-skeleton"></span><span class="ignis-skeleton" style="width:70%"></span></div>
+                <noscript><a href="<?= htmlspecialchars($topBasePath . 'inbox', ENT_QUOTES) ?>" class="ignis-menu__item" role="menuitem"><i class="fa-solid fa-inbox" aria-hidden="true"></i> Posteingang öffnen</a></noscript>
+            </div>
+        </details>
+
         <details class="ignis-menu ignis-menu--right" data-ignis-menu>
             <summary class="ignis-topbar__user" aria-label="Kontomenü">
                 <span class="ignis-topbar__avatar" aria-hidden="true"><?= htmlspecialchars($topInitials) ?></span>
                 <span class="ignis-topbar__username"><?= htmlspecialchars($topUsername) ?></span>
-                <span class="ignis-topbar__badge notification-poll-badge"<?= $topUnread > 0 ? '' : ' hidden' ?>><?= $topUnread > 9 ? '9+' : $topUnread ?></span>
                 <i class="fa-solid fa-chevron-down ignis-menu__caret" aria-hidden="true"></i>
             </summary>
             <div class="ignis-menu__panel" role="menu">
@@ -168,11 +175,6 @@ foreach ($topGroups as $topGroup) {
                         <span class="ignis-menu__identity-role"><span class="ignis-menu__role-dot" style="background:<?= $topRoleColor ?>"></span><?= htmlspecialchars($topRoleName) ?></span>
                     </span>
                 </div>
-                <div class="ignis-menu__sep"></div>
-                <a href="<?= htmlspecialchars($topBasePath . 'notifications/index', ENT_QUOTES) ?>" class="ignis-menu__item" role="menuitem">
-                    <i class="fa-solid fa-bell" aria-hidden="true"></i> Benachrichtigungen
-                    <span class="ignis-menu__count notification-poll-badge"<?= $topUnread > 0 ? '' : ' hidden' ?>><?= $topUnread > 9 ? '9+' : $topUnread ?></span>
-                </a>
                 <div class="ignis-menu__sep"></div>
                 <div class="ignis-menu__heading">Darstellung</div>
                 <?php // ProfileController::theme() speichert und leitet hierher zurück. ?>

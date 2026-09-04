@@ -11,6 +11,7 @@ return [
     'autoload'        => ['Plugin\\Firetab\\' => 'src/'],
     'policies'        => ['fireIncident' => 'Plugin\\Firetab\\Policies\\FireIncidentPolicy'],
     'search'          => ['Plugin\\Firetab\\Search\\IncidentSource'],
+    'notifications'   => ['Plugin\\Firetab\\Notifications\\FireProtocolType'],
     'default_enabled' => true,
     'removable'       => true,
 ];

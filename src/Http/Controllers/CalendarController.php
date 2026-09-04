@@ -674,19 +674,20 @@ class CalendarController extends Controller
             return;
         }
 
-        $notifier = new NotificationManager();
-        $verb     = $isUpdate ? 'aktualisiert' : 'angelegt';
-        $when     = (string) $event->starts_at;
-        $msg      = "Termin am {$when}" . ($event->location ? " · {$event->location}" : '');
-        $link     = (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'kalender/view?id=' . $event->id;
+        $verb = $isUpdate ? 'aktualisiert' : 'angelegt';
+        $when = (string) $event->starts_at;
+        $msg  = "Termin am {$when}" . ($event->location ? " · {$event->location}" : '');
+        $link = (defined('BASE_PATH') ? (string) BASE_PATH : '/') . 'kalender/view?id=' . $event->id;
 
+        // Der Ersteller bekommt keine Meldung über seinen eigenen Termin.
         $creatorUserId = (int) $event->created_by;
-        foreach ($userIds as $uid) {
-            if ($uid === $creatorUserId) {
-                continue; // Creator bekommt keine Self-Notification
-            }
-            $notifier->create($uid, 'system', "Termin {$verb}: {$event->title}", $msg, $link);
-        }
+        $recipients = array_values(array_filter($userIds, static fn (int $uid): bool => $uid !== $creatorUserId));
+
+        app(NotificationManager::class)->notify('calendar', $recipients, [
+            'title'   => "Termin {$verb}: {$event->title}",
+            'message' => $msg,
+            'link'    => $link,
+        ]);
     }
 
     /**

@@ -11,7 +11,9 @@ declare(strict_types=1);
  * Zeile, sichtbar beim Überfahren oder per Tastatur: für `drawer` und
  * `link` ein Link auf das Formular (drawer-form.js öffnet es im Drawer),
  * für `modal` ein Knopf, den shell.js als CustomEvent `quick-action:<target>`
- * ausführt.
+ * ausführt. Ein Eintrag mit `counter` bekommt den Zähler aus
+ * App\Support\NavigationCounters an die Zeile; er steht auch bei 0 im
+ * Markup (versteckt), weil notifications.js ihn per Polling nachführt.
  *
  * 240 px breit, eingeklappt 56 px: dann bleiben die Symbole mit Tooltip
  * (title), Labels und Gruppen verschwinden (CSS über html.is-collapsed,
@@ -24,6 +26,7 @@ declare(strict_types=1);
  */
 
 use App\Helpers\Navigation;
+use App\Support\NavigationCounters;
 
 $navGroups = Navigation::groups();
 
@@ -40,6 +43,8 @@ $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? 
             <?php foreach ($navGroup['items'] as $navItem):
                 $navQuick = is_array($navItem['quick_action'] ?? null) ? $navItem['quick_action'] : null;
                 $navExternal = !empty($navItem['external']);
+                $navCounter = is_string($navItem['counter'] ?? null) ? $navItem['counter'] : null;
+                $navCount = $navCounter !== null ? NavigationCounters::for($navCounter) : null;
             ?>
                 <div class="ignis-sidebar__row<?= $navItem['active'] ? ' is-active' : '' ?>">
                     <a
@@ -51,6 +56,9 @@ $navVersion = is_array($navVersionInfo) && !empty($navVersionInfo['version']) ? 
                     >
                         <i class="<?= htmlspecialchars((string) $navItem['icon']) ?>" aria-hidden="true"></i>
                         <span class="ignis-sidebar__label"><?= htmlspecialchars((string) $navItem['label']) ?></span>
+                        <?php if ($navCounter !== null): ?>
+                            <span class="ignis-sidebar__count<?= $navCounter === 'inbox' ? ' notification-poll-badge' : '' ?>"<?= $navCount === null ? ' hidden' : '' ?>><?= (int) $navCount ?></span>
+                        <?php endif; ?>
                         <?php if ($navExternal): ?>
                             <i class="fa-solid fa-arrow-up-right-from-square ignis-sidebar__external" aria-hidden="true"></i>
                         <?php endif; ?>
