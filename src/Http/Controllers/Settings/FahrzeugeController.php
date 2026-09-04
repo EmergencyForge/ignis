@@ -8,8 +8,10 @@ use App\Auth\Gate;
 use App\Exceptions\ValidationException;
 use App\Helpers\Flash;
 use App\Http\Controllers\Controller;
+use App\Http\Request;
 use App\Http\Requests\FormRequest;
 use App\Http\Requests\Vehicles\CreateDefectRequest;
+use App\Http\Response;
 use App\Support\ListQuery;
 use App\Utils\AuditLogger;
 use App\Vehicles\DefectReporter;
@@ -86,6 +88,72 @@ class FahrzeugeController extends Controller
     }
 
     /**
+     * GET /settings/vehicles/vehicles/{id}/preview — Vorschau für den
+     * Arbeitsbereich der Liste (assets/js/ui/workbench.js), ohne Hülle,
+     * hinter demselben Recht wie die Liste: Stammdaten, Status, taktisches
+     * Zeichen, offene Mängel (Anzahl und die letzten drei), Beladung des
+     * Typs, dazu die Aktionen Öffnen, Mangel melden, Bearbeiten.
+     */
+    public function preview(Request $request, string $id): ?Response
+    {
+        $this->requireAuth();
+        $this->ensureView('index.php');
+
+        $vehicle = Capsule::table('intra_fahrzeuge')->where('id', (int) $id)->first();
+        if ($vehicle === null) {
+            return Response::text('Fahrzeug nicht gefunden.', 404);
+        }
+        $vehicle = (array) $vehicle;
+
+        // Mängel: fehlt die Tabelle noch (Installation vor der Migration),
+        // zeigt die Vorschau keinen Abschnitt.
+        $openDefects = 0;
+        $defects = [];
+        try {
+            $openDefects = (int) Capsule::table('intra_fahrzeuge_defects')
+                ->where('vehicle_id', (int) $id)
+                ->where('status', '!=', 'resolved')
+                ->count();
+            $defects = Capsule::table('intra_fahrzeuge_defects')
+                ->where('vehicle_id', (int) $id)
+                ->where('status', '!=', 'resolved')
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->limit(3)
+                ->get(['id', 'title', 'category', 'status', 'vehicle_operable', 'created_at'])
+                ->map(static fn ($row) => (array) $row)
+                ->all();
+        } catch (PDOException) {
+            // ohne Defekt-Tabelle bleibt der Abschnitt leer
+        }
+
+        // Beladung: die Kategorien des Fahrzeugtyps mit ihren Positionen.
+        $loadout = null;
+        try {
+            $vehType = (string) ($vehicle['veh_type'] ?? '');
+            if ($vehType !== '') {
+                $row = Capsule::table('intra_fahrzeuge_beladung_categories as c')
+                    ->leftJoin('intra_fahrzeuge_beladung_tiles as t', 'c.id', '=', 't.category')
+                    ->where('c.veh_type', $vehType)
+                    ->selectRaw('COUNT(DISTINCT c.id) AS categories, COUNT(t.id) AS positions, COALESCE(SUM(t.amount), 0) AS amount, MAX(t.created_at) AS changed_at')
+                    ->first();
+                $loadout = $row === null ? null : (array) $row;
+            }
+        } catch (PDOException) {
+            $loadout = null;
+        }
+
+        $this->renderView('settings/vehicles/vehicles/_preview', [
+            'vehicle'     => $vehicle,
+            'openDefects' => $openDefects,
+            'defects'     => $defects,
+            'loadout'     => $loadout,
+        ]);
+
+        return null;
+    }
+
+    /**
      * GET /settings/vehicles/vehicles/create — das Anlage-Formular, als
      * Seite oder als Fragment im Drawer (assets/js/ui/drawer-form.js).
      */
@@ -95,6 +163,25 @@ class FahrzeugeController extends Controller
         $this->ensureManage();
 
         $this->renderView('settings/vehicles/vehicles/create', []);
+    }
+
+    /**
+     * GET /settings/vehicles/vehicles/{id}/edit — dasselbe Formular mit den
+     * Werten des Fahrzeugs, postet auf update(); aus der Vorschau des
+     * Arbeitsbereichs im Drawer, sonst als Seite.
+     */
+    public function edit(Request $request, string $id): void
+    {
+        $this->requireAuth();
+        $this->ensureManage();
+
+        $vehicle = Capsule::table('intra_fahrzeuge')->where('id', (int) $id)->first();
+        if ($vehicle === null) {
+            Flash::set('vehicle', 'not-found');
+            $this->redirect('settings/vehicles/vehicles/index');
+        }
+
+        $this->renderView('settings/vehicles/vehicles/create', ['vehicle' => (array) $vehicle]);
     }
 
     public function store(): void
@@ -166,33 +253,101 @@ class FahrzeugeController extends Controller
         $this->redirect('settings/vehicles/vehicles/index');
     }
 
+    /**
+     * POST /settings/vehicles/vehicles/delete — löscht ein Fahrzeug (`id`)
+     * oder die in der Liste angehakten (`ids[]`, Aktionsleiste des
+     * Arbeitsbereichs). Je Fahrzeug ein Audit-Eintrag wie beim Einzelfall,
+     * eine Meldung für alle.
+     */
     public function destroy(): void
     {
         $this->requireAuth();
         $this->ensureManage();
 
-        $id = (int) ($_POST['id'] ?? 0);
-        if ($id <= 0) {
+        $ids = $this->postedIds();
+        if ($ids === []) {
             Flash::set('vehicle', 'invalid-id');
             $this->redirect('settings/vehicles/vehicles/index');
         }
 
-        $exists = Capsule::table('intra_fahrzeuge')->where('id', $id)->exists();
-        if (!$exists) {
+        $existing = Capsule::table('intra_fahrzeuge')->whereIn('id', $ids)->pluck('id')->map(static fn ($v): int => (int) $v)->all();
+        if ($existing === []) {
             Flash::set('vehicle', 'not-found');
             $this->redirect('settings/vehicles/vehicles/index');
         }
 
         try {
-            Capsule::table('intra_fahrzeuge')->where('id', $id)->delete();
-            Flash::set('vehicle', 'deleted');
-            $this->audit('Fahrzeug gelöscht [ID: ' . $id . ']', null);
+            foreach ($existing as $id) {
+                Capsule::table('intra_fahrzeuge')->where('id', $id)->delete();
+                $this->audit('Fahrzeug gelöscht [ID: ' . $id . ']', null);
+            }
+            if (count($existing) === 1) {
+                Flash::set('vehicle', 'deleted');
+            } else {
+                Flash::success(count($existing) . ' Fahrzeuge gelöscht.');
+            }
         } catch (PDOException $e) {
             error_log('PDO Delete Error: ' . $e->getMessage());
             Flash::set('error', 'exception');
         }
 
         $this->redirect('settings/vehicles/vehicles/index');
+    }
+
+    /**
+     * POST /settings/vehicles/vehicles/status — setzt die angehakten
+     * Fahrzeuge (`ids[]`) auf `status` aktiv oder inaktiv, dieselbe Spalte
+     * wie das Häkchen im Formular (update()), mit Audit je Fahrzeug.
+     */
+    public function bulkStatus(): void
+    {
+        $this->requireAuth();
+        $this->ensureManage();
+
+        $statuses = ['active' => 1, 'inactive' => 0];
+        $status = (string) ($_POST['status'] ?? '');
+        if (!isset($statuses[$status])) {
+            Flash::error('Unbekannter Status.');
+            $this->redirect('settings/vehicles/vehicles/index');
+        }
+
+        $ids = $this->postedIds();
+        $existing = Capsule::table('intra_fahrzeuge')->whereIn('id', $ids)->pluck('id')->map(static fn ($v): int => (int) $v)->all();
+        if ($existing === []) {
+            Flash::error('Kein Fahrzeug ausgewählt.');
+            $this->redirect('settings/vehicles/vehicles/index');
+        }
+
+        $label = $status === 'active' ? 'aktiv' : 'inaktiv';
+        try {
+            foreach ($existing as $id) {
+                Capsule::table('intra_fahrzeuge')->where('id', $id)->update(['active' => $statuses[$status]]);
+                $this->audit('Fahrzeug aktualisiert [ID: ' . $id . ']', 'Status: ' . $label . ' (Sammelaktion)');
+            }
+            Flash::success(count($existing) === 1 ? "Fahrzeug auf „{$label}\" gesetzt." : count($existing) . " Fahrzeuge auf „{$label}\" gesetzt.");
+        } catch (PDOException $e) {
+            error_log('PDO Update Error: ' . $e->getMessage());
+            Flash::set('error', 'exception');
+        }
+
+        $this->redirect('settings/vehicles/vehicles/index');
+    }
+
+    /**
+     * Die Fahrzeug-Ids aus einem Post: `ids[]` von der Aktionsleiste oder
+     * ein einzelnes `id`, ohne Doppelte und Nullen.
+     *
+     * @return list<int>
+     */
+    private function postedIds(): array
+    {
+        $raw = $_POST['ids'] ?? [];
+        $ids = is_array($raw) ? array_map('intval', $raw) : [];
+        if ($ids === [] && (int) ($_POST['id'] ?? 0) > 0) {
+            $ids = [(int) $_POST['id']];
+        }
+
+        return array_values(array_unique(array_filter($ids, static fn (int $id): bool => $id > 0)));
     }
 
     // ── Beladelisten ───────────────────────────────────────

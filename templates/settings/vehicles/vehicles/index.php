@@ -3,13 +3,19 @@
  * View: Fahrzeugverwaltung
  *
  * Sortierung, Suche und Seiten laufen über den Server (App\Support\ListQuery,
- * Settings\FahrzeugeController::index).
+ * Settings\FahrzeugeController::index). Die Liste ist ein Arbeitsbereich
+ * (assets/js/ui/workbench.js): die gewählte Zeile erscheint rechts als
+ * Vorschau (GET …/{id}/preview), Enter öffnet die Mängel des Fahrzeugs,
+ * angehakte Zeilen bekommen die Aktionsleiste mit „Status setzen" und
+ * „Löschen" (nur mit vehicle.manage, CSRF-Token, Rückfrage im Dialog).
+ * Bearbeiten öffnet das Formular im Drawer.
  *
  * @var \Illuminate\Support\Collection<int, array<string,mixed>> $vehicles  Zeilen der aktuellen Seite
  * @var \App\Support\ListQuery                                    $list
  */
 
 use App\Auth\Permissions;
+use App\Security\CsrfProtection;
 
 $layout = 'admin';
 $bodyId = 'fahrzeuge';
@@ -76,11 +82,36 @@ $SITE_TITLE = 'Fahrzeuge';
                             <?php endforeach; ?>
                         </nav>
                     </form>
+
+                    <?php // Arbeitsbereich: Liste links, Vorschau rechts, Aktionsleiste über
+                          // der Liste, sobald Zeilen angehakt sind. Kästchen und Leiste nur
+                          // mit vehicle.manage, weil beide Sammelaktionen dieses Recht brauchen. ?>
+                    <div class="ignis-workbench" data-ignis-workbench data-ignis-preview-url="<?= htmlspecialchars(BASE_PATH . 'settings/vehicles/vehicles/{id}/preview') ?>">
+                    <?php if ($canManage): ?>
+                        <form method="POST" action="<?= BASE_PATH ?>settings/vehicles/vehicles/status" class="ignis-bulkbar" data-ignis-bulkbar hidden>
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(CsrfProtection::getToken(), ENT_QUOTES) ?>">
+                            <span class="ignis-bulkbar__count"><b data-ignis-bulk-count>0</b> ausgewählt</span>
+                            <span class="ignis-bulkbar__spacer"></span>
+                            <span class="ignis-bulkbar__group">
+                                <label for="bulk-status" class="sr-only">Status</label>
+                                <select name="status" id="bulk-status" class="ignis-input ignis-input--sm">
+                                    <option value="active">Aktiv</option>
+                                    <option value="inactive">Inaktiv</option>
+                                </select>
+                                <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--secondary"><i class="fa-solid fa-toggle-on" aria-hidden="true"></i> Status setzen</button>
+                            </span>
+                            <button type="submit" class="ignis-btn ignis-btn--sm ignis-btn--danger" formaction="<?= BASE_PATH ?>settings/vehicles/vehicles/delete" data-ignis-bulk-confirm="{n} ausgewählte Fahrzeuge wirklich löschen? Mängel und Protokollbezüge gehen mit."><i class="fa-solid fa-trash" aria-hidden="true"></i> Löschen</button>
+                            <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost" data-ignis-bulk-clear>Abbrechen</button>
+                        </form>
+                    <?php endif; ?>
                     <div class="twplus-table-card">
                         <div class="twplus-table-card__scroll">
                         <table class="ignis-table" id="table-fahrzeuge">
                             <thead>
                                 <tr>
+                                    <?php if ($canManage): ?>
+                                        <th scope="col" class="ignis-table__check"><input type="checkbox" data-ignis-select-all aria-label="Alle auswählen"></th>
+                                    <?php endif; ?>
                                     <?= $list->th('priority', 'Priorität', $pgPath, 'ignis-table__num') ?>
                                     <?= $list->th('name', 'Bezeichnung (Typ)', $pgPath) ?>
                                     <?= $list->th('kennzeichen', 'Kennzeichen', $pgPath) ?>
@@ -92,7 +123,7 @@ $SITE_TITLE = 'Fahrzeuge';
                             </thead>
                             <tbody>
                                 <?php if ($vehicles->isEmpty()): ?>
-                                    <tr><td colspan="7" class="ignis-table-empty">Keine Fahrzeuge gefunden.</td></tr>
+                                    <tr><td colspan="<?= $canManage ? 8 : 7 ?>" class="ignis-table-empty">Keine Fahrzeuge gefunden.</td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($vehicles as $row):
                                     [$rdChip, $rdLabel] = $rdTypes[(int) $row['rd_type']] ?? ['secondary', 'Andere'];
@@ -100,7 +131,10 @@ $SITE_TITLE = 'Fahrzeuge';
                                     $openDefects = (int) ($row['open_defects'] ?? 0);
                                     $minOperable = $row['min_operable'];
                                     $defectChip  = ($minOperable !== null && (int) $minOperable === 0) ? 'danger' : 'warn';
+                                    $rowId       = (int) $row['id'];
+                                    $rowHref     = BASE_PATH . 'settings/vehicles/defects/index?vehicle=' . $rowId;
 
+                                    // Daten für „Kopieren" (vehicles-admin.js öffnet den Anlage-Dialog vorbefüllt).
                                     $dataStr = '';
                                     if ($canManage) {
                                         $dataAttrs = [
@@ -127,14 +161,17 @@ $SITE_TITLE = 'Fahrzeuge';
                                         }
                                     }
                                 ?>
-                                    <tr<?= $isActive ? '' : ' class="is-muted"' ?>>
+                                    <tr data-ignis-row="<?= $rowId ?>" data-href="<?= htmlspecialchars($rowHref, ENT_QUOTES) ?>" tabindex="0"<?= $isActive ? '' : ' class="is-muted"' ?>>
+                                        <?php if ($canManage): ?>
+                                            <td class="ignis-table__check"><input type="checkbox" data-ignis-select value="<?= $rowId ?>" aria-label="Fahrzeug auswählen"></td>
+                                        <?php endif; ?>
                                         <td class="ignis-table__num"><?= (int) $row['priority'] ?></td>
-                                        <td><span data-vehicle-card="<?= (int) $row['id'] ?>" style="cursor:help;"><?= htmlspecialchars($row['name']) ?> (<?= htmlspecialchars($row['veh_type']) ?>)</span></td>
+                                        <td><span data-vehicle-card="<?= $rowId ?>"><?= htmlspecialchars($row['name']) ?> (<?= htmlspecialchars($row['veh_type']) ?>)</span></td>
                                         <td><?= ($row['kennzeichen'] ?? '') !== '' ? '<span class="ignis-mono">' . htmlspecialchars($row['kennzeichen']) . '</span>' : '-' ?></td>
                                         <td><span class="ignis-chip ignis-chip--<?= $rdChip ?>"><?= $rdLabel ?></span></td>
                                         <td class="ignis-table__num">
                                             <?php if ($openDefects > 0): ?>
-                                                <a href="<?= BASE_PATH ?>settings/vehicles/defects/index?vehicle=<?= (int) $row['id'] ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" title="Offene Defekte anzeigen"><?= $openDefects ?></a>
+                                                <a href="<?= htmlspecialchars($rowHref, ENT_QUOTES) ?>" class="ignis-chip ignis-chip--<?= $defectChip ?>" title="Offene Defekte anzeigen"><?= $openDefects ?></a>
                                             <?php else: ?>
                                                 <span class="text-[var(--text-3)]">—</span>
                                             <?php endif; ?>
@@ -149,7 +186,7 @@ $SITE_TITLE = 'Fahrzeuge';
                                         <td class="ignis-table__actions">
                                             <?php if ($canManage): ?>
                                                 <div class="ignis-row-actions">
-                                                    <button type="button" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon edit-btn" data-ignis-tooltip="Fahrzeug bearbeiten" aria-label="Fahrzeug bearbeiten" onclick="openEditFahrzeugModal(this)"<?= $dataStr ?>><i class="fa-solid fa-pen"></i></button>
+                                                    <a href="<?= BASE_PATH ?>settings/vehicles/vehicles/<?= $rowId ?>/edit" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon" data-ignis-drawer data-ignis-tooltip="Fahrzeug bearbeiten" aria-label="Fahrzeug bearbeiten"><i class="fa-solid fa-pen"></i></a>
                                                     <a href="#" class="ignis-btn ignis-btn--sm ignis-btn--ghost ignis-btn--icon copy-btn" data-ignis-tooltip="Fahrzeug kopieren" aria-label="Fahrzeug kopieren"<?= $dataStr ?>><i class="fa-solid fa-copy"></i></a>
                                                 </div>
                                             <?php endif; ?>
@@ -161,17 +198,26 @@ $SITE_TITLE = 'Fahrzeuge';
                         </div>
                         <?php require dirname(__DIR__, 3) . '/partials/pagination.php'; ?>
                     </div>
+                    <aside class="ignis-preview" data-ignis-preview aria-live="polite">
+                        <div class="ignis-preview__empty">
+                            <i class="fa-solid fa-truck-medical" aria-hidden="true"></i>
+                            <b>Kein Fahrzeug gewählt</b>
+                            Zeile anklicken oder mit <kbd>↑</kbd> <kbd>↓</kbd> wählen, <kbd>Enter</kbd> öffnet die Mängel des Fahrzeugs.
+                        </div>
+                    </aside>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <?php if (Permissions::check('admin')) : ?>
-        <!-- Form-Body als <template>; Edit + Create teilen sich denselben
-             Prefix `fahrzeug-`, weil pro Open nur eine Dialog-Instanz im DOM
-             ist. Die tactical-symbol-form-Partial wird mit useGlobalBind=true
-             eingebunden, damit ihre inline-<script>-Bloecke nicht emittiert
-             werden — die Bindings macht bindTacticalSymbolForm im onOpen. -->
+        <!-- Form-Body als <template> für „Kopieren" (vehicles-admin.js öffnet
+             den Anlage-Dialog vorbefüllt); Prefix `fahrzeug-`, weil pro Open
+             nur eine Dialog-Instanz im DOM ist. Die tactical-symbol-form-Partial
+             wird mit useGlobalBind=true eingebunden, damit ihre inline-<script>-
+             Bloecke nicht emittiert werden — die Bindings macht
+             bindTacticalSymbolForm im onOpen. -->
         <template id="fahrzeugFormTemplate">
             <div class="mb-3">
                 <label for="fahrzeug-name" class="ignis-field__label">Bezeichnung <small class="form-hint">(z.B. Funkrufname)</small></label>
@@ -214,10 +260,6 @@ $SITE_TITLE = 'Fahrzeuge';
             include __DIR__ . '/../../../../assets/components/tactical-symbol-form.php';
             ?>
         </template>
-
-        <form id="delete-fahrzeug-form" action="<?= BASE_PATH ?>settings/vehicles/vehicles/delete" method="POST" style="display:none;">
-            <input type="hidden" name="id" id="fahrzeug-delete-id">
-        </form>
     <?php endif; ?>
 
 
@@ -270,6 +312,7 @@ $SITE_TITLE = 'Fahrzeuge';
 
     <script src="<?= BASE_PATH ?>assets/js/modules/tactical-symbol-form.js"></script>
     <script src="<?= BASE_PATH ?>assets/js/modules/vehicles-admin.js"></script>
+    <script type="module" src="<?= BASE_PATH ?>assets/js/pages/vehicle-preview.js"></script>
     <script>
     initVehiclesAdminPage({
         basePath:  '<?= BASE_PATH ?>',
